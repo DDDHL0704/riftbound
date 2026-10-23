@@ -36278,61 +36278,57 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerDravenDrawsWhenControllerWinsBattle()
     {
+        // CN 468.3-468.5: the earned skill has its real response window before
+        // control. Keep the original draw/survival assertions after both passes.
+        var cards = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-ATTACKER"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-BATTLEFIELD-ATTACKER", "OGN·142/298", "P1"),
+            ["P1-LEGEND-DRAVEN"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-LEGEND-DRAVEN", "SFD·185/221", "P1"),
+            ["P1-DRAVEN-DRAW-001"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-DRAVEN-DRAW-001", "OGN·219/298", "P1"),
+            ["P2-BATTLEFIELD-DEFENDER"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-BATTLEFIELD-DEFENDER", "OGN·219/298", "P2"),
+            ["DRAVEN-BATTLEFIELD"] = OfficialGarenConquestBattlefieldCountTests.Printed("DRAVEN-BATTLEFIELD", "OGN·296/298", "P2") with { ControllerId = "P2" }
+        };
         var state = PunishmentState(mana: 0) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"],
-                    LegendZone = ["P1-LEGEND-DRAVEN"],
+                    Base = ["P1-BATTLEFIELD-ATTACKER"], LegendZone = ["P1-LEGEND-DRAVEN"],
                     MainDeck = ["P1-DRAVEN-DRAW-001"]
                 },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
-                }
+                ["P2"] = PlayerZones.Empty with { Battlefields = ["DRAVEN-BATTLEFIELD", "P2-BATTLEFIELD-DEFENDER"] }
             },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            CardObjects = cards,
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
-                ["P1-BATTLEFIELD-ATTACKER"] = new(
-                    "P1-BATTLEFIELD-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 4,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-LEGEND-DRAVEN"] = new(
-                    "P1-LEGEND-DRAVEN",
-                    cardNo: "SFD·185/221",
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-DRAVEN-DRAW-001"] = new(
-                    "P1-DRAVEN-DRAW-001",
-                    ownerId: "P1",
-                    controllerId: "P1",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard]),
-                ["P2-BATTLEFIELD-DEFENDER"] = new(
-                    "P2-BATTLEFIELD-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
+                ["P1-BATTLEFIELD-ATTACKER"] = new("P1", "BASE"),
+                ["P1-LEGEND-DRAVEN"] = new("P1", "LEGEND"),
+                ["P1-DRAVEN-DRAW-001"] = new("P1", "MAIN_DECK"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new("P2", "BATTLEFIELD", "DRAVEN-BATTLEFIELD"),
+                ["DRAVEN-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "DRAVEN-BATTLEFIELD")
             }
         };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-draven-trigger-battle", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-BATTLEFIELD-ATTACKER"],
-                ["P2-BATTLEFIELD-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
+        var moved = await OfficialGraveyardRecastTests.Act(state, "P1",
+            new MoveUnitCommand("P1-BATTLEFIELD-ATTACKER", "BASE", "BATTLEFIELD:DRAVEN-BATTLEFIELD", []));
+        var firstPass = await OfficialGraveyardRecastTests.Act(moved.State, "P1", new PassFocusCommand());
+        var secondPass = await OfficialGraveyardRecastTests.Act(firstPass.State, "P2", new PassFocusCommand());
+        var result = await OfficialGraveyardRecastTests.Act(secondPass.State, "P1",
+            new DeclareBattleCommand("DRAVEN-BATTLEFIELD", ["P1-BATTLEFIELD-ATTACKER"], ["P2-BATTLEFIELD-DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        Assert.NotNull(result.State.PendingBattleResult);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("P2", result.State.CardObjects["DRAVEN-BATTLEFIELD"].ControllerId);
+        var events = result.Events.ToList();
+        for (var i = 0; i < 2; i++)
+        {
+            Assert.NotNull(result.State.PriorityPlayerId);
+            result = await OfficialGraveyardRecastTests.Act(result.State, result.State.PriorityPlayerId!, new PassPriorityCommand());
+            events.AddRange(result.Events);
+        }
+        result = result with { Events = events };
+        Assert.Null(result.State.PendingBattleResult);
+        Assert.True(events.FindIndex(e => e.Kind == "CARD_DRAWN") < events.FindIndex(e => e.Kind == "BATTLEFIELD_CONQUERED"));
+        Assert.Equal("P1", result.State.CardObjects["DRAVEN-BATTLEFIELD"].ControllerId);
         Assert.True(result.Accepted);
         Assert.Equal(["P1-DRAVEN-DRAW-001"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
@@ -36343,6 +36339,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("P2-BATTLEFIELD-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
         Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
         Assert.Null(result.State.WinnerPlayerId);
+        OfficialGraveyardRecastTests.Restore(result.State);
+        ArmamentMightTests.PublicRecovery(result.State);
     }
 
     [Fact]

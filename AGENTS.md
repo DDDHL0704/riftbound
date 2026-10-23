@@ -2,6 +2,8 @@
 
 Current phase (2026-10-23): follow [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). Complete all applicable server rules and real SQL/API/network/recovery/replay acceptance first. Client feature, packaging iteration, visible paired desktop and Windows hardware work are deferred to the later client phase, preserving their identities, OPEN states and existing CI/tests; they do not block this backend phase. This current instruction overrides the timing of older full-product native requirements below. The user removed the old Goal; the main thread verified no active Goal and created the new backend-phase Goal without a token budget.
 
+Current collaboration (2026-10-23): each window owns implementation and tests for an agreed rule module, including explicitly assigned shared-file hooks; the main window does not permanently own every Engine file. Send immediate messages only for material interface/source changes, ownership conflicts, blockers or serious regressions; otherwise deliver one complete batch with patch, evidence and open items, without acknowledgement loops. Current N54/death-module boundaries and completion requirements are in the goal document; preserve running frozen inputs and the original active Goal.
+
 ## Current scope and entry points
 
 - Work in this repository, /Users/dinghaolin/MyProjects/riftbound. The product is the Godot .NET macOS / Windows client with a server-authoritative engine; React DevUi is a debug and protocol client.

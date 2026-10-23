@@ -55,9 +55,10 @@ var wildClawReflexiveOnly = args.SequenceEqual(new[] { "--wild-claw-reflexive-on
 var lightningRushFlowOnly = args.SequenceEqual(new[] { "--lightning-rush-flow-only" });
 var finalConquestScoreOnly = args.SequenceEqual(new[] { "--final-conquest-score-only" });
 var burnoutActionCompletionOnly = args.SequenceEqual(new[] { "--burnout-action-completion-only" });
+var battleResultContinuationOnly = args.SequenceEqual(new[] { "--battle-result-continuation-only" });
 var victoryCleanupGarenOnly = args.SequenceEqual(new[] { "--victory-cleanup-garen-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !wildClawReflexiveOnly && !lightningRushFlowOnly && !finalConquestScoreOnly && !burnoutActionCompletionOnly && !victoryCleanupGarenOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !wildClawReflexiveOnly && !lightningRushFlowOnly && !finalConquestScoreOnly && !burnoutActionCompletionOnly && !victoryCleanupGarenOnly && !battleResultContinuationOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -65,6 +66,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (battleResultContinuationOnly)
+{
+    await BattleResultContinuationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battle-result-continuation"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: battle-result-continuation; original complete SQL suite not selected.");
+    return;
 }
 if (victoryCleanupGarenOnly)
 {
@@ -506,5 +513,7 @@ await partition.RunAsync("lightning-rush-flow", () => LightningRushFlowSqlAccept
 await partition.RunAsync("final-conquest-score", () => FinalConquestScoreSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "final-conquest-score")));
 await partition.RunAsync("burnout-action-completion", () => BurnoutActionCompletionSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "burnout-action-completion")));
 await partition.RunAsync("victory-cleanup-garen", () => VictoryCleanupGarenSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "victory-cleanup-garen")));
+
+await partition.RunAsync("battle-result-continuation", () => BattleResultContinuationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battle-result-continuation")));
 
 await partition.CompleteAsync(output);

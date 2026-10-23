@@ -1,0 +1,1179 @@
+{
+  "status": "SOURCE_RED_N52_LATE_DEFENDER_REMAINS_ROLE_AND_BLOCKS_NEXT_BATTLE",
+  "atUtc": "2026-10-23T07:36:18.797901+00:00",
+  "baseCommit": "e791f671ea006d3262ae9e6536e0793bdcd041cb",
+  "region": "CN",
+  "language": "zh-CN",
+  "coreEffectiveDate": "2026-10-16",
+  "peerOverlay": {
+    "atUtc": "2026-10-23T06:53:49.777592+00:00",
+    "savedBranchHead": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battle-result-continuation-n52-20261023/peer-fixed-n52-first45-v1.tar.gz",
+    "overlaySha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a",
+    "inputRole": "N51 source plus first N52 shared continuation that passed45; not committed or whole verified",
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": null,
+        "afterSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+        "afterSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": null,
+        "afterSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "beforeSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+        "afterSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+        "afterSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "2c1990334f99623ba77e5d550e419eacdcfa14fe916039efd40fde30df99193b",
+        "afterSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+        "afterSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "beforeSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+        "afterSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs",
+        "beforeSha256": "5ee6afb3db023b596d89cd364e704adf4aa790346083c4a5ff2c9719155accda",
+        "afterSha256": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+        "beforeSha256": "5a0ad23725ec41fae7b9ce976cf0945c49224e9267b7fdb5615affae9891c777",
+        "afterSha256": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+        "beforeSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+        "afterSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "beforeSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+        "afterSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "beforeSha256": "b097335f2d2b8f2ad8571ac87cd9e52bffecc6e22aca7f2cc52f4e250c3247e3",
+        "afterSha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "beforeSha256": "c9bd1ff9520c659da32c5bfc7acdf0257578339ca9e6be47fe874a2f563a01ba",
+        "afterSha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+        "beforeSha256": null,
+        "afterSha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712"
+      }
+    ],
+    "sharedFilesRemainUnstagedAndMustNotBeCommittedByThisChat": true,
+    "ownDravenScorePreparationRetained": true
+  },
+  "all19SharedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "c1fb6affc57f1c11878ceb35e14409047d49751aee5257907bbb8ef5af229501",
+    "identitySha256": "b67770980cc0b0915de8e2eb63d39706b8c8cc51547081d4de0522729f78e311"
+  },
+  "testAssemblySha256ByRun": {
+    "focus-v1": "4109e9850ac9b4cd9ff91ab5e13f32607f97d2dd78b71da8e031965c06c76012",
+    "focus-v2": "1855d7c68bc4821b9194714588ee793fd5c2532aa9ebe75d248838c317191abb",
+    "focus-v3": "1ac61e03878f4d5b731ec985a493b67c20f4379d993d01e3721534fac780163d",
+    "adjacent-and-original-game-v1": "4109e9850ac9b4cd9ff91ab5e13f32607f97d2dd78b71da8e031965c06c76012"
+  },
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/BattleWinLateParticipantTests.cs",
+    "sha256": "f6f04be4f1d828bcfe1343677e3a9c08d1ead92414010dbb088d8d9a05079bdb"
+  },
+  "deferredIndependentPermissionTest": {
+    "path": "tests/Riftbound.ConformanceTests/RengarAttackingBattlefieldPermissionTests.cs",
+    "sha256": "179172248bab2e24f2019407cb0b0123b0650513ae4912c018dcaea3ebf73699",
+    "includedInN52Commit": false,
+    "status": "PLAY_CARD permission rejected before attacking-role cleanup; do not claim that later assertion executed"
+  },
+  "originalRuns": {
+    "focus-v1": {
+      "sha256": "21919ae784437ccfd885ae1cc79089561fe3a7e1c61e5f1fa40e809a7871470d",
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "2",
+        "failed": "2",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    },
+    "focus-v2": {
+      "sha256": "18e081fe519d77cf158fc2d1a82af3278aa5ed87333d81c591e76a8e5d626d3f",
+      "counters": {
+        "total": "5",
+        "executed": "5",
+        "passed": "2",
+        "failed": "3",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        }
+      ]
+    },
+    "focus-v3": {
+      "sha256": "8901cee4d2a265fa9cd103dfd8809d4e703b2b0439b3fae5e68d56a7cad7cf73",
+      "counters": {
+        "total": "5",
+        "executed": "5",
+        "passed": "2",
+        "failed": "3",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"UNL-114/219\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Failed",
+          "failure": "当前声明战斗路径尚未由服务端开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle(cardNo: \"SFD·123/221\", lateDefender: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinLateParticipantTests.ReactionDefenderAfterTheResultPreservesEarnedDrawAndAllowsTheNextBattle",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    },
+    "adjacent-and-original-game-v1": {
+      "sha256": "1b0ab4be1c7e7bc6bc8b84dc89707a7dc8823dfebdb30ac3450c47886176563a",
+      "counters": {
+        "total": "35",
+        "executed": "35",
+        "passed": "35",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·185/221\", unitNo: \"SFD·123/221\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-201/219\", unitNo: \"SFD·123/221\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236*/219\", unitNo: \"SFD·123/221\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·185/221\", unitNo: \"UNL-114/219\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236/219\", unitNo: \"UNL-114/219\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash",
+          "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236/219\", unitNo: \"SFD·123/221\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-201/219\", unitNo: \"UNL-114/219\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·185/221\", unitNo: \"SFD·123/221\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236*/219\", unitNo: \"UNL-114/219\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·242/221\", unitNo: \"SFD·123/221\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236*/219\", unitNo: \"UNL-114/219\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-201/219\", unitNo: \"SFD·123/221\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·242/221\", unitNo: \"UNL-114/219\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236/219\", unitNo: \"UNL-114/219\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·185/221\", unitNo: \"UNL-114/219\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-201/219\", unitNo: \"UNL-114/219\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.ConquestSkillWaitsForARealResponseBeforeTheBattleCloses(unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.ConquestSkillWaitsForARealResponseBeforeTheBattleCloses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236*/219\", unitNo: \"SFD·123/221\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·242/221\", unitNo: \"SFD·123/221\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"UNL-114/219\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"SFD·242/221\", unitNo: \"UNL-114/219\", unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl(legendNo: \"UNL-236/219\", unitNo: \"SFD·123/221\", unitFirst: True)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.SameBattleResultLetsControllerOrderBothSkillsBeforeControl",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws(cardNo: \"SFD·123/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialBattleWinConsumerTests.OnlyTheParticipatingUnitThatInheritsBattleVictoryDraws",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.ConquestSkillWaitsForARealResponseBeforeTheBattleCloses(unitFirst: False)",
+          "method": "Riftbound.ConformanceTests.BattleWinCombinedTriggerTests.ConquestSkillWaitsForARealResponseBeforeTheBattleCloses",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  },
+  "finalOriginalHistories": [
+    {
+      "caseId": "SFD-123-221-False",
+      "lateDefender": false,
+      "lateAttacker": false,
+      "commands": 6,
+      "accepted": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "6f320d0dd73e318753a3e578c9aaaf8920810b89f1fbbed020ec366f95238a0c",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-123-221-True",
+      "lateDefender": true,
+      "lateAttacker": false,
+      "commands": 9,
+      "accepted": 8,
+      "events": 27,
+      "originalPrefixReplays": 9,
+      "sha256": "5926140f07f9bff793ebff9d652d025d13f1c8988889a57a440c6cc7fa1a047b",
+      "failure": "TrueException: 当前声明战斗路径尚未由服务端开放。"
+    },
+    {
+      "caseId": "UNL-114-219-ATTACKER",
+      "lateDefender": false,
+      "lateAttacker": true,
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "79fad9063968629f399289ec6c147825a4df234e4a55305738b3d7c9c75d0c1d",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "UNL-114-219-False",
+      "lateDefender": false,
+      "lateAttacker": false,
+      "commands": 6,
+      "accepted": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "18c086a834b5909622db9e0b3ffedc005fcb0d3715e6947e023291ee90cb5e17",
+      "failure": null
+    },
+    {
+      "caseId": "UNL-114-219-True",
+      "lateDefender": true,
+      "lateAttacker": false,
+      "commands": 9,
+      "accepted": 8,
+      "events": 27,
+      "originalPrefixReplays": 9,
+      "sha256": "1fe5f63ada17050caea129cc57bd75e3f9df2074a512817a33561dfad21686eb",
+      "failure": "TrueException: 当前声明战斗路径尚未由服务端开放。"
+    }
+  ],
+  "deliveredN52Cases": 4,
+  "deliveredN52Methods": 1,
+  "deliveredN52Passed": 2,
+  "deliveredN52SourceFailures": 2,
+  "deliveredN52OriginalCommands": 30,
+  "deliveredN52Accepted": 28,
+  "deliveredN52Rejected": 2,
+  "deliveredN52OriginalPrefixReplays": 30,
+  "deliveredN52OriginalEvents": 102,
+  "adjacentOriginalPassed": 34,
+  "originalFullGamePassed": 1,
+  "seed": 424242,
+  "freshCompleteSourceRows": [
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34653,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-114/219",
+      "cardName": "奈德丽",
+      "subTitle": "灵猫形态",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "奈德丽",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "Envar Studio",
+      "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当我赢得一场战斗时，抽一张牌。（如果我在战斗后仍然存活，则我赢得胜利。）",
+      "flavorText": "“喵！咳咳……当我没说。”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/a01c1b3bb99e451587388a43bdc6a60c.webp",
+      "backImage": "",
+      "listSort": 1371,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33213,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "SFD·123/221",
+      "cardName": "腐化执法官",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "皮尔特沃夫",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "每当我移动到一处战场时，弃置一张手牌。\n每当我赢得战斗时，抽一张牌。",
+      "flavorText": "在他这里，只有法律约束，没有执法保护。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ecb8b7ec5e144f8ea78b946c9b967819.png",
+      "backImage": "",
+      "listSort": 860,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31405,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·175/298",
+      "cardName": "船坞潜伏者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+      "backImage": "",
+      "listSort": 300,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31542,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·296/298",
+      "cardName": "虚空之门",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+      "backImage": "",
+      "listSort": 163,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "otherDesc": 0
+    },
+    {
+      "id": 33098,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·025/221",
+      "cardName": "雷恩加尔",
+      "subTitle": "暴起",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "雷恩加尔",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "League Splash Team",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算，并能打出到你控制的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）\n我可以被打出到你正在进攻的战场。",
+      "flavorText": "“今晚，猎个痛快！”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/00a70467a62149d0bea90dd62c7813ec.png",
+      "backImage": "",
+      "listSort": 975,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "onlyNewN52TestAndScopedEvidenceToCommit": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "allEarlierSourcesTestsSeedsAndFailuresPreserved": true,
+  "backendGoalComplete": false,
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "archive": {
+    "path": "docs/evidence/battle-win-late-participant-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "36cc22499f467c25c36d266ecda5f42de65e4bc6eced8b466dd93cdec128bd17",
+    "members": [
+      {
+        "path": "deferred/RengarAttackingBattlefieldPermissionTests.cs",
+        "bytes": 317,
+        "sha256": "179172248bab2e24f2019407cb0b0123b0650513ae4912c018dcaea3ebf73699"
+      },
+      {
+        "path": "docs/BATTLE_WIN_LATE_PARTICIPANT_PARALLEL_2026-10-23.md",
+        "bytes": 3587,
+        "sha256": "9187d1c456d93af2a673ebf84a0213742c5dbe7d445aacd65390aea1db4d6b8f"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BattleWinLateParticipantTests.cs",
+        "bytes": 10069,
+        "sha256": "f6f04be4f1d828bcfe1343677e3a9c08d1ead92414010dbb088d8d9a05079bdb"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/build.log",
+        "bytes": 78,
+        "sha256": "68acc084592cb17bf3b2b6bc0a08e2b6272a43c53fb7e3e22797f435b8fc6720"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/discovery.log",
+        "bytes": 2085148,
+        "sha256": "ada5ad5914d0dbb2efea1559cb0611709ac93e910d422b2bd5cfa376dfc9f22b"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/focus/results.trx",
+        "bytes": 61210,
+        "sha256": "1b0ab4be1c7e7bc6bc8b84dc89707a7dc8823dfebdb30ac3450c47886176563a"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/focus/test.log",
+        "bytes": 595,
+        "sha256": "ddf373e3a0419648ebabeb190c0e3bc0a9cbd7345789b783d74f0a7778d147cf"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/plan.json",
+        "bytes": 1109,
+        "sha256": "c51af070b2e3cc88c3853006aea2c5045e5263bb8428aef2531cee101d9e4722"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/adjacent-and-original-game-v1/summary.json",
+        "bytes": 273,
+        "sha256": "33b20ef6ec27a24460c489320375aee0dfd6aeeb021f67e1a52cb48e24ad923c"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "048f835be9386c43906895a7a4a845d940ecf92d4887d768020aeecf6a97f7a8"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/discovery.log",
+        "bytes": 2085148,
+        "sha256": "ada5ad5914d0dbb2efea1559cb0611709ac93e910d422b2bd5cfa376dfc9f22b"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/focus/results.trx",
+        "bytes": 14548,
+        "sha256": "21919ae784437ccfd885ae1cc79089561fe3a7e1c61e5f1fa40e809a7871470d"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/focus/test.log",
+        "bytes": 984,
+        "sha256": "60c05fcf12fbd516933e04850c8ca50dc68c6c4595ba5babcfd856313d1bb9ac"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/plan.json",
+        "bytes": 674,
+        "sha256": "75cd1048dd19d72adcaa31a1619796acce74fa53ec1bd567599b3dff7e9c1cb2"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v1/test-source.cs",
+        "bytes": 9275,
+        "sha256": "9f093b964327ea49bf6aff16da066bf753826a8d29427ab8bf7bc25dcf40ec0c"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "3b6701eac5038990507a0274c6643ddc8e7e832322d0c84baef66e74a85d4df9"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/discovery.log",
+        "bytes": 2085276,
+        "sha256": "aa1bf7ae17bacead2f4a4bf5947d79f76ccf7129d0965d40d486d47d44fe35d0"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/focus/results.trx",
+        "bytes": 18195,
+        "sha256": "18e081fe519d77cf158fc2d1a82af3278aa5ed87333d81c591e76a8e5d626d3f"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/focus/test.log",
+        "bytes": 1143,
+        "sha256": "6ab7e84e9d687ac5c5f095c22556a07031ea4750bbbbe2ae726a1d44d2d031e2"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/plan.json",
+        "bytes": 809,
+        "sha256": "3acc5543d4a53c4cc1f6c2f430be1b02d0b3f4894a952c26fbd229ae3b9cb8f1"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v2/test-source.cs",
+        "bytes": 10237,
+        "sha256": "014a517dcf9e21fd8ca0be0309068225dbc841dd1d3ac79e7a8b2c972649d673"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/build.log",
+        "bytes": 78,
+        "sha256": "887a5a8355364525aefcb1ae0f90ff869232241685df7138f7f33155c85cf74d"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/discovery.log",
+        "bytes": 2085288,
+        "sha256": "2e8324d232a21ec8c76f3bf49a029bcbe2195af53aed0c49d540fc41e713b233"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/focus/results.trx",
+        "bytes": 18243,
+        "sha256": "8901cee4d2a265fa9cd103dfd8809d4e703b2b0439b3fae5e68d56a7cad7cf73"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/focus/test.log",
+        "bytes": 1155,
+        "sha256": "3803c45140a833deefb481625bdb6c8f837a3c4f4cedc095c3eb8f218abd2a87"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/plan.json",
+        "bytes": 882,
+        "sha256": "4fdd56796d18515a4ee11370286d43529cc61de7778961bd124f108c9b21c338"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/separate-rengar-test-source.cs",
+        "bytes": 317,
+        "sha256": "179172248bab2e24f2019407cb0b0123b0650513ae4912c018dcaea3ebf73699"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/focus-v3/test-source.cs",
+        "bytes": 10069,
+        "sha256": "f6f04be4f1d828bcfe1343677e3a9c08d1ead92414010dbb088d8d9a05079bdb"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v1/SFD-123-221-False.json.gz",
+        "bytes": 46358,
+        "sha256": "47b14ca52cba9ea63afb028774c44f61dca50d8efc79c8597fe27a135c144caf"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v1/SFD-123-221-True.json.gz",
+        "bytes": 67468,
+        "sha256": "bfad0889958abdc20208bbd0a1100a484ec333102e94910fdb30dd1ad90c6cf0"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v1/UNL-114-219-False.json.gz",
+        "bytes": 46537,
+        "sha256": "8319cd2162154f0f938aff9da0ff8c1ac80564399a000694ce16ac3db6092712"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v1/UNL-114-219-True.json.gz",
+        "bytes": 67626,
+        "sha256": "dd0b84405605bbeb5d786129e9fc73edf3076f9f9d9b34c57f5172b70b872c77"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v2/SFD-123-221-False.json.gz",
+        "bytes": 46362,
+        "sha256": "62baf133963a2422c51abbe2651aea239169c5d59e66e3bc9a664bbd6acdf94e"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v2/SFD-123-221-True.json.gz",
+        "bytes": 67475,
+        "sha256": "71fe61e7e25916e0f9feb4b3cce4d60b03f44bc043719e81f647eb644bb12fc2"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v2/UNL-114-219-ATTACKER.json.gz",
+        "bytes": 39699,
+        "sha256": "33a4ab7fcf4b1d6b5fc96c016eec958fe25cdad76bcba184cecc5d749e062931"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v2/UNL-114-219-False.json.gz",
+        "bytes": 46543,
+        "sha256": "e977358c9ffedc678c7970beafa09d8190efc1dd3ff710e42d064e59973c81ad"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v2/UNL-114-219-True.json.gz",
+        "bytes": 67635,
+        "sha256": "31f69a4faeed9ecbf9a907a5ead493ad22d2c20f6ba6b8bc7c3bd07a093bad2c"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v3/SFD-123-221-False.json.gz",
+        "bytes": 46363,
+        "sha256": "6f320d0dd73e318753a3e578c9aaaf8920810b89f1fbbed020ec366f95238a0c"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v3/SFD-123-221-True.json.gz",
+        "bytes": 67473,
+        "sha256": "5926140f07f9bff793ebff9d652d025d13f1c8988889a57a440c6cc7fa1a047b"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v3/UNL-114-219-ATTACKER.json.gz",
+        "bytes": 39699,
+        "sha256": "79fad9063968629f399289ec6c147825a4df234e4a55305738b3d7c9c75d0c1d"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v3/UNL-114-219-False.json.gz",
+        "bytes": 46544,
+        "sha256": "18c086a834b5909622db9e0b3ffedc005fcb0d3715e6947e023291ee90cb5e17"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/original-v3/UNL-114-219-True.json.gz",
+        "bytes": 67636,
+        "sha256": "1fe5f63ada17050caea129cc57bd75e3f9df2074a512817a33561dfad21686eb"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/package-proof-v1.py",
+        "bytes": 7127,
+        "sha256": "5a173e2a22f3900180080d99dbe37b4bcca208ba93d96d9a3e784dcd42eafb5b"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/refresh-sources-v1.py",
+        "bytes": 2302,
+        "sha256": "94943b32effda1f331c0e7bbf8b9f1b90a7cc3eb9fd614905f04c97df11b23a1"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/source-core-clauses-v1.json",
+        "bytes": 11677,
+        "sha256": "0703a7408d10d4ae53de5ff58f6cf0bce578b02cc5a6d390de019071d72cac0e"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1185,
+        "sha256": "fefaf473b6978b963c175518e3fe9c7c63ded2108760687b014e8a499abc036e"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-奈德丽-original-v1.json.gz",
+        "bytes": 1350,
+        "sha256": "006f4a9b4b4a5379da915bdc04032bc8992319f70c3552e24246baaa7d41311b"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-腐化执法官-original-v1.json.gz",
+        "bytes": 1247,
+        "sha256": "3b9a5311ced22063c864fdefc3d8958f7498f8f4cef63a6837f1107ed2d7a2b3"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1197,
+        "sha256": "b5c80914f3c28a00d4351f292b853916a43c9c93772339178d1ef518981bf55f"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1292,
+        "sha256": "5c7dc527a0bb4d8d8858bfac7874a993357d8237eb02271d408455d56633f8fd"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/current-雷恩加尔-original-v1.json.gz",
+        "bytes": 2853,
+        "sha256": "8d1b391931d3e100e5761020306dae7276a38317853e14ae2137b973e2680193"
+      },
+      {
+        "path": "var/qa/battle-win-late-participant-20261023/sources-v1/extra-rows.json",
+        "bytes": 7919,
+        "sha256": "d4fe243245207e6f0d0b7e53303328bce8eee3169676fc21c60ff73fc2c3904d"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      }
+    ]
+  }
+}

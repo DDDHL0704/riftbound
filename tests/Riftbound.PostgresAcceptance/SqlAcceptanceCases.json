@@ -262,6 +262,10 @@
     {
       "id": "victory-cleanup-garen",
       "sourceType": "VictoryCleanupGarenSqlAcceptance"
+    },
+    {
+      "id": "battle-result-continuation",
+      "sourceType": "BattleResultContinuationSqlAcceptance"
     }
   ]
 }

@@ -25473,6 +25473,43 @@
         "role": "source-manifest"
       },
       "auditDocument": "docs/BURNOUT_INNER_CLEANUP_GAREN_CURRENT_CN16_AUDIT_2026-10-23.md"
+    },
+    {
+      "id": "battle-result-continuation-current-cn16-2026-10-23",
+      "scope": "CN16 result-trigger continuations for two Draven legends, two draw units and three Khazix legends: original skill ordering/responses, captured source authenticity, private views, control before battle close, late defender role cleanup and a subsequent real battle. No whole-card or complete battle-death certification.",
+      "subjects": [
+        "SFD-185/221",
+        "SFD-242/221",
+        "UNL-114/219",
+        "SFD-123/221",
+        "UNL-201/219",
+        "UNL-236/219",
+        "UNL-236*/219"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P039-B005",
+        "CN-d6fd7140f106f9b5-P091-B020",
+        "CN-d6fd7140f106f9b5-P091-B021",
+        "CN-d6fd7140f106f9b5-P094-B009",
+        "CN-d6fd7140f106f9b5-P094-B011",
+        "CN-d6fd7140f106f9b5-P094-B015",
+        "CN-d6fd7140f106f9b5-P095-B002",
+        "CN-d6fd7140f106f9b5-P095-B003",
+        "CN-d6fd7140f106f9b5-P095-B004",
+        "CN-d6fd7140f106f9b5-P095-B005",
+        "CN-d6fd7140f106f9b5-P095-B008",
+        "CN-d6fd7140f106f9b5-P095-B009",
+        "CN-d6fd7140f106f9b5-P095-B015",
+        "CN-d6fd7140f106f9b5-P095-B016",
+        "CN-d6fd7140f106f9b5-P095-B017"
+      ],
+      "status": "BOUNDED_FOCUS_SQL_PASS_SOLE_CHECK_ONE_LEGACY_FAILURE_REPAIRED_BY_FOCUS_FIXED_FULL_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/battle-result-continuation-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "f165dd53101317fd7ff0babe56780fd3d6222f761bb20072135119e6a21066b2",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/BATTLE_RESULT_CONTINUATION_CURRENT_CN16_AUDIT_2026-10-23.md"
     }
   ]
 }

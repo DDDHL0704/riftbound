@@ -1,0 +1,3673 @@
+{
+  "archive": {
+    "path": "docs/evidence/battle-result-continuation-current-cn16-2026-10-23/original-sources-and-test-results.tar.gz",
+    "sha256": "4a9109a80b972ee6a74d409ea53e6fdcbec20e9117ffba7cd0136b52dff39622"
+  },
+  "members": [
+    {
+      "path": "adjacent-and-twelve-original-games-owner-terminal-v1.json",
+      "bytes": 9810,
+      "sha256": "035fec9cdc7c935f190f82bcbc9478dbc763d0d3efd51e7e7522b492c6a506d6"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-owner-terminal-v2.json",
+      "bytes": 9890,
+      "sha256": "a751709751119b04c1d103b95e656e4e8c6e31f85ca3a35f7a51583326b63fbc"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-start-v2.json.gz",
+      "bytes": 152352,
+      "sha256": "e830148752209dd115d56f2a3cc544da779dcf554a6c397dc4dcb1b7df4a6a39"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/build.log",
+      "bytes": 78,
+      "sha256": "4479bf39b9512adc19f9fb5c5a106a974e996dcf72fee2dd3a2bd044f99dc2e1"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/discovery.log",
+      "bytes": 2082580,
+      "sha256": "7fa59e68ccdc628016b958824ccf67ece305c19ffc04bb173231293a413bc6eb"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/focus/results.trx",
+      "bytes": 1176722,
+      "sha256": "f8fd77f968d66f99e433fe8b977bf682f3c4c766d7d032378642030b2ad3b9c3"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/focus/test.log",
+      "bytes": 519,
+      "sha256": "7d0ed4d0a663484da614e6b4b6f0f4ebd12e40eebdb3a401649f352a3a5bcc9a"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/plan.json",
+      "bytes": 57433,
+      "sha256": "8d9e6b002e2da7e4a90a8d6b0c23d46eb93e533c9774c48977bbc9e41f0f0801"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v2/summary.json",
+      "bytes": 278,
+      "sha256": "beefbe2dc3a04fa18f8038568fe96ad55e4181199dd571dbd26f389dd65ed363"
+    },
+    {
+      "path": "combined-archive-independent-readback-v1.json",
+      "bytes": 222,
+      "sha256": "44857a57fec94dda6037d20b7637804a141369df3ab807fec86ce82218e442f5"
+    },
+    {
+      "path": "current-response-support-printings-v1.json",
+      "bytes": 3989,
+      "sha256": "6f936dfd6d831aae84432ba9a2a92ca380e5eb53d177288da781709ca4a1f4a5"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-SFD-123-221-False-False.json.gz",
+      "bytes": 73904,
+      "sha256": "64003cdcc699696ae0588d6e0b7dde026869261b30b366d3ef401152191855f7"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-SFD-123-221-True-False.json.gz",
+      "bytes": 73850,
+      "sha256": "c8c512113311cbf728a46d349d59539494160dd5633b4797fe9b79c04e4e7a01"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-UNL-114-219-False-False.json.gz",
+      "bytes": 74494,
+      "sha256": "661c60704974670a1afcb433eb2f974dbe1578e3dddd0ee68cefd4835efd239a"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-UNL-114-219-False-True.json.gz",
+      "bytes": 118612,
+      "sha256": "f362f204fab36ccfd7f2065186c9f50fe212f3cc5f0abd643d8f1fbff1b53d1b"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-UNL-114-219-True-False.json.gz",
+      "bytes": 74469,
+      "sha256": "ac3faed3188e20eeffe8e5a1f786f032b5972fe1f3205d14ce22eaf2730994df"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-185-221-UNL-114-219-True-True.json.gz",
+      "bytes": 118416,
+      "sha256": "b106c5e6ab2bd3fdfdf45fa9c27ec4d92e197090089b35481c964339e0f6b3f8"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-242-221-SFD-123-221-False-False.json.gz",
+      "bytes": 73914,
+      "sha256": "8409565887a2882b33d316aee15502948ee1ed1d88ae443eb745a97c252adb52"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-242-221-SFD-123-221-True-False.json.gz",
+      "bytes": 73863,
+      "sha256": "eb7418328c064d4441ca85f4ec4386de833262e428fdddd2a4abdab9bbf62879"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-242-221-UNL-114-219-False-False.json.gz",
+      "bytes": 74488,
+      "sha256": "0f3642973e22e3fb83feb804ccc4ba0efeb83ce185d081b39968d7bf33ae37a0"
+    },
+    {
+      "path": "final-original-combined-v2/SFD-242-221-UNL-114-219-True-False.json.gz",
+      "bytes": 74465,
+      "sha256": "397c7ba6b2b48da703c7a4ebcd98ab5d2ab237d97ebbb57efd40958a4445523f"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-201-219-SFD-123-221-False-False.json.gz",
+      "bytes": 76440,
+      "sha256": "6c1c69ccff6b5b85945db125c9bdee1498da49beb6c4bf9f832b1ac7c1bc627d"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-201-219-SFD-123-221-True-False.json.gz",
+      "bytes": 76444,
+      "sha256": "2be8572d7d060a5606f15b14268de1976c2e73da43dc7cb794ba25d4a386a472"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-201-219-UNL-114-219-False-False.json.gz",
+      "bytes": 76842,
+      "sha256": "7af2cddaa96b0e5fdf4b9bb0db674e922f5628991151efd94efe81bc9c75c2bc"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-201-219-UNL-114-219-True-False.json.gz",
+      "bytes": 76731,
+      "sha256": "3faf8e13ae298ba847392c7e5e68e69f7799199bb1dfd7d4e94ae0041a253e92"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236-219-SFD-123-221-False-False.json.gz",
+      "bytes": 76440,
+      "sha256": "2a35962bb6b23a3bcffdc6a55bd824413a85de68a132919fa7c4d1a75282b457"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236-219-SFD-123-221-True-False.json.gz",
+      "bytes": 76442,
+      "sha256": "4605a2e4f40c1d0f192ebd2ce05c87d0c01d8e052d661aad1f471b77b8adf19a"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236-219-UNL-114-219-False-False.json.gz",
+      "bytes": 76843,
+      "sha256": "7629ae32a634e7e0ab7a3b4a23557bda0e638de6f65bf365e98b7bb419fbd034"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236-219-UNL-114-219-True-False.json.gz",
+      "bytes": 76733,
+      "sha256": "5e3ce4832ec3782511ff6719531eec39f86edf1409e6f8c66e6892d744b7aeb2"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236s-219-SFD-123-221-False-False.json.gz",
+      "bytes": 76679,
+      "sha256": "ce5d6919de1df88938eabec78d12abd87d382ceac7770f94c9cd6203480bc554"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236s-219-SFD-123-221-True-False.json.gz",
+      "bytes": 76713,
+      "sha256": "540b4db465709976fc6c895ac586f3500ccb0e93955f58f7ace326c31ad388e3"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236s-219-UNL-114-219-False-False.json.gz",
+      "bytes": 76869,
+      "sha256": "32d38e08ab8d5fff0b744468f78ee07f01a00722e0881b8837f0859bd8b2fd43"
+    },
+    {
+      "path": "final-original-combined-v2/UNL-236s-219-UNL-114-219-True-False.json.gz",
+      "bytes": 76859,
+      "sha256": "60e9a3a14f5a8fa8d63e9613fcf04cb7bb46cc8cd0ced91ed8adc0337e02e855"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-185-221-combat.json.gz",
+      "bytes": 41079,
+      "sha256": "48c286b737094c1b6c38aec4891183030ba37ef1009947ace2f14a9cdd36474b"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-185-221-empty.json.gz",
+      "bytes": 16976,
+      "sha256": "0d92b619bf0f195cc33f034bf3e3a1042ea70e8d2b2a5c90cba9576b46f5fce1"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-185-221-response-removal.json.gz",
+      "bytes": 55440,
+      "sha256": "96538b3a5654fb24361ddbfd5759d2cab7d691eb4a3a291e75770bc2a022813a"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-242-221-combat.json.gz",
+      "bytes": 41089,
+      "sha256": "a2df40c254611048e80cf5e17355a29547a25b8bea33ba8c7c28da31428b4576"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-242-221-empty.json.gz",
+      "bytes": 16977,
+      "sha256": "8792befe46b478253d47155fc8e9157ee006c7e1095e181cc4b0f7f5a022a6a8"
+    },
+    {
+      "path": "final-original-draven-v2/SFD-242-221-response-removal.json.gz",
+      "bytes": 55434,
+      "sha256": "dd801af9a3e97ef3804f318ec01627c6db2e21a2348d01f944a748c53b9525fe"
+    },
+    {
+      "path": "final-original-draven-v2/no-legend-combat.json.gz",
+      "bytes": 27509,
+      "sha256": "29f0e5637c72d9782c908e05e4892dab4f5c26e4038b8668b447d07c9aef4c59"
+    },
+    {
+      "path": "final-original-draven-v2/no-legend-empty.json.gz",
+      "bytes": 16381,
+      "sha256": "523656708fd6dec9035b6f3293c94c2bae90c5feaff0de742941f55d3044179c"
+    },
+    {
+      "path": "final-original-draven-v2/no-legend-response-removal.json.gz",
+      "bytes": 40435,
+      "sha256": "398ac56b05066ae9cb22eca5a12df66a2a4b2e5cf1790854d87589dfbea0dcdd"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-attacker-win.json.gz",
+      "bytes": 43154,
+      "sha256": "87c8362e6c9c1cb0e0bf610d0e0208218f5926ba660ae311a16729e00d32edaf"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-defeated.json.gz",
+      "bytes": 27823,
+      "sha256": "cf754a364b31fbf55a910523b3818d648945b1ed88d2846f22c56fc106a4d8c8"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-defender-win.json.gz",
+      "bytes": 38570,
+      "sha256": "71c1144e3058779f1aff4a198cebfe068b607c37c2fa70f3285476d771e2435a"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-empty-conquest.json.gz",
+      "bytes": 19053,
+      "sha256": "c0142d5bee233bf3ce7b156fba2a81dfab6fda86adb6e4503dcabe95f0bdc17a"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-mutual-destruction.json.gz",
+      "bytes": 27617,
+      "sha256": "937fe20db345e920004b91cd7db16daf5709ad90d0339737a7f5d8c714659181"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-201-219-response-removal.json.gz",
+      "bytes": 57366,
+      "sha256": "072195424c4ea0da3f9a837237b0649f3bbe8e6eac540eb01790e7cf87b150ae"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-attacker-win.json.gz",
+      "bytes": 43154,
+      "sha256": "2e85634a049457fef5fefb0265d285ebe566c6b218f937582f4e6fb15a3dc57a"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-defeated.json.gz",
+      "bytes": 27823,
+      "sha256": "e2d537fd4aa0dde7d4826473f872d02d1e180509ab3e6778c39853bcf1c0c9a8"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-defender-win.json.gz",
+      "bytes": 38569,
+      "sha256": "1047b0ad28b65eab9cf03ed039606abf9d45cd190c44d0c2e6ba254e939c73a4"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-empty-conquest.json.gz",
+      "bytes": 19053,
+      "sha256": "614a84cbd73b057a22ac4ce408ad0eba7deb9eec47b7612720a09334f0e24827"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-mutual-destruction.json.gz",
+      "bytes": 27617,
+      "sha256": "8f75d0c1927f4cd4122a9907e551cd06caaecf5326d4be843944e6a42c17950f"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236-219-response-removal.json.gz",
+      "bytes": 57365,
+      "sha256": "335d87931bfd70a83a29f85774401dd6e0c2b397f8ee034940ae0f99768b32dc"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-attacker-win.json.gz",
+      "bytes": 43150,
+      "sha256": "51b4a73c9f93564e989b02ead25a88b88821f3388a2c8466ef7acbedd3fefc69"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-defeated.json.gz",
+      "bytes": 27807,
+      "sha256": "d6df2e727184d8440c932e902155f078b237da251488ea5479ba5297e0fff3dd"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-defender-win.json.gz",
+      "bytes": 38676,
+      "sha256": "d6b611ad130c4928bb919762d5a1089d0faf01ac41b7f27c7b7308f3227c785d"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-empty-conquest.json.gz",
+      "bytes": 19066,
+      "sha256": "71ad4e43edbd9270e23eb2f59db94e884e9077f33f81ff50ef4ff967a633ea0c"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-mutual-destruction.json.gz",
+      "bytes": 27495,
+      "sha256": "56990a15e53d970924f3ac693ed8258a345860f766e5ddb8fa28881fa9d9f93f"
+    },
+    {
+      "path": "final-original-khazix-v2/UNL-236s-219-response-removal.json.gz",
+      "bytes": 57348,
+      "sha256": "ecd223d796232c7840b1e856fc036ea756b7a36575c2deb67e27dc37442659be"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-attacker-win.json.gz",
+      "bytes": 27461,
+      "sha256": "ce829d2133e5caa70c51a36750af5edbd07feafd655e2092d9a537ec90eaa1e8"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-defeated.json.gz",
+      "bytes": 26753,
+      "sha256": "f3df1ef7b1b3d521a384efd3c5fc5586ac544dd39e874db72a3d2d5d63121ce2"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-defender-win.json.gz",
+      "bytes": 26750,
+      "sha256": "0e3da99fba3530cb62e8f0a71ad5fe28e48208cabdbd0daad6953b9738632109"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-empty-conquest.json.gz",
+      "bytes": 15051,
+      "sha256": "3ebd1329dc0afa02f7b0c626147d6ffbfad10b7334fe7e0c6f52dfdc9e200146"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-mutual-destruction.json.gz",
+      "bytes": 26591,
+      "sha256": "330d25ca0525a8fcc06e0984364ad71847ebeb7060b79250eacf7b02e6f9af34"
+    },
+    {
+      "path": "final-original-khazix-v2/no-legend-response-removal.json.gz",
+      "bytes": 40197,
+      "sha256": "d1b5733fea820bf19a128d39b03ab1a84716fec0b51d40ef7c6d7c35fdd97cca"
+    },
+    {
+      "path": "final-original-late-v2/SFD-123-221-False.json.gz",
+      "bytes": 46344,
+      "sha256": "90169cc93efdde0aab2efda177332c6cb22df56217efaba78c194a63d127c055"
+    },
+    {
+      "path": "final-original-late-v2/SFD-123-221-True.json.gz",
+      "bytes": 80469,
+      "sha256": "7acf157b89f9a50b5dc869462cb3a5c9a34080b4a7044fd7c5fdf15cdf251d6b"
+    },
+    {
+      "path": "final-original-late-v2/UNL-114-219-False.json.gz",
+      "bytes": 46525,
+      "sha256": "049de2e02fff4647179dbae27587e00493678030b26fa36a7643d78e334a5722"
+    },
+    {
+      "path": "final-original-late-v2/UNL-114-219-True.json.gz",
+      "bytes": 80477,
+      "sha256": "16184601b8738f379359d484b7944f81189a94623a8a549a3d15d6c604d6d280"
+    },
+    {
+      "path": "final-original-recovery-v2/burnout-SFD-123-221.json.gz",
+      "bytes": 65330,
+      "sha256": "3ea7c8ddae6f09783e024b49d04cd1654901b450b66406b38252397f40a1f63a"
+    },
+    {
+      "path": "final-original-recovery-v2/burnout-UNL-114-219.json.gz",
+      "bytes": 65876,
+      "sha256": "a0a77061f1a588ec997e6321bca2d734094525eb803afd4bb81ecf3e2019ba2d"
+    },
+    {
+      "path": "final-original-recovery-v2/coordinated-CARD_NO.json.gz",
+      "bytes": 66329,
+      "sha256": "2ad3b3e521e03ac9b2afb68853d72ebaa0d87c082f0146d191f710d1e95b8e13"
+    },
+    {
+      "path": "final-original-recovery-v2/coordinated-RESULT_TICK.json.gz",
+      "bytes": 66270,
+      "sha256": "d3fbb3b5c04f813a9e86bcc6c4a3fe3f7de1d2448a37d9d2e954379fb91c195c"
+    },
+    {
+      "path": "final-original-recovery-v2/coordinated-SOURCE_GENERATION.json.gz",
+      "bytes": 66241,
+      "sha256": "e544336e8959450e39cd0bed0c1b82bbff997652ea9f5c3960f277673a5ea4b3"
+    },
+    {
+      "path": "final-original-recovery-v2/response-SFD-123-221-destroy.json.gz",
+      "bytes": 135822,
+      "sha256": "1e9648e5f9357745e95d21db625354c94341abec736511dd1ae09023d6d3798c"
+    },
+    {
+      "path": "final-original-recovery-v2/response-SFD-123-221-keep.json.gz",
+      "bytes": 77792,
+      "sha256": "92e5d69342e0b654d2045aa656d5019f7834a225fee842d2f84420105e883d53"
+    },
+    {
+      "path": "final-original-recovery-v2/response-SFD-123-221-return.json.gz",
+      "bytes": 95703,
+      "sha256": "c200a20a56eed99cfa086cfe6e48c770173aa96915ff90527b89300ec44b58d4"
+    },
+    {
+      "path": "final-original-recovery-v2/response-UNL-114-219-destroy.json.gz",
+      "bytes": 136764,
+      "sha256": "b5eede79290bae538235fa2d67ae90114849e16834c43ca458d8e7ad74feda3f"
+    },
+    {
+      "path": "final-original-recovery-v2/response-UNL-114-219-keep.json.gz",
+      "bytes": 78358,
+      "sha256": "3817b4dc6f67fe11fddf3f491ccd9aca744a8b400b8fbabfbf64cd57785522c6"
+    },
+    {
+      "path": "final-original-recovery-v2/response-UNL-114-219-return.json.gz",
+      "bytes": 96382,
+      "sha256": "afaf20dd217eb7b229f43aad1dd0006584444dbfd9064c3ef8095f72ef9d0e47"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-ACTOR.json.gz",
+      "bytes": 66212,
+      "sha256": "77ab1b95a210c5df5fe255bce46284d5c7ef268762c7d7fd16d35dcee899165a"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-FIELD.json.gz",
+      "bytes": 66211,
+      "sha256": "7e3f5bf3f21a783d8c1a023b36ecf3caec71858226a5176a83b9c9f6e8a565a4"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-FUTURE.json.gz",
+      "bytes": 66200,
+      "sha256": "86d177e67a27bfe5cbebd15fb3c61f0c1ce3b3b523926880f33da7d7844b2600"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-NO_CONTEXT.json.gz",
+      "bytes": 66195,
+      "sha256": "730e0060f600cfad5d9e9686e32a1838dbc8e086a90afd6e5a09fa53ef284851"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-NO_CONTINUATION.json.gz",
+      "bytes": 66171,
+      "sha256": "9a9b5dec5261a958401b0e97b44b014bdac2389082b182cc3ba1e5b45c3ef4dc"
+    },
+    {
+      "path": "final-original-recovery-v2/shape-ROLE.json.gz",
+      "bytes": 66211,
+      "sha256": "f56c12ff0c785b925b82118212da0ef19c0b2fb13c00203ed3194f2cc7f42e44"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-attacker-win.json.gz",
+      "bytes": 38491,
+      "sha256": "7fbe756c86718401db147fee710548c86ad6341c559886f10c6df7c253d5b1c3"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-defeated.json.gz",
+      "bytes": 26857,
+      "sha256": "8e3dcfecd92cc96316636dfd075d40c8236decfb9990e0b8417e76008863f6de"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-defender-win.json.gz",
+      "bytes": 36757,
+      "sha256": "f7dadd16b308ccbb8bf46de8716f2f42755e44630356e4f46f4007f0939183d8"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-empty-conquest.json.gz",
+      "bytes": 16025,
+      "sha256": "10795f8ac125caadfb98c5f7f321b94ecb09736c4f0c77b75da41652db1b4ce8"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-mutual-destruction.json.gz",
+      "bytes": 26725,
+      "sha256": "b903185db02537b94218e6e93223df469df1823bacd63aea17a8edd312acbd1f"
+    },
+    {
+      "path": "final-original-unit-v2/SFD-123-221-nonparticipant.json.gz",
+      "bytes": 29194,
+      "sha256": "06236fc4e6822a9f1d823288dcf69e1be5657b8587e524016f69e68d75c2bc16"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-attacker-win.json.gz",
+      "bytes": 38878,
+      "sha256": "d70fe5d4f427de230f6c176a271994d6db864c10257daf26e14cf0ba937cfa65"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-defeated.json.gz",
+      "bytes": 27142,
+      "sha256": "28451d4f5452732be8b02e51fe4543ce21f695d2dd4faa9c459d852e68210131"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-defender-win.json.gz",
+      "bytes": 37134,
+      "sha256": "0c4c3aea7f2660de197b9d3bb29efbc46f24f65a17cf37ac2358bcf034802d82"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-empty-conquest.json.gz",
+      "bytes": 16253,
+      "sha256": "fd10b3d47cdeaee81e90c25def2728314cc6715e4aacc1a3ff6dda7dc0a54398"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-mutual-destruction.json.gz",
+      "bytes": 27118,
+      "sha256": "cdd2a9ff5be00faf3f0de305d783d84ec9a75345e30ba9d24c98cfb745444c23"
+    },
+    {
+      "path": "final-original-unit-v2/UNL-114-219-nonparticipant.json.gz",
+      "bytes": 29457,
+      "sha256": "857043ead373b4211105b0d7435f3abf8ec29a6194536f7c0371bf98258fde39"
+    },
+    {
+      "path": "frozen-sole-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "3f92dffc00e9f96f3656c253011adc4d5a0b258734a65894d73fecc0121972a4"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/results.trx",
+      "bytes": 22405692,
+      "sha256": "05cb42aa6b8ed9f5e3115b8510daad8498063ad2f18f4f7e41246e6a2246fd9b"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/test.log",
+      "bytes": 682,
+      "sha256": "7807bbe8468fc83ed4941a1dfc339473897a4e1047b4f7d95429beeb08ad31ec"
+    },
+    {
+      "path": "frozen-sole-check-v1/discovery.log",
+      "bytes": 2082618,
+      "sha256": "b105dd65df062f46a6a75c079c00c4e48952aec51315f5ae58f6a4ae9550e02e"
+    },
+    {
+      "path": "frozen-sole-check-v1/plan.json",
+      "bytes": 1019014,
+      "sha256": "7b25ae5b03528245ab80485e5307d00bef8b034fcc9465bc5c8d67d3015a40b6"
+    },
+    {
+      "path": "independent-eleven-battle-result-sql-originals-readonly-original-console-v1.log",
+      "bytes": 757,
+      "sha256": "7c1ed869e55a6d6a01d5c87f848dfe4321945773e531e51f4928f2f0a3be8831"
+    },
+    {
+      "path": "independent-eleven-battle-result-sql-originals-readonly-owner-terminal-v1.json",
+      "bytes": 37818,
+      "sha256": "8501791234c19b7ca13677fd784e410e3bb27ef0106ca406bbe10ffe41087294"
+    },
+    {
+      "path": "independent-thirteen-battle-result-sql-originals-readonly-original-console-v2.log",
+      "bytes": 908,
+      "sha256": "a0d4500cbd45e76d019dd89754f6996b77af83945dbde6a04f421c0d2b6f20f2"
+    },
+    {
+      "path": "independent-thirteen-battle-result-sql-originals-readonly-owner-terminal-v2.json",
+      "bytes": 39903,
+      "sha256": "177ad21d6b8efc993057f7977f96f6ff83be5bfb50dd5cbda374f9ed4182a9cc"
+    },
+    {
+      "path": "independent-thirteen-battle-result-sql-originals-readonly-result-v2.json",
+      "bytes": 5604,
+      "sha256": "e03fa1c38003f969451d666c403b5a66960d367363da17990d3effffd8b9f7c3"
+    },
+    {
+      "path": "issue-battle-result-timing-body.md",
+      "bytes": 1728,
+      "sha256": "57fa706cab8a0994d817a7fa83fcdd37c2a8afe9c4b34ad301a72c8a1b0c41d9"
+    },
+    {
+      "path": "late-participant-archive-independent-v1.json",
+      "bytes": 273,
+      "sha256": "bee60bf1770fd4a86d24886a4b59136082a1399ef7377f5a7ae95b0f99132b44"
+    },
+    {
+      "path": "n52-postcheck-repair-index-export-v1.json",
+      "bytes": 388,
+      "sha256": "b37c1a6741d6d0ffe1c7279d8f250d09864405212276e8e106edbecee59c4ae8"
+    },
+    {
+      "path": "observe-completed-sole-check-v1.py",
+      "bytes": 2384,
+      "sha256": "d81237c78cdfad830fa14915a457e4d4e4029706c79d3b49cb933c67c4ba1905"
+    },
+    {
+      "path": "official-full-query-a82e574c8bf2-original-v1.json.gz",
+      "bytes": 1325,
+      "sha256": "35049ae55b70e43bcf4df5ed87096d93b881cb8eab65e62f91d20cf0e23ddd8d"
+    },
+    {
+      "path": "official-full-query-ffe068d9cbe2-original-v1.json.gz",
+      "bytes": 1336,
+      "sha256": "f2671d00f9af84edb30ce9161bbf2a879521a0450f78d94a196cd6a01c64a73d"
+    },
+    {
+      "path": "original-p79-draven-failure-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "5a72571ab4bca93bc308147fb01252934ccbc4b247a5fb85e31a8a163b816bc6"
+    },
+    {
+      "path": "original-p79-draven-failure-focus-v1/discovery.log",
+      "bytes": 2092358,
+      "sha256": "ed5bd16b35afdd0960ac568497bde841e497528cdc5868ed41c28e9888a22e19"
+    },
+    {
+      "path": "original-p79-draven-failure-focus-v1/focus/results.trx",
+      "bytes": 4582,
+      "sha256": "37e0c1e6ce2d8771179b14775cfb2d19cd8c6acb1e3092de94b4950731af3b1b"
+    },
+    {
+      "path": "original-p79-draven-failure-focus-v1/focus/test.log",
+      "bytes": 656,
+      "sha256": "31d03c4dbbfc332414dce6251ea78eef5090302be3e98d0f1b0b3983c360d913"
+    },
+    {
+      "path": "original-p79-draven-failure-focus-v1/plan.json",
+      "bytes": 666,
+      "sha256": "10a602177b4469e5bf4d750e13290ef92f020619eb27e476301789543e7392a3"
+    },
+    {
+      "path": "original-p79-draven-fixture-file-before-current-source-calibration.cs.gz",
+      "bytes": 253045,
+      "sha256": "2fb27535051c5aa7d7c2b0cda240c665b579cf3899e00aef0dfac5d9a70d9e9f"
+    },
+    {
+      "path": "original-p79-draven-method.cs.txt.gz",
+      "bytes": 860,
+      "sha256": "8c4bf56899846dbf075045e9981c5ae1056285e87e7185a036eee8e688bb13f9"
+    },
+    {
+      "path": "own-eleven-real-battle-result-sql-originals-v1.py",
+      "bytes": 7558,
+      "sha256": "d24ed97007716c5a51d16fb73683d0096eaca48ad48bf03652cebb36afc957b5"
+    },
+    {
+      "path": "own-independent-eleven-battle-result-sql-readonly-v1.py",
+      "bytes": 5816,
+      "sha256": "b63a2298ac4d6ca75ed130e3021bd6f4e721f18bdd52051860e92ee07d22ae53"
+    },
+    {
+      "path": "own-independent-thirteen-battle-result-sql-readonly-v1.py",
+      "bytes": 5828,
+      "sha256": "622662e853efa9416eb4dc7c3200ae7c39c868acf48108f4039c2e894616feff"
+    },
+    {
+      "path": "own-independent-thirteen-battle-result-sql-readonly-v2.py",
+      "bytes": 5828,
+      "sha256": "4c8e916802227573460b843198e6ae1e855693d158df77c23e62c821727cd0b7"
+    },
+    {
+      "path": "own-thirteen-real-battle-result-sql-originals-v2.py",
+      "bytes": 7619,
+      "sha256": "15578ef2025c1bca9ede7b26717f851d680263b7f5515244fec97c7bf1dfe806"
+    },
+    {
+      "path": "own-thirteen-real-battle-result-sql-originals-v3.py",
+      "bytes": 7619,
+      "sha256": "48ade63bc2ada971122345598c38fd42657ecaf2274ff3788f1b42f755b4add6"
+    },
+    {
+      "path": "own-thirteen-real-battle-result-sql-originals-v4.py",
+      "bytes": 7619,
+      "sha256": "4a1ed4e803d8b940417751a2ad975afdf1e7682708a0572b79666f9f32ba7c83"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/build.log",
+      "bytes": 78,
+      "sha256": "96a5deb51bab781a9ecfaceac9be088c17712598f078f405337ca00ffbc0e222"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/discovery.log",
+      "bytes": 2092358,
+      "sha256": "ed5bd16b35afdd0960ac568497bde841e497528cdc5868ed41c28e9888a22e19"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/focus/results.trx",
+      "bytes": 112441,
+      "sha256": "34387e4daad45bca838ad62a17e5ca8c79edef5e6ba2c5369a4b33ab9da98bf5"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/focus/test.log",
+      "bytes": 519,
+      "sha256": "4935a8bed7d42473d89b2227bf82dc6c80f3b81ee5b687063e572ab6edaf46f3"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/plan.json",
+      "bytes": 7019,
+      "sha256": "b1da4c69ea52c06e9930fa46489ed9673d266d893444fb7d3567ef769ae24e26"
+    },
+    {
+      "path": "p79-current-source-and-adjacent-repair-v1/summary.json",
+      "bytes": 273,
+      "sha256": "97d846635743286c2ff496216c7771717b840d6cc59cb02dc4a91466762994f4"
+    },
+    {
+      "path": "p79-draven-current-source-calibration-v1.json",
+      "bytes": 1184,
+      "sha256": "52e2b49c6de8540c986e802c0f9603ab2319e8d366ec9b50d5275ba23aed3dec"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/build.log",
+      "bytes": 78,
+      "sha256": "121495f33062b6ef7c840b6a695ab9b54819217e6f5097f50a01683bdcb943b6"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/discovery.log",
+      "bytes": 2082652,
+      "sha256": "4c2cc7d1854f0c9b6dd79a3953cf1ad8772a29bdefb55cbbfad83f8ed31df895"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/focus/results.trx",
+      "bytes": 122953,
+      "sha256": "cee3626ad87e4fcd87873acac366ec41473cd977abc81e234d39a9829bedb69a"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/focus/test.log",
+      "bytes": 580,
+      "sha256": "b371eb066a8052e48f8e4409e580eee0bc44936bd775c92a14c424de737fdeba"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/plan.json",
+      "bytes": 7057,
+      "sha256": "0d33fea03ff5a35cfcd0964a62b69b45a5380bd93b0c1391fb9a5da9ef643934"
+    },
+    {
+      "path": "p79-exact-n52-staged-repair-v1/summary.json",
+      "bytes": 274,
+      "sha256": "6676e04d4b12cdb10bb9d24764c6a95f26892cd64a9e051f84f9065a4f9cbace"
+    },
+    {
+      "path": "peer-original-archives-independent-v1.json",
+      "bytes": 808,
+      "sha256": "93d71911fa94195ec202207ba42df06048abc8b6608703b453bdf7a7f2a1d6a9"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/conformance-results.zip",
+      "bytes": 4071382,
+      "sha256": "0a8f63944472653b194007c3859fad8f00217077ca2d271fa9698c8f608e8190"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/download-receipt.json",
+      "bytes": 1899,
+      "sha256": "52dbe0b2efb40f3a3c1a98a9ac0e71f5be5a49aa82b54ebe66d1afa5ec4fc7f9"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/full-verification-gate.zip",
+      "bytes": 297,
+      "sha256": "4e1fc45f3eced88841ec4bc5c8a75e8281dacce31f5f52aac7a2cd7ba80c6eda"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/independent-complete-full-receipt.json",
+      "bytes": 2634,
+      "sha256": "bade81563771ed3f1c00070273da7e8a9347e8c83d8fa4b4a7a62e853d0c9d9d"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/native-network-results.zip",
+      "bytes": 2146,
+      "sha256": "76fe7ba9bd95d12f1174ba516f98d1abf67dbdb3e7b4948a7875d56294655ea2"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/original-api-artifacts.json",
+      "bytes": 9396,
+      "sha256": "be15d9e65b1901a7a8a33d2237536b3ebecef94c06fdf7bc0e0af6a2da97c935"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/original-completed-run.json",
+      "bytes": 32713,
+      "sha256": "bb26ecf44b47d565a20523ea98854dcc82d487661a11d519f93c5c4d12e61b17"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/postgres-partition-0.zip",
+      "bytes": 10484997,
+      "sha256": "3e038afbd82df3e1e5c0724acf2443f9d1926aab0a496812ffecfb1f66af86aa"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/postgres-partition-1.zip",
+      "bytes": 5342036,
+      "sha256": "97c05a4fbc847418d75291dfe35981b49bbe6329f9f6502bbbb26f3e833ddb8c"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/postgres-partition-2.zip",
+      "bytes": 4258893,
+      "sha256": "92f3f1ba894e3f79f87d6d5176ab0b87636104ef35eb049e8903420b5417f016"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/postgres-partition-3.zip",
+      "bytes": 8411889,
+      "sha256": "68d3ab7221fc415bf737783e444a7a1f1480167b1f3698d0ca352811b4b5a862"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/postgres-results.zip",
+      "bytes": 2391,
+      "sha256": "0781ebcc39e65fbbd1ebd99d3e5933764539ae7ef00df6524a6a765deefd51d0"
+    },
+    {
+      "path": "preceding-fixed046-full-original-artifacts-v1/verification-scope.zip",
+      "bytes": 1775131,
+      "sha256": "c02d8b0831144b59c5b1b125b094afb47229a3c37dae8dd8a337eda3c71d4a46"
+    },
+    {
+      "path": "prepare-independent-reader-v1.py",
+      "bytes": 9327,
+      "sha256": "0bd1d8c9c6aa89808b6bbe527e7590be8549a00fba7923dbc873af57e2a7f6b2"
+    },
+    {
+      "path": "publication-index-source-verification-v1.json",
+      "bytes": 5517,
+      "sha256": "acb7119c2bc15aed301b176545df69989c682032d4f9223e1ac217c1c702a663"
+    },
+    {
+      "path": "python-tools-v2.log",
+      "bytes": 10506,
+      "sha256": "dd9779e9edb601c821c47218c317d71decbab30e3ec96bf78c5c8080daeeb729"
+    },
+    {
+      "path": "real-sql-eleven-battle-result-original-rooms-original-console-v1.log",
+      "bytes": 846,
+      "sha256": "a63a3f5ffbe39def63c5000a3216220b7991583a95e20e6a2a3cab0b05406913"
+    },
+    {
+      "path": "real-sql-eleven-battle-result-original-rooms-owner-terminal-v1.json",
+      "bytes": 181849,
+      "sha256": "9a105c1b3e9a54afbfc3ed45cfa5c0eb6458e588e9a91310e86f2e5705f98d48"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-original-console-v2.log",
+      "bytes": 1667,
+      "sha256": "a342cea11bad815c9af2f4206963ce2660988d4ecc4fdd07a144e21049e72a69"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-original-console-v3.log",
+      "bytes": 1678,
+      "sha256": "faa679092f3a863a2999c17e4a3b10f40f6be2432bb20500c61c2084664fbcc4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-original-console-v4.log",
+      "bytes": 999,
+      "sha256": "f65e59651ec3f86e5960c6d69bcf98c74dbc7fa5205d43041fd3d1e855b4abca"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-owner-terminal-v2.json",
+      "bytes": 170092,
+      "sha256": "a0874c42a63d85aa5bbe12b88f87d06667165212ee547f3a113dc0b3384a8ba7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-owner-terminal-v3.json",
+      "bytes": 170695,
+      "sha256": "39d9ae3a80823804fc6b6815119a46cb412be53aa7d43b0175bf23d3c985fb7e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-owner-terminal-v4.json",
+      "bytes": 186194,
+      "sha256": "0cd34fadfb0b9a9c082b844493d286d48130aee33534ac7516a9eda19918aff2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-01-original-before-persist.json.gz",
+      "bytes": 3676,
+      "sha256": "ea3aa4f93e2862d4a55eb8bf5411b52d8d5938d56dacf1fe009130a7418f9125"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-02-original-before-persist.json.gz",
+      "bytes": 4232,
+      "sha256": "5272b50c81adc40ea2cad82e91e672674cdce0e856af7ab03b726453cd626b30"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-03-original-before-persist.json.gz",
+      "bytes": 12793,
+      "sha256": "6368f85075c90feff583e4a5dd503bc8d38621c2b89d1514b8e4b4c5d350275c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-04-original-before-persist.json.gz",
+      "bytes": 10645,
+      "sha256": "2fe388af22149e60da062803336d66c4f40651ee0f70386acb6bc4b1beb0de0d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-05-original-before-persist.json.gz",
+      "bytes": 9500,
+      "sha256": "5be2eb3017c4c3ab9803bb3f2600fa3a6608e3e91e1cd382bf77ac3cf70894a7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-06-original-before-persist.json.gz",
+      "bytes": 11353,
+      "sha256": "bb6e1fbf3e984eb868343b6feee7014b9786f399a5b24b0fedca13f4b1c08e1b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-07-original-before-persist.json.gz",
+      "bytes": 12022,
+      "sha256": "c62f29b1d5197017709d59911263406914a893e2639194f084e918f09e839841"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-08-original-before-persist.json.gz",
+      "bytes": 10245,
+      "sha256": "f8d12b236daa899a93f0e66809e82d18861b4580e86b1b54e00b4d34f65b9bf3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/entry-09-original-before-persist.json.gz",
+      "bytes": 7375,
+      "sha256": "d8ef66ab5a85027184339043be686fb38ecaab2305df98e8ea884b676775f368"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "7c9d47130d624295d4c675235d68a169e7c181f91ccd8519c7da7472e172c482"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-03-original-prompt.json",
+      "bytes": 104332,
+      "sha256": "758ab614e4a282d89b60dea0cc7dda4418a4763edb5f40fe649c0c271cd4a0e4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "6a3c6a7baccfc66153531a539dfda7a6e116cf2e299432f91a9fd2dbe8d0a5c7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-04-original-prompt.json",
+      "bytes": 36591,
+      "sha256": "e6562f7603cf1fd16b669609a74f1f6be0a791e59c960ea2c2e9dbeefafe01b2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "074979a40cfa208401d3840c9bf6a0d670b84b6b09f5e3b841104afb27838b9c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "aab06a3cfcc16cd68b8c40dec5f9fa19144c70b110d4a325e823ac0238b45985"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "24fce117edd101e4542b9730c96a77eabcc48acd1e4b2f8362857d045af5fa9f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-06-original-prompt.json",
+      "bytes": 68576,
+      "sha256": "4aa166daf7d858793c942ac1dd003d976c55132cd7345c4e680269aecf1ed77c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "18e686784012a16f266a8a4f50fc76502c56c024de022622e4b0342366e9962f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-07-original-prompt.json",
+      "bytes": 38179,
+      "sha256": "2c323ba04ee22772f865a66638815762cb9cbac7075890550a95fbe526dcb833"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-08-original-command.json",
+      "bytes": 157,
+      "sha256": "5b077afa61e3ce566d32650f10408b60c8afd022b37f82ea975ffbf969f153cb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/input-08-original-prompt.json",
+      "bytes": 34983,
+      "sha256": "79c71e1750aa6dfb57fc386687a690cdd7d8a38fd442b34459565773cd443135"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/original-final-frame.json.gz",
+      "bytes": 12796,
+      "sha256": "53df73be7ea1c2b2892720b700a48451a47d1f21739f5ebe5c8204bb3dfc3893"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/original-final-seven-tables.json.gz",
+      "bytes": 48503,
+      "sha256": "2caa00f49611c91f1764ebc51226c530b7da3fb464492e75ead31a9c74edc34f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-01-original-frame.json.gz",
+      "bytes": 4435,
+      "sha256": "3a0dc0e3e9eb2a800eb3d879f1bde5210c116cc7988969165d057489ada6eae3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "90cb0ab095ceeb68fb78a02a8d5a1664bd65b4594e18f7f5b1ce8af616562122"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-03-original-frame.json.gz",
+      "bytes": 16285,
+      "sha256": "d6d6402d367540859374743425c0047a82805453431db9f2d33551850a7ee91e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-04-original-frame.json.gz",
+      "bytes": 15616,
+      "sha256": "f2cc188939e097e22ff3e0f755cd6bb2bd566282f39743919c7ee4106d4c2500"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-05-original-frame.json.gz",
+      "bytes": 14457,
+      "sha256": "74249b1b91f6ccf84cf2a7e497358559e234d1e59a915f31edf9c57090480bb2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-06-original-frame.json.gz",
+      "bytes": 17320,
+      "sha256": "3247c97328ae6564be69d83d66788411a6663e062412d00399fe458040508e24"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-07-original-frame.json.gz",
+      "bytes": 18806,
+      "sha256": "b3f21894f48e23d77c0eec8f7f41f557a0168f3d0c975fcee4f7fa173005253e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-08-original-frame.json.gz",
+      "bytes": 17473,
+      "sha256": "86135d79988fa2a5186b9de925cdeb78b0969151231eb0269e2ac4c77fa60f74"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/prefix-09-original-frame.json.gz",
+      "bytes": 12796,
+      "sha256": "53df73be7ea1c2b2892720b700a48451a47d1f21739f5ebe5c8204bb3dfc3893"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-burnout/receipt.json",
+      "bytes": 960,
+      "sha256": "1b0480ad79ba0b9c9ecc92aa5439d393c48cf0b7c40691b2879f463e77a1f825"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "8eb5697c599546fd678146d5d4262f647f98f9e3c2e6402b46f118b06cc9eb8c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "543c79e219a00a9bb8384ea61812f0f1be4586ac9aa8a70b9a4a0e1954e75376"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-03-original-before-persist.json.gz",
+      "bytes": 12716,
+      "sha256": "fb2db23ef32bf8f26c879207ae5c8169afd806d75db2f4c444721d2017f32b44"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-04-original-before-persist.json.gz",
+      "bytes": 10553,
+      "sha256": "75ce4a8c017bc882971793392aadf63815cb0ae2ebc82c0dfd9094cfe648e92f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-05-original-before-persist.json.gz",
+      "bytes": 9382,
+      "sha256": "e475a7e681517574038e144d1ce7dfe74c16053d313e490e8f392bd9e90c42ca"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-06-original-before-persist.json.gz",
+      "bytes": 11254,
+      "sha256": "530eae22fbecd44128b0e6f92339d8a8f4329d1e612c26ae89f2c38235096ec2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-07-original-before-persist.json.gz",
+      "bytes": 11967,
+      "sha256": "8bff3fc9db1024de12057e9d1fa939fca1880cbb1161e0fb95cefe7ecc4e3dca"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-08-original-before-persist.json.gz",
+      "bytes": 10180,
+      "sha256": "e2c3544df137e269636cc52f2463fbc523c0b3491bb537f42ecf517fbdbfca26"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-09-original-before-persist.json.gz",
+      "bytes": 10565,
+      "sha256": "67edcab68e31f960d1296da3d2dfbb96bcaf1f1f1a163ae1a072c503027fa2db"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-10-original-before-persist.json.gz",
+      "bytes": 11525,
+      "sha256": "a66c04d9172ead86b9828017c3dd7708710ac20ca995668b7678e9aa373b8372"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-11-original-before-persist.json.gz",
+      "bytes": 11586,
+      "sha256": "c07b6e9d0cb5c89c5e1ead4c0b57a0846e2a60a464b746b6f989300667d79f56"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-12-original-before-persist.json.gz",
+      "bytes": 10109,
+      "sha256": "4769cf317ae9123d4f8999002d0699e1cfe089dffbc350fd8760bec66b11393d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-13-original-before-persist.json.gz",
+      "bytes": 8852,
+      "sha256": "1e6b402efd6f373e8b470062a05867fbc6d67ad3e6f86c0a1900403f5701a74b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-14-original-before-persist.json.gz",
+      "bytes": 11582,
+      "sha256": "aa67e9b4586a6025992b24038407990d365b8088a07e20c13e06aeab5eda73f1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-15-original-before-persist.json.gz",
+      "bytes": 8037,
+      "sha256": "7fbf1a4196651f70471173a3eadf8e118ff808f221425eb3262052ba6726ad88"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-16-original-before-persist.json.gz",
+      "bytes": 7774,
+      "sha256": "f31fe6361626b90129dd0d6a3b2dc44b98e2be7fa2944fa04557880552219108"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/entry-17-original-before-persist.json.gz",
+      "bytes": 13298,
+      "sha256": "b264bc286891858c5f35200515fe2e22005d7805fa16d7e14135118f93e4532c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "45c5516612d4aaa2adc2c5b0868af546618cf4d4fb6ff4f949e979bf0d4d6b8c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-03-original-prompt.json",
+      "bytes": 104332,
+      "sha256": "a9b1ac4fb9cb39b194524779dcb36bbe013dc63657c46e7b519e9d62ed358978"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "ea6943b80103e431f3b531191848c0449d499bc9dcec114efff4b7bff3d25f7a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-04-original-prompt.json",
+      "bytes": 36591,
+      "sha256": "205dd36ba815ad64a3e452924dad347fd273a2cd694494075c62f79e71776c6f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "7061269a945b48351e1350dfb0b4f9b727b08ede95349898fbc2d53b05af677c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "8496231d78d68f0bff71f19d84be0c63223714b1c1bf2e649cd9d12cbd4dfef8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "f67ed58c4b0cf1de73ebb60032cac11f286cc9962a05d11a6bb3bece1f9f9be2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-06-original-prompt.json",
+      "bytes": 68576,
+      "sha256": "d67d415f6e5c0074c12c013209dcdee47d7bd215b819cd277cf1a325b6a0e81c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "f08e970face564b0d15f00a805d892fc138988fab38be2a341fe999420899aa8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-07-original-prompt.json",
+      "bytes": 38179,
+      "sha256": "d757d5a188ed5b6e63b92c7bbb80131de3e7c4d78ca14a54c3b4c18ee24e665a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-08-original-command.json",
+      "bytes": 306,
+      "sha256": "926891568a58629dc4374a1a3abef49285aa0232f7db94b8d8a4486b9bccc6d6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-08-original-prompt.json",
+      "bytes": 34983,
+      "sha256": "f7bc243b4ba4fe41c27bd3d33fac58141d0b232f77f45097a05beb2b2764388c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-09-original-command.json",
+      "bytes": 157,
+      "sha256": "25701c57911de53d1febd71acb90d21c211502b4306e899d9a29b7ef2e32ad54"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-09-original-prompt.json",
+      "bytes": 24744,
+      "sha256": "2a2b58b008b64d15ab66e250f7e5298a7794a8a1a2a31873fcd00cbd1337e4c7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-10-original-command.json",
+      "bytes": 161,
+      "sha256": "1c0c1c240adb88c223cf3ae7dd52dda8dfe0fd0f7eae2188ad5f62b618ad4b9e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-10-original-prompt.json",
+      "bytes": 38287,
+      "sha256": "6338f294901766a26ec33256813a59789fcb3a9183ccc623b6d55d73372dfe5e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-11-original-command.json",
+      "bytes": 161,
+      "sha256": "f422c50cf202ac1978d4104918ab20a8a9f25ac4aab3caf4fe5694df21d5ebb9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-11-original-prompt.json",
+      "bytes": 38181,
+      "sha256": "2ea8c13716a6f99b827811c6efa7a58da460d1c252469c29c317a6e3093a48cd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-12-original-command.json",
+      "bytes": 308,
+      "sha256": "3f1d1f7668136ed74f33c25baa15c6dae9bf0602d9734536093e1930d0b9e9b4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-12-original-prompt.json",
+      "bytes": 24640,
+      "sha256": "5ccf192dc970c9519e7ffd00f585f8302158b74b0f88f7134dd7d6c5402a2ed3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-13-original-command.json",
+      "bytes": 149,
+      "sha256": "418da6f21ff52675ce789308d60127bff7928b0804ee43e72fd286a59b7b7706"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-13-original-prompt.json",
+      "bytes": 10956,
+      "sha256": "13bcf8a339efdab58e2f7f66f61d6c08d1c0316456f11ef832004941a7cbbf36"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-14-original-command.json",
+      "bytes": 161,
+      "sha256": "27d2e3f6e8cf785963b01ff7044deeb3d8b09d552434067d8404143ca994a66d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-14-original-prompt.json",
+      "bytes": 38289,
+      "sha256": "a0f15c8fcdb41c0084e6df30b5b850d733b16c869d0952e5d895b47e328704ef"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-15-original-command.json",
+      "bytes": 151,
+      "sha256": "7c63789016cc4520a3db0d3b21555efd07033f5d42f5eb4f526be992f0ac4c9f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-15-original-prompt.json",
+      "bytes": 10183,
+      "sha256": "a25aefe61a4b4cd2cb0888a61f7e0675f02526647ed61371626ae51bac10ae87"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-16-original-command.json",
+      "bytes": 149,
+      "sha256": "4f3c17ec2d6d991e0bcfdf1cb078e26ae0b67d9a624cc89e6bdcfeea49c1422b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/input-16-original-prompt.json",
+      "bytes": 10169,
+      "sha256": "262a90fd1f50e85b1e641cb4759369a192d1e7950f01ef5b3cb6891e23d512e7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/original-final-frame.json.gz",
+      "bytes": 22676,
+      "sha256": "909fccd0bff8211ddba81385e2a6be7e98472018c52b13eebd0bff26b5a9ec61"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/original-final-seven-tables.json.gz",
+      "bytes": 83225,
+      "sha256": "87b091c8a0a561582bf31e1a1ccd4f8e6087ba12e054edd0abca71ec0b697ac2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "5962fd177db7bf9a4ba2ff6d0302e1806873fdf1cf7b295b6f3f54461954cbbd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "df21476b7ab886fceecf0e80dad51700eddd3c4913d9b059ae8ec8c59ead2096"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-03-original-frame.json.gz",
+      "bytes": 16007,
+      "sha256": "1525ededdc219ccf99d827a98203b7124dd2f9713bbec6610bd8ee5107cc0954"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-04-original-frame.json.gz",
+      "bytes": 15325,
+      "sha256": "e51cccccf6381803b5c070bb0e3f23f818fea102e52586423d85f20c6c76c905"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-05-original-frame.json.gz",
+      "bytes": 14187,
+      "sha256": "c3e2939f564e4717fd29e710fb9f1c1adb0ba4a6e9e571ed86e4b5a90eeb272d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-06-original-frame.json.gz",
+      "bytes": 17021,
+      "sha256": "99ae2b236e7ef08c8dedbb517fb0b2d8c6ede9184c5d8a69c2219d5a718bfbea"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-07-original-frame.json.gz",
+      "bytes": 18592,
+      "sha256": "063ccd8fb56a7fa929a12c0bbbc10273951bd7f6d7280d431538aecc5a017fd4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-08-original-frame.json.gz",
+      "bytes": 17269,
+      "sha256": "27cce933d0c2994c396521d08614f5b7b8cb06b66dbbc07a1a5622f051f0c0e4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-09-original-frame.json.gz",
+      "bytes": 18324,
+      "sha256": "e0e14b552e25f3d6917ffaa409b50a63f9650759f1bb120cee6bfbd0d748ff3b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-10-original-frame.json.gz",
+      "bytes": 20385,
+      "sha256": "d742fe15f4a0b1a4215a1150ae437bc4455bd60e36fcba1288493c9ab7302ca5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-11-original-frame.json.gz",
+      "bytes": 20452,
+      "sha256": "1cd924b9812b1e429c0e604ab47fe89c6e51fb4b9a43b79bd3ba8e6f2be99715"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-12-original-frame.json.gz",
+      "bytes": 18644,
+      "sha256": "61d7d77652ad6adaebd68e6dad20af0b1840d8e10acb95f58f98a219f4a9ad74"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-13-original-frame.json.gz",
+      "bytes": 15507,
+      "sha256": "21dd6d077189ab226cef60e091305e9be5a2360c9120895f8a87fee164b4e678"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-14-original-frame.json.gz",
+      "bytes": 21156,
+      "sha256": "a10987a327f194cf09279bbe711395fd94ba0391f62d80e88df3b28dae93ec67"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-15-original-frame.json.gz",
+      "bytes": 14781,
+      "sha256": "55e81a543a29a24379f559abb8dfb75fc3231806169aacb5253882d58b91fea8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-16-original-frame.json.gz",
+      "bytes": 14855,
+      "sha256": "a44258dda81c3b064d2a9f330a0e5c3cd6a2d018d98e95d5c08c38e815bb5a7e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/prefix-17-original-frame.json.gz",
+      "bytes": 22676,
+      "sha256": "909fccd0bff8211ddba81385e2a6be7e98472018c52b13eebd0bff26b5a9ec61"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-destroy/receipt.json",
+      "bytes": 954,
+      "sha256": "fd4386059abe235c99dfa0b9cba7715a46af0e1e4e4b4d012a2a15ce5047ef1e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-01-original-before-persist.json.gz",
+      "bytes": 3677,
+      "sha256": "ce283a21224b4ca0b4318f1852bb9bc3711c3dd3d1075af3e36e065d9744ca2f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "9086164ab714603938e790c5b67c3da79a2c1853a46d587543743a8159a9ef9d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-03-original-before-persist.json.gz",
+      "bytes": 12718,
+      "sha256": "ac1726c5498df6dbaa4e5cb3fcae94884f9e4036340bb49c3796a86f4e6cff83"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-04-original-before-persist.json.gz",
+      "bytes": 10554,
+      "sha256": "9e69cd038eb2e8a8f3d92e63586d8da554b5a3649611c2c7050772fd7a5db20f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-05-original-before-persist.json.gz",
+      "bytes": 9382,
+      "sha256": "60e5807ca1fb39229b65c41d7c8ac3b972a29ba658473bd17b93d1966ab006dc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-06-original-before-persist.json.gz",
+      "bytes": 11257,
+      "sha256": "db80576b864b37748cd79691c01c4e7e17b262ffbd0b03e0de8936d3df0b5650"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-07-original-before-persist.json.gz",
+      "bytes": 11970,
+      "sha256": "4a92e05097f5fe5992501cbf98952c60e331d55140e03f204e00b1fcd4a12d8b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-08-original-before-persist.json.gz",
+      "bytes": 10181,
+      "sha256": "43debaa9d34eecd48125248d550d9a1966cedcf1a68772235d564ddafccec136"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/entry-09-original-before-persist.json.gz",
+      "bytes": 14325,
+      "sha256": "5e616165849eac111a144e8a83052c0e0c512dde8c1c3c00f2ae52f22fbf45e0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "c783431d08c3571f7b9981ad0fd61daaedbe3a6b100555e5a2c11ffd1bf4e2d7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-03-original-prompt.json",
+      "bytes": 104332,
+      "sha256": "82ccad726ed670c3518e831b5c390e20487d2d3cc46f054c391f3917527b0197"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "5188c7418c784341142677b3b9fe2380f06e2dec0db9aa336c2a69ee62c1542e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-04-original-prompt.json",
+      "bytes": 36591,
+      "sha256": "aab7ec59ef4e2b6f2712412870d4083b3a0537fab2826d193e19185c0838568a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "76eb8447cf23de46f86ee9a62f0aaf641b90e2d6cf6ee820bdd660e68800e625"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "f2b4d58315db0881bd36cffa03b7680bc36d8ad5161588feac58b00ef2fa87d9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "aab8d8154a95457ff1120bb50f60c43836ab7412a6b35883d51af30a91c77490"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-06-original-prompt.json",
+      "bytes": 68576,
+      "sha256": "58c25f593c0151b314d58cca980e37736dee1e7d8eefdef26b574dddd8c36c8c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "528468c2d1b53edb7fd66af6831ad5795d31c18a55483dbd8294e3c4b7d1001d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-07-original-prompt.json",
+      "bytes": 38179,
+      "sha256": "34f1f80de5d0e5bc00c2fb9d643964f8ee5adccef8643522e48a94a1dc93bcc4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-08-original-command.json",
+      "bytes": 157,
+      "sha256": "64a74bbbe09546c5080390f2531b3148fb518b84f3af05e69d180eaa84754be8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/input-08-original-prompt.json",
+      "bytes": 34983,
+      "sha256": "46c4fb1d2f769a020118b798e9ce70ae4f37e7f0516658993384d6e9085b4cd3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/original-final-frame.json.gz",
+      "bytes": 22197,
+      "sha256": "c770e6ecb12b88b07a7b7920a8f0528a6e768bcc88013a7a759d98432e495b8e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/original-final-seven-tables.json.gz",
+      "bytes": 56210,
+      "sha256": "ee045f115385d24016c61724a28527e297d1d36c86a61f9e21d253bff0ad3b94"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-01-original-frame.json.gz",
+      "bytes": 4437,
+      "sha256": "7b922c6bdd0c85212299086db17d65e28aa687a8d08f6ea74c2119a2e3540fd2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-02-original-frame.json.gz",
+      "bytes": 4929,
+      "sha256": "a32be5a271a59db255814ee66a3bf996e27f201612e8d733fedc434a93466a7f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-03-original-frame.json.gz",
+      "bytes": 16012,
+      "sha256": "1459dfe6904de700c3a9d8b93b26af7daa7b933e5365c496a65368e27567bca6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-04-original-frame.json.gz",
+      "bytes": 15325,
+      "sha256": "d8b6be9d49af32e497fc56a38d45d987567932cbb5d84991d51b403a6cab9bf5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-05-original-frame.json.gz",
+      "bytes": 14187,
+      "sha256": "ac959e8fb0d8b4ea07d31c62e0a4144ec51320ff77d01bedf86098ca91d5a1b1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-06-original-frame.json.gz",
+      "bytes": 17020,
+      "sha256": "a0a2d4a52a9c50af0720feccd60a4adbd575164a6bacce6a55fb90c7fa9fc835"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-07-original-frame.json.gz",
+      "bytes": 18593,
+      "sha256": "92c532e5a490f43a3d4ea023254bb63c41da3eef6ead30f146cd8dd1489b5039"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-08-original-frame.json.gz",
+      "bytes": 17272,
+      "sha256": "0456b310ba17bd693f1cc6f51909408d6c8d2d315a31b5d00b3ba4894cec0457"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/prefix-09-original-frame.json.gz",
+      "bytes": 22197,
+      "sha256": "c770e6ecb12b88b07a7b7920a8f0528a6e768bcc88013a7a759d98432e495b8e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-keep/receipt.json",
+      "bytes": 950,
+      "sha256": "6ce7fba54f9e39a593482d0793e8b301d58a785f641612963f94301e198bec97"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-01-original-before-persist.json.gz",
+      "bytes": 3672,
+      "sha256": "3b1976f8a0f5326de8ba3e01e25206e56b4569168e3bd4b42c8adefff032055e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-02-original-before-persist.json.gz",
+      "bytes": 4227,
+      "sha256": "91d3b1f714ed481aafaf9632060857c40e218b04bf39deab5e9826aab07d3be7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-03-original-before-persist.json.gz",
+      "bytes": 12882,
+      "sha256": "55f14f1db7cac1cc88b335eb356d07c2cab530f75ce1cee701123e76dfa4c0a7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-04-original-before-persist.json.gz",
+      "bytes": 10709,
+      "sha256": "459583cf71325fa2c061f445b098ee2199fc14c1f035c3164cb644a7433486dd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-05-original-before-persist.json.gz",
+      "bytes": 10818,
+      "sha256": "7928968d87ebeb0f2e5e46f1c40247ff7162a8d4e310f1253644693697cd14a7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-06-original-before-persist.json.gz",
+      "bytes": 11414,
+      "sha256": "4f9604c2fe231202cbba965af75a409dc98ea8d3a55fbfaaed2dd0a8d3afaa79"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-07-original-before-persist.json.gz",
+      "bytes": 12143,
+      "sha256": "1a3367962791321fc867ca96340d211ab18e0f59435bb4aee40308f88bc62089"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-08-original-before-persist.json.gz",
+      "bytes": 11626,
+      "sha256": "a42a00d40914b016e4628c2014e07d2ee41d873a43ac273789aa0a0a900e6bee"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-09-original-before-persist.json.gz",
+      "bytes": 12472,
+      "sha256": "cc2a55bd1286d753a2e47fd559a261cab1521726444e2ca8ccb439ee02fdb4a0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-10-original-before-persist.json.gz",
+      "bytes": 10812,
+      "sha256": "7d0e8222792c355e9800b37c6a155b9858b2eef4003093ae250a06851bc27f74"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-11-original-before-persist.json.gz",
+      "bytes": 11569,
+      "sha256": "cc6508bc384e0a465466e5abb6336b8b36df12cb34326c61711639f8101b7f2b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-12-original-before-persist.json.gz",
+      "bytes": 10370,
+      "sha256": "177fde1ab37b73a7a458559f461148d91ef1183ea0e1324cb3f55baa395b1436"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-13-original-before-persist.json.gz",
+      "bytes": 11188,
+      "sha256": "61b53584f9e3403dbc6ce866d20fdce6ee6fd6dc3ab1e4c3fd82ac5a02aaf816"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-14-original-before-persist.json.gz",
+      "bytes": 12248,
+      "sha256": "b04bbd8c7dbc617334bc49ced86ffc7dfb900f6da284a80d5744ad7a83eea7b6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-15-original-before-persist.json.gz",
+      "bytes": 10371,
+      "sha256": "3532afc500919d8e7a4999ff413151b71f74a78aa9b058cb626fa50121f34a40"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/entry-16-original-before-persist.json.gz",
+      "bytes": 14945,
+      "sha256": "b29a148e90b66b4f2df4066c34d2ba4458d61808b1a77520862d1831f73bd872"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "adf0a7c0affd176c0ce901ef259411be4d805512be04bc79fb19be09e79cc3e0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-03-original-prompt.json",
+      "bytes": 104332,
+      "sha256": "5d8b00ff602ea412478f95425e898859927e3b5fb9cc17b03258859af855fea4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "bfa48b67541bffc898acdd52efe488a5d72d51586ec84d9b62be4f5200321d79"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-04-original-prompt.json",
+      "bytes": 36591,
+      "sha256": "95015f2d6c9b1950b801a833eed680e77e610c837cd2c820254f266c8962b817"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "27c5a91570398a6ac87cfe503edcf35d85ccd10df8c5c08408130306fd9e688b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-05-original-prompt.json",
+      "bytes": 78375,
+      "sha256": "dba643c6beb75c803d73b989703fccfc548456a20b3ea6c10498722f8bd69298"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "0386da22f3086a21c0379df13ba36915e35d13aa90c364cb0faa8c9b9ea113a9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-06-original-prompt.json",
+      "bytes": 68576,
+      "sha256": "dd7f3cf825d622f0000021787df9df18329ee1cdeaa6aa37cd7ceb3633d1536b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "481b1407b7ec513235ee7418f10d95c40234bf85859e06b2e4653d257f1bed33"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-07-original-prompt.json",
+      "bytes": 38179,
+      "sha256": "942c2734f7d1ea3504a08a7d1797b99d4259764595bd3ab14f7aca1c3f151e78"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-08-original-command.json",
+      "bytes": 319,
+      "sha256": "b234b51066e5808028799a6818c49bfc81af033eec0cdd7262bd486b86bd0560"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-08-original-prompt.json",
+      "bytes": 78927,
+      "sha256": "bda4be20072a746cb4e57a2a991392cd44ae5a2cc09c11fa820d227482d41517"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-09-original-command.json",
+      "bytes": 159,
+      "sha256": "ed4da157cf33ee505d2c527b408cd947909ff80801d13a39b397fbaefda2b3b8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-09-original-prompt.json",
+      "bytes": 38385,
+      "sha256": "49732dad9e9f9ba55ee768fc02faf03bbbd6eb6238270beca0bc748991d3065d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-10-original-command.json",
+      "bytes": 159,
+      "sha256": "3b4f35f7013f1e66333638f458f07ae4686431ac709008b43179441845157483"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-10-original-prompt.json",
+      "bytes": 35181,
+      "sha256": "504b93ef5b7ebab8ff059634ab8edd2772c099de97ba890a26f961aabc1ec003"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-11-original-command.json",
+      "bytes": 275,
+      "sha256": "bef3c9927b70c667eb4838f0d55d685b89083e3e216bf0c3547daa5f573b8ec7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-11-original-prompt.json",
+      "bytes": 63631,
+      "sha256": "1bd58c4ec9b4ba13e57b00f7e490808a91f3e55b80d661d6be37c246f298534c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-12-original-command.json",
+      "bytes": 159,
+      "sha256": "1482b2cd814ff13bf2ff98337370bf1282baadbc5d28b0d468bbd971debf06de"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-12-original-prompt.json",
+      "bytes": 34615,
+      "sha256": "bc4a5aef805e8033a33478407b15fa14884a7f7306000f0e1efe047317cf04a4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-13-original-command.json",
+      "bytes": 161,
+      "sha256": "4fefb51649b443cd2fb0c11c45d04a7503c4225991411d0a76fe29acbb715fc5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-13-original-prompt.json",
+      "bytes": 36713,
+      "sha256": "5592469eb7dddeb88ce84f3c248e85fafddf694d9314f74d46ea7a4c971fe36e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-14-original-command.json",
+      "bytes": 161,
+      "sha256": "a5de17d4c22fd6b70577006e6b41c03e6e1ef02c853a0eada4dbf66cbbca4da9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-14-original-prompt.json",
+      "bytes": 37989,
+      "sha256": "7214fa8bba1f375046f9ff2ebeb64406b09a940087b60204dc8bff9b9ac917bd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-15-original-command.json",
+      "bytes": 159,
+      "sha256": "b385f9cfa6bfd4a073aa776018be4465ce33825053c3608c3ec28e714b38a52a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/input-15-original-prompt.json",
+      "bytes": 34783,
+      "sha256": "ad5da14681bf271b038f2f3efe7209fd2ca919eefbaa6611968a9a8e77f04bf2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/original-final-frame.json.gz",
+      "bytes": 25636,
+      "sha256": "15d2d1457255bb3527b6222a6b7259f6aaafb50950523b3353cf3025a0ab46a6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/original-final-seven-tables.json.gz",
+      "bytes": 101077,
+      "sha256": "4fd555bcdeab02adf62beeb2b74d63685d9d65f3bacf711669465d09df544754"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-01-original-frame.json.gz",
+      "bytes": 4431,
+      "sha256": "98d690631c54bccff45063e7e36deaa81c2d79c71c280e3055d6300c9c2686d8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-02-original-frame.json.gz",
+      "bytes": 4924,
+      "sha256": "da60866d42c66067b8f3c6fb1278b106c213c0a1a9b4dd78f8c04aea14c5a48c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-03-original-frame.json.gz",
+      "bytes": 16214,
+      "sha256": "00dd797920d406fb2f84ccd503548e5cfc333a5c56b6f0aa4c9dc768f13d1b8b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-04-original-frame.json.gz",
+      "bytes": 15578,
+      "sha256": "e6cad19be29f2dc8ec235d53d0e34122b271312eeaa6af960fa2ca88a883f4be"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-05-original-frame.json.gz",
+      "bytes": 15657,
+      "sha256": "fbdd34a6c06c7a0d6ac5d8a18e7063b989c9787a48732fdd1ac6327cd41b8bd6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-06-original-frame.json.gz",
+      "bytes": 17275,
+      "sha256": "bf86a2ad4b326658c682d88550d27105bc5e521a4b84e992c78eaabd22a11282"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-07-original-frame.json.gz",
+      "bytes": 18924,
+      "sha256": "e7867195d942262500d9889f7b318ca2735bee9c8ff21f184ac2a13656f1c98c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-08-original-frame.json.gz",
+      "bytes": 18847,
+      "sha256": "80e09cb3c84bae8f8a7e192047662f5feeeb7683ea3ea401a486dce201fa8e73"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-09-original-frame.json.gz",
+      "bytes": 21337,
+      "sha256": "aa52c88b871e70aeb8a00d994cdfb422a6687bd5d5fdfe4c012b3b66d87ccc54"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-10-original-frame.json.gz",
+      "bytes": 19838,
+      "sha256": "473427c27947504abae361af5462c1e2bb6675097e2534ece11bfc0af07e4187"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-11-original-frame.json.gz",
+      "bytes": 21605,
+      "sha256": "9b4d5940e367bab458ddfd968959cad12b3cff258484a5ee1a9c43e34ed31f73"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-12-original-frame.json.gz",
+      "bytes": 20080,
+      "sha256": "49fb431e1360374fa36482af98bba7ff9327816d220e42ee61771d841585338e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-13-original-frame.json.gz",
+      "bytes": 21591,
+      "sha256": "052738193d384abeba28596020235681ad05f104221fdf771c211f024a4a24b8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-14-original-frame.json.gz",
+      "bytes": 22215,
+      "sha256": "06765c00c8d2225f2199fc7761677e7ee44e455decb046171b89c6485163d7dc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-15-original-frame.json.gz",
+      "bytes": 20716,
+      "sha256": "f40a7f4eb84a78f2839ea1224f3ca3bfd0aad48cab6b984e2e6b8635f5cf1853"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/prefix-16-original-frame.json.gz",
+      "bytes": 25636,
+      "sha256": "15d2d1457255bb3527b6222a6b7259f6aaafb50950523b3353cf3025a0ab46a6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-late-defender/receipt.json",
+      "bytes": 973,
+      "sha256": "60ca9d35926deeb3f8532cb923cc7eda877aff3877a0bc742f3a8a5b1740c084"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3677,
+      "sha256": "b5f6e09304a72249f2c420773dabe03ac5834ac31abd9d59741f8da394844bd3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "68f4e6f465f0d962f341eeef063dad683ad9026d843f0340551ce53b8fd4ee4d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12718,
+      "sha256": "61597f96f2bcfb7326e8d986a4375687a00e4907ae8331f7a1418958f8fa29f6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10554,
+      "sha256": "e7d89dfcfd325f9d2a00572c1737dd49151b5a5ea7d6352e77d0a2e43fa92c9f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9383,
+      "sha256": "677a11294079fa9e014b3a02cf6b0bc0d10854bd098d58818f18c8ed57a20196"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11256,
+      "sha256": "cdbb99591a0f1c93dca384fb52b894101d755704f496f7456c43309d76dc312a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-07-original-before-persist.json.gz",
+      "bytes": 11969,
+      "sha256": "f42068b28e0542cbd9de49bc703b5b1f67fe852e6f6a7579763bb4a0944658f6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8761,
+      "sha256": "896c88b20f296b849003295479c35962afb2bb1f9c5e7549ecd83e577e43cf2a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10450,
+      "sha256": "95a5d72f4544591cbd03400d688beaa7d705030170cd9c95ca36e8f51ed60d40"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-10-original-before-persist.json.gz",
+      "bytes": 7953,
+      "sha256": "ea98973cfce64c2758c87d3b1309b346e735c9b4371d8cd10d64e05142185bc0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9857,
+      "sha256": "cad1be293ac06cee87e64eb0189f2701dbdec719346f56895465dbbb234ee4e1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/entry-12-original-before-persist.json.gz",
+      "bytes": 13481,
+      "sha256": "933bbd66c28c5abedfcbe9ef7ab4b0088c8f14afadf10c14e5e0a7edcc3c8b9e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "1f82bcfa26f447312fb67e5cb6889a8c2c67ff49a6849dc9ad2ae8a4c53e9749"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-03-original-prompt.json",
+      "bytes": 104332,
+      "sha256": "651fbe80d3adf830b07ed44c943682b0ff809fc36113cf697182a57597d8c7dc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "753dcd8ca02f6ef6351bf19838fbbedd9dc521d3e7fc1bf4b7d7a958e1a76c4b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-04-original-prompt.json",
+      "bytes": 36591,
+      "sha256": "930b6b9e4e3ea958dcdb6402b0a96924c54b4f803448aa3c0769f16a0df97b6b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "6b4cd01bdf9f54013550396b8f34c1ff2e053932e6eb6f5380dae53515b68851"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "3d23d6ae123446585db3aa39daecfe42655402d32575a9a67cf3da573cc7b6fb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "f42e2812f1dabcbc66a6adb3b1a0bc132c518a553a07d07541702b3862a8a93c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-06-original-prompt.json",
+      "bytes": 68576,
+      "sha256": "0aaab85991961249011bf0e19640f4bc0920f1f55c9af81668b10cff07c9757e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-07-original-command.json",
+      "bytes": 314,
+      "sha256": "b08cbb6942c9d1588f498eda3cb2dd87dc5d1aadec5a41e678b5415446cdf1c6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-07-original-prompt.json",
+      "bytes": 38179,
+      "sha256": "8484b07232c04a44914278b575b933787ccd60b4d2da7bc0c7fb6bd52e1b31ad"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-08-original-command.json",
+      "bytes": 149,
+      "sha256": "1f3f0ee3fa31f3e0ff1c819d19fae2acb7c6f818646dff13fc0a755f9807d633"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-08-original-prompt.json",
+      "bytes": 11030,
+      "sha256": "87234c284ea151743afa1e3fc110b2627c24ff09ba114af70b8fb3a7f40ecf88"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-09-original-command.json",
+      "bytes": 157,
+      "sha256": "b6519aab67f616cbb2965bc8c568982b0be4854fc0654d6fb844c49d7f6f0a65"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-09-original-prompt.json",
+      "bytes": 35153,
+      "sha256": "7f0e3e1e4a67dd2f0237f573b005d8ee084cd75c910a7a2f3073b4f08545b381"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-10-original-command.json",
+      "bytes": 151,
+      "sha256": "a25dbe5b1fbd8cc3753a9b81b71c4f2eee92b714b5370445c968846ca1726533"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-10-original-prompt.json",
+      "bytes": 10183,
+      "sha256": "eac238369b976509cfec9cda9e43b5b70b3d5ea00efa3d835e15f2bc1fc1dfad"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-11-original-command.json",
+      "bytes": 159,
+      "sha256": "8335f3325ca293d86b77680f7bb2b1e3827c66994389830f80fe0beea4a14749"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/input-11-original-prompt.json",
+      "bytes": 34182,
+      "sha256": "b8ac90bf5da2558fb4152e1fe2b011f5c7afe332189dbe546b9de4bde91c8e86"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/original-final-frame.json.gz",
+      "bytes": 22164,
+      "sha256": "3ca3e271ffd61f5192ab525d73929932492e4b31339df037d8c52ca202bbfd54"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/original-final-seven-tables.json.gz",
+      "bytes": 63204,
+      "sha256": "1512e597747ad1b1472127b85e49162fa3e44897c3bb66a9373543335dfc8933"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "0d9f3e12170d8f15f017289498311ad35eb8285630caa4aa5123936ed9220e37"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "d6f383d8a6470d59b24345370d7d981c859c10c1c7e68596298272bfaf51ab08"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-03-original-frame.json.gz",
+      "bytes": 16009,
+      "sha256": "a79f18ce8ce4fa39d93ce41770628de68a9b43e73be80be93553993f2d512833"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-04-original-frame.json.gz",
+      "bytes": 15324,
+      "sha256": "cdfd5ca80f1b2011a98f4c0630ce16643239bb705657b686be5400cf38a69266"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-05-original-frame.json.gz",
+      "bytes": 14188,
+      "sha256": "f71b07538fe52d3238c6ab1129ee273ba86a2abf277816beaa5ca435a6a2cf30"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-06-original-frame.json.gz",
+      "bytes": 17021,
+      "sha256": "42fbfc79e96f103a8bc86e6666fcbbd4ff40444e329c4a81905fb6151623fff0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-07-original-frame.json.gz",
+      "bytes": 18593,
+      "sha256": "f693ca4a8c3d16a7b36cb814e2ba073757eb7572b0b2ac8457a7b9eb682ab3b9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-08-original-frame.json.gz",
+      "bytes": 14482,
+      "sha256": "7ca0fc702abe6933db173aa8119d4743e2197b72e78607d78a323bdff67a9586"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-09-original-frame.json.gz",
+      "bytes": 18760,
+      "sha256": "9791df1a2986a534e1bb982e858fda54cd8a1d28a25a2db806aaee9ea8d9f3b6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-10-original-frame.json.gz",
+      "bytes": 14062,
+      "sha256": "dfd0598cef45ad71009099acb3aeac0953dff188eddfef62fcd1333d28b2329c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-11-original-frame.json.gz",
+      "bytes": 18068,
+      "sha256": "77d2713bf1bc1c7f84587e6a4959a145520822cc6bde85d3edc99b7a3e7d1a13"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/prefix-12-original-frame.json.gz",
+      "bytes": 22164,
+      "sha256": "3ca3e271ffd61f5192ab525d73929932492e4b31339df037d8c52ca202bbfd54"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/enforcer-return/receipt.json",
+      "bytes": 953,
+      "sha256": "6fde0ced3c01e9adaf61643eb51ea857fdb7ea397de1a3bd97aa65ef559ba311"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/actual-corrupt-frame.json.gz",
+      "bytes": 18749,
+      "sha256": "e2af7302ba4fd62e11a588f93c1a3958c50c11d52803a0836237e301e3bab0f8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41000,
+      "sha256": "93e90df39c663ced10198af7cf759fc9a3a6cbb260129139d66ffad43f3a7a56"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/actual-refusal-errors.json",
+      "bytes": 76,
+      "sha256": "1f9af11fa8c33362686f98142e7e73a27b54316c31c3d9b7830101284085d8f1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "ab8bd78d375161b6bc6129f417725bff84430c1b0a6bbbd605a7576a86be59ad"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "58f0495a3fb3e492c9ecf5fb829b037ace190260d26fc055e51748d08dae6792"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-03-original-before-persist.json.gz",
+      "bytes": 12776,
+      "sha256": "69923f798e5389aeff3df5b13d9850832796de2a50b40de99ca7b4ee9525140f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-04-original-before-persist.json.gz",
+      "bytes": 10611,
+      "sha256": "707d86fbf7f53266eac9036158127e84dbfa3a32f0fd2b2ae13f6635c88335c7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-05-original-before-persist.json.gz",
+      "bytes": 9435,
+      "sha256": "609024339fa2371992d1ed50fd4d8a7dceeced4ec92f98e929ce902081d9a84f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-06-original-before-persist.json.gz",
+      "bytes": 11309,
+      "sha256": "7257df5587372901b75f1ef38309eedc8b251b37dfcaa7ca786247b9005ae834"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/entry-07-original-before-persist.json.gz",
+      "bytes": 12027,
+      "sha256": "4ecfdff5d6d7860214e5b94ab2b5b88b24ab70fc1de234903baa190a36e0b919"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "5155d7e7f2dcbd0689aa8a3fc3d2022f3b524ac0fe1d6bc7962ab25cf6e0cf4e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "80f2bf5c1bb0e4723fc887f42187090bd877837702921fa1d4d7c33de0bc6436"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "284b5ae03704224f691097cbc8e0568f8ab8280f66efa2fac0f2e7dcbed00750"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "cfaef5ad6a84c9eda51b06742e54abbee5ca4dc5e3f7947af111f96ce78e83eb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "1a0148c7eae796b09d356a65456e24654df6c36410867fddeb851eb32f480193"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "1e38edeb5f8969c9b652ba97a47c35f1c4e35bbd3852ed5317241eed1ca5ef8f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "284bb997028f4791f4ce1840817ab9f0f396ed92f1bea88ebff010132ed6a345"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "48446dc3fa44eafce63d39b76da2c07224dc9bf3e4b3dea6130ba031991cf2f9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/original-final-frame.json.gz",
+      "bytes": 18749,
+      "sha256": "cafb7b23be9bddbadedc953f0efe80e1625972e5772699960e4369c6913ce4fc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/original-final-seven-tables.json.gz",
+      "bytes": 41001,
+      "sha256": "9129749c8111d73d1b51d910a3a58b536cc0d7d1e709c36100fb311014ca563a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-01-original-frame.json.gz",
+      "bytes": 4433,
+      "sha256": "ff754fce5758e1affb427f783bae0b7813ad63a087d3e29d1901b5ccbeda9612"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "a9e1f963ab4dab92558267a0b37c0b5f15e63c5175860bf496c53d26b732d696"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-03-original-frame.json.gz",
+      "bytes": 16137,
+      "sha256": "2cc97e79cfc89d0288f221228f0358dcf5cc770848bd2ee8516a216dba6b6647"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-04-original-frame.json.gz",
+      "bytes": 15480,
+      "sha256": "bce63e48d83503c6535170da7717a20b4b7cd96334ac1b413a71cc97701b451c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-05-original-frame.json.gz",
+      "bytes": 14290,
+      "sha256": "e0019f399955d7f29e0dc63c545cd223ab741542098d87bc92d5d5136d59151a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-06-original-frame.json.gz",
+      "bytes": 17166,
+      "sha256": "3527b980cb3a2ed6164038609a843380c216f89ae8fb0fa0469a8fbba50a1744"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/prefix-07-original-frame.json.gz",
+      "bytes": 18749,
+      "sha256": "cafb7b23be9bddbadedc953f0efe80e1625972e5772699960e4369c6913ce4fc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-generation/receipt.json",
+      "bytes": 950,
+      "sha256": "cb92cef64d9fb548f6db8a0945053390cb896c702bc0447c5ed3c149595072ae"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/actual-corrupt-frame.json.gz",
+      "bytes": 18796,
+      "sha256": "a3b7dc9d76d9b0f712d533e0ed6f0264e44106ff26b79315279edc6c6e26d23b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41027,
+      "sha256": "25bceb0fbe7a5da22c226c56043b6f6933b80d32bd466fc9c30cd8f05217fd89"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/actual-refusal-errors.json",
+      "bytes": 76,
+      "sha256": "1f9af11fa8c33362686f98142e7e73a27b54316c31c3d9b7830101284085d8f1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-01-original-before-persist.json.gz",
+      "bytes": 3676,
+      "sha256": "d1797702df9b65ada564c321915d37bd247a434fb4ac51d0b47002974df7fe71"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "b3d7087f5a5ee7d7e1156b748136fc23137744c4491ea7d40458b2df594601e4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-03-original-before-persist.json.gz",
+      "bytes": 12775,
+      "sha256": "5e87099cc518cd59e93884817f98b71d986bda08aacd95f4b5bcbb791abe8fd8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-04-original-before-persist.json.gz",
+      "bytes": 10610,
+      "sha256": "fabade0884bde6473533b7611af3d9a4a1917937f2a136b494d876a080b09b8d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-05-original-before-persist.json.gz",
+      "bytes": 9435,
+      "sha256": "be15d4c50cc820778984852c22241434cd0a30634b7cb8da519faaf06db6d407"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-06-original-before-persist.json.gz",
+      "bytes": 11308,
+      "sha256": "ac97955787d035f3c1bd2268ce72149a340880f8ae8bcda97133e6092a11c22c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/entry-07-original-before-persist.json.gz",
+      "bytes": 12026,
+      "sha256": "cde8d16f8d4b22167fbd5e24a73c50e8194a582874e0d7ca59e36bfe40b4bcdc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "aaa253141bccadce9916bcdb93e7402595917a1d66172e47a2aef0a4743c6501"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "23efdc41d0ded87e97067c5d92e6073bc520e09d00216d19452911eb9a944f2f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "d7c827b475ff17041312613cdf5850697bf9de5d3e728b147ecad9c617ff5e7d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "6cb7eaee61c831aa505997466fb6ecd167c260f71e8381863ff82df2b6efaee0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "6445865e76082fbe491f6868b8cdfc16396ae93f3d0c8240a5563a4615e9bc0e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "81e6be8b2bdee50bfa91076908b3076f4bc148ea6d20643c509b9977e950cbb1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "0f8cd21e43887042957f2befa19fa0b1af67aca1fb17ad5629b0373ba36b0960"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "76c9ef426e0214440f387595de2c9fde18d5a4418199c47a3edaa278c4fb89b1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/original-final-frame.json.gz",
+      "bytes": 18746,
+      "sha256": "aa2beb38f2e0fb2b46216c7f6f1d46249141f814ab0b3f90140ba4179f1cd3bc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/original-final-seven-tables.json.gz",
+      "bytes": 41001,
+      "sha256": "618483120d8c3dd802ab877dad1f78ff7d08bfb0730e690122f9c3b10c6dc8a6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-01-original-frame.json.gz",
+      "bytes": 4435,
+      "sha256": "d144a1a41a4d78bc46881cf2432e727aca64a84aa489c98060879cebbdc69238"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-02-original-frame.json.gz",
+      "bytes": 4929,
+      "sha256": "b045c17561558dd7dda62d06b7fd453dffa6807b29128b60070e8e41eb13f472"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-03-original-frame.json.gz",
+      "bytes": 16138,
+      "sha256": "ab22ca0110c4ac684318ae81023538a4acc4b81e3cf18517064447c0a200524a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-04-original-frame.json.gz",
+      "bytes": 15481,
+      "sha256": "6651f8f7c16021c09b412ee52bb58550a13d17d081b1defe812eb11b37ca24d7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-05-original-frame.json.gz",
+      "bytes": 14291,
+      "sha256": "687ac5fa513181b42299c6b3e65cff2a6c7d70df4e22b760417d5be386a95c17"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-06-original-frame.json.gz",
+      "bytes": 17170,
+      "sha256": "ad4b1d8249f27ef902b1512e52b515b2dddda424bf56372fb428061b65b1450a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/prefix-07-original-frame.json.gz",
+      "bytes": 18746,
+      "sha256": "aa2beb38f2e0fb2b46216c7f6f1d46249141f814ab0b3f90140ba4179f1cd3bc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-printing/receipt.json",
+      "bytes": 949,
+      "sha256": "91ed2e86b522950f038d135296e9d0a53b7b52580969d90ff4216e7ab98c6e82"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/actual-corrupt-frame.json.gz",
+      "bytes": 18754,
+      "sha256": "c2977e36c8f5453f3a9930ca1f2527417d5bffc4daf7ce5ad3058ab10a4a7b11"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41007,
+      "sha256": "dcf0a98a40b4ad7ce9a6b070f9cfb1b3d93871c423f5da67e47df49f440ea409"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/actual-refusal-errors.json",
+      "bytes": 156,
+      "sha256": "0a3d8ced3372b43f7cbc95b42e6486fdfe4cf5e1c587b6cf15642e922a017f48"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "36ad1d91ebbf3b7189f895118a4da707c1f05e75f0ec7780ccc019ff9cd70ce5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "67f3cf591da806f4f4f5704eb054477ebd9b821c617e16cb8a47b29a685aed13"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-03-original-before-persist.json.gz",
+      "bytes": 12775,
+      "sha256": "61310cad113b81aa2fa8f61d222780af3dec774c3b0cabf11f9108c182c59f99"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-04-original-before-persist.json.gz",
+      "bytes": 10610,
+      "sha256": "f6d943fea0be934a1f5b265426068be6de57635b32512950ecf037eed1d826d7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-05-original-before-persist.json.gz",
+      "bytes": 9436,
+      "sha256": "9956edd3a53bb5a2e5cf38df5bc467e85a8491dbc5b31694868b1cd9eb0fc3fb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-06-original-before-persist.json.gz",
+      "bytes": 11310,
+      "sha256": "9d1d28ce59110a29692a3556f886581c2cab84c593c01fb5b656f71ac8041f74"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/entry-07-original-before-persist.json.gz",
+      "bytes": 12025,
+      "sha256": "a5c7e7c7aebb15e360c32ca5776dfaaff4497cd4eb1ea2dfa619bd4143c2e4fe"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "2ed62973adc09e03956352948e33dcca2c26b3c56e608b864fb8a53f3e845920"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "79a57721ba2c6e3a99451f201f4b05cb181df0d4aa0438638c6151498b89461a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "bb1a8406a3eacdb8318c9e9ad5218812e9ae6a378bc69227b4c5ab493ae6ea1c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "c702924874d683496cf5a04d5b2be1a9e4fa8d86a1ca7f37870a77903fe62e71"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "2aa4c37d22ca0c24462f35667d9b6193f302a051803858ca17c646dacff01d30"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "552bb62a96ef2a6dd92491756e077f8ebd21033893488b2591b4a06da3128ecc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "9e3a0456698689ff00d975aa7d5021b9221afa8e7c52981d11c9ca651ad4acbb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "5edb5a0588bfcc8237781bbf18dee13e550c553b2f6906b06470d6f253aa2491"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/original-final-frame.json.gz",
+      "bytes": 18749,
+      "sha256": "07a3492ce56f1920c06c77da30ef81411cf8fb2e12a1fb088ff6d485d13cd39d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/original-final-seven-tables.json.gz",
+      "bytes": 41007,
+      "sha256": "ea1a7885ba03f8aec29fea1ba3a930c54e04b1a3423398541482cbf42efc5040"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-01-original-frame.json.gz",
+      "bytes": 4433,
+      "sha256": "b0d65f1e6c67ba862206175583e0446a0cfa863b6527c659f1663df1b20edacf"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "a622d4d1f4ab74679e5f1ffbb9d296925ed8dcf0f0b42c89055c177f57af4490"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-03-original-frame.json.gz",
+      "bytes": 16136,
+      "sha256": "39c15859c7995a9b2c0a5a4a66bc3e328ca84dfb79c734f7d31bbd73a10ed472"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-04-original-frame.json.gz",
+      "bytes": 15480,
+      "sha256": "8fad6e3e56176f1b2ace813489b8a6b8b5447a9153dcf4ed72a1b4fbb7971acf"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-05-original-frame.json.gz",
+      "bytes": 14288,
+      "sha256": "c7d424c09a01c2f451c4a7235ebdaf205695208fc541625ea17a21f680178915"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-06-original-frame.json.gz",
+      "bytes": 17169,
+      "sha256": "04bffd3666bc7ea5c13fe19353340add3c60d4e310a43c1ce4d4d145a3826dad"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/prefix-07-original-frame.json.gz",
+      "bytes": 18749,
+      "sha256": "07a3492ce56f1920c06c77da30ef81411cf8fb2e12a1fb088ff6d485d13cd39d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/forge-result-tick/receipt.json",
+      "bytes": 951,
+      "sha256": "480f40191ccec7df786abd3b35ddb4d9a690a7c07ed21e1bec03c5d7bd114dba"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "878996a6c5b622a038845e51671bddf9cea0cfa41a5aa0a1c73c966bf7e3f1b6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-02-original-before-persist.json.gz",
+      "bytes": 4230,
+      "sha256": "9564477a1424b3c998168f3caee38d18041493380913f5cda8f56c932a882877"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-03-original-before-persist.json.gz",
+      "bytes": 12855,
+      "sha256": "e4e3543811cfba3a21a70a5c70e39efae52ae454a9bbfc080bea02471e536f18"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-04-original-before-persist.json.gz",
+      "bytes": 10706,
+      "sha256": "9673d6adceb59496fd4672809d1f6217ff27ce27315f3afbbc8f1a164290d1b0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-05-original-before-persist.json.gz",
+      "bytes": 9551,
+      "sha256": "ee9a3bb5543f1f455be9644cf03cb4fa8cbd1e0499d3509346e61f90e95ee4ae"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-06-original-before-persist.json.gz",
+      "bytes": 11410,
+      "sha256": "ae3ca1c825e6d89f12b6d7684bcacf917acf9764f6c501dc2dee566c89ae3af3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-07-original-before-persist.json.gz",
+      "bytes": 12082,
+      "sha256": "01c53db54f3d0dc22bcbe0a110b8ecb644a8988e41abba0f2db4d33f5d93e475"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-08-original-before-persist.json.gz",
+      "bytes": 10304,
+      "sha256": "1bf25f7d7d09c499786f2d169cc380ace47636db167050b8892c423017234d72"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/entry-09-original-before-persist.json.gz",
+      "bytes": 7435,
+      "sha256": "2b51bd839d46708f407c9d8ab4cbe9a730450c6d9e11c0a5abe929ac5a566341"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "d1e9b6d37c06997bcd10b51752e8b0b281cd7221e372799354d47878354dee3c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "864802a32eff3bc2797acb802e0ea7c643b23ec171848d187265272c39147404"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "d93c0a1267983f0eb874fb42a87cc5882cdf16bc7e1714d6d4b0e5f5ae2b1f75"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "9f384ab0a64d0361f4ec0eaac86652ce71599eb44f463f3cf10a87ac5d99ff98"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "9a9734255610aed1642904de7f3eeb2de3f09e1f8ad12a358ef77d4ae176436e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "97d8f7e3e110e836e3238b9bcd5bebeccabeacb09147688d18ce070eb6dee3ff"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "76d08a88a9bc9a07b6f4edbc94142444bbfee2194934bcfbf1377a74a3414660"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "6a6d198a36d50711ef3e31414a26ecaee6c85dcefa9f977c8ae25b43a9e27418"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "87e459dfb5cbddfcdd3c7288d1d060ae27c905f32ea9317fa8448605375c7de6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-07-original-prompt.json",
+      "bytes": 38154,
+      "sha256": "5191f9a8ea560f86c4e10dae9f6a32e59dd181afb2a1f6bb02755effa98bd943"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-08-original-command.json",
+      "bytes": 157,
+      "sha256": "51cba7c1d28febdd7679a5ae78283ca2a9c58ee14d684c038204040bf4933999"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/input-08-original-prompt.json",
+      "bytes": 34973,
+      "sha256": "5a1fd1b457932cf642ae9b8a1e6f52338df7b7f6a7061ab636ab5a057aa89f8d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/original-final-frame.json.gz",
+      "bytes": 12870,
+      "sha256": "789cb57b06ae01da4f42dd078e2dc903ced59aa52943e2dd6379522cc4a8a5fb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/original-final-seven-tables.json.gz",
+      "bytes": 48612,
+      "sha256": "3cd6872fe7ccf605a1ccc06c869ed60c382b24efaf1dff1faf1ede1266f691c6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "92025607f7cc4094a522e107e105779b28f4611f8d78e7888106ae5a7acfe1c3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "399d8cd830a22061e86e436f7ceeda99717a80a58c8509ce32741f7aaf8cc8f3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-03-original-frame.json.gz",
+      "bytes": 16405,
+      "sha256": "f69c99ab0043855e9dc3ccbe35ccfbad995130a48e14cd175961f4ae543a5d4a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-04-original-frame.json.gz",
+      "bytes": 15766,
+      "sha256": "65fa4ecdaf328a514f5e86eb6838ce9d9eebed2ff8d7eb5c22abebb928d213bb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-05-original-frame.json.gz",
+      "bytes": 14563,
+      "sha256": "89632218cc572fb2cd4b62126c2e862e4fb66d4dc708279a4863f7eb0a596d0d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-06-original-frame.json.gz",
+      "bytes": 17470,
+      "sha256": "d755d633c8ffe157bc5dacd41576530b48a7095b8df5d4b11def5daf7e8133ce"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-07-original-frame.json.gz",
+      "bytes": 18964,
+      "sha256": "4391bce354c29416c5fe8115fce881c88c973c9238188564d15901f16fc2196f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-08-original-frame.json.gz",
+      "bytes": 17584,
+      "sha256": "d3cee2139461ed18b6cb0b0f9806802bd97dd10b3117ba2e0ba111e90630ac35"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/prefix-09-original-frame.json.gz",
+      "bytes": 12870,
+      "sha256": "789cb57b06ae01da4f42dd078e2dc903ced59aa52943e2dd6379522cc4a8a5fb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-burnout/receipt.json",
+      "bytes": 957,
+      "sha256": "6d93c570ea5aba4f9d7c8d8ba963698be7c67ea8b99c99d9e41818e821b5c9c4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-01-original-before-persist.json.gz",
+      "bytes": 3677,
+      "sha256": "e3289b92e2391dd66365032633e0080f12f832c85c8e4b1cd196d99adcf9bede"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-02-original-before-persist.json.gz",
+      "bytes": 4233,
+      "sha256": "602936b5842dd30a978ae4edf11360ec82cec0c2cdabe421025564125717679a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-03-original-before-persist.json.gz",
+      "bytes": 12774,
+      "sha256": "64793974d1b6ba5ffbcf1c6163b7e110d98117fad42519e19efc8826c59e15f4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-04-original-before-persist.json.gz",
+      "bytes": 10611,
+      "sha256": "df62cc7f291fa23b4316336c9c3bab1dd95da20a91c505153c8360836d9a3bc7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-05-original-before-persist.json.gz",
+      "bytes": 9434,
+      "sha256": "c3fb5d2601c6f911b202b7ea930b5a8599ce0e565c170c02cbcd25b44c0c918a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-06-original-before-persist.json.gz",
+      "bytes": 11310,
+      "sha256": "ad90c1f4b41d35e964a5c85d2e956aeb6842b35eb3c163bcf814930d5e4c48b1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-07-original-before-persist.json.gz",
+      "bytes": 12027,
+      "sha256": "af93487e77fa01d0cdc4a565888db0a38597ee47b0a1f16e8f3c258fe536c68e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-08-original-before-persist.json.gz",
+      "bytes": 10242,
+      "sha256": "96639ee4d670f1442f7095bb9fecd4bc5f5f997f6679a8158ea2cda6ed449e78"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-09-original-before-persist.json.gz",
+      "bytes": 10629,
+      "sha256": "e1c5802c52846587a4eba018d0ea9f9e6324c80cc7a15ca6d83e093535450c5b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-10-original-before-persist.json.gz",
+      "bytes": 11582,
+      "sha256": "08861a73b9c8a55dc0f4a2d0ee6d4088baa296b8f335b3fbb1436d034abbbeb6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-11-original-before-persist.json.gz",
+      "bytes": 11654,
+      "sha256": "96157f050873117be7364d641c1126ad791d1261fb1c91ac229b3b904f3b172c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-12-original-before-persist.json.gz",
+      "bytes": 10173,
+      "sha256": "8a28cf3068fd01a1c0765b26eb7ee52938aa427cfd3eee30da66e73875541748"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-13-original-before-persist.json.gz",
+      "bytes": 8914,
+      "sha256": "2ed11ce1325d2c9b179c085df1ec4133fcfcdeba169de749e320a7f859ac8cf1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-14-original-before-persist.json.gz",
+      "bytes": 11655,
+      "sha256": "bf28670113efe70b69fe858177f303b39e031f006cd2447cac14d0ff56328139"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-15-original-before-persist.json.gz",
+      "bytes": 8099,
+      "sha256": "86077139c345b9be484a24b4507ce7e5c5ca6e645b3ac6e06da368ad3d136a1a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-16-original-before-persist.json.gz",
+      "bytes": 7837,
+      "sha256": "7a99363eea84f0355e3d93f86ea6835e4d4d68bb470482ea8b1f5db49fa3a96a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/entry-17-original-before-persist.json.gz",
+      "bytes": 13360,
+      "sha256": "1e445d24f9ff3c4314e176c15dd66244cdd18c36db669f8ecbc9bb44824e20dc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "30679a4ab4e87535e2715913dc87cc596268fa143bb76702d69a73a196d6a61c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "bbb2919c0c5aba9781ce00484b6ee2a52d78d08b59d4ea64ae0c007104adc7e3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "9081b6775c2871779653c2bc357cfa8971653c86fd340fc19cfee4057e3405c2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "7547f78199d06e28f7fde4333b92b2b464fd4ffa3ffceb82ec547cb73b02c4a7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "7fa8b32846339f344f43f6c46db4dc52e9e5787129e743821a9be94be7d1c6ae"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "40d034d7e5fc4d2478b15194c0bccc413804ff66025045e72cc114c6b0b92d33"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "6a6b1e4163d0c3e90f30af1f2e57128a48040723f8e9d6c946c827c1f2c1048b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "8afb878538d70f8297f9555452551aeae80ea93d49b9dd279f9dbf72310229e7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "5019eff97d033410175eaa6a1c900aa0b6846be7eb40c8f79234640e83cf1986"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-07-original-prompt.json",
+      "bytes": 38154,
+      "sha256": "a1f7515ec6f23596b35bf384765bdc7488b167496f1d055b4d8abc6c0ea8bbd7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-08-original-command.json",
+      "bytes": 306,
+      "sha256": "8b86d9f7f7b505d70ff249d43cb89e0771e9e8beca265b243f25b86bcef354de"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-08-original-prompt.json",
+      "bytes": 34973,
+      "sha256": "69ff8aa0c9f4f69bbf1dd979e447103fa7ea9a4afde67734d1bd79805e2a2294"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-09-original-command.json",
+      "bytes": 157,
+      "sha256": "9fe5a4d25b711f500be02b36a32fb1e79888cae62cb71e771b62a10c3152798f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-09-original-prompt.json",
+      "bytes": 24744,
+      "sha256": "e037759e25fab6e30f2880df9198db9bfbd6c5734a2988b352f96974f3b13217"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-10-original-command.json",
+      "bytes": 161,
+      "sha256": "66433789469d48edfbded2499e121f18ac7fb518c10a27ad77bff5352ea2602e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-10-original-prompt.json",
+      "bytes": 38272,
+      "sha256": "c2a4dd13882cb19f6d6bfd5a4959abf32401ee4435e5398fdef85313db3a5bd5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-11-original-command.json",
+      "bytes": 161,
+      "sha256": "21eab4f7d355ba50b7b04f681ff801f7ebe13def57e07ff478c820a6a9f54c8b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-11-original-prompt.json",
+      "bytes": 38156,
+      "sha256": "0f341648b31ce5edb075e808da3ede1b1941cbc582c045582bf60336ff25d302"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-12-original-command.json",
+      "bytes": 308,
+      "sha256": "fb37d6fbb281ac586d7151ecbaa5c32ac8eb9880bb6f2bc46f5288167bb94e46"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-12-original-prompt.json",
+      "bytes": 24630,
+      "sha256": "88585aee3d9782a0ef1d1fe8d8fad6c02431f7b073b01316351525d3fdd47ef6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-13-original-command.json",
+      "bytes": 149,
+      "sha256": "0004e667bed716be8c6388c9169c06dd84e833cdfa9b85b5a4e143245e611fcb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-13-original-prompt.json",
+      "bytes": 10956,
+      "sha256": "43ebf7bc447ffcab695fd3a8b9f41a3b4301b6fa018102751a846e9672de64f9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-14-original-command.json",
+      "bytes": 161,
+      "sha256": "9975ccea72208b737b9742373da6be321b0cdcf46253a09ec8d655a6ce731f05"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-14-original-prompt.json",
+      "bytes": 38274,
+      "sha256": "de25881eff53ddd65606cf21215bc69ee114ba25fd9e046ae1c376a7d8054e70"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-15-original-command.json",
+      "bytes": 151,
+      "sha256": "2cda225636565fba5d1443bf33170f976218e9157856e28c2d7c0b480084af4b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-15-original-prompt.json",
+      "bytes": 10173,
+      "sha256": "082f585db382a96f2d2c1a628eebbb18757f0e6c64a5819bc2199cf1c86dca75"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-16-original-command.json",
+      "bytes": 149,
+      "sha256": "2d37e4a016bf1af3cfc974efb177cfd35c515e4029e2546d6af624325954cf72"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/input-16-original-prompt.json",
+      "bytes": 10159,
+      "sha256": "3a271071db74ec687db536a76fdbfeffcf006afafcc72bb773e9812596fabdce"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/original-final-frame.json.gz",
+      "bytes": 22825,
+      "sha256": "e6d837e58baa40961d383a93ef5c3ca9ffe9fd8d6e5305fd135709c4d1a92d5f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/original-final-seven-tables.json.gz",
+      "bytes": 83355,
+      "sha256": "8cd064abd1f38342680c3080636971897c94af697c07cfb7c904606a716d473f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-01-original-frame.json.gz",
+      "bytes": 4433,
+      "sha256": "637506601ebf1adc397d44b21a0a621afeff0dd5ab217cbf35def1b099d5a7c5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "a66190fd2ba9480d870bc173e4eeb4e72e968125838af3c3b48aecc872890a7b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-03-original-frame.json.gz",
+      "bytes": 16138,
+      "sha256": "8493f57b9e578d2a86b9814c3f920dce0b7d637f59c0a3d0b5f5d1572bdfc1e6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-04-original-frame.json.gz",
+      "bytes": 15483,
+      "sha256": "75883173ec1c50718ce72ecb24ac970dcf30c9602f3e6b4e1a936d078f66bfd8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-05-original-frame.json.gz",
+      "bytes": 14290,
+      "sha256": "a3a13aa3e9501bae2dc7ca9f2fcd9e84d8de1664f8764fe8c026840c65cf8d08"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-06-original-frame.json.gz",
+      "bytes": 17170,
+      "sha256": "f3f9d99ed111935c061394915b62658c8231724b07f28763a22a3a2069771ce9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-07-original-frame.json.gz",
+      "bytes": 18751,
+      "sha256": "b3e336164768ce420f5a513255240427b12b8c167202f3edab618d7ebaf43f5a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-08-original-frame.json.gz",
+      "bytes": 17385,
+      "sha256": "607a5743c4a53b443a96fd8397485cfe9a09d4123215380ab5e8146226dd1b4c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-09-original-frame.json.gz",
+      "bytes": 18464,
+      "sha256": "a877421544f34e628dce2d100d72c9c16f1ae6b6d595440ba5ee7caa17559e25"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-10-original-frame.json.gz",
+      "bytes": 20546,
+      "sha256": "9d26542abe8f4503820cc1b4f87afa8d666c2e458f0c95debcdc98000c5d1949"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-11-original-frame.json.gz",
+      "bytes": 20628,
+      "sha256": "2b5b369f1ecfb19b09c97d58f5ae6f4b70a3346e8aeb2f95116500fab5cae355"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-12-original-frame.json.gz",
+      "bytes": 18758,
+      "sha256": "c2b994e6254fe1d903f463d4d534154d5eefaa4076fd81e1adf78301691d2daa"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-13-original-frame.json.gz",
+      "bytes": 15616,
+      "sha256": "4ade40fa2d2b50c36aaac99c0310f82733799c4f0ffa4f4f4c0f644faea1e88c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-14-original-frame.json.gz",
+      "bytes": 21311,
+      "sha256": "536b5b00468727ac6c0699611ffad948b216d887b529d51984111ac480379533"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-15-original-frame.json.gz",
+      "bytes": 14890,
+      "sha256": "46637d8a3fdb1e40fc3cb4e5467aa4d0c3beaa4359fa9dbbc75d2a6ea420d81b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-16-original-frame.json.gz",
+      "bytes": 14965,
+      "sha256": "f544891efbecdfd9ef369fc3d72c317ce12ce2ca22445b68b9fe9cad9a70eb0d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/prefix-17-original-frame.json.gz",
+      "bytes": 22825,
+      "sha256": "e6d837e58baa40961d383a93ef5c3ca9ffe9fd8d6e5305fd135709c4d1a92d5f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-destroy/receipt.json",
+      "bytes": 952,
+      "sha256": "6a07c1f9b773b1361091f4b8c88145036f32f448c2c907df76639a5c4f7f00ee"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-01-original-before-persist.json.gz",
+      "bytes": 3678,
+      "sha256": "ababcce41244a9da22959e2aa4bfad512e0081474c86e76e10dd601c1f4c30aa"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-02-original-before-persist.json.gz",
+      "bytes": 4232,
+      "sha256": "5a7e1e26fda92acbb7920a9cbaf3199603a206bf59f7be2d2230287a8310a185"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-03-original-before-persist.json.gz",
+      "bytes": 12779,
+      "sha256": "74520c66de977ac43c2fc4bb0132d0c6908a72607e6532b9954134424671cdcd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-04-original-before-persist.json.gz",
+      "bytes": 10613,
+      "sha256": "f8628d1d6833e45d253ef476b7bd107d3b8510b52588c7d14e13aaaa1a9db8e1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-05-original-before-persist.json.gz",
+      "bytes": 9436,
+      "sha256": "e252644ed96bcb82d264ea178bc300877a7ae49cfd2e11574cfa3a4ea455cc50"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-06-original-before-persist.json.gz",
+      "bytes": 11310,
+      "sha256": "ac5b5ba70d6499d807b20a458f79fd5642c68988b524a338a133075f688b52ab"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-07-original-before-persist.json.gz",
+      "bytes": 12029,
+      "sha256": "7bf1a2b470dfda70d5fe9c49b338f8a8315e81698ed96c0e48cb9ac3034252a0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-08-original-before-persist.json.gz",
+      "bytes": 10242,
+      "sha256": "89fc068bee2b062f40cf58437a4afa0325a2ee6b86e338544f1332c8d8429a58"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/entry-09-original-before-persist.json.gz",
+      "bytes": 14388,
+      "sha256": "bdb412ad7335c07d4948b333a5da2390ab18d55c06d34fbe269d61fe6043c2f4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "951ffd8d3ebf53860d5612ef2478b2ae8679995f20ced7855953496f41fd7c0b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "5d91aaac2e8bb5edee476da0cb604528a7fe777526152718c76e71d35be9679f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "f117809c12ea85d2e3cdeac305bae80273d581682469f3e53b980199730873dd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "65c7d4b5cb2d0a746b9babbec72f59c6d99baa8059681769ab27a8fe2ae96d33"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "79fa67079330204b6b8e1c2ac70b51674ef8a9388578d04849612b126814df81"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "38ef47968a75cb48122fdaf0c9cae39c03275b877a3b7c5882433940ab13e371"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "a8ddd55cdeb8fbb19540fb378f95cd0a71e581e4c395b574891fd886a841671f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "038ea3f894479fb7d1657fa2f452e61cc6dc6cb6847fca256efd7f7c3ffca51f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "aedbc14306e21fb13dbb8d72b62b25f4d28764422edb2f8896cd881e83b58433"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-07-original-prompt.json",
+      "bytes": 38154,
+      "sha256": "d4abf47e0594a309ca88dd1ad7d1db509f1f2f4fbc19aafbf794e8e9465227c4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-08-original-command.json",
+      "bytes": 157,
+      "sha256": "b53382e94ea1b1f350b0b1a8a9edba9716d9ee9fd8dbaee559775c48d279ada9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/input-08-original-prompt.json",
+      "bytes": 34973,
+      "sha256": "6c955a7c677d3cb50d3bf57a4437e958b405162f3546938bda24b7da12d9baef"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/original-final-frame.json.gz",
+      "bytes": 22320,
+      "sha256": "a4c93f7b74a871d16a24555eae13d04c14bf3c8884f98c5af34a920f90e40017"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/original-final-seven-tables.json.gz",
+      "bytes": 56385,
+      "sha256": "9b633a14d1104903a698d52dc3ee346be72d5386ae3aba95e66e3b95f56e6ee3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-01-original-frame.json.gz",
+      "bytes": 4437,
+      "sha256": "e2884bff1ef275a1ff033adb24d38431d15fa84ea3fbd6d81752bd1180d96223"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-02-original-frame.json.gz",
+      "bytes": 4928,
+      "sha256": "f19d6179ea01bdadd3225d9e780a5336dffa37b904f7831b9f695be0eb716ddc"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-03-original-frame.json.gz",
+      "bytes": 16139,
+      "sha256": "c7686bbb38a1f1b71b31d50ff7f11741b4bb6c8a00402e30f1adaffb651c12a8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-04-original-frame.json.gz",
+      "bytes": 15482,
+      "sha256": "06be65a387384ec0d94896018da469ab26bf2e8f85d24d4aebf458e563e297a5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-05-original-frame.json.gz",
+      "bytes": 14294,
+      "sha256": "40aaf270e0561474f4bd4466e6f4fa718deeafd093499e5c200f4652668125f5"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-06-original-frame.json.gz",
+      "bytes": 17172,
+      "sha256": "8038f9cb9c097b9655af4b85b5f84ed46fcfbe905685d02dc0d43a64ffbad879"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-07-original-frame.json.gz",
+      "bytes": 18751,
+      "sha256": "7f216cf4dcaf05fd92fcc3e8881ca25523107213fa2abfd38609040eb1cfd94d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-08-original-frame.json.gz",
+      "bytes": 17387,
+      "sha256": "2ef55934d51272416bf2bce5f708c4122d7da7f30e07a028bce321c491a6cb32"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/prefix-09-original-frame.json.gz",
+      "bytes": 22320,
+      "sha256": "a4c93f7b74a871d16a24555eae13d04c14bf3c8884f98c5af34a920f90e40017"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-keep/receipt.json",
+      "bytes": 948,
+      "sha256": "fa21d76177687bbe158a93d41aa3b5407d43113dc97f5fe82d5e51ac6379f69e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-01-original-before-persist.json.gz",
+      "bytes": 3676,
+      "sha256": "0b21d3a4b6fa66d69757c8cb5f89ba600d5508e3912b87cbf1d56dd021364881"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "94d12a9bc1879aea0f7d3177e1ea9dadacfb11f4c6cb4f608ad2069d6f73a723"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-03-original-before-persist.json.gz",
+      "bytes": 12913,
+      "sha256": "c7e31f4535dc4ba474eab24d003dfea7551409225fc6f0149ab50b1f4b1557d9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-04-original-before-persist.json.gz",
+      "bytes": 10740,
+      "sha256": "48aa7ce7495901394631d16acd9be4dd8d5f15e35f67df16a2c6d5bec7f6fa11"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-05-original-before-persist.json.gz",
+      "bytes": 10846,
+      "sha256": "b89cd943e814d9d70598f73cd5f5f72facfe4d6807c303883aef5d6fae855cd8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-06-original-before-persist.json.gz",
+      "bytes": 11444,
+      "sha256": "3e607cd25b0e5e59bd6847a3daeedc09c61e17d2f3624541424736d1365127c4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-07-original-before-persist.json.gz",
+      "bytes": 12177,
+      "sha256": "d51257c0f76fb80e6c328f0d0b60e6229b2143e001ad257ed575433d99b4b7b2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-08-original-before-persist.json.gz",
+      "bytes": 11663,
+      "sha256": "96f216ead5c7e9df89d1e3dba09594bb636f216ceae29d2ef3f7e832a969b02a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-09-original-before-persist.json.gz",
+      "bytes": 12506,
+      "sha256": "50cf37b7cc4727c60477440cac18e00914ef9c7c987b92e8cdcd8c3b53741674"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-10-original-before-persist.json.gz",
+      "bytes": 10856,
+      "sha256": "c2ac494c822022a9d404bdb7abc875873120202700e100b02690591c6ba3561e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-11-original-before-persist.json.gz",
+      "bytes": 11600,
+      "sha256": "e750d59bfd8abf1924eb30b3f6df211c1e60ff59ba4777a87735e3fe9e936c2b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-12-original-before-persist.json.gz",
+      "bytes": 10404,
+      "sha256": "0e481e9518674422aa23bd6309dbacd915f3fc4aedcb6904e6fd962d9c8d96f9"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-13-original-before-persist.json.gz",
+      "bytes": 11220,
+      "sha256": "e7eb3edaeca117ed473fbf6f851f1c207114b49be37539f0686aee5a0088944b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-14-original-before-persist.json.gz",
+      "bytes": 12281,
+      "sha256": "c146605c566753c4db19ceb1d9e556a9a80592c932a29d6824e3a152d18633cd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-15-original-before-persist.json.gz",
+      "bytes": 10404,
+      "sha256": "756c125174684b2623eb1d412906949c3019b809b70ce8fef2dc79e10596aeac"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/entry-16-original-before-persist.json.gz",
+      "bytes": 14974,
+      "sha256": "137c3d683b9f95a8657d58fdc6e50439565772d906690cef7338cac52f3d45f1"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "aaf52fea5a339d14df7bc01531c25ab609514854e9081f16516d9bf387bef82d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "958e8e20ec06acfd5f148764ac5a7dc3895c39a88e958ce4a336b0a2b0725cae"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "427751be30d39d84131be9203f663fcd96f97309565a64aa5fec8e434e7eaacb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "1d9070c639d0ca56e82d1c2823514e9c28d5ec44e6ab778ac3dbcf3ac916a2f2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "9c61c10b6c02d97cf5f9aa938df97a37f0d89c2641d1360a8d8781d09c82fd7e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-05-original-prompt.json",
+      "bytes": 78375,
+      "sha256": "9c275560a1e65038cbc95b558f6d4a3e304b636bc333ba8206a7276e2c2a3c67"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "3b4e62a950b46258f28dccc997636e12019839ce3f0281da0cf405f4285a5dff"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "f2eeb204d39fcdd6989d42e045f36776ed9ecd7de9d3f93771c500f75b31675d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-07-original-command.json",
+      "bytes": 159,
+      "sha256": "55d0b52b0a159bee81f7172de3cea428fd3134101157bf58acaa6aaf0cfd4584"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-07-original-prompt.json",
+      "bytes": 38154,
+      "sha256": "d938acc80410bb0b05e07b75d63bcc56d6b547f1fdfc2100b385488c130d8803"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-08-original-command.json",
+      "bytes": 319,
+      "sha256": "7ff2916e6b63a63851e850603c460bcff247fc952b6f6b97d784ed7ebd8cc570"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-08-original-prompt.json",
+      "bytes": 78917,
+      "sha256": "6539b3752793de031486641b0055851c1b468ac9aa1e785726f048459c4e12ac"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-09-original-command.json",
+      "bytes": 159,
+      "sha256": "567b87da8eeca0841384da5a57f5fb93192a101ff4713062f7f04ade8173d557"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-09-original-prompt.json",
+      "bytes": 38360,
+      "sha256": "d9ef28b73bd85120a16d110baceba234f38894e2b20d7c3c74e901c851c9d8d3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-10-original-command.json",
+      "bytes": 159,
+      "sha256": "2785672d46b19215cb0fdf7599e0b48bf96316acba662c29bd94df1a5d115b0e"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-10-original-prompt.json",
+      "bytes": 35171,
+      "sha256": "83b92c33cc98d16e38a3d6a12039d2f050ea702c962cadd3247e9cb7729d1d39"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-11-original-command.json",
+      "bytes": 275,
+      "sha256": "81b122d5407f2888bd67b94254c1e330ddc39ecc8cdbe37cf9f25d5667cf5ee8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-11-original-prompt.json",
+      "bytes": 63606,
+      "sha256": "ed23148ed538971f9009199be41d50246f42f8d7fec084638d93e0993eb08ada"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-12-original-command.json",
+      "bytes": 159,
+      "sha256": "e0ec10040e8de3390894b334a4df9796b0f508df99f80510e82b103804a8e412"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-12-original-prompt.json",
+      "bytes": 34615,
+      "sha256": "b41bef5a57a4620f642e2fda7bc0ebc0e8b0b339da1e68fc3368a3d2499c84ad"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-13-original-command.json",
+      "bytes": 161,
+      "sha256": "732f8414bbe96dfa523faf2c1dfe6d910759ecd52dc9eddc2ffa5e33fe371139"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-13-original-prompt.json",
+      "bytes": 36698,
+      "sha256": "00b079abea7d2578038c31f32640b54f2670a9995450ebb48ad696cafc5a549c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-14-original-command.json",
+      "bytes": 161,
+      "sha256": "c0652723103f9d6dcac098927485830390e6f54e17979d8711586a191e1109fe"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-14-original-prompt.json",
+      "bytes": 37964,
+      "sha256": "552299d94679f76e0c60de01009bb85018d318dc83051641af4ba52523d13d70"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-15-original-command.json",
+      "bytes": 159,
+      "sha256": "a2a62d435a98c5a7052b886020cb39facb5861319c3a24e1f2fd646404af8f41"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/input-15-original-prompt.json",
+      "bytes": 34773,
+      "sha256": "ae297c8372d5f6e8ca26ce21dd94e581eb26df92961be73afa909b80793e3600"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/original-final-frame.json.gz",
+      "bytes": 25737,
+      "sha256": "46f33b8e52a583c1b26a5efdba2de8fc31037e80674dd370cf954b86c931fcac"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/original-final-seven-tables.json.gz",
+      "bytes": 101073,
+      "sha256": "8affcc1d03d6090e28189634db9ed9b3a967f454374d1c3c99716848e538480f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-01-original-frame.json.gz",
+      "bytes": 4435,
+      "sha256": "d57d31a2082ffe1a9aa17cfacd3facd7b0ebfffe2bdc491b811791308d567763"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-02-original-frame.json.gz",
+      "bytes": 4928,
+      "sha256": "ca96920d97691444fddfa28f7722004012870d38ae46943d058f16fa1a72543d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-03-original-frame.json.gz",
+      "bytes": 16318,
+      "sha256": "a94d8d8ca1563270b19354ac2f0618d06f60ec3f5b1cb26494d06403bedbabf8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-04-original-frame.json.gz",
+      "bytes": 15695,
+      "sha256": "ba30a018808ef2d0a78d060f699eb2277c6354cffcf1bb778fbf3ebc3f578407"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-05-original-frame.json.gz",
+      "bytes": 15727,
+      "sha256": "efb9a95b54728e36618de7be3b0be46e9b57cdc580faec7147660941c779da2d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-06-original-frame.json.gz",
+      "bytes": 17391,
+      "sha256": "7fd8dc0ac75e48524692fecfe975b8b54228518140145fc0885b3c16b21a39b8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-07-original-frame.json.gz",
+      "bytes": 19020,
+      "sha256": "79074caceef64876b885772b2760d3d86093afb49baf0340182ed77f40d1a242"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-08-original-frame.json.gz",
+      "bytes": 18913,
+      "sha256": "cfbfc8840302c7c3f1a4db299f6035a518526bb5f194de8328791f8caeee2b94"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-09-original-frame.json.gz",
+      "bytes": 21408,
+      "sha256": "7aadd791dc36355689601792f0cf1d24d5708eb377244df6f5847ede739f6ad6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-10-original-frame.json.gz",
+      "bytes": 19904,
+      "sha256": "a06c7939f94fdb9cbb0d8c496309b0d5eadbb1ba9dc781d6977df75d052fe6e3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-11-original-frame.json.gz",
+      "bytes": 21684,
+      "sha256": "8828a60670caa2d6fc6ba5161a6ad5d465e66ea710ef3b3ac51671a4ad1e8be4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-12-original-frame.json.gz",
+      "bytes": 20162,
+      "sha256": "d8bd0a60c627f34588ef89a8bf15b57da51298e2b247276b349d902db5b8100d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-13-original-frame.json.gz",
+      "bytes": 21694,
+      "sha256": "07c9b302b09125cc7545b5e134212dbdd9aa3221ddf4ce3cdb3ba44ee31aa51c"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-14-original-frame.json.gz",
+      "bytes": 22300,
+      "sha256": "93ca6373d5a1f6a235bfc333bbea1fe6597b91ed766d259805955577d1ae646a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-15-original-frame.json.gz",
+      "bytes": 20793,
+      "sha256": "2913252d042d06e5ca1599e556a57d0bd71a49e9c544ce5da3c9cee6c9b7f6cd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/prefix-16-original-frame.json.gz",
+      "bytes": 25737,
+      "sha256": "46f33b8e52a583c1b26a5efdba2de8fc31037e80674dd370cf954b86c931fcac"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-late-defender/receipt.json",
+      "bytes": 972,
+      "sha256": "099c9e84dc0abdf1e807b0d430cffd68eaa14f149f2249247e6840ab23c55150"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3676,
+      "sha256": "136eff06ae0bb3ad4ec26246a8758d5b665469caf889b8d498f9294e9d6a9999"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4232,
+      "sha256": "d7cdeda6e25066f429e54c6e758578b8030a126f9d3ce13b8e6d841b0106e595"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12775,
+      "sha256": "dda862e4739b106a2544f3d94163c1e42de9f0b3e52ce044200e1faade4804a0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10611,
+      "sha256": "b0d3dcc5b58609b2aab5c0d87ad277d4988deb2eb13c4c62c8fe89e3b6763f1d"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9435,
+      "sha256": "2d53b745fd8f0ae2f205e9623d3d1ce2266b683456bff73c59c36f61c6cbfa4a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11309,
+      "sha256": "e364a01bbde2bd265b76f516b1d20ad64acc090d297c123ab81ebdb24bfe78d0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-07-original-before-persist.json.gz",
+      "bytes": 12026,
+      "sha256": "b0b85e3285d08ad925ef8bc0d28e29c8ef2da9a70b83e185dbf524f2f5dc3a02"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8819,
+      "sha256": "47f95677a18c31918f4d2f52739bdcb8cd07ad8a3c5d4a431a0f55402760a0ae"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10507,
+      "sha256": "0538c22e657b1010f4fedfe2d9bd0f2e417e9ca058a6510bbb648a6dfc0fd197"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-10-original-before-persist.json.gz",
+      "bytes": 8011,
+      "sha256": "728f7e6bdb362fca2a8aca37598ba61826db1e7779ffcd1730be11d6d30620a3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9915,
+      "sha256": "ac33acdcf48d8f90c73d747627bab582a21389f393163b41817f5110695758aa"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/entry-12-original-before-persist.json.gz",
+      "bytes": 13528,
+      "sha256": "0f1f0ac25688f2466cb9e7d6c3c871dd2515210d1b79fb395606fbdbfdc464e3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-03-original-command.json",
+      "bytes": 384,
+      "sha256": "bab3ca84bb5625b0138ee63dc9f83b6a38ed1d9543efd82888370b1d0d7dc68b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-03-original-prompt.json",
+      "bytes": 104307,
+      "sha256": "5f1f51122f667468fac086be2b69752a9bffda848f3af0654de0b2cf6ceb24d7"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-04-original-command.json",
+      "bytes": 153,
+      "sha256": "30f81314cc3184682f54e897dae5eece4966004b9e5b0cf0d3a5eb8306186a6f"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-04-original-prompt.json",
+      "bytes": 36576,
+      "sha256": "f4fa82a0df5c128417275e9254df29e9d013b3e235a3d4695e9e42ebd6144d00"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-05-original-command.json",
+      "bytes": 151,
+      "sha256": "a3dc86fc49783b72fc2d65e3399ddc7ddf0f2506a841281352b56e67414ac599"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-05-original-prompt.json",
+      "bytes": 34503,
+      "sha256": "bed34b92cdb0654262237d4063f07d79c27602a27cbb5fbdee02c00f5df9c314"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-06-original-command.json",
+      "bytes": 277,
+      "sha256": "6348c9ed825eec34d3c7ee7c9056e336d924e83223b1719bc0a26397c6ea17af"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-06-original-prompt.json",
+      "bytes": 68551,
+      "sha256": "2b76934dd6ab310f9f7182db146d410b13dbcf0717412e678023d1205bf32e76"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-07-original-command.json",
+      "bytes": 314,
+      "sha256": "f030f31db384e09a7bb08a98c0b4678e474ee762a938748f379fcbac6da34ee0"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-07-original-prompt.json",
+      "bytes": 38154,
+      "sha256": "3883c9f1d31b8c151cb8d3fc250c1f2bb13954fc4741057aedd79a51577236b4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-08-original-command.json",
+      "bytes": 149,
+      "sha256": "aff58084df1c11a703bd8be0f4375d43c5e203b985db402db3dabb26f6b3ff8b"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-08-original-prompt.json",
+      "bytes": 11030,
+      "sha256": "faf01ef5d75c92ce1ce4c4bd559bfabe3cb7a98985f9f4593546cb1bbd8c26f6"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-09-original-command.json",
+      "bytes": 157,
+      "sha256": "c378eefe3f2e327d0d0f9317c55d9a089277e1b796f9506b0b8ab9ef84098519"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-09-original-prompt.json",
+      "bytes": 35153,
+      "sha256": "8deb29c0b5d5d73727c99a39fb49ae3ebce7e3e3c3cc1b7aeed87509835a0de3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-10-original-command.json",
+      "bytes": 151,
+      "sha256": "63a1c93bb586345cefda71b35c1594d04180f6274e1b763dc7369e2c3d7586a3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-10-original-prompt.json",
+      "bytes": 10173,
+      "sha256": "30215f4c0040d966b009ba0d03b3ca6b625b0bf0e699a1202fea2b37da9252bd"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-11-original-command.json",
+      "bytes": 159,
+      "sha256": "71161102175f35a2c5fb9f9cbf424298b69dac2a987fb8d31ca4340988ed20e3"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/input-11-original-prompt.json",
+      "bytes": 34172,
+      "sha256": "493af2a5d9c44343996b657cae73f847ea10dfe3ade25c9a2cb2a27819a0ae52"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/original-final-frame.json.gz",
+      "bytes": 22236,
+      "sha256": "1a3917bb6aadafa5bdc0921d817917c9e4e6ff35c02d7fdd89b92874db5e5859"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/original-final-seven-tables.json.gz",
+      "bytes": 63366,
+      "sha256": "ac96e6fcb010dcde597fd90e38b08c9086386e6c333eff156e64c60996c8cdea"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-01-original-frame.json.gz",
+      "bytes": 4435,
+      "sha256": "9160fc0cea205a3f13777d33e77c71b16f734ff4b394abb9f2dc625b68ea68b4"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-02-original-frame.json.gz",
+      "bytes": 4926,
+      "sha256": "0c6c4ed672e729bf8ba60f97f57be8f7b96c05e9236bc11ca01da686c7bac209"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-03-original-frame.json.gz",
+      "bytes": 16137,
+      "sha256": "ed803c9eab9becdfb473cd39ca4ee857b6530eeffa267ef0b179efbef43ce4cb"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-04-original-frame.json.gz",
+      "bytes": 15481,
+      "sha256": "59778a3a462b456564f211cb742d20a03ac47c64d006640a1ace5d0ddc6070b2"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-05-original-frame.json.gz",
+      "bytes": 14288,
+      "sha256": "2dfc44ab0f65e0bbe8f7f59d220765979a83ee6766da2812488a2234b73cbb27"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-06-original-frame.json.gz",
+      "bytes": 17169,
+      "sha256": "113ea2ed85607f4890bda2592f8562b336c1508e425e5169e381cf071fc5c770"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-07-original-frame.json.gz",
+      "bytes": 18748,
+      "sha256": "4ed95792792371cef4bd151a55d22e68b256fef2cf3b7dfcea7bb93092fb6bce"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-08-original-frame.json.gz",
+      "bytes": 14585,
+      "sha256": "2802eebc134083f9c7cb6fe8c9bebc19b5208b07e905fc268b23baad241662e8"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-09-original-frame.json.gz",
+      "bytes": 18867,
+      "sha256": "95a4461d5bb7c7067cf8c3782735361dea56a9d94a2b264e5e979f093cfc913a"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-10-original-frame.json.gz",
+      "bytes": 14151,
+      "sha256": "a681348f84b1955598b2a60c537610990c2e09caa43d8144710e13d0e5e50121"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-11-original-frame.json.gz",
+      "bytes": 18153,
+      "sha256": "5bc0816a839c266e2808a172ed46e0843e8e248ab2383bde798f24a86d5e4607"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/prefix-12-original-frame.json.gz",
+      "bytes": 22236,
+      "sha256": "1a3917bb6aadafa5bdc0921d817917c9e4e6ff35c02d7fdd89b92874db5e5859"
+    },
+    {
+      "path": "real-sql-thirteen-battle-result-original-rooms-v4/battle-result-continuation/nidalee-return/receipt.json",
+      "bytes": 951,
+      "sha256": "6360ffbb54d186f2e372c550fcd9917c405d5ffa3eb6d25d5caeef26ddf4aa63"
+    },
+    {
+      "path": "scoped-battle-sequence-exact-clauses-v1.json",
+      "bytes": 5129,
+      "sha256": "6ae29ae4f8eb31e0e743e30fda2caf8043ba4151135759c14171e1802b3a7916"
+    },
+    {
+      "path": "sole-check-frozen-candidate-start-v1.json.gz",
+      "bytes": 172732,
+      "sha256": "e8721e1897cd3cd4293c318b260ba70ba364118727ea3e647fdfeb9f70b6911e"
+    },
+    {
+      "path": "sole-check-frozen-original-console-v1.log",
+      "bytes": 192,
+      "sha256": "46a73301e8dc55190235265bf3433e1176a851fce5bc7fdc88300f64b63e1857"
+    },
+    {
+      "path": "sole-check-frozen-runtime-identity-v1.json",
+      "bytes": 2125,
+      "sha256": "13093d221e2389e3aca58606866a1d9c11fefba7a2078db79de7f49ecd15f0a3"
+    },
+    {
+      "path": "sole-check-independent-completion-observation-v1.json",
+      "bytes": 1537,
+      "sha256": "11b1f0cf7c718d38f1161fd9871f4779ebbe6506ed1c393f5e167180565c79ff"
+    },
+    {
+      "path": "two-sql13-verifier-timing-failures-disposition-v1.json",
+      "bytes": 1296,
+      "sha256": "0526850be85ddbd3449c50e6a0cd04b6075a3aeb80afc1aa1f82f664d55e0cf1"
+    },
+    {
+      "path": "unrelated-web-parent-provenance-v1.json",
+      "bytes": 3563,
+      "sha256": "f3ecad72a500e17a10aa87146ead8290a5c50950976e96e4b74f80dc492c47b9"
+    },
+    {
+      "path": "unrelated-web-parent-provenance-v2.json",
+      "bytes": 3827,
+      "sha256": "65161f167e72406971ddc9bce7b016c691cd9092b714a9c292734543e78e9745"
+    }
+  ]
+}

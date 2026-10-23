@@ -23,10 +23,15 @@ public sealed partial class CoreRuleEngine
             new Dictionary<string, object?> { ["battlefieldObjectId"] = battlefield, ["battleId"] = state.BattleState.BattleId,
                 ["attackingPlayerId"] = attackingPlayer, ["declarationContextPreserved"] = true,
                 ["passedPriorityPlayerIds"] = SeatPlayerIds(state), ["combatDamageSkipped"] = true }));
+        var resultState = state with { Tick = state.Tick + (advanceTick ? 1 : 0), PlayerZones = zones,
+            CardObjects = cards, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        if (TryBeginBattleResultContinuation(resultState, battlefield, attackingPlayer, defendingPlayer, winner,
+            originalAttackers, originalDefenders, 0, events, out var pendingResult))
+            return new(true, null, pendingResult, events, ResolutionResult.BuildSnapshots(pendingResult), BuildCorePrompts(pendingResult));
         ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
         if (winner is null)
             events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attackingPlayer, defendingPlayer));
-        CloseResolvedBattle(zones, cards, battlefield, originalAttackers, originalDefenders, events);
+        CloseResolvedBattle(zones, cards, ReconcileObjectLocations(state.ObjectLocations, zones), battlefield, originalAttackers, originalDefenders, events);
         var settled = state with {
             Tick = state.Tick + (advanceTick ? 1 : 0), ActivePlayerId = state.TurnPlayerId,
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),

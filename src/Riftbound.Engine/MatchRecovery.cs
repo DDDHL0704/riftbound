@@ -140,6 +140,8 @@ public static class MatchActionLogReplayer
             inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
         if (inputErrors.Count > 0) return inputErrors;
 
+        var battleResultErrors = BattleResultRecoveryRules.ValidateOriginalTriggers(recovery);
+        if (battleResultErrors.Count > 0) return battleResultErrors;
         var startErrors = BattlefieldStartRecoveryRules.ValidateOriginalTriggers(recovery);
         if (startErrors.Count > 0) return startErrors;
 
@@ -18751,8 +18753,9 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             CompareDestructionFamilyView(spectatorTrigger, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
-            var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
-            var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
+            var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
+            var expectedSourceObjectId = hiddenSource || privateBattleSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource || privateBattleSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
 
             if (!TryReadObjectString(spectatorTrigger, "triggerId", out var triggerId)
@@ -18989,8 +18992,9 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             CompareDestructionFamilyView(triggerPayload, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
-            var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
-            var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
+            var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
+            var expectedSourceObjectId = hiddenSource || privateBattleSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource || privateBattleSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
 
             ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
@@ -23769,6 +23773,11 @@ public static partial class MatchRecoveryValidator
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenReplacementWindow } tokenChoice
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
 
+        if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
+        foreach (var item in state.StackItems)
+            if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid stacked battle-result skill");
+        foreach (var item in state.TriggerQueue)
+            if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 errors.Add("invalid source play draw trigger");
@@ -27331,6 +27340,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
@@ -27453,6 +27463,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
@@ -28333,7 +28344,7 @@ public static partial class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot,
                 "sourceObjectId");
             var authoritativeStackSourceObjectIds = authoritativeState.StackItems
-                .Select(item => item.SourceObjectId)
+                .Select(item => CapturedBattleSourceIsPrivate(authoritativeState, item) ? "HIDDEN" : item.SourceObjectId)
                 .ToArray();
             if (!StringListsEqual(spectatorStackSourceObjectIds, authoritativeStackSourceObjectIds))
             {
@@ -32118,6 +32129,9 @@ public static partial class MatchRecoveryValidator
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
+                && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
+                sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { FieldContext: { SourceCeasedToExist: true } field } ceased
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, ceased.SourceObjectId, ceased.ControllerId, ceased.EffectKind, ceased.CardNo))
                 sourceReferences = knownObjectIds.Append(ceased.SourceObjectId).ToHashSet(StringComparer.Ordinal);
@@ -32227,7 +32241,7 @@ public static partial class MatchRecoveryValidator
                 stackItem,
                 "sourceObjectId",
                 "source object id",
-                authoritativeStackItem.SourceObjectId,
+                CapturedBattleSourceIsPrivate(authoritativeState, authoritativeStackItem) ? "HIDDEN" : authoritativeStackItem.SourceObjectId,
                 normalizedStackItemId,
                 errors);
             ValidateSpectatorSnapshotStackKeyedRequiredStringValue(
@@ -33710,6 +33724,12 @@ public static partial class MatchRecoveryValidator
             .Select(objectId => IsHiddenObjectIdForSpectator(state, objectId) ? "HIDDEN" : objectId)
             .ToArray();
     }
+
+    private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
+        => BattleResultRecoveryRules.IsCapturedSkill(state, item) && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
+
+    private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
+        => BattleResultRecoveryRules.IsCapturedSkill(state, item) && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)
     {

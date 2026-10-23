@@ -158,41 +158,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            result = CaptureDuelChainFocus(state, result);
-            result = CollectObservedDeckPlays(result);
-            result = EndDetachedUnitCopies(state, result);
-            result = RefreshRuleDerivedKeywordLayers(result);
-            result = QueueGrantedPredict(state, result);
-            result = QueuePrintedPredict(state, result);
-            result = QueueSourcePlayDraw(state, result);
-            result = QueueUnitPlayMight(state, result);
-            result = QueueSivirRuneRecycles(result);
-            result = QueueRecycledCardBoons(result);
-            if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
-                result = result with { State = result.State with { RuleTextModeUses = null } };
-            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordDamageDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))))));
-            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
-                QueueUnitEntryTriggers(state, QueueCreatedTokenReady(QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))))));
-            // New field objects need their current incarnation before role and
-            // Mighty observers capture bindings. The final pass is idempotent
-            // and also binds stack items created by those observers.
-            collected = ApplyObjectContinuity(state, collected);
-            collected = RecordDeckPlayReflexiveCard(state, collected);
-            collected = AdvanceDeckPlayReflexives(collected);
-            collected = DeferCompanionPermanentPlayOrdering(state, collected);
-            collected = QueueTurnUnitPlayBoons(state, collected);
-            collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected);
-            collected = RecordMightyTransitions(state, collected);
-            collected = ResumeDuelChainFocus(collected);
-            collected = StampNewTriggerQueueTimes(state, collected);
-            // A physical play has completed before its earned skills confirm,
-            // including a checked target intent supplied in the same command.
-            collected = RecordCardPlayHistory(state, collected);
-            var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
-                PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
-                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return ValueTask.FromResult(StampNewTriggerQueueTimes(state, completed));
+            var completed = CollectResolutionEffects(state, result);
+            // Each stage's newly produced events are collected once before the
+            // next stage can run. A resulting chain/choice suspends settlement.
+            for (var stage = 0; stage < 2; stage++)
+            {
+                var advanced = AdvanceBattleResultContinuation(completed with { Events = [] });
+                if (ReferenceEquals(advanced.State, completed.State)) break;
+                var addition = CollectResolutionEffects(completed.State, advanced);
+                completed = addition with { Events = completed.Events.Concat(addition.Events).ToArray() };
+            }
+            return ValueTask.FromResult(completed);
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -2070,6 +2046,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var battle = state.BattleState;
         return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && state.PendingBattleResult is null
             && !IsBattleAwaitingCombatStart(state)
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
@@ -3278,7 +3255,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -12836,6 +12813,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 combatEvents);
         }
 
+        var resultWinner = TryResolveBattleWinnerPlayerId(playerZones, cardObjects, attackerObjectIds,
+            defenderObjectIds, defendingPlayerId, intent.PlayerId, out var capturedWinner) ? capturedWinner : null;
+        var resultState = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones), RunePools = runePools,
+            TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
+        if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
+            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+        {
+            combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
+                new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
+                    ["attackerObjectIds"] = attackerObjectIds.ToArray(), ["defenderObjectIds"] = defenderObjectIds.ToArray(),
+                    ["optionalCosts"] = optionalCosts.ToArray(), ["battlefieldTargetObjectIds"] = new[] {
+                        battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId, icevaleArcherAttackTargetObjectId }
+                        .Where(id => !string.IsNullOrWhiteSpace(id)).ToArray() }));
+            return new(true, null, pendingResult, combatEvents, ResolutionResult.BuildSnapshots(pendingResult), BuildCorePrompts(pendingResult));
+        }
+
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
@@ -12978,7 +12973,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             defenderObjectIds,
             combatEvents);
         var objectLocations = ReconcileObjectLocations(conquestObjectLocations, playerZones);
-        CloseResolvedBattle(playerZones, cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
+        CloseResolvedBattle(playerZones, cardObjects, objectLocations, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
         combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
             playerZones,
             cardObjects,
@@ -13170,6 +13165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static void CloseResolvedBattle(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string battlefieldId,
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
@@ -13177,6 +13173,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var participantObjectIds = attackerObjectIds
             .Concat(defenderObjectIds)
+            // CN 468.7.a also clears roles earned by units that joined during
+            // result/control responses, after the original result was captured.
+            .Concat(cardObjects.Where(pair => (pair.Value.IsAttacking || pair.Value.IsDefending)
+                && IsObjectOnField(playerZones, pair.Key)
+                && objectLocations.TryGetValue(pair.Key, out var location)
+                && location.Zone == MoveUnitBattlefieldZone && location.BattlefieldObjectId == battlefieldId)
+                .Select(pair => pair.Key))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -19908,7 +19911,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         string battlefieldId,
         bool concludingBattle = false,
-        string? battleWinnerPlayerId = null)
+        string? battleWinnerPlayerId = null,
+        int assignedOverkillDamage = 0)
     {
         if (string.IsNullOrWhiteSpace(battlefieldId)
             || !concludingBattle && state.PendingTaskQueue.Tasks.Any(task =>
@@ -20015,7 +20019,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state with { PlayerScores = playerScores, UntilEndOfTurnEffects = untilEndOfTurnEffects,
                     WinnerPlayerId = winnerPlayerId, ObjectLocations = objectLocations },
                 playerZones, cardObjects, nextControllerId, battlefieldObjectId, sourceObjectId,
-                occupantObjectIds, 0, state.Tick, events);
+                occupantObjectIds, assignedOverkillDamage, state.Tick, events);
             objectLocations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
             playerScores = state.PlayerScores;
             untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
@@ -20080,6 +20084,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static (MatchState State, IReadOnlyList<GameEvent> Events) AdvancePendingBattlefieldTasksAfterStateChange(
         MatchState state, string? causingPlayerId, MatchState? previousState = null)
     {
+        if (state.PendingBattleResult is not null) return (state, []);
         var cleanup = ClearUnoccupiedBattlefieldControl(state);
         var advanced = AdvancePendingBattlefieldTasksAfterControlCleanup(cleanup.State, causingPlayerId, previousState);
         return (advanced.State, cleanup.Events.Concat(advanced.Events).ToArray());
@@ -24412,6 +24417,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
+        if (!BattleResultRecoveryRules.Valid(state, stackItem))
+            throw new InvalidOperationException("Invalid captured battle-result skill context.");
+        if (stackItem.UnitBattleWinDraw is { } unitBattleWin) return ResolveUnitBattleWinDraw(state, stackItem, unitBattleWin);
+        if (stackItem.LegendBattleWinDraw is { } legendBattleWin) return ResolveLegendBattleWinDraw(state, stackItem, legendBattleWin);
+        if (stackItem.KhazixBattleWin is { } khazixBattleWin) return ResolveKhazixBattleWin(state, stackItem, khazixBattleWin);
         if (stackItem.SourcePlayDraw is not null) return ResolveSourcePlayDraw(state, stackItem);
         if (stackItem.CreatedTokenReady is not null) return ResolveCreatedTokenReady(state, stackItem);
         if (stackItem.DeckPlayReflexive is not null) return ResolveDeckPlayReflexive(state, stackItem);
