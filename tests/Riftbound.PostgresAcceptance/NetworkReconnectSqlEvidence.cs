@@ -101,7 +101,7 @@ internal static class NetworkReconnectSqlEvidence
             "Reconnect samples must retain the original room row.");
         var matchAt = ChangedAt(oldMatch, newMatch);
         oldMatch.Remove("updated_at"); newMatch.Remove("updated_at");
-        Check(JsonNode.DeepEquals(oldMatch, newMatch), "Only this room's EnsureMatchAsync updated_at may change.");
+        Check(string.Equals(oldMatch.ToJsonString(), newMatch.ToJsonString(), StringComparison.Ordinal), "Only this room's EnsureMatchAsync updated_at may change.");
         var beforePlayers = PlayerRows(before); var afterPlayers = PlayerRows(after);
         var expected = new[] { p1, p2 }.Order(StringComparer.Ordinal).ToArray();
         Check(beforePlayers.Keys.Order(StringComparer.Ordinal).SequenceEqual(expected)
@@ -123,7 +123,7 @@ internal static class NetworkReconnectSqlEvidence
                 "Each own actual Joined token must replace exactly its previous persisted token hash, seat and identity intact.");
             rotatedAt.Add(ChangedAt(original, current));
             foreach (var field in new[] { "reconnect_token_hash", "updated_at" }) { original.Remove(field); current.Remove(field); }
-            Check(JsonNode.DeepEquals(original, current), "Reconnect changed a player column outside its token hash and updated_at.");
+            Check(string.Equals(original.ToJsonString(), current.ToJsonString(), StringComparison.Ordinal), "Reconnect changed a player column outside its token hash and updated_at.");
         }
         Check(rotatedAt.All(at => at >= start && at <= end) && matchAt == rotatedAt.Max(),
             "Player timestamps must lie inside the database reconnect window; the match timestamp must equal the last same-transaction player update.");
