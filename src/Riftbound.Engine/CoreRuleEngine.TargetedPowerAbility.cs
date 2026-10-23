@@ -95,7 +95,8 @@ public sealed partial class CoreRuleEngine
             var behavior = new CardBehaviorDefinition(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 1,
                 TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: ability.PowerModifierAmount,
                 MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier);
-            cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, ability.PowerModifierAmount, out var modified);
+            cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, ability.PowerModifierAmount,
+                out var modified, CaptureChosenActionTarget(state, item, id));
             events.Add(modified);
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };

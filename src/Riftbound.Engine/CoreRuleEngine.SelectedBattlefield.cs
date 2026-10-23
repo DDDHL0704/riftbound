@@ -64,7 +64,8 @@ public sealed partial class CoreRuleEngine
                 .Order(StringComparer.Ordinal).ToArray();
             // Snapshot simultaneous damage bonuses and group Might before
             // changing any member of the affected group.
-            var instructionState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+            var instructionState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal),
+                RunePools = pools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
             foreach (var id in affected)
             {
                 if (spec.DamagesEnemyUnits && IsEnemyBattlefieldUnitObject(current, item.ControllerId, id))
@@ -84,7 +85,8 @@ public sealed partial class CoreRuleEngine
                     ? spec.FriendlyPowerModifier : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
                         ? spec.EnemyPowerModifier : 0;
                 if (delta == 0) continue;
-                cards[id] = ApplyPowerModifier(instructionState, cards[id], behavior, item, id, delta, out var powerEvent);
+                cards[id] = ApplyPowerModifier(instructionState, cards[id], behavior, item, id, delta,
+                    out var powerEvent, CaptureChosenActionTarget(instructionState, item, id));
                 events.Add(powerEvent);
             }
         }
