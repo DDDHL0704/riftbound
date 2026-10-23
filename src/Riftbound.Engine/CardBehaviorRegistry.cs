@@ -289,7 +289,8 @@ public sealed record CardBehaviorDefinition(
     bool DeckPlayOptionalReflexiveEmpower = false,
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
-    FlowCostSpec? AppliedFlowCost = null)
+    FlowCostSpec? AppliedFlowCost = null,
+    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -6550,7 +6551,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "SFD·149a/221",
             "伊泽瑞尔",
@@ -6562,7 +6564,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "OGN·225/298",
             "烈阳首领",
