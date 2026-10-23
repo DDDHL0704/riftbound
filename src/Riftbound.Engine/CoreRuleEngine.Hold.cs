@@ -205,7 +205,7 @@ public sealed partial class CoreRuleEngine
                 var target = resolvedTarget!;
                 var controller = cards[target].ControllerId!;
                 var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
-                var moved = MoveFieldUnitsToChosenLocation(state, zones, cards, locations, item,
+                var moved = MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item,
                     [target], "BASE:" + controller, events);
                 if (moved.Length != 0) cards[target] = cards[target] with { IsAttacking = false, IsDefending = false };
                 break;

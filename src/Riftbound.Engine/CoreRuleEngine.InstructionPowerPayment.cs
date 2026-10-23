@@ -18,29 +18,37 @@ public sealed partial class CoreRuleEngine
         {
             var context = ReplacementResourceContext(state, zones, cards, pools, player);
             var pool = pools.GetValueOrDefault(player) ?? RunePool.Empty;
-            var payments = new Dictionary<string, (int Amount, string? Trait)>(StringComparer.Ordinal);
+            var payments = new Dictionary<string, (int Amount, string? Trait, int? Maximum)>(StringComparer.Ordinal);
             var options = new List<RuleChoiceOption>();
-            for (var amount = 0; amount <= pool.TotalPower; amount++)
-            {
-                var id = "SPEND_POWER:" + amount;
-                payments.Add(id, (amount, null));
-                options.Add(new(id, $"支付 {amount} 点任意特性符能，造成等量伤害"));
-            }
+            AddAmounts(null, 0, pool.TotalPower);
             foreach (var (trait, available) in pool.PowerByTrait.OrderBy(p => p.Key, StringComparer.Ordinal))
-            for (var amount = 1; amount <= available; amount++)
+                AddAmounts(trait, 1, available);
+            void AddAmounts(string? trait, int minimum, int maximum)
             {
-                var id = $"SPEND_POWER:{trait}:{amount}";
-                payments.Add(id, (amount, trait));
-                options.Add(new(id, $"支付 {amount} 点{RuneTraitLabel(trait)}符能，造成等量伤害"));
+                if (maximum < minimum) return;
+                var prefix = trait is null ? "SPEND_POWER:" : $"SPEND_POWER:{trait}:";
+                var label = trait is null ? "任意特性" : RuneTraitLabel(trait);
+                if ((long)maximum - minimum + 1 > ResourceQuantityRules.DirectChoiceLimit)
+                {
+                    if (trait is null) { payments.Add(prefix + "0", (0, null, null)); options.Add(new(prefix + "0", "支付 0 点符能，造成 0 点伤害")); }
+                    var id = prefix + ResourceQuantityRules.ChooseAmountSuffix;
+                    payments.Add(id, (minimum, trait, maximum)); options.Add(new(id, $"选择 {minimum}–{maximum} 点{label}符能"));
+                }
+                else for (var amount = minimum; amount <= maximum; amount++)
+                {
+                    var id = prefix + amount;
+                    payments.Add(id, (amount, trait, null)); options.Add(new(id, $"支付 {amount} 点{label}符能，造成等量伤害"));
+                }
             }
             foreach (var rune in zones[player].Base.Where(id => cards.TryGetValue(id, out var card)
                 && card.Tags.Contains(CardObjectTags.RuneCard) && !card.IsFaceDown
                 && SourceObjectControlledByPlayerOrLegacyOwned(card, player) && TryGetRuneTrait(card, out _))
                 .Order(StringComparer.Ordinal))
             {
-                if (!cards[rune].IsExhausted)
+                if (!cards[rune].IsExhausted && CanGainSpellOnlyMana(pool, 1))
                     options.Add(new("TAP_RUNE:" + rune, "横置符文获得 1 法力，之后继续选择", [rune]));
-                options.Add(new("RECYCLE_RUNE:" + rune, "回收符文获得 1 符能，之后继续选择", [rune]));
+                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                    options.Add(new("RECYCLE_RUNE:" + rune, "回收符文获得 1 符能，之后继续选择", [rune]));
             }
             var resources = ReplacementResourceActions(context, player);
             options.AddRange(resources.Select(r => r.Choice));
@@ -71,13 +79,21 @@ public sealed partial class CoreRuleEngine
             }
 
             var payment = payments[selected];
+            if (payment.Maximum is { } maximum)
+            {
+                var amount = ChooseBoundedQuantity(context, player, item.SourceObjectId, item.EffectKind,
+                    payment.Trait is null ? "INSTRUCTION_POWER_ANY" : "INSTRUCTION_POWER_TRAIT:" + payment.Trait,
+                    payment.Amount, maximum, InstructionPowerPaymentKind, "选择此次结算指令实际支付的符能数量，确认前不扣资源。");
+                payment = (amount, payment.Trait, null);
+                selected = payment.Trait is null ? "SPEND_POWER:" + amount : $"SPEND_POWER:{payment.Trait}:{amount}";
+            }
             var traits = payment.Trait is null ? new Dictionary<string, int>(StringComparer.Ordinal)
                 : new Dictionary<string, int>(StringComparer.Ordinal) { [payment.Trait] = payment.Amount };
             var plan = new PaymentCostRules.PaymentPlan(
                 PaymentCostRules.BuildPaymentId(state.Tick, InstructionPowerPaymentKind, player, item.SourceObjectId),
                 InstructionPowerPaymentKind, player, genericPowerCost: payment.Trait is null ? payment.Amount : 0,
                 totalPowerCost: payment.Amount, powerCostByTrait: traits,
-                legalPaymentChoiceIds: payments.Keys.ToArray(), reason: item.EffectKind, sourceObjectId: item.SourceObjectId);
+                legalPaymentChoiceIds: payments.Keys.Append(selected).Distinct(StringComparer.Ordinal).ToArray(), reason: item.EffectKind, sourceObjectId: item.SourceObjectId);
             var paid = PaymentCostRules.TryCommitPayment(plan, pools);
             if (!paid.Accepted) throw new InvalidOperationException("Invalid generated instruction payment: " + paid.ErrorMessage);
             foreach (var pair in paid.RunePools) pools[pair.Key] = pair.Value;
