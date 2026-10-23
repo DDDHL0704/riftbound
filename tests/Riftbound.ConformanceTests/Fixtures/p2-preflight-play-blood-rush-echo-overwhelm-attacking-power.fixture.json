@@ -139,10 +139,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "SPELL_EXECUTION_COMPLETED",
       "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
@@ -193,20 +191,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
           "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
-          "effectId": "OVERWHELM_2"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 8,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
-          "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
-          "powerDelta": 2,
-          "appliedPowerDelta": 2,
-          "minimumPower": 0,
-          "resultingPower": 4
+          "effectId": "COMBAT_KEYWORD:强攻2"
         }
       },
       {
@@ -218,24 +203,11 @@
       {
         "kind": "STATUS_EFFECT_APPLIED",
         "tick": 3,
-        "sequence": 10,
+        "sequence": 9,
         "payload": {
           "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
           "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
-          "effectId": "OVERWHELM_2"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 11,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
-          "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
-          "powerDelta": 2,
-          "appliedPowerDelta": 2,
-          "minimumPower": 0,
-          "resultingPower": 6
+          "effectId": "COMBAT_KEYWORD:强攻2"
         }
       },
       {
@@ -289,11 +261,12 @@
       "cardObjects": {
         "P2-UNIT-BLOOD-RUSH-001": {
           "damage": 0,
-          "power": 6,
+          "power": 2,
           "untilEndOfTurnEffects": [
-            "OVERWHELM_2"
+            "COMBAT_KEYWORD:强攻2:1",
+            "COMBAT_KEYWORD:强攻2:2"
           ],
-          "untilEndOfTurnPowerModifier": 4,
+          "untilEndOfTurnPowerModifier": 0,
           "isAttacking": true,
           "isExhausted": false
         }
