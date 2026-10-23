@@ -1,6 +1,7 @@
 using Riftbound.CardCatalog;
 using Riftbound.Engine;
 using Riftbound.Contracts;
+using System.Text.Json;
 using static Riftbound.ConformanceTests.OfficialGraveyardRecastTests;
 using Xunit;
 
@@ -66,7 +67,16 @@ public sealed class VendettaAmbushTests
     [Fact]
     public async Task CatalogStatisticsAreEvidenceOfRegistrationOnly()
     {
-        var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var stats = FunctionalUnitBuilder.Summarize(FunctionalUnitBuilder.Build(catalog.Cards));
+        var runtime = await OfficialCardCatalog.LoadDefaultAsync();
+        // These original registration statistics use the retained 1040-printing input.
+        using var retained = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "historical-runtime-1040-printings.json")));
+        var printingNumbers = retained.RootElement.GetProperty("printingNumbers").EnumerateArray()
+            .Select(card => card.GetString()!).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(1040, printingNumbers.Count);
+        var catalog = runtime with { Cards = runtime.Cards.Where(card => printingNumbers.Contains(card.CardNo)).ToArray() };
+        Assert.Equal(printingNumbers.Order(StringComparer.Ordinal), catalog.Cards.Select(card => card.CardNo).Order(StringComparer.Ordinal));
+        var stats = FunctionalUnitBuilder.Summarize(FunctionalUnitBuilder.Build(catalog.Cards));
         Console.WriteLine("VEN_CATALOG_STATISTICS " + System.Text.Json.JsonSerializer.Serialize(stats));
         Assert.Equal(1040, catalog.Cards.Count);
     }

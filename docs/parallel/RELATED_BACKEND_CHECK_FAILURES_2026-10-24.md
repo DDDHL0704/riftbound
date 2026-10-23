@@ -1,0 +1,11 @@
+# Related backend check: retained failure and scoped fixes
+
+The sole related-batch check on `87fc55c6a9c9e08ce4c5adc3d7b372b0d3191a5c` finished with **14,316/14,324 passing, 8 failing**. All 18,442 frozen source inputs and modes remained stable. Its original TRX, console, runtime and terminal failure remain under `var/qa/related-backend-integration-20261023-v2/`; this check was not rerun or relabelled as passing.
+
+- Three historical catalog assertions mixed later additions into the original 1036-to-1037 or 1009-to-1040 comparison. Exact printing fixtures retain those boundaries, original counts, functional-unit membership and source-field assertions. All 1040 retained source rows independently match the immutable shared baseline `4aabf78b`.
+- The battle-assignment ledger validator now rejects a null temporary-effect list, allowing the original recovery validator to report its malformed-state errors without throwing.
+- A captured distributed-damage skill retained a public generation-0 source after its current generation-1 object entered hand. Ordinary permanent-play projection incorrectly hid that historical reference. Snapshot, recovery and spectator expectations now share the bounded classification: a valid distribution stack with a strictly older source generation. Current-hand objects remain private. The original full-game hidden-information guard remains unchanged; the actual burnout sequence also checks that a forged current-generation source is hidden.
+
+The final separate focus run passed **144/144 cases across 45 methods**, including all eight original failure identities, adjacent entry/privacy/token tests and the current-generation negative assertion. Earlier focused failures and diagnostic states remain separate evidence. The optional test-driver export records the actual resolution only when an evidence directory was requested.
+
+This is scoped follow-up evidence. The original check is still FAIL, complete CI and the next actual combined input remain separate gates, affected SQL/API/restart/security checks remain required, `main` publication remains on hold, and net whole-card certification remains **0**. C5, C6 and N3 retain their separate source and acceptance statuses.

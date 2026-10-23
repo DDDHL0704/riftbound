@@ -161,6 +161,13 @@ public sealed partial class CoreRuleEngine
             || (source.CardNo == context.CardNo && (!IsObjectOnField(state.PlayerZones, sourceId)
                 || state.ObjectLocations[sourceId] == context.SourceLocation));
     }
+    internal static bool HasHistoricalPublicDamageSource(MatchState state, StackItemState item)
+        => item.DamageDistribution is { Source: { } source }
+            && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+            && state.CardObjects is { } cards && cards.TryGetValue(item.SourceObjectId, out var current)
+            && source.Generation < current.ObjectGeneration
+            && ValidDistributionStack(state, item);
+
     internal static bool ValidDistributionStack(MatchState state, StackItemState item)
     {
         if (item.DamageDistribution is not { } context) return item.EffectKind != DistributedDamageEffect;

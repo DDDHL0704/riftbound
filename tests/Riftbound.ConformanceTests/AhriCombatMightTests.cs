@@ -238,7 +238,15 @@ public sealed class AhriCombatMightTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
-        var current = await OfficialCardCatalog.LoadDefaultAsync();
+        var runtime = await OfficialCardCatalog.LoadDefaultAsync();
+        // Keep the original 1009-to-1040 source comparison after later additions.
+        using var retained = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "historical-runtime-1040-printings.json")));
+        var printingNumbers = retained.RootElement.GetProperty("printingNumbers").EnumerateArray()
+            .Select(card => card.GetString()!).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(1040, printingNumbers.Count);
+        var current = runtime with { Cards = runtime.Cards.Where(card => printingNumbers.Contains(card.CardNo)).ToArray() };
+        Assert.Equal(printingNumbers.Order(StringComparer.Ordinal), current.Cards.Select(card => card.CardNo).Order(StringComparer.Ordinal));
         Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1040, current.Cards.Count);
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.

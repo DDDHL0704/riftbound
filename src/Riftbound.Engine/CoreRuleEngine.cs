@@ -2212,6 +2212,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     internal static bool ValidBattleDamageAssignmentLedger(MatchState state)
     {
+        if (state.UntilEndOfTurnEffects is null) return false;
         var markers = state.UntilEndOfTurnEffects.Count(effect => effect?.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal) == true);
         if (markers == 0) return true;
         var battle = state.BattleState;
