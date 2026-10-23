@@ -1,0 +1,1459 @@
+{
+  "status": "SOURCE_RED_N53_SCORE_CONSUMER_STILL_UNWIRED",
+  "atUtc": "2026-10-23T07:22:55.499122+00:00",
+  "baseCommit": "036a3e4d78c56b5bcdbf429c4d146be3dbc2097d",
+  "region": "CN",
+  "language": "zh-CN",
+  "coreEffectiveDate": "2026-10-16",
+  "peerOverlay": {
+    "atUtc": "2026-10-23T06:53:49.777592+00:00",
+    "savedBranchHead": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battle-result-continuation-n52-20261023/peer-fixed-n52-first45-v1.tar.gz",
+    "overlaySha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a",
+    "inputRole": "N51 source plus first N52 shared continuation that passed45; not committed or whole verified",
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": null,
+        "afterSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+        "afterSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": null,
+        "afterSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "beforeSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+        "afterSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+        "afterSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "2c1990334f99623ba77e5d550e419eacdcfa14fe916039efd40fde30df99193b",
+        "afterSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+        "afterSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "beforeSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+        "afterSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs",
+        "beforeSha256": "5ee6afb3db023b596d89cd364e704adf4aa790346083c4a5ff2c9719155accda",
+        "afterSha256": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+        "beforeSha256": "5a0ad23725ec41fae7b9ce976cf0945c49224e9267b7fdb5615affae9891c777",
+        "afterSha256": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+        "beforeSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+        "afterSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "beforeSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+        "afterSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "beforeSha256": "b097335f2d2b8f2ad8571ac87cd9e52bffecc6e22aca7f2cc52f4e250c3247e3",
+        "afterSha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "beforeSha256": "c9bd1ff9520c659da32c5bfc7acdf0257578339ca9e6be47fe874a2f563a01ba",
+        "afterSha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+        "beforeSha256": null,
+        "afterSha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712"
+      }
+    ],
+    "sharedFilesRemainUnstagedAndMustNotBeCommittedByThisChat": true,
+    "ownDravenScorePreparationRetained": true
+  },
+  "all19SharedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "180acff6c48a3c4a12a1fc1a8b008de2d0390e9171de8fd7cfa21b7aceedb3c7",
+    "identitySha256": "013a2cc03b0ec9bb065f2ce7c04401217002c5d8025821ebc91b225f9e6076f1"
+  },
+  "actualTestAssemblySha256": "79d11d443d0a5942f4f3d130ed58fdb9827989abd5eadd42e39915a17b459a2b",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+    "sha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30"
+  },
+  "originalRuns": {
+    "focus-v2": {
+      "sha256": "087be444e470f93db27ab380f0ab04ef05d8a58e5a436b35afe9e39c8ae9afb9",
+      "counters": {
+        "total": "12",
+        "executed": "12",
+        "passed": "0",
+        "failed": "12",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController(cardNo: \"SFD·148/221\", score: 7)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.TwoWinsInOneTurnAndOneAfterActualTurnChangesScoreOnlyTwice(cardNo: \"SFD·148a/221\")",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.TwoWinsInOneTurnAndOneAfterActualTurnChangesScoreOnlyTwice",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint(cardNo: \"SFD·148/221\", scoreFirst: True)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.QuickCounterCannotCounterAnUntargetedScoreSkillOrConsumeResources(cardNo: \"SFD·148a/221\")",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.QuickCounterCannotCounterAnUntargetedScoreSkillOrConsumeResources",
+          "outcome": "Failed",
+          "failure": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController(cardNo: \"SFD·148a/221\", score: 7)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint(cardNo: \"SFD·148/221\", scoreFirst: False)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Filter matched in collection\n                                                                                                                                                                                                                                                                                                                                                      ↓ (pos 21)\nCollection: [···, GameEvent { Kind = CARD_DRAWN, Description = P1 抽 1 张牌, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_RESOLVED, Description = P1 确立战场控制, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONQUERED, Description = P1 征服战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SCORE_GAINED, Description = P1 获得 1 分, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = MATCH_WON, Description = P1 达到获胜分数并获胜, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.QuickCounterCannotCounterAnUntargetedScoreSkillOrConsumeResources(cardNo: \"SFD·148/221\")",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.QuickCounterCannotCounterAnUntargetedScoreSkillOrConsumeResources",
+          "outcome": "Failed",
+          "failure": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController(cardNo: \"SFD·148a/221\", score: 0)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint(cardNo: \"SFD·148a/221\", scoreFirst: False)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Filter matched in collection\n                                                                                                                                                                                                                                                                                                                                                      ↓ (pos 21)\nCollection: [···, GameEvent { Kind = CARD_DRAWN, Description = P1 抽 1 张牌, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_RESOLVED, Description = P1 确立战场控制, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONQUERED, Description = P1 征服战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SCORE_GAINED, Description = P1 获得 1 分, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = MATCH_WON, Description = P1 达到获胜分数并获胜, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController(cardNo: \"SFD·148/221\", score: 0)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ActualReturnResponsePreservesTheEarnedPointAndItsCapturedController",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.TwoWinsInOneTurnAndOneAfterActualTurnChangesScoreOnlyTwice(cardNo: \"SFD·148/221\")",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.TwoWinsInOneTurnAndOneAfterActualTurnChangesScoreOnlyTwice",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint(cardNo: \"SFD·148a/221\", scoreFirst: True)",
+          "method": "Riftbound.ConformanceTests.DravenBattleWinScoreInteractionTests.ChosenResultSkillOrderStopsAtTheNormalWinningPoint",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+        }
+      ]
+    },
+    "adjacent-v1": {
+      "sha256": "9a68f18754fa2195b5b028fa50cd77a4a7003189c24e467d775ec73379221f3f",
+      "counters": {
+        "total": "35",
+        "executed": "35",
+        "passed": "25",
+        "failed": "10",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: True, expectedScore: 9, draws: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"winning-defender\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Strings differ\nExpected: \"P2\"\nActual:   null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 7, otherScored: False, expectedScore: 8, draws: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"winning-attacker\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"winning-defender\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Strings differ\nExpected: \"P2\"\nActual:   null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 9)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: False, expectedScore: 8, draws: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"winning-attacker\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 8)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  },
+  "originalHistories": [
+    {
+      "caseId": "SFD-148-221-illegal-counter",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-illegal-counter.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "6416d18316facc5c930acb352ef154d857c516a28611d750eadedf3d28364d3e",
+      "failure": "SingleException: Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+    },
+    {
+      "caseId": "SFD-148-221-return-0",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-return-0.json.gz",
+      "commands": 9,
+      "events": 30,
+      "originalPrefixReplays": 9,
+      "sha256": "8eaf88d7e6d4261c7c00b7e890a51e06b0d039bc3ff02ea707b12b264f0edc25",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-return-7",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-return-7.json.gz",
+      "commands": 9,
+      "events": 30,
+      "originalPrefixReplays": 9,
+      "sha256": "5cec43df350f32803edb1e26ce2b67a9144de29282ceb8368a51dae59739622d",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+    },
+    {
+      "caseId": "SFD-148-221-three-battles-two-turns",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-three-battles-two-turns.json.gz",
+      "commands": 14,
+      "events": 66,
+      "originalPrefixReplays": 14,
+      "sha256": "f8d2fc50bab2cef2f03c7857e8f48eabd0efafacdc76c4154261d38b0d4b67dc",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-winning-order-False",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-winning-order-False.json.gz",
+      "commands": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "fc15f6ae2d5864c38379f8578919b4a3fc139167c9e05edb0045d42c0320b032",
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Filter matched in collection\n                                                                                                                                                                                                                                                                                                                                                      ↓ (pos 21)\nCollection: [···, GameEvent { Kind = CARD_DRAWN, Description = P1 抽 1 张牌, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_RESOLVED, Description = P1 确立战场控制, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONQUERED, Description = P1 征服战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SCORE_GAINED, Description = P1 获得 1 分, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = MATCH_WON, Description = P1 达到获胜分数并获胜, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+    },
+    {
+      "caseId": "SFD-148-221-winning-order-True",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-winning-order-True.json.gz",
+      "commands": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "ff7ea7ee09501520ea8b9841b901507abe3d05f78f05a5f5722dab94985a9e40",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+    },
+    {
+      "caseId": "SFD-148a-221-illegal-counter",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-illegal-counter.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "fd4f910705be322c48fdcb3727ce55f3b6d2dd00ede879ea59b425b18cd0ea99",
+      "failure": "SingleException: Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+    },
+    {
+      "caseId": "SFD-148a-221-return-0",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-return-0.json.gz",
+      "commands": 9,
+      "events": 30,
+      "originalPrefixReplays": 9,
+      "sha256": "2825823ebf063e36a4b1b82e7d6c52f3b19bbec85f54979720d1d23637d1f4ab",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-return-7",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-return-7.json.gz",
+      "commands": 9,
+      "events": 30,
+      "originalPrefixReplays": 9,
+      "sha256": "130f9f7aa6c110d792b2992e6050ce9d405794cb22c1c75b47c573299e4e503f",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 8\nActual:   7"
+    },
+    {
+      "caseId": "SFD-148a-221-three-battles-two-turns",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-three-battles-two-turns.json.gz",
+      "commands": 14,
+      "events": 66,
+      "originalPrefixReplays": 14,
+      "sha256": "93858ea9101e969ff86c9067ad49367449af8fa7efaaed5f522e25d649918044",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-winning-order-False",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-winning-order-False.json.gz",
+      "commands": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "bce1c4131f18a4b3dab509eb75a030b03e0a10e0135ab658bc1ab3f2a8b1f482",
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Filter matched in collection\n                                                                                                                                                                                                                                                                                                                                                      ↓ (pos 21)\nCollection: [···, GameEvent { Kind = CARD_DRAWN, Description = P1 抽 1 张牌, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_RESOLVED, Description = P1 确立战场控制, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONQUERED, Description = P1 征服战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SCORE_GAINED, Description = P1 获得 1 分, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = MATCH_WON, Description = P1 达到获胜分数并获胜, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+    },
+    {
+      "caseId": "SFD-148a-221-winning-order-True",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-winning-order-True.json.gz",
+      "commands": 6,
+      "events": 24,
+      "originalPrefixReplays": 6,
+      "sha256": "0fc62909d5a86e569a215767f11d8f14ca3333c750783148e0e6560085edea02",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+    },
+    {
+      "caseId": "SFD-148-221-attacker-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-attacker-win.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "7d79574c374f8a3fb319629d7c1353e16f6ff677f8d4f9dc205b63ad1cdf664d",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-defeated",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-defeated.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "1fe0a3cc3577282f0bc2976e7a26aed30769fbebd06aebe31b2c6afe1b45d453",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-defender-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-defender-win.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "1858b13d7d30eb44922f56cdd8613b2742dab40aedb947e0b8425e7382bf5f32",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-empty-conquest",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-empty-conquest.json.gz",
+      "commands": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "sha256": "a1e475203f239e9f4723c66f21b259dd9418a2e808458235290b50db7dc39c4a",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-mutual-destruction",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-mutual-destruction.json.gz",
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "sha256": "652eb38d112eadc2bf56c64ea4fc41b69fd8bd228ab1032cb87b7c75c79d52b8",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-nonparticipant",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-nonparticipant.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "f3b4b0458a6d26601556b21247a1e954e7b6be45c45d84b23e30e0eaf0358479",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-repeat-defender-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-repeat-defender-win.json.gz",
+      "commands": 8,
+      "events": 28,
+      "originalPrefixReplays": 8,
+      "sha256": "07b220f489ace49e703c42b216933ea561bde6d3aae6b30bcc114bedac8b2d75",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-winning-attacker",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-winning-attacker.json.gz",
+      "commands": 4,
+      "events": 17,
+      "originalPrefixReplays": 4,
+      "sha256": "c1132a028e66c632485c53b521194f1965b6d3a09ce73f59041d9bd366130b26",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-winning-defender",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-winning-defender.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "4eed06dffbf6ad7c0c82ae959285f2ed23f1f4ff7b3c0fdee7a30f9f0ba32aaf",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-attacker-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-attacker-win.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "410e2db87484e82c40b6e9711e9a57b90c1077001ec1513f5c8754b874b6cd7e",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-defeated",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-defeated.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "3a4109e4ed5430a9f3d21e8f7798e10e78bf8376558af8f2aa73f5d4d0de9e86",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-defender-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-defender-win.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "52fd5fd2cf8fae971439c4745cb463a5a83c5c76fa55f83f34949fe3d70aa89c",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-empty-conquest",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-empty-conquest.json.gz",
+      "commands": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "sha256": "4a4ae2eeb03b1909a2b31b888580c5a75207326efb3de6564df9fc214c50ae50",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-mutual-destruction",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-mutual-destruction.json.gz",
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "sha256": "266f4bcf1e4f6622796239b37a768fb8d18f101162c2a33d51b822fa2f79e95d",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-nonparticipant",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-nonparticipant.json.gz",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "2612ba4e83ff35559ff753943766eaf17622dabd20c569e984118c521b099265",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-repeat-defender-win",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-repeat-defender-win.json.gz",
+      "commands": 8,
+      "events": 28,
+      "originalPrefixReplays": 8,
+      "sha256": "179f0c35678a0efaed02a4e564f05b5ff79138857baded1fe5597137af6d0435",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-winning-attacker",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-winning-attacker.json.gz",
+      "commands": 4,
+      "events": 17,
+      "originalPrefixReplays": 4,
+      "sha256": "c3a034c77183b63ab99f0a8c91abef603aa36857a69e7d5016405daad3aeb93e",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-winning-defender",
+      "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-winning-defender.json.gz",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "681fba4ea08f14834dcf54af225d34278d69be441f92fbd3722c2de15d420c70",
+      "failure": null
+    }
+  ],
+  "newCases": 12,
+  "newMethods": 4,
+  "newOriginalPrefixReplays": 96,
+  "newOriginalEvents": 380,
+  "existingScoreCases": 18,
+  "existingScoreOriginalPrefixReplays": 78,
+  "existingScoreOriginalEvents": 286,
+  "adjacentLifecyclePassed": 17,
+  "seed": 424242,
+  "freshCompleteSourceRows": [
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33240,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·148/221",
+      "cardName": "德莱文",
+      "subTitle": "艺高胆大",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+      "flavorText": "",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/d065a0877b6f413384a7273ddf2f502a.png",
+      "backImage": "",
+      "listSort": 833,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33241,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·148a/221",
+      "cardName": "德莱文",
+      "subTitle": "艺高胆大",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+      "flavorText": "",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/492d174b2b604a98af8491f604c8c63c.png",
+      "backImage": "",
+      "listSort": 832,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33283,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "SFD·185/221",
+      "cardName": "荣耀行刑官",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "",
+      "tag": "",
+      "artist": "Pandart Studio",
+      "cardEffect": "当你赢得一场战斗时，抽一张牌。（若战斗结束后只剩下你的单位，则视为你赢得战斗。）",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/4997008d95e9413eb3866356b55a6776.png",
+      "backImage": "",
+      "listSort": 790,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31322,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·104/298",
+      "cardName": "择日再战",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+      "flavorText": "明天又不会世界末日。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/e0e342a822854504bf9096e88b214830.png",
+      "backImage": "",
+      "listSort": 383,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33121,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·045/221",
+      "cardName": "极速反制",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个将友方单位或友方装备选为目标的敌方法术或技能。",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/45b2c331460b4e83b376c6a9a34229ad.png",
+      "backImage": "",
+      "listSort": 952,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31405,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·175/298",
+      "cardName": "船坞潜伏者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+      "backImage": "",
+      "listSort": 300,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31542,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·296/298",
+      "cardName": "虚空之门",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+      "backImage": "",
+      "listSort": 163,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "otherDesc": 0
+    }
+  ],
+  "counterCoverage": "The 2 illegal-counter tests stop at missing score-skill precondition. No counter submission or invariant coverage yet. No current legal counter asserted.",
+  "originalCompileFailure": "CS9124 preserved with original source; ordinary constructor resolves it.",
+  "sharedConsumerCommit": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+  "onlyNewTestAndScopedEvidenceToCommit": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "fullGameAcceptanceDeferredUntilIntegration": true,
+  "notApiOrColdRecoveryOrGlobalCertification": true,
+  "allEarlierSourcesTestsSeedsAndFailuresPreserved": true,
+  "backendGoalComplete": false,
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "archive": {
+    "path": "docs/evidence/draven-battle-score-interactions-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "7fc57a99cd5d670b1d8b9c2c3aaba39f74f4b4bb0d140c8335cf3c4a9fcee50e",
+    "members": [
+      {
+        "path": "docs/DRAVEN_BATTLE_SCORE_INTERACTIONS_PARALLEL_2026-10-23.md",
+        "bytes": 3960,
+        "sha256": "5d74404d8f56cc3fa48ba1230fff9e3c11ede6b21485071b210e4688bc0146d8"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+        "bytes": 5677,
+        "sha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+        "bytes": 15305,
+        "sha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "bytes": 11207,
+        "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/adjacent-v1/build.log",
+        "bytes": 78,
+        "sha256": "8e2c34d1038847131a4089f6593ece1a75ea58c9f45fb367b1bcd169aa58f27c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/adjacent-v1/discovery.log",
+        "bytes": 2084440,
+        "sha256": "276b129ba8d7c65c528af6c39cfbadc98da2324559c0318a56a521aee4160020"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/adjacent-v1/focus/results.trx",
+        "bytes": 75548,
+        "sha256": "9a68f18754fa2195b5b028fa50cd77a4a7003189c24e467d775ec73379221f3f"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/adjacent-v1/focus/test.log",
+        "bytes": 2682,
+        "sha256": "401e6d5717a1ce05ebfbf4d12551b6b7833b8fd3f1b439f87a5a84464a361460"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/adjacent-v1/plan.json",
+        "bytes": 2153,
+        "sha256": "74ea1d9a700dde814d2fcee4040e19b80c67d33d40a7e7a0f189fa1b9cb9c26d"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/core-clauses-v1.json",
+        "bytes": 12713,
+        "sha256": "8176b1ff2161bfcf376f76a4c5b8ae3e179e069613ab596406341c4b8ff5797c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/counter-source-search-v1.json",
+        "bytes": 23628,
+        "sha256": "59516a9326384c05baf8cd752a08c1e549f98b33cb7cecc918be83fde603fbe3"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v1/build.log",
+        "bytes": 974,
+        "sha256": "2ad6fe5fded79bafaaf50ba7c0f166c5c32fdf598f6f8a773a57bdf20bf7aec6"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v1/test-source.cs",
+        "bytes": 15166,
+        "sha256": "bea8113155bf1c15cf14460e005671bfefb4100c78a2663aa1b0b8c450fee04d"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "b1e38c308cd640ed240b68846f73f283281a7c4a92e7f59c9de71562fd001637"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/discovery.log",
+        "bytes": 2084440,
+        "sha256": "276b129ba8d7c65c528af6c39cfbadc98da2324559c0318a56a521aee4160020"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/focus/results.trx",
+        "bytes": 63524,
+        "sha256": "087be444e470f93db27ab380f0ab04ef05d8a58e5a436b35afe9e39c8ae9afb9"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/focus/test.log",
+        "bytes": 2896,
+        "sha256": "5a60af0a1729d3f48ce0a51a1b5c3f94851426f195d2bce2db3379bcf8f69fb4"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/plan.json",
+        "bytes": 1085,
+        "sha256": "6f85aa3471876023c2d20044ff22fbc132a81069b613f98bd08df50a47cb5a32"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/focus-v2/test-source.cs",
+        "bytes": 15305,
+        "sha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-attacker-win.json.gz",
+        "bytes": 27980,
+        "sha256": "7d79574c374f8a3fb319629d7c1353e16f6ff677f8d4f9dc205b63ad1cdf664d"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-defeated.json.gz",
+        "bytes": 27442,
+        "sha256": "1fe0a3cc3577282f0bc2976e7a26aed30769fbebd06aebe31b2c6afe1b45d453"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-defender-win.json.gz",
+        "bytes": 27210,
+        "sha256": "1858b13d7d30eb44922f56cdd8613b2742dab40aedb947e0b8425e7382bf5f32"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-empty-conquest.json.gz",
+        "bytes": 16236,
+        "sha256": "a1e475203f239e9f4723c66f21b259dd9418a2e808458235290b50db7dc39c4a"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-mutual-destruction.json.gz",
+        "bytes": 27392,
+        "sha256": "652eb38d112eadc2bf56c64ea4fc41b69fd8bd228ab1032cb87b7c75c79d52b8"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-nonparticipant.json.gz",
+        "bytes": 29522,
+        "sha256": "f3b4b0458a6d26601556b21247a1e954e7b6be45c45d84b23e30e0eaf0358479"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-repeat-defender-win.json.gz",
+        "bytes": 56419,
+        "sha256": "07b220f489ace49e703c42b216933ea561bde6d3aae6b30bcc114bedac8b2d75"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-winning-attacker.json.gz",
+        "bytes": 24448,
+        "sha256": "c1132a028e66c632485c53b521194f1965b6d3a09ce73f59041d9bd366130b26"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148-221-winning-defender.json.gz",
+        "bytes": 27255,
+        "sha256": "4eed06dffbf6ad7c0c82ae959285f2ed23f1f4ff7b3c0fdee7a30f9f0ba32aaf"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-attacker-win.json.gz",
+        "bytes": 28045,
+        "sha256": "410e2db87484e82c40b6e9711e9a57b90c1077001ec1513f5c8754b874b6cd7e"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-defeated.json.gz",
+        "bytes": 27447,
+        "sha256": "3a4109e4ed5430a9f3d21e8f7798e10e78bf8376558af8f2aa73f5d4d0de9e86"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-defender-win.json.gz",
+        "bytes": 27248,
+        "sha256": "52fd5fd2cf8fae971439c4745cb463a5a83c5c76fa55f83f34949fe3d70aa89c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-empty-conquest.json.gz",
+        "bytes": 16267,
+        "sha256": "4a4ae2eeb03b1909a2b31b888580c5a75207326efb3de6564df9fc214c50ae50"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-mutual-destruction.json.gz",
+        "bytes": 27420,
+        "sha256": "266f4bcf1e4f6622796239b37a768fb8d18f101162c2a33d51b822fa2f79e95d"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-nonparticipant.json.gz",
+        "bytes": 29414,
+        "sha256": "2612ba4e83ff35559ff753943766eaf17622dabd20c569e984118c521b099265"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-repeat-defender-win.json.gz",
+        "bytes": 56425,
+        "sha256": "179f0c35678a0efaed02a4e564f05b5ff79138857baded1fe5597137af6d0435"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-winning-attacker.json.gz",
+        "bytes": 24465,
+        "sha256": "c3a034c77183b63ab99f0a8c91abef603aa36857a69e7d5016405daad3aeb93e"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-existing-score-v1/SFD-148a-221-winning-defender.json.gz",
+        "bytes": 27288,
+        "sha256": "681fba4ea08f14834dcf54af225d34278d69be441f92fbd3722c2de15d420c70"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-illegal-counter.json.gz",
+        "bytes": 36305,
+        "sha256": "6416d18316facc5c930acb352ef154d857c516a28611d750eadedf3d28364d3e"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-return-0.json.gz",
+        "bytes": 80033,
+        "sha256": "8eaf88d7e6d4261c7c00b7e890a51e06b0d039bc3ff02ea707b12b264f0edc25"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-return-7.json.gz",
+        "bytes": 80086,
+        "sha256": "5cec43df350f32803edb1e26ce2b67a9144de29282ceb8368a51dae59739622d"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-three-battles-two-turns.json.gz",
+        "bytes": 131498,
+        "sha256": "f8d2fc50bab2cef2f03c7857e8f48eabd0efafacdc76c4154261d38b0d4b67dc"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-winning-order-False.json.gz",
+        "bytes": 51122,
+        "sha256": "fc15f6ae2d5864c38379f8578919b4a3fc139167c9e05edb0045d42c0320b032"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148-221-winning-order-True.json.gz",
+        "bytes": 50954,
+        "sha256": "ff7ea7ee09501520ea8b9841b901507abe3d05f78f05a5f5722dab94985a9e40"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-illegal-counter.json.gz",
+        "bytes": 36309,
+        "sha256": "fd4f910705be322c48fdcb3727ce55f3b6d2dd00ede879ea59b425b18cd0ea99"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-return-0.json.gz",
+        "bytes": 80039,
+        "sha256": "2825823ebf063e36a4b1b82e7d6c52f3b19bbec85f54979720d1d23637d1f4ab"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-return-7.json.gz",
+        "bytes": 80096,
+        "sha256": "130f9f7aa6c110d792b2992e6050ce9d405794cb22c1c75b47c573299e4e503f"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-three-battles-two-turns.json.gz",
+        "bytes": 131415,
+        "sha256": "93858ea9101e969ff86c9067ad49367449af8fa7efaaed5f522e25d649918044"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-winning-order-False.json.gz",
+        "bytes": 51129,
+        "sha256": "bce1c4131f18a4b3dab509eb75a030b03e0a10e0135ab658bc1ab3f2a8b1f482"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/original-v2/SFD-148a-221-winning-order-True.json.gz",
+        "bytes": 50965,
+        "sha256": "0fc62909d5a86e569a215767f11d8f14ca3333c750783148e0e6560085edea02"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/package-proof-v1.py",
+        "bytes": 6725,
+        "sha256": "747c7e716fb74cc230cc0c07f005f9e3aebc896d059e876f88c872bea5a64c58"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/refresh-sources-v1.py",
+        "bytes": 2316,
+        "sha256": "4895e472cb0bcd073d728f6c34d490506a0319434c413c329157aa927d8f744c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1192,
+        "sha256": "faae001c1eede2ab2f130b8b6957bdf76be727ea51708f25cd8067b6e306b4d0"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-德莱文-original-v1.json.gz",
+        "bytes": 2589,
+        "sha256": "bac8840c3c3299c9f618e8d475a3ca9ae746b2413817b1153df8cd4c5830c4fe"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-择日再战-original-v1.json.gz",
+        "bytes": 1294,
+        "sha256": "be5dc64f63059b74d4abafc625d02548a35fbd3af522472b2cec1f0d47fbb46c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-极速反制-original-v1.json.gz",
+        "bytes": 1251,
+        "sha256": "41b57557668c422b84910dc00e109a00876f9cd5fb9153395e42aabf96fbf16c"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1199,
+        "sha256": "c202c2c02cb7b31885634f610a2648fa29b26f913b29544f0cc9414d714ed558"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-荣耀行刑官-original-v1.json.gz",
+        "bytes": 1316,
+        "sha256": "d5f03e94fedfee471fa3a7948c84b84cbdeffc387a67e46d4aa96efd8dd966e6"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1292,
+        "sha256": "d26625a672bdac3953b07302f89fcea444d4f235dcd7927969a0e20d0cfd1a9e"
+      },
+      {
+        "path": "var/qa/draven-battle-score-interactions-20261023/sources-v1/extra-rows.json",
+        "bytes": 10440,
+        "sha256": "57837b6b5e7b256050cebe7a49e8f00e86fc0bce4e324db881ccab527e1df231"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      }
+    ]
+  }
+}

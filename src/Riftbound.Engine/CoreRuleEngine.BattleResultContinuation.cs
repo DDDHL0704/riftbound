@@ -85,6 +85,9 @@ public sealed partial class CoreRuleEngine
                         LegendBattleWinDrawEffect, "BATTLE_RESULT_DETERMINED")
                     { LegendBattleWinDraw = context, SourceCardNo = card.CardNo, EnqueuedAtTick = resultState.Tick });
                 }
+        var scoreObservations = CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
+            attackers, defenders, resultState.Tick);
+        queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
         if (queued.Count == 0) return false;
 
         var zones = NormalizeZonesForSeats(resultState);
@@ -105,12 +108,14 @@ public sealed partial class CoreRuleEngine
         {
             var ev = BuildTriggerQueuedEvent(trigger);
             return ev with { Payload = new Dictionary<string, object?>(ev.Payload)
-            { ["battleWinContext"] = (object?)trigger.UnitBattleWinDraw ?? (object?)trigger.LegendBattleWinDraw ?? trigger.KhazixBattleWin } };
+            { ["battleWinContext"] = (object?)trigger.UnitBattleWinDraw ?? (object?)trigger.LegendBattleWinDraw ?? (object?)trigger.KhazixBattleWin ?? trigger.DravenBattleWinScore } };
         }));
         pending = resultState with
         {
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(resultState.ObjectLocations, zones),
             PendingBattleResult = continuation, TriggerQueue = resultState.TriggerQueue.Concat(queued).ToArray(),
+            UntilEndOfTurnEffects = scoreObservations.Aggregate(resultState.UntilEndOfTurnEffects,
+                (effects, captured) => AddUntilEndOfTurnEffect(effects, captured.UsedMarker)),
             TimingState = TimingStates.NeutralClosed, FocusPlayerId = null, PriorityPlayerId = null,
             PassedFocusPlayerIds = [], PassedPriorityPlayerIds = []
         };

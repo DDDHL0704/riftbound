@@ -1,0 +1,3214 @@
+{
+  "archive": {
+    "path": "docs/evidence/draven-first-battle-win-score-current-cn16-2026-10-23/original-sources-tests-and-network-results.tar.gz",
+    "sha256": "2cccd8e684db0e3e171cf78b5891548204beba75e6ca6bf5a3e16d4c92f37b00"
+  },
+  "members": [
+    {
+      "path": "36f7195f-original.patch",
+      "bytes": 2815951,
+      "sha256": "f199654b672e0065b776d76c7ed36d08d2ed9d8bbd6d33f8047b22d503e7a6cc"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-console-v1.log",
+      "bytes": 449,
+      "sha256": "ac572fc266a72ffcb7c7ec12fd992996d9fc243e5ce6ca5a6a0b36b08e67d620"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-owner-terminal-v1.json",
+      "bytes": 10389,
+      "sha256": "5de5bd085ceba0357be77c1672c88d1003bae23bf46a7d54c721c7825e635e8a"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-start-v1.json.gz",
+      "bytes": 152674,
+      "sha256": "f84015b8ede9d7e41a757241a1d5fa40766e2e0c28aa4b3e1dff9aad30a3c98d"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/build.log",
+      "bytes": 78,
+      "sha256": "3d996edc8a4c5362f90470f1ee4e06c860364e083cdb61b52dee60ab08e18228"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/discovery.log",
+      "bytes": 2092358,
+      "sha256": "ed5bd16b35afdd0960ac568497bde841e497528cdc5868ed41c28e9888a22e19"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/focus/results.trx",
+      "bytes": 1303681,
+      "sha256": "797d244ab7f6dd4dd70a13069b067fef6a433e62eaea29c799f97e755dc9f114"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/focus/test.log",
+      "bytes": 517,
+      "sha256": "ca87fc71cca5908175bd135cf34c983aaa972defe3b51e54e2f28dd8792771a5"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/plan.json",
+      "bytes": 61549,
+      "sha256": "0c66364151a0250edf5fcddbf3b8309034e73d928bde551f2da1eeaf53569ea0"
+    },
+    {
+      "path": "adjacent-and-twelve-original-games-v1/summary.json",
+      "bytes": 278,
+      "sha256": "54d0a0119977a4af71da4bf61f85358a0e57c5c026b912655c47be37c959d4c0"
+    },
+    {
+      "path": "current-core-conditional-get-v1.json",
+      "bytes": 1216,
+      "sha256": "973455aa4981d50977612cf6ebcacfbe50f658fe4263389e677a6607eb91b086"
+    },
+    {
+      "path": "e791f671-original.patch",
+      "bytes": 3395898,
+      "sha256": "8d5c21396dd6ff6e25180902c516ff64c555746c4ad4a2e4c5a08a8eb12bdc32"
+    },
+    {
+      "path": "existing-native-network-smoke-original-console-v1.log",
+      "bytes": 1258,
+      "sha256": "d54d876ae36c60de74b9f3081a1284362c1bb62ae39d527de86e9b44fa5f8662"
+    },
+    {
+      "path": "existing-network-smoke-publish-v1.log",
+      "bytes": 445,
+      "sha256": "53bb24febebf261b03b66a1fcca8d7b9d545570e0d0f12ff491c22a8d2064e36"
+    },
+    {
+      "path": "first-integration-failure-disposition-v1.json",
+      "bytes": 734,
+      "sha256": "97d144bad754f2efab18e84e939e6e11dce116875d7fc804c31b3c2cb2f471ea"
+    },
+    {
+      "path": "fixed-api-publish-v1.log",
+      "bytes": 759,
+      "sha256": "af0804f208bd6b2b6e0f33dab26cdcd395dd7fd46819bafd4cd70a8f903263b6"
+    },
+    {
+      "path": "frozen-sole-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "cb03d7be71ff54b5fbd2c47a7c63b0d9cdc4606dba8a442fec9294589678d59c"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/results.trx",
+      "bytes": 22501379,
+      "sha256": "4b2f6aca02f450ccfc3f316c22f28e3c3ea5ff72f0112edc50d3ae08d92e0581"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/test.log",
+      "bytes": 679,
+      "sha256": "08de04a8ad6fe5a43dd43af7ae3eb974563b38ddbbf65ec45e6607867692e54a"
+    },
+    {
+      "path": "frozen-sole-check-v1/discovery.log",
+      "bytes": 2092396,
+      "sha256": "b465bd807dd89f69cbd87bd1ff3f0966ad2e2d72fc58e717b9443b7dfcebeb0f"
+    },
+    {
+      "path": "frozen-sole-check-v1/plan.json",
+      "bytes": 1020227,
+      "sha256": "0c532fae5300ced7615e1a96ca187d300c2086704ed41ae696efc9dfe1dbd879"
+    },
+    {
+      "path": "independent-burnout-readonly-postgres-v1.log",
+      "bytes": 1279,
+      "sha256": "5b44b9a9d07a9f0fa7d30848dcd85aced01d4a52c36f0da8b9338eca0f9a3cdd"
+    },
+    {
+      "path": "independent-eleven-draven-score-sql-originals-readonly-original-console-v1.log",
+      "bytes": 621,
+      "sha256": "891e1ca13adcb20a113b96b156057de2bf05258c65065ba6d5cc9c5d1cf1e8dc"
+    },
+    {
+      "path": "independent-eleven-draven-score-sql-originals-readonly-owner-terminal-v1.json",
+      "bytes": 40631,
+      "sha256": "2b08c97f1cfce5fa6aa6e9ec8e48d9c38c98f8f7166a394bc9904beb2fe06128"
+    },
+    {
+      "path": "independent-eleven-draven-score-sql-originals-readonly-result-v1.json",
+      "bytes": 5183,
+      "sha256": "1566ad24861fe1f17038f05ddfec909a2ccbc4a6b9bf410cf7d0e666e4c9cee5"
+    },
+    {
+      "path": "independent-four-original-network-sql-and-transport-owner-terminal-v1.json",
+      "bytes": 45611,
+      "sha256": "54550d60b92038fe65c69f957aa62f0217ea2fe77df3d16b5ac6d0e960ff73b1"
+    },
+    {
+      "path": "independent-four-original-network-sql-v1/draven-alt-return-independent-original-seven-tables.json.gz",
+      "bytes": 66003,
+      "sha256": "79be9f9415891f858b95a30c14b63691d11827257807f27eab6dfab535a9cc9b"
+    },
+    {
+      "path": "independent-four-original-network-sql-v1/draven-alt-winning-return-independent-original-seven-tables.json.gz",
+      "bytes": 57965,
+      "sha256": "bd7f0f005ef9e9c1ce36bd1bb111795008a2c2e09e7342bfe99d06f4b307af70"
+    },
+    {
+      "path": "independent-four-original-network-sql-v1/draven-return-independent-original-seven-tables.json.gz",
+      "bytes": 66010,
+      "sha256": "a6b07581d052786df501ecf069b0f22796a5cd91f88d4d6dfe10900163f9e7c2"
+    },
+    {
+      "path": "independent-four-original-network-sql-v1/draven-winning-return-independent-original-seven-tables.json.gz",
+      "bytes": 57956,
+      "sha256": "7aa2e20b67bcf61bf803e7509ce5fd892eebc5a4a9bbcaaf85d3c8716c236f4e"
+    },
+    {
+      "path": "independent-four-original-network-sql-v1/result.json",
+      "bytes": 3057,
+      "sha256": "355a5146e8d77b9e8fda84e1176477783f5a7dabaf1f4a3fb6da0b19863cc501"
+    },
+    {
+      "path": "independent-network-and-transport-postgres-v1.log",
+      "bytes": 1280,
+      "sha256": "71333c3b8d910a1d172a62b630aa1d600013f70e4a9abac63f06cf51753f3cfe"
+    },
+    {
+      "path": "independent-network-reader-build-v1.log",
+      "bytes": 455,
+      "sha256": "35faace105e4dfc12e62fe52e300b4118a97f0fbbfd327a500d11dc078aec245"
+    },
+    {
+      "path": "independent-network-sql-original-console-v1.log",
+      "bytes": 348,
+      "sha256": "09ce2cb1f6b919c7fc0b909d01278c4f5440bd64a2a2d649318c42196144d23e"
+    },
+    {
+      "path": "independent-network-sql-reader-v1/Program.cs",
+      "bytes": 14771,
+      "sha256": "2af108d003da1626fd57815aadc5866464d52b99b97798e3ce3111a31a692a55"
+    },
+    {
+      "path": "independent-network-sql-reader-v1/probe.csproj",
+      "bytes": 1478,
+      "sha256": "4edb3f567eddd770275be01b60af206f9fb63cce784be6437c8ea3826e77fe30"
+    },
+    {
+      "path": "independent-original-sql-reader-v1/Program.cs",
+      "bytes": 22848,
+      "sha256": "157e145340fce2e268596287d43064a23489ea9aac6ec55b72184d75a2c5a16c"
+    },
+    {
+      "path": "independent-original-sql-reader-v1/probe.csproj",
+      "bytes": 1369,
+      "sha256": "b8931f6d4c0c514b6bb10c4177c09e04806a89cc2a64654cbfe74653fe821e64"
+    },
+    {
+      "path": "independent-reader-build-v1.log",
+      "bytes": 467,
+      "sha256": "71677f5c59240ba248e6602aa01d74a0a49726bf97edcad83afe81a478bf619d"
+    },
+    {
+      "path": "integrate-score-consumer-v1.py",
+      "bytes": 4891,
+      "sha256": "5cf3f16013fbc1aae1f830a5f38a174a931b3d61ce9fe0cb3a0b3d624239a2a9"
+    },
+    {
+      "path": "integration-console-v1.log",
+      "bytes": 334,
+      "sha256": "7f16968cb629e929597dfdf6b86c32fa6d189ad0272d9d7ecf7b7837d50490c8"
+    },
+    {
+      "path": "integration-console-v2.log",
+      "bytes": 427,
+      "sha256": "1cf6d77c230e48eb594da0b1b55848428c0b11a353f22e7555f817ed3902b891"
+    },
+    {
+      "path": "integration-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "faf7ca11df38ecd8c6f64519a261608b40117ecb9545e9de909f50c1613a29c1"
+    },
+    {
+      "path": "integration-focus-v1/discovery.log",
+      "bytes": 2087749,
+      "sha256": "39067a65fbf3b7a45213f30a3cc5d24faa88003e2575a37efb8fc5c0a32c4326"
+    },
+    {
+      "path": "integration-focus-v1/focus/results.trx",
+      "bytes": 106390,
+      "sha256": "e01cccc24a05495a8fc2122c2923a9bd21056bc47092b2f27375c8bd962124ae"
+    },
+    {
+      "path": "integration-focus-v1/focus/test.log",
+      "bytes": 1269,
+      "sha256": "749b8af5f8970e0b7116614b9bb1055e08fb41b349dd755e58641727b4ee5a5a"
+    },
+    {
+      "path": "integration-focus-v1/plan.json",
+      "bytes": 2180,
+      "sha256": "c55b551dfa8c75cff60425cd302935c3cd4201d4bc9c02c93dcf816088784fbd"
+    },
+    {
+      "path": "integration-focus-v2/build.log",
+      "bytes": 78,
+      "sha256": "c293cd0af1b988b00d5e1b352ac772fb227c18ccf10232f9e5d5988d240ef808"
+    },
+    {
+      "path": "integration-focus-v2/discovery.log",
+      "bytes": 2090168,
+      "sha256": "ee58f077945b3ee31a4d5678444740297ff17d75f6eeb0cdb12ddedaa02ae788"
+    },
+    {
+      "path": "integration-focus-v2/focus/results.trx",
+      "bytes": 114441,
+      "sha256": "8dbbb783265dc9b9423fe68fb51a5f00cb6e46e3a19a5e6b646d27ce3e7f9f02"
+    },
+    {
+      "path": "integration-focus-v2/focus/test.log",
+      "bytes": 498,
+      "sha256": "ef100cf11a45c1bfad47cd4baa2d9fe24ef8456439ebc3c807dfd3d432cf0e9e"
+    },
+    {
+      "path": "integration-focus-v2/plan.json",
+      "bytes": 2639,
+      "sha256": "cf59e447b0fafeca56138c49cabba89ff241ca5e156ee0bdda51c5b578949396"
+    },
+    {
+      "path": "integration-focus-v2/summary.json",
+      "bytes": 275,
+      "sha256": "02df9747f18e6ba5bea1720667a3209c4343a9feefdd2c43803f5e50cf568b8b"
+    },
+    {
+      "path": "issue-draven-first-score-body.md",
+      "bytes": 1526,
+      "sha256": "364938ef290177ae7956cf613b37464238b471ab2368ab2060739b9bec532564"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-illegal-counter.json.gz",
+      "bytes": 60522,
+      "sha256": "225ff20fe6f6667c02b0fb0c442165a7733dcac3cba1d4dde4d997f52adb6cc6"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-return-0.json.gz",
+      "bytes": 102824,
+      "sha256": "c069f0f4b52b600b38877accb1096e18242f5b34f34ae32db81b74da8d32db96"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-return-7.json.gz",
+      "bytes": 84775,
+      "sha256": "1fe215f039a8e8a4beccd87a5acc6979fa8963027273e796904b4c85967a834f"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-three-battles-two-turns.json.gz",
+      "bytes": 164055,
+      "sha256": "5ae9379f9eefc7556492369dbdea6a099a3c59dc1fcaa44be1e3c7218467cff3"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-winning-order-False.json.gz",
+      "bytes": 76118,
+      "sha256": "138ec6cd9865abc5b7767678eda35b2ac7b2587e80cb201d4cb9a02d497908f9"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148-221-winning-order-True.json.gz",
+      "bytes": 59591,
+      "sha256": "7a3df35f2d9c7ab121251f479a56d2da5466081239c26e3bc38e1f71f19bc8f0"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-illegal-counter.json.gz",
+      "bytes": 60547,
+      "sha256": "68541dcbccda8837131994569137322a5396867d8207c7214cea7bcce3eb2b82"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-return-0.json.gz",
+      "bytes": 102966,
+      "sha256": "ca6ba76ad5b5aa16c914ca8ea73fa70e28f1d4385a1a1444ea06f6aaa70f6934"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-return-7.json.gz",
+      "bytes": 84729,
+      "sha256": "247fa60f8877246e8db9af0560e8de9c082bdd3138797a794cd2f393e6c64899"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-three-battles-two-turns.json.gz",
+      "bytes": 163970,
+      "sha256": "6dfde41c71edf701ce99d90d959a215019cf42856783c26c81e7ddf16d1c1c67"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-winning-order-False.json.gz",
+      "bytes": 76124,
+      "sha256": "79e1ac0acc3ac138a26d76dbfde5d496748ec526154ef220a51a37624bbfdf01"
+    },
+    {
+      "path": "main-interactions-original-v2/SFD-148a-221-winning-order-True.json.gz",
+      "bytes": 59607,
+      "sha256": "d78f0e355763fd93e6a695139bce446e8eb83bd2599d14ba1603957ecc88a0c1"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-False-0-False.json.gz",
+      "bytes": 76517,
+      "sha256": "c51cff204f65b9e8be0097d362c8cef2ec74012cf9d594ff72e5556d59ca173e"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-False-0-True.json.gz",
+      "bytes": 96776,
+      "sha256": "b65ece4c04ecaebf8521692a6387e0581d6401134e53257d5e94f45bac050b61"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-False-7-False.json.gz",
+      "bytes": 65625,
+      "sha256": "83773dbc43c1a4d62f251f02dada77ff1696b860d8aa338645588be25c7c1e14"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-False-7-True.json.gz",
+      "bytes": 86967,
+      "sha256": "2744a30d38a66b8e98b41644fe7d737db71ffb4dab96b41380f137cc537c1d7b"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-True-0-False.json.gz",
+      "bytes": 76533,
+      "sha256": "d7f8301c2e177b387e580a834639775c85909f6e41dfad88df01bc0117fabbf1"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-True-0-True.json.gz",
+      "bytes": 96788,
+      "sha256": "db1ebb559df767d4254a9fb66b33549ffc6679a999c4a4ef30dcd8c711e85608"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-True-7-False.json.gz",
+      "bytes": 65644,
+      "sha256": "6c55b4859ac4a1cb39be57c006ed092efdd6779336b809c99a0627b6edc8bf5f"
+    },
+    {
+      "path": "main-recovery-original-v2/cold-True-7-True.json.gz",
+      "bytes": 87015,
+      "sha256": "55081cc8b1b7cd66fa767287dc53eeb957940cc6e9f5fe4a1864416c4bf837fc"
+    },
+    {
+      "path": "main-recovery-original-v2/coordinated-GENERATION.json.gz",
+      "bytes": 66426,
+      "sha256": "7636648db8002de0c9a1d40f623ae1cad71690d9bf6f3463a5682b7f91c4362a"
+    },
+    {
+      "path": "main-recovery-original-v2/coordinated-PRINTING.json.gz",
+      "bytes": 66512,
+      "sha256": "88ca668d8df4258cca9bd2b319df86411ccd248f7890ec0a8e63961413ad4924"
+    },
+    {
+      "path": "main-recovery-original-v2/coordinated-RESULT_TICK.json.gz",
+      "bytes": 66454,
+      "sha256": "23852d3d2ec86ee4b7e580b22df99f1126e9516d59d491b721a7ab72c3b8eefe"
+    },
+    {
+      "path": "main-recovery-original-v2/shape-MISSING_CONTEXT.json.gz",
+      "bytes": 66376,
+      "sha256": "a65499c81f92bc50cc2054158af791cba3a1a976e18c6b2a99e69fc7c06cfdd0"
+    },
+    {
+      "path": "main-recovery-original-v2/shape-MISSING_MARKER.json.gz",
+      "bytes": 66376,
+      "sha256": "a6f05feaf93c4641adfda6c276826f43db785b651c3d9511bd10fe63347c1d7c"
+    },
+    {
+      "path": "main-recovery-original-v2/shape-TWO_CONTEXTS.json.gz",
+      "bytes": 66416,
+      "sha256": "a05f809f604d3db3725b39a53a34c40962ce6c2b48573e9920b1c04ad66b70bd"
+    },
+    {
+      "path": "main-recovery-original-v2/shape-WRONG_TURN.json.gz",
+      "bytes": 66393,
+      "sha256": "1e2ade93b52b16b55fbe1fb2095b02611670d8bbd97c7bf9571117829d173ff2"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-attacker-win.json.gz",
+      "bytes": 40332,
+      "sha256": "b7cc50a3881f983f8574ce277970390f69a07f040823b3b248297500b73c2b3b"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-defeated.json.gz",
+      "bytes": 27452,
+      "sha256": "b46cf4fa79cdedfcd1e59233291dbe8b38310170521216470a084f2680fb3281"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-defender-win.json.gz",
+      "bytes": 37834,
+      "sha256": "28bdc774a6c5ab2ffbb932be536f13c77e5c2d50b88e080f67c35eaf56b5b600"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-empty-conquest.json.gz",
+      "bytes": 16240,
+      "sha256": "24f98fae61a4ea185236302ca0ccd052ac31c630416fa9d10cf199811a7b7804"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-mutual-destruction.json.gz",
+      "bytes": 27400,
+      "sha256": "91b22f2a07d410226289ff71d7f21a4edf0b20c8d0fa2775e0384e01d4200055"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-nonparticipant.json.gz",
+      "bytes": 29530,
+      "sha256": "a22d254522d40b415b5cb76d22f2431498ccbabeafe6b2f5958da44a77320818"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-repeat-defender-win.json.gz",
+      "bytes": 68074,
+      "sha256": "20b3c09198859817f5571bef3e15012cf2955e02589d380ecd10a2fce9725837"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-winning-attacker.json.gz",
+      "bytes": 36406,
+      "sha256": "c1cd184a3e0f908491979ec4431901b00dccaddb2f34d631794977f4f0de68d4"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148-221-winning-defender.json.gz",
+      "bytes": 33781,
+      "sha256": "376f4255c2397a1f2278391f7fac41494bf400e5ee01a4fa634bf6b843d80896"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-attacker-win.json.gz",
+      "bytes": 40351,
+      "sha256": "d376cdefd2e911c868b47bc5ce834f255b9162ac20c5d17a768cee610e24126d"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-defeated.json.gz",
+      "bytes": 27457,
+      "sha256": "915d24765a263f1484b35d1766fcc912db37b2bf7010b690f01541db4b7ed2ae"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-defender-win.json.gz",
+      "bytes": 37751,
+      "sha256": "42c046c50faf9501888c7c9b13a3e15e5576762f6a4ee1f695800e2f99e3a5a5"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-empty-conquest.json.gz",
+      "bytes": 16270,
+      "sha256": "27691487a9f227d38d9a1a328fd39db3c2df16b0853dc4d618e4cbf5d3daa741"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-mutual-destruction.json.gz",
+      "bytes": 27424,
+      "sha256": "ac533f9fdf6d72553af011c1ff910cb1e98c1c7131bd0c6aba25a43322197ca4"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-nonparticipant.json.gz",
+      "bytes": 29424,
+      "sha256": "8925d81b6d23bceab42c16aab497a72948b7daab99ae737fe687a2a2a2e56c08"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-repeat-defender-win.json.gz",
+      "bytes": 68058,
+      "sha256": "b3a700c1636bfa24dcbf3a0468ae2d3cd13cf631aaed5229e4c3da0b628c42c0"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-winning-attacker.json.gz",
+      "bytes": 36403,
+      "sha256": "f017e12d83e297de4c67a937034d6796082c9e331ba09e8d73855993d4c0cd31"
+    },
+    {
+      "path": "main-score-original-v2/SFD-148a-221-winning-defender.json.gz",
+      "bytes": 33784,
+      "sha256": "9d95abce2e37e525f15aae063a4192c337b2bb0ad85dd5db3770a120e03e478f"
+    },
+    {
+      "path": "n53-exact-main-overlay-after71-green-v1.json",
+      "bytes": 2770,
+      "sha256": "a796ab23ad12e4345b66c56d4500d5721cf573a99046a0d6fb02148eef08aa62"
+    },
+    {
+      "path": "n53-exact-main-overlay-after71-green-v1.tar.gz",
+      "bytes": 479432,
+      "sha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892"
+    },
+    {
+      "path": "n53-fixed-combined-patch-v1.patch",
+      "bytes": 11710721,
+      "sha256": "a2925184255815c22cbef0d8035ee6226b75d0c5c487041a8f5d356150173a34"
+    },
+    {
+      "path": "n53-staged-from-fixed-candidate-v1.json",
+      "bytes": 6628,
+      "sha256": "984f894972b6b9f88b986283f0cedef666a675fc4b744561b158433292ee3f93"
+    },
+    {
+      "path": "network-driver-build-original-v1.log",
+      "bytes": 874,
+      "sha256": "01661aaeddf1e5db4e4f3d4d77efcc32b97e508bbd7f3e4e2de70ff1cd1fe617"
+    },
+    {
+      "path": "network-driver-build-original-v2.log",
+      "bytes": 236,
+      "sha256": "b7caf0072f1e6fdcb24597079b7bcdbb6b90147037510e898c4972524538a821"
+    },
+    {
+      "path": "network-driver-build-original-v3.log",
+      "bytes": 430,
+      "sha256": "98f863a0733ad64750d38e68b2aae51b3e1fca0016617227923715596b3010d5"
+    },
+    {
+      "path": "network-driver-original-before-nullable-build-fix-v1.cs",
+      "bytes": 17008,
+      "sha256": "cde1934a34d52ea5f8227edc50e488d2583d8fc36db2a6102fd7f7d6e0ceb7b6"
+    },
+    {
+      "path": "network-driver-v1-configuration-failure-disposition.json",
+      "bytes": 744,
+      "sha256": "da98dcc139c3f83b9f9808ebbc16de9a8b1b3a14e0706907ba01f6b019c9df84"
+    },
+    {
+      "path": "network-original-driver-v1/Program.cs",
+      "bytes": 17009,
+      "sha256": "3a9d8119ede946fb45a10dd079b71a7d0af06b115b7b69b46a30efb00cdb3a57"
+    },
+    {
+      "path": "network-original-driver-v1/probe.csproj",
+      "bytes": 1553,
+      "sha256": "310435b3626e32f3b5388ece3918e7465cda7c48202215893a25360579e44b19"
+    },
+    {
+      "path": "network-original-driver-v2/Program.cs",
+      "bytes": 17295,
+      "sha256": "54e1f4a6c3930920a49953b5ceac809c0bf33c7fcb019bdbdb4573e484773003"
+    },
+    {
+      "path": "network-original-driver-v2/probe.csproj",
+      "bytes": 1553,
+      "sha256": "4f97d321b67d4f1168d089a2bc4e694171be2bb81e5f22f735e70910318776ef"
+    },
+    {
+      "path": "original-peer-interaction-test-before-terminal-contract-calibration-v1.cs",
+      "bytes": 15305,
+      "sha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30"
+    },
+    {
+      "path": "original71-focus-source-evidence-counts-v1.json",
+      "bytes": 303,
+      "sha256": "da0b6feb2c921269d9f27ab43b4498a1b37cef82500cbe1a4920326ac6f7685a"
+    },
+    {
+      "path": "own-current-draven-first-win-score-postgres-v1.log",
+      "bytes": 1282,
+      "sha256": "66fd0077fa045f7e1c4c45afd6b60719a610392c230e4690968f78640dbed0db"
+    },
+    {
+      "path": "own-eleven-real-draven-score-sql-originals-v1.py",
+      "bytes": 7559,
+      "sha256": "3277a6260a1989b715a9f7823238aede48e95d0fcbf078183a4008331bc60cd7"
+    },
+    {
+      "path": "own-existing-transport-api-v1.log",
+      "bytes": 32206,
+      "sha256": "35af6bd97e03a9603cf765e819eb793c6800c61d355586300fcfd2775c19d0f8"
+    },
+    {
+      "path": "own-independent-eleven-draven-score-sql-readonly-v1.py",
+      "bytes": 5809,
+      "sha256": "5485e00ffabe39c76be133e7b66dd548ba50045d84ea848f7163c3389f129da9"
+    },
+    {
+      "path": "own-independent-network-sql-and-transport-v1.py",
+      "bytes": 8101,
+      "sha256": "81d5649c49a0d70261dfd000b7ebecec184730ecc9571058604db1aac6987519"
+    },
+    {
+      "path": "own-n53-network-api-0-v1.log",
+      "bytes": 9609,
+      "sha256": "30d0a6618e6ae9f487bd6a3a0b66dc286effe1fcf2daf6bfbb2be77d4312bfed"
+    },
+    {
+      "path": "own-n53-network-api-0-v2.log",
+      "bytes": 33506,
+      "sha256": "da759b3f66795bf6405387bf309fa8cfbcde387ab6fb8c106ef4ad9d023f5b4c"
+    },
+    {
+      "path": "own-n53-network-api-1-v2.log",
+      "bytes": 33502,
+      "sha256": "7479051f69e8bd4e94bea593f1b9912decd86f242b086c2a5be2aa0263481fbb"
+    },
+    {
+      "path": "own-n53-network-postgres-v1.log",
+      "bytes": 1280,
+      "sha256": "f816d59a8685d3e0fad0535079135fcdb223178891dc566e188ed7b02853834f"
+    },
+    {
+      "path": "own-n53-network-postgres-v2.log",
+      "bytes": 1283,
+      "sha256": "5ed641e4f2fb2b67a6457c8e28c2b6b3623d2e56ff17a017ee2c692dfa8b7922"
+    },
+    {
+      "path": "own-real-network-restart-v1.py",
+      "bytes": 8308,
+      "sha256": "2dba80a519df5ff4141aeedcb5a19021f965b6d2a5aa20ff76437f2d4f9a46f7"
+    },
+    {
+      "path": "own-real-network-restart-v2.py",
+      "bytes": 8308,
+      "sha256": "80a8a19e9f1092822263b5ba779b4a3f24c292517e1cf74d6ade3202c71ca851"
+    },
+    {
+      "path": "peer-multi-source-independent-archive-v1.json",
+      "bytes": 455,
+      "sha256": "f318a1e9b44bd26b2a2c8beb015b4c17433d5348b058e174adb22998f8c0e41e"
+    },
+    {
+      "path": "peer-multi-source-only-applied.patch",
+      "bytes": 8413818,
+      "sha256": "56138ea0e44ca987654b2d094969c17f833dfca0b95abe64520e1cfe95b5fa39"
+    },
+    {
+      "path": "peer-original-core304-v1.json",
+      "bytes": 1113,
+      "sha256": "0ffc3eca70c6e5dd8b702b3aeea79eca535070bc43dc7316d6dfd458f870757d"
+    },
+    {
+      "path": "prepare-independent-score-reader-v1.py",
+      "bytes": 8015,
+      "sha256": "e3c1119964ff214f093a7b11c772d3711398c827ccdcf600730c4b77693bd20f"
+    },
+    {
+      "path": "publication-console-v2.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "publish-n53-v1.py",
+      "bytes": 13127,
+      "sha256": "d340bd9842918a12bfb7f5d9f561285195426da8df34eb236e7f8bdcf04293d1"
+    },
+    {
+      "path": "python-tools-v1.log",
+      "bytes": 10506,
+      "sha256": "c335500d0024acd31ce723b6fe32d9e5249499ff14ef5bd0cf40e95bd14c3463"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v1/draven-return/prepare-original-wire.ndjson.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/post-restart-original-final-frame.json.gz",
+      "bytes": 22114,
+      "sha256": "65671c43a84cbb5176977846abef5130e24b9fa6ad3ed23f00f68bd5e453c7c7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/pre-restart-original-frame.json.gz",
+      "bytes": 14347,
+      "sha256": "3531bfcd4dd72eb9fe383e2eac9d3f70d70319d11f3d4b946e616f8628189ea7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/pre-restart-original-network-views.json.gz",
+      "bytes": 4837,
+      "sha256": "4b7aadc0411d8fedc0b4e8942d5910aa63e3b775326606fbb4056d5a4f7fc01e"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-01-connected.json.gz",
+      "bytes": 5136,
+      "sha256": "2f7af72a4ad1b2e53f1bf5b6af25bb065d1c3eae7a60be81bf9c1565ccf07439"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-02-seed.json.gz",
+      "bytes": 16126,
+      "sha256": "a6abb8f86e7d9ffc7c3e4f9a89ff5acc1e345310e3678edd4f2514c0a50e8ec7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+      "bytes": 15555,
+      "sha256": "ac2a1db8994d1ef0ba6ee8da78c4414eddd480b4f7b768f219a996f51082b0e6"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+      "bytes": 14382,
+      "sha256": "4eb820703df9618ce132d90be83c59e1c41d3012e1b6bffdad5faf84e45b497b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+      "bytes": 17278,
+      "sha256": "a1a4018094a273c6e174393679fc8d46604987471a124c565f8adc7462cdf6d5"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+      "bytes": 18969,
+      "sha256": "0f10e536cef58c29837e752ba491b5dcec7d962b6081ec22ad041a495ca81c2e"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-07-PLAY_CARD.json.gz",
+      "bytes": 14843,
+      "sha256": "38cf5c1032d0559f956b18b72fc4d51f4bcfc51e39b2f96fe49ef4643a9fb4b6"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+      "bytes": 19066,
+      "sha256": "aa4c6324de38e18dc263e89521dff92feba4faa66c042b311ac96c44f180afe6"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-checkpoint-09-PASS_PRIORITY.json.gz",
+      "bytes": 14347,
+      "sha256": "3531bfcd4dd72eb9fe383e2eac9d3f70d70319d11f3d4b946e616f8628189ea7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-original-wire.ndjson.gz",
+      "bytes": 46912,
+      "sha256": "ec248a58125c2397e773592925dd385eb1d74b577f60e87498cb254479fbc746"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/prepare-receipt.json",
+      "bytes": 924,
+      "sha256": "19e97f6d77e960121b4dd597ddec9c73c8cf9834f88a1b989accea38a47c451a"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/resume-checkpoint-01-connected.json.gz",
+      "bytes": 14347,
+      "sha256": "3531bfcd4dd72eb9fe383e2eac9d3f70d70319d11f3d4b946e616f8628189ea7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+      "bytes": 18356,
+      "sha256": "752f6af1ccaa5de02365ffb3512f6d2f8a3c25899e08a6e0fb760b76f7542881"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+      "bytes": 22114,
+      "sha256": "65671c43a84cbb5176977846abef5130e24b9fa6ad3ed23f00f68bd5e453c7c7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/resume-original-wire.ndjson.gz",
+      "bytes": 15088,
+      "sha256": "78699c6d5a3c4e27451a64398e43a55d7ee1d4fda6f1af3e7d9040f6e70a913c"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-return/resume-receipt.json",
+      "bytes": 921,
+      "sha256": "41a70ae97aa008c750749025ee83f5b122e35ae423b43896870f4a460811a0bf"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/post-restart-original-final-frame.json.gz",
+      "bytes": 13859,
+      "sha256": "6ee294d360d41736269871cfb2d2e157fff1f498106e7a2750c150e485ff06f9"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/pre-restart-original-frame.json.gz",
+      "bytes": 14365,
+      "sha256": "18b469b85e8fdf1bc9d5ccd7a282d6cf50e698d6a0c0ccdb104903071624f13b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/pre-restart-original-network-views.json.gz",
+      "bytes": 4843,
+      "sha256": "7b68fcebe7c8251e88d94078d68bf2dd2e17c9aa990f26620a1c8a6be725c5c2"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-01-connected.json.gz",
+      "bytes": 5134,
+      "sha256": "c087773c3ad5232dc5f54b66e1b59035d4c105f5158b3c1ff530f112f8750c32"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-02-seed.json.gz",
+      "bytes": 16138,
+      "sha256": "9fd7637703d2ed116c686f6741e24e618d697ee9a2770cb9e0df9db284755f13"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+      "bytes": 15571,
+      "sha256": "5d24cf8c490a27792db43723716d6e51f3f5fe2720ff680abba02d3461a822a0"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+      "bytes": 14398,
+      "sha256": "5850a42a30dc3929b4340a6c6b63e906f6c742bf52c46631e33705f7c24a5186"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+      "bytes": 17295,
+      "sha256": "89f322d7da609ffcf2931bc2a8693a981f14a40111744e642ae9f587d8981dc0"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+      "bytes": 18983,
+      "sha256": "4fa967cf8d4870d03c405fc8b1cf61c71cfc50669851ae640ef14c9543599872"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-07-PLAY_CARD.json.gz",
+      "bytes": 14866,
+      "sha256": "061a65fa55304e92ca3c58abe8f51da1784b0c2dc69aa90fbc5dcf82bb491616"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+      "bytes": 19080,
+      "sha256": "42ae1479075188f33f73168ff760e5fcbc5afe1add5dbddb2061887d2b4f6915"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-checkpoint-09-PASS_PRIORITY.json.gz",
+      "bytes": 14365,
+      "sha256": "18b469b85e8fdf1bc9d5ccd7a282d6cf50e698d6a0c0ccdb104903071624f13b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-original-wire.ndjson.gz",
+      "bytes": 48225,
+      "sha256": "55075c019c3c82b4f23b438bf34aec2fae4aed35a5c257b4051a3a85435b38ee"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/prepare-receipt.json",
+      "bytes": 932,
+      "sha256": "ddde0670a3efa85f1014891ff9dec8aeea64f9f130e5f4b31afdad8ef33295fc"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/resume-checkpoint-01-connected.json.gz",
+      "bytes": 14365,
+      "sha256": "18b469b85e8fdf1bc9d5ccd7a282d6cf50e698d6a0c0ccdb104903071624f13b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+      "bytes": 18369,
+      "sha256": "1100af3168c063a624faa56b250cdb5fa57c8d6cf094856d925b0eded3483179"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+      "bytes": 13859,
+      "sha256": "6ee294d360d41736269871cfb2d2e157fff1f498106e7a2750c150e485ff06f9"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/resume-original-wire.ndjson.gz",
+      "bytes": 9597,
+      "sha256": "1082553b0482943f6caf65e54262894ddfe103ccdf0a83b0ee62acdc913123dd"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-alt-winning-return/resume-receipt.json",
+      "bytes": 929,
+      "sha256": "cb3fa19861de5755677971cf2383fbaa03b247937844a8d396202e1d9e26b40b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/post-restart-original-final-frame.json.gz",
+      "bytes": 22107,
+      "sha256": "e83420f4c37f2e749527a18b972150267a6552136ef00f983487e9bbfd711b39"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/pre-restart-original-frame.json.gz",
+      "bytes": 14339,
+      "sha256": "d8fa5ef9f8237d0a8fcf56242f72411f112ba9b141abe88bdc02522c3c67aa67"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/pre-restart-original-network-views.json.gz",
+      "bytes": 4835,
+      "sha256": "a646ab4de3feb7432bb397329ef97d0575baa55f707a86720a63da5ee9f7b19b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-01-connected.json.gz",
+      "bytes": 5135,
+      "sha256": "95bb214d94df8339613b33719d164cd088c6d5d99ddc2879e894c1ad42fb4e69"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-02-seed.json.gz",
+      "bytes": 16111,
+      "sha256": "33d2c8a57992179bd3124c5c37fc45452bd93ef503e22bb2262109108b971e83"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+      "bytes": 15541,
+      "sha256": "d216d50a18a82ff344663dc4463e6572c5327a8d2985f2d0e9a49b2b40d7c2f2"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+      "bytes": 14368,
+      "sha256": "826da60776479ba2a92254b29dc1df22892ab944fe7a93428bd30b8e2e213283"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+      "bytes": 17264,
+      "sha256": "44683ceb167f076081735f24d33b1a12e97bb4a45163dd991fab90fd4dbe608e"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+      "bytes": 18955,
+      "sha256": "82612466f558d20914e0d7ec29a7b85a0ebeacf3e8b115efe47500353d361459"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-07-PLAY_CARD.json.gz",
+      "bytes": 14830,
+      "sha256": "c3d13505a80a4dde1f4cc3932de51db90a73f51678d6abee429f1a2ecaa23528"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+      "bytes": 19056,
+      "sha256": "bfee9e1e4b1c2b3676f0bd0bf349cf8725249b8fd20e8f329cd320fc1fba7e87"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-checkpoint-09-PASS_PRIORITY.json.gz",
+      "bytes": 14339,
+      "sha256": "d8fa5ef9f8237d0a8fcf56242f72411f112ba9b141abe88bdc02522c3c67aa67"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-original-wire.ndjson.gz",
+      "bytes": 50761,
+      "sha256": "8a895a03a1055a66f1cf6d3411f1c4013e6c293c907e67190891d15953e246c5"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/prepare-receipt.json",
+      "bytes": 920,
+      "sha256": "ffa2821b410bc1821428191064ece08492c0985c6dbf602df6ee41436ee47881"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/resume-checkpoint-01-connected.json.gz",
+      "bytes": 14339,
+      "sha256": "d8fa5ef9f8237d0a8fcf56242f72411f112ba9b141abe88bdc02522c3c67aa67"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+      "bytes": 18346,
+      "sha256": "8576762acdc56347497657d8b2fea5f90e67858842fca804a8c8ddf58d50b7b7"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+      "bytes": 22107,
+      "sha256": "e83420f4c37f2e749527a18b972150267a6552136ef00f983487e9bbfd711b39"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/resume-original-wire.ndjson.gz",
+      "bytes": 17615,
+      "sha256": "ac9862a826b9e8e0cae41c971d044e203c790aff5162f3e48e9217ad8192ca25"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-return/resume-receipt.json",
+      "bytes": 917,
+      "sha256": "689f22c5c0290e96e3ecc57cde43cafdb0435683be65870d3c7bee408e26b30c"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/post-restart-original-final-frame.json.gz",
+      "bytes": 13857,
+      "sha256": "2e3a2db707e5d541420c2b4c560e6d8f534ce1875d65c68924bc423b38421feb"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/pre-restart-original-frame.json.gz",
+      "bytes": 14356,
+      "sha256": "15ed8da539ae0dcb768c6c4c92d187bb1eb3efdacc0cef7d31179056c25e1e90"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/pre-restart-original-network-views.json.gz",
+      "bytes": 4843,
+      "sha256": "26c4319139320ce02d86cccc1d54ca4797f6c0006a345f354b59358766c1bb0e"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-01-connected.json.gz",
+      "bytes": 5136,
+      "sha256": "cc30474838f90abc4c924d3b780361b4dcf999d34698b966418b5c7977b4b074"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-02-seed.json.gz",
+      "bytes": 16137,
+      "sha256": "d675876c211b1dd93dcc2b8c09fd480e551e6a2af0589c925a33e2881c9b8acf"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+      "bytes": 15567,
+      "sha256": "45fa91edcd5e295f7eb0f91f45867964e59b66b2061c0f73a310418e97f453d3"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+      "bytes": 14393,
+      "sha256": "6d92bd7a3cb3083e621ee044bf2cb881f6c1177b3c68a130fa8c782c4f315940"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+      "bytes": 17290,
+      "sha256": "ed4032da4a13d1d74752cc79c4fcc9ae4055a1367615cfd7fbf08c4583e97dd9"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+      "bytes": 18978,
+      "sha256": "60c23e837cdc83208a45ca438f84094902ddf889125f66c16107cae4932a1a2f"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-07-PLAY_CARD.json.gz",
+      "bytes": 14852,
+      "sha256": "e35c9f21cdda3e3d598ee83d96f869abaa920bfed33ecd5e5f14aead91b6dc6b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+      "bytes": 19075,
+      "sha256": "013fff0b2c3b5609ca20a51f2af21a6829c974d638af500050a5fe2980431ac2"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-checkpoint-09-PASS_PRIORITY.json.gz",
+      "bytes": 14356,
+      "sha256": "15ed8da539ae0dcb768c6c4c92d187bb1eb3efdacc0cef7d31179056c25e1e90"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-original-wire.ndjson.gz",
+      "bytes": 49602,
+      "sha256": "39989f03f8b709ce8a9d3b0996fa02611bdfd64ca5df2acc41b7b85ca25d6d70"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/prepare-receipt.json",
+      "bytes": 929,
+      "sha256": "1558f1fa8cb5eef03431251c3a5a44d6116265b63ee89f8e4f55d1544006629b"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/resume-checkpoint-01-connected.json.gz",
+      "bytes": 14356,
+      "sha256": "15ed8da539ae0dcb768c6c4c92d187bb1eb3efdacc0cef7d31179056c25e1e90"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+      "bytes": 18363,
+      "sha256": "5786de960c1b6daaf771944a9e17763c52db4c254dbee73d605b3124ffc1ed9a"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+      "bytes": 13857,
+      "sha256": "2e3a2db707e5d541420c2b4c560e6d8f534ce1875d65c68924bc423b38421feb"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/resume-original-wire.ndjson.gz",
+      "bytes": 10432,
+      "sha256": "7fa9791f791e28bb41bf9d053d66c402a41302774e764a4832b52aa43575f973"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/draven-winning-return/resume-receipt.json",
+      "bytes": 926,
+      "sha256": "2bd2cb392660ff90d43a8629dbc079c619828bd57baa101e0e4f803489f3a69c"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/prepare-receipts.json",
+      "bytes": 3907,
+      "sha256": "c15a9167de246d9fe044f60758eb7d5140876af06a1ab09a8193f17c98435770"
+    },
+    {
+      "path": "real-signalr-four-draven-score-original-rooms-v2/resume-receipts.json",
+      "bytes": 3895,
+      "sha256": "f01d2ddec9f164fcefb519b155d8ebb0f53182536e039f21462efbab3461dd47"
+    },
+    {
+      "path": "real-signalr-four-draven-score-owner-terminal-v1.json",
+      "bytes": 160697,
+      "sha256": "3ac2c3f453a235874ce2f9b6223bf31a8a9915c91e8af2a06ffdb89e50d305d4"
+    },
+    {
+      "path": "real-signalr-four-draven-score-owner-terminal-v2.json",
+      "bytes": 170151,
+      "sha256": "c86a3598ca2f04bb463ce3fb17d9c2aba9ffea8053e704cb916e5bbdb234f7a7"
+    },
+    {
+      "path": "real-signalr-four-score-prepare-original-console-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "real-signalr-four-score-prepare-original-console-v2.log",
+      "bytes": 3301,
+      "sha256": "e47c9eaffd9a834a6f02ddbc47657272d56af1c2e78e072297b34dc6e251d92a"
+    },
+    {
+      "path": "real-signalr-four-score-resume-original-console-v2.log",
+      "bytes": 3289,
+      "sha256": "a13d3e02e95cc6efd3888c9debd9a967aa78e35a28eb06e558f336f2946d9dc8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-original-console-v1.log",
+      "bytes": 816,
+      "sha256": "c9a91bdb0ff3e89656bdcaaddbee7a51cf45b7d64761ab23e8620f0a5e3c0d2c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-owner-terminal-v1.json",
+      "bytes": 185709,
+      "sha256": "c83ca93ee02c79177622b31002ca292ee5bd31eb7274b4da312f80b9cd499b82"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-01-original-before-persist.json.gz",
+      "bytes": 3684,
+      "sha256": "daa583e7857e143e1c485416c09fad567e77623ffa4d28e787278339b4bbf8af"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-02-original-before-persist.json.gz",
+      "bytes": 4238,
+      "sha256": "f6428ac6949516a63596f9d57932c1f9b66dbb3b6168a41e0719f438839817a8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-03-original-before-persist.json.gz",
+      "bytes": 12793,
+      "sha256": "c7a82f1c2d2e63fe2402b34c5f5cbc23b15a8fe024db62810c10c20b1de231c1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-04-original-before-persist.json.gz",
+      "bytes": 10622,
+      "sha256": "d52344c29327a8541b46580ae7c3bbee162f6dfbb2ab9be7da5e723a793147de"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-05-original-before-persist.json.gz",
+      "bytes": 9450,
+      "sha256": "ad4fe1d093a45d0e78e4bdfef6ae9a0fb84132adba0d9e672c831b241146c3a5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-06-original-before-persist.json.gz",
+      "bytes": 11320,
+      "sha256": "ee7e246663d292ad3b94670f0c011f7de1601d36173c1fc02fac63804aff3ffc"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-07-original-before-persist.json.gz",
+      "bytes": 12118,
+      "sha256": "d7ad7cc04e39a5da15d379e23c96aa7b9c1ac9c3413c9a633666ac221852da27"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-08-original-before-persist.json.gz",
+      "bytes": 10308,
+      "sha256": "ccb8a5bee4f7d12bc59fb7ba55890de5cb009e37d228ae49549168bf02b99e30"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/entry-09-original-before-persist.json.gz",
+      "bytes": 13595,
+      "sha256": "1b3ce804764a3bae013c776c470741060e7ccff2a31dbc35a1d49970fd9280ff"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "76c167564c6906171baf5cfa327fb470b6102d32e778a9132ce6e554fccd357a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-03-original-prompt.json",
+      "bytes": 104340,
+      "sha256": "0167a07a7bb7fff5bcdac7a32763aa732c7c803ee1f830764386f7483aec8ce1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "6ba8bc06dddd97d76d3fd75007dfb41bb110df2b86566541e3525471582978fb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-04-original-prompt.json",
+      "bytes": 36597,
+      "sha256": "5fa7a9bd282bc462b1399bfc35b7eb4191bf72c98e7c4511c4e1608add6ea076"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "e8107f6ea9234c8cc702809728b9ca4fe52519bfc2d39c7fac1c4ffd8b6bbe79"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "e55cb960a850c8fa1b408488b81808406f641eacf5f20ab0d6c78a0387ac7832"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "f480a22ea565b31a877556beb1b7b539466d136886c09f88d75b788334cb7745"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-06-original-prompt.json",
+      "bytes": 68584,
+      "sha256": "f82b3e9ed616a4aa343efe824ff9073bc05dac3f3ea605573b3e2d20320dc180"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-07-original-command.json",
+      "bytes": 162,
+      "sha256": "3ec87d9792d868bd2588add09efa67958c4e79f8bd5176768d220f1f86e836ea"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-07-original-prompt.json",
+      "bytes": 38197,
+      "sha256": "5d98494daaa83effb7e36baf6bb2a8e8c10d1817b56af2cb57fd0a9feb6b5bd1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-08-original-command.json",
+      "bytes": 160,
+      "sha256": "88733efa9904ed7dfbda6afcbe51677f8ad6d1d63be67833c6bba0264e1bc7f7"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/input-08-original-prompt.json",
+      "bytes": 34998,
+      "sha256": "62e918971664be16e8ff6663c75d1cca679c4d3ca38ba3cadeac8ed7d6067d57"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/original-final-frame.json.gz",
+      "bytes": 21404,
+      "sha256": "f72bd5b1973ed780408f2e45b911993c2d821fd11db90703908278b56aa9c4a1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/original-final-seven-tables.json.gz",
+      "bytes": 55641,
+      "sha256": "838ea72e3ecb6c9a4efee6fc14e990d2037f9ea4356ac74e4e08307c924a22c1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-01-original-frame.json.gz",
+      "bytes": 4442,
+      "sha256": "a6839947bb28a84b00d8516347c4e462abe7288e35abb89d1af11444fa620588"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-02-original-frame.json.gz",
+      "bytes": 4933,
+      "sha256": "576f43e16ca788d87ef6d960e9f0933c4a26196ce051a54b32244831f2d71bf8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-03-original-frame.json.gz",
+      "bytes": 16140,
+      "sha256": "1eb26b9f1317571812091ac18bf7c9a916aba0c1d6bd5ae36b6b5a451bbc3f16"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-04-original-frame.json.gz",
+      "bytes": 15477,
+      "sha256": "545333e5e6c1abe801da383d89500e03a9d4865ca625a70484272765ec4ccfc0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-05-original-frame.json.gz",
+      "bytes": 14297,
+      "sha256": "eef6ff5a41e1f04e36ecaa1a55a7e1ade52b0a4874d4341cf63ad84e4ad9accf"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-06-original-frame.json.gz",
+      "bytes": 17171,
+      "sha256": "c0606d868cfa299e6e19ee6b07dd842b9cdb642b0fa0107d0900a11ec6c8f878"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-07-original-frame.json.gz",
+      "bytes": 18851,
+      "sha256": "7279639ae2d82a06f0c49491bf3fa85d74222f0185276239f6e4157cba1f366c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-08-original-frame.json.gz",
+      "bytes": 17494,
+      "sha256": "f17e9cbc1032c66865476149fc3f444e27ebc4172a17027119e3b762e412d4d5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/prefix-09-original-frame.json.gz",
+      "bytes": 21404,
+      "sha256": "f72bd5b1973ed780408f2e45b911993c2d821fd11db90703908278b56aa9c4a1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-keep/receipt.json",
+      "bytes": 1011,
+      "sha256": "cf8b5e490e410e3daaf0e07f8c2d0dd97d05fb5e7488f29e74710e6da6dfe398"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3686,
+      "sha256": "7da95c2d0a72e690ec229debc0144dfa4a2d5fb1d4a8579e958575abd7de837a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4241,
+      "sha256": "c457869d83339b31c4d610de570f29cc58c55e9605fb4fd6287735b79f3c9306"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12792,
+      "sha256": "826a5a3c3907e9ad05ddd5b2b850395021e7c3b62488f8c78a3596a0d4da1dc0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10624,
+      "sha256": "5dc59cb1f59f111bd9a8ce4a4a122c38fcaa2cb5a2a4b7d51928789a84e760ce"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9450,
+      "sha256": "f3742de1a43105c6d470b12b6758472d6fcb1f8f12a2a134224986e792e5fd22"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11320,
+      "sha256": "771a38b7fbbabf1d1259d15b29a1f754b580c383a2b319462379490e5818f4a4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-07-original-before-persist.json.gz",
+      "bytes": 12119,
+      "sha256": "a24cec1cc30bf46048a402df6a99870c3cee74857bebd06d98d474104b4dd7bb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8895,
+      "sha256": "f1ac103f762720e8583b469ca386573c2f28a21356666f18703f25f93adb3ee6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10569,
+      "sha256": "d16a1b369025562e6caa3a537397c84b9320642ff876f3ccd11dc18c6a542461"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-10-original-before-persist.json.gz",
+      "bytes": 8068,
+      "sha256": "656b9cae1d58e7b265095519716b96b07d83b501890824b94170dead13e6bca2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9983,
+      "sha256": "28597c02a8b1fe4ab93340ff8cff94be609c2d9f0633b2698c9bdc6ca243bf89"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/entry-12-original-before-persist.json.gz",
+      "bytes": 13332,
+      "sha256": "79220fd5ef9358b4f04dfebf546a1e92b7c7024d21929d60fe45ad790cee76e1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "c7ecc485303bd2e9147613a905bec7ce771cf74687f48ce0b8f9b3bc7f06ebd1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-03-original-prompt.json",
+      "bytes": 104340,
+      "sha256": "b5404c23fe83fc82e875b27968560cae38e9c286c0862ed6a932dbfd3733d4d1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "f049559b0481387d026a8fa0a19de14c80fcc51798581fef4514e0b0a3ef99b4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-04-original-prompt.json",
+      "bytes": 36597,
+      "sha256": "ddf44ab478385485c38430d8d25bfbb66ced062d68d872d7bfd00d54c73cecff"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "1553629190a5340d5b950c1736aba28848a3a57e78b12d5cfe48d5687222ee4e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "2d8f363b31861481e50a41750ce54a608bc4276f3563c04fff8e2da0ca9fbfa1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "4d9233a569785120130a64736198e150fa712e41216045645b23e386ab39a1d7"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-06-original-prompt.json",
+      "bytes": 68584,
+      "sha256": "d45782280cae31602c7b3a308ae34cdcc90380def2d7ef0b05583a82fdcde88a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-07-original-command.json",
+      "bytes": 317,
+      "sha256": "3a42de3ebb515dcc8df4c0f5c92d99985a671610b3905deb15a2f7f5d708d1ce"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-07-original-prompt.json",
+      "bytes": 38197,
+      "sha256": "8bc43e6d935b3a7a4db7df3bf565ac33710faf04d663dd0ae7c0919158fa9765"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-08-original-command.json",
+      "bytes": 152,
+      "sha256": "70b6f7a094262f83e2ac878f00b08bffc4e141f55817bc33450adcad80830805"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-08-original-prompt.json",
+      "bytes": 11033,
+      "sha256": "abdf08a35b9cb2391336417741e1a9c92d6cc4f9b4d8810b8b6b14c3a3f77330"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-09-original-command.json",
+      "bytes": 160,
+      "sha256": "06f2bc8c941f2d87c29dfcdd2dd50f2e44256866756cb30ace49c7857ea3f1df"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-09-original-prompt.json",
+      "bytes": 35156,
+      "sha256": "5a5448d392e4dceb64a4a2d4034e305cd4ec5212e3ba672f8b13ffd2dfb029de"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-10-original-command.json",
+      "bytes": 154,
+      "sha256": "d2da7b7b010b31f71f33980bf351bfa62bc09392b96ffbf7d8a811fa33c7ff53"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-10-original-prompt.json",
+      "bytes": 10198,
+      "sha256": "1610ea54d658c08996507daafb8c34d944d713f82741b3fbe5cea7222d501dd2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-11-original-command.json",
+      "bytes": 162,
+      "sha256": "b66835606f3006970ecc523aeba60dc2e9553cf4bbdca184cb8991473fc8713f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/input-11-original-prompt.json",
+      "bytes": 34197,
+      "sha256": "0a33eaf331b3c3f8fc275c5b5aaa6bfde940011a8d381b3e371c782f82b400b1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/original-final-frame.json.gz",
+      "bytes": 22106,
+      "sha256": "51d4b09c519f81aadc9d1bddcacba66adbfb56c19cb46415974076fc8ffef3fe"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/original-final-seven-tables.json.gz",
+      "bytes": 63423,
+      "sha256": "7415e1260d6f36b3775bad1d7293bfff3d07d4b3258a783f57e331b163a3fe4c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-01-original-frame.json.gz",
+      "bytes": 4442,
+      "sha256": "be28cab9d6937cc8be9395030a224a3a0cc2bb9c55d639c31e83c8a3f2fa1015"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-02-original-frame.json.gz",
+      "bytes": 4936,
+      "sha256": "cc95084fb894a42c5f098336ced8baf32c794bbebc910090832d78332e6f4514"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-03-original-frame.json.gz",
+      "bytes": 16141,
+      "sha256": "98e9bafecb60f0f570d208dffe5130ac3e233a35f33917af0c85a931c74c8d07"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-04-original-frame.json.gz",
+      "bytes": 15475,
+      "sha256": "97e38b850a9ee45553458ecb6314b6454f6e205bc0ca622c6209da74daa99164"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-05-original-frame.json.gz",
+      "bytes": 14297,
+      "sha256": "b2810c5d5bccc757e9e0b765887f13fb8fd1a1dff7d0af19b308f43cb870d0db"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-06-original-frame.json.gz",
+      "bytes": 17171,
+      "sha256": "170cc9507c62d7e60cefcfe445116db71ef528eebaf60acca121ce47bfd04625"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-07-original-frame.json.gz",
+      "bytes": 18850,
+      "sha256": "27adf0fd059a21935cc967e9c51a7d9d8145c21e8a41d20330bb723a5e9212b4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-08-original-frame.json.gz",
+      "bytes": 14700,
+      "sha256": "b4a0c983c4036cd54e305a5dde6839576bbc8e87b82cd0a5881c68c9ac96e635"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-09-original-frame.json.gz",
+      "bytes": 18962,
+      "sha256": "155bef2ba2ced40be2c39a6ceee794435e2af4dd0cdab2038e3e3edccba4fa88"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-10-original-frame.json.gz",
+      "bytes": 14238,
+      "sha256": "dc12140282d4d3c774487dd53f3506580e4087d301bb1a94c822c24982f56cee"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-11-original-frame.json.gz",
+      "bytes": 18259,
+      "sha256": "0bed0ddd1ad3d8dc0021b6b1e955362ba760e1951fe15402e2d51781624f98f0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/prefix-12-original-frame.json.gz",
+      "bytes": 22106,
+      "sha256": "51d4b09c519f81aadc9d1bddcacba66adbfb56c19cb46415974076fc8ffef3fe"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-return/receipt.json",
+      "bytes": 1014,
+      "sha256": "bf0f4f88fd1d507af06c5b43a865f99734c1c4e68aed54422bc5991926b80fb4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-01-original-before-persist.json.gz",
+      "bytes": 3684,
+      "sha256": "70cc83a952d3a8f2ad4b1d1039a20f4eee29cb0f722b854d92ae55d8a158f6c9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-02-original-before-persist.json.gz",
+      "bytes": 4240,
+      "sha256": "f751a98931703abebed3160aeec2597316d7a3e2c18cb5656c1f5bd690c42988"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-03-original-before-persist.json.gz",
+      "bytes": 12802,
+      "sha256": "1a777e6c66e95fe6fe2741f9a080c05d0c256e18d38a20e5b19d620f9a35a7b1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-04-original-before-persist.json.gz",
+      "bytes": 10627,
+      "sha256": "be1ff8ffdc556066e820bb056597cd2a136fcc5ad2d93c17d294c444ba382c09"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-05-original-before-persist.json.gz",
+      "bytes": 9455,
+      "sha256": "91c11266d30cb7c25a5701c4a8c21acb02270718a579d5ca1a5528c86f4ba0e8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-06-original-before-persist.json.gz",
+      "bytes": 11325,
+      "sha256": "93c0c6ebde3c8d267c32606040948159290e4e8fd1c6c414ee794a9d590aaeb6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-07-original-before-persist.json.gz",
+      "bytes": 12121,
+      "sha256": "c25be90c68abd58b6d1f6af10c29136510d71484463a727db62fa5c3a71b52fb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-08-original-before-persist.json.gz",
+      "bytes": 10311,
+      "sha256": "cc3bb2a4f29e89fcbb7e63bf530820c2ffde7826f3ef3505ed3f0dbe265cf3c2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/entry-09-original-before-persist.json.gz",
+      "bytes": 7453,
+      "sha256": "1f3f450b61d20be1cded886f362ff5f21f8cfd2c2c2630fa929270341fe79442"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "f9e36a938dbe059f25c6127b866ca2ebb7c7e794d288e0bdec065f6a88d3d327"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-03-original-prompt.json",
+      "bytes": 104340,
+      "sha256": "7f071cedb47d7713bf9b02a459a7f90800c1195e6194c8a21faf901827a3fb93"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "df14ee2a060e30143cbbb2a3825329e602f308fdd8283ead1fd017300ca54db4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-04-original-prompt.json",
+      "bytes": 36597,
+      "sha256": "665c492ae8f0b70c7c9226bb3d9254429c2db8b15c8232b7e8301fcfb39bc997"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "3739c3cc18282a2ec70a5e326e408e74d5b50fadc57ac13fd2fa41367aaa1003"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "ff2acebe179e785be53900c4826125cfce24d88399681381e5d6bb3cb38fae9d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "fbddd7c9503794c85cb1d01264861569d21db5246d1797987a6d2cef23f845d9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-06-original-prompt.json",
+      "bytes": 68584,
+      "sha256": "ee43af68b71e74447c87d62bd488409e8e9bbe9a36e588321480ed6999defa99"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-07-original-command.json",
+      "bytes": 162,
+      "sha256": "8029d0cde93c68aef652f4542638adb4ae5665b92e830e3eccfd0c761806e2e9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-07-original-prompt.json",
+      "bytes": 38197,
+      "sha256": "3f0ed431a94529d4538c64664b63fe1994c090b23d8c70acb518c9d12c2c5edf"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-08-original-command.json",
+      "bytes": 160,
+      "sha256": "bd352e17da08d4f8466bf0506e96b9a557172db160281732da8a4106e63b64bb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/input-08-original-prompt.json",
+      "bytes": 34998,
+      "sha256": "8205e419bfef408128eb4032b77a3cfcc4baf850c66d7a8749a92c921e3c93eb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/original-final-frame.json.gz",
+      "bytes": 12858,
+      "sha256": "4ab619e0b61244235c113da8193acaf63f3f322e7bd39b859e221df205154d4d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/original-final-seven-tables.json.gz",
+      "bytes": 48415,
+      "sha256": "011b9875ea938d50613473382f368b4a5d8a6e4963464b1e31a5c137432e9d44"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-01-original-frame.json.gz",
+      "bytes": 4441,
+      "sha256": "028d10675913cf1f40ec53e2fbc82991b7fd6f37ee7d661cb87ee2defc41a2bf"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-02-original-frame.json.gz",
+      "bytes": 4932,
+      "sha256": "103afa6abeaa2311ee0db4e1733a24a69157fdd02ebd6de7ce12c85c9db4d9e3"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-03-original-frame.json.gz",
+      "bytes": 16163,
+      "sha256": "2e09438ec31ebe04b258095c5ae3bc79bc497db894223727bacedc7720a223aa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-04-original-frame.json.gz",
+      "bytes": 15499,
+      "sha256": "b5b524f2e3f4d422d011b077a961ead1ba793abb717beafffd5404fd11e0e64e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-05-original-frame.json.gz",
+      "bytes": 14313,
+      "sha256": "9135c676eefc4efa65af5d3209b02946c8d1e20d0eeff948edc75eb3e7234a0a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-06-original-frame.json.gz",
+      "bytes": 17193,
+      "sha256": "1fc55365a3dd2beb3d3b1a9034b6376d161c5a9eb066455811fbef55952faab4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-07-original-frame.json.gz",
+      "bytes": 18872,
+      "sha256": "fdb5df62fd16c424fdf97d78af35b2c6a05e5c6d84152b11f8269cd100c7e24f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-08-original-frame.json.gz",
+      "bytes": 17510,
+      "sha256": "3e8b7e9cc7a6f48fbc6db69ccc3d17951cd29027b4c1407aaa0b920a3db50b47"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/prefix-09-original-frame.json.gz",
+      "bytes": 12858,
+      "sha256": "4ab619e0b61244235c113da8193acaf63f3f322e7bd39b859e221df205154d4d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning/receipt.json",
+      "bytes": 1020,
+      "sha256": "3389cd749d9a30ef4f0c69c6fdc07da6ee749a95b22dd6a9e1320b1ac81ff06a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3686,
+      "sha256": "1dacde102fc70db0566ffda1e0bca01bd67b37b9345a50129ae27be221f92ac2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4242,
+      "sha256": "2aa09ee7e43650111f336dcd84f2abd14ff2417b8a67010a8421369a0c557908"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12802,
+      "sha256": "9561c5c276906585dde648e7f5b1f44ef47ea32b491c97ce1aaa54007797059f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10626,
+      "sha256": "f6abe65ca33d6726dcfb0b932adadd32cf88289da30b0f409405a6063cca2900"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9455,
+      "sha256": "dd8c6b4d1eedfa70d115b75d2d8d7408005eb5de615adfd4ad62263fd3702126"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11325,
+      "sha256": "a16616f9b816ff426c5fcaaf2ca55e777ea25975b59b74b518955e6110ed8448"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-07-original-before-persist.json.gz",
+      "bytes": 12121,
+      "sha256": "bf8e28c5711b6bc39771674a1db69211497d419851ff4f8f0d1d4918ca75ae02"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8900,
+      "sha256": "58462bd90741388499bda22508910cef58250bb93ad53029a595c374cb82d94e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10571,
+      "sha256": "a441f78bce684045af89113a1c539fc86ac9864fb5df40c015f623640cc533ae"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-10-original-before-persist.json.gz",
+      "bytes": 8076,
+      "sha256": "7696b09a075284d456ce51dabb9b67e16dee4f14787a973aef77457737767451"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9988,
+      "sha256": "341a0896f96fbbe87f6e0d7771e610b00361bdeae0f43f7b976bd94befc07377"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/entry-12-original-before-persist.json.gz",
+      "bytes": 7088,
+      "sha256": "35cead2b1a03ea70fdd035e8d514575a7d9d60c29ef49c10109e75fcd4de9827"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "f62c77210f85e9d4ef449e0d1a77b6069c231fa5f42c9aa570c2c3e129d99e69"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-03-original-prompt.json",
+      "bytes": 104340,
+      "sha256": "32870127260c9d78ae498f6d2a43396ccced4fff0c6b02b006c933d467a67f12"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "4bffe9ade3f2af95528f4d3a94a726d11a6c1a715c3f33afdacba2278e2485fa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-04-original-prompt.json",
+      "bytes": 36597,
+      "sha256": "dd31e8865d011c74a722ad8d9f75801f7c2c0a29314e2bf474c34ca7c5bf1ad9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "d4eb2eb5a538ce3f8b3fa3bb61ee0fba7de2980ab94a0d222b217f18064c0585"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "cda2b880600acf401d7823c8431e41a0f9e407cba5122ceb1056d9a21995f155"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "654cb7a5dec7bc7f8efba080cf2660a4e9f6ff50b20b273ec50445cc9b936f7b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-06-original-prompt.json",
+      "bytes": 68584,
+      "sha256": "5a3ce810ca3dc6474394eb1c63cc3feda00a2be5227cc17c47a196d931585af0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-07-original-command.json",
+      "bytes": 317,
+      "sha256": "3068011227aecce9f6c0cfb47c1c7c052a65105e795683dca96f8ff719de1f14"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-07-original-prompt.json",
+      "bytes": 38197,
+      "sha256": "7104814d8ee9c5dc8e3fdc11d43aab09c5a249521ed0c3a147055a362f636220"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-08-original-command.json",
+      "bytes": 152,
+      "sha256": "0fda27550b0fcefa71678c70363cf47a10907b1b82c31f90886726b13fea5256"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-08-original-prompt.json",
+      "bytes": 11033,
+      "sha256": "5f033b943c018f994d663941ecb590b551f4416f22020cd083bd947115689384"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-09-original-command.json",
+      "bytes": 160,
+      "sha256": "9106d8e0bad99dd8d99ea081d7b647fe6199fc5d11ed3d77298975480b0c5cef"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-09-original-prompt.json",
+      "bytes": 35156,
+      "sha256": "a84bc2898998a32d3d1c0bdc2dffea8d0b60f724c137d416921fe7785e19a8d2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-10-original-command.json",
+      "bytes": 154,
+      "sha256": "a9e8957b503e3e5eac9378a793ca11348af29eba741614de2310cf940c87b48b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-10-original-prompt.json",
+      "bytes": 10198,
+      "sha256": "93fe141f4276290541efe4f611e2aa6f7d33c394f59b93e586e3b7ffb9b8c5e9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-11-original-command.json",
+      "bytes": 162,
+      "sha256": "d76195c8237e13ce35572f0b1036cab52d5edf61d603856fce93fc6790ef3f54"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/input-11-original-prompt.json",
+      "bytes": 34197,
+      "sha256": "ffed3c68d5806f4a6a94ccd6db4f14d24f3b30aca968faf050c53653ab5f6aad"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/original-final-frame.json.gz",
+      "bytes": 13811,
+      "sha256": "1abe2d367e326744358b874a8efc7a3e38440e0afac7d4f8352b859b8614d7b6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/original-final-seven-tables.json.gz",
+      "bytes": 56498,
+      "sha256": "3301e48e01f78c2d9ec8188f8daf007febac4bc7934c22929d0dae56fdbf245a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-01-original-frame.json.gz",
+      "bytes": 4444,
+      "sha256": "5dfc4c9df25b8cf2e9b1bf1c77501743cc1c3536203b7cb059b33ac6cc826a3c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-02-original-frame.json.gz",
+      "bytes": 4939,
+      "sha256": "2ee175313033e6102ab1a515cb050fd93be0b166a4f597f25e07c7b7d7a20049"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-03-original-frame.json.gz",
+      "bytes": 16165,
+      "sha256": "44b26f57e1d74aa9c6e4d485d9b1e22693ca09100373850226e77d3022a91c63"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-04-original-frame.json.gz",
+      "bytes": 15498,
+      "sha256": "6dbaafafa8e5927a0fd49974fd3310b8afb853b21270d6c7dd84fed020fc3bfa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-05-original-frame.json.gz",
+      "bytes": 14314,
+      "sha256": "70080e2aaff67ad78d37bb3e503c07c65aa05026b376cbe9b593ac775e1510ce"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-06-original-frame.json.gz",
+      "bytes": 17192,
+      "sha256": "125a037c7290edb93874433f31d4ff04542fda3d7682afa2530cfa20e6562431"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-07-original-frame.json.gz",
+      "bytes": 18872,
+      "sha256": "1dbc07c8e20574f7ba69b7977e7ac9ceeae215852576b3b5b7ef19ac01427a2b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-08-original-frame.json.gz",
+      "bytes": 14718,
+      "sha256": "c92c15d8dc8d3c94061c0d7f61ae243b2298c56856da297ef0c9cef5b92b9d31"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-09-original-frame.json.gz",
+      "bytes": 18982,
+      "sha256": "c689815bde5e5a589295b8bb1ad40e1f3f3432a14936124177f2b0ed5fb3e118"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-10-original-frame.json.gz",
+      "bytes": 14257,
+      "sha256": "43bb1e7d623decf511214e3c43454bb367b0623bf0e43e4c90f928f6cd4090cc"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-11-original-frame.json.gz",
+      "bytes": 18282,
+      "sha256": "3403e7f8f37fbe285df05aa26bdbd5d05114dc9a0abf49aada3f2424541cd9bc"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/prefix-12-original-frame.json.gz",
+      "bytes": 13811,
+      "sha256": "1abe2d367e326744358b874a8efc7a3e38440e0afac7d4f8352b859b8614d7b6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-alt-winning-return/receipt.json",
+      "bytes": 1030,
+      "sha256": "dec7eb412e666a7e383e96b8c90c6f19834202cad1603e24b5061b94abc2d6ae"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-01-original-before-persist.json.gz",
+      "bytes": 3683,
+      "sha256": "2475c9cf73115ae6370e702df23854128d57a152150b60455d40af1c31a980f3"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-02-original-before-persist.json.gz",
+      "bytes": 4237,
+      "sha256": "25afb913ddb7359a3568e71323e5ce742eb58af93742c6267b25cf420a5fee08"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-03-original-before-persist.json.gz",
+      "bytes": 12788,
+      "sha256": "677e3d61da38a90e2b21faf81af2ee737bf13e97104f7729afb649ea1bf03220"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-04-original-before-persist.json.gz",
+      "bytes": 10619,
+      "sha256": "568362e85e6b4ad1eaa167bd942258835363a0c6b1abff47289876d374c08f38"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-05-original-before-persist.json.gz",
+      "bytes": 9447,
+      "sha256": "de769c0d0277467ac73960ad3bbb05933605db7cd9943f31dc2f16fcbaf84f07"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-06-original-before-persist.json.gz",
+      "bytes": 11318,
+      "sha256": "381c7c2ac5233b981e2706a9bb3bfaa5e56c0e54476d90f0680211aadc8a9c54"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-07-original-before-persist.json.gz",
+      "bytes": 12114,
+      "sha256": "4fd4f9660f80f22264acdfc80c95ed7531dcef348f06031698ffb3d94e2854fb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-08-original-before-persist.json.gz",
+      "bytes": 10304,
+      "sha256": "8e671352b1a5c706996547e869353e58ed1dc67cf0738d07fc0f020be70c5524"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/entry-09-original-before-persist.json.gz",
+      "bytes": 13593,
+      "sha256": "3406b33fcd8544679ec8090d70a4e87d17bad2577a41782db8105c3d0724015a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "6266b7b0acc40f9ff3ec23322e560c152efdca4bb08c80f611fa364467830b32"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "308dd30c109d016092efa6f1dd9512cba329bc7a4f77062653c67174ad86c8cb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "7b297e522c199098e8cdd8916fe03ba8fb689586b681995ac35178963841d7ee"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "a53bf56d119775a1a0dec41339e8795ab39853a1d8567ceebe7ac4ed091060b3"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "bca7a47b62e825125b6157ad954abaef231193da6a8dfdd603cbbf18f2c2f174"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "7c6c0105333d066491eaf0455e9215a50d3b37096b0b7944e1f8bab8ff382b35"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "d8a4f771014eb97b40098126fd877e6201c1042afcdb0fa926997b76a063cbde"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "13bff31dd65228b1157270e64d6a57ddb1f65524549092e5b0354c1aa268824d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-07-original-command.json",
+      "bytes": 162,
+      "sha256": "c2b70f452421fc8d8124b673a4b4809ad489d5d2fb2865ddd9d46f2a1f86dde7"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-07-original-prompt.json",
+      "bytes": 38192,
+      "sha256": "407aa8c886e4c2c392f17c8e00343d272c7add55b32bce0f39c48937fbb3ab1f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-08-original-command.json",
+      "bytes": 160,
+      "sha256": "af2d164d23104151d6f73b8a9686b5f051a177be602c0e17ece24c8c38fb5f03"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/input-08-original-prompt.json",
+      "bytes": 34996,
+      "sha256": "5938616edda1531a6729b616ac6e744c012d8c0a82e88a2e53335b6949a4e4aa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/original-final-frame.json.gz",
+      "bytes": 21396,
+      "sha256": "5cb01cda58c35c3e5aabaf1d97a7afd37791f4f3172caa500f446c97874dc1df"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/original-final-seven-tables.json.gz",
+      "bytes": 55675,
+      "sha256": "c7ce5dea2b7b1a89d1e006d1fd5bb6c7d351ee02943ae880348f202df58df179"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-01-original-frame.json.gz",
+      "bytes": 4439,
+      "sha256": "956f6ef82c82c9bf241039a83cb1b1c0ef4910bb5abbd1301542f7b8616c694b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-02-original-frame.json.gz",
+      "bytes": 4936,
+      "sha256": "573dfcd20ff20361a0f5e1c7c88ca09ed215e04252083592bd0e27cf91dbd345"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-03-original-frame.json.gz",
+      "bytes": 16135,
+      "sha256": "ef0360345cba4ce7e032d64c5e03b5ae3406f5b9c1d7396d5ddbf51ab8c7143e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-04-original-frame.json.gz",
+      "bytes": 15470,
+      "sha256": "fccd90af9c3c10025a32da15234e21d7c555a6164aa035f0092b6065652bfaef"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-05-original-frame.json.gz",
+      "bytes": 14285,
+      "sha256": "648a4e888edc051e85cad750513cc9f06c2fb149d5231d93e767aee8c0732b61"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-06-original-frame.json.gz",
+      "bytes": 17160,
+      "sha256": "31c8fde596d04b289387ddd11248760af913e9021e30407b01ea4069d294c66e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-07-original-frame.json.gz",
+      "bytes": 18841,
+      "sha256": "38d18e37ae0f647d70e1c71c3f3c0f3c4d53001b8730a2c559cb79fb8651a6fa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-08-original-frame.json.gz",
+      "bytes": 17484,
+      "sha256": "cd1d1a59f47dc2189723939107929df95e453621a10874df4825897219124e72"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/prefix-09-original-frame.json.gz",
+      "bytes": 21396,
+      "sha256": "5cb01cda58c35c3e5aabaf1d97a7afd37791f4f3172caa500f446c97874dc1df"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-keep/receipt.json",
+      "bytes": 1003,
+      "sha256": "e0d8804ded70f413eb46429a4a66f5966d235c3270a6ead22099d8fb90b7e944"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3683,
+      "sha256": "964d86eab8e75e0a725635d5466f5e22077475b163b4fbc904fe1bdd27899b65"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4238,
+      "sha256": "90e4dace9958243d9da712f6873c2701d2bf3ad1cec4c054c0a53bbcfefd6fbb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12789,
+      "sha256": "508767cbd3e096d9a8d8254a5174fa79f7c5affe648accc79f55de8f09a2cc41"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10619,
+      "sha256": "2ba97a6059960268d0cd9c75dea9284d3064bbb3c396a1f67c5e76cd14c80866"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9449,
+      "sha256": "3369e3f214fb76f130cce18b31c10d2915b9f870e4add6abd38ab7cfd205e027"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11318,
+      "sha256": "ab56cc9e2f4c0c7fbddca8fd0f574eba29c7a7611bcbe566396c871328506fde"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-07-original-before-persist.json.gz",
+      "bytes": 12116,
+      "sha256": "b1e26b7542db2929d28b65639ffc855376fae0e84c3126168840e79ca0b60e6d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8895,
+      "sha256": "60cc6688ae6f0b982703247fde18a4df4d7ffaa010712bf6d194b76486ed8329"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10567,
+      "sha256": "c269d6801305e87b08b69dbf35b86432a1a92cf6daac2df829828dd231fc5e04"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-10-original-before-persist.json.gz",
+      "bytes": 8068,
+      "sha256": "4279cc9b7bcbc5b77410a8629e1646c13834c498635704d46e8a0debaaed6f81"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9982,
+      "sha256": "d16f2359ef7bb196fcf01ffe15354cd8cd38a2ec1b5ce36cf913ca4ec963e5a8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/entry-12-original-before-persist.json.gz",
+      "bytes": 13332,
+      "sha256": "6f3ebbf321decb3e8f043e3d48a912a7f64868a019874d4e615f8cf3ba3f7f5e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "72204d5cc12c7e99d5ec888095db6537cf4898d789473c9e8f2cf3388602eb31"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "97a74ded8ef76bc83c895ad4234e6386185e9a8c73f495a77f7e546d3dc4b792"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "f68284657c7831b8104b05429565c91ac0fd349286dc6700d3f61b3fdbc31529"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "2fb2043d570ac975f1e65f513629235b88d1e881b3850105f32be1b0f1b618c8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "3262d259d28f39e06e74d832193c29430069b1f0c8d488aaaef745d6b212f20a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "009c619c9353fb5fe0b4c379798da6d49af24a5154f7063cf6d07a6515c16529"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "5aa3f5939fda7a786e107f1f9438f3b4a16557def3750788a3397a55525c35b0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "c72d739c90c72b0b6a194d106f181e0446aafe6085f621445241c17d14d8fdf1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-07-original-command.json",
+      "bytes": 317,
+      "sha256": "4936f0c2ce53207299320cb3475b244afd8514db622491796d4037e8ab57cbf4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-07-original-prompt.json",
+      "bytes": 38192,
+      "sha256": "09ad43bbdbc01a9669a4a2406b2888b5322ac444bd86770ebf6fd1a83a4dca8b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-08-original-command.json",
+      "bytes": 152,
+      "sha256": "15d2deebfbc9aed4ec3c09ac0dd099fa9150b22585e2f7cc81620cce2463ec38"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-08-original-prompt.json",
+      "bytes": 11033,
+      "sha256": "2cd9e424d78ce27ee76c00416b0216aa292e119481d7351e52f802265da9f9ea"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-09-original-command.json",
+      "bytes": 160,
+      "sha256": "51b01e2944337ff9f1dc91010ac7563c03623e3c98458dc831e8fe3537a9398c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-09-original-prompt.json",
+      "bytes": 35156,
+      "sha256": "211b4c35250082ba5773c0ee85dad2def078748e2cabb85a22cea3694142a5c6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-10-original-command.json",
+      "bytes": 154,
+      "sha256": "3b2f7a68a1bca5611f8df1d2601ad1122aa30f1d53bff40517f6a5ddfbbc376c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-10-original-prompt.json",
+      "bytes": 10196,
+      "sha256": "12f932ad3ff27b1f6cce86b6fb95997d3b084dd2141785eb08199d865b552f5f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-11-original-command.json",
+      "bytes": 162,
+      "sha256": "262162f04007bf18e3c2376137c65e6f8134693ff5bf419c31dc660f9768c0a1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/input-11-original-prompt.json",
+      "bytes": 34195,
+      "sha256": "65d935d43b85ec40fbc81a3d4c84703e3dd5110fab84e52f8e1693b5ed74fcb8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/original-final-frame.json.gz",
+      "bytes": 22100,
+      "sha256": "b1547f9d9394b3db341a935cbd1f100827a28f102b4daf84c8d3eac58d4cfa4f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/original-final-seven-tables.json.gz",
+      "bytes": 63426,
+      "sha256": "efa21e94343bab5236f67763c164ea41068a08937ada2bf936859babc15ae808"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-01-original-frame.json.gz",
+      "bytes": 4442,
+      "sha256": "efa3b20fbce05d445b8ecb744808f7a3721bebee77c950715030ec780a2afa0f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-02-original-frame.json.gz",
+      "bytes": 4931,
+      "sha256": "9b40af97dcb63e990909c809a5240730f114daa73de161f3a1ce0d05ed142154"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-03-original-frame.json.gz",
+      "bytes": 16135,
+      "sha256": "b730c3e3412a86d035823fca0d87bb68aa02f3c0ef7b288b996972c5e47c94d7"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-04-original-frame.json.gz",
+      "bytes": 15470,
+      "sha256": "efa17d591ba3208ae46d40d02a325edffc5ca041ef77308bfeab6ae492ee4ac7"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-05-original-frame.json.gz",
+      "bytes": 14287,
+      "sha256": "59b234456dd50a517d460e1a3b295d5ca9a17355b73e1a4a47a906c3aad4b288"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-06-original-frame.json.gz",
+      "bytes": 17163,
+      "sha256": "9e20aa6506aabf27af06474542b1f3c83dbd03cce54cdf82a0df33dffdc2dcea"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-07-original-frame.json.gz",
+      "bytes": 18840,
+      "sha256": "287be3e0510b81bd52f8f92f2a72c8c704f5b4f1cd27f8f74dd83043cc253fb5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-08-original-frame.json.gz",
+      "bytes": 14692,
+      "sha256": "fdd74787021d18b0cc35ee5663e334c75e095f90967cb6af97ebb432f6f9665e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-09-original-frame.json.gz",
+      "bytes": 18950,
+      "sha256": "25d62cec26b82c9e25cee49d17bdfe8bccb579da9e062e52efc4b08f1ad0ea20"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-10-original-frame.json.gz",
+      "bytes": 14229,
+      "sha256": "386042b20f636c405957d472af4b844ee731d60f95f68798c2e1ef8dba83fd44"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-11-original-frame.json.gz",
+      "bytes": 18254,
+      "sha256": "0a3dadd7fdcaf9d55b72ba02c3ce05f4b95069c2d92e676a9da34b84e6aca584"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/prefix-12-original-frame.json.gz",
+      "bytes": 22100,
+      "sha256": "b1547f9d9394b3db341a935cbd1f100827a28f102b4daf84c8d3eac58d4cfa4f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-return/receipt.json",
+      "bytes": 1006,
+      "sha256": "42bb7a514e4bfdbe974e8a36822defb6d72858e6cbbfca021b80f6bf0b4aa085"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-01-original-before-persist.json.gz",
+      "bytes": 3680,
+      "sha256": "99f1b020b5c51e86200b07c98f7a84a5842e772cfcf4327f29d54d65e41579e6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-02-original-before-persist.json.gz",
+      "bytes": 4239,
+      "sha256": "758d3701e0024ba90c8dd11e54aa6d6ea6c6604caa7b80c9be30c22ddb39bfc8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-03-original-before-persist.json.gz",
+      "bytes": 12793,
+      "sha256": "88b463ed8360941da19176df51339ef1d866c323d25ce3ea65e4f3ab2cb89222"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-04-original-before-persist.json.gz",
+      "bytes": 10620,
+      "sha256": "81a619ef28baecd5ff2e257886f05a091fff1a9009f71233d3c3fc96b749632f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-05-original-before-persist.json.gz",
+      "bytes": 9451,
+      "sha256": "cdef7cbcfac837cddb025d0851ebca285b39ae0e9fd26c80a470f394b9d572ae"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-06-original-before-persist.json.gz",
+      "bytes": 11319,
+      "sha256": "5ca29c3e8d95220e1402ed44b4ff8001099d368d1cec3fb27dd95717e5b18280"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-07-original-before-persist.json.gz",
+      "bytes": 12114,
+      "sha256": "317d8df0533b552058a4e172c5a1ecc21908ef6580843b877ac334078a30ac8b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-08-original-before-persist.json.gz",
+      "bytes": 10303,
+      "sha256": "259929a70d10d45d8653e7b9bd51549c800ac4562c2915299cc80eedf4e05482"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/entry-09-original-before-persist.json.gz",
+      "bytes": 7449,
+      "sha256": "4d15566f386db47713dd0a76b49b6d3af96bfe899f507264b622fb60525e17e1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "f5d8e5abf372faa2c7f631a8594b82bdb29a0f03a7b89b506926f0f59e172b43"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "583e883af7b5837d12041c4ee99187f006a91ad8fbbb29494a9da510faba6c71"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "741405fb719e2065ff7d743379fcd89cf8f354d1cc07ffbc60e171b4ca404941"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "2f215169dfdc67dcb7a3cd2f1313e131dd1d7a5352bc2b3faede892b26fb098d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "c109901de1f851045dc0943b42601e4c4bef80925919882bc15de8b9039033c1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "48ca0277fa60ca9e8973f499a0dd9f56503c0175b5f8b3a57a141a2aeefae910"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "8d4b4fd137fdd4c46fb92ff2d688877ba146398646ef935a3cd16669a961aa7c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "aa59fe9f7c70d311a160579a6e6733969abec9cb83007a1a678b352b395a224f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-07-original-command.json",
+      "bytes": 162,
+      "sha256": "00c3722101a14eb8ac25c9e69e926397bc664b9400044ff2eaca40da5119950c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-07-original-prompt.json",
+      "bytes": 38192,
+      "sha256": "9391dd784190e3fc8088036db7e0e44744ec0f027f915578c61315f1bf298551"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-08-original-command.json",
+      "bytes": 160,
+      "sha256": "32dde26c15d012679b3cf5ea45fd10bb335814d875d888e99fc0f0fd88adcbba"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/input-08-original-prompt.json",
+      "bytes": 34996,
+      "sha256": "ad3e6934d659a0a740b5f443e2971c132b74013e2144ce773f2c1f00724b6288"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/original-final-frame.json.gz",
+      "bytes": 12852,
+      "sha256": "7553493598080d2464595289c07169d45c290f29651f736572a7a1540e7220d5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/original-final-seven-tables.json.gz",
+      "bytes": 48398,
+      "sha256": "a50b1ea44e4c24ef2d68c6fda1017a6ce58c02874bf9388614b246ebe9bc6e11"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-01-original-frame.json.gz",
+      "bytes": 4439,
+      "sha256": "586ad9fa8c703874ef0186c33d7488e21940b1131bb93df2f15350bb1f3893e6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-02-original-frame.json.gz",
+      "bytes": 4933,
+      "sha256": "d6174b061cab5f9535b687e035df2647a01ff740c40914f1391a00cbc13511d4"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-03-original-frame.json.gz",
+      "bytes": 16149,
+      "sha256": "343d4ff50678212445b3cd7e40c8589543ddcb22101cb81f23f2697ced4f7190"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-04-original-frame.json.gz",
+      "bytes": 15485,
+      "sha256": "6d62b98d38efe08132f54c30e36e13bdfbea7b251f3fb2a662c5477702a559a0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-05-original-frame.json.gz",
+      "bytes": 14296,
+      "sha256": "2420139f1bc86c0c1202054a5ac7a442a807105934f8615791d29bc9b59bacba"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-06-original-frame.json.gz",
+      "bytes": 17181,
+      "sha256": "6cbaf7035c07d1dbae32b41a103bb0ac4cb6b9393b47327bf43999010591e878"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-07-original-frame.json.gz",
+      "bytes": 18860,
+      "sha256": "b0ce9cd7bc0613105e2fad18adeae8ef51af498b2f080ed3fbc9488be0c83b3a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-08-original-frame.json.gz",
+      "bytes": 17495,
+      "sha256": "382e220e2f0ece9fe687141fb0b19b3bcaf5ea317ec9b7526c7d1695d37f4641"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/prefix-09-original-frame.json.gz",
+      "bytes": 12852,
+      "sha256": "7553493598080d2464595289c07169d45c290f29651f736572a7a1540e7220d5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning/receipt.json",
+      "bytes": 1012,
+      "sha256": "fba0787274e629f136604f29726ab4689ec2b361a1376e855ac1a53402302e00"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-01-original-before-persist.json.gz",
+      "bytes": 3683,
+      "sha256": "56faf6d623c5f477a59d9aeb91c1c85f26dd4de4efd29bab9a80fac413af8c63"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-02-original-before-persist.json.gz",
+      "bytes": 4238,
+      "sha256": "3c66c15cbe0a66537d73c0a60a570329a664a035346459467d6b4f5a51394e34"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-03-original-before-persist.json.gz",
+      "bytes": 12798,
+      "sha256": "42ae4e963cf51386856bdc8f485b5eb0c53ff67d8591120c3e16d9c2b45832a8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-04-original-before-persist.json.gz",
+      "bytes": 10626,
+      "sha256": "203fe75d2d6493e1c046a7d41284b01cfbdd9d7c10c46c8e87a6f12fcac7dd30"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-05-original-before-persist.json.gz",
+      "bytes": 9452,
+      "sha256": "481e461a8c343d227752b56225b8c2fa836b8ff1e61d5bb9cc584a0018d3f117"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-06-original-before-persist.json.gz",
+      "bytes": 11323,
+      "sha256": "a4e25bec31d7c9301e679ab9333a3424d1adfc572a4e4a5365c02827b30c91d2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-07-original-before-persist.json.gz",
+      "bytes": 12121,
+      "sha256": "ec5a44378959834d17b27c32c9ad5a1f2cc17fdf0b2ed6e53a93cc14a1be0a9d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-08-original-before-persist.json.gz",
+      "bytes": 8898,
+      "sha256": "a87781f71e0ea8d6048bb03e10bad1753a7942126b1a9cfe0179df034417a4e2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-09-original-before-persist.json.gz",
+      "bytes": 10573,
+      "sha256": "31c398f630e6ec18c594a2daabc8833c3064549f100de218e071d71a82992c29"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-10-original-before-persist.json.gz",
+      "bytes": 8074,
+      "sha256": "1e7918e8559776d6d49a78a85f7ce0d45c82fde97329582f5decb1e3409fea07"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-11-original-before-persist.json.gz",
+      "bytes": 9990,
+      "sha256": "1a337b2ff3737fc6d7b3e2273acc247e9a571e1fde7ff78aee4a38c474fee9f2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/entry-12-original-before-persist.json.gz",
+      "bytes": 7086,
+      "sha256": "b15586a775a9ab256d92f36e86d664fc7d38699e49a81a4251d350630c67cb1c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "40a82deff7e477345ec8191c62febc0a1f4cb9ee38c22a966ab56f4e6ebc7b3e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "e87aaf8e608e9e2590203340bc1842deed2b5584987acca00b70352f598551b6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "8ddd803dc23149c659aad83cffa40727df2df6c086f51b010db1cb1309370dfd"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "b9712cc617d5d2656db53df575c45829b928ff3e3f221bde00ddd2a389b77ab1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "da93c15e660200b9355d7bc2c74b64af239a3bb96b9b367587d8288ebb9b7ada"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "639ddcd485ca82858c92199e1b6d375027a1137396da26c8cba0c5548b2bd622"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "cd683e9e384de6f261d887e50a858115d188fe54ba7a15681e04bc6736fe52c6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "c202f2a9882a26683d117258b08988dae19bf19b6f7e3e5240b880368ae8b976"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-07-original-command.json",
+      "bytes": 317,
+      "sha256": "2ef026bc340d014f233b2882e1697bbd7d2f7aea07fe7f4784a060cf23d5e784"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-07-original-prompt.json",
+      "bytes": 38192,
+      "sha256": "cc02831c00bc92b63a473eec12f591e7c42eef1a8a730d491ee47893b84180bd"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-08-original-command.json",
+      "bytes": 152,
+      "sha256": "31e52b9e6383defc2fc2a423446a653aa26e3d14e354e8967fcc213880f41acf"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-08-original-prompt.json",
+      "bytes": 11033,
+      "sha256": "c730d7ae2de45d9eb0e0603e600349613a87d9f6e705a2fc2935df72e2d02c11"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-09-original-command.json",
+      "bytes": 160,
+      "sha256": "9c594374bf238c003d7efb1bf656ac9473e4f296d46b077a51e9368cf622a081"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-09-original-prompt.json",
+      "bytes": 35156,
+      "sha256": "6d14b60ead0fcab33fa2b746f94331ae742279423d062b37382b0fdd73e0e80c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-10-original-command.json",
+      "bytes": 154,
+      "sha256": "80c8919a6a4dd5c522495e3006d51e665ae4b4e496f7e7c69536579b849922e1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-10-original-prompt.json",
+      "bytes": 10196,
+      "sha256": "0b9f2d499550e51efea963030a2d19ab0c6dfd03d852eeb744067406d8b40cfc"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-11-original-command.json",
+      "bytes": 162,
+      "sha256": "194b3e6e133d53111efaee74fdec530c1aa00a2ee25ee8f1ae65c77b86c26a94"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/input-11-original-prompt.json",
+      "bytes": 34195,
+      "sha256": "f14917fd937a0e7adb5a7d5263bce71ba28d1f76b0a6443a33507c6db896d8d8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/original-final-frame.json.gz",
+      "bytes": 13806,
+      "sha256": "7e3608432f01b521edbfc65aed46928b3ed6bc215fa9f458eefb5bebb773a4f1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/original-final-seven-tables.json.gz",
+      "bytes": 56482,
+      "sha256": "b6c8af9d989eba523f4f4925e26927dddc8050365f56842b657884e89f570200"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-01-original-frame.json.gz",
+      "bytes": 4443,
+      "sha256": "8b31b13f24513e4a23c107914542e438d153c0f67634c1c89b7b6de534c92f59"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-02-original-frame.json.gz",
+      "bytes": 4936,
+      "sha256": "bde6f59ebae8705ee5aea5c8b94748e58fdc8b25684d4673ef4fa7651a32717b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-03-original-frame.json.gz",
+      "bytes": 16157,
+      "sha256": "4de8896a1b805066c8589b5cbdf970c76969c62b00005683ed7f22488bad0b54"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-04-original-frame.json.gz",
+      "bytes": 15490,
+      "sha256": "54b5e99930a8a072b9b596c31f67ae0dfa28eef3cb59941403b88f90a75cde59"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-05-original-frame.json.gz",
+      "bytes": 14304,
+      "sha256": "92dfd81fe6694e4444ed8ce5289c72822dc964612d69528f64e2ed64d8dd70f0"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-06-original-frame.json.gz",
+      "bytes": 17183,
+      "sha256": "d5c93a2f14cdb5662e9495d7943147046487b41b4e22a57482ef7597c196bfed"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-07-original-frame.json.gz",
+      "bytes": 18864,
+      "sha256": "709a4c36c46f51da4e70620cb19ad7ba27e1c55acd58f629706422e053ccc673"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-08-original-frame.json.gz",
+      "bytes": 14710,
+      "sha256": "832f87ff5928adc72540132e904e6ebaf2110a189dcca581e3d9c32d60fd8157"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-09-original-frame.json.gz",
+      "bytes": 18970,
+      "sha256": "d56b88796e4469465de19fe089099f965d67aba5ffa3f7399e1efdfc715b2bc6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-10-original-frame.json.gz",
+      "bytes": 14248,
+      "sha256": "5a35a69d0bb2a6134d5dc779fef75015a989871df4cd95ecac06402f6a9c4ed8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-11-original-frame.json.gz",
+      "bytes": 18274,
+      "sha256": "be5a828e5e432e87fa4bb6331751b3c942dad318983bab4927cc1b15824baef6"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/prefix-12-original-frame.json.gz",
+      "bytes": 13806,
+      "sha256": "7e3608432f01b521edbfc65aed46928b3ed6bc215fa9f458eefb5bebb773a4f1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/draven-winning-return/receipt.json",
+      "bytes": 1022,
+      "sha256": "760f498603bd45eef3c9ccf6d0c0aa1baecd67a06704020d50d78520f4fc4b81"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/actual-corrupt-frame.json.gz",
+      "bytes": 18845,
+      "sha256": "3d612337aa7256d6afdbd74639018d553d02e387541b20efb07db896c0d805ba"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41123,
+      "sha256": "40c43cce8652ad0ec8827caf52c83ce05a26270d8ca161795f2ded486234b89e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/actual-refusal-errors.json",
+      "bytes": 76,
+      "sha256": "1f9af11fa8c33362686f98142e7e73a27b54316c31c3d9b7830101284085d8f1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-01-original-before-persist.json.gz",
+      "bytes": 3684,
+      "sha256": "81722901c71f173f4e88c0ab81f5fb95fbda02219512e495f923e77fa8d3e696"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-02-original-before-persist.json.gz",
+      "bytes": 4241,
+      "sha256": "cb9a0ef84a5f88daaabddd20f272d55eff4e4ffa4c281e107a1ed7a45ddfcc2d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-03-original-before-persist.json.gz",
+      "bytes": 12792,
+      "sha256": "ae308d04bd95c41de4e114053fc2a6a91891cd069570c4ff5b55fe462554c456"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-04-original-before-persist.json.gz",
+      "bytes": 10623,
+      "sha256": "9020b3d87673d10df68fcc2459b577cd50ecc920d67e0fa69794da8e4caca47a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-05-original-before-persist.json.gz",
+      "bytes": 9451,
+      "sha256": "f777c1dbb2084c62001ac0983e29499312b035ffdd269d088dfb085a9ecac68a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-06-original-before-persist.json.gz",
+      "bytes": 11322,
+      "sha256": "841175036a0caca6757ac875a43fc2b88ed2fd737994fbb97bf75dc6ac31575a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/entry-07-original-before-persist.json.gz",
+      "bytes": 12119,
+      "sha256": "cea4884f9e940baa682c5a91015f4c82430104423ee8f84aaa1fd6b7820aef2e"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "1f37336bbee1056fc26e7005688d2c5455e55cd89a9adf106e6d6b5127a24b1b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "48dc7b520c43df9ba8c68c04dcc1d9b5d4c0daceb5badaaa012ffba2dd5b1a66"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "3677a2c511539d2fe737818f72ab989889ee84aa939d020ff69fdf573115ddd3"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "0fbac54cb5d0fea0a027ed229437ff546f1e971245182bb748514fcc100513fa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "c533304e9930949239593d2de41e80e66c850803525858c42eaa8bcebcd05d00"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "eab0ad3996546298ed7bebb0538997fa677185cdb5f0d74f7a542bf81fc19795"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "341e0987a78e74a62261f8db27871eada888664d488bdba77c34df90231b689a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "0aeb3d8d9fbb94187fd23f7c9b380a07f2929e38011fca67a13a3e00c43db3c2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/original-final-frame.json.gz",
+      "bytes": 18844,
+      "sha256": "9fc1feb9741fbda690933fbdefd09524785f014f365566f84fc1dc6d6b2a59eb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/original-final-seven-tables.json.gz",
+      "bytes": 41125,
+      "sha256": "9dd5535350d884c8bc234d9b2c45312f5020ead10aaf1d2ca565f5f1a7bf8a4a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-01-original-frame.json.gz",
+      "bytes": 4441,
+      "sha256": "baed5d724d54c8a0964bad279fa4dcad3bdd1313199c47f632aadf7d996fb3c9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-02-original-frame.json.gz",
+      "bytes": 4937,
+      "sha256": "3329b8cee20f23ee1c5cbaada54dd108df43a9f27e963118a86fa5455c5d5cfe"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-03-original-frame.json.gz",
+      "bytes": 16139,
+      "sha256": "50da33d0b3939d833f329be72f236ed5e9cc4768a8cca9af1d1eb1a0efdad30a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-04-original-frame.json.gz",
+      "bytes": 15470,
+      "sha256": "9d2c52ff3e70077e5aca061a17453783b439072f37f9bc98656eb749fa52b119"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-05-original-frame.json.gz",
+      "bytes": 14290,
+      "sha256": "30e44b067ac7cdd42db82b43563bb929f9a73e8569e709d49df58f69e29f2a58"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-06-original-frame.json.gz",
+      "bytes": 17165,
+      "sha256": "f5cd3531d1cf794cd87219d4f8def293d4b87fe2c69f9a76c470b7d0e7a38ea8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/prefix-07-original-frame.json.gz",
+      "bytes": 18844,
+      "sha256": "9fc1feb9741fbda690933fbdefd09524785f014f365566f84fc1dc6d6b2a59eb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-generation/receipt.json",
+      "bytes": 1007,
+      "sha256": "781e56d303c56ca4284f197d79830ac74ac3a463613cd4760d48c31011c03be5"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/actual-corrupt-frame.json.gz",
+      "bytes": 18863,
+      "sha256": "5ae6930f0c980eb910160cf81099ecb1d46fe7daf6a76e6a62720aa731aa88b2"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41114,
+      "sha256": "aa6f88344d2941de88e6f9154d6b8316fe756a3dcd611cccc98f4e7d1bd21ba1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/actual-refusal-errors.json",
+      "bytes": 76,
+      "sha256": "1f9af11fa8c33362686f98142e7e73a27b54316c31c3d9b7830101284085d8f1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-01-original-before-persist.json.gz",
+      "bytes": 3682,
+      "sha256": "65d7af2e40ff25fb5a039b6de9c168826d5a92b00c1edadef07d2d4b2e6968bd"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-02-original-before-persist.json.gz",
+      "bytes": 4238,
+      "sha256": "335716e91426f4871552d058877dd62dd5e7dda093393c893d649dc598c0aa7f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-03-original-before-persist.json.gz",
+      "bytes": 12787,
+      "sha256": "e9feba1d0e6ef164903f5505253ec501dba5f52ba30b263ec2a9deb21dfa4575"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-04-original-before-persist.json.gz",
+      "bytes": 10621,
+      "sha256": "bf312bcfae0716ed72650b8e5cfc5e2a3a12eb86e2b89eef6ded0cc7528ec101"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-05-original-before-persist.json.gz",
+      "bytes": 9447,
+      "sha256": "37bff8c25dd64288a6a3347ce94c9c47e4d2713420fc94fde840469177d26157"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-06-original-before-persist.json.gz",
+      "bytes": 11317,
+      "sha256": "8e2f13fae6ec4883a4b67b060a59300e7163f6330cf0c974480078fc38f30140"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/entry-07-original-before-persist.json.gz",
+      "bytes": 12115,
+      "sha256": "7f32276091acad2ad86d30d6dcc3c5ee5ce7b17521f7f1499e0acf8d36354fac"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "6e63d19bc3f0a00dade784eb1a758b807cb3146c8a3ee0d19d3360efb962b0bb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "dfde4c82911179b6a3edba1a2a61b924eb0c1e6f130743e15211c8661fcb44f3"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "33511876bd9a75087d7fb2731aec8b2cb488834bdfeec2e47a6ace9b8a1318fb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "2b573a2365f3211b36224018324538d78208aa4197cfd0923ac09d8f3ca6222b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "945bae6315e6484e46a294e2466217150d339183acb5dab23c2e97cbf6ceac3d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "7ebe7d0d478592a7245e73a1bfa51f61f36e6ad060f6abf6cabdaff2699849f9"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "545a19ae4ade723cc16b019268aebfee179f4acad3309b7edad7fff59690c979"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "2902cc1f902f9570e9bbf2ad73cfae89b95a724a09fcfb9bc5893261486e996c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/original-final-frame.json.gz",
+      "bytes": 18839,
+      "sha256": "5e466edaedee6a74a9984f2ea0265ac156f43bc7ac296a8c430d920629a23d2f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/original-final-seven-tables.json.gz",
+      "bytes": 41104,
+      "sha256": "212c7c0cd49c39956721f0368c505f72cc66f5c74f687a6a486440ad6e07ec7a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-01-original-frame.json.gz",
+      "bytes": 4440,
+      "sha256": "44f1db0d3708ffa7d0f2dd2fa6575f50f3ac9a553ad75f52da8c6262aaaa57df"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-02-original-frame.json.gz",
+      "bytes": 4936,
+      "sha256": "6a521bca91cef48ec6e4d968d63e2fb6102ddd9dedadd5df64e2a0a8a3ef3c8c"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-03-original-frame.json.gz",
+      "bytes": 16133,
+      "sha256": "81a8efdbe8aa9cde71af2105823bf8892e11172bddb3ce22e543189703e25d8a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-04-original-frame.json.gz",
+      "bytes": 15468,
+      "sha256": "2167a3c58ec4cac461be750b71dd3297fd275af29db6982e9859f333f71355bc"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-05-original-frame.json.gz",
+      "bytes": 14286,
+      "sha256": "b3559e4daa9d2a3a94bed18d43029a3440aa4acfe8457a8db38a3c9bed8d3291"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-06-original-frame.json.gz",
+      "bytes": 17162,
+      "sha256": "3132cd404b87cbc37343dee1d40bef5732e93e493c4216af4def3691111d361d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/prefix-07-original-frame.json.gz",
+      "bytes": 18839,
+      "sha256": "5e466edaedee6a74a9984f2ea0265ac156f43bc7ac296a8c430d920629a23d2f"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-printing/receipt.json",
+      "bytes": 1005,
+      "sha256": "9bebb089e09b8037a64c8856a293c21f1fa49896a924822de8b113eb7b29ba76"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/actual-corrupt-frame.json.gz",
+      "bytes": 18844,
+      "sha256": "493478ea0d3c2d75ba89a44120486ed40af7f503ff8f5a95b0fc431d0c2ab425"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/actual-corrupt-seven-tables.json.gz",
+      "bytes": 41116,
+      "sha256": "aa83d2957f93e05036ebc163368450c3dedc689baef47cc1989682e82c99c579"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/actual-refusal-errors.json",
+      "bytes": 156,
+      "sha256": "0a3d8ced3372b43f7cbc95b42e6486fdfe4cf5e1c587b6cf15642e922a017f48"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-01-original-before-persist.json.gz",
+      "bytes": 3684,
+      "sha256": "dd4a7e6aa1a739a853360a6ae815de6fbda918c593f2db8756c8e3b5d141cf1b"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-02-original-before-persist.json.gz",
+      "bytes": 4238,
+      "sha256": "6b0e4ce41ad5a6a3a011b0c7645daa4411593ce8796ab013d0aadb324716d8de"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-03-original-before-persist.json.gz",
+      "bytes": 12789,
+      "sha256": "416ce1f256f69b791d4798e308da7c3814c5897dbeee98d6879ae2d51390306a"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-04-original-before-persist.json.gz",
+      "bytes": 10620,
+      "sha256": "c3c7e7b14d9ed447d1972f888210cdbb99d73f1bcdaffe9bcdd7bee02fc7fefb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-05-original-before-persist.json.gz",
+      "bytes": 9449,
+      "sha256": "ed7d5cfe24cb9e3cb589d5216e14fc79f1f903376c9d85e5ce588d0b4417821d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-06-original-before-persist.json.gz",
+      "bytes": 11317,
+      "sha256": "3b95dad38992616b7da5d6784f3ec8b825c18591d02510f9578f2f161da2deaa"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/entry-07-original-before-persist.json.gz",
+      "bytes": 12115,
+      "sha256": "bcf6e83909a695b2d6a6621bd0f8f3e2bda4053284b9e8927163816fb29c0652"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-03-original-command.json",
+      "bytes": 387,
+      "sha256": "9e1d278983fb7ef454a7cca907d89853622775921f659975b60e9392e7b60797"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-03-original-prompt.json",
+      "bytes": 104335,
+      "sha256": "84456020814d1c742c4f4c9faceed5756a4ebfb9983dba3cb462af26e1905d19"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-04-original-command.json",
+      "bytes": 156,
+      "sha256": "df1ce1459beaf05bc81e058b22ef9b710bede6237c3796ecce15c9b2e6e64fb8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-04-original-prompt.json",
+      "bytes": 36594,
+      "sha256": "9766154753241553b7106f7ae19d1e6dad3c05dee009291db19094eaa13eef84"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-05-original-command.json",
+      "bytes": 154,
+      "sha256": "8ebf0cc40cf2c6c1286a5e577db989ff8053135e4450d92b3f13a235c7ccacbe"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-05-original-prompt.json",
+      "bytes": 34506,
+      "sha256": "7a38bb70e11531ed8bdf008da0a56f5a097a237bff9a543146b4ec67746a05c1"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-06-original-command.json",
+      "bytes": 280,
+      "sha256": "ac57df1477eb2e638a0f1bc13c18dfeeae4cb2abaae920e95f1846096457e8fb"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/input-06-original-prompt.json",
+      "bytes": 68579,
+      "sha256": "b0421b5ccb1986a639113ff73497c823952e244a48b760044290aaff5cb8cc82"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/original-final-frame.json.gz",
+      "bytes": 18841,
+      "sha256": "2f5638e13f82f1aa78e9496104386be06576c641ed2ddca410214940696e0b77"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/original-final-seven-tables.json.gz",
+      "bytes": 41116,
+      "sha256": "5f296f382353b2d926b65da21c9f8bd1ea992fd85f3c49767f0015fd873b40ca"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-01-original-frame.json.gz",
+      "bytes": 4441,
+      "sha256": "aac099efb30caa50b69d32d40bd28eed4922d549998542273833d78cb830ce15"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-02-original-frame.json.gz",
+      "bytes": 4936,
+      "sha256": "5a4090808f7edfb2b4d9c39933e4083feeb22d42c789eaecfef63b28039c5bed"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-03-original-frame.json.gz",
+      "bytes": 16135,
+      "sha256": "1959b79a3c62144e647858286fe0adb745ca454e4a80eb4f402bfdf494827883"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-04-original-frame.json.gz",
+      "bytes": 15468,
+      "sha256": "33d032cf43fbd01c40f506d3f230a4553d4ae401cef18480b920301ad1dc6318"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-05-original-frame.json.gz",
+      "bytes": 14286,
+      "sha256": "72c2386bccde7f664d7c765ec33abfd1fe390b7c82011420e08cc65816fba04d"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-06-original-frame.json.gz",
+      "bytes": 17162,
+      "sha256": "eb8279b6234e51139f9b9e951418c2c4afad0b93ad13acc50f77d48d94b68ea8"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/prefix-07-original-frame.json.gz",
+      "bytes": 18841,
+      "sha256": "2f5638e13f82f1aa78e9496104386be06576c641ed2ddca410214940696e0b77"
+    },
+    {
+      "path": "real-sql-eleven-draven-score-original-rooms-v1/draven-first-win-score/forge-result-tick/receipt.json",
+      "bytes": 1008,
+      "sha256": "a97b41b9315ddc9ef33622b24aa166fa47e9d75bea2074d4670978a498bdce07"
+    },
+    {
+      "path": "refresh-current-score-sources-v1.py",
+      "bytes": 2316,
+      "sha256": "4895e472cb0bcd073d728f6c34d490506a0319434c413c329157aa927d8f744c"
+    },
+    {
+      "path": "run-adjacent-and-original-games-v1.py",
+      "bytes": 3484,
+      "sha256": "dff71af3b33b9d6c5e9c3d17dcbca36d97e064f469cc58d618b652ef4cebccc9"
+    },
+    {
+      "path": "run-frozen-sole-check-v1.py",
+      "bytes": 2097,
+      "sha256": "80b156d383178d06a99d9fa39ff8775a949ccc14c002002d50c1ea62b7444d1a"
+    },
+    {
+      "path": "score-recovery-tests-header-v1.cs",
+      "bytes": 7406,
+      "sha256": "33990d80887c580a87fbbff7df5188c23b38f8cfed1e55ea1f1cf8c035f40cfb"
+    },
+    {
+      "path": "sole-check-frozen-candidate-start-v1.json.gz",
+      "bytes": 172907,
+      "sha256": "b6e62beba2626b064514934a38355911aa2d957c6d0d828d14b43fc3495b8f1a"
+    },
+    {
+      "path": "sole-check-frozen-original-console-v1.log",
+      "bytes": 336,
+      "sha256": "f4bb21c6cc184d751b8a1271fdd8789de7baeb3549969facecd522d382f8b250"
+    },
+    {
+      "path": "sole-check-frozen-owner-terminal-v1.json",
+      "bytes": 2611,
+      "sha256": "e2e6c1a5570dd834510cfd5d53f903e8f6a7b3e0c3a15055a251ac5f9745af99"
+    },
+    {
+      "path": "sole-check-frozen-runtime-identity-v1.json",
+      "bytes": 2125,
+      "sha256": "82bd7bf9cb468e33ddba479bcb12912870ba311e07f698c2262e10eace105398"
+    },
+    {
+      "path": "sources-v1/current-先锋中士-original-v1.json.gz",
+      "bytes": 1190,
+      "sha256": "a255b7dd905b54bf6deeee2c653dcfa4336721a24b16effd8b7cad9ed9e77639"
+    },
+    {
+      "path": "sources-v1/current-德莱文-original-v1.json.gz",
+      "bytes": 2585,
+      "sha256": "8128b8aa60b0b6c5ae762de79f120f1e85d3647d88ac1a8f28bb09318779b4a1"
+    },
+    {
+      "path": "sources-v1/current-择日再战-original-v1.json.gz",
+      "bytes": 1294,
+      "sha256": "7a50f468a7a61478bf8a1900b39a01f1a893890f605d942518351705c58c3f39"
+    },
+    {
+      "path": "sources-v1/current-极速反制-original-v1.json.gz",
+      "bytes": 1251,
+      "sha256": "79d525c095a9bcbaca088f884b5efd8bc7b75cf97d5fc9cc09537d2b2979f0cf"
+    },
+    {
+      "path": "sources-v1/current-船坞潜伏者-original-v1.json.gz",
+      "bytes": 1204,
+      "sha256": "074d72574c68224ad7c02490ca22dbcf6d75e2a62e939c9544fa908e12a984a8"
+    },
+    {
+      "path": "sources-v1/current-荣耀行刑官-original-v1.json.gz",
+      "bytes": 1315,
+      "sha256": "0bfe5e3562a53faa9dadfad9e4f67f9c74aad20f8d634698f52c8ba2be4d027e"
+    },
+    {
+      "path": "sources-v1/current-虚空之门-original-v1.json.gz",
+      "bytes": 1293,
+      "sha256": "01ce6f82ec7d28b2e7300df86ea582d005ef7171f28fe0352be3ba4626a13aa5"
+    },
+    {
+      "path": "sources-v1/extra-rows.json",
+      "bytes": 10440,
+      "sha256": "57837b6b5e7b256050cebe7a49e8f00e86fc0bce4e324db881ccab527e1df231"
+    },
+    {
+      "path": "sql-score-header-v1.cs",
+      "bytes": 8690,
+      "sha256": "e815471ee7d192cdd550085d2aca0e98ce85eb307ab1d91889e149758eca97c6"
+    },
+    {
+      "path": "sql67-build-v1.log",
+      "bytes": 760,
+      "sha256": "08ccf135222ab88f3054603c71c1e74fbacd8a86ff2330f181823914abd25857"
+    },
+    {
+      "path": "two-original-peer-archives-independent-v1.json",
+      "bytes": 1494,
+      "sha256": "38c3865fe52b99675bc85c5e95f552320ce7f1355cbf3f692801640e6c054204"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-draven-current-source-calibration-v1.json",
+      "bytes": 1184,
+      "sha256": "52e2b49c6de8540c986e802c0f9603ab2319e8d366ec9b50d5275ba23aed3dec"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/summary.json",
+      "bytes": 273,
+      "sha256": "97d846635743286c2ff496216c7771717b840d6cc59cb02dc4a91466762994f4"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/plan.json",
+      "bytes": 7019,
+      "sha256": "b1da4c69ea52c06e9930fa46489ed9673d266d893444fb7d3567ef769ae24e26"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/discovery.log",
+      "bytes": 2092358,
+      "sha256": "ed5bd16b35afdd0960ac568497bde841e497528cdc5868ed41c28e9888a22e19"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/build.log",
+      "bytes": 78,
+      "sha256": "96a5deb51bab781a9ecfaceac9be088c17712598f078f405337ca00ffbc0e222"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/focus/test.log",
+      "bytes": 519,
+      "sha256": "4935a8bed7d42473d89b2227bf82dc6c80f3b81ee5b687063e572ab6edaf46f3"
+    },
+    {
+      "path": "inherited-n52-calibration/p79-current-source-and-adjacent-repair-v1/focus/results.trx",
+      "bytes": 112441,
+      "sha256": "34387e4daad45bca838ad62a17e5ca8c79edef5e6ba2c5369a4b33ab9da98bf5"
+    }
+  ],
+  "privateAuthenticationFilesExcluded": true
+}

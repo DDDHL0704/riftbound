@@ -266,6 +266,10 @@
     {
       "id": "battle-result-continuation",
       "sourceType": "BattleResultContinuationSqlAcceptance"
+    },
+    {
+      "id": "draven-first-win-score",
+      "sourceType": "DravenBattleWinScoreSqlAcceptance"
     }
   ]
 }

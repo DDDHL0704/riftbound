@@ -12,6 +12,7 @@ internal static class BattleResultRecoveryRules
     private const string UnitDraw = "CAPTURED_UNIT_BATTLE_WIN_DRAW";
     private const string LegendDraw = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";
     private const string Experience = "CAPTURED_KHAZIX_BATTLE_WIN_EXPERIENCE";
+    private const string FirstWinScore = "CAPTURED_DRAVEN_FIRST_BATTLE_WIN_SCORE";
 
     internal static bool ValidContinuation(MatchState state)
     {
@@ -36,17 +37,17 @@ internal static class BattleResultRecoveryRules
     }
 
     internal static bool ValidSkill(MatchState state, string effect, string source, string controller, string? cardNo,
-        UnitBattleWinDrawContext? unit, LegendBattleWinDrawContext? legend, KhazixBattleWinContext? khazix)
+        UnitBattleWinDrawContext? unit, LegendBattleWinDrawContext? legend, KhazixBattleWinContext? khazix, DravenBattleWinScoreContext? score)
     {
-        var count = (unit is null ? 0 : 1) + (legend is null ? 0 : 1) + (khazix is null ? 0 : 1);
-        if (count == 0) return effect is not (UnitDraw or LegendDraw or Experience);
+        var count = (unit is null ? 0 : 1) + (legend is null ? 0 : 1) + (khazix is null ? 0 : 1) + (score is null ? 0 : 1);
+        if (count == 0) return effect is not (UnitDraw or LegendDraw or Experience or FirstWinScore);
         if (count != 1 || !ValidContinuation(state) || state.PendingBattleResult is not { } c) return false;
-        var binding = unit?.Source ?? legend?.Source ?? khazix!.Source;
-        var number = unit?.CardNo ?? legend?.CardNo ?? khazix!.CardNo;
-        var actor = unit?.ControllerId ?? legend?.ControllerId ?? khazix!.ControllerId;
-        var field = unit?.BattlefieldId ?? legend?.BattlefieldId ?? khazix!.BattlefieldId;
-        var tick = unit?.ResultTick ?? legend?.ResultTick ?? khazix!.ResultTick;
-        var role = unit?.Role ?? legend?.Role ?? khazix!.Role;
+        var binding = unit?.Source ?? legend?.Source ?? khazix?.Source ?? score!.Source;
+        var number = unit?.CardNo ?? legend?.CardNo ?? khazix?.CardNo ?? score!.CardNo;
+        var actor = unit?.ControllerId ?? legend?.ControllerId ?? khazix?.ControllerId ?? score!.ControllerId;
+        var field = unit?.BattlefieldId ?? legend?.BattlefieldId ?? khazix?.BattlefieldId ?? score!.BattlefieldId;
+        var tick = unit?.ResultTick ?? legend?.ResultTick ?? khazix?.ResultTick ?? score!.ResultTick;
+        var role = unit?.Role ?? legend?.Role ?? khazix?.Role ?? score!.Role;
         if (binding is null || binding.Generation < 0 || binding.ObjectId != source || actor != controller
             || cardNo is not null && number != cardNo || actor != c.WinnerPlayerId || field != c.BattlefieldId
             || tick != c.ResultTick || role != (actor == c.AttackingPlayerId ? "ATTACKER" : "DEFENDER")) return false;
@@ -56,18 +57,22 @@ internal static class BattleResultRecoveryRules
                 && (role == "ATTACKER" ? c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source),
             LegendDraw => legend is not null && number is "SFD·185/221" or "SFD·242/221",
             Experience => khazix is not null && number is "UNL-201/219" or "UNL-236/219" or "UNL-236*/219",
+            FirstWinScore => score is not null && CoreRuleEngine.HasValidDravenBattleWinScoreShape(score)
+                && score.TurnNumber == state.TurnNumber
+                && state.UntilEndOfTurnEffects.Contains(CoreRuleEngine.DravenBattleWinScoreUsedMarker(score), StringComparer.Ordinal)
+                && (role == "ATTACKER" ? c.SurvivingAttackerObjectIds : c.SurvivingDefenderObjectIds).Contains(source),
             _ => false
         };
     }
 
     internal static bool Valid(MatchState state, StackItemState item) => ValidSkill(state, item.EffectKind,
-        item.SourceObjectId, item.ControllerId, item.CardNo, item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin);
+        item.SourceObjectId, item.ControllerId, item.CardNo, item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin, item.DravenBattleWinScore);
     internal static bool Valid(MatchState state, TriggerQueueItemState item) => ValidSkill(state, item.EffectKind,
-        item.SourceObjectId, item.ControllerId, item.SourceCardNo, item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin);
+        item.SourceObjectId, item.ControllerId, item.SourceCardNo, item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin, item.DravenBattleWinScore);
     internal static bool IsCapturedSkill(MatchState state, StackItemState item)
-        => (item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null) && Valid(state, item);
+        => (item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null) && Valid(state, item);
     internal static bool IsCapturedSkill(MatchState state, TriggerQueueItemState item)
-        => (item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null) && Valid(state, item);
+        => (item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null) && Valid(state, item);
 
     internal static IReadOnlyList<string> ValidateOriginalTriggers(MatchRecoveryFrame frame)
     {
@@ -84,21 +89,21 @@ internal static class BattleResultRecoveryRules
         }
         foreach (var item in state.TriggerQueue)
             Check(item.TriggerId, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo,
-                item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin);
+                item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin, item.DravenBattleWinScore);
         foreach (var item in state.StackItems)
             Check(item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal) ? item.StackItemId[8..] : "",
                 item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo,
-                item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin);
+                item.UnitBattleWinDraw, item.LegendBattleWinDraw, item.KhazixBattleWin, item.DravenBattleWinScore);
         return errors;
 
         bool HasOriginalCommand(RecoveredEvent? ev) => ev is not null && frame.Commands.Count(c => c.Accepted
             && c.CompletedTick == ev.Tick && c.StartedEventSequence < ev.Sequence && c.CompletedEventSequence >= ev.Sequence) == 1;
         void Check(string id, string effect, string source, string actor, string? cardNo,
-            UnitBattleWinDrawContext? unit, LegendBattleWinDrawContext? legend, KhazixBattleWinContext? khazix)
+            UnitBattleWinDrawContext? unit, LegendBattleWinDrawContext? legend, KhazixBattleWinContext? khazix, DravenBattleWinScoreContext? score)
         {
-            if (!ValidSkill(state, effect, source, actor, cardNo, unit, legend, khazix))
+            if (!ValidSkill(state, effect, source, actor, cardNo, unit, legend, khazix, score))
             { errors.Add("invalid captured battle-result skill"); return; }
-            object? context = (object?)unit ?? (object?)legend ?? khazix;
+            object? context = (object?)unit ?? (object?)legend ?? (object?)khazix ?? score;
             if (context is null) return;
             var origins = frame.Events.Where(e => e.Event.Kind == "TRIGGER_QUEUED"
                 && Text(e.Event, "triggerId") == id).ToArray();

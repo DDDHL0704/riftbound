@@ -16,7 +16,10 @@ public sealed partial class MatchSession
                 throw new InvalidOperationException("Battle-result QA requires actual catalog printings.");
             cards[id] = card; locations[id] = new(owner, zone, field);
         }
-        Put("SOURCE", branch.StartsWith("nidalee", StringComparison.Ordinal) ? "UNL-114/219" : "SFD·123/221", seed.P1, "BASE");
+        var draven = branch.StartsWith("draven", StringComparison.Ordinal);
+        var sourcePrinting = draven ? branch.StartsWith("draven-alt", StringComparison.Ordinal) ? "SFD·148a/221" : "SFD·148/221"
+            : branch.StartsWith("nidalee", StringComparison.Ordinal) ? "UNL-114/219" : "SFD·123/221";
+        Put("SOURCE", sourcePrinting, seed.P1, "BASE");
         Put("DEFENDER", "OGN·175/298", seed.P2, "BATTLEFIELD", "FIELD");
         Put("FIELD", "OGN·296/298", seed.P2, "BATTLEFIELD", "FIELD");
         cards["FIELD"] = cards["FIELD"] with { ControllerId = seed.P2 };
@@ -36,7 +39,7 @@ public sealed partial class MatchSession
                 [seed.P2] = Zones(battlefields: ["FIELD", "DEFENDER"], hand: lateDefender ? ["BARRAGE1", "BARRAGE2", "LATE"] : ["BARRAGE1", "BARRAGE2"]) }, cards) with
         {
             ObjectLocations = locations, CardPlays = new(5, [], []),
-            PlayerScores = new Dictionary<string, int> { [seed.P1] = 0, [seed.P2] = burnout ? 7 : 0 }
+            PlayerScores = new Dictionary<string, int> { [seed.P1] = draven && branch.EndsWith("-winning", StringComparison.Ordinal) ? 7 : 0, [seed.P2] = burnout ? 7 : 0 }
         };
     }
 }

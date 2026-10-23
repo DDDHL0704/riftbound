@@ -1,0 +1,2342 @@
+{
+  "status": "COMPILED_UNWIRED_FIRST_BATTLE_WIN_SCORE_CONSUMER_WITH_SOURCE_RED_TESTS",
+  "atUtc": "2026-10-23T06:49:44.835182+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "coreEffectiveDate": "2026-10-16",
+  "baseCommit": "7fce648caf00a9be0874ba225c41632a5bd7ce77",
+  "source": {
+    "status": "CURRENT_SIX_EXACT_ROWS_AND_CORE304_BYTES_UNCHANGED",
+    "atUtc": "2026-10-23T06:40:03.112588+00:00",
+    "region": "CN",
+    "language": "zh-CN",
+    "ruleEffectiveDate": "2026-10-16",
+    "core": {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "startedAtUtc": "2026-10-23T06:39:48.550071+00:00",
+      "receivedAtUtc": "2026-10-23T06:40:03.008738+00:00",
+      "httpStatus": 200,
+      "headers": {
+        "Last-Modified": "Fri, 09 Oct 2026 16:55:24 GMT",
+        "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline",
+        "Date": "Sat, 10 Oct 2026 00:27:22 GMT",
+        "Server": "tencent-cos",
+        "x-cos-hash-crc64ecma": "624345148193381469",
+        "x-cos-request-id": "NmFjOTg2NmFfOGEyZjY4MDlfOGQ3OF8yMTIzNzRhYw==",
+        "x-cos-server-side-encryption": "AES256",
+        "x-cos-storage-class": "MAZ_STANDARD",
+        "x-cosindex-replication-status": "Complete",
+        "Age": "1144107",
+        "Content-Length": "40278538",
+        "Accept-Ranges": "bytes",
+        "X-NWS-LOG-UUID": "3737799173831552884",
+        "Connection": "close",
+        "X-Cache-Lookup": "Cache Hit",
+        "Cross-Origin-Resource-Policy": "cross-origin"
+      },
+      "bytes": 40278538,
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+    },
+    "rows": [
+      {
+        "id": 31366,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·142/298",
+        "cardName": "山脉亚龙",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "龙",
+        "artist": "Kudos Productions",
+        "cardEffect": "",
+        "flavorText": "千百年来，学者们从未在巨龙行为学的问题上达成共识，除了一条：若在近距离观察到巨龙……还是先跑吧。",
+        "energy": 9,
+        "returnEnergy": null,
+        "power": 10,
+        "productCodeList": [
+          "OGS",
+          "OGN(英雄预组 李青)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 英雄预组 李青",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/70eb8e9ea12f4c888f17ec3195be7f37.png",
+        "backImage": "",
+        "listSort": 339,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33240,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/d065a0877b6f413384a7273ddf2f502a.png",
+        "backImage": "",
+        "listSort": 833,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33241,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148a/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/492d174b2b604a98af8491f604c8c63c.png",
+        "backImage": "",
+        "listSort": 832,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31601,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "OGS·022/024",
+        "cardName": "终极闪光",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "yellow"
+        ],
+        "hero": "拉克丝",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对一名单位造成8点伤害。",
+        "flavorText": "",
+        "energy": 8,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGS"
+        ],
+        "productNameList": [
+          "起源 试炼之地"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/b1ff99bcd0314dd68f42e0d9417a7713.png",
+        "backImage": "",
+        "listSort": 529,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31405,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·175/298",
+        "cardName": "船坞潜伏者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "Six More Vodka",
+        "cardEffect": "",
+        "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+        "backImage": "",
+        "listSort": 300,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31542,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·296/298",
+        "cardName": "虚空之门",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+        "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGS",
+          "OGN(进阶补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 进阶补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+        "backImage": "",
+        "listSort": 163,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+        "otherDesc": 0
+      }
+    ],
+    "coreClauses": [
+      {
+        "id": "DOC-01-P008-B012",
+        "document": "DOC-01",
+        "page": 8,
+        "clauseAnchors": [
+          "124.1"
+        ],
+        "text": "124.1.         每当一个游戏物体从一个区域移动到另一个非场地区域,或从一个非场地区域移动到另一个区域后,其身上的所有\n               临时状态 将停止追踪。\n                    举例:\n                    伤害将被清除。\n                    计数标将被移除。\n                    临时给予的关键词效果将不再提供。\n                    状态将被清除。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P050-B016",
+        "document": "DOC-01",
+        "page": 50,
+        "clauseAnchors": [
+          "357.1"
+        ],
+        "text": "357.1.            经过计算,支付总计的符能费用(如适用)和法力费用(如适用)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P050-B017",
+        "document": "DOC-01",
+        "page": 50,
+        "clauseAnchors": [
+          "357.1.a"
+        ],
+        "text": "357.1.a.                 在这一步骤中,卡牌的控制者可以使用带有[反应]标签的获得资源型主动技能,获得法力和符能,以支付\n                         该卡牌的费用。\n                              想获取更多有关信息,请查阅规则 165.符文池和规则 430.获得。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P051-B001",
+        "document": "DOC-01",
+        "page": 51,
+        "clauseAnchors": [
+          "357.2"
+        ],
+        "text": "357.2.          此外,按任意顺序支付步骤 3 中总计的非标准费用。\n                      举例:一张卡牌的部分效果为“你必须摧毁一名友方单位并弃置一名单位,作为打出我的额外费用”。在为\n                      该卡牌支付费用时,其控制者可以按任意顺序支付这两项费用:可以先摧毁一名友方单位,再弃置一名单\n                      位;也可以先弃置一名单位,再摧毁一名友方单位。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P051-B002",
+        "document": "DOC-01",
+        "page": 51,
+        "clauseAnchors": [
+          "357.2.a"
+        ],
+        "text": "357.2.a.              被替换效果以其他事件取代的费用,仍被视为已支付。\n                            举例:一名玩家打出了“冷血贵族”,卡牌效果为“你必须摧毁一名友方单位,作为打出我的额外\n                            费用。”该玩家还控制了“中娅沙漏”,卡牌效果为“如果一名友方单位被摧毁,则改为将此牌摧\n                            毁。移除该单位所受伤害,让其进入休眠状态,并将其召回。”在步骤 3 期间,该玩家选择摧毁\n                            一名友方单位;而在步骤 4 支付费用时,“中娅沙漏”替换了该单位被摧毁的行动。这样仍会视\n                            为已支付费用,玩家可以继续打出“冷血贵族”。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P051-B003",
+        "document": "DOC-01",
+        "page": 51,
+        "clauseAnchors": [
+          "357.3"
+        ],
+        "text": "357.3.          除非别无选择,否则玩家不得在此步骤中支付那些必然会导致后续流程出现非法选择或行动的费用。\n                      举例:一名玩家打出了一张卡牌,其描述为:“你可以选择摧毁一名友方单位,作为打出此牌的额外费\n                      用。给予一名友方单位在本回合内[M]+2。如果你支付了该费用,则改为给予该单位在本回合内[M]+7。”\n                      如果玩家选择要支付此额外费用,则除非其没有单位可选,否则必须选择摧毁一个指定目标以外的其他单\n                      位。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B011",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1"
+        ],
+        "text": "468.1.             1.进行一次战斗清理。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B012",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a"
+        ],
+        "text": "468.1.a.                  启动一次战斗特殊清理。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B013",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a.1"
+        ],
+        "text": "468.1.a.1.                    插入“3c.为所有单位移除伤害。”",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B014",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a.2"
+        ],
+        "text": "468.1.a.2.                    插入“3d.如果该战场仍存在防守方单位,则召回位于该战场的所有进攻方单位。”\n                                     想获取更多有关信息,请查阅规则 456.召回。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B015",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.2"
+        ],
+        "text": "468.2.             以下任务变为未决:",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B002",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3"
+        ],
+        "text": "468.3.           1.判定战斗结果",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B003",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.a"
+        ],
+        "text": "468.3.a.               如果一名玩家获得进攻方或防守方身份,且在本步骤中仅有该玩家有单位存活于此战场上,则该玩家赢\n                       得战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B004",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.b"
+        ],
+        "text": "468.3.b.               如果一名玩家获得进攻方或防守方身份,且在本步骤中仅有该玩家未在此战场上剩下任何单位,则该玩\n                       家 输掉战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B005",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.c"
+        ],
+        "text": "468.3.c.               该战场上的单位会继承其控制者的战斗结果。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B006",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.d"
+        ],
+        "text": "468.3.d.               如果在战斗清理的第 3d 步骤时,有单位被召回、或双方玩家在此任务期间仍有单位在战场上、或双方玩\n                       家在此任务期间都没有单位在战场上,则战斗“无结果”。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B007",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.d.1"
+        ],
+        "text": "468.3.d.1.                   如果出现“无结果”,且双方玩家仍有单位存活,则在该战场标记一场待发生的法术对决和一场\n                             待发生的战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B008",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.4"
+        ],
+        "text": "468.4.           以下任务变为未决:\n                      提示:执行此步骤前,先结算所有因判定战斗结果及其相关 FEPR 流程而加入结算链的项目。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B009",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5"
+        ],
+        "text": "468.5.           1.如果该位置没有标记处于待发生状态的法术对决或战斗,则此处有单位存活的玩家对该战场确立控制(如果尚未控\n                 制该战场)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B010",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.a"
+        ],
+        "text": "468.5.a.              清除争夺状态。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B011",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.b"
+        ],
+        "text": "468.5.b.              如果该处没有任何玩家控制的单位存活,则该战场变为未受控制状态。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B012",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.c"
+        ],
+        "text": "468.5.c.              移除该战场上所有其控制者并非该战场控制者的待命牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B013",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.d"
+        ],
+        "text": "468.5.d.              建立控制权 ,如果该玩家本回合尚未通过此战场得分 ,则将导致一次征服 。\n                             想获取更多有关控制的信息,请查阅规则 188.控制。\n                            想获取更多有关征服的信息,请查阅规则 471.1.征服。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B014",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.e"
+        ],
+        "text": "468.5.e.              该玩家不一定是之前令战场进入争夺状态的玩家。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B015",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.6"
+        ],
+        "text": "468.6.           以下任务变为未决:\n                     提示:执行此步骤前,先结算所有因确立控制及其相关 FEPR 流程而加入结算链的项目。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B016",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7"
+        ],
+        "text": "468.7.           1.战斗结束。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B017",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.a"
+        ],
+        "text": "468.7.a.              移除所有单位和玩家的进攻方与防守方身份。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B018",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.b"
+        ],
+        "text": "468.7.b.              在战斗结束时或战斗结束生效的游戏效果触发。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B019",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.c"
+        ],
+        "text": "468.7.c.              所有“本次战斗”效果同时失效。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    ],
+    "wholePrintingCertified": false,
+    "globalSourceScopeChanged": false
+  },
+  "extraOfficialRows": [
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31347,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·125/298",
+      "cardName": "比尔吉沃特恶霸",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "如果我拥有增益，则我获得{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "还有地方要去，还有人要抓。",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "OGN(英雄预组 李青)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 李青",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f1bfe3b423b84060b668fb6b36a62520.png",
+      "backImage": "",
+      "listSort": 358,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "firstOccurrenceAndParentCompletionClauses": [
+    {
+      "id": "DOC-01-P008-B012",
+      "document": "DOC-01",
+      "page": 8,
+      "clauseAnchors": [
+        "124.1"
+      ],
+      "text": "124.1.         每当一个游戏物体从一个区域移动到另一个非场地区域,或从一个非场地区域移动到另一个区域后,其身上的所有\n               临时状态 将停止追踪。\n                    举例:\n                    伤害将被清除。\n                    计数标将被移除。\n                    临时给予的关键词效果将不再提供。\n                    状态将被清除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P038-B014",
+      "document": "DOC-01",
+      "page": 38,
+      "clauseAnchors": [
+        "319.5"
+      ],
+      "text": "319.5.          某个结算链项目出于任意原因从结算链上被移除后",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P038-B021",
+      "document": "DOC-01",
+      "page": 38,
+      "clauseAnchors": [
+        "321.1"
+      ],
+      "text": "321.1.          如果在结算链项目结算 期间发生了满足清理条件的事件,则将该次清理列入未决任务。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B003",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.1"
+      ],
+      "text": "323.1.          1.如果一名玩家的分数大于或等于胜利得分,且高于所有对手,则该玩家获胜。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B017",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.10"
+      ],
+      "text": "323.10.         8.如果某个战场上没有令战场进入争夺状态的玩家所控制的单位,且该战场上没有正在进行的法术对决或战斗,则\n                移除该战场的争夺状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B018",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.10.a"
+      ],
+      "text": "323.10.a.            若因移除争夺状态,导致单位位于未处于争夺状态、且不受其控制者控制的战场上,则该单位的控制者将\n                     令该战场进入争夺状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B019",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.11"
+      ],
+      "text": "323.11.         9.如果当前的回合状态为普通开环状态、战场有一个或多个处于待发生状态的法术对决、且没有处于待发生状态的\n                战斗 ,则由回合玩家 选择其中一处战场。 在该处战场开始一次法术对决。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B020",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.12"
+      ],
+      "text": "323.12.         10.如果当前的回合状态为普通开环状态,且战场有一场或以上处于待发生状态的战斗,则由回合玩家选择其中一处\n                战场。 在该处战场开始一次战斗 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B021",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.13"
+      ],
+      "text": "323.13.         10a.如果当前的回合状态为法术对决开环状态 ,且一处正在进行非战斗法术对决的战场有战斗处于待发生状态,则\n                该法术对决变为战斗法术对决。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P061-B021",
+      "document": "DOC-01",
+      "page": 61,
+      "clauseAnchors": [
+        "383.1"
+      ],
+      "text": "383.1.           触发式技能 的识别标志为技能描述中出现的“当/每当......时”(中间为一个游戏行动或事件)、“在......时”(中间为回合\n                 流程中的一个时间点),又或者“(第)N 次”(后面跟随一个游戏行动或事件)字样。\n                      举例:\n                      “当你征服此处时,你可以选择消耗一个增益,以此抽一张牌。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B003",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.1.a"
+      ],
+      "text": "383.1.a.          标识着触发式技能的表述并不一定总是出现在句子或技能描述的开头。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B004",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.1.b"
+      ],
+      "text": "383.1.b.          如果某个技能的触发条件是“(第)N 次”发生某事,而该条件同时多次得到满足,则控制者需要从中选择\n                  一次作为触发的时机。该技能只会在选中的时机触发一次。\n                        举例:“残响之魂”的描述为:“每回合首次,当你的另一名友方单位被摧毁时,抽一张牌。”该技\n                        能在本回合尚未触发过。其他两名友方单位同时被摧毁(比如说因为受到战斗伤害)。“残响之\n                        魂”的控制者可以从这两次被摧毁事件中选择一次来触发其技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B005",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2"
+      ],
+      "text": "383.2.       触发式技能 具有条件 和效果 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B006",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.a"
+      ],
+      "text": "383.2.a.          条件 是指包含“当 /每当 ......时 ”、“在 ......时 ”,或者“(第) N 次 ”的子句。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B007",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.a.1"
+      ],
+      "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条\n                                件,但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如\n                                果她因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B009",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.b"
+      ],
+      "text": "383.2.b.          效果 是指不属于条件 部分的指示 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B010",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c"
+      ],
+      "text": "383.2.c.          触发条件 会在可能引发它的事件处理完毕后再进行判定。除非该条件 检查的是该触发式技能来源的离场事\n                  件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B011",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.1"
+      ],
+      "text": "383.2.c.1.              假如一个游戏物体拥有一个只在特定区域才能生效的触发式技能,如果它在触发条件满足的同\n                        时进入了该特定区域,则技能会在判定后随即触发。\n                                举例:“不朽凤凰”的技能描述为“当你使用法术摧毁一名单位时,你可以选择支付[1]和\n                                [C],以此从废牌堆中将我打出。”当你用法术摧毁一个单位后,即便被法术摧毁的单\n                                位就是“不朽凤凰”,但只要“不朽凤凰”位于你的废牌堆中,该技能就会立即触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B012",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.2"
+      ],
+      "text": "383.2.c.2.              不过,如果一个游戏物体在触发条件满足的同时离开了使该触发效果生效的区域,则其触发条\n                        件 将被视为判定失败。\n                                举例:“维克托 - 领袖”的技能描述为“如果我在场上,则每当你的另一名非‘随从’单位\n                                被摧毁时,打出一名 1[M]的‘随从’单位指示物到你的基地。”当你控制的另一名非随从\n                                单位被摧毁后,如果维克托在战场上,则该技能会立即触发。如果维克托和你控制的\n                                另一名非随从单位在同一个游戏行动期间被摧毁(例如由于“过载能量”造成的伤害导\n                                致二者同时在清理步骤中被摧毁),则该技能不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B013",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.3"
+      ],
+      "text": "383.2.c.3.              如果一个游戏物体拥有以该游戏物体离开场上为条件的触发式技能,那么该触发式技能会在该\n                        游戏物体 改变区域之前立即进行处理。\n                                举例:如果一个游戏物体拥有[绝念]技能(该技能会在该游戏物体被摧毁时触发),\n                                则会在该游戏物体被摧毁这一事件期间、于该游戏物体放入废牌堆之前,就处理该技\n                                能并将它置于结算链上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B002",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.2.c.3.a"
+      ],
+      "text": "383.2.c.3.a.                  游戏物体 离场时触发的触发式技能 ,会在所有替换效果 都处理完毕之后才会触发并置\n                              于结算链上。如果某个替换效果导致游戏物体未以相应方式离开场上,则相关的触发\n                              式技能 将不会触发。\n                                     举例:如果一名单位被摧毁的事件被替换为该单位被移除所受伤害、进入\n                                     休眠状态和被召回的事件,则该单位的[绝念]技能将不会触发,因为摧毁事\n                                     件已被替换,并未发生。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B004",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.2.c.3.b"
+      ],
+      "text": "383.2.c.3.b.                  在处理触发式技能时,应根据需要记录有关该触发式技能来源或当时游戏状态的信\n                              息,以便处理由此产生的触发式技能。\n                                     举例:一名单位的部分描述为:“当我离场时,对我原先所在位置的一名单\n                                     位造成 2 点伤害。”其控制者对该单位打出“择日再战”,让其返回手牌。在\n                                     该单位返回手牌之前,其触发式技能会被放入结算链,并记录有关该单位\n                                     的必要信息。在确认该触发式技能时,我们可以通过记录的信息确定该单\n                                     位之前的所在位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B005",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3"
+      ],
+      "text": "383.3.         条件 满足时,触发式技能 就会和主动技能 一样行动,被放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B006",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.a"
+      ],
+      "text": "383.3.a.            如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                    否执行该触发式技能。\n                         举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                         动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                         头,因此该选择代表是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B007",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.a.1"
+      ],
+      "text": "383.3.a.1.               当“可以选择”以这种形式出现时,其所表示的选择仅为是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B008",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.a.2"
+      ],
+      "text": "383.3.a.2.               如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                         除,并视为未触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B009",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.a.3"
+      ],
+      "text": "383.3.a.3.               当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                         段决定。\n                              举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                              堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                              牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                              出。该技能始终会被确认并放入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B010",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.b"
+      ],
+      "text": "383.3.b.            如果触发式技能包含指示中的费用,且该费用位于效果的开头部分,或紧跟在效果开头部分出现的“你可\n                    以选择”或“该玩家可以选择”之后,则该费用将视为该触发式技能的基础费用。\n                         举例:“艾克 - 溯时洄光”的描述为:“[绝念][>] 回收我,以此让你的所有符文变为活跃状态。”在\n                         此情况下,“回收我,以此让你的所有符文变为活跃状态”便是出现在技能效果开头部分的指示中\n                         的费用,因此“回收我”被视为该触发式技能的基础费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P063-B012",
+      "document": "DOC-01",
+      "page": 63,
+      "clauseAnchors": [
+        "383.3.b.1"
+      ],
+      "text": "383.3.b.1.               必须支付此费用,才能确认将该触发式技能加入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B001",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.c"
+      ],
+      "text": "383.3.c.           触发式技能 可以在任意玩家的回合中放置到结算链 ,无论闭环状态 或开环状态 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B002",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.d"
+      ],
+      "text": "383.3.d.           如果同一时间有多个触发式技能被触发,则由控制技能的玩家选择它们放置到结算链的顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B003",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.d.1"
+      ],
+      "text": "383.3.d.1.              如果同时触发的多个触发式技能由多个不同玩家控制,则从回合玩家开始,随后按照回合顺\n                        序 ,每名玩家依次将自己的触发式技能 放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B004",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.e"
+      ],
+      "text": "383.3.e.           部分触发式技能的触发限制为“每回合限一次”或“每回合限 N 次”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B005",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.e.1"
+      ],
+      "text": "383.3.e.1.              此类触发式技能每回合只会执行指定次数。若其触发条件已满足,但该技能已执行指定次数,\n                        则不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B006",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.e.2"
+      ],
+      "text": "383.3.e.2.              如果触发式技能效果的开头部分指示“你可以选择”或“该玩家可以选择”,则其控制者可以选择是\n                        否执行该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B007",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.e.2.a"
+      ],
+      "text": "383.3.e.2.a.                 在触发式技能的确认阶段,控制该触发式技能的玩家可以选择执行该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B008",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.e.2.b"
+      ],
+      "text": "383.3.e.2.b.                 如果选择不执行,则该技能将从结算链中移除。\n                                   举例:一名玩家控制的单位的部分描述为“每回合限一次,当一名敌方单位\n                                   被摧毁时,你可以选择将其放逐。”当一名敌方“随从”指示物被摧毁时,该\n                                   触发式技能将进入结算链。如果该玩家在确认阶段选择不执行该技能,则\n                                   该技能将从结算链中移除。当“强强魄罗”在本回合的稍后时候被摧毁时,该\n                                   玩家可以选择触发该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "corePdfBodyRetainedLocally": {
+    "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-battle-win-score-20261023/current-core304-original-v1.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "bytes": 40278538,
+    "excludedFromArchiveToAvoidDuplicatingKnown40MbSource": true
+  },
+  "exactConsumerApiIds": [
+    33240,
+    33241
+  ],
+  "currentFinalCases": 18,
+  "passedControls": 8,
+  "sourceFailures": 10,
+  "runnerExitCode": 1,
+  "allRunsPreserved": {
+    "red-v1": {
+      "sha256": "64fbcca33b50fc291ae6ba959926f0d499e4fd94b97a67cb9068ea7053f2d08e",
+      "counters": {
+        "total": "12",
+        "executed": "12",
+        "passed": "8",
+        "failed": "4",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        }
+      ]
+    },
+    "red-v2": {
+      "sha256": "7a9e315493bccf55d8d81288d2f8d5e663dbcf5f73f4b44f59bd8fff2be91036",
+      "counters": {
+        "total": "14",
+        "executed": "14",
+        "passed": "8",
+        "failed": "6",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        }
+      ]
+    },
+    "red-v3": {
+      "sha256": "3d90636fe63bae70681c060c373ddeb9703b0740cdfd0305395c42339ead9e6e",
+      "counters": {
+        "total": "18",
+        "executed": "18",
+        "passed": "8",
+        "failed": "10",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"winning-defender\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Strings differ\nExpected: \"P2\"\nActual:   null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"winning-defender\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Strings differ\nExpected: \"P2\"\nActual:   null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"mutual-destruction\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"empty-conquest\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"attacker-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"nonparticipant\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defeated\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"winning-attacker\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148/221\", scenario: \"winning-attacker\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest(cardNo: \"SFD·148a/221\", scenario: \"repeat-defender-win\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleWinScoreTests.OnlyTheParticipatingDravenThatWinsBattleScoresBeforeConquest",
+          "outcome": "Failed",
+          "error": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        }
+      ]
+    },
+    "adjacent-v1": {
+      "sha256": "94bbdb8c54944f9e87cb46d22e1500e1e766f79831199d2c2885125809f43054",
+      "counters": {
+        "total": "20",
+        "executed": "20",
+        "passed": "20",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: False, expectedScore: 8, draws: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay(movingCount: 1, expectedDraw: 0)",
+          "method": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay(movingCount: 4, expectedDraw: 2)",
+          "method": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: True, expectedScore: 9, draws: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 9)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: True)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerDravenDrawsWhenControllerWinsBattle",
+          "method": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerDravenDrawsWhenControllerWinsBattle",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 7, otherScored: False, expectedScore: 8, draws: False)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 8)",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+          "outcome": "Passed",
+          "error": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+          "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+          "outcome": "Passed",
+          "error": null
+        }
+      ]
+    }
+  },
+  "finalOriginalHistories": [
+    {
+      "caseId": "SFD-148-221-attacker-win",
+      "cardNo": "SFD·148/221",
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "9ecad7e4a0b476c9a7504166cc1c0cc67cc44a9e9e0a47003715186825d552b7"
+    },
+    {
+      "caseId": "SFD-148-221-defeated",
+      "cardNo": "SFD·148/221",
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "16b476d13681e1fe41691e0084ad44098cb277ac4a205f9af832f555773ed92a"
+    },
+    {
+      "caseId": "SFD-148-221-defender-win",
+      "cardNo": "SFD·148/221",
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "0decaf4afd256b8db981599829470eb81474fe877c51b5c197988d9f502721bc"
+    },
+    {
+      "caseId": "SFD-148-221-empty-conquest",
+      "cardNo": "SFD·148/221",
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "256073b2308b4f24d106dcfa7cffda498f07da7597d7dd4b8d23024f3d12450c"
+    },
+    {
+      "caseId": "SFD-148-221-mutual-destruction",
+      "cardNo": "SFD·148/221",
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "002b47cfbae967f208bdd0112682cdeb02a0c7f9ecfb2929be66b2175b0f3e6e"
+    },
+    {
+      "caseId": "SFD-148-221-nonparticipant",
+      "cardNo": "SFD·148/221",
+      "scenario": "nonparticipant",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "a4fe6cc0fcfa996f79f8f52c22cf43a71ca5bd7cc9e995327aad532872530763"
+    },
+    {
+      "caseId": "SFD-148-221-repeat-defender-win",
+      "cardNo": "SFD·148/221",
+      "scenario": "repeat-defender-win",
+      "commands": 8,
+      "events": 28,
+      "prefixesVerifiedByOriginalCSharpRun": 8,
+      "sha256": "bc90b486ab622c53e9a9e6156e7254206b447717d04bd8f9757ba7d4f0b3e238"
+    },
+    {
+      "caseId": "SFD-148-221-winning-attacker",
+      "cardNo": "SFD·148/221",
+      "scenario": "winning-attacker",
+      "commands": 4,
+      "events": 17,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "454eaf91fd8d63171d7e6430c2aa8d61e6cd2c400b3b9f07002a58999d40ce38"
+    },
+    {
+      "caseId": "SFD-148-221-winning-defender",
+      "cardNo": "SFD·148/221",
+      "scenario": "winning-defender",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "6217b3c5a3f717f8fd70ce59080d5d3d1d028b5704c1d1f25ecfd10cedba2eaa"
+    },
+    {
+      "caseId": "SFD-148a-221-attacker-win",
+      "cardNo": "SFD·148a/221",
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "c9d43bebaf06b67b74bc481a619e9c23930f45ff7679b34a8b743cabca080b51"
+    },
+    {
+      "caseId": "SFD-148a-221-defeated",
+      "cardNo": "SFD·148a/221",
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "004573e7a55a895c3e90084e802513c715d42a2b7bc685e44a69f970cc0d0a3f"
+    },
+    {
+      "caseId": "SFD-148a-221-defender-win",
+      "cardNo": "SFD·148a/221",
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "c6b4f61538cc1ea1b339cbcc25c36fdcf5659f52e8f7b82a083affe6fb540ab7"
+    },
+    {
+      "caseId": "SFD-148a-221-empty-conquest",
+      "cardNo": "SFD·148a/221",
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "74409a1fb5b7dffea035a78d1b9484d90cd927c94ce1f98826cf66220d27a9ce"
+    },
+    {
+      "caseId": "SFD-148a-221-mutual-destruction",
+      "cardNo": "SFD·148a/221",
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "8b4b967ddabbb9acf1e470af6a641422c6494386e15cc067d04ab6529be0a719"
+    },
+    {
+      "caseId": "SFD-148a-221-nonparticipant",
+      "cardNo": "SFD·148a/221",
+      "scenario": "nonparticipant",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "788f35ad5e7fd90fb5f78d129b2e2027d77ace37c364a3cbb8944ad870fc9296"
+    },
+    {
+      "caseId": "SFD-148a-221-repeat-defender-win",
+      "cardNo": "SFD·148a/221",
+      "scenario": "repeat-defender-win",
+      "commands": 8,
+      "events": 28,
+      "prefixesVerifiedByOriginalCSharpRun": 8,
+      "sha256": "4010ece8297cc15e6648b5b322b53ada21b4b568ef05558c01619ab8da246a3c"
+    },
+    {
+      "caseId": "SFD-148a-221-winning-attacker",
+      "cardNo": "SFD·148a/221",
+      "scenario": "winning-attacker",
+      "commands": 4,
+      "events": 17,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "350de07d597abdeac83fdacc10107deb8cb89c51c193e70df8a474c08f1a7b54"
+    },
+    {
+      "caseId": "SFD-148a-221-winning-defender",
+      "cardNo": "SFD·148a/221",
+      "scenario": "winning-defender",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "f0435b6ae05c531af8785fe8cdc783974984743fd92c225bf052fdb1d8e3c6ac"
+    }
+  ],
+  "acceptedCommands": 78,
+  "events": 286,
+  "prefixReplays": 78,
+  "finalHelperCompiledInRedV3": true,
+  "sourceFiles": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+      "sha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+      "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+    }
+  ],
+  "archive": {
+    "path": "docs/evidence/draven-battle-win-score-parallel-2026-10-23/original-red-tests-and-sources-v1.tar.gz",
+    "sha256": "97dce8416c8453d10ec0ee18da2861d6c5a25f052993e8b12f10d5786bb60440",
+    "members": [
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+        "bytes": 5677,
+        "sha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "bytes": 11207,
+        "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/build.log",
+        "bytes": 78,
+        "sha256": "e3a919e275751010a56feedc3157889da77bb8257d8a6534d480748582133b3e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/discovery.log",
+        "bytes": 2076770,
+        "sha256": "fa70c186dffce4379d834c42c32bcad1aec81da40c59456e9e956801b63eb7af"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/focus/results.trx",
+        "bytes": 33725,
+        "sha256": "94bbdb8c54944f9e87cb46d22e1500e1e766f79831199d2c2885125809f43054"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/focus/test.log",
+        "bytes": 570,
+        "sha256": "1f1ab1e1efd2283b6a576faf8e5f5515d4736f43eaa2acf2f29defaf12375e73"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/plan.json",
+        "bytes": 2342,
+        "sha256": "0fdfdaa4c5c9d4a0f14d470b9da25a7494e07cf9c799b970750983f6c3fb00c8"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/adjacent-v1/summary.json",
+        "bytes": 273,
+        "sha256": "cd9aa1486e655619fda7c628fbe9669370c2158759be370fbc510a5d71f81fa1"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-山脉亚龙-original-v1.json.gz",
+        "bytes": 1284,
+        "sha256": "abad68dddff041710e7b3e612c0a9ecbedb8169c62017ece43643a52c06dafc4"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-德莱文-original-v1.json.gz",
+        "bytes": 2584,
+        "sha256": "f47fa44baf1fe5a3c6c7e2ca234cc437f8e311018221054b83368f60c2d7200c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-终极闪光-original-v1.json.gz",
+        "bytes": 1186,
+        "sha256": "46aaa3c3ae87d126bc7e38293617a23dc1aca23e009a6ad30c09526e9a4f7ad9"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1201,
+        "sha256": "33ac5a2e1dde5973eda2fecc72a54d3f2f305dc6c23135bbfa13880a7146c82c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-虚空之门-original-v1.json.gz",
+        "bytes": 1294,
+        "sha256": "8cce6dc5685e8ef58be0f5c836fb0b9cdfce275bda73c510774ca24cb87b791d"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/extra-sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1192,
+        "sha256": "79d4abe4cf0d1d254ec18e203779036c9426043bd34e739842cb23f1e515771d"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/extra-sources-v1/current-比尔吉沃特恶霸-original-v1.json.gz",
+        "bytes": 1252,
+        "sha256": "d451675214859ac09d4b52bd6f47f9065eb901ce25fc0c50e0020a0e44f9491c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/extra-sources-v1/extra-rows.json",
+        "bytes": 2536,
+        "sha256": "fb5bb216a8d9858a5aa48f405e293fe0e186518cfb80fd841c56a0aee7f8c56a"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/first-occurrence-and-parent-completion-clauses-v1.json",
+        "bytes": 20517,
+        "sha256": "557192d7d5a6870b1e56c8cbd60308ab8b332e400cf0043b6b0ce388d38831ac"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-attacker-win.json.gz",
+        "bytes": 27989,
+        "sha256": "b4ba2e330f1376bd652299830c0097a1a740202691d452336a74fa4f84916f77"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-defeated.json.gz",
+        "bytes": 27453,
+        "sha256": "e2acf4b7ef94e57cb633234bc0e455770b902b7c1ff4e06284d6a5b36bf815ec"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-defender-win.json.gz",
+        "bytes": 27223,
+        "sha256": "580b9659d79fc5f642f132ec40f6f2dbc82abe047dd0dad028e4ab5f0ae426bc"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-empty-conquest.json.gz",
+        "bytes": 16242,
+        "sha256": "587f02877d86c5668aad7ae7dffe666b0a06a3f1c2744b02a4aa655362ca2200"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-mutual-destruction.json.gz",
+        "bytes": 27405,
+        "sha256": "9baec70379d1532affa81f3402cd6696343992d699295dca75e0d1f6dc3c1773"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148-221-nonparticipant.json.gz",
+        "bytes": 29532,
+        "sha256": "d6359ddd2381c3f00567a6e2df9847b17d4e9f1bc7bdf6823e53010562497e2c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-attacker-win.json.gz",
+        "bytes": 28058,
+        "sha256": "d73d8407aad6571309a6753b889be88af90dfcc09279dd08bd9488efb085c00c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-defeated.json.gz",
+        "bytes": 27457,
+        "sha256": "ab789fcb25e8033a71041c4b2fd053073b7c2fb34ec97f5a476f55227286025b"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-defender-win.json.gz",
+        "bytes": 27261,
+        "sha256": "eedaede38d735c4a82c1b6e9323b6ce543c605073ae74d640dae00083b3dd98f"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-empty-conquest.json.gz",
+        "bytes": 16271,
+        "sha256": "bb37b4a97ebe8175d7ec1d70d26e82d8ba2bfaa599c03f71858ba01f9ae4c13d"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-mutual-destruction.json.gz",
+        "bytes": 27431,
+        "sha256": "044e2d16ecff44ad9271214c71711a12199a61c4cf737de2481a74c134c4c3fc"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v1/SFD-148a-221-nonparticipant.json.gz",
+        "bytes": 29426,
+        "sha256": "5efa886448fcf51eae1b641a010759057f0acd6243bebec1f44d2b3e1269675f"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-attacker-win.json.gz",
+        "bytes": 27990,
+        "sha256": "1084c4e3bc6c9669e16752fabab7bd214fe79456b91554f03d10844c23529570"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-defeated.json.gz",
+        "bytes": 27453,
+        "sha256": "f4cb8d627f35b4622b1907466e0e73b3f79bcb2e2b88f675c8aad20885278e38"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-defender-win.json.gz",
+        "bytes": 27223,
+        "sha256": "f37f0a6acb2f28cae75c4b641475a0da7d3745e363cee834642d0ab0c349cd33"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-empty-conquest.json.gz",
+        "bytes": 16242,
+        "sha256": "cbb919bc219d918a912b8d987bdd8cafe87e5399de0ce298660ec9b8988d5c8a"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-mutual-destruction.json.gz",
+        "bytes": 27406,
+        "sha256": "80ff02d098e0a41904a622ecbe383e1dff567d69ec5ad35ce1700747e07dffbc"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-nonparticipant.json.gz",
+        "bytes": 29532,
+        "sha256": "be43c80c04020458b2dd25de270f16e0be8ecdcd9de0bfc5e4b0039e62c3cf11"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148-221-repeat-defender-win.json.gz",
+        "bytes": 56446,
+        "sha256": "730ef7feb207a8f8e9e57cd311317c88a47b19ac0754eb3a7175c8ff9dc3dd61"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-attacker-win.json.gz",
+        "bytes": 28059,
+        "sha256": "d0185817ff636e90e7507463a8586f497a29f9edbcd29922283132bd2aabd56b"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-defeated.json.gz",
+        "bytes": 27458,
+        "sha256": "2ec5148515e108e63593a6b27c948b2a1a5bcb89a9a83691e869bd8b5346ea8d"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-defender-win.json.gz",
+        "bytes": 27261,
+        "sha256": "b8b042aa405186178cbc78aa1a91148be5eefcf31652672f432c0790db78032e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-empty-conquest.json.gz",
+        "bytes": 16272,
+        "sha256": "19958daaa527ae4f646a103d5472b0c133d1f35901e068015af6b20c547ca482"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-mutual-destruction.json.gz",
+        "bytes": 27427,
+        "sha256": "519e8a4e2734ac86dd8550ef5c644aec4449083a0e61fea629da7178f3f3a290"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-nonparticipant.json.gz",
+        "bytes": 29426,
+        "sha256": "1ebbd9f0e3d22e3a4a0e2c2e7f4baccf6bb4be7f49cfaaa7fbeeae252957dbdf"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v2/SFD-148a-221-repeat-defender-win.json.gz",
+        "bytes": 56453,
+        "sha256": "51449f35ebe6ffeda4213b1894babdc052f47be6e60c52565fa5fe8c02de0dfb"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-attacker-win.json.gz",
+        "bytes": 27984,
+        "sha256": "9ecad7e4a0b476c9a7504166cc1c0cc67cc44a9e9e0a47003715186825d552b7"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-defeated.json.gz",
+        "bytes": 27449,
+        "sha256": "16b476d13681e1fe41691e0084ad44098cb277ac4a205f9af832f555773ed92a"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-defender-win.json.gz",
+        "bytes": 27215,
+        "sha256": "0decaf4afd256b8db981599829470eb81474fe877c51b5c197988d9f502721bc"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-empty-conquest.json.gz",
+        "bytes": 16236,
+        "sha256": "256073b2308b4f24d106dcfa7cffda498f07da7597d7dd4b8d23024f3d12450c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-mutual-destruction.json.gz",
+        "bytes": 27400,
+        "sha256": "002b47cfbae967f208bdd0112682cdeb02a0c7f9ecfb2929be66b2175b0f3e6e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-nonparticipant.json.gz",
+        "bytes": 29525,
+        "sha256": "a4fe6cc0fcfa996f79f8f52c22cf43a71ca5bd7cc9e995327aad532872530763"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-repeat-defender-win.json.gz",
+        "bytes": 56435,
+        "sha256": "bc90b486ab622c53e9a9e6156e7254206b447717d04bd8f9757ba7d4f0b3e238"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-winning-attacker.json.gz",
+        "bytes": 24449,
+        "sha256": "454eaf91fd8d63171d7e6430c2aa8d61e6cd2c400b3b9f07002a58999d40ce38"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148-221-winning-defender.json.gz",
+        "bytes": 27259,
+        "sha256": "6217b3c5a3f717f8fd70ce59080d5d3d1d028b5704c1d1f25ecfd10cedba2eaa"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-attacker-win.json.gz",
+        "bytes": 28053,
+        "sha256": "c9d43bebaf06b67b74bc481a619e9c23930f45ff7679b34a8b743cabca080b51"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-defeated.json.gz",
+        "bytes": 27453,
+        "sha256": "004573e7a55a895c3e90084e802513c715d42a2b7bc685e44a69f970cc0d0a3f"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-defender-win.json.gz",
+        "bytes": 27255,
+        "sha256": "c6b4f61538cc1ea1b339cbcc25c36fdcf5659f52e8f7b82a083affe6fb540ab7"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-empty-conquest.json.gz",
+        "bytes": 16265,
+        "sha256": "74409a1fb5b7dffea035a78d1b9484d90cd927c94ce1f98826cf66220d27a9ce"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-mutual-destruction.json.gz",
+        "bytes": 27423,
+        "sha256": "8b4b967ddabbb9acf1e470af6a641422c6494386e15cc067d04ab6529be0a719"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-nonparticipant.json.gz",
+        "bytes": 29419,
+        "sha256": "788f35ad5e7fd90fb5f78d129b2e2027d77ace37c364a3cbb8944ad870fc9296"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-repeat-defender-win.json.gz",
+        "bytes": 56448,
+        "sha256": "4010ece8297cc15e6648b5b322b53ada21b4b568ef05558c01619ab8da246a3c"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-winning-attacker.json.gz",
+        "bytes": 24467,
+        "sha256": "350de07d597abdeac83fdacc10107deb8cb89c51c193e70df8a474c08f1a7b54"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/original-red-v3/SFD-148a-221-winning-defender.json.gz",
+        "bytes": 27293,
+        "sha256": "f0435b6ae05c531af8785fe8cdc783974984743fd92c225bf052fdb1d8e3c6ac"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/build.log",
+        "bytes": 78,
+        "sha256": "99762b49bf65bb62934c2ffafcd5f029f1aa9aa200614bb8b96db56227aa7ab5"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/discovery.log",
+        "bytes": 2076403,
+        "sha256": "14914eb706488964cc194b9872c506451b4f41fc70c56940740a111bfea4ffc5"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/focus/results.trx",
+        "bytes": 28493,
+        "sha256": "64fbcca33b50fc291ae6ba959926f0d499e4fd94b97a67cb9068ea7053f2d08e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/focus/test.log",
+        "bytes": 1393,
+        "sha256": "e58b3af55444101c94b59d60f7e650742300c7abaf79a17230bb5677cc055e22"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/plan.json",
+        "bytes": 671,
+        "sha256": "6cae757eb8e71063b733056aeb3d261c1a5107977e176beb059dd36c429f008a"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v1/test-source-reconstructed.cs",
+        "bytes": 9295,
+        "sha256": "15d8abd40e9e606e23f81e3507b3b27ad902e81a3cebea424423f130ac0c4e2e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/build.log",
+        "bytes": 78,
+        "sha256": "a02410074eb649fb8ddbaf66f7f53097fa378568bcf2eec29da04b71a40a2613"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/discovery.log",
+        "bytes": 2076770,
+        "sha256": "fa70c186dffce4379d834c42c32bcad1aec81da40c59456e9e956801b63eb7af"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/focus/results.trx",
+        "bytes": 35104,
+        "sha256": "7a9e315493bccf55d8d81288d2f8d5e663dbcf5f73f4b44f59bd8fff2be91036"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/focus/test.log",
+        "bytes": 1822,
+        "sha256": "6b15b3336ba8047ad6f4b6a4c5e30d3d3ecf1dfbf29e49a808b69f6e5aed9337"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/plan.json",
+        "bytes": 671,
+        "sha256": "4dcddd0fd152c7efe46ca55ee2d7dcc3573d4da1adbd59a7ddac2d56d97e08d8"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v2/test-source.cs",
+        "bytes": 10285,
+        "sha256": "44a208a436bca071cd0459510c521d0a5bacd07377c2e8fe799ce3dcb2428238"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/build.log",
+        "bytes": 78,
+        "sha256": "a02410074eb649fb8ddbaf66f7f53097fa378568bcf2eec29da04b71a40a2613"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/discovery.log",
+        "bytes": 2077492,
+        "sha256": "1789688050eb6ce38f8790481f4bd3d396c7a5d48cf0ef0e139874555aaf12c6"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/focus/results.trx",
+        "bytes": 48319,
+        "sha256": "3d90636fe63bae70681c060c373ddeb9703b0740cdfd0305395c42339ead9e6e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/focus/test.log",
+        "bytes": 2668,
+        "sha256": "bc93227bf39aebe03fbe2df76354e6203b8822c0ea1fa654e042ad909b73686e"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/plan.json",
+        "bytes": 671,
+        "sha256": "39e11e17a402cd9826adefdbaa7bfc38825707a6cb8c3a75b812f11043c4c9df"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/red-v3/test-source.cs",
+        "bytes": 11207,
+        "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/scoped-source-readback-v1.json",
+        "bytes": 22712,
+        "sha256": "d7bf01e75edcae5d4b35476056e7dcb96606bfa3126fbbbe1add2be93ba656eb"
+      }
+    ]
+  },
+  "originalRedV1SourceNote": "12-case source reconstructed from edit history and labeled reconstructed; original TRX/logs/histories unchanged. v2/v3 sources captured directly.",
+  "twoRepeatedWinsInSameTurnExecutedForBothPrints": true,
+  "firstMarkerSemantics": "CN first occurrence at condition satisfaction, distinct from optional once-per-turn execution. Shared admission must persist per-turn object-generation marker before responses.",
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "integrationBatch": "AFTER_N52_FIRST_DRAW_AND_EXPERIENCE_BATCH",
+  "requiredFollowup": [
+    "shared capture/queue/stack/dispatch and marker write",
+    "countered first trigger still consumes first occurrence",
+    "new turn/reset and new generation",
+    "source departure/controller change retains captured beneficiary",
+    "result/history/marker recovery authentication",
+    "integrated winning score before control/conquest",
+    "adjacent full games, coherent batch sole check, fixed full and real SQL/API"
+  ],
+  "combatDeathOpponentScoreAbilityStillOpen": true,
+  "notWired": true,
+  "wholePrintingCertified": false,
+  "fullSourceUniverseRetained": true,
+  "backendGoalComplete": false,
+  "sqlApiFullClaimed": false,
+  "offlinePackageReexecutesNoCSharp": true
+}
