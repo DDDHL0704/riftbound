@@ -12,6 +12,11 @@
 | S6 报价标量 | ③：PlayCostBreakdownDto的record body加可选AvailableSpellOnlyMana:int（0省略）/RemainingSpellOnlyMana:int?（不可付null），不改原位置参数/命令/页面。均为本次用途授权的受限部分，包含于原行动可用/剩余总量；非PlaySpell为0。钱包实际受限余额仍独立保留，报价不改池，不能为凑总量清零；相同PaymentPlan推导与JSON/混合池回归待实际验证 |
 | S6 有限QA入口 | ③获批独立MatchSession.RestrictedManaScenario partial及两个固定dispatch：restricted-mana-lux-ogs / restricted-mana-lux-sp6；9个真实factory对象，固定普通1/受限0，显式保留RuleInputs=current.RuleInputs并设置敌方战场controller。空房两席→真实日志化DEV seed；不接受任意card/余额，不改权限。恢复只读核对后独立finish/verify final，③已交e729→84e9→ba57→79da；ba57单次185方法657/657及原657名称多重集已核，原102/111等失败保留；实际PG/API重启/tamper及组合check/full仍待①，当前候选不接 |
 | C7 OGN104关联指示 | 核心359.3.e.14.a/b与CN31322：合法目标的RETURN被+3替换，独立“其拥有者召一枚休眠符文”仍执行一次；不产生返回事件或返回触发。忽略的失效目标/反制不执行关联后续。②沿原单RuneCallCountAfterTargetReturn字段实现，④补真实单RuneDeck与触发负控；既有OGN172的12/12不覆盖此路径，实际回归待交 |
+| C7 连续选择时间 | 真实Echo第二次回答暴露原completion tick推演不足；仅私有C7凭据沿原指令state.Tick+1固定，命令tick照常递增。ValidRuleChoice恢复为原new(p.Origin,p.Answers)，无全局completion clock覆盖；原红保留，完整回归待②交付 |
+| C7 消费者隐私守卫 | ④拥有测试源码；按JSON对象属性名递归精确匹配chosenActionReplacement，数组递归，普通sourcePath字符串不算字段。①核b98b811b补丁与实际旧泄露/普通字符串/嵌套属性4个对照；保持66身份及全部语义/回合末/回放断言，真实私有字段仍禁止 |
+| C7 公开EffectId | 真实OGN051入场技能→Reaction OGN104来源回手→替换+3→Mighty，公开ledger/timing的EffectId仍嵌入私有来源ID。②只改新EffectId为原指令AppliedTick/occurrence/目标ID/代际/AppliedOrder；同目标ledger原max+1保持唯一与溢出守卫。原StackId/controller/source/card仍全在私有witness，严格shape/hash/出生重放不变；两原红及Echo/伪造回归待交 |
+| S7 移动强加费用 | ③：StandardMovement及MoveFieldUnitsToChosenLocation按真实同时移动组、当时有效AttachedRuleText实例计费；内部IMPOSED_MOVEMENT_POWER_PAYMENT复用RuleChoice与PaymentPlan.Other，无新DTO。效果执行者item.ControllerId付款；效果可拒绝，已确认资源与先前出牌费保留，整组不移动/不付强加费，独立指示继续。资源后重验代际/合法性，before-movement facts/observers门禁，传递live RunePools并沿既有结果返回；单个/逐次/基地移动无费。SelectedBattlefield只加movement调用pools参数，保留S5/C7方法边界；需扩大caller后续语义则再交精确冲突 |
+| N9 强化源投影 | ④：真实强化入栈后OGN104回手，旧source gen1与HAND gen2不能公开关联；仅BuildStackItemSnapshotView的sourceId和CapturedBattleSourceIsPrivate(StackItemState)两predicate加EmpowerActivation非空，复用现有可见性。卡面/effect仍公开，owner合法手牌可见，opp/spectator隐藏；不改context/代际/原日志/隐藏守卫/C7Mighty。三原红、边界及恢复伪造拒绝待交 |
 
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 
