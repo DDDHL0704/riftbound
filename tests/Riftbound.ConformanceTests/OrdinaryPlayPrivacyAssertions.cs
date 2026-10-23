@@ -47,7 +47,9 @@ internal static class OrdinaryPlayPrivacyAssertions
             var ordered = target.UntilEndOfTurnPowerModifiers.OrderBy(m => m.AppliedOrder).ToArray();
             Assert.Equal(Enumerable.Range(1, ordered.Length), ordered.Select(m => m.AppliedOrder!.Value));
             Assert.Equal(target.UntilEndOfTurnPowerModifier, ordered.Sum(m => m.PowerDelta));
-            Assert.Equal(ordered[^1].ResultingPower, target.Power);
+            // The ledger records each application, not the target's later
+            // current base. Boon and other permanent changes can occur between
+            // applications; validate each historical snapshot with its own base.
             Assert.Equal(modifier.BasePower + ordered.Where(m => m.AppliedOrder <= modifier.AppliedOrder).Sum(m => m.PowerDelta), modifier.EffectivePower);
             Assert.Equal(modifier.EffectivePower, modifier.ResultingPower);
             var play = Assert.Single(state.CardPlays.Resolved, p => p.Source.ObjectId == sourceId && p.CardNo == no
