@@ -5265,6 +5265,40 @@ public sealed partial class GameHubJoinTests
         Assert.DoesNotContain("cleanup:unattached-equipment", p1Prompt.Reason, StringComparison.Ordinal);
     }
 
+    // CN204.3.a: the original typed-payment hub scenarios now declare the
+    // spell first, then use the real server decision and prompt stamp to pay.
+    private static async Task<RecordingHubClients> ResolveBulletInstructionThroughHub(string roomId,
+        InMemoryMatchSessionRegistry registry, string choice)
+    {
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        for (var index = 0; index < 2; index++)
+        {
+            var actor = Assert.IsType<string>(session.SnapshotFor("P1").Timing["priorityPlayerId"]);
+            var passClients = new RecordingHubClients();
+            await CreateHub(passClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2",
+                registry, authenticatedHandle: actor).SubmitIntent(roomId, actor, "instruction-pass-" + index,
+                JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.PassPriority }));
+            Assert.Empty(passClients.CallerClient.Errors);
+        }
+        var prompt = session.PromptFor("P1");
+        var candidate = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.PayCost);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var options = candidate.SelectionSteps!.SelectMany(step => step.Choices ?? []).Select(c => c.Id).ToArray();
+        Assert.Contains(choice, options);
+        Assert.Contains("SPEND_POWER:0", options);
+        var clients = new RecordingHubClients();
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
+            .SubmitIntent(roomId, "P1", "instruction-final-payment", JsonSerializer.SerializeToElement(new {
+                cmdType = CommandTypes.PayCost, paymentId = metadata["paymentId"], paymentWindow = metadata["paymentWindow"],
+                paymentChoiceIds = new[] { choice }, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+        Assert.Empty(clients.CallerClient.Errors);
+        var paid = Assert.Single(EventsFor(clients), e => e.Kind == "COST_PAID");
+        Assert.Equal("INSTRUCTION_POWER_PAYMENT", paid.Payload["paymentWindow"]);
+        Assert.Equal(2, paid.Payload["power"]);
+        Assert.Equal(new[] { choice }, Assert.IsType<string[]>(paid.Payload["paymentChoiceIds"]));
+        return clients;
+    }
+
     [Fact]
     public async Task P79TypedPowerPaymentSeedOffersAmountChoicesAndPlaysThroughHub()
     {
@@ -5295,8 +5329,8 @@ public sealed partial class GameHubJoinTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
 
         var playClients = new RecordingHubClients();
         await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
@@ -5306,7 +5340,7 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { "SPEND_POWER:red:2" }
+                optionalCosts = Array.Empty<string>()
             }));
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -5314,13 +5348,16 @@ public sealed partial class GameHubJoinTests
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal("PLAY_CARD", Assert.IsType<string>(costEvent.Payload["paymentWindow"]));
         Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
-        Assert.Equal(2, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["power"]);
         Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["remainingPower"]));
         var remainingPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["remainingPowerByTrait"]);
-        Assert.DoesNotContain(RuneTrait.Red, remainingPowerByTrait.Keys);
-        var snapshot = SnapshotFor(playClients, "P1");
-        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        Assert.Equal(2, remainingPowerByTrait[RuneTrait.Red]);
+        var paymentClients = await ResolveBulletInstructionThroughHub(roomId, registry, "SPEND_POWER:red:2");
+        var snapshot = SnapshotFor(paymentClients, "P1");
+        Assert.Empty(snapshot.Stack);
+        Assert.Contains(EventsFor(paymentClients), e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-SPELL-BULLET-TIME")
+            && Equals(e.Payload.GetValueOrDefault("damage"), 2));
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var runePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
         Assert.Equal(0, Assert.IsType<int>(runePool["power"]));
@@ -5361,7 +5398,7 @@ public sealed partial class GameHubJoinTests
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
               "targetObjectIds": ["N54-SELECTED-FIELD"],
-              "optionalCosts": ["SPEND_POWER:red:2"]
+              "optionalCosts": []
             }
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
@@ -5461,7 +5498,7 @@ public sealed partial class GameHubJoinTests
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
               "targetObjectIds": ["N54-SELECTED-FIELD"],
-              "optionalCosts": ["SPEND_POWER:red:2"]
+              "optionalCosts": []
             }
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
@@ -5476,13 +5513,13 @@ public sealed partial class GameHubJoinTests
         var acceptedCostEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal("PLAY_CARD", Assert.IsType<string>(acceptedCostEvent.Payload["paymentWindow"]));
         Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(acceptedCostEvent.Payload["paymentId"]), StringComparison.Ordinal);
-        Assert.Equal(2, acceptedCostEvent.Payload["power"]);
+        Assert.Equal(0, acceptedCostEvent.Payload["power"]);
         var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
         var acceptedStackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(acceptedSnapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(acceptedStackItem["damageAmount"]));
+        Assert.Equal(0, Assert.IsType<int>(acceptedStackItem["damageAmount"]));
         var acceptedP1 = PlayerView(acceptedSnapshot, "P1");
         var acceptedRunePool = Assert.IsType<Dictionary<string, object?>>(acceptedP1["runePool"]);
-        Assert.Equal(0, Assert.IsType<int>(acceptedRunePool["power"]));
+        Assert.Equal(2, Assert.IsType<int>(acceptedRunePool["power"]));
         var acceptedSnapshotPlayers = acceptedClients.GroupClient.Snapshots
             .Select(message => message.PlayerId)
             .OrderBy(playerId => playerId, StringComparer.Ordinal)
@@ -5510,7 +5547,7 @@ public sealed partial class GameHubJoinTests
         Assert.Equal("OGN·268/298", rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal([SelectedBattlefieldFixture.Field], rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(x => x.GetString()!).ToArray());
         Assert.Equal(
-            ["SPEND_POWER:red:2"],
+            Array.Empty<string>(),
             rawCommand.GetProperty("optionalCosts")
                 .EnumerateArray()
                 .Select(choice => Assert.IsType<string>(choice.GetString()))
@@ -5580,7 +5617,7 @@ public sealed partial class GameHubJoinTests
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
               "targetObjectIds": ["N54-SELECTED-FIELD"],
-              "optionalCosts": ["SPEND_POWER:red:2"],
+              "optionalCosts": [],
               "clientNote": "changed"
             }
             """).RootElement.Clone();
@@ -5615,7 +5652,7 @@ public sealed partial class GameHubJoinTests
         Assert.Single(currentSnapshot.Stack);
         var currentP1 = PlayerView(currentSnapshot, "P1");
         var currentRunePool = Assert.IsType<Dictionary<string, object?>>(currentP1["runePool"]);
-        Assert.Equal(0, Assert.IsType<int>(currentRunePool["power"]));
+        Assert.Equal(2, Assert.IsType<int>(currentRunePool["power"]));
     }
 
     [Fact]
@@ -5650,7 +5687,7 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { "SPEND_POWER:red:2" },
+                optionalCosts = Array.Empty<string>(),
                 promptId = prompt.PromptId,
                 snapshotTick = prompt.SnapshotTick
             }));
@@ -5950,7 +5987,7 @@ public sealed partial class GameHubJoinTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
@@ -5967,18 +6004,21 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { paymentResourceAction, "SPEND_POWER:red:2" }
+                optionalCosts = new[] { paymentResourceAction }
             }));
 
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(2, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["power"]);
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        var snapshot = SnapshotFor(playClients, "P1");
-        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        var paymentClients = await ResolveBulletInstructionThroughHub(roomId, registry, "SPEND_POWER:red:2");
+        var snapshot = SnapshotFor(paymentClients, "P1");
+        Assert.Empty(snapshot.Stack);
+        Assert.Contains(EventsFor(paymentClients), e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-SPELL-BULLET-TIME")
+            && Equals(e.Payload.GetValueOrDefault("damage"), 2));
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.DoesNotContain(paymentRuneObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
@@ -6022,7 +6062,7 @@ public sealed partial class GameHubJoinTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, firstPaymentResourceAction, StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, secondPaymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
@@ -6045,20 +6085,23 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2" }
+                optionalCosts = new[] { firstPaymentResourceAction, secondPaymentResourceAction }
             }));
 
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
         Assert.Equal(2, playEvents.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)));
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(2, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["power"]);
         Assert.Equal(
             [firstPaymentResourceAction, secondPaymentResourceAction],
             Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        var snapshot = SnapshotFor(playClients, "P1");
-        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        var paymentClients = await ResolveBulletInstructionThroughHub(roomId, registry, "SPEND_POWER:red:2");
+        var snapshot = SnapshotFor(paymentClients, "P1");
+        Assert.Empty(snapshot.Stack);
+        Assert.Contains(EventsFor(paymentClients), e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-SPELL-BULLET-TIME")
+            && Equals(e.Payload.GetValueOrDefault("damage"), 2));
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
@@ -6123,7 +6166,7 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(rejectedClients.CallerClient.Errors);
         var errorPayload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.InsufficientCost, errorPayload.Code);
+        Assert.Equal(ErrorCodes.InvalidTarget, errorPayload.Code);
 
         var playClients = new RecordingHubClients();
         await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
@@ -6133,16 +6176,19 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { redPaymentResourceAction, "SPEND_POWER:red:2" }
+                optionalCosts = new[] { redPaymentResourceAction }
             }));
 
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal([redPaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        var snapshot = SnapshotFor(playClients, "P1");
-        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        var paymentClients = await ResolveBulletInstructionThroughHub(roomId, registry, "SPEND_POWER:red:2");
+        var snapshot = SnapshotFor(paymentClients, "P1");
+        Assert.Empty(snapshot.Stack);
+        Assert.Contains(EventsFor(paymentClients), e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-SPELL-BULLET-TIME")
+            && Equals(e.Payload.GetValueOrDefault("damage"), 2));
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         var baseZone = Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]);
@@ -6188,7 +6234,7 @@ public sealed partial class GameHubJoinTests
                 sourceRequirement["optionalCostChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Contains("SPEND_POWER:2", optionalCostChoices);
+        Assert.DoesNotContain("SPEND_POWER:2", optionalCostChoices);
         Assert.Contains(redPaymentResourceAction, optionalCostChoices);
         Assert.Contains(bluePaymentResourceAction, optionalCostChoices);
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePower"]));
@@ -6206,18 +6252,21 @@ public sealed partial class GameHubJoinTests
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
                 targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
-                optionalCosts = new[] { bluePaymentResourceAction, "SPEND_POWER:2" }
+                optionalCosts = new[] { bluePaymentResourceAction }
             }));
 
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
         var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(2, costEvent.Payload["power"]);
-        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(0, costEvent.Payload["power"]);
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Equal([bluePaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        var snapshot = SnapshotFor(playClients, "P1");
-        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        var paymentClients = await ResolveBulletInstructionThroughHub(roomId, registry, "SPEND_POWER:2");
+        var snapshot = SnapshotFor(paymentClients, "P1");
+        Assert.Empty(snapshot.Stack);
+        Assert.Contains(EventsFor(paymentClients), e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-SPELL-BULLET-TIME")
+            && Equals(e.Payload.GetValueOrDefault("damage"), 2));
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         var baseZone = Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]);

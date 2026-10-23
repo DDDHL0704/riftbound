@@ -28,7 +28,7 @@ public sealed partial class CoreRuleEngine
 
     private static void ResolveSelectedBattlefieldEffect(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        Dictionary<string, ObjectLocationState> locations, CardBehaviorDefinition behavior,
+        Dictionary<string, ObjectLocationState> locations, Dictionary<string, RunePool> pools, CardBehaviorDefinition behavior,
         StackItemState item, List<GameEvent> events, ISet<string> damageTriggeredDestroyTargets,
         bool preventDamage)
     {
@@ -50,6 +50,9 @@ public sealed partial class CoreRuleEngine
 
         for (var repeat = 0; repeat < item.EffectRepeatCount; repeat++)
         {
+            var instructionItem = behavior.DamageAmountFromOptionalPowerCost
+                ? item with { DamageAmount = ChooseInstructionPowerPayment(current, item, zones, cards, pools, events) }
+                : item;
             if (spec.MoveOptionalEnemy && item.TargetObjectIds.Count > 1
                 && !string.IsNullOrWhiteSpace(item.TargetObjectIds[1]))
                 MoveFieldUnitsToChosenLocation(current, zones, cards, locations, item,
@@ -70,7 +73,7 @@ public sealed partial class CoreRuleEngine
                         ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, fromUnit)
                         : spec.PrimaryEnemyTargetIndex is { } primaryIndex && id != item.TargetObjectIds[primaryIndex]
                             ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, behavior.OtherEnemyBattlefieldUnitsDamageAmount)
-                            : ResolveDamageAmount(instructionState, item, behavior, id);
+                            : ResolveDamageAmount(instructionState, instructionItem, behavior, id);
                     var damage = ApplyDamageToCardObject(cards, item.ControllerId, id,
                         amount, damageTriggeredDestroyTargets,
                         preventDamage, PreventSpellAndSkillDamageThisTurnEffectId);

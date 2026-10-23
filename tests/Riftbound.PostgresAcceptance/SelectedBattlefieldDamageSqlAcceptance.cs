@@ -44,7 +44,7 @@ internal static class SelectedBattlefieldDamageSqlAcceptance
             var card = branch == "bullet" ? "OGN·268/298" : branch == "drop" ? "OGN·250/298" : "UNL-072/219";
             string[] Targets(string field) => branch == "drop" ? ["P1-BASE", field]
                 : branch == "crescent" ? [field, field == "A" ? "P2-A1" : "P2-B"] : [field];
-            var play = new PlayCardCommand("SPELL", card, Targets("A"), OptionalCosts: branch == "bullet" && !zero ? ["SPEND_POWER:3"] : null);
+            var play = new PlayCardCommand("SPELL", card, Targets("A"));
             await Submit("alice", play, duplicate: true);
             var original = state.StackItems.Single();
             Check(original.TargetObjectIds.SequenceEqual(Targets("A")), "Persist the actual field choice in its ordered target slots.");
@@ -100,7 +100,13 @@ internal static class SelectedBattlefieldDamageSqlAcceptance
             async Task Resolve(string id)
             {
                 for (var i = 0; state.StackItems.Any(s => s.StackItemId == id); i++)
-                { Check(i < 4, "A response or spell must finish in the bounded position."); await Submit(state.PriorityPlayerId!, new PassPriorityCommand()); }
+                {
+                    Check(i < 4, "A response or spell must finish in the bounded position.");
+                    if (state.PendingRuleChoice is { Request.Kind: "INSTRUCTION_POWER_PAYMENT" } payment)
+                        await Submit(payment.Request.PlayerId, new PayCostCommand(payment.Request.Id, "RULE_REPLACEMENT",
+                            [zero ? "SPEND_POWER:0" : "SPEND_POWER:3"]), duplicate: true);
+                    else await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+                }
             }
             async Task Submit(string actor, GameCommand command, bool duplicate = false)
             {
