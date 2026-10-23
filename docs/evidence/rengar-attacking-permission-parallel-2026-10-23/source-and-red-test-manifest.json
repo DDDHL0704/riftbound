@@ -1,0 +1,1349 @@
+{
+  "status": "SOURCE_RED_SFD_RENGAR_ATTACKING_DESTINATION_PERMISSION_UNWIRED",
+  "atUtc": "2026-10-23T07:44:48.260306+00:00",
+  "baseCommit": "1fe687a1070fe4fd42f18bd4a0f8f000566dd0b6",
+  "region": "CN",
+  "language": "zh-CN",
+  "coreEffectiveDate": "2026-10-16",
+  "peerOverlay": {
+    "atUtc": "2026-10-23T06:53:49.777592+00:00",
+    "savedBranchHead": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battle-result-continuation-n52-20261023/peer-fixed-n52-first45-v1.tar.gz",
+    "overlaySha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a",
+    "inputRole": "N51 source plus first N52 shared continuation that passed45; not committed or whole verified",
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": null,
+        "afterSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+        "afterSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": null,
+        "afterSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "beforeSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+        "afterSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+        "afterSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "2c1990334f99623ba77e5d550e419eacdcfa14fe916039efd40fde30df99193b",
+        "afterSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+        "afterSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "beforeSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+        "afterSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs",
+        "beforeSha256": "5ee6afb3db023b596d89cd364e704adf4aa790346083c4a5ff2c9719155accda",
+        "afterSha256": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+        "beforeSha256": "5a0ad23725ec41fae7b9ce976cf0945c49224e9267b7fdb5615affae9891c777",
+        "afterSha256": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+        "beforeSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+        "afterSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "beforeSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+        "afterSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "beforeSha256": "b097335f2d2b8f2ad8571ac87cd9e52bffecc6e22aca7f2cc52f4e250c3247e3",
+        "afterSha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "beforeSha256": "c9bd1ff9520c659da32c5bfc7acdf0257578339ca9e6be47fe874a2f563a01ba",
+        "afterSha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+        "beforeSha256": null,
+        "afterSha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712"
+      }
+    ],
+    "sharedFilesRemainUnstagedAndMustNotBeCommittedByThisChat": true,
+    "ownDravenScorePreparationRetained": true
+  },
+  "all19SharedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "aa6e7697f114f2c5af3487e250b07a2b97d9064786568479803326a658c77459",
+    "identitySha256": "a05195ca5b91bb5a06fd8c144c5001f68050a45812761a3a4644b36630b6f4d1"
+  },
+  "testAssemblySha256": "e8095c79e5fa60331cab8a46ca390161fabd5cd27d511e5759c1b1db1959a34c",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/RengarAttackingBattlefieldPermissionTests.cs",
+    "sha256": "964fe95f26fa391a66fcf85e3797525966865e0a870e9371fce97f4b5b4bb809"
+  },
+  "consumer": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.RengarAttackingPermission.cs",
+    "sha256": "53dfd04d77d5699909a8f0e9755ceb42ff6131806b96470985c6f40edf58fa99",
+    "sharedCallSites": 0
+  },
+  "originalRuns": {
+    "focus-v1": {
+      "sha256": "c753dfe536f9c5c0933efadf9d979508cd186d8b82e8537c2a30fe16e4b281a3",
+      "counters": {
+        "total": "11",
+        "executed": "11",
+        "passed": "4",
+        "failed": "7",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025/221\", scenario: \"result\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.ReactionAttackerAfterTheResultLosesItsRoleWhenNoFurtherBattleIsDue",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025/221\", scenario: \"result-source-returned\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025a/221·P\", scenario: \"result-source-returned\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025/221\", scenario: \"controlled-defender\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025a/221·P\", scenario: \"battle-focus\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025a/221·P\", scenario: \"result\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025/221\", scenario: \"other-field\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025a/221·P\", scenario: \"other-field\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025a/221·P\", scenario: \"controlled-defender\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField(cardNo: \"SFD·025/221\", scenario: \"battle-focus\")",
+          "method": "Riftbound.ConformanceTests.RengarAttackingBattlefieldPermissionTests.PrintedAttackPermissionUsesThePlayersCurrentBattleRoleAndPreciseField",
+          "outcome": "Failed",
+          "failure": "所选入场位置没有当前有效的出牌权限。"
+        }
+      ]
+    },
+    "adjacent-v1": {
+      "sha256": "61352e1a881a353660713617bb91b1823586c04cd36abbf8cd6b11f3d9589cf6",
+      "counters": {
+        "total": "70",
+        "executed": "70",
+        "passed": "70",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MaraiEchoDiscountFollowsConquerorNotPhysicalOwner(player: \"P2\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MaraiEchoDiscountFollowsConquerorNotPhysicalOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-143a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner(player: \"P2\", destination: \"HILL\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"base\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: False, mode: \"\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere(player: \"P1\", origin: \"OTHER\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-120a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: True, mode: \"\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere(player: \"P2\", origin: \"OTHER\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation(player: \"P1\", origin: \"OTHER\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-176/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled(controller: \"P1\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-071/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.APrintedFourUnitEnteringTheBarracksUsesItsCurrentMightAndEnteredGeneration",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.APrintedFourUnitEnteringTheBarracksUsesItsCurrentMightAndEnteredGeneration",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.ARequiredTraitSacrificeUsesTheSharedCostFlowWhileAnotherUnitPreservesAmbush",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.ARequiredTraitSacrificeUsesTheSharedCostFlowWhileAnotherUnitPreservesAmbush",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere(player: \"P2\", origin: \"HILL\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner(player: \"P1\", destination: \"HILL\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-021/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere(player: \"P2\", origin: \"HILL\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"wrong-priority\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-060a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: \"UNL-120a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.PayingTheLastFriendlyBattlefieldUnitCannotRetainAmbushReactionPermission",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.PayingTheLastFriendlyBattlefieldUnitCannotRetainAmbushReactionPermission",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-178/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled(controller: null)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-060/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField(missing: \"experience\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere(player: \"P1\", origin: \"HILL\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner(targetController: \"P1\", origin: \"HILL\", damage: 4)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: True, mode: \"AMBUSH\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere(player: \"P1\", origin: \"HILL\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner(targetController: \"P2\", origin: \"HILL\", damage: 4)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled(controller: \"P2\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HighroadWinningThresholdIsGlobalEvenWhenUncontrolled",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-002/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation(player: \"P1\", origin: \"HILL\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.ForgeDiscountFollowsConquerorNotPhysicalOwner(player: \"P2\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.ForgeDiscountFollowsConquerorNotPhysicalOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField(missing: \"mana\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner(targetController: \"P2\", origin: \"OTHER\", damage: 3)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-149a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.ANewAttackerAppliesPrintedAssaultAndRetainsItsEnteredGeneration",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.ANewAttackerAppliesPrintedAssaultAndRetainsItsEnteredGeneration",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HiddenOrRemovedBattlefieldDoesNotGrantRoam(hidden: False, removed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HiddenOrRemovedBattlefieldDoesNotGrantRoam",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere(player: \"P2\", origin: \"OTHER\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VilemawRestrictsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation(player: \"P2\", origin: \"OTHER\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-149/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.ThePromptOffersOnlyLocationsWithCurrentReactionPermission",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.ThePromptOffersOnlyLocationsWithCurrentReactionPermission",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-114/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"hidden\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner(player: \"P2\", destination: \"OTHER\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.ANewDefenderGetsItsRoleFromTheExistingBattle",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.ANewDefenderGetsItsRoleFromTheExistingBattle",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.RoamingUnitKeepsEquipmentAtTheSameDestination",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.RoamingUnitKeepsEquipmentAtTheSameDestination",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-012/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner(targetController: \"P1\", origin: \"OTHER\", damage: 3)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.VoidGateDamageBonusUsesTargetLocationNotOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: False, mode: \"\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-178a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.ForgeDiscountFollowsConquerorNotPhysicalOwner(player: \"P1\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.ForgeDiscountFollowsConquerorNotPhysicalOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-176a/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: \"UNL-120/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: True, mode: \"AMBUSH\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HiddenOrRemovedBattlefieldDoesNotGrantRoam(hidden: True, removed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.HiddenOrRemovedBattlefieldDoesNotGrantRoam",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"empty\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation(player: \"P2\", origin: \"HILL\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MutationGardenGrantsAbilityOnlyAtItsLocation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-143/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"unknown-field\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField(missing: \"yellow\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.MissingSharedResourcesNeverCommitOrEnterTheField",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment(invalid: \"non-unit\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.InvalidReactionDestinationsOrActorsAreRejectedWithoutPayment",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MaraiEchoDiscountFollowsConquerorNotPhysicalOwner(player: \"P1\")",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.MaraiEchoDiscountFollowsConquerorNotPhysicalOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: True, mode: \"\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere(player: \"P1\", origin: \"OTHER\", allowed: False)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.WindHillGrantsBothPlayersOnlyUnitsActuallyHere",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner(player: \"P1\", destination: \"OTHER\", allowed: True)",
+          "method": "Riftbound.ConformanceTests.BattlefieldLocalPermissionTests.FallingRocksBlocksOnlyItsOwnDestinationRegardlessOfOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses(card: \"UNL-120/219\")",
+          "method": "Riftbound.ConformanceTests.AmbushPermissionTests.EachRegisteredPrintedUnitCanEnterTheSelectedOccupiedFieldDuringResponses",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  },
+  "finalOriginalHistories": [
+    {
+      "caseId": "SFD-025-221-battle-focus",
+      "scenario": "battle-focus",
+      "commands": 2,
+      "accepted": 1,
+      "events": 4,
+      "originalPrefixReplays": 2,
+      "sha256": "0a00e46b2ddddcabe50a43d9b001cdc8afea4ece2c4d8600291765cfb8e2192b",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "SFD-025-221-controlled-defender",
+      "scenario": "controlled-defender",
+      "commands": 6,
+      "accepted": 6,
+      "events": 21,
+      "originalPrefixReplays": 6,
+      "sha256": "036b37cf325a11e118c0b775fa4c2ccd85e3f48a7f2cda625c73e2318a5b53f0",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-025-221-other-field",
+      "scenario": "other-field",
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "a536e2779c1d1e9cdc1d188ab63598a9ad380d0fbd2e3a810c381043b4e659c1",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-025-221-result-source-returned",
+      "scenario": "result-source-returned",
+      "commands": 8,
+      "accepted": 7,
+      "events": 23,
+      "originalPrefixReplays": 8,
+      "sha256": "19590d479569b085b5acc30c486eb203bae451a08da55958273675fe1de8d7cb",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "SFD-025-221-result",
+      "scenario": "result",
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "dc29687ac0402addb84dadda913e228a4575ca8d218079f774b21a780bc00aeb",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "SFD-025a-221-P-battle-focus",
+      "scenario": "battle-focus",
+      "commands": 2,
+      "accepted": 1,
+      "events": 4,
+      "originalPrefixReplays": 2,
+      "sha256": "a19068878c2e12462734505aa3004c15ae670a7669ad710eed880b301b26ceef",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "SFD-025a-221-P-controlled-defender",
+      "scenario": "controlled-defender",
+      "commands": 6,
+      "accepted": 6,
+      "events": 21,
+      "originalPrefixReplays": 6,
+      "sha256": "5de9a8c8f72b63f2b162fa09693a5877756a35a9cbe5dde443203c9d0f948e90",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-025a-221-P-other-field",
+      "scenario": "other-field",
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "ced4e6fdf1700c739b9f4ad4e26c11df9078ef06653503cd11408d155918f008",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-025a-221-P-result-source-returned",
+      "scenario": "result-source-returned",
+      "commands": 8,
+      "accepted": 7,
+      "events": 23,
+      "originalPrefixReplays": 8,
+      "sha256": "b0355ec3d4bd2f5f2333d1bcce8d0ded4b0e96be7d4b6c7ffe8ccaea10be0a87",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "SFD-025a-221-P-result",
+      "scenario": "result",
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "c5f8cf965858a4398c915a01b7b9f3515243babfd4f1214607b9b8f739de83f6",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    },
+    {
+      "caseId": "UNL-114-219-ATTACKER",
+      "scenario": "original-late-attacker",
+      "commands": 5,
+      "accepted": 4,
+      "events": 15,
+      "originalPrefixReplays": 5,
+      "sha256": "85236570ec71ac280e0753724b5441abc4a11277201dd0fd19842e0ed0a04638",
+      "failure": "TrueException: 所选入场位置没有当前有效的出牌权限。"
+    }
+  ],
+  "cases": 11,
+  "methods": 2,
+  "passed": 4,
+  "sourceFailures": 7,
+  "originalCommands": 57,
+  "accepted": 48,
+  "rejected": 9,
+  "originalPrefixReplays": 57,
+  "originalEvents": 171,
+  "adjacentPassed": 70,
+  "adjacentMethods": 21,
+  "seed": 424242,
+  "freshCompleteSourceRows": [
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34653,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-114/219",
+      "cardName": "奈德丽",
+      "subTitle": "灵猫形态",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "奈德丽",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "Envar Studio",
+      "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当我赢得一场战斗时，抽一张牌。（如果我在战斗后仍然存活，则我赢得胜利。）",
+      "flavorText": "“喵！咳咳……当我没说。”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/a01c1b3bb99e451587388a43bdc6a60c.webp",
+      "backImage": "",
+      "listSort": 1371,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31322,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·104/298",
+      "cardName": "择日再战",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+      "flavorText": "明天又不会世界末日。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/e0e342a822854504bf9096e88b214830.png",
+      "backImage": "",
+      "listSort": 383,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31405,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·175/298",
+      "cardName": "船坞潜伏者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+      "backImage": "",
+      "listSort": 300,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31542,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·296/298",
+      "cardName": "虚空之门",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+      "backImage": "",
+      "listSort": 163,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "otherDesc": 0
+    },
+    {
+      "id": 33098,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·025/221",
+      "cardName": "雷恩加尔",
+      "subTitle": "暴起",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "雷恩加尔",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "League Splash Team",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算，并能打出到你控制的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）\n我可以被打出到你正在进攻的战场。",
+      "flavorText": "“今晚，猎个痛快！”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/00a70467a62149d0bea90dd62c7813ec.png",
+      "backImage": "",
+      "listSort": 975,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34820,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·025a/221·P",
+      "cardName": "雷恩加尔",
+      "subTitle": "暴起",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "雷恩加尔",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "League Splash Team",
+      "cardEffect": "{{反应}}\n{{强攻2}}\n我可以被打出到你正在进攻的战场。",
+      "flavorText": "猫？狗？肉齿兽！真棒！",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [],
+      "productNameList": [],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260418/b35d5ee7c3c54ef284e62b570867df72.png",
+      "backImage": "",
+      "listSort": 688,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "priorLateAttackerFailurePreserved": "docs/evidence/battle-win-late-participant-parallel-2026-10-23/source-and-red-test-manifest.json",
+  "testHelperDependencyCommit": "1fe687a1070fe4fd42f18bd4a0f8f000566dd0b6",
+  "scope": "Hand-play location permissions only; no effect-play certification or post-entry role cleanup pass claimed.",
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "fullGameAcceptanceDeferredUntilIntegration": true,
+  "allEarlierSourcesTestsSeedsAndFailuresPreserved": true,
+  "backendGoalComplete": false,
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "archive": {
+    "path": "docs/evidence/rengar-attacking-permission-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "afc3a3834b78c5da2f000bfe16114c39d70486bd20594bca05489eae20faf1cc",
+    "members": [
+      {
+        "path": "docs/RENGAR_ATTACKING_PERMISSION_PARALLEL_2026-10-23.md",
+        "bytes": 3263,
+        "sha256": "6b2f03d69ab186c196f0fb2176b3483f736ed47b96f7181acec9b82d8d459f97"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.RengarAttackingPermission.cs",
+        "bytes": 1317,
+        "sha256": "53dfd04d77d5699909a8f0e9755ceb42ff6131806b96470985c6f40edf58fa99"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BattleWinLateParticipantTests.cs",
+        "bytes": 10069,
+        "sha256": "f6f04be4f1d828bcfe1343677e3a9c08d1ead92414010dbb088d8d9a05079bdb"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/RengarAttackingBattlefieldPermissionTests.cs",
+        "bytes": 9244,
+        "sha256": "964fe95f26fa391a66fcf85e3797525966865e0a870e9371fce97f4b5b4bb809"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/build.log",
+        "bytes": 78,
+        "sha256": "4cba32e4407fb3bd800cd2a13a85c1eef4303fd4d0e7af4df24697b66c3a570d"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/discovery.log",
+        "bytes": 2087258,
+        "sha256": "787d764dc8e732eaa9a27a407c31c552514df476ebfe40d33d475e9aade3a2ed"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/focus/results.trx",
+        "bytes": 115442,
+        "sha256": "61352e1a881a353660713617bb91b1823586c04cd36abbf8cd6b11f3d9589cf6"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/focus/test.log",
+        "bytes": 574,
+        "sha256": "76c9a7795b45b8fa195aee04134f45405f98f13e25d0220ae1c89620d21d6196"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/plan.json",
+        "bytes": 3109,
+        "sha256": "48d9c54e626bc096624203b34bd5625e4e5e3d1072fe2433ba3c168f496b45d8"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/adjacent-v1/summary.json",
+        "bytes": 273,
+        "sha256": "a06cd14e9bce4a0440c0b2e3aae1da5b6db87b6d92d25b62aa8d993de6665467"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/core-clauses-v1.json",
+        "bytes": 16542,
+        "sha256": "2eaaece16afcddcba23614d6cca48a931b8115daa7fab550b56e92c752fd4aae"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "abc51fe0100f87d5b58089120cfa6d9b2130ab51a4b7b13a8c29a203540a8b9c"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/consumer-source.cs",
+        "bytes": 1317,
+        "sha256": "53dfd04d77d5699909a8f0e9755ceb42ff6131806b96470985c6f40edf58fa99"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/discovery.log",
+        "bytes": 2087258,
+        "sha256": "787d764dc8e732eaa9a27a407c31c552514df476ebfe40d33d475e9aade3a2ed"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/focus/results.trx",
+        "bytes": 42912,
+        "sha256": "c753dfe536f9c5c0933efadf9d979508cd186d8b82e8537c2a30fe16e4b281a3"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/focus/test.log",
+        "bytes": 2104,
+        "sha256": "f32a12b2e5ca9078902b1314cd7d7cde6f202b1a735e77dc0b8b7cf2461bc832"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/plan.json",
+        "bytes": 843,
+        "sha256": "2acaa39793ef742c6855a42b3f7e5cdfb106dfc8c9e329e0a930776e169e4c0b"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/focus-v1/test-source.cs",
+        "bytes": 9244,
+        "sha256": "964fe95f26fa391a66fcf85e3797525966865e0a870e9371fce97f4b5b4bb809"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-late-v1/UNL-114-219-ATTACKER.json.gz",
+        "bytes": 39699,
+        "sha256": "85236570ec71ac280e0753724b5441abc4a11277201dd0fd19842e0ed0a04638"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025-221-battle-focus.json.gz",
+        "bytes": 23540,
+        "sha256": "0a00e46b2ddddcabe50a43d9b001cdc8afea4ece2c4d8600291765cfb8e2192b"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025-221-controlled-defender.json.gz",
+        "bytes": 62924,
+        "sha256": "036b37cf325a11e118c0b775fa4c2ccd85e3f48a7f2cda625c73e2318a5b53f0"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025-221-other-field.json.gz",
+        "bytes": 49913,
+        "sha256": "a536e2779c1d1e9cdc1d188ab63598a9ad380d0fbd2e3a810c381043b4e659c1"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025-221-result-source-returned.json.gz",
+        "bytes": 72841,
+        "sha256": "19590d479569b085b5acc30c486eb203bae451a08da55958273675fe1de8d7cb"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025-221-result.json.gz",
+        "bytes": 49833,
+        "sha256": "dc29687ac0402addb84dadda913e228a4575ca8d218079f774b21a780bc00aeb"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025a-221-P-battle-focus.json.gz",
+        "bytes": 23568,
+        "sha256": "a19068878c2e12462734505aa3004c15ae670a7669ad710eed880b301b26ceef"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025a-221-P-controlled-defender.json.gz",
+        "bytes": 63005,
+        "sha256": "5de9a8c8f72b63f2b162fa09693a5877756a35a9cbe5dde443203c9d0f948e90"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025a-221-P-other-field.json.gz",
+        "bytes": 49911,
+        "sha256": "ced4e6fdf1700c739b9f4ad4e26c11df9078ef06653503cd11408d155918f008"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025a-221-P-result-source-returned.json.gz",
+        "bytes": 73010,
+        "sha256": "b0355ec3d4bd2f5f2333d1bcce8d0ded4b0e96be7d4b6c7ffe8ccaea10be0a87"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/original-v1/SFD-025a-221-P-result.json.gz",
+        "bytes": 49833,
+        "sha256": "c5f8cf965858a4398c915a01b7b9f3515243babfd4f1214607b9b8f739de83f6"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/package-proof-v1.py",
+        "bytes": 6393,
+        "sha256": "32f946741a2a53871b68617ba9fe0c69731ddd5970dcf6c757a7eb3d31b59ee5"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/refresh-sources-v1.py",
+        "bytes": 2309,
+        "sha256": "48d41123abd2d36ac72a9b942ac4fa5afb7f887490b579807a1f1012aa802f27"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1188,
+        "sha256": "f71b81d1deeca77b471b0a2d78a651552452503065c5eb45d946ad0c7e9a9a65"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-奈德丽-original-v1.json.gz",
+        "bytes": 1348,
+        "sha256": "78b87673d4ae824bde9361dacff4ba4ed96d07d3f780b70909b4ef9e6ce40fdc"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-择日再战-original-v1.json.gz",
+        "bytes": 1291,
+        "sha256": "c48dd86718174fb187ccd28950db01ec6f10ed5d57ab4294edf4da09e3faa94c"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1200,
+        "sha256": "07976377b54c45065cc235ef38c577eaf87279322975f0a7ef4c7e779b9a840d"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1291,
+        "sha256": "8390fe2a2c2c6b7f0e5a93fd7364a6aa4149e19c4f717fcc2bbb8761b3bcb92d"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/current-雷恩加尔-original-v1.json.gz",
+        "bytes": 2855,
+        "sha256": "ab1e2d5ed3f0c71ad8e9fa867ee1b8757eb92f39312d6cc28a66ead996b747ad"
+      },
+      {
+        "path": "var/qa/rengar-attacking-permission-20261023/sources-v1/extra-rows.json",
+        "bytes": 9080,
+        "sha256": "c4b2f9cfe834a8bdd4e006684333af1a270c1f38c097434b30e632724401e6ce"
+      }
+    ]
+  }
+}
