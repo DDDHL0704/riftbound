@@ -4,6 +4,8 @@
 
 当前唯一验收候选是A4：`0ec2e692d1f82ff0487e40a79d5e97c0c704eb59` / 不可变tag `backend-related-20261024-a4`，已实际启动[Actions 40031882948](https://github.com/DDDHL0704/riftbound/actions/runs/40031882948)。scope原产物12534897634已核：actual/event/expected SHA相同，tree `222f7a84…`、18553条source index `cd8df164…`与本地封板一致；这是执行身份通过，不是门禁通过。A3原失败及其余有价值作业保留。下一功能批只取[有限B1成员与依赖闭包](parallel/NEXT_FUNCTIONAL_BATCH_B1_2026-10-24.json)：C8/S7/N10/N11/N12/C9/N13；新增C10、容量提示及N14（即使已完整交付）均留更后批，不扩A4或B1。①先完成固定候选调度，后续按有限边界接入，不用持续接口审查替代真实候选验证。
 
+新通用入口阻塞由③修复：N15另发现旧OGN264亦会把原raw `targetObjectIds=["","  "]`经Mapper过滤成合法typed `[]`后接受付款/入栈，而严格恢复拒绝原日志。①用A4等价生产/目录源码独立Mac最小复现：合法`[]`结构检查无误；坏目标正常请求accepted、扣2法力/3事件/1日志；坏目标的stale请求虽PROMPT_EXPIRED/0事件，仍写1条坏raw并同样出现两条恢复结构错误。故须在MatchSession既有prejournal入口检查原raw required-array，Core typed拒绝或放宽恢复均不能修复。显式中盘正控不证明完整出生回放，Mac/MVID不是A4 Linux；原件另存、A4固定输入/原作业不改，独立窄修优先于继续功能接入，B1成员不扩，发布继续禁止。
+
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
 | 当前验收：A3两项失败窄修A4 | 不可变ref `backend-related-20261024-a4`；[封板成员](audit/backend-related-20261024-a4.json) | 功能边界仍93a3b117，Engine/目录与A3逐字相同，1052/3bf8afc4；只纳入scope预算0322857d及S3自洽篡改验收04042a90和必要守卫/元数据。76 SQL/四分区、八组network、full与desktop门禁不减；后续C8/S7/N10–N14/C9/C10/容量提示全部排除。以tag解析完整SHA核对实际checkout，当前尚未有远端通过结果，不复用不同输入的旧绿；A3剩余有价值作业保留 |
