@@ -12838,14 +12838,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         string? resolvedBattleWinnerPlayerId = null;
-        var survivingConquerAttackerObjectIds = attackerObjectIds
-            .Where(attackingObjectId => cardObjects.TryGetValue(attackingObjectId, out var survivingAttackerState)
-                && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && IsObjectOnField(playerZones, attackingObjectId))
-            .ToArray();
-        var attackerConqueredBattlefield = defenderObjectIds.All(defenderObjectId =>
-                lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
-            && survivingConquerAttackerObjectIds.Length > 0;
+        // CN 468.5: control depends on units remaining at the battlefield.
+        // Destruction replacements can remove defenders without a death and
+        // can leave recalled attackers in play at their bases.
+        var survivingConquerAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
+        var attackerConqueredBattlefield = survivingConquerAttackerObjectIds.Length > 0
+            && SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds).Length == 0;
         var huntConquerSources = survivingConquerAttackerObjectIds
             .Select(objectId => new
             {
