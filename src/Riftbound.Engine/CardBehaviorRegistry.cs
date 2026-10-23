@@ -7803,10 +7803,8 @@ public static class CardBehaviorRegistry
             "POWER_PUNCH_OVERWHELM_2_ROAM",
             0,
             1,
-            StatusEffectId: "OVERWHELM_2",
+            StatusEffectId: "COMBAT_KEYWORD:强攻2",
             TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: 2,
-            PowerModifierConditionKind: CardPowerModifierConditionKinds.TargetIsAttacking,
             SecondaryStatusEffectId: "ROAM"),
         new(
             "OGN·057/298",
