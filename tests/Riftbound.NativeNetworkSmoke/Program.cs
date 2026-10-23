@@ -31,6 +31,12 @@ Console.WriteLine("Native snapshot projection passed: own standby, opponent/spec
 var url = Environment.GetEnvironmentVariable("RIFTBOUND_SERVER_URL") ?? "http://127.0.0.1:15089";
 var upstream = new Uri(url);
 if (upstream.Scheme != "http" || !upstream.IsLoopback) throw new InvalidOperationException("This gate requires a local test API.");
+if (args.Length == 2 && args[0] is "--payment-resource-surplus-play" or "--payment-resource-surplus-recover")
+{
+    await PaymentResourceSurplusNetworkAcceptance.RunAsync(url, args[1], args[0] == "--payment-resource-surplus-recover");
+    return;
+}
+if (args.Length != 0) throw new ArgumentException("Unknown native network acceptance selector.");
 using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(60));
 await using var proxy = new DropProxy(upstream, deadline.Token);
 await using var client = new RiftboundGameHubClient(proxy.Url);

@@ -278,6 +278,10 @@
     {
       "id": "draven-battle-death",
       "sourceType": "DravenBattleDeathSqlAcceptance"
+    },
+    {
+      "id": "payment-resource-surplus",
+      "sourceType": "PaymentResourceSurplusSqlAcceptance"
     }
   ]
 }
