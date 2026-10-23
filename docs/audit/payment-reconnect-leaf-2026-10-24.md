@@ -2,10 +2,11 @@
 - 问题：[Issue105](https://github.com/DDDHL0704/riftbound/issues/105)；A2候选`cbcf5c24`、run39998674123/artifact12521512384原S3 trace实际Joined=0、两条INVALID_RECONNECT_TOKEN、failure=null；原ZIP/收据不改，旧PASS不再证明成功Reconnect。
 - 生产来源：GameHub.Reconnect→RotateReconnectTokenAsync；PostgresMatchPlayerStore持久化轮换。生产认证、支付规则、公开阶段、原出生和原命令历史均未修改。
 - Native：每阶段消费真实Joined新token并保存独立sidecar；每身份必须收到唯一、房间/身份匹配且已轮换的Joined，之后才RequestSnapshot。非预期Error立即取消；故意拒绝按recipient/claimedPlayer/code精确配对Error及receipt。
-- SQL：重连五日志/快照/提示表完全不变；本房matches仅updated_at、原两match_players仅tokenhash/updated_at可变；旧/新hash绑定实际输入/Joined返回，更新时间限于实测SQL时段，其他列/身份/房间保持。
+- SQL：七表及其他房间在同一个RepeatableRead、SET TRANSACTION READ ONLY事务中采样，前后时钟均取数据库clock_timestamp。重连五日志/快照/提示表完全不变；本房matches仅updated_at、原两match_players仅tokenhash/updated_at可变；旧/新hash绑定实际输入/Joined返回，各行时间必须前进且落在before.Finished至after.Started之间，matches时间等于两玩家中较晚的保存事务，其他列/身份/房间保持。
 - 幂等/恢复：重连后另取七表完整基线；cached accepted/rejected duplicate、API冷恢复与只读验证完全不写，原tamper精确还原守卫保留；未忽略整行/表，数值1与1.0也不当作精确相同。
 - 编译依赖：测试助手PaymentReconnectEvidence由PG原项目纳入，Native net8加同版Npgsql10及显式链接；S4/S5/S6独立入口与conformance显式链接。Network选择器还需同一独立ConnectionStrings__Riftbound；原selectors/阶段顺序保持。
 - 本地证据：10方法/35例全部PASS、0skip；含失败Reconnect后有效snapshot、伪Joined/令牌、保护列/其他房间/SQL时段、七表写入及证据JSON往返反例；均为无PG/Hub的守卫测试。
 - 构建：NativeNetworkSmoke(net8)、PostgresAcceptance及S4/S5/S6独立项目五项全部通过；原件`var/qa/payment-reconnect-leaf-20261024/guard-v4/`与`build-v5/`，前次guard/build原件保留。
 - 状态：验收基础设施L2修复待①固定候选Actions实际PG、双身份网络和真正API进程重启；本机未跑这些重型门禁，不把合成守卫/编译升级为真实重连PASS。
 - 边界：只提交本批验收叶/助手/守卫；S7费用与数值实现仍在工作树，S7新叶沿同一助手另行交付。净整卡认证增量0，整个后端Goal仍ACTIVE。
+- ①回审四项窄修复：Begin自身限制127.0.0.1/localhost且Database=riftbound_acceptance；Joined仅收RECONNECT、Error仅收ERROR；同一只读事务与上述严格时间/最后事务门禁均已补齐。原35例名称全部保留；新增反例在旧助手得到47例37PASS/10FAIL（guard-red-v6），修正后16方法/54例全部PASS、0skip（guard-v7），含实际Capture命令路径的无数据库事务记录器；五入口重新编译通过（build-v8）。仍待固定候选Actions真实重连验证，不改旧失败/ZIP或以合成守卫代替PG。
