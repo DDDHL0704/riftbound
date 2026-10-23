@@ -233,38 +233,129 @@ internal static class OptionalAdditionalCostReductionSqlAcceptance
         using var fixture = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(output, "network-fixture.json")));
         var room = fixture.RootElement.GetProperty("room").GetString()!;
         var actor = fixture.RootElement.GetProperty("actor").GetString()!;
-        var originalDigest = await DigestAsync(source, room);
-        await using var connection = await source.OpenConnectionAsync();
-        await using var read = new NpgsqlCommand("select payload::text from state_snapshots where match_id=@room order by state_tick desc,last_event_sequence desc limit 1", connection);
-        read.Parameters.AddWithValue("room", room);
-        var saved = (string)(await read.ExecuteScalarAsync())!;
-        var node = JsonNode.Parse(saved)!.AsObject();
-        node["runePools"]![actor]!["mana"] = 1;
-        string? error = null;
-        try
-        {
-            await Write(node.ToJsonString());
-            var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), new PostgresMatchJournal(source),
-                new PostgresMatchRecoveryStore(source), new PostgresMatchPlayerStore(source));
-            try { await registry.GetOrCreateAsync(room, default); }
-            catch (MatchSessionException exception) when (exception.Code == ErrorCodes.RecoveryInconsistent) { error = exception.Message; }
-            Check(error?.Contains("action-log audit failed", StringComparison.Ordinal) == true,
-                "The real registry must independently reject a forged saved discount/resource result using the complete original log.");
-        }
-        finally { await Write(saved); }
-        Check(await DigestAsync(source, room) == originalDigest, "Restore the exact original acceptance payload and all seven-table parity.");
-        await File.WriteAllTextAsync(Path.Combine(output, "registry-forged-reduction-result.json"), JsonSerializer.Serialize(new {
-            status = "REAL_REGISTRY_REJECTED_FORGED_REDUCTION_RESULT", room, error,
-            originalPayloadRestored = true, originalAcceptedHistoryNeverRewritten = true, sevenTablesRestored = true
-        }, Json));
+        await VerifyReductionResultForgeryAsync(source, room, actor, output);
         await VerifyNetworkCaseAsync(source, output, "after-restart");
-        async Task Write(string payload)
+    }
+
+    // A single-room leaf also allows an actual CI failure to be diagnosed
+    // without rerunning the two-room network/restart orchestration.
+    internal static async Task VerifyReductionResultForgeryAsync(NpgsqlDataSource source, string room, string actor, string output)
+    {
+        var store = new PostgresMatchRecoveryStore(source); var engine = new CoreRuleEngine();
+        var original = await store.LoadAsync(room, default) ?? throw new InvalidOperationException("Missing original optional-reduction frame.");
+        Check(original.IsConsistent && (await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, engine, default)).Count == 0,
+            "Start with the complete consistent original optional-reduction log.");
+        var state = original.AuthoritativeState!;
+        Check(state.RunePools[actor].Mana == 0 && state.RunePools[actor].TotalPower == 0,
+            "This saved optional-reduction result has paid all of its quoted resources.");
+        var forged = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+            [actor] = state.RunePools[actor] with { Mana = 1 } } };
+        var snapshots = ResolutionResult.BuildSnapshots(forged); var prompts = ResolutionResult.BuildPrompts(forged);
+        var historyHash = MatchStateHasher.HashValue(new { original.Commands, original.Events });
+        var before = await PaymentReconnectEvidence.Capture(source, room);
+        var rows = new List<(string Table, long Id, string? Player, string Payload)>();
+        var authoritative = before.Tables["state_snapshots"].Select(row => row!)
+            .Where(row => row["last_event_sequence"]!.GetValue<long>() == original.LastEventSequence)
+            .OrderByDescending(row => row["state_tick"]!.GetValue<long>()).ThenByDescending(row => row["id"]!.GetValue<long>()).First();
+        rows.Add(("state_snapshots", authoritative["id"]!.GetValue<long>(), null, authoritative["payload"]!.ToJsonString()));
+        foreach (var (table, tick) in new[] { ("snapshots", "snapshot_tick"), ("action_prompts", "prompt_tick") })
+        foreach (var player in state.Seats.Keys)
         {
-            await using var update = new NpgsqlCommand("update state_snapshots set payload=@payload::jsonb where match_id=@room and state_tick=(select max(state_tick) from state_snapshots where match_id=@room)", connection);
-            update.Parameters.AddWithValue("payload", payload); update.Parameters.AddWithValue("room", room);
-            await update.ExecuteNonQueryAsync();
+            var row = before.Tables[table].Select(row => row!).Where(row => row["player_id"]!.GetValue<string>() == player)
+                .OrderByDescending(row => row["last_event_sequence"]!.GetValue<long>()).ThenByDescending(row => row[tick]!.GetValue<long>())
+                .ThenByDescending(row => row["id"]!.GetValue<long>()).First();
+            rows.Add((table, row["id"]!.GetValue<long>(), player, row["payload"]!.ToJsonString()));
+        }
+        Check(rows.Count == 5, "Capture one authoritative row and both players' latest snapshot and prompt rows.");
+        await File.WriteAllTextAsync(Path.Combine(output, "registry-forged-reduction-original-frame.json"), JsonSerializer.Serialize(original, Json));
+        var structuralError = await Attack(false);
+        var error = await Attack(true);
+        await File.WriteAllTextAsync(Path.Combine(output, "registry-forged-reduction-result.json"), JsonSerializer.Serialize(new {
+            status = "REAL_REGISTRY_REJECTED_FORGED_REDUCTION_RESULT", room, error, structuralError,
+            stateOnlyStructuralControlPassed = true, coordinatedForgeryShapePassed = true,
+            originalPayloadRestored = true, originalAcceptedHistoryNeverRewritten = true, sevenTablesRestored = true,
+            rejectedSessionsNeverCached = true, originalReplayMatchedAfterEachRestoration = true
+        }, Json));
+
+        async Task<string> Attack(bool coordinated)
+        {
+            var selected = coordinated ? rows : rows.Where(row => row.Table == "state_snapshots").ToList();
+            var registry = new InMemoryMatchSessionRegistry(engine, new PostgresMatchJournal(source), store, new PostgresMatchPlayerStore(source));
+            string? error = null, code = null, unexpected = null, restoreError = null;
+            bool? shapeConsistent = null, returned = null, cached = null;
+            IReadOnlyList<string>? shapeErrors = null; var restored = false;
+            await using var connection = await source.OpenConnectionAsync();
+            try
+            {
+                foreach (var row in selected)
+                    await Write(row, JsonSerializer.Serialize(row.Table == "state_snapshots" ? (object)forged
+                        : row.Table == "snapshots" ? snapshots[row.Player!] : prompts[row.Player!], Json));
+                var loaded = await store.LoadAsync(room, default);
+                shapeConsistent = loaded?.IsConsistent; shapeErrors = loaded?.ValidationErrors;
+                Check(loaded is not null && MatchStateHasher.HashValue(new { loaded.Commands, loaded.Events }) == historyHash,
+                    "Neither mutation may change an original accepted or rejected command, event or RuleInputs.");
+                try { await registry.GetOrCreateAsync(room, default); returned = true; }
+                catch (MatchSessionException exception) { returned = false; code = exception.Code; error = exception.ToString(); }
+                cached = await registry.FindAsync(room, default) is not null;
+            }
+            catch (Exception exception) { unexpected = exception.ToString(); }
+            finally
+            {
+                try
+                {
+                    foreach (var row in selected) await Write(row, row.Payload);
+                    PaymentReconnectEvidence.ValidateExact(before, await PaymentReconnectEvidence.Capture(source, room));
+                    restored = true;
+                }
+                catch (Exception exception) { restoreError = exception.ToString(); }
+                await File.WriteAllTextAsync(Path.Combine(output, coordinated
+                    ? "registry-forged-reduction-coherent-diagnostic.json" : "registry-forged-reduction-state-only-diagnostic.json"),
+                    JsonSerializer.Serialize(new { room, actor, coordinated, shapeConsistent, shapeErrors,
+                        registryReturned = returned, cached, code, error, unexpected, restoreError,
+                        exactSevenTablesRestored = restored, mutatedRows = selected.Select(row => new { row.Table, row.Id, row.Player }) }, Json));
+            }
+            Check(restored && restoreError is null, "Restore exact original seven-table rows: " + restoreError);
+            Check(unexpected is null, "Unexpected optional-reduction tamper failure: " + unexpected);
+            Check(returned == false && code == ErrorCodes.RecoveryInconsistent && cached == false,
+                "The fresh registry must reject without caching or writing a forged optional-reduction result: " + error);
+            if (coordinated)
+                Check(shapeConsistent == true && (shapeErrors?.Count ?? -1) == 0
+                    && error?.Contains("action-log audit failed", StringComparison.Ordinal) == true
+                    && error.Contains("replayed final state hash", StringComparison.Ordinal),
+                    "The real registry must independently reject a shape-valid forged result using the complete original log: " + error);
+            else
+                Check(shapeConsistent == false && shapeErrors?.Any(e => e.Contains("rune pool ordinary mana", StringComparison.Ordinal)) == true
+                    && error?.Contains("match recovery validation failed", StringComparison.Ordinal) == true
+                    && !error.Contains("action-log audit failed", StringComparison.Ordinal),
+                    "Changing only the authoritative mana must retain the independent structural/view rejection: " + error);
+            var recovered = await registry.GetOrCreateAsync(room, default);
+            foreach (var player in state.Seats.Keys)
+            {
+                Check(ProtocolViewHash(recovered.SnapshotFor(player)) == ProtocolViewHash(original.PlayerViews[player].Snapshot)
+                    && ProtocolViewHash(recovered.PromptFor(player)) == ProtocolViewHash(original.PlayerViews[player].Prompt),
+                    "The same registry must cold-recover both exact original player views after restoration.");
+            }
+            var normal = await store.LoadAsync(room, default);
+            Check(normal is not null && normal.IsConsistent && MatchStateHasher.Hash(normal.AuthoritativeState!) == MatchStateHasher.Hash(state)
+                && (await MatchActionLogReplayer.ValidateRecoveryFrameAsync(normal, engine, default)).Count == 0,
+                "The restored original history must still replay independently.");
+            PaymentReconnectEvidence.ValidateExact(before, await PaymentReconnectEvidence.Capture(source, room));
+            return error!;
+
+            async Task Write((string Table, long Id, string? Player, string Payload) row, string payload)
+            {
+                await using var update = new NpgsqlCommand($"update {row.Table} set payload=@payload::jsonb where match_id=@room and id=@id", connection);
+                update.Parameters.AddWithValue("payload", payload); update.Parameters.AddWithValue("room", room); update.Parameters.AddWithValue("id", row.Id);
+                Check(await update.ExecuteNonQueryAsync() == 1, "Mutate and restore exactly one captured row in this test room.");
+            }
         }
     }
+
+    // Stored metadata is JsonElement; fresh nested cost choices are typed records.
+    // Compare both through the actual Web JSON contract, preserving every field
+    // and array order instead of hashing the records with default JSON casing.
+    private static string ProtocolViewHash(object? view)
+        => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(view, Json));
 
     private static JsonElement CommandRaw(IMatchSession session, MatchState state, string actor, GameCommand action)
     {
