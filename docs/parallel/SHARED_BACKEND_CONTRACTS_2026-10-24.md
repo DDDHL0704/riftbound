@@ -67,3 +67,15 @@ C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新
 核对的既有CN核心SHA `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`：C7 370.2/372，S6 166–168/430；VEN FAQ SHA `59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742`。S6 API原响应SHA `4dfaf40eda6e4f7b0a09624693c32f8f42933859fe12a9b1027a564a6aba44e2`。这些是所审输入，非全官网最新/整卡认证。①原件：`var/qa/related-backend-integration-20261024-v3/{c7-contract-review-v1.json,restricted-mana-shared-contract-review-v1.json}`。
 
 C7新隐私接点：两精确印次的真实2→5 Mighty跨阈值原例2/2暴露私有chosenActionReplacement。①已审批准②仅在CapturePublicMightFrame克隆公开卡/ledger时清该字段；主CardObjects完整witness、缺失证明的严格拒绝、全部旧数字/来源/代际/层次和公开-权威frame严格比较保持，不新增DTO。②完整921/9bc已交并接入，所选根机制54例/消费者66例已过；实际SQL/API门禁仍待Actions；本线原件c7-public-might-frame-privacy-contract-v1.json。
+
+N16有限抵挡由②shared primary、④exact source/registration/consumer；当前只分配方法及要求具体contract，不批准新serialized field/string marker/替换算法，也不给④另一套Core/state helper。②仍以C11为唯一主要实现包，N16先准备接口提案，④继续来源/consumer规格与红；后续按获批state hook接入。
+
+已核CN37826/VEN126图、API canonical record6ad98d45/image83a7cd0f及原4例2过2红（旧flag单次8漏0、3+3第二次漏3）。这是临时登记机制不等价，不是root已登记卡回归；旧SFD194卡文明确“下一次受到的伤害”，不能借用其bool/OriginalDamageAmount实现有限7池。
+
+②方法范围：ApplyDamageToCardObject全部spell/skill/combat调用；private DamageApplicationResult/BuildDamagePayload实际部分抵挡量；RequiredLethalDamage/CombatBudget与显式/自动分配/提示；grant、独立实例state、EOT/非field reset/控制保持；安全public剩余值与严格recovery/original-log。新state/事件public shape先交exact最小schema及方法diff。DOC01438.1.a.1/438.2-3/438.5/438.7、372/124要求实际抵挡量扣减、残余/0失效、致命分配/多替换当前受影响控制者顺序；已施加额外伤害的强制数值调整不能假称自由replacement顺序。多个7池不能无证据合并，亦不能固定全挡/翻倍优先。
+
+contract须解释实例来源/target generation/remaining/expiry、叠加与partial/double/unpreventable、零伤不耗、控制变更、source离场/target换代、轮末、选择中断冻结checkpoint/preview/一次提交消耗及多recipient继续；若相关439替换/换回继承状态，须与124普通非field reset区别核源。public不能借历史源泄露当前hidden手牌/牌堆身份；recovery独立拒绝缺项/重复/负数/溢出/已耗复活/错代际/协调投影伪造并保留原日志。
+
+C11原v3独立19个接受命令重入同代际同场DEFEND实际入链2次，期望1，仍在已分配RecordBattleDuelRoles范围；first-role记忆按battle+generation+role保留，不以新controller/场上移走重置，也不覆盖C10原声明PublicObjectBindings。新代际/另一角色/下一场合法首次须保留；算法仍待proposal。
+
+N16/C11不进A4/冻结B1/待封raw-object+S4窄候选；无新本地heavy/CI或运行规则变动，净整卡0。根治理文档仅登记分工。
