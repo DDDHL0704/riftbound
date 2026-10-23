@@ -1,0 +1,1123 @@
+{
+  "status": "SOURCE_RED_BOTH_DRAVEN_DEATH_SKILLS_MISSING",
+  "atUtc": "2026-10-23T08:46:09.713677+00:00",
+  "baseCommit": "7a3d18585ee3b9d66f330b53561523ea1a5d4307",
+  "region": "CN",
+  "language": "zh-CN",
+  "peerOverlay": {
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/draven-battle-win-score-n53-20261023/n53-exact-main-overlay-after71-green-v1.tar.gz",
+    "overlaySha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892",
+    "parentReceipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/battle-win-combined-20261023/applied-peer-fixed-n52-first45-v1.json",
+    "parentReceiptSha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384",
+    "priorAll19UnchangedBeforeApply": true,
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372",
+        "afterSha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28",
+        "afterSha256": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f",
+        "afterSha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+        "beforeSha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+        "afterSha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5",
+        "afterSha256": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6",
+        "afterSha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5",
+        "afterSha256": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+        "beforeSha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30",
+        "afterSha256": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "beforeSha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+        "afterSha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      }
+    ],
+    "overlayManifest": {
+      "atUtc": "2026-10-23T08:20:55.305452+00:00",
+      "baseCommit": "23467a3f4976b3054c53afb75461c8d464752131",
+      "cases": 71,
+      "methods": 14,
+      "wholePrintingCertified": false,
+      "archiveSha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892",
+      "members": [
+        {
+          "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+          "sha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0",
+          "bytes": 9403
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+          "sha256": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924",
+          "bytes": 5888
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "sha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347",
+          "bytes": 14471
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+          "sha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+          "bytes": 5476
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+          "sha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+          "bytes": 5677
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+          "sha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+          "bytes": 4294
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c",
+          "bytes": 1556272
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e",
+          "bytes": 1399475
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs",
+          "sha256": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb",
+          "bytes": 2841
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89",
+          "bytes": 1159818
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+          "sha256": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7",
+          "bytes": 16426
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs",
+          "sha256": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60",
+          "bytes": 12749
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+          "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+          "bytes": 11207
+        }
+      ]
+    }
+  },
+  "frozenSpecifiedInputs": {
+    "ruleInputs": {
+      "src/Riftbound.Engine/BattleResultRecoveryRules.cs": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+      "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+      "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+      "src/Riftbound.Engine/CoreRuleEngine.cs": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c",
+      "src/Riftbound.Engine/MatchRecovery.cs": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e",
+      "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb",
+      "src/Riftbound.Engine/MatchSession.cs": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89",
+      "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+      "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775",
+      "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de",
+      "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+      "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+      "tests/Riftbound.PostgresAcceptance/Program.cs": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df",
+      "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e",
+      "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712",
+      "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+      "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60",
+      "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinMultiSourceTests.cs": "62e8ab9528f92ecf11ef82e1b432c625110758d2c6d4f781cccfeeb46ee632b5",
+      "tests/Riftbound.ConformanceTests/DravenMutualDeathScoreTests.cs": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4"
+    },
+    "count": 26
+  },
+  "all26SpecifiedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "62cfe533063c4a0bd0a63dde7b2fb448f729d948399fd26a18a8b4e94701a283",
+    "identitySha256": "861b99743d85a170b6b41eaa3da16cd5f6a43bcd99f5cc53b99832c0c9945d16"
+  },
+  "testAssemblySha256": "06db9045e2b6c8ce887d829efb2744ccb097dd82cada4418576730eff5114ae3",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/DravenMutualDeathScoreTests.cs",
+    "sha256": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4"
+  },
+  "originalRun": {
+    "counters": {
+      "total": "49",
+      "executed": "49",
+      "passed": "33",
+      "failed": "16",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "methods": [
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.CapturedDeathRejectsTamperingAndSurvivesVictimChangingZones",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.CentaurCannotBuffANewIncarnation",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.DisappearedObserverKeepsItsEarnedSkillsAndPublicContextCannotBeForged",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.NestedResourceDeathTriggersObserverBeforeItsOuterDeath",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.PlayerAndSpectatorViewsRecoverMultipleTokenDeathObservers",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.RetiredStackRecordCannotBypassRejectionByChangingEffectKind",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.ViktorUsesSharedTokenReplacementBeforeEnteringPlay",
+      "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner",
+      "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder",
+      "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack",
+      "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress",
+      "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController"
+    ],
+    "testCases": [
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-068/219\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"OGN·118/298\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"UNL-129/219\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"ARC-006/006\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P2\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: True)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder(reverseOwn: True)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.RetiredStackRecordCannotBypassRejectionByChangingEffectKind",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"partial-controller\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-129/219\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P1\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"OGN·118/298\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController(reverseFirst: True)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P1\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P2\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P2\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery(victim: \"D\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P1\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: False)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"confirmation-before-enqueue\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.PlayerAndSpectatorViewsRecoverMultipleTokenDeathObservers",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"lost-simultaneous-partner\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"ARC-006/006\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P2\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.NestedResourceDeathTriggersObserverBeforeItsOuterDeath",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"ARC-006/006\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P2\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.CentaurCannotBuffANewIncarnation",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P1\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P1\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P1\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"UNL-068/219\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"all-confirmed\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder(reverseOwn: False)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ViktorUsesSharedTokenReplacementBeforeEnteringPlay",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P2\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"UNL-129/219\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery(victim: \"D2\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P1\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P1\", initialScore: 7)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"wrong-first-controller\")",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148a/221\", turnPlayer: \"P2\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController(reverseFirst: False)",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.DisappearedObserverKeepsItsEarnedSkillsAndPublicContextCannotBeForged",
+        "outcome": "Passed",
+        "failure": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DravenMutualDeathScoreTests.BothRealDeathsKeepControllerOrderEvenWithoutABattleWinner(p1Card: \"SFD·148a/221\", p2Card: \"SFD·148/221\", turnPlayer: \"P2\", initialScore: 0)",
+        "outcome": "Failed",
+        "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.CapturedDeathRejectsTamperingAndSurvivesVictimChangingZones",
+        "outcome": "Passed",
+        "failure": null
+      }
+    ]
+  },
+  "originalHistories": [
+    {
+      "caseId": "SFD-148-221-SFD-148-221-P1-0",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P1",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "dcbaa71b217e819f6b9069fc35d5fd5779e2c59c86df52c4dbc5de5a80584910"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148-221-P1-7",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P1",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "dd4deaa225a7ceb611559e4b92d97511136d4244623a19219411c623574d3f95"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148-221-P2-0",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P2",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "b6411339ac16feeba09e08b065b3697cde61849d445f1fdb305be53b6959dc1a"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148-221-P2-7",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P2",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "83fe3d0cb996a3b1411190153299592d5689cd87a9f0b778bf9ae8fe7899f2e7"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148a-221-P1-0",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P1",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "337784d026162441f31d39a15ef652aae1f3ee1956094285061c50e779ea8c82"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148a-221-P1-7",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P1",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "caad90489e7c17965dd42f1f131f774cb60a76a6bfbfdc1f3c471bbb7cf8ee4c"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148a-221-P2-0",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P2",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "6c9da2632cc985c1372721ff1ca61b5fafd5511bc1a4e86623cd2dba2c6d3fcf"
+    },
+    {
+      "caseId": "SFD-148-221-SFD-148a-221-P2-7",
+      "p1Card": "SFD·148/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P2",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "6b965ebe5519589848b42f1bb70855f84c2af1435e1765b37d2cf50fb4600077"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148-221-P1-0",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P1",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "bdfd4d02462aa89e5c391483eb14d14238860f61a1ec1174cea9691c3a42386d"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148-221-P1-7",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P1",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "2a251b3f9a4c8f987c90754cd6b4d7fa786dd047cb0caf107240f8ae5200860a"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148-221-P2-0",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P2",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "81c1db7ceb10acb2fb4e04817cf674f41b89c668ec05a119b8f2c0ffcbf48410"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148-221-P2-7",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148/221",
+      "turnPlayer": "P2",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "497c3c2b0c0a42494be00e0bf2c2c1e4af2aaaf628c1201a5b9a6a06d8ae583b"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148a-221-P1-0",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P1",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "0c41c1eba3e532335f3e258407b276cf1895d1d70af4dbe5adf4b8eb04ac160e"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148a-221-P1-7",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P1",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "6e234c715e5079fa3a16caeb39b3ca923af5e74f39246ccce094ca2c5c0c8f13"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148a-221-P2-0",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P2",
+      "initialScore": 0,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "sha256": "5a146062069edb2584eae80df99adbcb685d256755d9851d271c39dcee29e0d0"
+    },
+    {
+      "caseId": "SFD-148a-221-SFD-148a-221-P2-7",
+      "p1Card": "SFD·148a/221",
+      "p2Card": "SFD·148a/221",
+      "turnPlayer": "P2",
+      "initialScore": 7,
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "actualDeaths": 2,
+      "actualDeathScores": 0,
+      "laterOrderAndVictoryAssertionsReached": false,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "sha256": "5927570c6765652273616700e4bc5e4c969985249af6d78b002c317528373fca"
+    }
+  ],
+  "newCases": 16,
+  "newSourceFailures": 16,
+  "newCommands": 64,
+  "newAccepted": 64,
+  "newEvents": 240,
+  "newOriginalPrefixReplays": 64,
+  "actualDeaths": 32,
+  "crossControllerOrderAndWinningExpectationsNotReached": true,
+  "adjacentCasesPassed": 33,
+  "cases": 49,
+  "passed": 33,
+  "failed": 16,
+  "skipped": 0,
+  "sources": {
+    "rows": [
+      {
+        "id": 33240,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/d065a0877b6f413384a7273ddf2f502a.png",
+        "backImage": "",
+        "listSort": 833,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33241,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148a/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/492d174b2b604a98af8491f604c8c63c.png",
+        "backImage": "",
+        "listSort": 832,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31522,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·278/298",
+        "cardName": "班德尔树",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+        "flavorText": "它生长在班德尔城的正中心，保护着上古神话中的约德尔人。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/327788d7d62442bf99a2f5374fa405d5.png",
+        "backImage": "",
+        "listSort": 183,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "originalResponses": [
+      {
+        "path": "var/qa/draven-battle-multi-source-20261023/sources-v1/current-德莱文-original-v1.json.gz",
+        "sha256": "baa8be65568f1d3d4551fdfe9e67179839ff3c70ede0f3e76c19adf1ee806c0f",
+        "bodySha256": "52edf9946d835be5089f0fdc48ca632109e88b3dd370e0d3bb0fd609edc47486"
+      },
+      {
+        "path": "var/qa/draven-battle-multi-source-20261023/sources-v1/current-班德尔树-original-v1.json.gz",
+        "sha256": "4698802ffdaef9c77c4a83b87df8146b9ae8c0b90cef1dc5f6b69f2871bf9033",
+        "bodySha256": "eec457e5086842622b374d81b3a799fa598a7fe4ac1c4b8a5449b9153954bc3b"
+      }
+    ],
+    "freshReadFromPreviousBatch": true,
+    "notRedownloadedForThisBatch": true
+  },
+  "expectedOrderInferredFromExactClauses": [
+    "383.3.d.1",
+    "340.1",
+    "323.1"
+  ],
+  "deathTaskTimingStillOpen": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "wholePrintingCertified": false,
+  "backendGoalComplete": false,
+  "archive": {
+    "path": "docs/evidence/draven-mutual-death-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "75073f5f6a78b8e81991faf254d8cf64b47638de4374abf00fc01daa34a15ddf",
+    "members": [
+      {
+        "path": "docs/DRAVEN_MUTUAL_DEATH_PARALLEL_2026-10-23.md",
+        "bytes": 2960,
+        "sha256": "62b4d65383cde9fa541295f9179c88952e622c0b2211b24114f4a7e08843e8d4"
+      },
+      {
+        "path": "inputs/applied-n53-overlay-v1.json",
+        "bytes": 6825,
+        "sha256": "207d422d04c9affb2e8ffa3fdb95b700b9d5854c037db9595dc816e673dd3d44"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/n53-exact-main-overlay-after71-green-v1.tar.gz",
+        "bytes": 479432,
+        "sha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DeathObserverAuditTests.cs",
+        "bytes": 15224,
+        "sha256": "6acf14ab2c612f96e33cfeab81169e91b227f994730d82e2b7491a147f96db1a"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenMutualDeathScoreTests.cs",
+        "bytes": 10564,
+        "sha256": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/MultiControllerTriggerOrderingTests.cs",
+        "bytes": 12525,
+        "sha256": "fef4e0ccfcd10b3750e20c69cefa498f29913696f9882b3d528d959018bf6e4c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/current-sfd-judge-faq-http-v1.json",
+        "bytes": 1256,
+        "sha256": "0a86e84699fe1b7462e6e14b3cd58de3444002900d906711be86869df1899cef"
+      },
+      {
+        "path": "var/qa/draven-battle-multi-source-20261023/sources-v1/current-德莱文-original-v1.json.gz",
+        "bytes": 2578,
+        "sha256": "baa8be65568f1d3d4551fdfe9e67179839ff3c70ede0f3e76c19adf1ee806c0f"
+      },
+      {
+        "path": "var/qa/draven-battle-multi-source-20261023/sources-v1/current-班德尔树-original-v1.json.gz",
+        "bytes": 1332,
+        "sha256": "4698802ffdaef9c77c4a83b87df8146b9ae8c0b90cef1dc5f6b69f2871bf9033"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1.log",
+        "bytes": 408,
+        "sha256": "51bb6e03d0b3a344e5cdefaf54bedc1fd429fcb7e90d2a560b37f533f2deb254"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/build.log",
+        "bytes": 78,
+        "sha256": "f34e058d100ae1fbf47ce8e8dcba355a020b50068f95157f55ad10e4ba8976a8"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/discovery.log",
+        "bytes": 2098925,
+        "sha256": "db0414c8919ed6d87fd940866cf8ab156f5482a064e952a9a30e0bdec48bb720"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/focus/results.trx",
+        "bytes": 124216,
+        "sha256": "e44d620be194fd433730fdd3e46baf02b11660c6fd4e3b7e44cdb1ed994ea112"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/focus/test.log",
+        "bytes": 4286,
+        "sha256": "6c2d7709abdce9958c9dcadb4b126d84c16da885b6cc4e9e4d2318c433071e52"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/plan.json",
+        "bytes": 2915,
+        "sha256": "626da456a1bf01bd7deecb2cc39c49756c7f9ae8f4f0b02632d92e0bcc5c9706"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/focus-and-adjacent-v1/test-source.cs",
+        "bytes": 10564,
+        "sha256": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/frozen-inputs-v1.json",
+        "bytes": 3554,
+        "sha256": "aba423a26db63a6a3741950602daecdc14be13745b37c72defe6a45a06639081"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/mutual-death-controller-order-and-victory-clauses-v1.json",
+        "bytes": 28989,
+        "sha256": "710ab57d43fd22e34d750812d375ab8da133c5123229a631b44f0c22be882ac7"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 26747,
+        "sha256": "dcbaa71b217e819f6b9069fc35d5fd5779e2c59c86df52c4dbc5de5a80584910"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 26751,
+        "sha256": "dd4deaa225a7ceb611559e4b92d97511136d4244623a19219411c623574d3f95"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 26836,
+        "sha256": "b6411339ac16feeba09e08b065b3697cde61849d445f1fdb305be53b6959dc1a"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 26840,
+        "sha256": "83fe3d0cb996a3b1411190153299592d5689cd87a9f0b778bf9ae8fe7899f2e7"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 26839,
+        "sha256": "337784d026162441f31d39a15ef652aae1f3ee1956094285061c50e779ea8c82"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 26845,
+        "sha256": "caad90489e7c17965dd42f1f131f774cb60a76a6bfbfdc1f3c471bbb7cf8ee4c"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 26875,
+        "sha256": "6c9da2632cc985c1372721ff1ca61b5fafd5511bc1a4e86623cd2dba2c6d3fcf"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 26878,
+        "sha256": "6b965ebe5519589848b42f1bb70855f84c2af1435e1765b37d2cf50fb4600077"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 26809,
+        "sha256": "bdfd4d02462aa89e5c391483eb14d14238860f61a1ec1174cea9691c3a42386d"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 26816,
+        "sha256": "2a251b3f9a4c8f987c90754cd6b4d7fa786dd047cb0caf107240f8ae5200860a"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 26873,
+        "sha256": "81c1db7ceb10acb2fb4e04817cf674f41b89c668ec05a119b8f2c0ffcbf48410"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 26880,
+        "sha256": "497c3c2b0c0a42494be00e0bf2c2c1e4af2aaaf628c1201a5b9a6a06d8ae583b"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 26789,
+        "sha256": "0c41c1eba3e532335f3e258407b276cf1895d1d70af4dbe5adf4b8eb04ac160e"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 26792,
+        "sha256": "6e234c715e5079fa3a16caeb39b3ca923af5e74f39246ccce094ca2c5c0c8f13"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 26862,
+        "sha256": "5a146062069edb2584eae80df99adbcb685d256755d9851d271c39dcee29e0d0"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/original-v1/SFD-148a-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 26862,
+        "sha256": "5927570c6765652273616700e4bc5e4c969985249af6d78b002c317528373fca"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/package-proof-v1.py",
+        "bytes": 5980,
+        "sha256": "53b201beb1c35bb7e8601b34bf9865e5d56c3f0663f0f6cb95d2373203c9483f"
+      },
+      {
+        "path": "var/qa/draven-mutual-death-20261023/source-bindings-v1.json",
+        "bytes": 4994,
+        "sha256": "818fb0905177b894a32d0e00b469b1c29bbe4d52f702158eda2261f930864b04"
+      }
+    ]
+  }
+}
