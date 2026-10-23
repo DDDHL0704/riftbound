@@ -449,6 +449,12 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
+            DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
+        new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
+            DrawCount: 1, FlowCost: new(2, 0, [])),
+        new("VEN·081", "狂袭", 4, "ONSLAUGHT_UNIT_POWER_PLUS_SIX", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 6, FlowCost: new(4, 0, [])),
         new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new("VEN·017", "莫甘娜", 5, "UNIT_PLAY_TARGET_MARKED_DAMAGE", 0, 1,

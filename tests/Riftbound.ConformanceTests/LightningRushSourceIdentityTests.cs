@@ -36,9 +36,12 @@ public sealed class LightningRushSourceIdentityTests
     public async Task EveryOriginalFunctionalUnitAndMemberIsPreservedBesideTheOneNewPrinting()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        var oldCards = catalog.Cards.Where(c => c.CardNo != LightningRushDeckDrawFlowTests.LightningRush).ToArray();
-        Assert.Equal(1036, oldCards.Length); Assert.Equal(1037, catalog.Cards.Count);
-        var oldUnits = FunctionalUnitBuilder.Build(oldCards); var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        // Retain the exact N47 historical comparison after later independent additions.
+        string[] laterAdditions = ["VEN·003", "VEN·049", "VEN·081"];
+        var n47Cards = catalog.Cards.Where(c => !laterAdditions.Contains(c.CardNo)).ToArray();
+        var oldCards = n47Cards.Where(c => c.CardNo != LightningRushDeckDrawFlowTests.LightningRush).ToArray();
+        Assert.Equal(1036, oldCards.Length); Assert.Equal(1037, n47Cards.Length);
+        var oldUnits = FunctionalUnitBuilder.Build(oldCards); var units = FunctionalUnitBuilder.Build(n47Cards);
         Assert.Equal(835, oldUnits.Count); Assert.Equal(836, units.Count);
         foreach (var old in oldUnits) {
             var current = Assert.Single(units, unit => unit.Id == old.Id);
