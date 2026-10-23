@@ -17,6 +17,10 @@ public sealed class OptionalEntryTargetBoundaryTests
     public async Task ARealStandbyActionKeepsTheHiddenCardInItsOwnSubzoneAndOutsideUnitTargetChoices(string no)
     {
         var initial = OptionalEntryTargetConfirmationTests.AddSpell(OptionalEntryTargetConfirmationTests.Position(no), "SECRET", "OGN·097/298");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["SECRET"] = OfficialGarenConquestBattlefieldCountTests.Printed("SECRET", "OGN·097/298", "P1") } };
+        Assert.Contains(CardObjectTags.UnitCard, initial.CardObjects["SECRET"].Tags);
+        Assert.DoesNotContain(CardObjectTags.SpellCard, initial.CardObjects["SECRET"].Tags);
         // A visible friendly unit maintains control of the standby battlefield.
         initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var driver = new Driver(initial);
