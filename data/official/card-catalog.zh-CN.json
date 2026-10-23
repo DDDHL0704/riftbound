@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1043,
+  "total": 1044,
   "cards": [
     {
       "id": 31005,
@@ -43328,6 +43328,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37820,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·120",
+      "cardName": "雷霆之怒 玛萨",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "班德尔城",
+      "tag": "约德尔人",
+      "artist": "Kudos Productions",
+      "cardEffect": "你可以选择支付{{黄色}}，作为打出我的额外费用。 \n当你打出我时，如果你支付了该额外费用，则{{眩晕}}战场上的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "没想到吧……他比看上去还聒噪。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/3abf74fe0bd84789b0241551343af794.png",
+      "backImage": "",
+      "listSort": 1866,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43898,6 +43946,21 @@
       "printedFaceIdentity": "VEN·118/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-118/166",
       "reason": "Exact CN ordinary unit consumers reuse existing post-entry temporary Might, draw and Bulwark mechanisms; original source metadata preserved. Registration is not whole-card candidate certification."
+    },
+    {
+      "cardNo": "VEN·120",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T12:38:34.297439+00:00",
+      "sourceId": 37820,
+      "sourceRecordSha256": "70c9910e293a9349e6fa83939cbde92e3e0816cae07444c276d5e198f79ae4fc",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·120/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-120/166",
+      "reason": "Exact CN optional additional-cost conditional post-entry target consumer. New mapping is not whole-card certification; shared conditional target timing under L2 review."
     }
   ]
 }

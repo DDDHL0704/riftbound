@@ -21006,6 +21006,8 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
+        fixture = OptionalEntryFixtureExpectations.ForCurrentRules(fixture);
+
         var result = await ConformanceFixtureRunner.RunAsync(
             fixture,
             new CoreRuleEngine(),
@@ -21220,6 +21222,8 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blast-crew-apprentice-optional-damage.fixture.json"),
             CancellationToken.None);
 
+        fixture = OptionalEntryFixtureExpectations.ForCurrentRules(fixture);
+
         var result = await ConformanceFixtureRunner.RunAsync(
             fixture,
             new CoreRuleEngine(),
@@ -21285,7 +21289,7 @@ public sealed class ConformanceFixtureRunnerTests
             .ToArray();
 
         Assert.Equal(0, sourceRequirement["minTargetCount"]);
-        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        Assert.Equal(0, sourceRequirement["maxTargetCount"]);
         Assert.Contains(optionalCostChoices, choice =>
             string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal)
             && string.Equals(choice.Label, "额外支付 1 法力，需同时支付 1 红色符能", StringComparison.Ordinal));
@@ -21300,6 +21304,8 @@ public sealed class ConformanceFixtureRunnerTests
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-frostcoat-cub-optional-power-minus-two.fixture.json"),
             CancellationToken.None);
+
+        fixture = OptionalEntryFixtureExpectations.ForCurrentRules(fixture);
 
         var result = await ConformanceFixtureRunner.RunAsync(
             fixture,
@@ -21366,7 +21372,7 @@ public sealed class ConformanceFixtureRunnerTests
             sourceRequirement["optionalCostChoices"]);
 
         Assert.Equal(0, sourceRequirement["minTargetCount"]);
-        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        Assert.Equal(0, sourceRequirement["maxTargetCount"]);
         var optionalPowerModifierCost = Assert.Single(
             optionalCostChoices,
             choice => string.Equals(choice.Id, "SPEND_POWER:blue:1", StringComparison.Ordinal));

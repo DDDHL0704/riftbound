@@ -25,8 +25,14 @@ internal static class OrdinaryPlayPrivacyAssertions
             var clause = Regex.Match(card.CardEffect,
                 @"^当你打出我时，(?:给予|让)一名单位(?:在)?本回合(?:内)?\{\{S\}\}\+(?<amount>[1-9]\d*)。$",
                 RegexOptions.CultureInvariant);
-            if (!clause.Success) continue;
-            var amount = int.Parse(clause.Groups["amount"].Value);
+            // This exact conditional printed clause has no minimum-Might floor.
+            // Payment legality remains covered by the original command/event replay.
+            var reduction = Regex.Match(card.CardEffect,
+                @"^你可以选择支付\{\{蓝色\}\}，作为打出我的额外费用。\r?\n当你打出我时，如果你支付了该额外费用，则让一名单位本回合内\{\{S\}\}-(?<amount>[1-9]\d*)。$",
+                RegexOptions.CultureInvariant);
+            if (!clause.Success && !reduction.Success) continue;
+            var amount = clause.Success ? int.Parse(clause.Groups["amount"].Value)
+                : -int.Parse(reduction.Groups["amount"].Value);
             var targetId = row["targetObjectId"]!.GetValue<string>();
             var identity = row["effectId"]!.GetValue<string>();
             Assert.True(state.CardObjects.TryGetValue(targetId, out var target));

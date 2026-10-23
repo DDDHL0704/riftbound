@@ -18710,7 +18710,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
+        if (!(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
+            && !HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
         {
             rejection = Reject(
                 state,

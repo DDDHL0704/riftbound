@@ -450,6 +450,11 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·120", "雷霆之怒 玛萨", 4, "MARZA_PLAY_UNIT_OPTIONAL_STUN_ENEMY_BATTLEFIELD", 0, 1,
+            TargetScope: CardTargetScopes.EnemyBattlefieldUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            MinTargetCount: 0, StatusEffectId: "STUNNED", PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4, SourceUnitTags: "约德尔人", TargetEffectAdditionalPowerCost: 1,
+            TargetEffectAdditionalPowerTrait: RuneTrait.Yellow),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
@@ -2494,6 +2499,7 @@ public static class CardBehaviorRegistry
             2,
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
