@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-power-punch-overwhelm-roam-attacking-power",
-  "description": "Power Punch grants Overwhelm 2 and Roam until end of turn and gives an attacking target +2 power until end of turn.",
+  "description": "Power Punch grants Assault 2 and Roam until end of turn; Assault changes effective attacking Might without changing stored Power.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-010/219 强能冲拳",
-      "note": "官方卡面：费用 1；迅捷；让一名单位本回合内获得强攻 2 和游走；如果它是进攻方，则战力 +2。"
+      "note": "CN34533，2026-10-23T18:44:50Z官方API记录SHA4016499206006f03c8a76762ca336e7619b491589f5322caaa1cd66d6701c3cc及卡图26c0bfb5b7225290a11a87a4ae1aea85e05a6dad6e342fa634e5d0e2ef8554f4一致：1法力1红，迅捷，本回合获得强攻2与游走；括号是关键词提醒，非独立即时+2。原初态、命令、身份保留，原预期/通过及新真实施放失败保留于var/qa/power-punch-temporary-assault-20261024。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -117,8 +117,7 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "STATUS_EFFECT_APPLIED",
-      "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "STATUS_EFFECT_APPLIED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -154,7 +153,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-POWER-PUNCH",
           "targetObjectId": "P2-UNIT-POWER-PUNCH-001",
-          "effectId": "OVERWHELM_2"
+          "effectId": "COMBAT_KEYWORD:强攻2"
         }
       },
       {
@@ -165,19 +164,6 @@
           "sourceObjectId": "P1-SPELL-POWER-PUNCH",
           "targetObjectId": "P2-UNIT-POWER-PUNCH-001",
           "effectId": "ROAM"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 9,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-POWER-PUNCH",
-          "targetObjectId": "P2-UNIT-POWER-PUNCH-001",
-          "powerDelta": 2,
-          "appliedPowerDelta": 2,
-          "minimumPower": 0,
-          "resultingPower": 4
         }
       }
     ],
@@ -211,9 +197,9 @@
       "cardObjects": {
         "P2-UNIT-POWER-PUNCH-001": {
           "damage": 0,
-          "power": 4,
-          "untilEndOfTurnEffects": ["OVERWHELM_2", "ROAM"],
-          "untilEndOfTurnPowerModifier": 2,
+          "power": 2,
+          "untilEndOfTurnEffects": ["COMBAT_KEYWORD:强攻2:1", "ROAM"],
+          "untilEndOfTurnPowerModifier": 0,
           "isAttacking": true,
           "isExhausted": false
         }
