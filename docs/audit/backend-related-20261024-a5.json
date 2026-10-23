@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_A4_RAW_TARGET_AND_S4_NEGATIVE_CONTROL_NARROW_REPAIR_NOT_CERTIFICATION",
+  "batchId": "backend-related-20261024-a5",
+  "immutableRef": "refs/tags/backend-related-20261024-a5",
+  "candidateIdentity": "Resolve the immutable ref to a full SHA; candidate_sha, GITHUB_SHA and actual checkout must match. Retain candidate-* job artifacts.",
+  "functionalBoundary": "1b99eeb27ad591a43cdb6af651418c979d718397",
+  "members": [
+    {
+      "id": "original-check-follow-up",
+      "integratedCommit": "dc5e5b1756ab5e1a37a775a9983f1f48cf56bb60"
+    },
+    {
+      "id": "C5",
+      "integratedCommit": "7db6315d560a0b8129a4492f30bf9ba3e0a00cb7",
+      "sourceCommit": "a583907b23ca78cd4a6259d6fa0ae99016a140be"
+    },
+    {
+      "id": "C6",
+      "integratedCommit": "733213df30cfce527db7c0c587f1b801d8655dbc",
+      "sourceCommit": "8b5db4dc276801cf0423f668c49288384927d4e7"
+    },
+    {
+      "id": "N3",
+      "integratedCommit": "311b27aa1994a3615caa1fcdfc1ed308ff3e2b1e",
+      "sourceCommit": "2c47990832338f04748fb5a02fb395690254d73e"
+    },
+    {
+      "id": "governance-only",
+      "integratedCommit": "80ac5f10fbb2f32b0bf7b823b58db21faef32b6f"
+    },
+    {
+      "id": "N3-logged-CI-entry",
+      "integratedCommit": "1d0cb029b5951841f262a6feb25728c609422305",
+      "sourceCommit": "b97a5799782ec01b1ffaa94759c4802250a9a1e5"
+    },
+    {
+      "id": "C5-C6-logged-CI-entry",
+      "integratedCommit": "2f501b48338989fabf9af435d4ee4513eaf1c833",
+      "sourceCommit": "903c7edee80ccd4b18ce20245d5e9d800a7e579a"
+    },
+    {
+      "id": "N4",
+      "commits": [
+        "9d60f9f76d5b88bac1d91f336f8d49c5c75e15da",
+        "bc9655092d9c5f8e97cdcded984aa5634f36d121",
+        "1281fecce488ebbd00fb4438f9b2d8a5b4f3ef37",
+        "c7abd6ae7e86b0b64d393b2ccef5e91678b3c534"
+      ],
+      "integratedCommits": [
+        "0efc64834aac6129026cc2ce1d25e91e6e4b3446",
+        "c564f51e3ac1d3971f0d6c3d39f1eb512a234eda",
+        "9c8244219ebf84b13de7061ca3b1a57b615b305a",
+        "d3e49db8ac227c21b4a0b47a25d462ec68ad46e0"
+      ]
+    },
+    {
+      "id": "S4",
+      "commits": [
+        "1e08030bc27d74e2be7f727fbb6c754a3be6cb73",
+        "9e2a0d06e2be78b0d4ebbd80ff95a9b613bdf70f"
+      ],
+      "integratedCommits": [
+        "a9e8c2061df55396562eb5fff745ed72c49465c5",
+        "f7d03d5cfe611e34493b03e29a54defde8dcad61"
+      ]
+    },
+    {
+      "id": "N5",
+      "commits": [
+        "f11a7871375f1c3eb550bf8b04ba9e87e99b6f69"
+      ],
+      "integratedCommits": [
+        "3e38f3c668d386c3c4a43690cd33bd03b303d824"
+      ]
+    },
+    {
+      "id": "S5",
+      "commits": [
+        "007a72da93d1161378869c95ec73a320694d5537",
+        "d430fa772851d29df7b8253909f6cd7208fc642e"
+      ],
+      "integratedCommits": [
+        "979939b9b4f241548d06b636735bf9f6f182e625",
+        "cebf9de1afb896c0c153e0b784f14d8c40de8e8c"
+      ]
+    },
+    {
+      "id": "N6",
+      "commits": [
+        "3cfda19e2cc74d8fd5da8da693075c8a0e99ef02"
+      ],
+      "integratedCommits": [
+        "3241edd30d05926d2920d1457dd3b6425cdf1bf2"
+      ]
+    },
+    {
+      "id": "LUX-SP6-SOURCE-FOR-S6",
+      "sourceCommit": "16f1e19f1b9254ee9f9622199bff9ed5650f84e9",
+      "integratedCommits": [
+        "b56a02d61de5103eba44f56137fc13f179356cc6"
+      ]
+    },
+    {
+      "id": "PLANK-C7-PROFILE-PREREQUISITE",
+      "sourceCommit": "d93d2b1f19beef5b7936c9d9ff74c7f5b77c750b"
+    },
+    {
+      "id": "S6",
+      "sourceCommits": [
+        "e729ab7d9601b58210020eba138d422e33293dc6",
+        "84e9ccd0f040c17c69c2275e679f3adb4513ac57",
+        "ba57eb17665eb0dec84a61e988b394ddbe9bfbf8",
+        "79da3dad9d442af8c0c2c5cc9f653c534d867df3"
+      ],
+      "integratedCommits": [
+        "57a12373a9bb8b6b0165366668f5fc04e84f4ca4",
+        "3d9dcbc70aeef45b727a914fe7f96b72fcb364ca",
+        "548adefe9a7776807c4f7ff8a4d4a9d9e237f4c4"
+      ]
+    },
+    {
+      "id": "C5-C6-SQL-TERMINAL-FIX",
+      "sourceCommit": "99dc8b1f529f28f327f70a54139a3fbf65603b84",
+      "integratedCommit": "1131b51597f4a24b0fd40e23e844e1e7bad65aaf"
+    },
+    {
+      "id": "N8",
+      "sourceCommit": "afd33fbb5c0b85e0e0928b7b62101c01aea56dfd",
+      "integratedCommits": [
+        "a2202ffc99aecb14aeb4bc78bca2c1de2e5b9a38"
+      ]
+    },
+    {
+      "id": "N9",
+      "sourceCommit": "f50e125b8dbd3b7b8c90c2e399e1f1a419b4515d",
+      "integratedCommit": "6dc5b63554b11f4c7aa8fcd1c073423ebb852216",
+      "entrySources": [
+        "4256ebb585f9ff7125c76f42a9f59f483f031bb6",
+        "2127fd7f4b269198094953c05ca9968f0c39e6ae",
+        "7b40ea217ed1b823fe7edc9fc69e85ca064666f9"
+      ],
+      "entryIntegratedCommits": [
+        "cb9743fd7c90aac5073e8c9e27765e1cbbc3d71a",
+        "93a3b11798250f363709f361ab01eaa6bd7ce932"
+      ]
+    },
+    {
+      "id": "C7",
+      "runtimeSource": "92129377569676e17a275dd9b822583ffac3eac4",
+      "leafSource": "9bc488e5d5555d4b2d4b36797b7057b196138924",
+      "authSource": "80f80b3c3aeb5443048d0bc67b64960dc066ad8e",
+      "permanentGuardSource": "a2934b60ab0b9673a7bdf13b21988cdada7e3845",
+      "consumerSourceCommittedRoot": "221cf5f12a7c1d97c08f653f9a49cc7960fa4d6e"
+    },
+    {
+      "id": "C5-numeric-terminal-SQL-assertion-repair",
+      "integratedCommit": "1131b51597f4a24b0fd40e23e844e1e7bad65aaf",
+      "sourceCommit": "99dc8b1f529f28f327f70a54139a3fbf65603b84",
+      "scope": "Correct surrender terminal expectation; retain original failed A2 SQL2 evidence."
+    },
+    {
+      "id": "all-related-network-successful-reconnect-evidence",
+      "sourceCommits": [
+        "80f80b3c3aeb5443048d0bc67b64960dc066ad8e",
+        "a2934b60ab0b9673a7bdf13b21988cdada7e3845",
+        "bb4382103ec0a5b516f0c10f807d3c521533590f",
+        "027433b5571c8606378336462d6d2adc1dddea87",
+        "a15c4322c91ead7cc18deb053fb945a6f7a927f3",
+        "2127fd7f4b269198094953c05ca9968f0c39e6ae",
+        "7b40ea217ed1b823fe7edc9fc69e85ca064666f9"
+      ],
+      "scope": "Actual successful dual-identity Joined, rotated credentials, explicit Error acknowledgements, bounded read-only SQL rotation and independent exact no-write samples."
+    },
+    {
+      "id": "A3-scope-budget-only-repair",
+      "integratedCommit": "0322857dda6ffe2d793d86f5c43786a34dffa46d",
+      "scope": "Scope job5to15 minutes; retained fetch subprocess120s and all other gates unchanged"
+    },
+    {
+      "id": "A3-S3-coherent-tamper-test-only-repair",
+      "sourceCommit": "73d65208d3f69bbeab8b3d6d4711057dbd5f03f0",
+      "integratedCommit": "04042a900d91362f2320c78cd62150349b792433",
+      "scope": "One SQL leaf plus two permanent controls; self-consistent five-payload forgery must fail unchanged original log, strict diagnostics and exact seven-table restoration; no Engine or S7 feature diff"
+    },
+    {
+      "id": "PLAY_CARD-raw-object-prejournal",
+      "sourceCommit": "568cc715b4a761a4a982819b4ee85b3086130b50",
+      "integratedCommit": "1b99eeb27ad591a43cdb6af651418c979d718397",
+      "scope": "Required canonical raw target-array after cache and before status/stale/engine/journal; no null/nonobject expansion or parent feature import"
+    },
+    {
+      "id": "same-repair-S3-real-network-entry",
+      "integratedCommit": "0bf40060837df9fa5b39bd59cb4cbc3c3c05637b",
+      "scope": "Four malformed target probes, exact seven-table/private-view invariance and legitimate same-intent correction in the existing S3 group"
+    },
+    {
+      "id": "A4-S4-tamper-negative-control-repair",
+      "sourceCommit": "ba04f3dc1d326b72e6341083b107a09701ae70ba",
+      "integratedCommit": "ba69225d5ebda510ec7825fdabf37f9824b49a48",
+      "rootRestoreFailureGuard": "a0dc11cdb1c92b1eaa7c196f1a4eb0aa4212fabc",
+      "scope": "State-only structural plus coherent five-row original-log negatives; actual evidence before strict assertions and exact original restoration; no production/recovery/DTO changes"
+    }
+  ],
+  "rootEntryChanges": [
+    "SHA-bound immutable checkout/source-index receipts",
+    "Exact original72 SQL prefix plus S4/S6/C7/N9 appended,76 ordered cases/four partitions",
+    "Original three network groups plus S4/S5/S6/C7/N9, eight groups",
+    "Public driver/source links and true external API restart; finish only S5/S6 after readonly recovery",
+    "Each room/phase requires fresh dual successful RECONNECT Joined; old A2 zero-Joined traces rejected",
+    "Only actual token/timestamp rotation permitted during reconnect; pure recovery/duplicates/tamper preserve exact seven-table baselines",
+    "A3 scope budget and S3 self-consistent original-journal negative control repaired only",
+    "Four S3 real-wire malformed target probes do not add command rows; existing original SQL count10 remains mandatory",
+    "S4 preserves actual state-only structural control and coherent five-payload original-log hash control, exact restoration and no rejected-session cache",
+    "Restore every captured row after individual failures and record aggregate actual restore diagnostics before strict assertions"
+  ],
+  "networkCases": [
+    "payment-resource-surplus",
+    "damage-doubling-combat-keywords",
+    "ven-flow-combat-keywords",
+    "optional-additional-cost-reductions",
+    "instruction-power-payment",
+    "restricted-mana-lux",
+    "empowered-target-action-replacement",
+    "ven-empowered-self"
+  ],
+  "sqlCaseCount": 76,
+  "sqlPartitionCount": 4,
+  "requiredRemoteGates": [
+    "rules full",
+    "postgres: four SQL partitions plus native_network and related_network",
+    "existing desktop gates"
+  ],
+  "excludedNextQueue": [
+    {
+      "id": "C8",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "S7",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "S7-parent-quantity-coverage",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "N10",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "N11",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "N12",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "C9",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "N13",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "resource-capacity-prompts",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "C10",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "N14",
+      "status": "Excluded from A4; independently delivered or still under review in a later bounded feature batch"
+    },
+    {
+      "id": "P7-original-test-calibration",
+      "status": "Excluded from frozen A5; separate later package even when delivered or methods allocated"
+    },
+    {
+      "id": "N15",
+      "status": "Excluded from frozen A5; separate later package even when delivered or methods allocated"
+    },
+    {
+      "id": "N16",
+      "status": "Excluded from frozen A5; separate later package even when delivered or methods allocated"
+    },
+    {
+      "id": "C11",
+      "status": "Excluded from frozen A5; separate later package even when delivered or methods allocated"
+    },
+    {
+      "id": "two-rule-choice-rune-menu-capacity",
+      "status": "Excluded from frozen A5; separate later package even when delivered or methods allocated"
+    }
+  ],
+  "wholeCardOrVisibleClientCertification": false,
+  "backendStageComplete": false,
+  "previousCandidate": "0ec2e692d1f82ff0487e40a79d5e97c0c704eb59",
+  "catalog": {
+    "rows": 1052,
+    "semanticSha256": "3bf8afc44964c6706be63503055fedb383004119d4d632c7803ca2bf9b8cd2f0"
+  },
+  "knownEvidenceBoundaries": [
+    "Original A2 related_network job success does not establish token reconnect: all six after-restart traces had0 Joined and INVALID_RECONNECT_TOKEN; original artifact retained.",
+    "S3/S4 ordinary-opening recipes start from recorded seated origins and do not independently establish empty-room seating.",
+    "C7/N9 explicit finite QA factories are not natural-opening or whole-card proofs.",
+    "Original1052 focus885/888 retains three baseline failures; only those three corrected methods were rerun3/3, not a single888 green run.",
+    "Root payment/original-room-seat focus75/75, C7 SQL/N9 consumers101/101 and final four reconnect guard classes167/167 are separate bounded inputs; real gates pending.",
+    "Original A3 scope timeout and S3 tamper assertion failure remain; remaining seven network groups did not execute there.",
+    "Owner isolated Mac PG proof and root12 local controls support the narrow repair only; they are not A4 Linux/network passes.",
+    "A4 executes existing full rules, four SQL partitions, native and eight related network groups plus desktop gates; no gate reduction.",
+    "A4 actual first three related groups passed, S4 layer assertion failed and later four groups did not execute; all original artifacts retained",
+    "Owner exact-A4 Mac minimal PG two-room proof and root targeted62 are bounded different builds and do not establish A5 Linux/network acceptance",
+    "Root raw-target37 at1b99 and root S4/adjacent62 at a0dc are separate inputs, not a single99-case run",
+    "Direct typed PLAY_CARD raw=null/nonobject persistence gap remains independently OPEN; object guard does not claim every raw ingress closed"
+  ],
+  "localVerification": {
+    "rawTarget37": {
+      "input": "1b99eeb27ad591a43cdb6af651418c979d718397",
+      "passed": 37,
+      "total": 37,
+      "skipped": 0,
+      "receipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/play-card-targets-fixed-intake-v1/root-37-result-v1.json"
+    },
+    "s4AndAdjacent62": {
+      "input": "a0dc11cdb1c92b1eaa7c196f1a4eb0aa4212fabc",
+      "passed": 62,
+      "total": 62,
+      "methods": 34,
+      "skipped": 0,
+      "receipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/s4-coherent-reduction-intake-v1/root-verification-v1.json"
+    },
+    "ownerActualMinimalPgA4Separate": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/s4-coherent-reduction-intake-v1/source-and-pg-evidence-review-v1.json",
+    "postgresAndPublicDriverBuildsPassed": true,
+    "s3NativeProbeBuildPassed": true,
+    "newLocalHeavyExecuted": false,
+    "a5ActualRemoteResults": "NOT_YET_DISPATCHED",
+    "semanticCoverageCertified": false,
+    "pythonSafeguards": {
+      "passed": 124,
+      "total": 124,
+      "seconds": 3.738
+    },
+    "governanceErrors": 0
+  },
+  "narrowRepairBoundary": {
+    "productionPathsChangedFromA4": [
+      "src/Riftbound.Engine/MatchSession.cs"
+    ],
+    "catalogAndOtherProductionSameAsA4": true,
+    "acceptancePathsChangedFromA4": [
+      "tests/Riftbound.ConformanceTests/CoherentReductionForgeryRecoveryTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/PlayCardTargetsIngressTests.cs",
+      "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj",
+      "tests/Riftbound.NativeNetworkSmoke/PaymentResourceSurplusNetworkAcceptance.cs",
+      "tests/Riftbound.PostgresAcceptance/OptionalAdditionalCostReductionSqlAcceptance.cs"
+    ],
+    "workflowPathsChangedFromA4": [],
+    "sourceGuardImportsNoParentCapacityOrP7": true,
+    "oldA4Run": 40031882948,
+    "oldA4FailurePreserved": true,
+    "oldMeaningfulJobsNotCancelled": true,
+    "membershipMayNotGrow": true
+  }
+}

@@ -79,3 +79,5 @@ contract须解释实例来源/target generation/remaining/expiry、叠加与part
 C11原v3独立19个接受命令重入同代际同场DEFEND实际入链2次，期望1，仍在已分配RecordBattleDuelRoles范围；first-role记忆按battle+generation+role保留，不以新controller/场上移走重置，也不覆盖C10原声明PublicObjectBindings。新代际/另一角色/下一场合法首次须保留；算法仍待proposal。
 
 N16/C11不进A4/冻结B1/待封raw-object+S4窄候选；无新本地heavy/CI或运行规则变动，净整卡0。根治理文档仅登记分工。
+
+A5固定三项已收齐：raw-object源568→根1b99、S3真实网络四探针0bf、S4源ba04→根ba692＋逐行还原保护a0dc。S4四文件只验收叶/四永久guard/两原builder Compile links/audit；csproj相邻S7行冲突仅保留根配置并加两link，不带父功能。源A4 Mac两房echo45/291与copied57/348各有state-only结构拒绝＋五payload shape-valid原日志hash拒绝，原7表/其他房/认证行精确还原及同registry恢复/原history通过；不同Linux/Mac/子线1041/根1052 build身份不混。根a0dc实际62/62/0skip（34方法），Enginee8f14a20…/MVIDeda56ea9…；source data同根raw guard1b99，非未来A5实际门禁。root逐行restore失败继续其余行并汇总错误，仍做精确采样/先留证/严格拒绝；生产/恢复/全局Web比较/原日志不改。旧37与现62不合并成单次99；九FullGame源不动。固定A5仍须实际SHA-bound完整Actions、76 SQL/四片/八network/full/desktop，所有后续功能排除，raw=null及来源/全卡缺口OPEN。
