@@ -23,5 +23,7 @@ for (const card of [...catalog.cards, ...(Array.isArray(catalog.scopedAdditions)
     image: card.frontImage || undefined,
   };
 }
+// public/ holds only this generated (git-ignored) file, so a fresh checkout has no such folder.
+fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, JSON.stringify(cards));
 console.log(`cards.json: ${Object.keys(cards).length} cards`);
