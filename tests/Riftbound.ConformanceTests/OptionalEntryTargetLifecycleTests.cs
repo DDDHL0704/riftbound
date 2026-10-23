@@ -95,8 +95,28 @@ public sealed class OptionalEntryTargetLifecycleTests
         Assert.DoesNotContain("ENEMY", driver.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(0, driver.State.CardObjects["ALLY"].Damage);
         Assert.DoesNotContain(driver.Events(), e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "ENEMY"));
+        if (enemyNo == "OGN·271/298") {
+            Assert.False(driver.State.CardObjects.ContainsKey("ENEMY"));
+            Assert.DoesNotContain("ENEMY", driver.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(8, driver.Commands().Length); Assert.Equal(26, driver.Events().Length);
+            if (Environment.GetEnvironmentVariable("RIFTBOUND_OPTIONAL_ENTRY_EVIDENCE") is { Length: > 0 } root) {
+                Directory.CreateDirectory(root);
+                var sequence = driver.Events().Length; var snapshots = ResolutionResult.BuildSnapshots(driver.State);
+                var prompts = ResolutionResult.BuildPrompts(driver.State);
+                var views = driver.State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, driver.State.Tick, sequence, snapshots[p], driver.State.Tick, sequence, prompts[p]));
+                var spectator = MatchReplayRedactor.BuildSpectatorFrame(driver.State.RoomId, driver.State.Tick, sequence, [], driver.State);
+                var errors = MatchRecoveryValidator.Validate(driver.State.RoomId, sequence, driver.Commands(), driver.Events(), views, driver.State, driver.State.Tick, spectator);
+                var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), driver.State, new CoreRuleEngine(), default, driver.Events());
+                Assert.Empty(errors); Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+                File.WriteAllText(Path.Combine(root, "n2-token-battle-prefix-current.json"), JsonSerializer.Serialize(new {
+                    initial, final = driver.State, commands = driver.Commands(), events = driver.Events(), errors, replay
+                }, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
+            }
+        }
         await driver.Act("P1", new EndTurnCommand());
-        Assert.DoesNotContain("STUNNED", driver.State.CardObjects["ENEMY"].UntilEndOfTurnEffects); await driver.Replay();
+        if (enemyNo == "OGN·271/298") Assert.False(driver.State.CardObjects.ContainsKey("ENEMY"));
+        else Assert.DoesNotContain("STUNNED", driver.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        await driver.Replay();
     }
 
     [Theory]
