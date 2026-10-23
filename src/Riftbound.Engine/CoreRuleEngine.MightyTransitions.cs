@@ -189,7 +189,6 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<string> MightyPaymentResourceActions(MatchState state, string player,
         IReadOnlyDictionary<string, int> costs)
     {
-        if (CanPayPowerCost(state.RunePools.GetValueOrDefault(player) ?? RunePool.Empty, 0, costs)) return [];
         return state.PlayerZones[player].Base.Where(id => CanRecycleRuneForPayment(state, player, id)
             && TryGetRuneTrait(state.CardObjects[id], out var trait) && costs.GetValueOrDefault(trait) > 0)
             .Select(id => RecycleRunePaymentOptionalCostPrefix + id).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
@@ -270,9 +269,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "强力技能付款选择无效。", ErrorCodes.InvalidTarget);
         if (spend[0] == "DECLINE") return ConfirmMightySkill(state, item, false);
         if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, resources, out var optional, out var actions, out var runeIds)
-            || optional.Count != 0 || !AreRecycleRunePaymentResourceActionsRequired(state.RunePools[intent.PlayerId], state.CardObjects,
-                runeIds, 0, pending.PowerCostByTrait))
-            return RejectWithCorePrompts(state, "支付资源动作无效或不必要。", ErrorCodes.InvalidTarget);
+            || optional.Count != 0)
+            return RejectWithCorePrompts(state, "支付资源动作无效。", ErrorCodes.InvalidTarget);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var zones = NormalizeZonesForSeats(state);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>();
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, runeIds,
