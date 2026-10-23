@@ -110,8 +110,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "STATUS_EFFECT_APPLIED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -147,20 +146,7 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-CLEAVE",
           "targetObjectId": "P2-UNIT-CLEAVE-001",
-          "effectId": "OVERWHELM_3"
-        }
-      },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "tick": 3,
-        "sequence": 8,
-        "payload": {
-          "sourceObjectId": "P1-SPELL-CLEAVE",
-          "targetObjectId": "P2-UNIT-CLEAVE-001",
-          "powerDelta": 3,
-          "appliedPowerDelta": 3,
-          "minimumPower": 0,
-          "resultingPower": 5
+          "effectId": "COMBAT_KEYWORD:强攻3"
         }
       }
     ],
@@ -196,9 +182,9 @@
       "cardObjects": {
         "P2-UNIT-CLEAVE-001": {
           "damage": 0,
-          "power": 5,
-          "untilEndOfTurnEffects": ["OVERWHELM_3"],
-          "untilEndOfTurnPowerModifier": 3,
+          "power": 2,
+          "untilEndOfTurnEffects": ["COMBAT_KEYWORD:强攻3:1"],
+          "untilEndOfTurnPowerModifier": 0,
           "isAttacking": true,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT"]

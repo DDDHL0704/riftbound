@@ -7778,10 +7778,8 @@ public static class CardBehaviorRegistry
             "CLEAVE_OVERWHELM_3",
             0,
             1,
-            StatusEffectId: "OVERWHELM_3",
+            StatusEffectId: "COMBAT_KEYWORD:强攻3",
             TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: 3,
-            PowerModifierConditionKind: CardPowerModifierConditionKinds.TargetIsAttacking,
             CanPlayDuringSpellDuel: true),
         new(
             "SFD·003/221",

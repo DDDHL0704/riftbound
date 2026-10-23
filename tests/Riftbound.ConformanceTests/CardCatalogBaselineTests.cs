@@ -7216,10 +7216,11 @@ public sealed class CardCatalogBaselineTests
                     Assert.Equal("STUNNED", delegation.DelegatedBehavior.StatusEffectId);
                     break;
                 case BehaviorTemplateIds.TempMight:
-                    Assert.Equal(3, delegation.DelegatedBehavior.PowerModifierAmount);
-                    Assert.Equal(
-                        CardPowerModifierConditionKinds.TargetIsAttacking,
-                        delegation.DelegatedBehavior.PowerModifierConditionKind);
+                    // The parsed reminder retains this historical template route,
+                    // while current CN Cleave delegates an actual Assault grant.
+                    Assert.Equal("COMBAT_KEYWORD:强攻3", delegation.DelegatedBehavior.StatusEffectId);
+                    Assert.Equal(0, delegation.DelegatedBehavior.PowerModifierAmount);
+                    Assert.Equal(CardPowerModifierConditionKinds.None, delegation.DelegatedBehavior.PowerModifierConditionKind);
                     break;
                 case BehaviorTemplateIds.Boon:
                     Assert.True(delegation.DelegatedBehavior.GrantsBoon);
@@ -9261,7 +9262,7 @@ public sealed class CardCatalogBaselineTests
         Cover("basic:摧毁", destroy.PrimitiveActions.Contains(CardBasicActionNames.Destroy, StringComparer.Ordinal));
         var stun = BuildBasicActionProfile(specs, "OGN·050/298");
         Cover("basic:眩晕", stun.PrimitiveActions.Contains(CardBasicActionNames.Stun, StringComparer.Ordinal));
-        var tempMight = BuildBasicActionProfile(specs, "OGN·004/298");
+        var tempMight = BuildBasicActionProfile(specs, "VEN·081");
         Cover("basic:临时战力", tempMight.PrimitiveActions.Contains(CardBasicActionNames.TempMight, StringComparer.Ordinal));
         var move = BuildBasicActionProfile(specs, "OGN·043/298");
         Cover("basic:移动", move.DelegatedP2Actions.Contains(CardBasicActionNames.Move, StringComparer.Ordinal));
