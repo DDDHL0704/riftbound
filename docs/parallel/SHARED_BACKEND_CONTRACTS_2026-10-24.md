@@ -54,6 +54,14 @@ C10完整交付bc61829b（父606bb8d）14文件：两批准算法/三夹具反�
 
 raw-object窄修相邻校准：③原legacy-wire-v8四例中两Conformance旧stale/idempotency raw只有cmdType/prompt/tick，缺required targets而被新guard拒绝，两GameHub完整wire对照过。批准仅两原方法保留坏raw为InvalidPayload/同state/0事件/空journal前控，再用同typed command的完整新wire执行全部原付款/栈/提示/快照/stale/cache及changedRaw冲突断言；全局PromptScopedRawCommand/原Fact/初始化/原红保持。新私有helper须按PlayCardCommand实际类型/Web JSON保留OptionalCosts的JsonIgnore(WhenWritingNull)，原anonymous写optionalCosts:null的提案已指出需修正，不能放宽生产可选费用guard。未扩raw=null/N2/N13/N15，固定窄源/最终结果仍待③；root ignored play-card-legacy-wire-scope-v1。
 
+通用raw-object窄修交付：568cc715（父e778）仅四文件已核，根1b99eeb2实际37/37/0skip，原SEATING九命令完整journal/独立replay/JSON冷registry及缓存无新写入；不含f868/e778功能/N15注册。helper已改实际record/Web序列化保留JsonIgnore。根S3网络入口追加missing/blank/duplicate-property三次同intent及接受后stale-blank，实际INVALID_PAYLOAD＋双方视图/精确七表不变，再合法同intent成功；SQL仍独立要求原10条history，76/八组不扩。入口编译过，真实门禁待后继窄候选。此前“待③固定源”由本段交付更新，null/非Object独立OPEN保持。
+
+A4实际S4窄修：40031882948/job120682478350/原artifact12535419385 SHA04fdfdbf…，前三组complete PASS，S3协调五payload已在真实CI原日志层拒绝并精确还原；S4 echo/copied两房各2真实Joined/新token及45/57原日志before/after稳定，首echo tamper在保存actual error/shape前原251行断言失败，后四组未执行。只state-row mana0→1不是no-op，但原产物无实际拒绝层；不得说伪造已获准。③primary优先隔离实际诊断，独立验收叶/永久guard修复，保留state-only结构负控与协调五payload原日志负控，所有actual异常/拒绝/全量还原在严格断言前留证。恢复/生产/原日志不改，原A4/full/四SQL不取消；后继候选仅raw-object＋S3探针＋此S4失败窄修。
+
+③后续两手工菜单：原red-v2 0/8已核；4TAP外层异常、4RECYCLE接受决策而preview符能2147483648，authoritative checkpoint未改，不能说最终余额已落地。exact patch deceb1a6742c3a5d9a2542ee28ce513c75a83d97eca9f64595af58c96454b2a9只准ConditionalCounterPayment.TargetSpellControllerPaysCounterCost与TokenHaste.ChooseTokenHaste手工TAP加CanGainSpellOnlyMana(pool,1)、RECYCLE加HasSupportedAmounts/long总量+1≤Max；每轮当前working pool，不改payer/PAY/DECLINE/来源/继续/clock/恢复。须刚好容1、ordinary+restricted/wild+typed、实付后重算、冷恢复/原journal/伪造选择和原消费者，先完成S4实失败。此另批窄修不入当前后继候选/A4/冻结B1。
+
+C11仅分配方法接点给②，算法尚未批准：首次角色RecordBattleDuelRoles；FieldTriggers/CombatMight对应有限Kind的context/目标/确认/分派；Core对应resolver/CloseResolvedBattle；MatchSession/Recovery精确投影/校验分支。与③Submit/S4验收/两付款菜单及④N15目标/返回无重叠；保留根C7/N9/S5/S6及旧Kind。生产应用前须exact diff、新Kind/marker契约、战斗/场地/控制者/来源与目标代际/快照/叠加、跳伤/无winner/C10终局cutoff/真正BattleClosed失效及严格恢复负控；Fiora复制/离场与目标换代、强化阵地合法全场目标须具体原例。VEN024/028为来源已报但未登记独立OPEN，未授注册或删适用范围。C11不入A4/B1/后继窄候选。
+
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 
 核对的既有CN核心SHA `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`：C7 370.2/372，S6 166–168/430；VEN FAQ SHA `59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742`。S6 API原响应SHA `4dfaf40eda6e4f7b0a09624693c32f8f42933859fe12a9b1027a564a6aba44e2`。这些是所审输入，非全官网最新/整卡认证。①原件：`var/qa/related-backend-integration-20261024-v3/{c7-contract-review-v1.json,restricted-mana-shared-contract-review-v1.json}`。

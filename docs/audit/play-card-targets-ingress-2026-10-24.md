@@ -9,3 +9,9 @@
 - 旧游击战另有显式中盘`[]`对照，只证明合法声明/付款不受本guard影响，不称其为普通出生整卡恢复认证。2026-10-24重新获取[官方CN API](https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb)，精确id31507/OGN·264/298，energy2/returnEnergy1，响应SHA`b4323f4257a0a6770e2b09242a971b35fea6fc237d95e1bc2ba5881795c5d79f`，QA null/errata空，发布/生效日未给出。中间`mechanism-v2`32/33的一条失败是新增正控误以为不扣符能，依据该来源改为2mana+1power；原TRX/测试源保留，不回滚或改动生产付款。
 - **独立OPEN边界：** direct typed+raw=null在真实持久化Session可接受第9条命令，但原9条journal严格恢复报`raw command is required for PLAY_CARD`。真实probe保留于ignored；经①明确范围，本批不扩raw=null/其他非object、不改原直接typed控制权三Theory行、不按Noop判断或合成raw。不能把本批宣传为所有PLAY_CARD原始入口已封闭；后续按实际调用者原wire与持久化契约单独处理。
 - 原件均在本线ignored`var/qa/play-card-targets-ingress-20261024/`：`red-v1/`源/TRX/runtime/两前沿/null-raw原日志、`red-summary-v4.json`、`mechanism-v2/`中间误预期、`affected-v5/`278绿、`legacy-wire-controls-v8/`原两红、`legacy-wire-baseline-v9/input/`原测试DLL与前guard模块、`legacy-wire-baseline-v10/`实际4/4基线、`legacy-wire-typed-v14/`实际typed序列化校正4/4、`retention-final-v15.json`原断言保留证明、`source/`官方原响应；v9首次命令含不适用的MSBuild参数而未执行测试，未冒称原测试失败。固定验证收据另记同目录。FullGame九文件/牌组/seed/对局断言不变；本地仅focus/minimal build，A4冻结输入不动，必要固定diff Actions check/SQL/API/restart/security仍由①验收，issue与后端Goal继续OPEN。
+
+## 根分支接入与真实网络门禁
+
+- ①仅取568相对e778的四文件diff，根接入1b99eeb27ad591a43cdb6af651418c979d718397；f868容量、e778 P7及N15消费者未带入。根1052目录实际37/37/0skip，加载Engine SHAe25b97a518b1320ed475b02f5802c4fbfd59ac5b07a0b0b573bc392660d64a98、MVID97162849-d35b-456d-a9a1-31140c64b261；SEATING原九命令冷registry/replay与缓存零写入通过。这是根本地定向输入，不冒称后继候选或真实PG/API通过。
+- 根既有payment-resource-surplus网络入口增加missing/blank/duplicate-property三次同intent坏载荷及真实接受后的stale-blank探针：必须实际收到INVALID_PAYLOAD、双方视图/精确七表不变，随后同intent合法播放成功；坏请求原wire/实际receipt/异常另存诊断，不进入journal。现有SQL仍要求原8开局＋1接受＋1正常stale共10条原日志，并经原真实API重启后冷恢复、幂等与篡改验证；76 SQL/八network分组不变。新增入口已编译0警告0错误，实际执行待后继固定Actions。
+- A4新S4篡改叶失败已转③独立处理，后继窄修候选先收其具体修复；A4原输入/产物和有价值的full/四SQL不取消。独立raw=null缺口继续OPEN。根原件：var/qa/related-backend-integration-20261024-v3/play-card-targets-fixed-intake-v1/。

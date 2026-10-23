@@ -79,9 +79,18 @@ internal static class PaymentResourceSurplusNetworkAcceptance
                 var forbidden = await audit.Reject(opponent, actor, ErrorCodes.IdentityMismatch, () => connections[opponent].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
                     "wrong-authenticated-actor", raw, token), token);
                 Check(!forbidden.Accepted, "A peer must not submit another player's payment choice.");
+                // These malformed requests must stay outside the durable stream
+                // and its intent cache. The same intent then makes the real play.
+                var missingTargets = JsonNode.Parse(raw.GetRawText())!.AsObject();
+                Check(missingTargets.Remove("targetObjectIds"), "The original legal play must contain its target array.");
+                await RejectMalformedTargets("missing", JsonSerializer.SerializeToElement(missingTargets), "network-surplus-play");
+                await RejectMalformedTargets("blank", BlankTargets(raw), "network-surplus-play");
+                using (var duplicateTargets = JsonDocument.Parse(raw.GetRawText()[..^1] + ",\"targetObjectIds\":[]}"))
+                    await RejectMalformedTargets("duplicate-property", duplicateTargets.RootElement.Clone(), "network-surplus-play");
                 var receipt = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "network-surplus-play", raw, token);
                 Check(receipt.Accepted, receipt.Message);
                 await WaitForViews(receipt.ServerTick);
+                await RejectMalformedTargets("stale-blank", BlankTargets(raw), "network-surplus-malformed-stale");
                 var stale = await audit.Reject(actor, actor, ErrorCodes.PromptExpired, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "network-surplus-stale", raw, token), token);
                 Check(!stale.Accepted && stale.ErrorCode == ErrorCodes.PromptExpired && stale.ServerTick == receipt.ServerTick,
                     "The stale plan must be rejected without a second acquisition.");
@@ -108,7 +117,7 @@ internal static class PaymentResourceSurplusNetworkAcceptance
             await audit.Complete();
             await File.WriteAllTextAsync(Path.Combine(output, recover ? "network-after-restart.json" : "network-before-restart.json"),
                 JsonSerializer.Serialize(new { status = "REAL_DUAL_PLAYER_SIGNALR_PAYMENT_SURPLUS_PASS", room, recover,
-                    snapshots, prompts, traces = traces.ToArray(), scope = "Dedicated API process; authenticated peer boundary, quote, explicit acquisition, stale rejection and same original action after process restart." }, json), token);
+                    snapshots, prompts, traces = traces.ToArray(), scope = "Dedicated API process; authenticated peer boundary, quote, malformed live/stale target rejection with exact SQL/view invariance, same-intent valid correction, explicit acquisition, stale rejection and same original action after process restart." }, json), token);
             Console.WriteLine(recover ? "NETWORK_PAYMENT_SURPLUS_COLD_RECONNECT_AND_DUPLICATE_PASS" : "NETWORK_PAYMENT_SURPLUS_PLAY_QUOTE_PEER_AND_STALE_PASS");
         }
         finally
@@ -116,6 +125,42 @@ internal static class PaymentResourceSurplusNetworkAcceptance
             await File.WriteAllTextAsync(Path.Combine(output, "network-trace-" + (recover ? "recover" : "play") + ".json"), JsonSerializer.Serialize(traces.ToArray(), json));
 
             foreach (var connection in connections.Values) await connection.DisposeAsync();
+        }
+
+        JsonElement BlankTargets(JsonElement original)
+        {
+            var node = JsonNode.Parse(original.GetRawText())!.AsObject();
+            node["targetObjectIds"] = new JsonArray(JsonValue.Create(""), JsonValue.Create("  "));
+            return JsonSerializer.SerializeToElement(node);
+        }
+
+        async Task RejectMalformedTargets(string label, JsonElement malformed, string intent)
+        {
+            var tick = prompts[actor].SnapshotTick!.Value;
+            var previousSnapshots = snapshots.ToDictionary(pair => pair.Key, pair => pair.Value.Clone());
+            var previousPrompts = prompts.ToDictionary(pair => pair.Key, pair => JsonSerializer.SerializeToNode(pair.Value, json));
+            CommandReceiptDto? actualReceipt = null;
+            string? failure = null;
+            try
+            {
+                var rejected = await audit.WithoutWrites("play-targets-" + label, () => audit.Reject(actor, actor, ErrorCodes.InvalidPayload, async () => {
+                    actualReceipt = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, intent, malformed, token);
+                    return actualReceipt;
+                }, token));
+                Check(rejected.ServerTick == tick, "Malformed targets must not advance the server tick, even with a stale prompt.");
+                await WaitForViews(tick);
+                foreach (var player in players.Keys)
+                    Check(JsonNode.DeepEquals(JsonNode.Parse(previousSnapshots[player].GetRawText()), JsonNode.Parse(snapshots[player].GetRawText()))
+                        && JsonNode.DeepEquals(previousPrompts[player], JsonSerializer.SerializeToNode(prompts[player], json)),
+                        "Malformed targets changed a player's authoritative view.");
+            }
+            catch (Exception error) { failure = error.ToString(); throw; }
+            finally
+            {
+                await File.WriteAllTextAsync(Path.Combine(output, "play-target-ingress-" + label + ".json"),
+                    JsonSerializer.Serialize(new { room, actor, intent, malformed, actualReceipt, failure,
+                        previousSnapshots, previousPrompts, snapshots, prompts }, json));
+            }
         }
 
         async Task WaitForViews(long? tick = null)
