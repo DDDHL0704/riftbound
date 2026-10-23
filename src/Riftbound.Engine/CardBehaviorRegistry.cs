@@ -2487,6 +2487,7 @@ public static class CardBehaviorRegistry
             2,
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
