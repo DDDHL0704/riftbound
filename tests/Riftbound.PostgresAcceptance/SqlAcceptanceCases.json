@@ -282,6 +282,14 @@
     {
       "id": "payment-resource-surplus",
       "sourceType": "PaymentResourceSurplusSqlAcceptance"
+    },
+    {
+      "id": "damage-doubling-combat-keywords",
+      "sourceType": "DamageDoublingCombatKeywordSqlAcceptance"
+    },
+    {
+      "id": "ven-flow-combat-keywords",
+      "sourceType": "VenFlowCombatKeywordSqlAcceptance"
     }
   ]
 }

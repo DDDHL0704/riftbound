@@ -5,6 +5,11 @@ on:
     branches: [main, 'codex/native-platform-*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact immutable candidate commit; must match the dispatched ref
+        required: false
+        type: string
   schedule:
     - cron: '0 18 * * 1-6' # 02:00 Asia/Shanghai, daily full
     - cron: '0 18 * * 0'   # weekly L3, longer artifact retention
@@ -15,6 +20,7 @@ permissions:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
   DOTNET_NOLOGO: '1'
+  RIFTBOUND_EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha || github.sha }}
 
 jobs:
   scope:
@@ -29,7 +35,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 2
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - name: Verification safeguards
         run: python3 -m unittest discover -s scripts/tests -v
       - name: Determine scope from fixed Git inputs
@@ -80,7 +98,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 2
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -112,7 +142,7 @@ jobs:
     timeout-minutes: 360
     concurrency:
       group: rule-suite-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -129,6 +159,19 @@ jobs:
       ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -165,7 +208,7 @@ jobs:
     timeout-minutes: 360
     concurrency:
       group: postgres-${{ github.ref }}-${{ github.sha }}-${{ matrix.partition }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -182,6 +225,19 @@ jobs:
       ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -211,9 +267,22 @@ jobs:
     timeout-minutes: 40
     concurrency:
       group: native-network-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -247,16 +316,82 @@ jobs:
           path: var/qa/ci-native-network/
           retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
+  related_network:
+    needs: scope
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.network != 'false') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: related-network-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: false
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-related-network
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Fixed PostgreSQL API process restart and original journal gates
+        run: >-
+          python3 scripts/run-related-network-ci.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --output var/qa/ci-related-network
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: related-network-results
+          path: var/qa/ci-related-network/
+          retention-days: 90
+
   postgres:
-    needs: [scope, postgres_partitions, native_network]
+    needs: [scope, postgres_partitions, native_network, related_network]
     if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.sql != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
       group: postgres-gate-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           pattern: postgres-partition-*
@@ -267,12 +402,14 @@ jobs:
           RIFTBOUND_SCOPE_RESULT: ${{ needs.scope.result }}
           RIFTBOUND_POSTGRES_PARTITIONS_RESULT: ${{ needs.postgres_partitions.result }}
           RIFTBOUND_NATIVE_NETWORK_RESULT: ${{ needs.native_network.result }}
+          RIFTBOUND_RELATED_NETWORK_RESULT: ${{ needs.related_network.result }}
         run: >-
           python3 scripts/sql-ci-gate.py --commit "$GITHUB_SHA"
           --manifest tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json
           --inputs var/qa/ci-sql-inputs --scope "$RIFTBOUND_SCOPE_RESULT"
           --postgres-partitions "$RIFTBOUND_POSTGRES_PARTITIONS_RESULT"
           --native-network "$RIFTBOUND_NATIVE_NETWORK_RESULT"
+          --related-network "$RIFTBOUND_RELATED_NETWORK_RESULT"
           --output var/qa/ci-sql-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
@@ -290,9 +427,22 @@ jobs:
     timeout-minutes: 5
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - name: Require every fixed full child job
         env:
           RIFTBOUND_SCOPE_RESULT: ${{ needs.scope.result }}
@@ -322,13 +472,27 @@ jobs:
     timeout-minutes: 40
     concurrency:
       group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}-${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' && github.run_id || 'full' }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     steps:
       - name: Selected scope; packaging not executed
         if: ${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' }}
         run: echo 'Scoped verification. Desktop packaging was not executed. See verification-scope.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the fixed candidate checkout
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
+        shell: bash
+        run: >-
+          python3 scripts/ci-candidate.py --expected "$RIFTBOUND_EXPECTED_CANDIDATE_SHA"
+          --event-sha "$GITHUB_SHA" --output var/qa/ci-candidate/checkout.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false') }}
+        with:
+          name: candidate-${{ github.job }}-${{ strategy.job-index || 'single' }}
+          path: var/qa/ci-candidate/checkout.json
+          retention-days: 90
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
         with:

@@ -64,7 +64,8 @@ class FullCiGateTests(unittest.TestCase):
             self.assertIn('timeout-minutes: 360', jobs[name])
         self.assertIn('    needs: scope\n', jobs['native_network'])
         self.assertIn(condition.replace('outputs.full', 'outputs.network'), jobs['native_network'])
-        self.assertIn('    needs: [scope, postgres_partitions, native_network]\n', jobs['postgres'])
+        self.assertIn('    needs: [scope, postgres_partitions, native_network, related_network]\n', jobs['postgres'])
+        self.assertIn(condition.replace('outputs.full', 'outputs.network'), jobs['related_network'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('    needs: [scope, rule_suite, postgres]\n', jobs['rules'])
         self.assertIn("always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')", jobs['rules'])
@@ -76,7 +77,7 @@ class FullCiGateTests(unittest.TestCase):
     def test_full_workflow_keeps_actual_postgres_for_unit_smokes_and_all_full_sql_and_network_commands(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres_partitions']:
+        for job in ['rule_suite', 'postgres_partitions', 'related_network']:
             self.assertIn('image: postgres:16.13@sha256:', jobs[job])
             self.assertIn('ConnectionStrings__Riftbound: Host=127.0.0.1;', jobs[job])
         self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', jobs['rule_suite'])
@@ -103,11 +104,12 @@ class FullCiGateTests(unittest.TestCase):
     def test_full_jobs_do_not_downgrade_errors_or_conditionally_skip_real_gates(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres_partitions', 'native_network', 'postgres', 'rules']:
+        for job in ['rule_suite', 'postgres_partitions', 'native_network', 'related_network', 'postgres', 'rules']:
             self.assertNotIn('continue-on-error', jobs[job])
         for job, name in [('rule_suite', 'Complete rule suite with checked process shards'),
                           ('postgres_partitions', 'Real PostgreSQL complete checked partition'),
                           ('native_network', 'Native client connection recovery'),
+                          ('related_network', 'Fixed PostgreSQL API process restart and original journal gates'),
                           ('postgres', 'Require every fixed SQL case and native network result'),
                           ('rules', 'Require every fixed full child job')]:
             block = jobs[job].split('      - name: ' + name + '\n', 1)[1]

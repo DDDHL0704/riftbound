@@ -571,4 +571,7 @@ await partition.RunAsync("selected-field-damage", () => SelectedBattlefieldDamag
 await partition.RunAsync("draven-battle-death", () => DravenBattleDeathSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "draven-battle-death")));
 await partition.RunAsync("payment-resource-surplus", () => PaymentResourceSurplusSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "payment-resource-surplus")));
 
+await partition.RunAsync("damage-doubling-combat-keywords", () => DamageDoublingCombatKeywordSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "damage-doubling-combat-keywords")));
+await partition.RunAsync("ven-flow-combat-keywords", () => VenFlowCombatKeywordSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "ven-flow-combat-keywords")));
+
 await partition.CompleteAsync(output);

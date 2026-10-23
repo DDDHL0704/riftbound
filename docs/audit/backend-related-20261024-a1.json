@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_CANDIDATE_MEMBERSHIP_NOT_RULE_CERTIFICATION",
+  "batchId": "backend-related-20261024-a1",
+  "immutableRef": "refs/tags/backend-related-20261024-a1",
+  "candidateIdentity": "Resolve the immutable ref to a full SHA; candidate_sha, GITHUB_SHA and actual checkout must match. Retain candidate-* job artifacts.",
+  "functionalBoundary": "a6f64df0134104267e0687ea176bb78183bb7dd6",
+  "members": [
+    {
+      "id": "original-check-follow-up",
+      "integratedCommit": "dc5e5b1756ab5e1a37a775a9983f1f48cf56bb60"
+    },
+    {
+      "id": "C5",
+      "integratedCommit": "7db6315d560a0b8129a4492f30bf9ba3e0a00cb7",
+      "sourceCommit": "a583907b23ca78cd4a6259d6fa0ae99016a140be"
+    },
+    {
+      "id": "C6",
+      "integratedCommit": "733213df30cfce527db7c0c587f1b801d8655dbc",
+      "sourceCommit": "8b5db4dc276801cf0423f668c49288384927d4e7"
+    },
+    {
+      "id": "N3",
+      "integratedCommit": "311b27aa1994a3615caa1fcdfc1ed308ff3e2b1e",
+      "sourceCommit": "2c47990832338f04748fb5a02fb395690254d73e"
+    },
+    {
+      "id": "governance-only",
+      "integratedCommit": "80ac5f10fbb2f32b0bf7b823b58db21faef32b6f"
+    },
+    {
+      "id": "N3-logged-CI-entry",
+      "integratedCommit": "1d0cb029b5951841f262a6feb25728c609422305",
+      "sourceCommit": "b97a5799782ec01b1ffaa94759c4802250a9a1e5"
+    },
+    {
+      "id": "C5-C6-logged-CI-entry",
+      "integratedCommit": "2f501b48338989fabf9af435d4ee4513eaf1c833",
+      "sourceCommit": "903c7edee80ccd4b18ce20245d5e9d800a7e579a"
+    }
+  ],
+  "rootEntryChanges": [
+    "SHA-bound checkout receipts",
+    "original 70 ordered SQL cases plus two appended cases in four partitions",
+    "dedicated PostgreSQL/SignalR driver with actual API restart, original-journal and tamper gates"
+  ],
+  "networkCases": [
+    "payment-resource-surplus",
+    "damage-doubling-combat-keywords",
+    "ven-flow-combat-keywords"
+  ],
+  "sqlCaseCount": 72,
+  "sqlPartitionCount": 4,
+  "requiredRemoteGates": [
+    "rules full",
+    "postgres: four SQL partitions plus native_network and related_network",
+    "existing desktop gates"
+  ],
+  "excludedNextQueue": [
+    {
+      "id": "N4",
+      "sourceTip": "c7abd6ae7e86b0b64d393b2ccef5e91678b3c534"
+    },
+    {
+      "id": "S4",
+      "sourceCommits": [
+        "1e08030bc27d74e2be7f727fbb6c754a3be6cb73",
+        "9e2a0d06e2be78b0d4ebbd80ff95a9b613bdf70f"
+      ]
+    },
+    {
+      "id": "N5",
+      "sourceCommit": "f11a7871375f1c3eb550bf8b04ba9e87e99b6f69"
+    }
+  ],
+  "wholeCardOrVisibleClientCertification": false,
+  "backendStageComplete": false
+}
