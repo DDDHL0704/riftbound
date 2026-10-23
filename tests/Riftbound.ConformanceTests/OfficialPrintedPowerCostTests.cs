@@ -195,7 +195,8 @@ public sealed class OfficialPrintedPowerCostTests
         var candidate = Assert.Single(prompt.Candidates!, x => x.Action == CommandTypes.PlayCard);
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
         var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
-        Assert.Equal(["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green"], resources.Select(x => x.Id));
+        // Acquiring red is legal; it still cannot substitute for this green/blue printed fee.
+        Assert.Equal(["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green", "RECYCLE_RUNE:red"], resources.Select(x => x.Id));
         Assert.Equal(2, requirement["printedPowerCost"]);
         Assert.Equal(3, Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["printedPowerChoices"]).Count);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_NATIVE_PAYMENT_FIXTURE") is { Length: > 0 } path)
@@ -203,6 +204,10 @@ public sealed class OfficialPrintedPowerCostTests
         var rejected = await Play(state, ["RECYCLE_RUNE:green"]);
         Assert.False(rejected.Accepted);
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
+        var wrongTrait = await Play(state, ["RECYCLE_RUNE:green", "RECYCLE_RUNE:red"]);
+        Assert.False(wrongTrait.Accepted);
+        Assert.Empty(wrongTrait.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(wrongTrait.State));
         var accepted = await Play(state, ["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green"]);
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
