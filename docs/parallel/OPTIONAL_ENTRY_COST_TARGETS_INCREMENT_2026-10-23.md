@@ -12,3 +12,4 @@
 - OPEN：①→②处理随从战斗后 CONQUERED 历史参与引用缺绑定；v12/v13 完整8命令26事件日志、4条恢复错误仍保留，v13 独立原日志回放 IsMatch=true，未放宽校验或撤销硬反例。①在最终组合目录维护 CN16 CatalogSha256 断言，当前值 `043f3cd4f3d6535de0666c4540e93afdabc48805a8908f00d1935c6f249197ab`，权威/旧拒绝边界未改。
 - OPEN：①→③负责 SFD149/149a 显式减免选择协议及支付、报价、恢复；官方 live API/两版原图与 FAQ 证据在 `ezreal-source-receipt.json`。独立依赖提交 `33d65fd73ff221affe100669aad4e8c11b08b197` 只有默认false字段及两版声明=true，不表示减免已运行。今后减免协议需重新审阅精确费用结构条件，不预设默认减免。
 - 原方法/Theory 行保留，FullGame 源码相对基线仍只有先前已分配的守卫调用；143方法/151局、110有序对、11牌组、seed424242和原胜利/重放断言未替换。本批机制为 L2，目录/未知路径仍按保守 full 分类；完整检查/SQL/API/重启及实际组合候选验收由①执行，本地未触碰其冻结服务。净整卡认证 **0**；后端 Goal 仍 ACTIVE，产品 NOT READY。
+- 夹具追补：原待命正例复用了只标记法术的 AddSpell 助手，现将 OGN097 重新用官方 PrintedCardFactory 构造，硬断言 UnitCard 且非 SpellCard 后再执行真实 HIDE_CARD。`printed-standby-unit-fixture-fix-v24` 6/6通过并保留三份新的原日志；只修正测试类型证据，不改运行谓词或原测试行。验证时已隔离下一包 VEN012 的两项运行/目录 WIP，目录仍1044；这些重叠用例不累计认证。
