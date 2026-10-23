@@ -2,6 +2,8 @@
 
 **后端未完成，产品 NOT READY，净整卡认证 0。** 原1740印次/14293条款及来源缺口保留；适用功能卡分母未知。①事件驱动、无续跑Goal；②③④继续独立迭代。目标见[后端目标](BACKEND_RULES_GOAL_2026-10-23.md)，执行边界见[工作流](RULE_TEST_WORKFLOW.md)，来源见[当前manifest](audit/current-manifest.json)。客户端阶段保持原OPEN身份。
 
+当前唯一验收候选是A4：`0ec2e692d1f82ff0487e40a79d5e97c0c704eb59` / 不可变tag `backend-related-20261024-a4`，已实际启动[Actions 40031882948](https://github.com/DDDHL0704/riftbound/actions/runs/40031882948)。scope原产物12534897634已核：actual/event/expected SHA相同，tree `222f7a84…`、18553条source index `cd8df164…`与本地封板一致；这是执行身份通过，不是门禁通过。A3原失败及其余有价值作业保留。下一功能批只取[有限B1成员与依赖闭包](parallel/NEXT_FUNCTIONAL_BATCH_B1_2026-10-24.json)：C8/S7/N10/N11/N12/C9/N13；新增C10、容量提示及N14（即使已完整交付）均留更后批，不扩A4或B1。①先完成固定候选调度，后续按有限边界接入，不用持续接口审查替代真实候选验证。
+
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
 | 当前验收：A3两项失败窄修A4 | 不可变ref `backend-related-20261024-a4`；[封板成员](audit/backend-related-20261024-a4.json) | 功能边界仍93a3b117，Engine/目录与A3逐字相同，1052/3bf8afc4；只纳入scope预算0322857d及S3自洽篡改验收04042a90和必要守卫/元数据。76 SQL/四分区、八组network、full与desktop门禁不减；后续C8/S7/N10–N14/C9/C10/容量提示全部排除。以tag解析完整SHA核对实际checkout，当前尚未有远端通过结果，不复用不同输入的旧绿；A3剩余有价值作业保留 |

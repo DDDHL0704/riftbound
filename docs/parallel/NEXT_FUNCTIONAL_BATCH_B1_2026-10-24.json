@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_NEXT_FEATURE_SCOPE_NOT_ACTIVE_ACCEPTANCE_OR_CERTIFICATION",
+  "batchId": "backend-functional-20261024-b1",
+  "baseAcceptanceCandidate": {
+    "sha": "0ec2e692d1f82ff0487e40a79d5e97c0c704eb59",
+    "ref": "refs/tags/backend-related-20261024-a4",
+    "runId": 40031882948
+  },
+  "scopeFrozenAfterA4Dispatch": true,
+  "membershipMayNotGrowOnNewDeliveries": true,
+  "members": [
+    {
+      "id": "C8",
+      "sourceCommits": [
+        "dd6d43ac94165d0489bad4a680f1b264bcdaa87c"
+      ],
+      "dependsOn": "Existing root C7 final guards; no later C10 or capacity hooks"
+    },
+    {
+      "id": "S7",
+      "sourceCommits": [
+        "65630619e9d790bc11df60203495f5b229cbd7d9"
+      ],
+      "guardOnlyFollowUp": "bab33e630f1cba7bc13bf1517059e16449ebbc30",
+      "dependsOn": "Existing root S5/S6 and S3 repair; preserve N9 strict view guards"
+    },
+    {
+      "id": "N10",
+      "sourceCommits": [
+        "c9006d0055513470a3e50cb9ce39d4cd3ad9f4ae"
+      ],
+      "dependsOn": "Existing root N9; preserve root catalog order"
+    },
+    {
+      "id": "N11",
+      "sourceCommits": [
+        "3fa64e7bd2308b3272970867543f1ba1a339c4c9"
+      ],
+      "dependsOn": "N10"
+    },
+    {
+      "id": "N12",
+      "sourceCommits": [
+        "0dd00f8183813212e0a8095ca9c046dbdf9eb6e7"
+      ],
+      "dependsOn": "N10/N11 and existing root C7"
+    },
+    {
+      "id": "C9",
+      "sourceCommits": [
+        "7386fa60b9b9b79b7a4911bbc27edd31288703ca",
+        "606bb8d44726131061ba8fd3dff1261be650cb8b"
+      ],
+      "dependsOn": "C8 and existing root final shared reply/SQL helpers"
+    },
+    {
+      "id": "N13",
+      "sourceCommits": [
+        "8f13d45268e8f23bbff14527f5bc570529850cf5"
+      ],
+      "dependsOn": "N10/N11/N12; root S5-compatible port instead of old confirmation-time optional-power scalar/prompts"
+    }
+  ],
+  "excludedLaterPackages": [
+    {
+      "id": "resource-capacity-prompts",
+      "receivedSourceCommit": "f868f4a60a49cefbc1d899d5042ade940d389f8c",
+      "status": "Received after cutoff; not absorbed; old broader WIP2499of2512 is separate and has13 failures"
+    },
+    {
+      "id": "C10",
+      "status": "Phase/source-order/factory scopes approved; complete package still pending; not absorbed"
+    },
+    {
+      "id": "N14",
+      "receivedSourceCommit": "99764be77bfba890eaf72b0ad47deb25b775dd73",
+      "status": "Received complete after cutoff; original366 focus owner-reported only, pending independent intake; not absorbed"
+    },
+    {
+      "id": "any later domain delivery",
+      "status": "Later batch by default; no automatic membership growth"
+    }
+  ],
+  "integrationRequirements": [
+    "Review exact source deltas; preserve all old FullGame methods/Theory rows/actions/seeds and original failure artifacts",
+    "Port S7 authoritative capacity prompt handoff without removing root C7/N9/null-stack strict guards",
+    "Preserve root existing catalog rows/order/provenance prefix, append only exact new records; combine C9 typed armament metadata and recompute current semantic pin/MVID",
+    "Keep root S5 instruction-stage payment; port N13 fixed paid-discard fallback and safe prompt only",
+    "Add public finite QA dispatch/SQL/native/driver/SourceLinks and ordered-manifest suffixes for C8/S7/C9; preserve old76 SQL/eight network prefix",
+    "Promote C9 new17 guard cases using actual compiled SQL leaf and root shared audit",
+    "Close affected persisted/network entry obligations for new conditional-Might/paid-discard mechanisms before claiming their L2 backend gates",
+    "Run bounded focused/build checks locally; full rules/affected games/real SQL/API/restart/security only at a separately sealed fixed Actions candidate"
+  ],
+  "knownLaterMechanismGap": "C10 no-observer battle cleanup/control order remains an explicitly known later correction; a passing earlier batch is not whole-backend completion.",
+  "activeCandidateReplaced": false,
+  "rootRuntimeIntegrated": false,
+  "backendAccepted": false,
+  "wholeCardCertificationDelta": 0
+}
