@@ -5987,6 +5987,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2),
+        new("VEN·SP6", "拉克丝", 4, "OGS_014_LUX_TAP_SPELL_RESOURCE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
         new(
             "UNL-055a/219",
             "薇古丝",
