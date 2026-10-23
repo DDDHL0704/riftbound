@@ -1,0 +1,1603 @@
+{
+  "status": "CONFIRMED_MISSING_BATTLE_WIN_EXPERIENCE_WITH_UNWIRED_CONSUMER",
+  "atUtc": "2026-10-23T06:37:52.389296+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "ruleEffectiveDate": "2026-10-16",
+  "baseCommit": "ee86b1a31e040d5208f47305a58ca22fd052637b",
+  "branch": "codex/parallel-draven-timing-20261023",
+  "coordinatingMainThread": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "source": {
+    "status": "CURRENT_EIGHT_EXACT_ROWS_AND_CORE304_BYTES_UNCHANGED",
+    "atUtc": "2026-10-23T06:30:48.158024+00:00",
+    "region": "CN",
+    "language": "zh-CN",
+    "ruleEffectiveDate": "2026-10-16",
+    "core": {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "startedAtUtc": "2026-10-23T06:30:34.005724+00:00",
+      "receivedAtUtc": "2026-10-23T06:30:48.050685+00:00",
+      "httpStatus": 200,
+      "headers": {
+        "Last-Modified": "Fri, 09 Oct 2026 16:55:24 GMT",
+        "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline",
+        "Date": "Sat, 10 Oct 2026 00:27:22 GMT",
+        "Server": "tencent-cos",
+        "x-cos-hash-crc64ecma": "624345148193381469",
+        "x-cos-request-id": "NmFjOTg2NmFfOGEyZjY4MDlfOGQ3OF8yMTIzNzRhYw==",
+        "x-cos-server-side-encryption": "AES256",
+        "x-cos-storage-class": "MAZ_STANDARD",
+        "x-cosindex-replication-status": "Complete",
+        "Age": "1143553",
+        "Content-Length": "40278538",
+        "Accept-Ranges": "bytes",
+        "X-NWS-LOG-UUID": "14743717025942890923",
+        "Connection": "close",
+        "X-Cache-Lookup": "Cache Hit",
+        "Cross-Origin-Resource-Policy": "cross-origin"
+      },
+      "bytes": 40278538,
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+    },
+    "rows": [
+      {
+        "id": 31366,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·142/298",
+        "cardName": "山脉亚龙",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "龙",
+        "artist": "Kudos Productions",
+        "cardEffect": "",
+        "flavorText": "千百年来，学者们从未在巨龙行为学的问题上达成共识，除了一条：若在近距离观察到巨龙……还是先跑吧。",
+        "energy": 9,
+        "returnEnergy": null,
+        "power": 10,
+        "productCodeList": [
+          "OGS",
+          "OGN(英雄预组 李青)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 英雄预组 李青",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/70eb8e9ea12f4c888f17ec3195be7f37.png",
+        "backImage": "",
+        "listSort": 339,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 40093,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "RAD·024/167",
+        "cardName": "幻梦之根",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Fish Art Studio",
+        "cardEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你在此处赢得一场战斗时，抽一张牌。",
+        "flavorText": "前人栽树，后人乘凉。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "RAD(进阶补充包)",
+          "RAD(标准补充包)"
+        ],
+        "productNameList": [
+          "辉耀群星 进阶补充包",
+          "辉耀群星 标准补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/3f990ba0bd614f12999c641af64cb5ec.png",
+        "backImage": "",
+        "listSort": 2874,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31601,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "OGS·022/024",
+        "cardName": "终极闪光",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "yellow"
+        ],
+        "hero": "拉克丝",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对一名单位造成8点伤害。",
+        "flavorText": "",
+        "energy": 8,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGS"
+        ],
+        "productNameList": [
+          "起源 试炼之地"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/b1ff99bcd0314dd68f42e0d9417a7713.png",
+        "backImage": "",
+        "listSort": 529,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31405,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·175/298",
+        "cardName": "船坞潜伏者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "Six More Vodka",
+        "cardEffect": "",
+        "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+        "backImage": "",
+        "listSort": 300,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31542,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·296/298",
+        "cardName": "虚空之门",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+        "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGS",
+          "OGN(进阶补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 进阶补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+        "backImage": "",
+        "listSort": 163,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+        "otherDesc": 0
+      },
+      {
+        "id": 34754,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "UNL-201/219",
+        "cardName": "虚空掠夺者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "purple"
+        ],
+        "hero": "卡兹克",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/62c0e05d78144bb09f89fff5f91fc642.webp",
+        "backImage": "",
+        "listSort": 1270,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 34799,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "UNL-236/219",
+        "cardName": "虚空掠夺者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "purple"
+        ],
+        "hero": "卡兹克",
+        "region": "",
+        "tag": "",
+        "artist": "Jeffrey Chen",
+        "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/27c88ebf65044d6bb6d32f18886e2fdd.webp",
+        "backImage": "",
+        "listSort": 1225,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 34800,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "UNL-236*/219",
+        "cardName": "虚空掠夺者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "purple"
+        ],
+        "hero": "卡兹克",
+        "region": "",
+        "tag": "",
+        "artist": "Jeffrey Chen",
+        "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d3c866cb8eb84129adf3ac25aa9f11b6.webp",
+        "backImage": "",
+        "listSort": 1224,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "coreClauses": [
+      {
+        "id": "DOC-01-P094-B011",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1"
+        ],
+        "text": "468.1.             1.进行一次战斗清理。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B012",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a"
+        ],
+        "text": "468.1.a.                  启动一次战斗特殊清理。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B013",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a.1"
+        ],
+        "text": "468.1.a.1.                    插入“3c.为所有单位移除伤害。”",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B014",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.1.a.2"
+        ],
+        "text": "468.1.a.2.                    插入“3d.如果该战场仍存在防守方单位,则召回位于该战场的所有进攻方单位。”\n                                     想获取更多有关信息,请查阅规则 456.召回。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P094-B015",
+        "document": "DOC-01",
+        "page": 94,
+        "clauseAnchors": [
+          "468.2"
+        ],
+        "text": "468.2.             以下任务变为未决:",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B002",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3"
+        ],
+        "text": "468.3.           1.判定战斗结果",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B003",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.a"
+        ],
+        "text": "468.3.a.               如果一名玩家获得进攻方或防守方身份,且在本步骤中仅有该玩家有单位存活于此战场上,则该玩家赢\n                       得战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B004",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.b"
+        ],
+        "text": "468.3.b.               如果一名玩家获得进攻方或防守方身份,且在本步骤中仅有该玩家未在此战场上剩下任何单位,则该玩\n                       家 输掉战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B005",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.c"
+        ],
+        "text": "468.3.c.               该战场上的单位会继承其控制者的战斗结果。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B006",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.d"
+        ],
+        "text": "468.3.d.               如果在战斗清理的第 3d 步骤时,有单位被召回、或双方玩家在此任务期间仍有单位在战场上、或双方玩\n                       家在此任务期间都没有单位在战场上,则战斗“无结果”。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B007",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.3.d.1"
+        ],
+        "text": "468.3.d.1.                   如果出现“无结果”,且双方玩家仍有单位存活,则在该战场标记一场待发生的法术对决和一场\n                             待发生的战斗。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B008",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.4"
+        ],
+        "text": "468.4.           以下任务变为未决:\n                      提示:执行此步骤前,先结算所有因判定战斗结果及其相关 FEPR 流程而加入结算链的项目。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B009",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5"
+        ],
+        "text": "468.5.           1.如果该位置没有标记处于待发生状态的法术对决或战斗,则此处有单位存活的玩家对该战场确立控制(如果尚未控\n                 制该战场)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B010",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.a"
+        ],
+        "text": "468.5.a.              清除争夺状态。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B011",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.b"
+        ],
+        "text": "468.5.b.              如果该处没有任何玩家控制的单位存活,则该战场变为未受控制状态。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B012",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.c"
+        ],
+        "text": "468.5.c.              移除该战场上所有其控制者并非该战场控制者的待命牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B013",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.d"
+        ],
+        "text": "468.5.d.              建立控制权 ,如果该玩家本回合尚未通过此战场得分 ,则将导致一次征服 。\n                             想获取更多有关控制的信息,请查阅规则 188.控制。\n                            想获取更多有关征服的信息,请查阅规则 471.1.征服。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B014",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.5.e"
+        ],
+        "text": "468.5.e.              该玩家不一定是之前令战场进入争夺状态的玩家。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B015",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.6"
+        ],
+        "text": "468.6.           以下任务变为未决:\n                     提示:执行此步骤前,先结算所有因确立控制及其相关 FEPR 流程而加入结算链的项目。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B016",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7"
+        ],
+        "text": "468.7.           1.战斗结束。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B017",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.a"
+        ],
+        "text": "468.7.a.              移除所有单位和玩家的进攻方与防守方身份。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B018",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.b"
+        ],
+        "text": "468.7.b.              在战斗结束时或战斗结束生效的游戏效果触发。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      {
+        "id": "DOC-01-P095-B019",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "468.7.c"
+        ],
+        "text": "468.7.c.              所有“本次战斗”效果同时失效。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    ],
+    "wholePrintingCertified": false,
+    "globalSourceScopeChanged": false
+  },
+  "runtimePrintingIds": [
+    34754,
+    34799,
+    34800
+  ],
+  "corePdfBodyRetainedLocally": {
+    "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/khazix-battle-win-20261023/current-core304-original-v1.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "bytes": 40278538,
+    "excludedFromArchiveToAvoidDuplicatingExisting40MbSource": true
+  },
+  "originalRedTests": {
+    "sha256": "2eb40145cf3964548eaf59d44f80e2340fbb75cc7a1b10f61e36b387fd040454",
+    "counters": {
+      "total": "24",
+      "executed": "24",
+      "passed": "15",
+      "failed": "9",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"mutual-destruction\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"defender-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   5"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"empty-conquest\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"defender-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   5"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"defeated\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"response-removal\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"defeated\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"response-removal\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"mutual-destruction\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"defeated\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"response-removal\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-201/219\", scenario: \"attacker-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"attacker-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"defeated\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"mutual-destruction\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"mutual-destruction\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"defender-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"empty-conquest\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"attacker-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"response-removal\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"attacker-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236*/219\", scenario: \"defender-win\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Failed",
+        "error": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   5"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: \"UNL-236/219\", scenario: \"empty-conquest\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl(cardNo: null, scenario: \"empty-conquest\")",
+        "method": "Riftbound.ConformanceTests.OfficialKhazixBattleWinTests.OnlyTheBattleWinnersLegendGainsExperienceBeforeControl",
+        "outcome": "Passed",
+        "error": null
+      }
+    ]
+  },
+  "adjacentHelperCompilationAndActiveAbilityTests": {
+    "sha256": "dbd09a88d5b971a4383ff9d039fba91f8cf10fc5f17dbb753042662e7f6afec2",
+    "counters": {
+      "total": "15",
+      "executed": "15",
+      "passed": "15",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.AzirAndLilliaLegendActionSourceGroupsUseSharedCatalog",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreActiveLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreActiveLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.LegendIdentityCatalogSourceGroupsDoNotHardcodeCardNumberArrays",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.LegendIdentityCatalogSourceGroupsDoNotHardcodeCardNumberArrays",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendIdentitySourceRowsUseSharedCatalog",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendIdentitySourceRowsUseSharedCatalog",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendActionSourceIdentityDoesNotUseDuplicatedCardNumberHelpers",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendActionSourceIdentityDoesNotUseDuplicatedCardNumberHelpers",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.ReactionAndDynamicLegendActionSourceGroupsUseSharedCatalog",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendActKhazixSpendsExperienceToGrantBoon",
+        "method": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendActKhazixSpendsExperienceToGrantBoon",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreIntroLegendSourcesUseLegendIdentity",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreIntroLegendSourcesUseLegendIdentity",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.MainLegendActionSourceGroupsUseSharedCatalog",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.MainLegendActionSourceGroupsUseSharedCatalog",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.LegendActionAbilityCatalogSourceGroupsDoNotHardcodeCardNumberArrays",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.LegendActionAbilityCatalogSourceGroupsDoNotHardcodeCardNumberArrays",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendActKhazixMovesDormantBattlefieldUnitToBase",
+        "method": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendActKhazixMovesDormantBattlefieldUnitToBase",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendStaticIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreLegendStaticIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreRemainingLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreRemainingLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers",
+        "outcome": "Passed",
+        "error": null
+      },
+      {
+        "name": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity",
+        "method": "Riftbound.ConformanceTests.LegendActionSourceIdentityGuardTests.CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity",
+        "outcome": "Passed",
+        "error": null
+      }
+    ]
+  },
+  "originalHistories": [
+    {
+      "caseId": "UNL-201-219-attacker-win",
+      "cardNo": "UNL-201/219",
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "5ab33456e87eaa7a2b9a287f4d6679dfed254b39e4910a5dbe20e7331b79ddb4"
+    },
+    {
+      "caseId": "UNL-201-219-defeated",
+      "cardNo": "UNL-201/219",
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "bb04790b8db436c2f84a9d4bfb76409169e1819685accd960c9d6b61e9190445"
+    },
+    {
+      "caseId": "UNL-201-219-defender-win",
+      "cardNo": "UNL-201/219",
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "0718cde0f60b3bae65f579cc2047d9008f564dd4f9b717742e07ed9dba236ba8"
+    },
+    {
+      "caseId": "UNL-201-219-empty-conquest",
+      "cardNo": "UNL-201/219",
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "429cab4c89827e567929385650fd0db4dda9f223e600bf7a34ba263e6cd875d6"
+    },
+    {
+      "caseId": "UNL-201-219-mutual-destruction",
+      "cardNo": "UNL-201/219",
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "259d7d8588a0d9e91da4e8cddea7a57fb960f297cf8427018d0f383c3af74ce7"
+    },
+    {
+      "caseId": "UNL-201-219-response-removal",
+      "cardNo": "UNL-201/219",
+      "scenario": "response-removal",
+      "commands": 6,
+      "events": 19,
+      "prefixesVerifiedByOriginalCSharpRun": 6,
+      "sha256": "e56ae6b453e42acdf811a17e4e2c133017f95f32a64d8d243c0c6a4396dee0ac"
+    },
+    {
+      "caseId": "UNL-236-219-attacker-win",
+      "cardNo": "UNL-236/219",
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "cf38646dad531eebe45064fa244d3d07034f20496f32fe5a2da324cdc4282d75"
+    },
+    {
+      "caseId": "UNL-236-219-defeated",
+      "cardNo": "UNL-236/219",
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "6a3c97d41ede8923297c61d2d953315393befab52ab2f6ff7874e8aa01b64ddf"
+    },
+    {
+      "caseId": "UNL-236-219-defender-win",
+      "cardNo": "UNL-236/219",
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "214296a77d3427450859c5ec7653dff089fa44685fbd3cc603acce864c30fa33"
+    },
+    {
+      "caseId": "UNL-236-219-empty-conquest",
+      "cardNo": "UNL-236/219",
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "2461fe1e6cf4fdf594a4c4c90b4c3a554a314619d5035ddfd2c28cdda8a5b97b"
+    },
+    {
+      "caseId": "UNL-236-219-mutual-destruction",
+      "cardNo": "UNL-236/219",
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "934142006a12efb09bb584815de13a40fdd8dad331d81404063f4dddfc27d029"
+    },
+    {
+      "caseId": "UNL-236-219-response-removal",
+      "cardNo": "UNL-236/219",
+      "scenario": "response-removal",
+      "commands": 6,
+      "events": 19,
+      "prefixesVerifiedByOriginalCSharpRun": 6,
+      "sha256": "16bb44556e3c1bf10ea2fc4eaddff29947681b6317323d93b5c9a251c4472505"
+    },
+    {
+      "caseId": "UNL-236s-219-attacker-win",
+      "cardNo": "UNL-236*/219",
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "1d473e047f7f44fee308727ae3146a350421a3c75ad30ec5261db216e393b52d"
+    },
+    {
+      "caseId": "UNL-236s-219-defeated",
+      "cardNo": "UNL-236*/219",
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "a7ee91313f4b76a2009f3038fff15fc72f5c32bfbf850701608a923711a6acaa"
+    },
+    {
+      "caseId": "UNL-236s-219-defender-win",
+      "cardNo": "UNL-236*/219",
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "7832b4e619f8ae890117a12e067b6ee501b4b6cb663fc205b53a25254f3f30d3"
+    },
+    {
+      "caseId": "UNL-236s-219-empty-conquest",
+      "cardNo": "UNL-236*/219",
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "5ad8ed4237d75a804490bdf5ec49a03609cfad4b142e24896b755de259fae857"
+    },
+    {
+      "caseId": "UNL-236s-219-mutual-destruction",
+      "cardNo": "UNL-236*/219",
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "1bf0633e9e1622e7e48afdbcba72717cd2ba7a03ed5185e7545655eb20bf2228"
+    },
+    {
+      "caseId": "UNL-236s-219-response-removal",
+      "cardNo": "UNL-236*/219",
+      "scenario": "response-removal",
+      "commands": 6,
+      "events": 19,
+      "prefixesVerifiedByOriginalCSharpRun": 6,
+      "sha256": "c5d1224fdefb69749897eb8f92e1dfbbe14df6742370dbc035ba133a43b256fc"
+    },
+    {
+      "caseId": "no-legend-attacker-win",
+      "cardNo": null,
+      "scenario": "attacker-win",
+      "commands": 4,
+      "events": 16,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "93873c0b20c3a659b66bbe0b5cb6d597a91428c756719dec4a7b7a4e0eaf5d7e"
+    },
+    {
+      "caseId": "no-legend-defeated",
+      "cardNo": null,
+      "scenario": "defeated",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "157e4745c3098145008e8dd625a3c0bd81421a90ada03b0ca33e53f920c2e53f"
+    },
+    {
+      "caseId": "no-legend-defender-win",
+      "cardNo": null,
+      "scenario": "defender-win",
+      "commands": 4,
+      "events": 14,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "de310c7859a9757fa39daecbea21afa3f2d246d7ce18f9bd0d77dbf91d6c2c75"
+    },
+    {
+      "caseId": "no-legend-empty-conquest",
+      "cardNo": null,
+      "scenario": "empty-conquest",
+      "commands": 3,
+      "events": 9,
+      "prefixesVerifiedByOriginalCSharpRun": 3,
+      "sha256": "c93ccdca441fe2e3ccce289f6247a7d28ee16f9aa800de4d0c068d15fe52d097"
+    },
+    {
+      "caseId": "no-legend-mutual-destruction",
+      "cardNo": null,
+      "scenario": "mutual-destruction",
+      "commands": 4,
+      "events": 15,
+      "prefixesVerifiedByOriginalCSharpRun": 4,
+      "sha256": "b9209bb718736b05828b4549aecd5c75d1ccaaf43539c40511ec09cb39112bf4"
+    },
+    {
+      "caseId": "no-legend-response-removal",
+      "cardNo": null,
+      "scenario": "response-removal",
+      "commands": 6,
+      "events": 19,
+      "prefixesVerifiedByOriginalCSharpRun": 6,
+      "sha256": "6ba2c28440454fd07b5088171954d81ae5164fb9def9561f490e025cf589e3ce"
+    }
+  ],
+  "acceptedCommands": 100,
+  "events": 348,
+  "originalCSharpPrefixReplays": 100,
+  "seed": 424242,
+  "sourceFiles": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+      "sha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+      "sha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+    }
+  ],
+  "archive": {
+    "path": "docs/evidence/khazix-battle-win-parallel-2026-10-23/original-red-tests-and-sources-v1.tar.gz",
+    "sha256": "bc0757ac16a242d0bf27c23b27a8cb2465aac62c1338861bc9182a579f715a16",
+    "members": [
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "bytes": 4294,
+        "sha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "bytes": 8904,
+        "sha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-attacker-win.json.gz",
+        "bytes": 30743,
+        "sha256": "5ab33456e87eaa7a2b9a287f4d6679dfed254b39e4910a5dbe20e7331b79ddb4"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-defeated.json.gz",
+        "bytes": 27849,
+        "sha256": "bb04790b8db436c2f84a9d4bfb76409169e1819685accd960c9d6b61e9190445"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-defender-win.json.gz",
+        "bytes": 28040,
+        "sha256": "0718cde0f60b3bae65f579cc2047d9008f564dd4f9b717742e07ed9dba236ba8"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-empty-conquest.json.gz",
+        "bytes": 19071,
+        "sha256": "429cab4c89827e567929385650fd0db4dda9f223e600bf7a34ba263e6cd875d6"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-mutual-destruction.json.gz",
+        "bytes": 27638,
+        "sha256": "259d7d8588a0d9e91da4e8cddea7a57fb960f297cf8427018d0f383c3af74ce7"
+      },
+      {
+        "path": "original-accepted-histories/UNL-201-219-response-removal.json.gz",
+        "bytes": 44082,
+        "sha256": "e56ae6b453e42acdf811a17e4e2c133017f95f32a64d8d243c0c6a4396dee0ac"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-attacker-win.json.gz",
+        "bytes": 30744,
+        "sha256": "cf38646dad531eebe45064fa244d3d07034f20496f32fe5a2da324cdc4282d75"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-defeated.json.gz",
+        "bytes": 27848,
+        "sha256": "6a3c97d41ede8923297c61d2d953315393befab52ab2f6ff7874e8aa01b64ddf"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-defender-win.json.gz",
+        "bytes": 28042,
+        "sha256": "214296a77d3427450859c5ec7653dff089fa44685fbd3cc603acce864c30fa33"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-empty-conquest.json.gz",
+        "bytes": 19071,
+        "sha256": "2461fe1e6cf4fdf594a4c4c90b4c3a554a314619d5035ddfd2c28cdda8a5b97b"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-mutual-destruction.json.gz",
+        "bytes": 27640,
+        "sha256": "934142006a12efb09bb584815de13a40fdd8dad331d81404063f4dddfc27d029"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236-219-response-removal.json.gz",
+        "bytes": 44082,
+        "sha256": "16bb44556e3c1bf10ea2fc4eaddff29947681b6317323d93b5c9a251c4472505"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-attacker-win.json.gz",
+        "bytes": 30751,
+        "sha256": "1d473e047f7f44fee308727ae3146a350421a3c75ad30ec5261db216e393b52d"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-defeated.json.gz",
+        "bytes": 27829,
+        "sha256": "a7ee91313f4b76a2009f3038fff15fc72f5c32bfbf850701608a923711a6acaa"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-defender-win.json.gz",
+        "bytes": 28053,
+        "sha256": "7832b4e619f8ae890117a12e067b6ee501b4b6cb663fc205b53a25254f3f30d3"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-empty-conquest.json.gz",
+        "bytes": 19083,
+        "sha256": "5ad8ed4237d75a804490bdf5ec49a03609cfad4b142e24896b755de259fae857"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-mutual-destruction.json.gz",
+        "bytes": 27516,
+        "sha256": "1bf0633e9e1622e7e48afdbcba72717cd2ba7a03ed5185e7545655eb20bf2228"
+      },
+      {
+        "path": "original-accepted-histories/UNL-236s-219-response-removal.json.gz",
+        "bytes": 44060,
+        "sha256": "c5d1224fdefb69749897eb8f92e1dfbbe14df6742370dbc035ba133a43b256fc"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-attacker-win.json.gz",
+        "bytes": 27481,
+        "sha256": "93873c0b20c3a659b66bbe0b5cb6d597a91428c756719dec4a7b7a4e0eaf5d7e"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-defeated.json.gz",
+        "bytes": 26777,
+        "sha256": "157e4745c3098145008e8dd625a3c0bd81421a90ada03b0ca33e53f920c2e53f"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-defender-win.json.gz",
+        "bytes": 26769,
+        "sha256": "de310c7859a9757fa39daecbea21afa3f2d246d7ce18f9bd0d77dbf91d6c2c75"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-empty-conquest.json.gz",
+        "bytes": 15057,
+        "sha256": "c93ccdca441fe2e3ccce289f6247a7d28ee16f9aa800de4d0c068d15fe52d097"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-mutual-destruction.json.gz",
+        "bytes": 26619,
+        "sha256": "b9209bb718736b05828b4549aecd5c75d1ccaaf43539c40511ec09cb39112bf4"
+      },
+      {
+        "path": "original-accepted-histories/no-legend-response-removal.json.gz",
+        "bytes": 40222,
+        "sha256": "6ba2c28440454fd07b5088171954d81ae5164fb9def9561f490e025cf589e3ce"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v1/build.log",
+        "bytes": 766,
+        "sha256": "8b611a157e9215e780e7806d8fa618ebd3de139fadd607fe0414f392e866cdca"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/build.log",
+        "bytes": 78,
+        "sha256": "cdcd26f8bfa1037b14a99532c2d6ae17ada81a2b134624ac402ccae2be60ce9f"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/discovery.log",
+        "bytes": 2074273,
+        "sha256": "bd6d1d0fe7d246a9e78ad87b14ea4a65b64f51f47af7397aa0a02596b1e2b969"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/focus/results.trx",
+        "bytes": 25133,
+        "sha256": "dbd09a88d5b971a4383ff9d039fba91f8cf10fc5f17dbb753042662e7f6afec2"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/focus/test.log",
+        "bytes": 563,
+        "sha256": "1718bae7a3e2c92f43fe0eadffb06dbfaa219be36e1b5eea7a2e24bc2ce647c7"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/plan.json",
+        "bytes": 2549,
+        "sha256": "87dc573302c40a3c89c6e4371b1580f0005a2df2b97ce74ab82e68a302036f4b"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/adjacent-v2/summary.json",
+        "bytes": 273,
+        "sha256": "ea8ce067eec60c3ea10974051918a863a962d54cd00478846914fc9b6b059a0d"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-core304-http-original-v1.json",
+        "bytes": 1113,
+        "sha256": "9e006ad996cba2de245d1735e76290bfa502aba7280378dd87510d3ded76f520"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-山脉亚龙-original-v1.json.gz",
+        "bytes": 1284,
+        "sha256": "b6a3f1a1776daaf577b8e3ecc99ba792405fde1be9d577704945f2ab8dc933a8"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-幻梦之根-original-v1.json.gz",
+        "bytes": 1258,
+        "sha256": "b9644dfdb656a9f211a166916d697e2524a17971caeb35b12c70914c144204e8"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-终极闪光-original-v1.json.gz",
+        "bytes": 1183,
+        "sha256": "9590267318044056dd8325c32c5a530679be34ab8d85aba507faab65603ae893"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1201,
+        "sha256": "9fc0e282c292fa8b27a730c0ee6d57dbc8426e22f56c2dd22fa36900c1163a3e"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-虚空之门-original-v1.json.gz",
+        "bytes": 1292,
+        "sha256": "ac5d56c54e99ccabf221d855ceb4577402479d4ccda0670ef1d3bb6dd76f0d98"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/current-虚空掠夺者-original-v1.json.gz",
+        "bytes": 1457,
+        "sha256": "0e5e830f6b1f62e7dd147398c5939150d577bddb5b0d0dbe5468fa958707c223"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/dreamroot-applicability-and-registration-v1.json",
+        "bytes": 3620,
+        "sha256": "e6b3ca58fabcd55f9e57b1cef5a43d6fa90e7f56f52a91245f5f4f780c1767ce"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/radiance-overview-http-v1.json",
+        "bytes": 1361,
+        "sha256": "730e0592c48390df2c99f48357507f49f2ddd76547150a9b7204e38495dd8838"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/radiance-overview-original-v1.html.gz",
+        "bytes": 31297,
+        "sha256": "2309b1de2f8b424bbba3061958164969eb65f1faf31c879c03011f0dd78db0ca"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/red-v1/build.log",
+        "bytes": 78,
+        "sha256": "2a2a528d82a5f85a6d75a08903ac1c68b46f7585f00131a54d253a529ea8b5c0"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/red-v1/discovery.log",
+        "bytes": 2074273,
+        "sha256": "bd6d1d0fe7d246a9e78ad87b14ea4a65b64f51f47af7397aa0a02596b1e2b969"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/red-v1/focus/results.trx",
+        "bytes": 55510,
+        "sha256": "2eb40145cf3964548eaf59d44f80e2340fbb75cc7a1b10f61e36b387fd040454"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/red-v1/focus/test.log",
+        "bytes": 2327,
+        "sha256": "13c230e1d0c7676549648b70bc61be8e4afebc4bfb2fdbe242c5eb87f09d03b6"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/red-v1/plan.json",
+        "bytes": 655,
+        "sha256": "4b734e5b0bc52b478db201a4181c25aa93fb089f800c1b8f30204396f4cc658d"
+      },
+      {
+        "path": "var/qa/khazix-battle-win-20261023/scoped-source-readback-v1.json",
+        "bytes": 21308,
+        "sha256": "3f3d03e26148e8a1d36ae1d87c171c4d3ad574ca8f6578b26924e0a96d8a89b3"
+      }
+    ]
+  },
+  "preservedBuildFailure": "adjacent-v1/build.log: CS0117 nonexistent LegendCard constant; fixed to existing CARD_TYPE:LEGEND tag in helper; adjacent-v2 compiled and passed",
+  "dreamrootScope": {
+    "region": "CN",
+    "language": "zh-CN",
+    "reviewDate": "2026-10-23",
+    "cardApiId": 40093,
+    "exactCardNo": "RAD·024/167",
+    "exactCurrentRow": {
+      "id": 40093,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "RAD·024/167",
+      "cardName": "幻梦之根",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Fish Art Studio",
+      "cardEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你在此处赢得一场战斗时，抽一张牌。",
+      "flavorText": "前人栽树，后人乘凉。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "RAD(进阶补充包)",
+        "RAD(标准补充包)"
+      ],
+      "productNameList": [
+        "辉耀群星 进阶补充包",
+        "辉耀群星 标准补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/3f990ba0bd614f12999c641af64cb5ec.png",
+      "backImage": "",
+      "listSort": 2874,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "runtimeCatalogContainsExactRow": false,
+    "runtimeCatalogRows": 1037,
+    "currentOfficialOverview": {
+      "url": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+      "startedAtUtc": "2026-10-23T06:30:48.159129+00:00",
+      "receivedAtUtc": "2026-10-23T06:30:49.798505+00:00",
+      "status": 200,
+      "headers": {
+        "Age": "92",
+        "Cache-Control": "public,max-age=0,must-revalidate",
+        "Cache-Status": "\"Next.js\"; hit; fwd=stale, \"Netlify Durable\"; fwd=bypass, \"Netlify Edge\"; fwd=miss; fwd-status=200; stored",
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Fri, 23 Oct 2026 06:30:49 GMT",
+        "Etag": "\"1pr8zaeaqu3gdw\"",
+        "Netlify-Vary": "query=__nextDataReq|_rsc, header=x-nextjs-data|x-next-debug-logging|next-router-prefetch|next-router-segment-prefetch|next-router-state-tree|next-url|rsc|accept-encoding, cookie=__prerender_bypass|__next_preview_data",
+        "Referrer-Policy": "no-referrer-when-downgrade",
+        "Server": "Netlify",
+        "Set-Cookie": "geo=JP; Path=/",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "X-Content-Type-Options": "nosniff",
+        "X-Cookie-Source": "edge",
+        "X-Nextjs-Date": "Fri, 23 Oct 2026 06:30:49 GMT",
+        "X-Nf-Request-Id": "01M5KQ8YMXX3DYQEW7JNB8YBQ8",
+        "X-Powered-By": "Next.js",
+        "Connection": "close",
+        "Transfer-Encoding": "chunked"
+      },
+      "sha256": "d106380aba82df002bba541bf0520f27332526d955b1996bac59e64f1515b6dd"
+    },
+    "officialOverviewPublication": "2026-09-25T22:30:00.000Z",
+    "officialOverviewLastUpdate": "2026-10-16",
+    "officialOverviewReleaseDate": "2026-10-24",
+    "officialOverviewPreRiftDates": "2026-10-17 through 2026-10-23",
+    "coreRulesEffectiveDate": "2026-10-16",
+    "status": "OPEN_UNREGISTERED_DEPLOY_AND_LOCAL_BATTLE_WIN_BEHAVIOR",
+    "applicability": "Prerelease scope exists on review day; overview alone does not establish individual CN Standard legality. Keep full source identity and verify final candidate current date.",
+    "isPreviewFalseIsNotLegalityCertification": true,
+    "notExcludedFromFullSourceUniverse": true,
+    "wholePrintingCertified": false
+  },
+  "notWiredToSharedBattleFlow": true,
+  "requiredIntegration": [
+    "capture actual battle result before control/conquest, including response-removal path",
+    "serialize context in queue/stack; preserve pending response window",
+    "dispatch resolver and authenticate result/history during recovery",
+    "integrated focus, adjacent games, batch sole check, fixed full and real SQL/API acceptance"
+  ],
+  "offlinePackagingReexecutesNoCSharp": true,
+  "wholePrintingCertified": false,
+  "wholeSourceUniverseUnchanged": true,
+  "backendGoalComplete": false,
+  "sqlApiOrFullAcceptanceClaimed": false
+}
