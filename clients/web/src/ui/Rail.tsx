@@ -43,7 +43,8 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover, prev
 
       <div className="rail__panel">
         {type === "MULLIGAN" && actionable && <MulliganPanel prompt={prompt!} selected={mulligan} objects={objects} />}
-        {type === "BATTLE_DECLARATION" && <BattlePanel prompt={prompt} objects={objects} />}
+        {/* Battles usually come from the start-battle prompt, but the server may also offer one as a main action. */}
+        {enabledCandidate(prompt, "DECLARE_BATTLE") && <BattlePanel prompt={prompt} objects={objects} />}
         {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} kind="combat" />}
         {enabledCandidate(prompt, "ASSIGN_EFFECT_DAMAGE") && <DamagePanel prompt={prompt} objects={objects} kind="effect" />}
         {type === "ORDER_TRIGGERS" && <TriggerPanel prompt={prompt} objects={objects} />}

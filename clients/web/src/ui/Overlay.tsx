@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { client } from "../net/client";
 import { enabledCandidate } from "../game/actions";
 import type { Prompt, Snapshot } from "../game/types";
@@ -101,5 +101,73 @@ export function ChainArrows({ snapshot, meId }: { snapshot: Snapshot; meId: stri
         </g>
       ))}
     </svg>
+  );
+}
+
+type Fx = { id: number; x: number; y: number; text: string; tone: "damage" | "destroy" | "score-me" | "score-opp" };
+let fxSeq = 0;
+
+/** Short-lived marks where events land: damage numbers, destroyed units, points scored. */
+export function EventFx({ meId }: { meId: string }) {
+  const [items, setItems] = useState<Fx[]>([]);
+
+  useEffect(() => {
+    // Batches that existed before this table mounted are history, not fresh feedback.
+    let lastSeq = client.state.eventBatches.at(-1)?.seq ?? 0;
+    // Measure inside the store listener, before React renders: events often share a network
+    // frame with the snapshot that removes destroyed units, and one render would apply both.
+    const unsubscribe = client.subscribe(() => {
+      const fresh = client.state.eventBatches.filter((b) => b.seq > lastSeq);
+      if (!fresh.length) return;
+      lastSeq = fresh[fresh.length - 1].seq;
+      const at = (...ids: unknown[]) => {
+        for (const id of ids) {
+          if (typeof id !== "string") continue;
+          const r = document.querySelector(`[data-oid="${CSS.escape(id)}"]`)?.getBoundingClientRect();
+          if (r) return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        }
+        return null;
+      };
+      const next: Fx[] = [];
+      const stacked = new Map<string, number>();
+      const push = (key: string, pos: { x: number; y: number } | null, text: string, tone: Fx["tone"]) => {
+        if (!pos) return;
+        const n = stacked.get(key) ?? 0;
+        stacked.set(key, n + 1);
+        next.push({ id: ++fxSeq, x: pos.x, y: pos.y - n * 30, text, tone });
+      };
+      for (const e of fresh.flatMap((b) => b.events)) {
+        const p = e.payload ?? {};
+        if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0)
+          push(String(p.targetObjectId), at(p.targetObjectId, p.battlefieldId), `−${p.damage}`, "damage");
+        else if (e.kind === "UNIT_DESTROYED") push(String(p.targetObjectId), at(p.targetObjectId), "摧毁", "destroy");
+        else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0)
+          push(
+            String(p.battlefieldObjectId ?? p.playerId),
+            at(p.battlefieldObjectId, p.sourceObjectId, `score:${p.playerId}`),
+            `+${p.amount} 分`,
+            p.playerId === meId ? "score-me" : "score-opp",
+          );
+      }
+      if (!next.length) return;
+      setItems((cur) => [...cur, ...next]);
+      // Each batch removes only its own marks, so a quick follow-up batch can't cancel the cleanup.
+      const ids = new Set(next.map((f) => f.id));
+      setTimeout(() => setItems((cur) => cur.filter((f) => !ids.has(f.id))), 1500);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [meId]);
+
+  if (!items.length) return null;
+  return (
+    <div className="fx" aria-hidden>
+      {items.map((f) => (
+        <span key={f.id} className={`fx__item fx__item--${f.tone}`} style={{ left: f.x, top: f.y }}>
+          {f.text}
+        </span>
+      ))}
+    </div>
   );
 }

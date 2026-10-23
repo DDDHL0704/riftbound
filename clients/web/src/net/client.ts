@@ -2,6 +2,7 @@ import * as signalR from "@microsoft/signalr";
 import type {
   CommandReceipt,
   GameEvent,
+  PlayCostQuote,
   PlayerSession,
   Prompt,
   ServerMessage,
@@ -9,6 +10,8 @@ import type {
 } from "../game/types";
 
 export type LogEntry = { id: number; tick: number; kind: string; text: string; tone: "event" | "error" | "info" };
+
+export type EventBatch = { seq: number; events: GameEvent[] };
 
 export type Phase = "offline" | "connecting" | "lobby" | "matchmaking" | "room";
 
@@ -24,7 +27,11 @@ export type ClientState = {
   pending: boolean;
   toast: { id: number; text: string; tone: "error" | "info" } | null;
   connectionNote: string;
-  lastEvents: GameEvent[];
+  /**
+   * Recent event batches in arrival order. Several batches can land before React renders,
+   * so consumers read every batch newer than the last one they handled.
+   */
+  eventBatches: EventBatch[];
 };
 
 // The room seat lives in sessionStorage so two tabs can hold two different players;
@@ -85,6 +92,30 @@ export function defaultServer() {
 
 let seq = 0;
 
+// Error codes from src/Riftbound.Contracts/Protocol.cs. Most server messages are already
+// Chinese; a few rule messages are English, so those fall back to the code's meaning.
+const ERROR_TEXT: Record<string, string> = {
+  INSUFFICIENT_COST: "费用不足，无法执行这个操作。",
+  INVALID_TARGET: "选择的目标或选项不合法。",
+  PHASE_NOT_ALLOWED: "当前时机不能这样操作。",
+  PROMPT_EXPIRED: "局面已更新，请按最新提示重新操作。",
+  INVALID_PAYLOAD: "提交的内容不完整，请重新选择。",
+  CARD_NOT_IN_HAND: "这张牌已不在手牌中。",
+  UNSUPPORTED_COMMAND: "服务端暂不支持这个操作。",
+  UNSUPPORTED_CARD_BEHAVIOR: "这张牌的效果服务端暂未支持。",
+  MATCH_FINISHED: "对局已经结束。",
+  MATCH_NOT_STARTED: "对局尚未开始。",
+  INVALID_DECK: "卡组不符合规则。",
+  ROOM_FULL: "房间已满。",
+  PLAYER_NOT_IN_ROOM: "你不在这个房间里。",
+  INVALID_RECONNECT_TOKEN: "重连凭证已失效，请重新加入。",
+};
+
+export function readableError(code: string | undefined, message: string | undefined) {
+  if (message && /[\u4e00-\u9fff]/.test(message)) return message;
+  return (code && ERROR_TEXT[code]) || message || "服务端拒绝了这个操作。";
+}
+
 export class GameClient {
   private connection: signalR.HubConnection | null = null;
   private listeners = new Set<() => void>();
@@ -105,7 +136,7 @@ export class GameClient {
       pending: false,
       toast: null,
       connectionNote: "",
-      lastEvents: [],
+      eventBatches: [],
     };
   }
 
@@ -172,11 +203,11 @@ export class GameClient {
     });
     connection.on("Events", (m: ServerMessage<GameEvent[]>) => {
       const events = m.payload || [];
-      this.set({ lastEvents: events });
+      this.set({ eventBatches: [...this.state.eventBatches, { seq: ++seq, events }].slice(-20) });
       this.pushLog(events.map((e) => ({ tick: m.serverTick, kind: e.kind, text: e.description, tone: "event" as const })));
     });
     connection.on("Error", (m: ServerMessage<{ code: string; message: string }>) => {
-      const text = m.payload?.message || m.payload?.code || "服务端返回错误";
+      const text = readableError(m.payload?.code, m.payload?.message);
       this.pushLog([{ tick: m.serverTick, kind: m.payload?.code || "ERROR", text, tone: "error" }]);
       if (m.payload?.code === "INVALID_RECONNECT_TOKEN" || m.payload?.code === "PLAYER_NOT_IN_ROOM") {
         this.leaveRoom();
@@ -283,6 +314,25 @@ export class GameClient {
     this.set({ phase: "lobby", roomId: "", session: null, snapshot: null, prompt: null, log: [] });
   }
 
+  /**
+   * Asks the server what a PLAY_CARD command would cost right now (target taxes included).
+   * The quote is informational; submission is still authorized by the server.
+   */
+  async previewPlayCard(cmd: Record<string, unknown>): Promise<PlayCostQuote | null> {
+    const prompt = this.state.prompt;
+    if (!this.connection || !prompt?.promptId) return null;
+    try {
+      return await this.connection.invoke<PlayCostQuote>("PreviewPlayCard", this.state.roomId, {
+        requestId: `quote-${++seq}`,
+        promptId: prompt.promptId,
+        snapshotTick: prompt.snapshotTick,
+        command: cmd,
+      });
+    } catch {
+      return null;
+    }
+  }
+
   /** Sends intent bound to the prompt it answers; the server decides legality. */
   async submit(cmd: Record<string, unknown>): Promise<CommandReceipt | null> {
     if (!this.connection || this.state.pending) return null;
@@ -297,7 +347,7 @@ export class GameClient {
         `web-${Date.now().toString(36)}-${++seq}`,
         body,
       );
-      if (!receipt.accepted) this.toast(receipt.message || "操作被服务端拒绝");
+      if (!receipt.accepted) this.toast(readableError(receipt.errorCode, receipt.message));
       return receipt;
     } catch (error) {
       this.toast(error instanceof Error ? error.message : "提交失败");

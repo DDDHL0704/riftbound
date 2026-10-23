@@ -211,3 +211,12 @@ export type CardInfo = {
   tag?: string;
   image?: string;
 };
+
+/** Mirrors PlayCostQuoteDto in src/Riftbound.Contracts/PlayCostQuote.cs. */
+export type PlayCostQuote = {
+  isValid: boolean;
+  canPay: boolean;
+  message: string;
+  errorCode?: string;
+  cost?: { missingMana: number; missingPower: number; missingExperience: number };
+};

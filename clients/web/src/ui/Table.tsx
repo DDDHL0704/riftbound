@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
-import { client, type ClientState } from "../net/client";
+import { client, readableError, type ClientState } from "../net/client";
 import {
   buildCommand,
   choiceObjectIds,
   objectActions,
+  anyPowerFrom,
+  isRecycle,
   powerFrom,
   type ActionStep,
   type ObjectAction,
@@ -12,11 +14,18 @@ import {
 import { cardInfo, cardName, COLOR_HEX, paymentChoiceLabel } from "../game/cards";
 import type { Choice, GameObject, Prompt, Snapshot, SnapshotPlayer, TableBattlefield } from "../game/types";
 import { Card, type CardMark } from "./Card";
-import { ChainArrows, Dock } from "./Overlay";
+import { ChainArrows, Dock, EventFx } from "./Overlay";
 import { Rail } from "./Rail";
 
 /** `group` holds extra units moving together with the source (one destination, CN 144.3). */
-type Pick = { action: ObjectAction; sel: Selection; step: number; group: string[] };
+type Pick = {
+  action: ObjectAction;
+  sel: Selection;
+  step: number;
+  group: string[];
+  /** Total recycled power the server's cost quote says this play needs (target taxes included). */
+  powerNeed?: number;
+};
 
 const GROUP = "__unit:";
 
@@ -45,6 +54,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const [mulligan, setMulligan] = useState<string[]>([]);
   const [hover, setHover] = useState<Hover>(null);
   const [banner, setBanner] = useState<string | null>(null);
+  const [zoneView, setZoneView] = useState<ZoneView>(null);
 
   // Any new prompt invalidates half-built selections.
   useEffect(() => {
@@ -75,6 +85,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       if (e.key === "Escape") {
         setPick(null);
         setMenuFor(null);
+        setZoneView(null);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -85,17 +96,20 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const moveOf = (id: string) => actions.get(id)?.find((a) => a.cmdType === "MOVE_UNIT");
   const grouping = pick?.action.cmdType === "MOVE_UNIT" && currentStep?.role === "destination";
   // While moving, every other unit that can move may join; destinations narrow to shared ones.
-  const peers = useMemo(
-    () => (grouping ? [...actions.keys()].filter((id) => id !== pick!.action.sourceObjectId && moveOf(id)) : []),
-    [grouping, actions, pick], // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  const destinationsOf = (id: string): string[] => (moveOf(id)?.requirement?.destinationChoices ?? []).map((d: { id: string }) => d.id);
   const stepChoices = useMemo(() => {
     const choices = currentStep?.choices ?? [];
     if (!grouping || !pick?.group.length) return choices;
-    return choices.filter((c) =>
-      pick.group.every((id) => (moveOf(id)?.requirement?.destinationChoices ?? []).some((d: { id: string }) => d.id === c.id)),
-    );
+    return choices.filter((c) => pick.group.every((id) => destinationsOf(id).includes(c.id)));
   }, [currentStep, grouping, pick]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Units already in the group can always leave it; others may join only if a shared destination remains.
+  const peers = useMemo(() => {
+    if (!grouping) return [];
+    const shared = new Set(stepChoices.map((c) => c.id));
+    return [...actions.keys()].filter(
+      (id) => id !== pick!.action.sourceObjectId && moveOf(id) && (pick!.group.includes(id) || destinationsOf(id).some((d) => shared.has(d))),
+    );
+  }, [grouping, actions, pick, stepChoices]); // eslint-disable-line react-hooks/exhaustive-deps
   const legal = useMemo(() => {
     const map = new Map<string, string>();
     for (const choice of stepChoices) {
@@ -118,7 +132,32 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       });
       return;
     }
-    void client.submit(buildCommand(p.action, p.sel));
+    const cmd = buildCommand(p.action, p.sel);
+    if (p.action.cmdType !== "PLAY_CARD") {
+      void client.submit(cmd);
+      return;
+    }
+    // Targets can add costs (e.g. spellshield), so quote the exact play before sending it.
+    void client.previewPlayCard(cmd).then((quote) => {
+      if (!quote || (quote.isValid && quote.canPay)) {
+        void client.submit(cmd);
+        return;
+      }
+      const missingPower = quote.cost?.missingPower ?? 0;
+      const recycles = p.action.optionalCosts.filter((c) => isRecycle(c.id));
+      const haveRecycled = anyPowerFrom(p.action.requirement, p.sel.optionalCosts);
+      if (quote.isValid && missingPower > 0 && !quote.cost?.missingMana && recycles.length) {
+        setPick({ ...p, step: p.action.steps.length, powerNeed: haveRecycled + missingPower });
+        return;
+      }
+      const missing = [
+        quote.cost?.missingMana ? `${quote.cost.missingMana} 点法力` : "",
+        missingPower ? `${missingPower} 点符能` : "",
+        quote.cost?.missingExperience ? `${quote.cost.missingExperience} 点经验` : "",
+      ].filter(Boolean);
+      const hint = missingPower ? "可以先点符文选择「回收」获得符能。" : quote.cost?.missingMana ? "可以先横置符文获得法力。" : "";
+      client.toast(missing.length ? `费用不足：还差 ${missing.join("、")}。${hint}` : readableError(quote.errorCode, quote.message));
+    });
   };
 
   const advance = (p: Pick) => {
@@ -139,8 +178,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       setPick({ ...pick, group: pick.group.includes(id) ? pick.group.filter((x) => x !== id) : [...pick.group, id] });
       return;
     }
-    const sel: Selection = { ...pick.sel, targets: [...pick.sel.targets] };
+    const sel: Selection = { ...pick.sel, targets: [...pick.sel.targets], movements: [...(pick.sel.movements ?? [])] };
     if (currentStep.role === "destination") sel.destination = choiceId;
+    else if (currentStep.role === "move") sel.movements!.push(choiceId);
+    else if (currentStep.role === "cost") sel.optionalCosts = [choiceId];
     else sel.targets.push(choiceId);
     advance({ ...pick, sel, step: pick.step + 1 });
   };
@@ -230,6 +271,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   };
 
   const battlefields: TableBattlefield[] = snapshot.table?.battlefields ?? [];
+  const zoneIds = zoneView ? snapshot.players[zoneView.playerId]?.zones[zoneView.zone] ?? [] : [];
   const winner = snapshot.timing.winnerPlayerId;
 
   return (
@@ -238,7 +280,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
       <div className="board">
         {opp && <OpponentHand player={opp} />}
-        {opp && <Side player={opp} side="opp" render={renderObject} onZone={onZone} legal={legal} hover={hoverCard} />}
+        {opp && <Side player={opp} side="opp" render={renderObject} onZone={onZone} legal={legal} onOpenZone={setZoneView} />}
 
         <div className="fields">
           {battlefields.map((bf) => (
@@ -257,7 +299,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           ))}
         </div>
 
-        <Side player={me} side="me" render={renderObject} onZone={onZone} legal={legal} hover={hoverCard} />
+        <Side player={me} side="me" render={renderObject} onZone={onZone} legal={legal} onOpenZone={setZoneView} />
 
         <div className={`hand${promptType === "MULLIGAN" ? " hand--mulligan" : ""}`} aria-label="你的手牌">
           {me.zones.hand.map((id, i) => {
@@ -290,20 +332,45 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
             objects={objects}
             onChoose={choose}
             onSkip={skipStep}
-            onToggleCost={(id) =>
-              setPick({
-                ...pick,
-                sel: {
-                  ...pick.sel,
-                  optionalCosts: pick.sel.optionalCosts.includes(id)
-                    ? pick.sel.optionalCosts.filter((c) => c !== id)
-                    : [...pick.sel.optionalCosts, id],
-                },
-              })
-            }
+            onToggleCost={(id) => {
+              const on = pick.sel.optionalCosts.includes(id);
+              let next = on ? pick.sel.optionalCosts.filter((c) => c !== id) : [...pick.sel.optionalCosts, id];
+              // Without an extra cost ticked, recycles may only cover the missing printed power;
+              // the server rejects payment actions that aren't needed.
+              if (!next.some((c) => !isRecycle(c))) {
+                const kept: string[] = [];
+                for (const c of next) {
+                  if (!isRecycle(c)) continue;
+                  if (providedPower(pick, kept) < neededPower(pick)) kept.push(c);
+                }
+                next = kept;
+              }
+              setPick({ ...pick, sel: { ...pick.sel, optionalCosts: next } });
+            }}
             onConfirm={() => submitPick(pick)}
             onCancel={() => setPick(null)}
           />
+        )}
+
+        {zoneView && (
+          <div className="zoneview" role="dialog" aria-label={zoneView.title} onClick={() => setZoneView(null)}>
+            <div className="zoneview__box" onClick={(e) => e.stopPropagation()}>
+              <header className="zoneview__head">
+                <h3>
+                  {zoneView.title}（{zoneIds.length}）
+                </h3>
+                <button className="btn btn--ghost btn--small" onClick={() => setZoneView(null)}>
+                  关闭
+                </button>
+              </header>
+              <div className="zoneview__cards">
+                {[...zoneIds].reverse().map((id) => (
+                  <Card key={id} object={objects[id]} cardNo={objects[id]?.cardNo} size="board" onHover={hoverCard} />
+                ))}
+              </div>
+              <p className="muted small">最新进入的牌排在最前。</p>
+            </div>
+          </div>
         )}
 
         {banner && !winner && (
@@ -335,6 +402,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       />
 
       <ChainArrows snapshot={snapshot} meId={meId} />
+      <EventFx meId={meId} />
       {state.connectionNote && <div className="conn">{state.connectionNote}</div>}
     </div>
   );
@@ -344,7 +412,9 @@ function ScoreSpine({ me, opp, goal }: { me: SnapshotPlayer; opp?: SnapshotPlaye
   const notches = Array.from({ length: goal }, (_, i) => i + 1);
   return (
     <div className="spine" aria-label={`比分：你 ${me.score}，对手 ${opp?.score ?? 0}，先到 ${goal} 分获胜`}>
-      <div className="spine__score spine__score--opp">{opp?.score ?? 0}</div>
+      <div className="spine__score spine__score--opp" data-oid={`score:${opp?.id}`}>
+        {opp?.score ?? 0}
+      </div>
       <div className="spine__track">
         <div className="spine__half spine__half--opp">
           {notches.map((n) => (
@@ -360,7 +430,9 @@ function ScoreSpine({ me, opp, goal }: { me: SnapshotPlayer; opp?: SnapshotPlaye
           ))}
         </div>
       </div>
-      <div className="spine__score spine__score--me">{me.score}</div>
+      <div className="spine__score spine__score--me" data-oid={`score:${me.id}`}>
+        {me.score}
+      </div>
     </div>
   );
 }
@@ -382,14 +454,17 @@ type SideProps = {
   render: (id: string, size?: "board" | "hand" | "mini") => ReactNode;
   onZone: (ids: string[]) => (e: MouseEvent) => void;
   legal: Map<string, string>;
-  hover: (cardNo: string | null, o?: GameObject) => void;
+  onOpenZone: (zone: ZoneView) => void;
 };
 
-function Side({ player, side, render, onZone, legal }: SideProps) {
+/** Which public pile is open; its cards are read from the live snapshot. */
+type ZoneView = { title: string; playerId: string; zone: "graveyard" | "banished" } | null;
+
+function Side({ player, side, render, onZone, legal, onOpenZone }: SideProps) {
   const z = player.zones;
   const units = z.baseCards.filter((id) => !player.objects[id]?.attachedToObjectId);
   const pool = player.runePool;
-  const baseLegal = legal.has("BASE") && side === "me";
+  const baseLegal = legal.has(`BASE:${player.id}`) || (legal.has("BASE") && side === "me");
   const traits = Object.entries(pool.powerByTrait || {}).filter(([, v]) => v > 0);
   return (
     <section className={`side side--${side}`} aria-label={side === "me" ? "你的区域" : "对手区域"}>
@@ -426,8 +501,27 @@ function Side({ player, side, render, onZone, legal }: SideProps) {
         <Pile label="牌库" count={z.mainDeckCount} />
         <Pile label="符文库" count={z.runeDeckCount} rune />
         <div className="piles__meta">
-          <span>废牌 {z.graveyard.length}</span>
-          {z.banished.length > 0 && <span>放逐 {z.banished.length}</span>}
+          <button
+            className="piles__link"
+            disabled={!z.graveyard.length}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenZone({ title: `${side === "me" ? "我的" : "对手的"}废牌堆`, playerId: player.id, zone: "graveyard" });
+            }}
+          >
+            废牌 {z.graveyard.length}
+          </button>
+          {z.banished.length > 0 && (
+            <button
+              className="piles__link"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenZone({ title: `${side === "me" ? "我的" : "对手的"}放逐区`, playerId: player.id, zone: "banished" });
+              }}
+            >
+              放逐 {z.banished.length}
+            </button>
+          )}
           {player.experience > 0 && <span>经验 {player.experience}</span>}
         </div>
       </div>
@@ -529,6 +623,15 @@ function choiceName(id: string, label: string, objects: Record<string, GameObjec
   return o ? cardName(o.cardNo) : label;
 }
 
+/** Power the play still needs from recycles: the quote's figure when we have one, else the printed shortfall. */
+function neededPower(pick: Pick) {
+  return pick.powerNeed ?? pick.action.powerShortfall;
+}
+
+function providedPower(pick: Pick, chosen: string[]) {
+  return pick.powerNeed != null ? anyPowerFrom(pick.action.requirement, chosen) : powerFrom(pick.action.requirement, chosen);
+}
+
 function PickBar({ pick, step, choices, peers, extraPower, objects, onChoose, onSkip, onToggleCost, onConfirm, onCancel }: PickBarProps) {
   const src = objects[pick.action.sourceObjectId];
   return (
@@ -565,26 +668,27 @@ function PickBar({ pick, step, choices, peers, extraPower, objects, onChoose, on
         </>
       ) : (
         <>
-          {pick.action.powerShortfall > 0 ? (
-            <p className={`pickbar__hint${powerFrom(pick.action.requirement, pick.sel.optionalCosts) < pick.action.powerShortfall ? " pickbar__hint--warn" : ""}`}>
-              还差 {pick.action.powerShortfall} 点符能，需要回收符文支付（已选可提供{" "}
-              {powerFrom(pick.action.requirement, pick.sel.optionalCosts)} 点）。
+          {neededPower(pick) > 0 ? (
+            <p className={`pickbar__hint${providedPower(pick, pick.sel.optionalCosts) < neededPower(pick) ? " pickbar__hint--warn" : ""}`}>
+              还差 {neededPower(pick)} 点符能，需要回收符文支付（已选可提供 {providedPower(pick, pick.sel.optionalCosts)} 点）。
             </p>
           ) : (
             <p className="pickbar__hint">可选附加费用：</p>
           )}
           <div className="pickbar__choices">
-            {pick.action.optionalCosts.map((c) => (
+            {pick.action.optionalCosts
+              .filter((c) => !isRecycle(c.id) || neededPower(pick) > 0 || pick.sel.optionalCosts.some((x) => !isRecycle(x)))
+              .map((c) => (
               <label key={c.id} className="chip chip--toggle">
                 <input type="checkbox" checked={pick.sel.optionalCosts.includes(c.id)} onChange={() => onToggleCost(c.id)} />
                 {paymentChoiceLabel(c.id, c.label, objects)}
               </label>
-            ))}
+              ))}
           </div>
           <button
             className="btn btn--primary btn--small"
             onClick={onConfirm}
-            disabled={powerFrom(pick.action.requirement, pick.sel.optionalCosts) < pick.action.powerShortfall}
+            disabled={providedPower(pick, pick.sel.optionalCosts) < neededPower(pick)}
           >
             确认{pick.action.label}
           </button>

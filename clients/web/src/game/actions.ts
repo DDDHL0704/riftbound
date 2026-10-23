@@ -6,7 +6,8 @@ import type { Candidate, Choice, Prompt } from "./types";
  */
 export type ActionStep = {
   key: string;
-  role: "target" | "destination";
+  /** `move` picks where the matching target goes, for spells that move each target separately. */
+  role: "target" | "destination" | "move" | "cost";
   label: string;
   required: boolean;
   choices: Choice[];
@@ -33,6 +34,8 @@ export type ObjectAction = {
 
 type PowerByChoice = Record<string, { power: number; trait?: string }>;
 
+export const isRecycle = (id: string) => id.startsWith("RECYCLE_RUNE:");
+
 /** Power gained by the given payment choices that can pay a cost of the given traits. */
 export function powerFrom(req: Record<string, any> | undefined, chosen: string[]) {
   const byChoice: PowerByChoice = req?.paymentResourcePowerByChoice ?? {};
@@ -41,6 +44,12 @@ export function powerFrom(req: Record<string, any> | undefined, chosen: string[]
     const p = byChoice[id];
     return p && (!traits.length || !p.trait || traits.includes(p.trait)) ? n + p.power : n;
   }, 0);
+}
+
+/** Power from recycle choices regardless of trait, for generic costs such as targeting taxes. */
+export function anyPowerFrom(req: Record<string, any> | undefined, chosen: string[]) {
+  const byChoice: PowerByChoice = req?.paymentResourcePowerByChoice ?? {};
+  return chosen.reduce((n, id) => n + (byChoice[id]?.power ?? 0), 0);
 }
 
 function presetRecycles(req: Record<string, any>, shortfall: number) {
@@ -56,6 +65,8 @@ function presetRecycles(req: Record<string, any>, shortfall: number) {
 export type Selection = {
   targets: string[];
   destination?: string;
+  /** One destination per target, in target order (BASE:<player> or BATTLEFIELD:<id>). */
+  movements?: string[];
   optionalCosts: string[];
 };
 
@@ -85,6 +96,7 @@ const VERB: Record<string, string> = {
 
 function targetSteps(req: Record<string, any>, label: string): ActionStep[] {
   const byIndex: Record<string, Choice[]> = req.targetChoicesByIndex || {};
+  const moves: Record<string, Choice[]> | null = req.movementDestinationChoicesByIndex ?? null;
   const max = Number(req.maxTargetCount ?? Object.keys(byIndex).length);
   const min = Number(req.minTargetCount ?? 0);
   const steps: ActionStep[] = [];
@@ -98,6 +110,9 @@ function targetSteps(req: Record<string, any>, label: string): ActionStep[] {
       required: i < min,
       choices,
     });
+    if (moves?.[String(i)]?.length) {
+      steps.push({ key: `move-${i}`, role: "move", label: `选择第 ${i + 1} 个目标移动到哪里`, required: true, choices: moves[String(i)] });
+    }
   }
   return steps;
 }
@@ -134,9 +149,13 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       if (req.mode && req.modeLabel && req.modeLabel !== "默认") label = `${label} · ${req.modeLabel}`;
       detail = costLabel(req) || "免费";
       break;
-    case "HIDE_CARD":
+    case "HIDE_CARD": {
+      // Standby takes exactly one of its cost options (server rejects zero or several).
       steps = destinationStep(req.destinationChoices, "选择待命位置");
+      const costs: Choice[] = req.optionalCostChoices ?? [];
+      if (costs.length > 1) steps.push({ key: "cost", role: "cost", label: "选择待命费用", required: true, choices: costs });
       break;
+    }
     case "MOVE_UNIT":
       steps = destinationStep(req.destinationChoices, "选择移动目的地");
       label = req.modeLabel ? `移动 · ${req.modeLabel}` : label;
@@ -154,7 +173,8 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
       break;
   }
 
-  const required: string[] = req.requiredOptionalCosts ?? [];
+  const hideCosts: Choice[] = action === "HIDE_CARD" ? req.optionalCostChoices ?? [] : [];
+  const required: string[] = req.requiredOptionalCosts ?? (hideCosts.length === 1 ? [hideCosts[0].id] : []);
   const shortfall = Math.max(0, Number(req.minimumPrintedPowerShortfall ?? 0));
   return {
     key: `${action}:${sourceObjectId}:${index}`,
@@ -166,7 +186,7 @@ function fromRequirement(candidate: Candidate, req: Record<string, any>, index: 
     requirement: req,
     steps,
     requiredCosts: required,
-    optionalCosts: (req.optionalCostChoices ?? []).filter((c: Choice) => !required.includes(c.id)),
+    optionalCosts: action === "HIDE_CARD" ? [] : (req.optionalCostChoices ?? []).filter((c: Choice) => !required.includes(c.id)),
     powerShortfall: shortfall,
     presetCosts: shortfall > 0 ? presetRecycles(req, shortfall) : [],
   };
@@ -252,6 +272,11 @@ export function buildCommand(action: ObjectAction, sel: Selection): Record<strin
     if (value == null || value === "") continue;
     if (Array.isArray(value) && value.length === 0 && b.omitEmpty && !b.required) continue;
     cmd[b.field] = value;
+  }
+  // Sequential-movement spells name a destination per target instead of one shared destination.
+  if (req.movementDestinationChoicesByIndex && sel.movements?.length) {
+    delete cmd.destination;
+    cmd.movementDestinations = sel.movements;
   }
   return cmd;
 }
