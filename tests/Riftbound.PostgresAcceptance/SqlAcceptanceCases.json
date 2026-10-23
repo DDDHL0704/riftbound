@@ -298,6 +298,10 @@
     {
       "id": "restricted-mana-lux",
       "sourceType": "RestrictedManaSqlAcceptance"
+    },
+    {
+      "id": "empowered-target-action-replacement",
+      "sourceType": "EmpoweredTargetReplacementSqlAcceptance"
     }
   ]
 }

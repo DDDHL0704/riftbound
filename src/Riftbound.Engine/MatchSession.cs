@@ -18488,6 +18488,8 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "empowered-target-action-replacement" or "empowered-target-action-overflow"
+                => BuildEmpoweredTargetReplacementScenario(current, seed, scenarioId),
             "ven-flow-combat-normal" or "ven-flow-combat-flow"
                 => BuildVenFlowCombatKeywordScenario(current, seed, scenarioId.EndsWith("-flow", StringComparison.Ordinal)),
             "damage-doubling-combat-keywords" or "damage-doubling-overflow" or "damage-marked-overflow"

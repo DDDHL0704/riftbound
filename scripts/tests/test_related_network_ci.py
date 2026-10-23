@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -84,3 +85,89 @@ class RestartSequenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "original rejection") as caught:
             RUNNER.run_case("synthetic-unit-only", self.output, driver, self.launch, broken_stop, self.loaded)
         self.assertIn("shutdown failed", caught.exception.riftbound_cleanup_errors[0])
+
+
+class NetworkAuthenticationEvidenceTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.output = Path(self.temp.name)
+
+    def data(self):
+        return {"room": "synthetic-room", "snapshots": {"P1": {}, "P2": {}}, "traces": [
+            {"recipient": player, "method": "Joined", "message": {
+                "type": "RECONNECT", "roomId": "synthetic-room", "playerId": player,
+                "payload": {"playerId": player, "seat": player, "reconnectToken": "synthetic-" + player}}}
+            for player in ("P1", "P2")]}
+
+    def write(self, value):
+        (self.output / "network-after-restart.json").write_text(json.dumps(value))
+
+    def test_successful_joined_is_bound_to_both_players_and_room(self):
+        self.write(self.data())
+        proof = RUNNER.verify_network_auth(self.output)
+        self.assertEqual(2, proof["traces"][0]["successfulJoinedPlayers"])
+        self.assertFalse(proof["sqlCredentialRotationAndWholeBackendCertified"])
+
+    def test_original_false_green_pattern_cannot_pass_on_snapshots(self):
+        value = self.data()
+        value["traces"] = [{"method": "Error", "message": {"payload": {
+            "code": "INVALID_RECONNECT_TOKEN"}}} for _ in range(2)]
+        value["failure"] = None
+        self.write(value)
+        with self.assertRaisesRegex(ValueError, "successful RECONNECT Joined"):
+            RUNNER.verify_network_auth(self.output)
+
+    def test_each_trace_needs_success_even_when_an_earlier_trace_passed(self):
+        self.write(self.data())
+        value = self.data()
+        value["traces"] = []
+        (self.output / "network-before-restart.json").write_text(json.dumps(value))
+        with self.assertRaises(ValueError):
+            RUNNER.verify_network_auth(self.output)
+
+    def test_missing_evidence_and_wrong_room_player_type_or_token_fail(self):
+        with self.assertRaises(ValueError):
+            RUNNER.verify_network_auth(self.output)
+        for field, wrong in (("roomId", "other-room"), ("playerId", "P2"), ("type", "JOIN")):
+            value = self.data()
+            value["traces"][0]["message"][field] = wrong
+            self.write(value)
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                RUNNER.verify_network_auth(self.output)
+        value = self.data()
+        value["traces"][0]["message"]["payload"]["reconnectToken"] = ""
+        self.write(value)
+        with self.assertRaises(ValueError):
+            RUNNER.verify_network_auth(self.output)
+
+    def test_duplicate_joined_and_blank_token_fail(self):
+        value = self.data()
+        value["traces"].append(value["traces"][0])
+        self.write(value)
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            RUNNER.verify_network_auth(self.output)
+        value = self.data()
+        value["traces"][0]["message"]["payload"]["reconnectToken"] = "   "
+        self.write(value)
+        with self.assertRaises(ValueError):
+            RUNNER.verify_network_auth(self.output)
+
+    def test_previous_phase_evidence_cannot_replace_fresh_joined_for_each_room(self):
+        self.write(self.data())
+        proof = RUNNER.verify_network_auth(self.output)
+        before = {row["path"]: row["sha256"] for row in proof["traces"]}
+        with self.assertRaisesRegex(ValueError, "fresh successful Joined"):
+            RUNNER.verify_network_auth(self.output, before)
+        second = self.data()
+        second["room"] = "second-room"
+        for row in second["traces"]:
+            row["message"]["roomId"] = "second-room"
+        (self.output / "second-before.json").write_text(json.dumps(second))
+        proof = RUNNER.verify_network_auth(self.output)
+        before = {row["path"]: row["sha256"] for row in proof["traces"]}
+        (self.output / "network-new-phase.json").write_text(json.dumps(self.data()))
+        with self.assertRaisesRegex(ValueError, "fresh successful Joined"):
+            RUNNER.verify_network_auth(self.output, before)
+        (self.output / "second-new-phase.json").write_text(json.dumps(second))
+        self.assertEqual("ACTUAL_RECONNECT_JOINED_OBSERVED", RUNNER.verify_network_auth(self.output, before)["status"])

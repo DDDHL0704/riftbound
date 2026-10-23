@@ -14,6 +14,8 @@
     <Compile Include="../Riftbound.NativeNetworkSmoke/PaymentResourceSurplusNetworkAcceptance.cs" Link="PaymentResourceSurplusNetworkAcceptance.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/DamageDoublingCombatKeywordNetworkAcceptance.cs" Link="DamageDoublingCombatKeywordNetworkAcceptance.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/VenFlowCombatKeywordNetworkAcceptance.cs" Link="VenFlowCombatKeywordNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/EmpoweredTargetReplacementSqlAcceptance.cs" Link="EmpoweredTargetReplacementSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/EmpoweredTargetReplacementNetworkAcceptance.cs" Link="EmpoweredTargetReplacementNetworkAcceptance.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalAdditionalCostReductionSqlAcceptance.cs" Link="OptionalAdditionalCostReductionSqlAcceptance.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />
@@ -26,5 +28,7 @@
     <Compile Include="../Riftbound.RestrictedManaAcceptance/RestrictedManaNetworkAcceptance.cs" Link="RestrictedManaNetworkAcceptance.cs" />
     <Content Include="../../src/Riftbound.Persistence/Sql/*.sql" Link="Sql/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json" Link="Fixtures/card-play-history-current-opening-20261017.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/NetworkReconnectSqlCapture.cs" Link="NetworkReconnectSqlCapture.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/NetworkReconnectSqlEvidence.cs" Link="NetworkReconnectSqlEvidence.cs" />
   </ItemGroup>
 </Project>

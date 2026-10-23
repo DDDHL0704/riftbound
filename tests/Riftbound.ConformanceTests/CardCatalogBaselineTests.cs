@@ -657,7 +657,8 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Draw, 142, 142, 0, 0, 122, 122, 0);
         AssertFamily(report, BehaviorTemplateIds.Damage, 153, 153, 0, 0, 134, 134, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 128, 128, 0, 0, 119, 119, 0);
-        AssertFamily(report, BehaviorTemplateIds.Stun, 34, 34, 0, 0, 30, 30, 0);
+        // The two scoped Gangplank printings each add an independent stun/replacement unit.
+        AssertFamily(report, BehaviorTemplateIds.Stun, 36, 36, 0, 0, 32, 32, 0);
         Assert.All(report.Families, family =>
         {
             Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
@@ -685,11 +686,12 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 50, 50, 0, 0, 44, 44, 0);
-        AssertFamily(report, BehaviorTemplateIds.Move, 124, 124, 0, 0, 103, 103, 0);
+        AssertFamily(report, BehaviorTemplateIds.Move, 125, 125, 0, 0, 104, 104, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
         AssertFamily(report, BehaviorTemplateIds.Banish, 28, 28, 0, 0, 24, 24, 0);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 266, 266, 0, 0, 214, 214, 0);
+        // Three scoped N9 units and two Gangplank printings add five distinct units.
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 271, 271, 0, 0, 219, 219, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
         Assert.All(report.Families, family =>
@@ -981,12 +983,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
-            entries: 28,
-            specImplementedEntries: 28,
+            entries: 30,
+            specImplementedEntries: 30,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 24,
-            specImplementedFunctionalUnits: 24,
+            functionalUnits: 26,
+            specImplementedFunctionalUnits: 26,
             pendingFunctionalUnits: 0);
         Assert.All(lifecycleRows, row =>
         {

@@ -18,7 +18,8 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ("payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords",
-         "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux")
+         "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux",
+         "empowered-target-action-replacement")
 FINISH_CASES = ("instruction-power-payment", "restricted-mana-lux")
 SPEC = importlib.util.spec_from_file_location("candidate", ROOT / "scripts/ci-candidate.py")
 CANDIDATE = importlib.util.module_from_spec(SPEC)
@@ -94,6 +95,48 @@ def verify_loaded(path, pid, engine_sha, driver_runtime):
     if value["mvid"].lower() != engine["mvid"].lower():
         raise ValueError("Actual API and driver loaded different Engine MVIDs.")
     return value
+
+
+def verify_network_auth(output, previous_json_sha256=None):
+    reports = []
+    for path in sorted(output.rglob("*.json")):
+        data = json.loads(path.read_text())
+        if not isinstance(data, dict) or "traces" not in data or "snapshots" not in data:
+            continue
+        snapshots, traces, room = data["snapshots"], data["traces"], data.get("room")
+        if not isinstance(snapshots, dict) or len(snapshots) != 2 or not isinstance(traces, list) or not room:
+            raise ValueError("Network evidence requires its room and two actual private-view identities.")
+        players, joined = set(snapshots), set()
+        for trace in traces:
+            if not isinstance(trace, dict) or trace.get("method") != "Joined":
+                continue
+            message = trace.get("message", {})
+            payload = message.get("payload", {}) if isinstance(message, dict) else None
+            if not isinstance(payload, dict):
+                raise ValueError("Joined must contain an actual player session.")
+            player, token = payload.get("playerId"), payload.get("reconnectToken")
+            if (player not in players or message.get("playerId") != player or message.get("roomId") != room
+                    or message.get("type") != "RECONNECT" or not isinstance(token, str) or not token.strip()
+                    or trace.get("recipient", player) != player):
+                raise ValueError("Joined session, player, room or rotated token differs from its network case.")
+            if player in joined:
+                raise ValueError("Each identity must receive exactly one actual reconnect Joined per trace.")
+            joined.add(player)
+        if joined != players:
+            raise ValueError("Both players must receive successful RECONNECT Joined; snapshots alone cannot prove reconnect.")
+        reports.append({"path": str(path.relative_to(output)), "room": room,
+                        "players": sorted(players), "successfulJoinedPlayers": len(joined),
+                        "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+    if not reports:
+        raise ValueError("Actual network traces with successful Joined are required.")
+    if previous_json_sha256 is not None:
+        rooms = {row["room"] for row in reports}
+        fresh_rooms = {row["room"] for row in reports
+                       if previous_json_sha256.get(row["path"]) != row["sha256"]}
+        if fresh_rooms != rooms:
+            raise ValueError("Each room needs fresh successful Joined evidence from this network phase.")
+    return {"status": "ACTUAL_RECONNECT_JOINED_OBSERVED", "traces": reports,
+            "sqlCredentialRotationAndWholeBackendCertified": False}
 
 
 def run_case(case, output, driver, launch, shutdown, loaded):
@@ -197,7 +240,11 @@ def main():
                 command = [dotnet, str(driver_dll), case, phase, str(folder)]
                 if stage:
                     command.append(stage)
+                before_json = ({str(path.relative_to(folder)): digest(path) for path in folder.rglob("*.json")}
+                               if phase in ("play", "recover", "finish") else None)
                 checked(command, ROOT, env, folder / ("driver-" + (stage or phase) + ".log"))
+                if before_json is not None:
+                    save(folder / ("network-auth-" + phase + ".json"), verify_network_auth(folder, before_json))
 
             def launch(stage, folder):
                 api_env = dict(env, DOTNET_STARTUP_HOOKS=str(hook_dll),

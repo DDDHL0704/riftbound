@@ -9,13 +9,13 @@ using Riftbound.Persistence;
 
 if (args.Length == 0 || args[0] is "--help" or "help")
 {
-    Console.WriteLine("Usage: Riftbound.BackendAcceptance <payment-resource-surplus|damage-doubling-combat-keywords|ven-flow-combat-keywords|optional-additional-cost-reductions|instruction-power-payment|restricted-mana-lux> <sql|prepare|play|recover|finish|verify|tamper> <output> [before-restart|after-restart|final]");
+    Console.WriteLine("Usage: Riftbound.BackendAcceptance <payment-resource-surplus|damage-doubling-combat-keywords|ven-flow-combat-keywords|optional-additional-cost-reductions|instruction-power-payment|restricted-mana-lux|empowered-target-action-replacement> <sql|prepare|play|recover|finish|verify|tamper> <output> [before-restart|after-restart|final]");
     Console.WriteLine("Use an independent PostgreSQL database and a dedicated loopback API. Actual API restart is performed by the CI owner between play and recover.");
     return;
 }
 
 var cases = new[] { "payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords",
-    "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux" };
+    "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux", "empowered-target-action-replacement" };
 var phases = new[] { "sql", "prepare", "play", "recover", "finish", "verify", "tamper" };
 if (args.Length < 3 || !cases.Contains(args[0]) || !phases.Contains(args[1]))
     throw new ArgumentException("Specify one supported case, phase and output directory.");
@@ -57,6 +57,7 @@ if (phase is "play" or "recover" or "finish")
         case "optional-additional-cost-reductions": await OptionalAdditionalCostReductionNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
         case "instruction-power-payment": await InstructionPowerPaymentNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase); break;
         case "restricted-mana-lux": await RestrictedManaNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase); break;
+        case "empowered-target-action-replacement": await EmpoweredTargetReplacementNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
     }
 }
 else
@@ -103,6 +104,10 @@ else
         case ("restricted-mana-lux", "prepare"): await RestrictedManaSqlAcceptance.PrepareAsync(source, output); break;
         case ("restricted-mana-lux", "verify"): await RestrictedManaSqlAcceptance.VerifyAsync(source, output, stage); break;
         case ("restricted-mana-lux", "tamper"): await RestrictedManaSqlAcceptance.TamperAsync(source, output); break;
+        case ("empowered-target-action-replacement", "sql"): await EmpoweredTargetReplacementSqlAcceptance.RunAsync(source, sqlOutput); break;
+        case ("empowered-target-action-replacement", "prepare"): await EmpoweredTargetReplacementSqlAcceptance.PrepareNetworkAsync(source, output); break;
+        case ("empowered-target-action-replacement", "verify"): await EmpoweredTargetReplacementSqlAcceptance.VerifyNetworkAsync(source, output, stage); break;
+        case ("empowered-target-action-replacement", "tamper"): await EmpoweredTargetReplacementSqlAcceptance.VerifyNetworkTamperAsync(source, output); break;
         default: throw new ArgumentException("Unsupported acceptance stage.");
     }
 }

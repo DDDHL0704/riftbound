@@ -575,5 +575,6 @@ await partition.RunAsync("damage-doubling-combat-keywords", () => DamageDoubling
 await partition.RunAsync("ven-flow-combat-keywords", () => VenFlowCombatKeywordSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "ven-flow-combat-keywords")));
 await partition.RunAsync("optional-additional-cost-reductions", () => OptionalAdditionalCostReductionSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-additional-cost-reductions")));
 await partition.RunAsync("restricted-mana-lux", () => RestrictedManaSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "restricted-mana-lux")));
+await partition.RunAsync("empowered-target-action-replacement", () => EmpoweredTargetReplacementSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empowered-target-action-replacement")));
 
 await partition.CompleteAsync(output);
