@@ -89,6 +89,7 @@ public sealed partial class CoreRuleEngine
     {
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones).ToDictionary(p => p.Key, p => p.Value);
+        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>();
         if (item.MovementFollowUp is { AttachmentChosen: not null } followUp)
         {
@@ -97,15 +98,15 @@ public sealed partial class CoreRuleEngine
                 TryAttachEquipment(state, zones, cards, locations, item.ControllerId, item.SourceObjectId,
                     followUp.Equipment.ObjectId, followUp.Unit.ObjectId, item.EffectKind, events, out nextLocations);
             GrantConquestReturn(state, cards, item, followUp.Unit.ObjectId, events);
-            return FinishMovementSpell(state, item, behavior, zones, cards, nextLocations, events, deferCompletion);
+            return FinishMovementSpell(state, item, behavior, zones, cards, nextLocations, pools, events, deferCompletion);
         }
         var unitId = item.TargetObjectIds.FirstOrDefault();
         if (unitId is null || !MovementTargetIsCurrent(state, item, unitId)
             || !IsLegalChosenCardTarget(state, item.ControllerId, unitId, 0, item.TargetObjectIds, behavior.TargetScope, behavior))
-            return FinishMovementSpell(state, item, behavior, zones, cards, locations, events, deferCompletion);
-        var moved = MoveFieldUnitsToChosenLocation(state, zones, cards, locations, item, [unitId], item.Destination, events);
-        if (moved.Length == 0) return FinishMovementSpell(state, item, behavior, zones, cards, locations, events, deferCompletion);
-        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+            return FinishMovementSpell(state, item, behavior, zones, cards, locations, pools, events, deferCompletion);
+        var moved = MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [unitId], item.Destination, events);
+        if (moved.Length == 0) return FinishMovementSpell(state, item, behavior, zones, cards, locations, pools, events, deferCompletion);
+        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
         if (item.TargetObjectIds.Count == 2 && MovementTargetIsCurrent(current, item, item.TargetObjectIds[1])
             && IsLegalChosenCardTarget(current, item.ControllerId, item.TargetObjectIds[1], 1, item.TargetObjectIds, behavior.TargetScope, behavior))
         {
@@ -116,15 +117,15 @@ public sealed partial class CoreRuleEngine
                 StackItems = state.StackItems.Where(i => i.StackItemId != item.StackItemId).Append(suspended).ToArray() };
         }
         GrantConquestReturn(state, cards, item, unitId, events);
-        return FinishMovementSpell(state, item, behavior, zones, cards, locations, events, deferCompletion);
+        return FinishMovementSpell(state, item, behavior, zones, cards, locations, pools, events, deferCompletion);
     }
     private static StackResolutionResult FinishMovementSpell(MatchState state, StackItemState item,
         CardBehaviorDefinition behavior, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        IReadOnlyDictionary<string, ObjectLocationState> locations, List<GameEvent> events, bool deferCompletion)
+        IReadOnlyDictionary<string, ObjectLocationState> locations, Dictionary<string, RunePool> pools, List<GameEvent> events, bool deferCompletion)
     {
         if (!deferCompletion) CompleteSpellSource(zones, cards, item, behavior);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
-            ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
+            ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = pools, Events = events };
     }
 
 }

@@ -154,7 +154,7 @@ public sealed partial class CoreRuleEngine
         MatchState state, string player, CardBehaviorDefinition behavior, string? source,
         IReadOnlyList<string> declaredCosts, RunePool availablePool,
         out IReadOnlyList<ActionPromptChoiceDto> reductionChoices,
-        ICollection<OptionalCostReductionGroup>? reductionGroups = null)
+        ICollection<OptionalCostReductionGroup>? reductionGroups = null, RunePaymentReachability? powerReachability = null)
     {
         reductionChoices = [];
         var reducers = OptionalCostReducers(state, player, source);
@@ -193,12 +193,12 @@ public sealed partial class CoreRuleEngine
                 costs, sourceObjectId: source, componentEchoReduction: echoReduction);
             if (PaymentCostRules.AvailableMana(availablePool, IsSpellPlayBehavior(behavior)
                     ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other) < total.Total) continue;
-            PrintedPowerCostRules.TrySelectForPlay(behavior, null, availablePool,
-                price.GenericPower + SourceReplayPowerCost(state, player), price.TypedPower,
-                out var totalGeneric, out var totalTyped);
-            totalTyped = ApplySacrificePowerReduction(totalTyped,
-                SelectedSacrificeCostReduction(state, player, behavior, costs).Power);
-            if (!PaymentCostRules.CanPayPowerCost(availablePool, totalGeneric, totalTyped)) continue;
+            var extraGeneric = (long)price.GenericPower + SourceReplayPowerCost(state, player);
+            if (extraGeneric > int.MaxValue) continue;
+            var reachable = powerReachability ?? new RunePaymentReachability(availablePool, new Dictionary<string, int>());
+            var reduction = SelectedSacrificeCostReduction(state, player, behavior, costs).Power;
+            if (!reachable.CanPayForPlay(behavior, (int)extraGeneric, price.TypedPower,
+                    typed => ApplySacrificePowerReduction(typed, reduction))) continue;
             reductionChoices = choices.Select(choice => new ActionPromptChoiceDto(choice.Id,
                 choice.Source.Name + "：" + (choice.ComponentId.StartsWith("ECHO", StringComparison.Ordinal) ? "回响" : "可选额外费用")
                     + (choice.Mode == "MANA" ? "减少 1 法力" : "减少 1 "

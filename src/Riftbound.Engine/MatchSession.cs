@@ -7138,7 +7138,8 @@ internal static class ActionPromptBuilder
         int PowerCost,
         int ExperienceCost,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason)
+    { internal RunePaymentReachability? PowerReachability { get; init; } }
 
     private sealed record ActivateAbilityPromptRequirement(
         string SourceObjectId,
@@ -9061,7 +9062,7 @@ internal static class ActionPromptBuilder
             && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.InstructionPowerPaymentKind ? "结算时选择符能数量；可先获得资源或支付 0" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "COUNTER_TARGET_MANA_PAYMENT" ? "支付法力保留法术，或不支付" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "DECK_REFLEXIVE_CREATE" ? "创建强化技能，或跳过": state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ResourceConversionAmountKind ? "选择本次资源转换的数量，确认前不横置或支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ImposedMovementPaymentKind ? "支付群体移动的施加费用；可先获得资源或放弃此次移动" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.InstructionPowerPaymentKind ? "结算时选择符能数量；可先获得资源或支付 0" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "COUNTER_TARGET_MANA_PAYMENT" ? "支付法力保留法术，或不支付" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "DECK_REFLEXIVE_CREATE" ? "创建强化技能，或跳过": state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
                 payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
                 var resources = PendingPaymentResourceChoiceDtos(state, payment);
@@ -9076,7 +9077,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付群体移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -10269,7 +10270,7 @@ internal static class ActionPromptBuilder
                     mana, cost.Power, 0, cost.TypedPower, 0, 0, "无目标",
                     new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), [], choices, byChoice,
                     pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
-                    pool.TotalPower + byTrait.Values.Sum(), PlayCardAvailablePowerByTrait(pool, byTrait), [],
+                    new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait), [],
                     cost.Exhaust, false, true, null, AbilityInstanceId: ability.InstanceId,
                     CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId));
             }
@@ -10365,7 +10366,7 @@ internal static class ActionPromptBuilder
                     : paymentResourcePowerByChoice,
                 runePool.TotalPower,
                 availablePowerByTrait,
-                runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
+                new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal,
                 availablePowerByTraitWithPaymentResources,
                 [],
                 ability.ExhaustsSourceAsCost,
@@ -10482,11 +10483,12 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        if (!ResourceQuantityRules.TryConversionMaximum(runePool, ability.AbilityId, out var conversionMaximum)) return [];
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
         {
             return ResourceConversionChoices(
                 P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix,
-                runePool.Mana,
+                conversionMaximum,
                 "转换法力为费用符能");
         }
 
@@ -10494,7 +10496,7 @@ internal static class ActionPromptBuilder
         {
             return ResourceConversionChoices(
                 P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix,
-                runePool.TotalPower,
+                conversionMaximum,
                 "转换任意特性符能为法力");
         }
 
@@ -10506,7 +10508,9 @@ internal static class ActionPromptBuilder
         int maxAmount,
         string labelPrefix)
     {
-        return Enumerable.Range(0, Math.Max(0, maxAmount) + 1)
+        if ((long)maxAmount + 1 > ResourceQuantityRules.DirectChoiceLimit)
+            return [new(prefix + ResourceQuantityRules.ChooseAmountSuffix, $"{labelPrefix}：选择 0–{maxAmount}", "server-authorized resource conversion amount")];
+        return Enumerable.Range(0, maxAmount + 1)
             .Select(amount => new ActionPromptChoiceDto(
                 $"{prefix}{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
                 $"{labelPrefix}：{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
@@ -11843,7 +11847,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.TotalPower + ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability).Values.Sum();
+        return new RunePaymentReachability(runePool, ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability)).MaximumTotal;
     }
 
     private static bool CanPayActivateAbilityRequirement(
@@ -11867,15 +11871,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        if (requirement.PowerCostByTrait.Count == 0)
-        {
-            return requirement.AvailablePowerWithPaymentResources >= requirement.PowerCost;
-        }
-
-        return PaymentCostRules.CanPayPowerCost(
-            new RunePool(runePool.Mana, Math.Max(0, requirement.AvailablePowerWithPaymentResources - requirement.AvailablePowerByTraitWithPaymentResources.Values.Sum()), requirement.AvailablePowerByTraitWithPaymentResources, runePool.SpellOnlyMana),
-            requirement.PowerCost,
-            requirement.PowerCostByTrait);
+        return new RunePaymentReachability(runePool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
+            .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
     }
 
     private static bool CanPromptActivateAbilityInCurrentWindow(
@@ -12080,7 +12077,7 @@ internal static class ActionPromptBuilder
             assembleProfile.PowerCost,
             assembleProfile.ExperienceCost,
             true,
-            null);
+            null) { PowerReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait) };
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
@@ -12296,12 +12293,7 @@ internal static class ActionPromptBuilder
         }
 
         var resources = paymentResourcePowerByTrait ?? new Dictionary<string, int>();
-        var available = runePool with
-        {
-            Power = runePool.Power + resources.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, resources)
-        };
-        return PaymentCostRules.CanPayPowerCost(available,
+        return new RunePaymentReachability(runePool, resources).CanPay(
             AssembleEquipmentUsesAnyPower(assembleProfile) ? assembleProfile.PowerCost : 0,
             AssembleEquipmentUsesAnyPower(assembleProfile) ? new Dictionary<string, int>()
                 : new Dictionary<string, int> { [assembleProfile.PowerTrait] = assembleProfile.PowerCost });
@@ -12493,13 +12485,11 @@ internal static class ActionPromptBuilder
     {
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var resources = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, source);
-        var available = pool with {
-            Power = pool.Power + resources.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(pool, resources)
-        };
+        var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
                 additionalMana, additionalPower, additionalTrait)
-            .Where(cost => cost.CanPay(available)).ToArray();
+            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.SpellPlay ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other) >= cost.Mana.Total
+                && reachability.CanPay(cost.GenericPower, cost.TypedPower)).ToArray();
     }
 
     private static bool PromptCardObjectHasTags(
@@ -14291,7 +14281,7 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
-        var effectivePowerWithRecycle = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum();
+        var effectivePowerWithRecycle = new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal;
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -14303,12 +14293,7 @@ internal static class ActionPromptBuilder
             foreach (var reduction in reductions)
                 if (reductionChoiceIds.Add(reduction.Id)) choices.Add(reduction);
         }
-        var echoPool = runePool with
-        {
-            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
-        };
-
+        var echoReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait);
         if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
             choices.AddRange(CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).Select(cost => {
                 var parts = cost.Split(':', 2);
@@ -14334,7 +14319,7 @@ internal static class ActionPromptBuilder
             foreach (var steal in SourceStealEnemyEquipmentChoices(state, playerId, behavior))
             {
                 var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                    sourceObjectId, [steal.Id], echoPool, out var reductionChoices, reductionGroups);
+                    sourceObjectId, [steal.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
                 if (!originalAffordable && !reduced) continue;
                 choices.Add(steal);
                 AddReductionChoices(reductionChoices);
@@ -14345,12 +14330,12 @@ internal static class ActionPromptBuilder
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
-            PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool,
-                echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
+            var canPayEcho = echoReachability.CanPayForPlay(behavior, echo.GenericPower, echo.TypedPower,
+                additionalPrintedCosts: EchoCostRules.PrintedCosts([echo]));
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [echo.Id], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [echo.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (!reduced && (AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
-                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed))) continue;
+                || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
             parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
@@ -14370,7 +14355,7 @@ internal static class ActionPromptBuilder
         {
             var hasteReadyPowerTrait = haste.Value;
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [haste.Key], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [haste.Key], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (!reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
@@ -14391,7 +14376,7 @@ internal static class ActionPromptBuilder
             var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
             var id = $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
@@ -14414,7 +14399,7 @@ internal static class ActionPromptBuilder
         {
             var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
@@ -14428,7 +14413,7 @@ internal static class ActionPromptBuilder
             var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
             var id = $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
@@ -14443,7 +14428,7 @@ internal static class ActionPromptBuilder
             var sourceReadyPowerTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
             var id = $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
-                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+                sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
@@ -14456,7 +14441,7 @@ internal static class ActionPromptBuilder
         if (CanPromptTargetEffectAdditionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior, sourceObjectId))
         {
             CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
-                TargetEffectAdditionalCostIds(behavior), echoPool, out var reductionChoices, reductionGroups);
+                TargetEffectAdditionalCostIds(behavior), runePool, out var reductionChoices, reductionGroups, echoReachability);
             AddReductionChoices(reductionChoices);
             var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
             if (behavior.TargetEffectAdditionalManaCost > 0)
@@ -14499,9 +14484,8 @@ internal static class ActionPromptBuilder
         }
 
         var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(requiredTrait, out var availablePower)
-            && availablePower >= behavior.SourceStealEnemyEquipmentAdditionalPowerCost;
+        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.SourceStealEnemyEquipmentAdditionalPowerCost, requiredTrait);
     }
 
     private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
@@ -14699,35 +14683,38 @@ internal static class ActionPromptBuilder
         return powerByTrait;
     }
 
+    private static IReadOnlyDictionary<string, int> CandidatePowerByTrait(
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> byChoice)
+        => byChoice.Where(p => p.Key.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal)
+                && p.Value.GetValueOrDefault("trait") is string && p.Value.GetValueOrDefault("power") is int)
+            .GroupBy(p => RuneTrait.Normalize((string)p.Value["trait"]!), StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => checked((int)g.Sum(p => (long)(int)p.Value["power"]!)), StringComparer.Ordinal);
+
+    private static IReadOnlyDictionary<string, object?> WithPowerCapacity(Dictionary<string, object?> view,
+        RunePaymentReachability reachability)
+    {
+        if (reachability.CapacityBinds)
+        {
+            view.Remove("availablePowerByTraitWithPaymentResources");
+            view["paymentResourcePowerCapacity"] = reachability.Capacity;
+        }
+        return view;
+    }
+
     private static IReadOnlyDictionary<string, int> PlayCardAvailablePowerByTrait(
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
     {
-        return runePool.PowerByTrait
-            .Concat(paymentResourcePowerByTrait)
-            .Where(entry => entry.Value > 0)
-            .GroupBy(entry => RuneTrait.Normalize(entry.Key), StringComparer.Ordinal)
-            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
-            .OrderBy(group => group.Key, StringComparer.Ordinal)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Sum(entry => entry.Value),
-                StringComparer.Ordinal);
+        return new RunePaymentReachability(runePool, paymentResourcePowerByTrait).TraitUpperBounds();
     }
 
     private static bool CanPayPlayPowerCosts(RunePool pool, IReadOnlyDictionary<string, int> resources,
         CardBehaviorDefinition behavior, int amount, string trait)
     {
-        var available = pool with
-        {
-            Power = pool.Power + resources.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(pool, resources)
-        };
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
-        PrintedPowerCostRules.TrySelectForPlay(behavior, null, available,
-            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
-        return PaymentCostRules.CanPayPowerCost(available, generic, typed);
+        return new RunePaymentReachability(pool, resources).CanPayForPlay(behavior,
+            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped);
     }
 
     private static bool CanPayHasteReadyPowerCost(
@@ -14792,9 +14779,8 @@ internal static class ActionPromptBuilder
                     + behavior.TargetEffectAdditionalManaCost
                 && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
-                    TargetEffectAdditionalCostIds(behavior), runePool with {
-                        Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
-                        PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait) }, out _))
+                    TargetEffectAdditionalCostIds(behavior), runePool, out _,
+                    powerReachability: new RunePaymentReachability(runePool, paymentResourcePowerByTrait)))
             && (CoreRuleEngine.HasIndependentPermanentTargets(behavior)
                 || PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0);
     }
@@ -14892,9 +14878,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
-        return availablePowerByTrait.TryGetValue(sourceReadyTrait, out var availablePower)
-            && availablePower >= behavior.SourceReadyAdditionalPowerCost;
+        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+            behavior.SourceReadyAdditionalPowerCost, sourceReadyTrait);
     }
 
     private static bool CanPromptSourceReadyOptionalCost(
@@ -15224,7 +15209,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return new Dictionary<string, object?>
+        var reachability = new RunePaymentReachability(runePool, PendingPaymentResourcePowerByTrait(state, payment));
+        var view = new Dictionary<string, object?>
         {
             ["paymentId"] = payment.PaymentId,
             ["paymentWindow"] = payment.PaymentWindow,
@@ -15240,12 +15226,10 @@ internal static class ActionPromptBuilder
                 ["power"] = runePool.Power,
                 ["powerByTrait"] = runePool.PowerByTrait
             },
-            ["availablePowerWithPaymentResources"] = runePool.TotalPower
-                + PendingPaymentResourceTotalPower(state, payment),
-            ["availablePowerByTraitWithPaymentResources"] = MergePowerByTrait(
-                runePool.PowerByTrait,
-                PendingPaymentResourcePowerByTrait(state, payment))
+            ["availablePowerWithPaymentResources"] = reachability.MaximumTotal,
+            ["availablePowerByTraitWithPaymentResources"] = reachability.TraitUpperBounds()
         };
+        return WithPowerCapacity(view, reachability);
     }
 
     private static IReadOnlyDictionary<string, object?> AssignCombatDamageMetadataFor(MatchState state, string playerId)
@@ -15925,7 +15909,9 @@ internal static class ActionPromptBuilder
                 ?? new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
-        return view;
+        var typedTotal = requirement.AvailablePowerByTrait.Values.Sum(v => (long)v);
+        var actualPower = new RunePool(0, checked((int)(requirement.AvailablePower - typedTotal)), requirement.AvailablePowerByTrait);
+        return WithPowerCapacity(view, new RunePaymentReachability(actualPower, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice)));
     }
 
     private static IReadOnlyDictionary<string, object?> MoveUnitMetadataFor(MatchState state, string playerId)
@@ -15962,7 +15948,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> AssembleEquipmentSourceRequirementView(
         AssembleEquipmentPromptRequirement requirement)
     {
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["equipmentCardNo"] = requirement.EquipmentCardNo,
@@ -15985,6 +15971,7 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+        return requirement.PowerReachability is { } reachable ? WithPowerCapacity(view, reachable) : view;
     }
 
     private static IReadOnlyDictionary<string, object?> MoveUnitSourceRequirementView(
@@ -16141,7 +16128,7 @@ internal static class ActionPromptBuilder
             ["paymentResourceMana"] = luxSpellOnlyGeneratedMana,
             ["availablePower"] = runePool.TotalPower,
             ["availablePowerByTrait"] = availablePowerByTrait,
-            ["availablePowerWithPaymentResources"] = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
+            ["availablePowerWithPaymentResources"] = new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal,
             ["availablePowerByTraitWithPaymentResources"] = availablePowerByTraitWithPaymentResources,
             ["hasteReadyPowerCost"] = behavior.HasteReadyPowerCost,
             ["hasteReadyPowerTrait"] = HasteReadyPowerTrait(behavior),
@@ -16158,7 +16145,7 @@ internal static class ActionPromptBuilder
                     ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
                     ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
                         .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
-        return requirement;
+        return WithPowerCapacity(requirement, new RunePaymentReachability(runePool, paymentResourcePowerByTrait));
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoiceForBehavior(
@@ -18532,6 +18519,10 @@ public sealed partial class MatchSession : IMatchSession
                 or "wild-claw-mandatory" or "wild-claw-insight" => BuildWildClawScenario(current, seed, scenarioId["wild-claw-".Length..]),
             "native-play-confirmation" => BuildNativePlayConfirmationScenario(current, seed),
             "official-resource-costs" => BuildOfficialResourceCostsScenario(current, seed),
+            "imposed-movement-standard-pay" => BuildImposedMovementScenario(current, seed, false),
+            "imposed-movement-standard-decline" => BuildImposedMovementScenario(current, seed, false),
+            "imposed-movement-effect-pay" => BuildImposedMovementScenario(current, seed, true),
+            "imposed-movement-effect-decline" => BuildImposedMovementScenario(current, seed, true),
             "restricted-mana-lux-ogs" => BuildRestrictedManaScenario(current, seed, false),
             "restricted-mana-lux-sp6" => BuildRestrictedManaScenario(current, seed, true),
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
