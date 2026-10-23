@@ -2058,6 +2058,8 @@ public static partial class MatchRecoveryValidator
             }
 
             ValidateSnapshotShape(view, errors, authoritativeState);
+            if (authoritativeState is not null)
+                ValidateOrdinaryPrivatePlaySkillSnapshot(view, authoritativeState, errors);
             if (authoritativeState is not null && view.Snapshot.Timing is { } disclosureTiming)
                 ValidateObservedDisclosureSnapshot(disclosureTiming, authoritativeState, $"snapshot for {view.PlayerId}", errors);
 
@@ -33736,7 +33738,8 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
+                || item.SourceConfirmed && item.PermanentPlaySource is null)
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
