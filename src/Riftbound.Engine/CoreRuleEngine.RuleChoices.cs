@@ -75,6 +75,9 @@ public sealed partial class CoreRuleEngine
             var next = result.State with { Tick = state.Tick + 1, PendingRuleChoice = null };
             return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
         }
+        catch (DamageNumericLimitException unsupported) {
+            return RejectWithCorePrompts(state, $"当前服务端数值范围尚未支持本次结算的{unsupported.Message}。", ErrorCodes.UnsupportedCardBehavior);
+        }
         catch (RuleChoiceRequired required) {
             var raw = pending?.Command ?? JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web));
             var next = origin with { Tick = state.Tick + 1, PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request) };
@@ -119,7 +122,7 @@ public sealed partial class CoreRuleEngine
             _ = new CoreRuleEngine().ResolveCoreAsync(p.Origin, p.Intent, GameCommandJsonMapper.Map(p.Command), default).GetAwaiter().GetResult();
             return false;
         } catch (RuleChoiceRequired required) { return MatchStateHasher.HashValue(required.Request) == MatchStateHasher.HashValue(p.Request); }
-        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException) { return false; }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException or DamageNumericLimitException) { return false; }
         finally { RuleChoices.Value = previous; }
     }
 }

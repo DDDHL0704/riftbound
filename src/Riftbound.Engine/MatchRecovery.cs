@@ -26521,6 +26521,8 @@ public static partial class MatchRecoveryValidator
 
             if (cardObject.UntilEndOfTurnEffects.Any(effect => !TemporaryCombatKeywordRules.IsValid(effect)))
                 errors.Add($"authoritative state card object {objectId} has invalid temporary combat keyword grant");
+            if (!DamageDoublingApplications.IsValid(cardObject))
+                errors.Add($"authoritative state card object {objectId} has invalid damage doubling applications");
 
             if (cardObject.MovementCountThisTurn < 0)
                 errors.Add($"authoritative state card object {objectId} movement count cannot be negative");
