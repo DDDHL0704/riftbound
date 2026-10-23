@@ -15025,7 +15025,8 @@ internal static class ActionPromptBuilder
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
                 + behavior.TargetEffectAdditionalManaCost
             && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
-            && PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0;
+            && (CoreRuleEngine.HasIndependentPermanentTargets(behavior)
+                || PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0);
     }
 
     private static bool PromptTargetEffectAdditionalCostAvailable(
