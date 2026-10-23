@@ -13,6 +13,7 @@
     <Content Include="../Riftbound.ConformanceTests/Fixtures/copied-last-breath-insight-openings.json" Link="Fixtures/copied-last-breath-insight-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/attached-predict-openings.json" Link="Fixtures/attached-predict-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../../src/Riftbound.Persistence/Riftbound.Persistence.csproj" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/VenEmpoweredSelfSqlAudit.cs" Link="VenEmpoweredSelfSqlAudit.cs" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/ravenbloom-put-hand-openings.json" Link="Fixtures/ravenbloom-put-hand-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/empty-observed-deck-repeat-openings.json" Link="Fixtures/empty-observed-deck-repeat-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/multi-controller-trigger-openings.json" Link="Fixtures/multi-controller-trigger-openings.json" CopyToOutputDirectory="PreserveNewest" />

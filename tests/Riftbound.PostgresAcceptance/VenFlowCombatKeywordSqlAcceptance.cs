@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Npgsql;
@@ -85,17 +83,17 @@ internal static class VenFlowCombatKeywordSqlAcceptance
         foreach (var item in manifest.RootElement.GetProperty("cases").EnumerateArray()) {
             var room = item.GetProperty("room").GetString()!; var flow = item.GetProperty("flow").GetBoolean();
             var frame = await LoadVerified(source, room); CheckActive(frame.AuthoritativeState!, flow);
-            Check(frame.Commands.Count == 5 && frame.Commands.Count(c => c.Accepted) == 4,
-                "Retain one logged QA setup, one actual play, two passes and one stale rejection; duplicates write no new command.");
-            var digest = await Digest(source, room);
+            LoggedQaRoomBirthAssertions.Check(frame, Actor(frame.AuthoritativeState!), Peer(frame.AuthoritativeState!),
+                flow ? "ven-flow-combat-flow" : "ven-flow-combat-normal", "n3-setup");
+            Check(frame.Commands.Count == 7 && frame.Commands.Count(c => c.Accepted) == 6
+                && frame.Commands.Where(c => c.Accepted).Select(c => c.ClientIntentId).SequenceEqual(new[] {
+                    "room-seat:P1", "room-seat:P2", "n3-setup", "n3-network-play", "n3-network-resolve-0", "n3-network-resolve-1" })
+                && frame.Commands.Single(c => !c.Accepted).ClientIntentId == "n3-network-stale",
+                "Retain two real seat transitions, QA setup, actual play, two passes and one stale rejection; duplicates write no new command.");
             var dir = Path.Combine(output, flow ? "flow" : "normal");
-            if (stage == "after-restart") {
-                using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(dir, "sql-before-restart.json")));
-                Check(before.RootElement.GetProperty("sevenTableDigest").GetString() == digest,
-                    "Actual process restart, reconnect and duplicate submission must preserve all seven SQL tables.");
-            }
+            var sqlSample = await VenEmpoweredSelfSqlAudit.VerifyNativeCheckpointAsync(source, room, dir, stage, Json);
             var receipt = new { room, flow, stage, commands = frame.Commands.Count, events = frame.Events.Count,
-                finalHash = MatchStateHasher.Hash(frame.AuthoritativeState!), sevenTableDigest = digest, originalReplayMatched = true,
+                finalHash = MatchStateHasher.Hash(frame.AuthoritativeState!), sevenTableDigest = sqlSample.SevenTableDigest, sqlSample, originalReplayMatched = true,
                 ruleInputs = frame.AuthoritativeState!.RuleInputs };
             await File.WriteAllTextAsync(Path.Combine(dir, "sql-" + stage + ".json"), JsonSerializer.Serialize(receipt, Json));
             await SaveOriginal(dir, frame, stage); rows.Add(receipt);
@@ -193,42 +191,40 @@ internal static class VenFlowCombatKeywordSqlAcceptance
     }
 
     private static async Task<string> Digest(NpgsqlDataSource source, string room)
-    {
-        var rows = new StringBuilder(); await using var connection = await source.OpenConnectionAsync();
-        foreach (var table in new[] { "matches", "match_players", "command_log", "game_events", "state_snapshots", "snapshots", "action_prompts" }) {
-            await using var query = new NpgsqlCommand($"select coalesce(string_agg(row_to_json(t)::text, E'\\n' order by row_to_json(t)::text), '') from {table} t where match_id=@room", connection);
-            query.Parameters.AddWithValue("room", room); rows.Append(table).Append('\n').Append((string)(await query.ExecuteScalarAsync())!).Append('\n');
-        }
-        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rows.ToString()))).ToLowerInvariant();
-    }
+        => (await VenEmpoweredSelfSqlAudit.CaptureAsync(source, room)).SevenTableDigest;
 
     private static Task SaveOriginal(string output, MatchRecoveryFrame frame, string stage = "final") => Task.WhenAll(
         File.WriteAllTextAsync(Path.Combine(output, stage + "-original-commands.json"), JsonSerializer.Serialize(frame.Commands, Json)),
         File.WriteAllTextAsync(Path.Combine(output, stage + "-original-events.json"), JsonSerializer.Serialize(frame.Events, Json)));
 
-    private sealed class Context(NpgsqlDataSource source, string room, IMatchSession session, MatchState state)
+    private sealed class Context(NpgsqlDataSource source, string room, IMatchSession session, MatchState state, string actor, string peer, bool flow)
     {
         internal string Room => room;
-        internal string Actor => VenFlowCombatKeywordSqlAcceptance.Actor(State);
-        internal string Peer => State.Seats.Single(p => p.Value == "P2").Key;
+        internal string Actor => actor;
+        internal string Peer => peer;
         internal IMatchSession Session = session;
         internal MatchState State = state;
-        internal Dictionary<string, string> Tokens = state.Seats.Keys.ToDictionary(id => id, _ => "n3-token-" + Guid.NewGuid().ToString("N"));
-        internal Dictionary<string, string> ApiKeys = state.Seats.Keys.ToDictionary(id => id, _ => "n3-key-" + Guid.NewGuid().ToString("N"));
+        internal Dictionary<string, string> Tokens = [];
+        internal Dictionary<string, string> ApiKeys = new[] { actor, peer }.ToDictionary(id => id, _ => "n3-key-" + Guid.NewGuid().ToString("N"));
         internal List<object> Checkpoints = [];
-        private int submissions = 1;
+        private int submissions;
         internal static async Task<Context> Create(NpgsqlDataSource source, bool flow) {
             var id = Guid.NewGuid().ToString("N"); var room = "n3-ven-flow-" + id;
-            var initial = MatchReplayInitialStateBuilder.FromSeats(room, new Dictionary<string, string> { ["n3-" + id + "-p1"] = "P1", ["n3-" + id + "-p2"] = "P2" });
+            var actor = "n3-" + id + "-p1"; var peer = "n3-" + id + "-p2";
             var players = new PostgresMatchPlayerStore(source);
-            var session = new MatchSession(initial, new CoreRuleEngine(), new PostgresMatchJournal(source), players);
-            var context = new Context(source, room, session, initial);
-            foreach (var player in initial.Seats.Keys) await players.SavePlayerSessionAsync(room, player, initial.Seats[player],
-                ReconnectTokenHasher.Hash(context.Tokens[player]), default, initial.Seed);
+            var session = new MatchSession(room, new CoreRuleEngine(), new PostgresMatchJournal(source), players);
+            var context = new Context(source, room, session, MatchState.Create(room), actor, peer, flow);
+            foreach (var player in new[] { actor, peer }) {
+                var joined = await context.Session.EnsurePlayerAsync(player, default);
+                Check(joined.PlayerId == player && !string.IsNullOrWhiteSpace(joined.ReconnectToken), "Actual seat registration must return its own real reconnect token.");
+                context.Tokens[player] = joined.ReconnectToken; context.submissions++;
+                await context.Cold("actual-room-seat-" + context.submissions, takePersistedState: true);
+            }
             var scenario = flow ? "ven-flow-combat-flow" : "ven-flow-combat-normal";
-            var seeded = await session.SeedScenarioAsync(context.Actor, "n3-setup", scenario,
+            var seeded = await context.Session.SeedScenarioAsync(context.Actor, "n3-setup", scenario,
                 JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = scenario }), default);
-            Check(seeded.Accepted, seeded.ErrorMessage); context.State = seeded.State; await context.Cold("new-current-qa-setup"); return context;
+            Check(seeded.Accepted, seeded.ErrorMessage); context.State = seeded.State; context.submissions++;
+            await context.Cold("new-current-qa-setup"); return context;
         }
         internal async Task Act(string player, GameCommand command, bool accepted = true) {
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
@@ -249,8 +245,10 @@ internal static class VenFlowCombatKeywordSqlAcceptance
             }
         }
         internal async Task Top() { await Act(State.PriorityPlayerId!, new PassPriorityCommand()); await Act(State.PriorityPlayerId!, new PassPriorityCommand()); }
-        internal async Task<MatchRecoveryFrame> Cold(string label) {
+        internal async Task<MatchRecoveryFrame> Cold(string label, bool takePersistedState = false) {
             var digest = await Digest(source, room); var frame = await LoadVerified(source, room);
+            LoggedQaRoomBirthAssertions.Check(frame, Actor, Peer, flow ? "ven-flow-combat-flow" : "ven-flow-combat-normal", "n3-setup");
+            if (takePersistedState) State = frame.AuthoritativeState!;
             Check(frame.Commands.Count == submissions && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(State), "SQL frame differs from current accepted/rejected prefixes.");
             Session = await new InMemoryMatchSessionRegistry(new CoreRuleEngine(), new PostgresMatchJournal(source),
                 new PostgresMatchRecoveryStore(source), new PostgresMatchPlayerStore(source)).GetOrCreateAsync(room, default);
@@ -272,6 +270,7 @@ internal static class VenFlowCombatKeywordSqlAcceptance
         }
     }
 
-    private static string Actor(MatchState state) => state.Seats.Single(p => p.Value == "P1").Key;
+    private static string Actor(MatchState state) => state.CardObjects["N3-ALLY"].OwnerId!;
+    private static string Peer(MatchState state) => state.Seats.Keys.Single(p => p != Actor(state));
     private static void Check(bool condition, string? message) { if (!condition) throw new InvalidOperationException(message ?? "N3 acceptance failed."); }
 }
