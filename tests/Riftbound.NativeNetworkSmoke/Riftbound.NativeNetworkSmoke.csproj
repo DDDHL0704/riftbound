@@ -4,6 +4,8 @@
     <Compile Include="../../clients/godot/scripts/RiftboundGameHubClient.cs" Link="RiftboundGameHubClient.cs" />
     <Compile Include="../../clients/godot/scripts/SnapshotCardRef.cs" Link="SnapshotCardRef.cs" />
     <ProjectReference Include="../../src/Riftbound.Contracts/Riftbound.Contracts.csproj" />
+    <Compile Include="../Riftbound.PostgresAcceptance/PaymentReconnectEvidence.cs" Link="PaymentReconnectEvidence.cs" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.32" />
     <PackageReference Include="Npgsql" Version="10.0.0" />
   </ItemGroup>

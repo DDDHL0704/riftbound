@@ -8,6 +8,7 @@ if (args.Length == 0 || args[0] is "--help" or "help")
 {
     Console.WriteLine("Usage: dotnet run --project tests/Riftbound.OptionalCostReductionAcceptance -- <sql|prepare|play|recover|verify|tamper> <output-directory> [before-restart|after-restart]");
     Console.WriteLine("SQL selectors require ConnectionStrings__Riftbound. Network selectors require RIFTBOUND_SERVER_URL for the dedicated local API. Use one output directory for prepare/play/verify, actual API restart, recover/verify/tamper.");
+    Console.WriteLine("Every network selector also requires the same dedicated ConnectionStrings__Riftbound for read-only exact SQL evidence; consume real Joined token sidecars between phases.");
     return;
 }
 if (args.Length < 2 || args[0] is not ("sql" or "prepare" or "play" or "recover" or "verify" or "tamper"))

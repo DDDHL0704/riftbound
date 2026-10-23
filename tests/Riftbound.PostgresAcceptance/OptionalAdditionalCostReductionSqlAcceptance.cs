@@ -212,11 +212,7 @@ internal static class OptionalAdditionalCostReductionSqlAcceptance
         Check(frame.Commands.Count == opening + 3 && frame.Commands.Count(command => command.Accepted) == opening + 1,
             "Keep the complete ordinary opening, one invalid generation, one paid play and one stale rejection; duplicate and peer calls write no extra commands.");
         var digest = await DigestAsync(source, room);
-        if (stage == "after-restart")
-        {
-            using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(output, "sql-before-restart.json")));
-            Check(before.RootElement.GetProperty("sevenTableDigest").GetString() == digest, "Actual restart/reconnect must preserve all seven tables byte for byte.");
-        }
+        await PaymentReconnectEvidence.VerifyCheckpoint(source, room, output, stage);
         await File.WriteAllTextAsync(Path.Combine(output, "sql-" + stage + ".json"), JsonSerializer.Serialize(new {
             status = "REAL_API_OPTIONAL_COST_SQL_ORIGINAL_REPLAY_PASS", stage, room, commands = frame.Commands.Count,
             events = frame.Events.Count, finalHash = MatchStateHasher.Hash(current), sevenTableDigest = digest,
