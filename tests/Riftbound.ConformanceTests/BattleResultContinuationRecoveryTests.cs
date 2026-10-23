@@ -167,7 +167,7 @@ public sealed class BattleResultContinuationRecoveryTests
         run.Save("burnout-" + cardNo.Replace('/', '-').Replace('·', '-'));
     }
 
-    private static async Task<Driver> Open(string cardNo, bool burnout = false)
+    internal static async Task<Driver> Open(string cardNo, bool burnout = false)
     {
         var run = new Driver(MatchState.Create("BATTLE-RESULT-RECOVERY") with { Seed = 424242 });
         await run.Prepare("battle-result-" + (cardNo == "UNL-114/219" ? "nidalee" : "enforcer") + (burnout ? "-burnout" : ""));
@@ -178,7 +178,7 @@ public sealed class BattleResultContinuationRecoveryTests
         return run;
     }
 
-    private sealed class Driver
+    internal sealed class Driver
     {
         private readonly MatchState initial;
         private readonly Journal journal = new();

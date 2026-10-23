@@ -64,7 +64,8 @@ public sealed partial class CoreRuleEngine
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
         string battlefield, string attacker, string? defender, string? winner,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
-        int overkill, List<GameEvent> events, out MatchState pending)
+        int overkill, List<GameEvent> events, out MatchState pending,
+        IReadOnlyList<ObjectBinding>? publicObjectBindings = null)
     {
         // A synchronous replacement can suspend the parent across commands.
         // Its result is born at the accepted completion, not the original attempt.
@@ -104,8 +105,8 @@ public sealed partial class CoreRuleEngine
         ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
         if (winner is null)
             events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attacker, defender));
-        var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
-            ? declaration.PublicObjectBindings : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
+        var bindings = publicObjectBindings ?? (TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
+            ? declaration.PublicObjectBindings : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders)));
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, winner, resultState.Tick,
             attackers.ToArray(), defenders.ToArray(), SurvivingBattleUnitObjectIds(zones, cards, attackers),
             SurvivingBattleUnitObjectIds(zones, cards, defenders),
