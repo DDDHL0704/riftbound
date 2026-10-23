@@ -25,6 +25,8 @@
 
 共享大文件按具体方法分工：②拥有 `CoreRuleEngine.cs` 的战斗伤害分配/ledger、`BuildBattleDamageAssignmentOrder`、`ResolveFieldDestructions` 及销毁替代/战斗续体 partial；`MatchSession.cs` 的战斗伤害提示/视图与 `MatchRecovery.cs` 的对应战斗/销毁校验。③拥有 `AreRecycleRunePaymentResourceActionsRequired`、资源支付 helpers、`TryBuildPlayCardPlan` 的支付段、支付候选/PendingPayment 视图及对应恢复校验；不修改②的伤害/死亡续体。④使用现有单位入场/壁垒机制，`UnitPlayDestinationChoices` 及单位位置合法性接点如确需修改，先向①提交具体方法/接口请求；不改③支付和②战斗方法。同一方法的跨线交集由①审阅实际增量后分配，不全文件重构，也不要求所有源码由①重写。
 
+④首包的真实L2接口请求已分配：`BuildStackItemSnapshotView` 中普通 `SourceConfirmed` 打出技能的 `sourceId` 可见性分支及同语义专属恢复投影期望helper归④。离场后技能保留公开原卡面/效果并独立结算，但不能暴露当前私有区新对象身份；优先复用既有可见性接口，保留原FullGame隐藏守卫和已独立核验的历史绑定。扩大 `PermanentPlaySource`/ObjectContinuity 或改公共守卫须先交具体diff给①审阅，不能以VEN白名单绕过红测；②若需同一表达式先协调。
+
 ④负责正常源码形式的卡牌注册/目录增量，由①实际合并；其他线的新增注册如有冲突先交明确增量。②③发现共享缺陷须连同完整实现和测试交付。仅①维护 AGENTS、目标、治理、测试工作流、状态、认证视图与公共 CI 工具；其他线提供简短增量，不独立重建全来源审计。
 
 每开发线同时一个主要工作包、最多一个待集成批次。开发线只提交/推送自己的分支；①重新核对远端及并发改动后审阅/集成/发布 main，不 force/reset。发生真实接口/来源变化、冲突、共同阻塞或严重回归时向①发一次请求，其余完整批次一次交付（源码 SHA、基线、实际测试/未通过项、轻量台账、原件位置及需对方动作），不普通互报、ACK或催问，不直接相互派工。①按实际关联批次集中集成，跨线相同固定输入复用，仅补组合差异。
