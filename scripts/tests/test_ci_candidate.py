@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -58,6 +59,26 @@ class CandidateCheckoutTests(unittest.TestCase):
         for invalid in [self.sha[:8], "main", "refs/tags/candidate", "$(false)", "x" * 40, ""]:
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 CANDIDATE.verify(self.root, invalid)
+
+    def test_driver_import_does_not_dirty_a_fresh_checkout_with_default_bytecode_cache(self):
+        scripts = self.root / "scripts"
+        scripts.mkdir()
+        for name in ["ci-candidate.py", "run-related-network-ci.py"]:
+            (scripts / name).write_bytes((ROOT / "scripts" / name).read_bytes())
+        (self.root / ".gitignore").write_bytes((ROOT / ".gitignore").read_bytes())
+        self.git("config", "core.excludesFile", "/dev/null")
+        self.git("add", ".")
+        self.git("-c", "user.name=CI fixture", "-c", "user.email=ci-fixture@example.invalid",
+                 "-c", "commit.gpgsign=false", "commit", "-qm", "fresh driver input")
+        sha = self.git("rev-parse", "HEAD")
+        # macOS Python redirects caches outside the checkout; Linux does not.
+        program = ("import sys, runpy; sys.pycache_prefix=None; sys.dont_write_bytecode=False; "
+                   "sys.argv=['scripts/run-related-network-ci.py','--help']; "
+                   "runpy.run_path(sys.argv[0],run_name='__main__')")
+        subprocess.run([sys.executable, "-c", program], cwd=self.root, check=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual("", self.git("status", "--porcelain", "--untracked-files=all"))
+        self.assertEqual(sha, CANDIDATE.verify(self.root, sha)["actualSha"])
 
 
 class WorkflowCandidateTests(unittest.TestCase):

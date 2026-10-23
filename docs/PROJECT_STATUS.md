@@ -4,13 +4,14 @@
 
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
-| 待调度候选 | 不可变tag `backend-related-20261024-a1` | 代码边界`a6f64df0`：旧8项窄修复+C5+C6+N3；加N3 `b97a5799`、C5/C6 `903c7ede`日志化QA入口及①CI glue；[成员清单](audit/backend-related-20261024-a1.json)与[执行合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md)。封板后以完整SHA调度Actions，实际checkout回执必须匹配 |
-| 已有定向 / 入口检查 | `a6f64df0`组合654/654，含6个原完整局 | 新API/Postgres/公共驱动build通过；115项Python工具测试通过；治理valid但语义未认证。未执行本机新重型验收；这些结果不代替候选远端门禁 |
-| 下一批队列 | N4 `c7abd6ae`；S4 `1e08030b`/`9e2a0d06`；N5 `f11a7871` | 完整交付待审，排除本候选。三线继续独立包，不等full；失败修复优先并交回主责 |
+| 待调度候选 | 不可变tag `backend-related-20261024-a2` | 代码边界`a6f64df0`：旧8项窄修复+C5+C6+N3；加N3 `b97a5799`、C5/C6 `903c7ede`日志化QA入口及①CI glue；[成员清单](audit/backend-related-20261024-a2.json)与[执行合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md)。封板后以完整SHA调度Actions，实际checkout回执必须匹配 |
+| 已有定向 / 入口检查 | `a6f64df0`组合654/654，含6个原完整局 | 新API/Postgres/公共驱动build通过；116项Python工具测试通过；治理valid但语义未认证。未执行本机新重型验收；这些结果不代替候选远端门禁 |
+| 下一批队列 | N4 `c7abd6ae`；S4 `1e08030b`/`9e2a0d06`；N5 `f11a7871`；S5 `007a72da`/`d430fa77`；N6 `3cfda19e` | 完整交付待审，排除本候选。三线继续独立包，不等full；失败修复优先并交回主责 |
 | 共同接点 | 普朗克目标侧替换 / 指令结算费用 | ②C7先提交共同契约设计，④后续精确注册；③S5复用现有RuleChoiceContinuation及已分配SelectedBattlefield局部费用接缝。均排除本候选 |
 
 | 历史固定输入 | 结果与边界 |
 |---|---|
+| [Actions 39997314116](https://github.com/DDDHL0704/riftbound/actions/runs/39997314116) / `1baf5e51` | scope实际SHA/tree/index已核对；related_network在业务前因CI导入缓存触发严格未跟踪检查而FAIL，①最小复现并修复，原日志/产物保留；full/四SQL/其他在途任务正常收尾，不取消。A2仅修该基础设施问题，不混新业务包 |
 | `87fc55c6`本机固定check | **14316/14324，8 FAIL**，18442源输入/模式及运行时稳定；原TRX与终态保留，不重跑。[失败与后续窄修复](parallel/RELATED_BACKEND_CHECK_FAILURES_2026-10-24.md)仍须后继候选实际门禁 |
 | [Actions 39973503211](https://github.com/DDDHL0704/riftbound/actions/runs/39973503211) | 原`87fc55c6`读取时仍运行；保持原输入正常收尾，不取消/重启或提升到后续HEAD，非通过 |
 

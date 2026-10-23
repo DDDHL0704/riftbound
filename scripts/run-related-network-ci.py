@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -19,7 +20,13 @@ ROOT = Path(__file__).resolve().parents[1]
 CASES = ("payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords")
 SPEC = importlib.util.spec_from_file_location("candidate", ROOT / "scripts/ci-candidate.py")
 CANDIDATE = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(CANDIDATE)
+previous_bytecode_setting = sys.dont_write_bytecode
+try:
+    # Importing the verifier must not create an untracked input in its checkout.
+    sys.dont_write_bytecode = True
+    SPEC.loader.exec_module(CANDIDATE)
+finally:
+    sys.dont_write_bytecode = previous_bytecode_setting
 
 
 def digest(path):

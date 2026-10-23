@@ -20,8 +20,9 @@ def verify(root, expected, event_sha=""):
         raise ValueError("Actual checkout " + actual + " differs from expected candidate " + expected)
     if event_sha and event_sha.lower() != actual:
         raise ValueError("Workflow event SHA differs from candidate; dispatch its exact immutable ref.")
-    if git("status", "--porcelain"):
-        raise ValueError("Candidate checkout has tracked changes or unexpected untracked files.")
+    dirty = git("status", "--porcelain", "--untracked-files=all")
+    if dirty:
+        raise ValueError("Candidate checkout has tracked changes or unexpected untracked files: " + dirty)
     index = subprocess.check_output(["git", "ls-tree", "-rz", "HEAD"], cwd=root)
     return {"status": "FIXED_CANDIDATE_CHECKOUT_VERIFIED", "expectedSha": expected,
             "actualSha": actual, "eventSha": event_sha or None,
