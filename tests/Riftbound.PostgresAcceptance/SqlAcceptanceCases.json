@@ -302,6 +302,10 @@
     {
       "id": "empowered-target-action-replacement",
       "sourceType": "EmpoweredTargetReplacementSqlAcceptance"
+    },
+    {
+      "id": "ven-empowered-self",
+      "sourceType": "VenEmpoweredSelfSqlAcceptance"
     }
   ]
 }

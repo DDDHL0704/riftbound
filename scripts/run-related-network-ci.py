@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 CASES = ("payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords",
          "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux",
-         "empowered-target-action-replacement")
+         "empowered-target-action-replacement", "ven-empowered-self")
 FINISH_CASES = ("instruction-power-payment", "restricted-mana-lux")
 SPEC = importlib.util.spec_from_file_location("candidate", ROOT / "scripts/ci-candidate.py")
 CANDIDATE = importlib.util.module_from_spec(SPEC)

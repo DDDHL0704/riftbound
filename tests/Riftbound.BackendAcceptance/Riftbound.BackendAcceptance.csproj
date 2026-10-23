@@ -30,5 +30,9 @@
     <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json" Link="Fixtures/card-play-history-current-opening-20261017.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/NetworkReconnectSqlCapture.cs" Link="NetworkReconnectSqlCapture.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/NetworkReconnectSqlEvidence.cs" Link="NetworkReconnectSqlEvidence.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/VenEmpoweredSelfNetworkAcceptance.cs" Link="VenEmpoweredSelfNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/VenEmpoweredSelfSqlAudit.cs" Link="VenEmpoweredSelfSqlAudit.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/VenEmpoweredSelfSqlAcceptance.cs" Link="VenEmpoweredSelfSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/LoggedQaRoomBirthAssertions.cs" Link="LoggedQaRoomBirthAssertions.cs" />
   </ItemGroup>
 </Project>

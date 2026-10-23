@@ -577,4 +577,6 @@ await partition.RunAsync("optional-additional-cost-reductions", () => OptionalAd
 await partition.RunAsync("restricted-mana-lux", () => RestrictedManaSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "restricted-mana-lux")));
 await partition.RunAsync("empowered-target-action-replacement", () => EmpoweredTargetReplacementSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empowered-target-action-replacement")));
 
+await partition.RunAsync("ven-empowered-self", () => VenEmpoweredSelfSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "ven-empowered-self")));
+
 await partition.CompleteAsync(output);

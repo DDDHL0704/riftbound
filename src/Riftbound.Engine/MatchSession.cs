@@ -18488,6 +18488,8 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "ven-empowered-self-043" or "ven-empowered-self-050" or "ven-empowered-self-070"
+                => BuildVenEmpoweredSelfScenario(current, seed, scenarioId["ven-empowered-self-".Length..]),
             "empowered-target-action-replacement" or "empowered-target-action-overflow"
                 => BuildEmpoweredTargetReplacementScenario(current, seed, scenarioId),
             "ven-flow-combat-normal" or "ven-flow-combat-flow"
