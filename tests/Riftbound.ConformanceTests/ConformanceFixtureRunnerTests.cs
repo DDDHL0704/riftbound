@@ -5496,15 +5496,20 @@ public sealed class ConformanceFixtureRunnerTests
                 OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Contains("not required", result.ErrorMessage, StringComparison.Ordinal);
-        Assert.Empty(result.Events);
-        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
+        // Retain the historical method identity and original failure. CN 164.2.b,
+        // 166-167, 357.1.a and 430 allow acquiring more power than the actual cost.
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(state));
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
-        Assert.Empty(result.State.StackItems);
+        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        var paid = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(2, paid.Payload["totalPowerCost"]);
+        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
+            .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])));
     }
 
     [Fact]

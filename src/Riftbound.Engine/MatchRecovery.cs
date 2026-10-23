@@ -23691,6 +23691,7 @@ public static partial class MatchRecoveryValidator
         if (battleDeclarations > 0 && (battleDeclarations != 1
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
+        if (!CoreRuleEngine.ValidBattleDamageAssignmentLedger(state)) errors.Add("invalid combat damage assignment ledger");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
         if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)
@@ -24248,7 +24249,9 @@ public static partial class MatchRecoveryValidator
         foreach (var resolution in state.BattlefieldResolutions)
             if (resolution.PublicObjectBindings is { } publicRefs && (publicRefs.Any(b => b is null || b.Generation < 0
                 || string.IsNullOrWhiteSpace(b.ObjectId) || !resolution.ParticipantObjectIds.Contains(b.ObjectId)
-                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && b.Generation > current.ObjectGeneration)
+                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && (b.Generation > current.ObjectGeneration
+                    || b.Generation == current.ObjectGeneration && state.PlayerZones.Values.Any(z => z.Hand.Contains(b.ObjectId)
+                        || z.MainDeck.Contains(b.ObjectId) || z.RuneDeck.Contains(b.ObjectId))))
                 || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count))
                 errors.Add("invalid captured public battlefield history reference");
         foreach (var resolution in state.BattleResolutions)
@@ -26518,6 +26521,8 @@ public static partial class MatchRecoveryValidator
 
             if (cardObject.UntilEndOfTurnEffects.Any(effect => !TemporaryCombatKeywordRules.IsValid(effect)))
                 errors.Add($"authoritative state card object {objectId} has invalid temporary combat keyword grant");
+            if (!DamageDoublingApplications.IsValid(cardObject))
+                errors.Add($"authoritative state card object {objectId} has invalid damage doubling applications");
 
             if (cardObject.MovementCountThisTurn < 0)
                 errors.Add($"authoritative state card object {objectId} movement count cannot be negative");
@@ -33739,7 +33744,7 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.SourceConfirmed && item.PermanentPlaySource is null)
+                || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)

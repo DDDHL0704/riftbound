@@ -36,11 +36,17 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders)
     {
         if (!IsInitialBattleDuel(state, out var context)) return state.UntilEndOfTurnEffects;
+        // Combat starts with the remaining participants. Keep their original
+        // public incarnations, excluding response-era units that already left.
+        var participants = attackers.Concat(defenders).ToHashSet(StringComparer.Ordinal);
+        var ceasedTokens = context.CeasedTokens?.Where(entry => participants.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         return SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
             BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, attackers,
                 defenders, costs, targets ?? [],
                 context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true,
-                ceasedTokens: context.CeasedTokens, publicObjectBindings: context.PublicObjectBindings));
+                ceasedTokens: ceasedTokens is { Count: > 0 } ? ceasedTokens : null,
+                publicObjectBindings: context.PublicObjectBindings?.Where(binding => participants.Contains(binding.ObjectId)).ToArray()));
     }
 
     private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result)

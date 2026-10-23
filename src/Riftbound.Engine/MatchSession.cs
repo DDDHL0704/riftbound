@@ -5062,15 +5062,7 @@ public sealed record ResolutionResult(
     }
 
     internal static IReadOnlyDictionary<string, int> BattleLethalDamageThresholdFor(MatchState state, BattleState battle)
-    {
-        return BattleParticipantObjectIds(battle)
-            .ToDictionary(
-                objectId => objectId,
-                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
-                    : 0,
-                StringComparer.Ordinal);
-    }
+        => CoreRuleEngine.BuildCombatLethalDamageThreshold(state, battle);
 
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> BattleRequiredAssignmentsFor(MatchState state, BattleState battle)
     {
@@ -5423,7 +5415,7 @@ public sealed record ResolutionResult(
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
-            || item.SourceConfirmed && item.PermanentPlaySource is null
+            || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
         {
@@ -10245,7 +10237,7 @@ internal static class ActionPromptBuilder
                 costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
                 if (cost.Exhaust) costLabels.Add("横置");
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
-                var choices = ActivateAbilityPaymentResourceChoices(state, playerId, cost.Power, cost.TypedPower);
+                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
                 var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, choices);
                 requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
@@ -11719,65 +11711,21 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        var totalPower = ability.PowerCost + (ability.AppliesSpellshieldTargetTax
-            ? state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields)).Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).DefaultIfEmpty().Max() : 0);
-        return ActivateAbilityPaymentResourceChoices(state, playerId, totalPower, powerCostByTrait);
+        return RecycleRunePaymentResourceChoices(state, playerId,
+            "payment resource action: recycle rune while activating ability");
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
-        MatchState state, string playerId, int totalPower, IReadOnlyDictionary<string, int> powerCostByTrait)
+    private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
+        MatchState state, string playerId, string reason)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, totalPower, powerCostByTrait)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var recycleChoices = zones.Base
-            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-            .Where(objectId => RecycleRuneCanHelpActivateAbilityPowerCost(
-                state,
-                objectId,
-                runePool,
-                totalPower,
-                powerCostByTrait))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
+        return CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId)
+            .Select(actionId =>
             {
-                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for activate ability power");
-                return new ActionPromptChoiceDto(
-                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                    $"回收符文支付：{choice.Label}",
-                    choice.Reason);
+                var objectId = actionId[RecycleRunePaymentOptionalCostPrefix.Length..];
+                var choice = ObjectChoice(state, objectId, reason);
+                return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
             })
             .ToArray();
-        return recycleChoices.ToArray();
-    }
-
-    private static bool RecycleRuneCanHelpActivateAbilityPowerCost(
-        MatchState state,
-        string runeObjectId,
-        RunePool runePool,
-        int genericPowerCost,
-        IReadOnlyDictionary<string, int> powerCostByTrait)
-    {
-        if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-            || !TryGetRuneTrait(runeState, out var runeTrait))
-        {
-            return false;
-        }
-
-        if (powerCostByTrait.TryGetValue(runeTrait, out var requiredTraitPower)
-            && (!runePool.PowerByTrait.TryGetValue(runeTrait, out var availableTraitPower)
-                || availableTraitPower < requiredTraitPower))
-        {
-            return true;
-        }
-
-        return genericPowerCost > 0;
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
@@ -12362,38 +12310,7 @@ internal static class ActionPromptBuilder
         MatchState state,
         string playerId,
         AssembleEquipmentProfile assembleProfile)
-    {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (CanPayAssembleEquipmentCost(state, playerId, runePool, assembleProfile))
-        {
-            return [];
-        }
-
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var recycleChoices = zones.Base
-            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
-                && TryGetRuneTrait(runeState, out var runeTrait)
-                && (AssembleEquipmentUsesAnyPower(assembleProfile)
-                    || string.Equals(runeTrait, assembleProfile.PowerTrait, StringComparison.Ordinal)))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, assembleProfile.PaymentResourceReason);
-                return new ActionPromptChoiceDto(
-                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                    $"回收符文支付：{choice.Label}",
-                    choice.Reason);
-            })
-            .ToArray();
-        return recycleChoices.ToArray();
-    }
+        => RecycleRunePaymentResourceChoices(state, playerId, assembleProfile.PaymentResourceReason);
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPaymentResourcePowerByTrait(
         MatchState state,
@@ -14697,205 +14614,18 @@ internal static class ActionPromptBuilder
             StringComparer.Ordinal);
     }
 
-    private sealed record PlayCardPowerPaymentRequirement(
-        int GenericPowerCost,
-        IReadOnlyDictionary<string, int> PowerCostByTrait);
-
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)) return [];
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
-        {
-            return [];
-        }
-
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var paymentRequirements = PlayCardPowerPaymentResourceRequirements(state, playerId, runePool, behavior);
-        var recycleChoices = Array.Empty<ActionPromptChoiceDto>();
-        if (paymentRequirements.Count > 0
-            && state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            recycleChoices = zones.Base
-                .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-                .Where(objectId => PlayCardRecycleRuneCanHelpPowerPayment(
-                    state,
-                    objectId,
-                    runePool,
-                    paymentRequirements))
-                .OrderBy(objectId => objectId, StringComparer.Ordinal)
-                .Select(objectId =>
-                {
-                    var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for trait power");
-                    return new ActionPromptChoiceDto(
-                        $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                        $"回收符文支付：{choice.Label}",
-                        choice.Reason);
-                })
-                .ToArray();
-        }
-
-        return recycleChoices
+        if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
+            || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
+        return RecycleRunePaymentResourceChoices(state, playerId,
+                "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .ToArray();
-    }
-
-    private static IReadOnlyList<PlayCardPowerPaymentRequirement> PlayCardPowerPaymentResourceRequirements(
-        MatchState state,
-        string playerId,
-        RunePool runePool,
-        CardBehaviorDefinition behavior)
-    {
-        var requirements = new List<PlayCardPowerPaymentRequirement>();
-        void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
-        {
-            var printed = PrintedPowerCostRules.ForPlay(behavior);
-            genericPowerCost += (printed.Traits.Count == 0 ? printed.Amount : 0) + PromptMaximumWardPower(state, playerId, behavior);
-            foreach (var allocation in PrintedPowerCostRules.AllocationsForPlay(behavior))
-            {
-                var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
-                    powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
-                if ((genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
-                    || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, normalizedPowerCostByTrait))
-                {
-                    continue;
-                }
-
-                requirements.Add(new PlayCardPowerPaymentRequirement(genericPowerCost, normalizedPowerCostByTrait));
-            }
-        }
-
-        AddRequirement(0);
-
-        // Include the combined cost: several individually affordable Echoes can
-        // still require additional runes when selected together.
-        var echoCosts = EchoCostRules.Available(state, playerId, behavior);
-        var echoGeneric = echoCosts.Sum(cost => cost.GenericPower);
-        IReadOnlyList<IReadOnlyDictionary<string, int>> echoAllocations =
-            [echoCosts.Aggregate((IReadOnlyDictionary<string, int>)new Dictionary<string, int>(),
-                (typed, cost) => PrintedPowerCostRules.Combine(typed, cost.TypedPower))];
-        foreach (var cardNo in EchoCostRules.PrintedCosts(echoCosts))
-        {
-            var printed = PrintedPowerCostRules.ForCard(cardNo);
-            echoGeneric += printed.Traits.Count == 0 ? printed.Amount : 0;
-            echoAllocations = echoAllocations.SelectMany(first => PrintedPowerCostRules.Allocations(cardNo)
-                .Select(second => PrintedPowerCostRules.Combine(first, second))).DistinctBy(PrintedPowerCostRules.ChoiceId).ToArray();
-        }
-        foreach (var allocation in echoAllocations) AddRequirement(echoGeneric, allocation);
-
-        if (behavior.DamageAmountFromOptionalPowerCost)
-        {
-            AddRequirement(runePool.TotalPower + 1);
-        }
-
-        foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
-        {
-            var hasteReadyPowerTrait = haste.Value;
-            AddRequirement(
-                string.IsNullOrWhiteSpace(hasteReadyPowerTrait) ? behavior.HasteReadyPowerCost : 0,
-                string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
-                    ? null
-                    : new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [hasteReadyPowerTrait] = behavior.HasteReadyPowerCost
-                    });
-        }
-
-        if (behavior.SourceDrawAdditionalPowerCost > 0
-            && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0)
-        {
-            var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(sourceDrawPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [sourceDrawPowerTrait] = behavior.SourceDrawAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
-            && behavior.SourceReadyPowerModifierAmount != 0)
-        {
-            var sourceReadyPowerTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(sourceReadyPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [sourceReadyPowerTrait] = behavior.SourceReadyPowerModifierAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (behavior.TargetEffectAdditionalPowerCost > 0)
-        {
-            var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(targetEffectPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [targetEffectPowerTrait] = behavior.TargetEffectAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            && SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
-        {
-            var sourceStealTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-            AddRequirement(
-                0,
-                new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [sourceStealTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
-                });
-        }
-
-        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior))
-        {
-            var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
-            AddRequirement(
-                0,
-                new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [sourceReadyTrait] = behavior.SourceReadyAdditionalPowerCost
-                });
-        }
-
-        return requirements;
-    }
-
-    private static bool PlayCardRecycleRuneCanHelpPowerPayment(
-        MatchState state,
-        string runeObjectId,
-        RunePool runePool,
-        IReadOnlyList<PlayCardPowerPaymentRequirement> requirements)
-    {
-        if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-            || !TryGetRuneTrait(runeState, out var runeTrait))
-        {
-            return false;
-        }
-
-        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var existing)
-            ? existing + BasicRuneRecyclePowerGain
-            : BasicRuneRecyclePowerGain;
-        var adjustedPool = new RunePool(runePool.Mana, runePool.Power, powerByTrait);
-        return requirements.Any(requirement =>
-            PaymentCostRules.PowerDeficit(adjustedPool, requirement.GenericPowerCost, requirement.PowerCostByTrait)
-                < PaymentCostRules.PowerDeficit(runePool, requirement.GenericPowerCost, requirement.PowerCostByTrait));
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
@@ -15166,7 +14896,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PromptMaximumWardPower(state, playerId, behavior) > 0
+        return PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
+            || PromptMaximumWardPower(state, playerId, behavior) > 0
             || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
                 || cost.TypedPower.Count > 0 || cost.PrintedCardNo is not null)

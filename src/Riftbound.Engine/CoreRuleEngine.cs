@@ -42,7 +42,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
-    private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
+    private const string DamageReceivedDoubledThisTurnEffectId = DamageDoublingApplications.EffectId;
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
@@ -636,22 +636,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "PAY_COST 包含非法支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                pendingPayment.PowerCost,
-                pendingPayment.PowerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "PAY_COST 包含不必要的支付资源动作。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -2190,7 +2174,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         assignments = [];
         var marker = state.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
-            effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal));
+            effectId?.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal) == true);
         if (string.IsNullOrWhiteSpace(marker))
         {
             return false;
@@ -2208,11 +2192,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return false;
             }
 
-            assignments = parsed.Assignments
-                .Where(assignment => !string.IsNullOrWhiteSpace(assignment.SourceObjectId)
-                    && !string.IsNullOrWhiteSpace(assignment.TargetObjectId)
-                    && assignment.Damage > 0)
-                .ToArray();
+            if (parsed.Assignments is null || parsed.Assignments.Count == 0
+                || parsed.Assignments.Any(assignment => assignment is null
+                    || string.IsNullOrWhiteSpace(assignment.SourceObjectId)
+                    || string.IsNullOrWhiteSpace(assignment.TargetObjectId)
+                    || assignment.Damage <= 0)) return false;
+            assignments = parsed.Assignments.ToArray();
             return true;
         }
         catch (FormatException)
@@ -2223,6 +2208,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return false;
         }
+    }
+
+    internal static bool ValidBattleDamageAssignmentLedger(MatchState state)
+    {
+        if (state.UntilEndOfTurnEffects is null) return false;
+        var markers = state.UntilEndOfTurnEffects.Count(effect => effect?.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal) == true);
+        if (markers == 0) return true;
+        var battle = state.BattleState;
+        return markers == 1 && battle.IsActive && battle.AttackerObjectIds.Count > 0 && battle.DefenderObjectIds.Count > 0
+            && battle.AttackerObjectIds.Concat(battle.DefenderObjectIds).All(state.CardObjects.ContainsKey)
+            && TryReadBattleDamageAssignmentLedger(state, battle, out var assignments)
+            && ValidateCombatDamageAssignmentsForSources(state, battle, assignments,
+                BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds)).Accepted
+            && HasOpenBattleDamageAssignmentWindow(state)
+            && BattleDamageAssigningPlayerId(state, battle, assignments) == BattleDefendingPlayerId(state, battle)
+            && state.ActivePlayerId == BattleDefendingPlayerId(state, battle);
     }
 
     private static IReadOnlyList<string> SetBattleDamageAssignmentLedgerMarker(
@@ -2549,7 +2550,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
+    internal static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
     {
         return battle.AttackerObjectIds
             .Concat(battle.DefenderObjectIds)
@@ -2557,12 +2558,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? RequiredLethalDamage(state, cardObject,
-                        ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false),
-                        battle.AttackerObjectIds.Contains(objectId) ? BattleDefendingPlayerId(state, battle) : BattleAttackingPlayerId(state, battle))
+                    ? CombatBudgetForLethalDamage(cardObject, CombatRequiredMarkedDamage(state, battle, objectId))
                     : 0,
                 StringComparer.Ordinal);
     }
+
+    private static int CombatRequiredMarkedDamage(MatchState state, BattleState battle, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var cardObject)
+            ? RequiredLethalDamage(state, cardObject,
+                ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false),
+                battle.AttackerObjectIds.Contains(objectId) ? BattleDefendingPlayerId(state, battle) : BattleAttackingPlayerId(state, battle))
+            : 0;
 
     private static int ResolveAssignmentBattleCombatPower(
         MatchState state,
@@ -4003,20 +4009,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var assembleManaCost = amounts.Mana;
         var assembleAnyPowerCost = amounts.GenericPower;
         var assemblePowerCostByTrait = amounts.PowerByTrait;
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                assembleAnyPowerCost,
-                assemblePowerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"Recycle rune payment resources are not required to assemble {assembleProfile.DisplayName}.",
-                ErrorCodes.InsufficientCost);
-        }
-
         const string paymentWindow = "ASSEMBLE_EQUIPMENT";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -5530,22 +5522,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                new Dictionary<string, int>(StringComparer.Ordinal)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "该技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -5782,22 +5758,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "该技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -6096,19 +6056,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
             ? existingPool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "烈娜塔·戈拉斯克的抽牌技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
@@ -6357,19 +6304,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
             ? existingPool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "烈娜塔·戈拉斯克的得分技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
@@ -6649,19 +6583,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
             ? existingPool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "阿兹尔的迅捷交换技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
@@ -6902,19 +6823,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
             ? existingPool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "伊泽瑞尔的迅捷移动技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
@@ -7169,19 +7077,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
             ? existingPool
             : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                ability.PowerCost,
-                powerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "守门者马杜里的移动技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         var adjustedPowerPool = ApplyRecycleRunePaymentToPool(
             currentPool,
             state.CardObjects,
@@ -9130,22 +9025,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 command.TargetObjectIds,
                 out spellshieldTaxTargetObjectIds);
         }
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                (ability.PowerCost + spellshieldTaxPower),
-                new Dictionary<string, int>(StringComparer.Ordinal)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "泽拉斯的技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -9921,22 +9800,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out spellshieldTaxTargetObjectIds);
         }
 
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                (ability.PowerCost + spellshieldTaxPower),
-                new Dictionary<string, int>(StringComparer.Ordinal)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "黑影的技能不需要回收符文支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -10563,6 +10426,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PassedPriorityPlayerIds = state.PassedPriorityPlayerIds
         };
 
+        nextState = RefreshMightyPaymentResources(state, nextState);
+
         var events = new List<GameEvent>
         {
             CaptureRecycleObservers(new(
@@ -10871,6 +10736,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && TryGetRuneTrait(runeState, out _);
     }
 
+    // CN 430: acquiring a legal rune resource is voluntary, even when its trait
+    // is unrelated to the current fee. Cost authorization still checks exact traits.
+    internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
+        => state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
+                && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
+                .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
+            : [];
+
     private static RunePool ApplyRecycleRunePaymentToPool(
         RunePool currentPool,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -10896,6 +10771,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
     }
 
+    // Declaration-time resource plans are staged before their future payment window.
+    // Actual payment acquisition is voluntary and does not require a minimal rune set.
     private static bool AreRecycleRunePaymentResourceActionsRequired(
         RunePool currentPool,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -12651,7 +12528,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, defenderState, defenderCombatPower, intent.PlayerId);
                     var damageAmount = defenderIndex == defenderAssignments.Count - 1
                         ? remainingAttackerDamage
-                        : Math.Min(remainingAttackerDamage, lethalDamage);
+                        : Math.Min(remainingAttackerDamage, CombatBudgetForLethalDamage(defenderState, lethalDamage));
                     if (damageAmount <= 0)
                     {
                         continue;
@@ -12733,7 +12610,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, targetAttackerState, targetAttackerCombatPower, defendingPlayerId);
                     var damageAmount = attackerIndex == attackerAssignments.Count - 1
                         ? remainingDefenderDamage
-                        : Math.Min(remainingDefenderDamage, lethalDamage);
+                        : Math.Min(remainingDefenderDamage, CombatBudgetForLethalDamage(targetAttackerState, lethalDamage));
                     if (damageAmount <= 0)
                     {
                         continue;
@@ -12773,7 +12650,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(assignment => attackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
                     && !UnitMovementRules.CannotTakeDamage(cardObjects[assignment.TargetObjectId]))
                 .GroupBy(assignment => assignment.TargetObjectId)
-                .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage) - submittedDamage.LethalThreshold.GetValueOrDefault(group.Key)));
+                // Preserve the existing excess-damage input independently of the
+                // newly reduced budget threshold. Modified excess needs its own ruling.
+                .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage)
+                    - CombatRequiredMarkedDamage(submittedDamage.State, submittedDamage.Battle, group.Key)));
         }
 
         var combatStackItem = new StackItemState(
@@ -12818,12 +12698,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var resultWinner = TryResolveBattleWinnerPlayerId(playerZones, cardObjects, attackerObjectIds,
             defenderObjectIds, defendingPlayerId, intent.PlayerId, out var capturedWinner) ? capturedWinner : null;
+        var declaredPublicBindings = TryReadBattleResponseDeclarationContext(state, battlefieldId, out var publicBattle)
+            ? publicBattle.PublicObjectBindings : null;
+        var publicBattleBindings = (declaredPublicBindings ?? [])
+            .Concat(CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds)))
+            .GroupBy(binding => binding.ObjectId, StringComparer.Ordinal).Select(group => group.First()).ToArray();
         var resultState = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones), RunePools = runePools,
             TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
         if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
-            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult,
+            publicObjectBindings: publicBattleBindings))
         {
             combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
@@ -12838,14 +12724,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         string? resolvedBattleWinnerPlayerId = null;
-        var survivingConquerAttackerObjectIds = attackerObjectIds
-            .Where(attackingObjectId => cardObjects.TryGetValue(attackingObjectId, out var survivingAttackerState)
-                && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && IsObjectOnField(playerZones, attackingObjectId))
-            .ToArray();
-        var attackerConqueredBattlefield = defenderObjectIds.All(defenderObjectId =>
-                lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
-            && survivingConquerAttackerObjectIds.Length > 0;
+        // CN 468.5: control depends on units remaining at the battlefield.
+        // Destruction replacements can remove defenders without a death and
+        // can leave recalled attackers in play at their bases.
+        var survivingConquerAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
+        var attackerConqueredBattlefield = survivingConquerAttackerObjectIds.Length > 0
+            && SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds).Length == 0;
         var huntConquerSources = survivingConquerAttackerObjectIds
             .Select(objectId => new
             {
@@ -12987,7 +12871,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefieldResolutions = AppendBattlefieldResolutionEvents(
             state.BattlefieldResolutions,
             combatEvents,
-            state.Tick + 1, cardObjects);
+            state.Tick + 1, cardObjects, publicBattleBindings);
         var battleResolutions = AppendBattleResolutionEvents(
             state.BattleResolutions,
             combatEvents,
@@ -12999,8 +12883,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             attackerObjectIds,
             defenderObjectIds,
             playerZones,
-            cardObjects, TryReadBattleResponseDeclarationContext(state, battlefieldId, out var publicBattle)
-                ? publicBattle.PublicObjectBindings : CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds)));
+            cardObjects, publicBattleBindings);
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, combatEvents);
         var nextState = state with
         {
@@ -13409,7 +13292,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<BattlefieldResolutionState> AppendBattlefieldResolutionEvents(
         IReadOnlyList<BattlefieldResolutionState> existing,
         IReadOnlyList<GameEvent> events,
-        long tick, IReadOnlyDictionary<string, CardObjectState> cardObjects)
+        long tick, IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<ObjectBinding>? publicObjectBindings = null)
     {
         var newResolutions = new List<BattlefieldResolutionState>();
         for (var eventIndex = 0; eventIndex < events.Count; eventIndex++)
@@ -13458,9 +13342,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 EventPayloadString(gameEvent, "controllerId"),
                 sourceObjectId,
                 participantObjectIds,
-                [gameEvent.Kind]) { PublicObjectBindings = participantObjectIds
-                    .Where(id => cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown)
-                    .Select(id => new ObjectBinding(id, cardObjects[id].ObjectGeneration)).ToArray() });
+                [gameEvent.Kind]) { PublicObjectBindings = participantObjectIds.Select(id =>
+                    publicObjectBindings?.FirstOrDefault(binding => binding.ObjectId == id)
+                    ?? (cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
+                        ? new ObjectBinding(id, card.ObjectGeneration) : null))
+                    .Where(binding => binding is not null).Cast<ObjectBinding>().ToArray() });
         }
 
         if (newResolutions.Count == 0)
@@ -14153,14 +14039,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 combatKeyword));
         keywordBonus = Math.Max(
             keywordBonus,
-            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
             ResolveBattlefieldKeywordStaticAuraBonus(
                 state,
                 playerZones,
@@ -14175,6 +14053,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 objectId,
                 cardObject,
                 combatKeyword));
+        // Each other friendly unit's local aura is an independent grant
+        // (CN 807.2 / 814.2), separate from the recipient's own keyword layer.
+        keywordBonus += ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
+            state,
+            playerZones,
+            objectId,
+            cardObject,
+            combatKeyword);
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -14591,7 +14477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
                 .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
             {
-                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+                bonus += GrantedCombatKeywordAmount(aura, combatKeyword);
             }
         }
 
@@ -19027,20 +18913,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
         var optionalCostPowerReduction = powerBeforeSacrificeReduction - totalPowerCostByTrait.Values.Sum();
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledPaymentRuneObjectIds,
-                totalGenericPowerCost,
-                totalPowerCostByTrait))
-        {
-            rejection = Reject(
-                state,
-                $"Payment resource actions are not required to play {behavior.DisplayName}.",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
         if (!TryValidateLuxSpellOnlyResourceActions(
                 state,
                 intent.PlayerId,
@@ -19958,6 +19830,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return (state, []);
         }
 
+        var battlefieldHistoryBindings = CaptureBattlePublicBindings(state, occupantObjectIds)
+            .Concat(concludingBattle && state.PendingBattleResult is { } result && result.BattlefieldId == battlefieldObjectId
+                ? result.PublicObjectBindings : [])
+            .GroupBy(binding => binding.ObjectId, StringComparer.Ordinal).Select(group => group.First()).ToArray();
         var previousControllerId = battlefieldState.ControllerId;
         var nextControllerId = occupantControllerIds.Length == 1 ? occupantControllerIds[0] : null;
         var events = new List<GameEvent>();
@@ -20041,7 +19917,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BattlefieldResolutions = AppendBattlefieldResolutionEvents(
                 state.BattlefieldResolutions,
                 events,
-                state.Tick, cardObjects),
+                state.Tick, cardObjects, battlefieldHistoryBindings),
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
         };
@@ -21253,7 +21129,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             Status = MatchStatuses.Finished,
-            WinnerPlayerId = winnerPlayerId
+            WinnerPlayerId = winnerPlayerId,
+            UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects)
         };
         var winningScore = EffectiveWinningScore(state);
         var events = new[]
@@ -26376,7 +26253,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
-                            var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
+                            var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState,
+                                TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId));
                             targetState = targetState with
                             {
                                 UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
@@ -28564,10 +28442,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             foreach (var statusEffectId in statusEffectIds)
             {
+                var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState, statusEffectId);
                 targetState = targetState with
                 {
                     UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                        .Concat([statusEffectId])
+                        .Concat([appliedStatusEffectId])
                         .Distinct(StringComparer.Ordinal)
                         .OrderBy(effectId => effectId, StringComparer.Ordinal)
                         .ToArray()
@@ -29191,9 +29070,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var preventsDamage = preventDamage || preventsWithTargetEffect;
         var adjustedDamageAmount = preventsDamage
             ? 0
-            : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
-                ? damageAmount * 2
-                : damageAmount;
+            : DamageDoublingApplications.Apply(targetState, damageAmount);
         var nextEffects = targetState.UntilEndOfTurnEffects
             .Where(effectId => !preventsWithTargetEffect
                 || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
@@ -29201,7 +29078,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         cardObjects[targetObjectId] = targetState with
         {
-            Damage = targetState.Damage + adjustedDamageAmount,
+            Damage = DamageDoublingApplications.AddMarkedDamage(targetState.Damage, adjustedDamageAmount),
             DamageMarkedByPlayerIds = adjustedDamageAmount > 0
                 ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()

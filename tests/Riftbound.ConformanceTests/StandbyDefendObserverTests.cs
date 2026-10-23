@@ -244,6 +244,7 @@ public sealed class StandbyDefendObserverTests
             var result = await session.SubmitAsync(player, name, command, raw, default);
             Assert.True(result.Accepted, result.ErrorMessage);
             State = result.State;
+            Export(name + "-result.json", result);
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             OfficialGraveyardRecastTests.Restore(State); ArmamentMightTests.PublicRecovery(State);
             var sequence = entries[^1].CompletedEventSequence;

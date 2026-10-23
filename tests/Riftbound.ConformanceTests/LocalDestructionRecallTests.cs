@@ -92,9 +92,12 @@ public sealed class LocalDestructionRecallTests
     {
         var s=At(Source(PositionFor(),"SFD·173/221","S2"),"S2","P2","BATTLEFIELD","BF");
         var opened=await Open(s,"UNL-180/219");var first=await Select(opened.State,"LOCAL_RECALL:S:S2");Restore(first.State);
-        Assert.Contains(first.State.PendingRuleChoice!.Request.Options,o=>o.Id=="LOCAL_RECALL:D:S");
-        var done=await Select(first.State,"LOCAL_RECALL:D:S");
-        Assert.Contains("S2",done.State.PlayerZones["P2"].Graveyard);Assert.Contains("S",done.State.PlayerZones["P2"].Base);Assert.Contains("D",done.State.PlayerZones["P2"].Base);Restore(done.State);
+        // Historical method identity retained. CN 373.2 requires S2 to finish
+        // its group; recalled S cannot start its own group at its old location.
+        Assert.Null(first.State.PendingRuleChoice);
+        Assert.Equal("S2", Assert.Single(first.Events, e => e.Kind == "UNIT_RECALLED_TO_BASE"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "D")).Payload["sourceObjectId"]);
+        Assert.Contains("S2",first.State.PlayerZones["P2"].Graveyard);Assert.Contains("S",first.State.PlayerZones["P2"].Base);Assert.Contains("D",first.State.PlayerZones["P2"].Base);Restore(first.State);
     }
 
     [Theory]
@@ -178,6 +181,8 @@ public sealed class LocalDestructionRecallTests
         var done=await CombatTestDriver.FinishAsync(battle);
         Assert.Contains("D",done.State.PlayerZones["P2"].Base);Assert.Contains("S",done.State.PlayerZones["P2"].Graveyard);
         Assert.Equal("P1",done.State.BattlefieldStates["BF"].ControllerId);Assert.False(done.State.BattleState.IsActive);Restore(done.State);
+        Assert.Equal(1, done.State.PlayerScores["P1"]);
+        Assert.Single(done.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
     }
 
     [Fact]
