@@ -6,7 +6,7 @@
 |---|---|---|
 | 当前候选验证中 | `cbcf5c24` / 不可变tag `backend-related-20261024-a2` | 代码边界`a6f64df0`：旧8项窄修复+C5+C6+N3；加N3 `b97a5799`、C5/C6 `903c7ede`日志化QA入口及①CI glue；[成员清单](audit/backend-related-20261024-a2.json)与[执行合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md)。已实际调度[Actions 39998674123](https://github.com/DDDHL0704/riftbound/actions/runs/39998674123)，scope实际SHA/tree/index与本地封板一致；scope/旧native_network/双平台desktop及related_network三case实际重启通过；SQL分区2在C5 numeric-scale投降后额外battle清空断言FAIL，已带原件回交②核终局合同/冷恢复；SQL分区3亦通过；full及SQL分区0/1读取时仍运行，整体未过 |
 | 已有定向 / 入口检查 | `a6f64df0`组合654/654，含6个原完整局 | 新API/Postgres/公共驱动build通过；116项Python工具测试通过；治理valid但语义未认证。未执行本机新重型验收；这些结果不代替候选远端门禁 |
-| 下一批已集成，尚未调度 | SQL终局窄修复 `1131b515`；N4/S4/N5/S5/N6/S6/N8及Lux SP6；业务边界 `548adefe` | 新组合单次 **777/777、0skip**，18514跟踪输入运行期不变；API/Postgres/公共driver build及52项CI工具测试通过。目录1047/语义SHA `6ff92ec3…`，原1045行/顺序及九个FullGame源文件相对A2保留；[下一批CI入口](CI_BACKEND_ACCEPTANCE_CONTRACT.md)为74 SQL/六组实际重启入口。真实SQL/API/full尚未执行，排除A2，不提升为后端验收通过 |
+| 下一批准备中，尚未调度 | SQL终局窄修复；N4/S4/N5/S5/N6/S6/N8及Lux；新增N9源码f50e125b便携接入 | 根目录1050/语义SHA `e6177c53…`；本次 **221/221、0skip**，含全部51个N9新例及S6/CN16/Lux回归，18516跟踪输入运行期不变；API/Postgres/公共driver build过。原`2773a353`的1047输入777/777与52 CI工具结果分列。[下一批入口](CI_BACKEND_ACCEPTANCE_CONTRACT.md)仍74 SQL/六组重启，**N9来源回手专用SQL/API入口未交**；真实门禁/full未执行，非后端验收通过 |
 | 共同接点 | C7替换、S7移动费用、N9强化源隐私 | [实际接点分配](parallel/SHARED_BACKEND_CONTRACTS_2026-10-24.md)；C7恢复frame已回到原构造，私有凭据时间与命令tick分开；S7复用支付续体/live pools；N9仅两处投影/严格恢复predicate。均为已审边界，未完成交付或验收，排除本候选 |
 
 | 历史固定输入 | 结果与边界 |

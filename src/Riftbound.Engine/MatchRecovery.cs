@@ -23119,6 +23119,11 @@ public static partial class MatchRecoveryValidator
             }
 
             ValidateResourcePoolViews(view, authoritativeState, errors);
+            if (view.Snapshot.Stack is null)
+            {
+                errors.Add($"snapshot for {view.PlayerId} stack is required");
+                continue;
+            }
 
             if (view.Snapshot.TurnNumber != authoritativeState.TurnNumber)
             {
@@ -23219,6 +23224,18 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateEmpoweredViews(SnapshotDto snapshot, MatchState state, string? viewer, List<string> errors, string label)
     {
+        if (state.StackItems is null) errors.Add($"{label} empower stack source authoritative stack is required");
+        foreach (var item in state.StackItems ?? [])
+        {
+            if (item is null) { errors.Add($"{label} empower stack source authoritative item is required"); continue; }
+            if (item.EmpowerActivation is null) continue;
+            var rows = (snapshot.Stack ?? []).Where(p => TryReadObjectString(p, "stackItemId", out var id) && id == item.StackItemId).ToArray();
+            var expected = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, viewer ?? string.Empty);
+            if (rows.Length != 1 || !OptionalStringSnapshotValueMatches(rows[0], "sourceObjectId", expected)
+                || !TryReadObjectString(rows[0], "sourceVisibility", out var visibility)
+                || visibility != (expected == "HIDDEN" ? "HIDDEN" : "VISIBLE"))
+                errors.Add($"{label} empower stack source visibility differs from authoritative state");
+        }
         foreach (var player in snapshot.Players?.Values ?? [])
         {
             if (!TryReadObjectValue(player, "objects", out var objects) || !TryReadObjectDictionaryValue(objects, out var payloads)) continue;
@@ -33759,6 +33776,7 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
+                || item.EmpowerActivation is not null
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 

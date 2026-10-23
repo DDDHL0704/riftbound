@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1047,
+  "total": 1050,
   "cards": [
     {
       "id": 31005,
@@ -43520,6 +43520,150 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37733,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·043",
+      "cardName": "钢爪",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "皮尔特沃夫",
+      "tag": "猫科",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{强化7}}（支付{{7}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+7。",
+      "flavorText": "老鼠越变越大，小猫也要想办法。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/df893a9f16fd4c68b4f28ecbb2d64f67.png",
+      "backImage": "",
+      "listSort": 1953,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37741,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·050",
+      "cardName": "凶暴的岩熊",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Dao Trong Le",
+      "cardEffect": "{{强化12}}。你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{法盾}}和{{坚守3}}。（对手必须支付{{A}}才能将我选作法术或技能的目标。如果我是防守方，则{{S}}+3。）",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/cdc7a0b3a2c44e9e93db5c87a3c9b5da.png",
+      "backImage": "",
+      "listSort": 1945,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37764,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·070",
+      "cardName": "残暴猎手",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "她带回的战利品，往往……很难辨认。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/dd46f8de81604175ba4946064058db15.png",
+      "backImage": "",
+      "listSort": 1922,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44149,6 +44293,51 @@
       "effectiveDate": null,
       "printedFaceIdentity": "VEN·SP6/006 SC",
       "reason": "Exact CN Lux printing source prerequisite for line3 restricted-mana S6. Preserves OGS014 and historical rows; registration does not certify restricted-mana behavior."
+    },
+    {
+      "cardNo": "VEN·043",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T18:57:05.335100+00:00",
+      "sourceId": 37733,
+      "sourceRecordSha256": "a08a650c6fe94935d625247ac20f1542e53f3488a5be4abe1826090684ca7fe6",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·043/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-043/166",
+      "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, conditional self Might, Ward, Steadfast and Roam mechanisms. Focused conformance and whole-card fixed-candidate certification remain separate."
+    },
+    {
+      "cardNo": "VEN·050",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T18:57:05.335100+00:00",
+      "sourceId": 37741,
+      "sourceRecordSha256": "53326a2c7ef61f4b6d554cb53a8a5c641ccb7077295ccbff39fb8b14be57a49e",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·050/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-050/166",
+      "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, conditional self Might, Ward, Steadfast and Roam mechanisms. Focused conformance and whole-card fixed-candidate certification remain separate."
+    },
+    {
+      "cardNo": "VEN·070",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T18:57:05.335100+00:00",
+      "sourceId": 37764,
+      "sourceRecordSha256": "45babf793cb76ae4ed3487b1719b2e426ccc84c6c4f2d4e30d19458a095aa801",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·070/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-070/166",
+      "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, conditional self Might, Ward, Steadfast and Roam mechanisms. Focused conformance and whole-card fixed-candidate certification remain separate."
     }
   ]
 }
