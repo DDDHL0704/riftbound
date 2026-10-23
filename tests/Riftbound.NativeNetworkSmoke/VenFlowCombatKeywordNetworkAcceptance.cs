@@ -24,51 +24,41 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
             var tokenInput = recover ? resume!.RootElement.GetProperty("reconnectTokens") : fixture.GetProperty("tokens");
             var players = tokenInput.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
             var priorTokens = players.ToDictionary();
-            var beforeReconnect = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
+            var replies = new QaNetworkReplyAudit(room, priorTokens, json);
+            var beforeReconnect = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
             if (recover) {
                 using var previousSql = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(dir, "sql-before-restart.json"), token));
                 VenEmpoweredSelfSqlAudit.CheckExact(previousSql.RootElement.GetProperty("sqlSample").Deserialize<VenEmpoweredSelfSqlAuditFrame>(json)!, beforeReconnect);
             }
             var connections = new Dictionary<string, HubConnection>(); var snapshots = new ConcurrentDictionary<string, JsonElement>();
             var prompts = new ConcurrentDictionary<string, ActionPromptDto>(); var traces = new ConcurrentQueue<object>();
-            var joined = new ConcurrentDictionary<string, PlayerSessionDto>();
-            var serverErrors = new ConcurrentQueue<(string Recipient, WsServerMessage Message)>();
-            var expectedErrors = new Dictionary<(string Recipient, string Player, string Code), int>();
             var acceptedIntents = new List<string>(); string? lastActor = null; string? lastIntent = null; JsonElement lastRaw = default;
             CommandReceiptDto? last = null;
             VenEmpoweredSelfSqlAuditFrame? forbiddenBefore = null, forbiddenAfter = null;
             VenEmpoweredSelfSqlAuditFrame? duplicateBefore = null, duplicateAfter = null;
             try {
                 foreach (var (player, reconnect) in players.ToArray()) {
-                    var joinedReply = new TaskCompletionSource<PlayerSessionDto>(TaskCreationOptions.RunContinuationsAsynchronously);
                     var client = new HubConnectionBuilder().WithUrl(url.TrimEnd('/') + "/hubs/game").AddJsonProtocol(options =>
                         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter())).Build();
                     connections[player] = client;
                     foreach (var method in new[] { "Joined", "Snapshot", "Prompt", "Events", "Error" })
                         client.On<WsServerMessage>(method, message => {
                             traces.Enqueue(new { recipient = player, method, message });
-                            if (method == "Error") {
-                                serverErrors.Enqueue((player, message));
-                                joinedReply.TrySetException(new InvalidOperationException("API rejected reconnect: " + JsonSerializer.Serialize(message.Payload, json)));
-                            }
+                            replies.Observe(method, player, message);
                             if (message.Payload is not JsonElement payload) return;
-                            if (method == "Joined") {
-                                try { joined[player] = ReadJoinedPlayer(payload, player, reconnect, json); joinedReply.TrySetResult(joined[player]); }
-                                catch (Exception error) { joinedReply.TrySetException(error); }
-                            }
                             if (method == "Snapshot") snapshots[player] = payload.Clone();
                             if (method == "Prompt") prompts[player] = payload.Deserialize<ActionPromptDto>(json)!;
                         });
-                    await client.StartAsync(token);
-                    var auth = await client.InvokeAsync<AuthResultDto>("Authenticate", player, fixture.GetProperty("apiKeys").GetProperty(player).GetString()!, token);
+                    await replies.UntilFaultAsync(client.StartAsync(token), token);
+                    var auth = await replies.UntilFaultAsync(client.InvokeAsync<AuthResultDto>("Authenticate", player, fixture.GetProperty("apiKeys").GetProperty(player).GetString()!, token), token);
                     Check(auth.Authenticated, "Dedicated per-room N3 identity authentication failed.");
-                    await client.InvokeAsync("Reconnect", room, player, reconnect, token);
-                    players[player] = (await joinedReply.Task.WaitAsync(token)).ReconnectToken;
-                    await client.InvokeAsync("RequestSnapshot", room, player, token);
+                    await replies.UntilFaultAsync(client.InvokeAsync("Reconnect", room, player, reconnect, token), token);
+                    players[player] = (await replies.WaitForJoinedAsync(player, token)).ReconnectToken;
+                    await replies.UntilFaultAsync(client.InvokeAsync("RequestSnapshot", room, player, token), token);
                 }
-                await WaitForViews(); CheckPrivacy(); CheckServerErrors();
-                QaReconnectAssertions.CheckJoined(players.Keys, joined);
-                var afterReconnect = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
+                await WaitForViews(); CheckPrivacy(); replies.CheckHealthy();
+                replies.AssertComplete();
+                var afterReconnect = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
                 VenEmpoweredSelfSqlAudit.CheckReconnect(room, beforeReconnect, afterReconnect, priorTokens, players);
                 if (!recover) {
                     var unitPlay = fixture.GetProperty("command").Deserialize<PlayCardCommand>(json)!;
@@ -78,23 +68,25 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
                     var requirement = JsonSerializer.SerializeToElement(prompts[actor].Candidates!.Single(c => c.Action == CommandTypes.PlayCard).Metadata, json)
                         .GetProperty("sourceRequirements").EnumerateArray().Single(s => s.GetProperty("sourceObjectId").GetString() == sourceId);
                     Check(requirement.GetProperty("sourceZone").GetString() == (flow ? "GRAVEYARD" : "HAND"), "Real normal/Flow source zone is missing.");
-                    var quote = await connections[actor].InvokeAsync<PlayCostQuoteDto>("PreviewPlayCard", room,
-                        new PlayCostPreviewRequestDto("n3-api-quote", prompts[actor].PromptId!, prompts[actor].SnapshotTick!.Value, unitPlay), token);
+                    var quote = await replies.UntilFaultAsync(connections[actor].InvokeAsync<PlayCostQuoteDto>("PreviewPlayCard", room,
+                        new PlayCostPreviewRequestDto("n3-api-quote", prompts[actor].PromptId!, prompts[actor].SnapshotTick!.Value, unitPlay), token), token);
                     Check(quote.CanPay && quote.Cost is { Mana: 3 } cost && cost.PowerByTrait.GetValueOrDefault("red") == 1,
                         "Actual API normal/Flow quote must charge exactly three mana and one red power.");
-                    forbiddenBefore = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
-                    var forbidden = await connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "n3-forbidden-peer", rawPlay, token);
+                    forbiddenBefore = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
+                    replies.ExpectError(peer, actor, ErrorCodes.IdentityMismatch);
+                    var forbidden = await replies.UntilFaultAsync(connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "n3-forbidden-peer", rawPlay, token), token);
                     Check(!forbidden.Accepted && forbidden.ErrorCode == ErrorCodes.IdentityMismatch, "Authenticated peer must not submit another player's command.");
-                    expectedErrors[(peer, actor, ErrorCodes.IdentityMismatch)] = 1; CheckServerErrors();
-                    forbiddenAfter = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
+                    await replies.WaitForErrorAsync(peer, actor, ErrorCodes.IdentityMismatch, token);
+                    forbiddenAfter = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
                     VenEmpoweredSelfSqlAudit.CheckExact(forbiddenBefore, forbiddenAfter);
                     await Send(actor, "n3-network-play", unitPlay);
                     for (var index = 0; index < 2; index++) await Send(Priority(), "n3-network-resolve-" + index, new PassPriorityCommand());
                     CheckPrefix();
-                    var stale = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "n3-network-stale", rawPlay, token);
+                    replies.ExpectError(actor, actor, ErrorCodes.PromptExpired);
+                    var stale = await replies.UntilFaultAsync(connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "n3-network-stale", rawPlay, token), token);
                     Check(!stale.Accepted && stale.ErrorCode == ErrorCodes.PromptExpired && stale.ServerTick == last!.ServerTick,
                         "Old play prompt must not spend or grant again.");
-                    expectedErrors[(actor, actor, ErrorCodes.PromptExpired)] = 1; CheckServerErrors();
+                    await replies.WaitForErrorAsync(actor, actor, ErrorCodes.PromptExpired, token);
                     await WaitForViews(last!.ServerTick); CheckPrefix(); CheckPrivacy();
                     await Duplicate(lastActor!, lastIntent!, lastRaw, last.ServerTick);
                     await File.WriteAllTextAsync(Path.Combine(dir, "ven-flow-network-resume.json"), JsonSerializer.Serialize(new {
@@ -113,9 +105,9 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
                     var playerId = previous.GetProperty("lastActor").GetString()!;
                     await Duplicate(playerId, previous.GetProperty("lastIntent").GetString()!, previous.GetProperty("lastRaw"), tick);
                 }
-                var finalSql = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
+                var finalSql = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
                 VenEmpoweredSelfSqlAudit.CheckExact(duplicateAfter!, finalSql);
-                CheckServerErrors();
+                replies.AssertComplete();
                 await File.WriteAllTextAsync(Path.Combine(dir, recover ? "network-after-restart-sql-audit.json" : "network-before-restart-sql-audit.json"),
                     JsonSerializer.Serialize(new { room, priorTokens, reconnectTokens = players, beforeReconnect, afterReconnect,
                         forbiddenBefore, forbiddenAfter, duplicateBefore, duplicateAfter, finalSql,
@@ -129,6 +121,7 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
                     JsonSerializer.Serialize(new { room, cardNo = no, flow, prefix, recover, error = error.ToString(), snapshots, prompts, traces = traces.ToArray() }, json));
                 throw;
             } finally { foreach (var connection in connections.Values) await connection.DisposeAsync(); }
+            replies.AssertComplete();
 
             JsonElement Stamp(GameCommand command, string player) {
                 var node = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
@@ -137,23 +130,27 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
             }
             async Task Send(string player, string intent, GameCommand command) {
                 var raw = Stamp(command, player);
-                var result = await connections[player].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, player, intent, raw, token);
+                var result = await replies.UntilFaultAsync(connections[player].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, player, intent, raw, token), token);
                 Check(result.Accepted, result.Message); acceptedIntents.Add(intent); lastActor = player; lastIntent = intent; lastRaw = raw; last = result;
                 await WaitForViews(result.ServerTick); CheckPrivacy();
             }
             async Task Duplicate(string player, string intent, JsonElement raw, long tick) {
-                duplicateBefore = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
-                var duplicate = await connections[player].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, player, intent, raw, token);
+                duplicateBefore = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
+                var duplicate = await replies.UntilFaultAsync(connections[player].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, player, intent, raw, token), token);
                 Check(duplicate.Accepted && duplicate.ServerTick == tick, "Original API duplicate must retain the resolved normal/Flow result.");
-                foreach (var viewer in players.Keys) await connections[viewer].InvokeAsync("RequestSnapshot", room, viewer, token);
+                snapshots.Clear(); prompts.Clear();
+                foreach (var viewer in players.Keys) await replies.UntilFaultAsync(connections[viewer].InvokeAsync("RequestSnapshot", room, viewer, token), token);
                 await WaitForViews(tick); CheckPrefix(); CheckPrivacy();
-                duplicateAfter = await VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token);
+                duplicateAfter = await replies.UntilFaultAsync(VenEmpoweredSelfSqlAudit.CaptureAsync(sql, room, token), token);
                 VenEmpoweredSelfSqlAudit.CheckExact(duplicateBefore, duplicateAfter);
             }
             string Priority() => players.Keys.Single(p => prompts[p].Candidates?.Any(c => c.Action == CommandTypes.PassPriority) == true);
             async Task WaitForViews(long? tick = null) {
+                replies.CheckHealthy();
                 while (players.Keys.Any(player => !snapshots.TryGetValue(player, out var snapshot) || !prompts.TryGetValue(player, out var prompt)
-                    || tick is not null && (snapshot.GetProperty("tick").GetInt64() != tick || prompt.SnapshotTick != tick))) await Task.Delay(20, token);
+                    || tick is not null && (snapshot.GetProperty("tick").GetInt64() != tick || prompt.SnapshotTick != tick)))
+                    await replies.UntilFaultAsync(Task.Delay(20, token), token);
+                replies.CheckHealthy();
             }
             void CheckPrefix() {
                 foreach (var snapshot in snapshots.Values) {
@@ -174,7 +171,6 @@ internal static class VenFlowCombatKeywordNetworkAcceptance
                     Check(!value.Contains("reconnectToken", StringComparison.Ordinal) && !value.Contains("openingSeed", StringComparison.Ordinal), "Server identity data escaped a player projection.");
                 }
             }
-            void CheckServerErrors() => QaReconnectAssertions.CheckErrors(serverErrors, room, expectedErrors);
         }
         Console.WriteLine(recover ? "NETWORK_VEN_FLOW_COMBAT_KEYWORD_RESTART_PASS" : "NETWORK_VEN_FLOW_COMBAT_KEYWORD_PLAY_PASS");
     }

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -31,11 +32,105 @@ internal static class QaReconnectAssertions
     internal static void CheckErrors(IEnumerable<(string Recipient, WsServerMessage Message)> actual, string room,
         IReadOnlyDictionary<(string Recipient, string Player, string Code), int> expected)
     {
-        foreach (var group in actual.GroupBy(e => (e.Recipient, e.Message.PlayerId,
+        var groups = actual.GroupBy(e => (e.Recipient, e.Message.PlayerId,
             e.Message.Payload is JsonElement p && p.TryGetProperty("code", out var code) && code.ValueKind == JsonValueKind.String
-                ? code.GetString()! : "INVALID_ERROR_PAYLOAD")))
-            if (group.Any(e => e.Message.RoomId != room) || !expected.TryGetValue(group.Key, out var maximum) || group.Count() > maximum)
+                ? code.GetString()! : "INVALID_ERROR_PAYLOAD")).ToArray();
+        foreach (var group in groups)
+            if (group.Any(e => e.Message.RoomId != room || e.Message.Type != MessageType.ERROR)
+                || !expected.TryGetValue(group.Key, out var count) || count != 1 || group.Count() != 1)
                 throw new InvalidOperationException("Unexpected, duplicate or wrong-recipient API Error escaped the network gate: " + group.Key);
+        if (expected.Any(p => p.Value != 1 || !groups.Any(g => g.Key == p.Key)))
+            throw new InvalidOperationException("An expected deliberate API Error was not received exactly once.");
+    }
+}
+
+internal sealed class QaNetworkReplyAudit
+{
+    private readonly string room;
+    private readonly Dictionary<string, string> priorTokens;
+    private readonly JsonSerializerOptions json;
+    private readonly ConcurrentDictionary<string, PlayerSessionDto> joined = new();
+    private readonly Dictionary<string, TaskCompletionSource<PlayerSessionDto>> joinedWaiters;
+    private readonly ConcurrentDictionary<(string Recipient, string Player, string Code), ExpectedError> errors = new();
+    private readonly TaskCompletionSource<bool> failed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private Exception? failure;
+
+    internal QaNetworkReplyAudit(string room, IReadOnlyDictionary<string, string> priorTokens, JsonSerializerOptions json)
+    {
+        this.room = room; this.priorTokens = priorTokens.ToDictionary(); this.json = json;
+        if (this.priorTokens.Count != 2) throw new InvalidOperationException("Two exact reconnect identities are required.");
+        joinedWaiters = this.priorTokens.Keys.ToDictionary(p => p,
+            _ => new TaskCompletionSource<PlayerSessionDto>(TaskCreationOptions.RunContinuationsAsynchronously));
+    }
+
+    internal void Observe(string method, string recipient, WsServerMessage message)
+    {
+        try {
+            CheckHealthy();
+            if (method is not ("Joined" or "Error")) return;
+            if (!priorTokens.ContainsKey(recipient) || message.RoomId != room || message.Payload is not JsonElement payload)
+                throw new InvalidOperationException("Network reply has a wrong room, recipient or payload envelope.");
+            if (method == "Joined") {
+                if (message.Type != MessageType.RECONNECT || message.PlayerId != recipient)
+                    throw new InvalidOperationException("Joined must be RECONNECT for the exact expected envelope player.");
+                var player = QaReconnectAssertions.ReadJoined(payload, recipient, priorTokens[recipient], json);
+                if (!joined.TryAdd(recipient, player)) throw new InvalidOperationException("Duplicate Joined acknowledgement.");
+                joinedWaiters[recipient].TrySetResult(player);
+            } else {
+                if (message.Type != MessageType.ERROR) throw new InvalidOperationException("Error callback has a non-ERROR envelope.");
+                var error = payload.Deserialize<ErrorDto>(json) ?? throw new InvalidOperationException("Missing Error payload.");
+                if (!errors.TryGetValue((recipient, message.PlayerId, error.Code), out var expected)
+                    || Interlocked.Increment(ref expected.Seen) != 1)
+                    throw new InvalidOperationException("Unexpected, late-registered or duplicate Error reply.");
+                expected.Received.TrySetResult(message);
+            }
+        } catch (Exception error) {
+            Interlocked.CompareExchange(ref failure, error, null); failed.TrySetResult(true);
+        }
+    }
+
+    internal void ExpectError(string recipient, string player, string code)
+    {
+        CheckHealthy();
+        if (!priorTokens.ContainsKey(recipient) || !priorTokens.ContainsKey(player) || string.IsNullOrWhiteSpace(code)
+            || !errors.TryAdd((recipient, player, code), new ExpectedError()))
+            throw new InvalidOperationException("Register each exact deliberate Error once, before its request.");
+    }
+
+    internal Task<PlayerSessionDto> WaitForJoinedAsync(string player, CancellationToken token)
+        => UntilFaultAsync(joinedWaiters[player].Task, token);
+
+    internal Task<WsServerMessage> WaitForErrorAsync(string recipient, string player, string code, CancellationToken token)
+        => UntilFaultAsync(errors[(recipient, player, code)].Received.Task, token);
+
+    internal async Task<T> UntilFaultAsync<T>(Task<T> pending, CancellationToken token)
+    {
+        CheckHealthy(); await Task.WhenAny(pending, failed.Task).WaitAsync(token); CheckHealthy();
+        var result = await pending.WaitAsync(token); CheckHealthy(); return result;
+    }
+
+    internal async Task UntilFaultAsync(Task pending, CancellationToken token)
+    {
+        CheckHealthy(); await Task.WhenAny(pending, failed.Task).WaitAsync(token); CheckHealthy();
+        await pending.WaitAsync(token); CheckHealthy();
+    }
+
+    internal void CheckHealthy()
+    {
+        if (Volatile.Read(ref failure) is { } error) throw new InvalidOperationException("Invalid or unexpected network reply.", error);
+    }
+
+    internal void AssertComplete()
+    {
+        CheckHealthy(); QaReconnectAssertions.CheckJoined(priorTokens.Keys, joined);
+        if (errors.Values.Any(e => Volatile.Read(ref e.Seen) != 1))
+            throw new InvalidOperationException("A deliberate Error acknowledgement is missing.");
+    }
+
+    private sealed class ExpectedError
+    {
+        internal int Seen;
+        internal readonly TaskCompletionSource<WsServerMessage> Received = new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 }
 
@@ -118,7 +213,8 @@ internal static class VenEmpoweredSelfSqlAudit
                 "Only this actual reconnect's database time window may advance updated_at.");
             var original = JsonNode.Parse(oldRow.GetRawText())!.AsObject(); var changed = JsonNode.Parse(newRow.GetRawText())!.AsObject();
             foreach (var key in permitted) Check(original.Remove(key) && changed.Remove(key), "Required permitted field is missing.");
-            Check(JsonNode.DeepEquals(original, changed), "Reconnect changed a match/player column outside the exact token/updated_at boundary.");
+            Check(string.Equals(original.ToJsonString(), changed.ToJsonString(), StringComparison.Ordinal),
+                "Reconnect changed a match/player column or raw numeric representation outside the exact token/updated_at boundary.");
         }
     }
 
