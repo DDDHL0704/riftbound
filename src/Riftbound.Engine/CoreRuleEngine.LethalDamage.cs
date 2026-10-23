@@ -30,6 +30,6 @@ public sealed partial class CoreRuleEngine
             // A pending prevention is a separate replacement interaction; doubling
             // alone cannot justify reducing its existing assignment requirement.
             && !target.UntilEndOfTurnEffects.Contains(PreventNextDamageThisTurnEffectId, System.StringComparer.Ordinal)
-            ? requiredDamage / 2 + requiredDamage % 2
+            ? DamageDoublingApplications.LethalBudget(target, requiredDamage)
             : requiredDamage;
 }

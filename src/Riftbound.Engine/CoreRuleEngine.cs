@@ -42,7 +42,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
-    private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
+    private const string DamageReceivedDoubledThisTurnEffectId = DamageDoublingApplications.EffectId;
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
@@ -26410,7 +26410,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
-                            var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
+                            var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState,
+                                TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId));
                             targetState = targetState with
                             {
                                 UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
@@ -28598,10 +28599,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             foreach (var statusEffectId in statusEffectIds)
             {
+                var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState, statusEffectId);
                 targetState = targetState with
                 {
                     UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                        .Concat([statusEffectId])
+                        .Concat([appliedStatusEffectId])
                         .Distinct(StringComparer.Ordinal)
                         .OrderBy(effectId => effectId, StringComparer.Ordinal)
                         .ToArray()
@@ -29225,9 +29227,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var preventsDamage = preventDamage || preventsWithTargetEffect;
         var adjustedDamageAmount = preventsDamage
             ? 0
-            : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
-                ? damageAmount * 2
-                : damageAmount;
+            : DamageDoublingApplications.Apply(targetState, damageAmount);
         var nextEffects = targetState.UntilEndOfTurnEffects
             .Where(effectId => !preventsWithTargetEffect
                 || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
@@ -29235,7 +29235,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         cardObjects[targetObjectId] = targetState with
         {
-            Damage = targetState.Damage + adjustedDamageAmount,
+            Damage = DamageDoublingApplications.AddMarkedDamage(targetState.Damage, adjustedDamageAmount),
             DamageMarkedByPlayerIds = adjustedDamageAmount > 0
                 ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
