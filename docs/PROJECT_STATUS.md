@@ -1,19 +1,17 @@
 # 当前项目状态 · 2026-10-23
 
-**Goal ACTIVE；后端未完成。** 全部当前适用官方后端规则，原1740印次/14293条款和来源缺口保留。功能卡去重数及整卡认证基线待核实，旧17582义务仅作追溯，不作完成率。[目标/分工](BACKEND_RULES_GOAL_2026-10-23.md) · [L1/L2/L3工作流](RULE_TEST_WORKFLOW.md) · [来源历史入口](audit/current-manifest.json)
+**后端未完成；原两窗 Goal 已 paused。** 四线按用户新安排接续，①事件驱动且无 Goal，②③④各自开发；完整身份与方法边界见[目标/分工](BACKEND_RULES_GOAL_2026-10-23.md)。全部当前适用官方后端规则、原1740印次/14293条款及缺口保留；功能卡分母与整卡认证仍未知。[L1/L2/L3工作流](RULE_TEST_WORKFLOW.md) · [来源历史入口](audit/current-manifest.json)
 
 | 当前队列 | 已确认状态 | 下一步 |
 |---|---|---|
-| 主窗口 N54 群伤/选战场，L2 | 源码4bcb195f已提交；17真实SQL局、11真实网络局及同运行物重启通过；冻结check运行中，旧失败保留 | 取得原check终态，保留原失败及校准定向结果 |
-| 主窗口 N55 德莱文战斗死亡，L2 | 实际源码84c3b6fd及SQL69已提交；交叉324例过；12 SQL局125原前缀及3篡改拒绝通过；驱动原失败保留；组合恢复85例通过 | 唯一组合集成check运行中，固定候选full待验 |
-| 卡牌窗口 VEN流转三卡 | fd699370已接入003/049/081；原1037整行和顺序全留，目录1040；37新例与相邻498身份并集通过；主线目录/组合恢复514例过 | 累计回归随当前固定候选full；继续下一组来源明确的消费者 |
+| ① 集成与后端验收 | 独立树/分支起步基线4aabf78b已与远端核对；治理/CI/认证汇总归① | 本次登记后返回空闲，按完整交付审阅/集成，不轮询等待 |
+| ② 战斗、触发与胜负 | 新树/分支共同基线4aabf78b | 战斗伤害分配 → 销毁替代 → 战斗续体；独占对应方法 |
+| ③ 费用、资源与行动合法性 | 新树/分支共同基线4aabf78b；网页报告仅作线索 | 先核实S3，再S1/S2/S5支付窗口与候选，不改②续体 |
+| ④ 卡牌效果与机制族 | VEN·026/048/118首轮35例34过；VEN048响应召回后栈来源ID触发隐藏守卫，修复待验 | 普通SourceConfirmed投影边界已分配④，保留原红测/公共守卫，完整L2源码待交付 |
+| ① 接管 N54 / N55 冻结check | 19:55 CST两进程仍运行；3434/3424源输入哈希/模式全部稳定；均无终态/summary；N54旧LocalRecall失败已保留且主线已来源校准 | 原固定源/bin继续，不重跑；终态及最新完整候选仍待验 |
 
-**流程落地：** 首版CI分级/范围复验及目录失效本地104工具测试通过，远端待验；卡牌注册/目录新增暂仍full。夜间full和周/手动L3已配置，L3产物90天待远端核实到期；到期转存仍待实现。历史证据绑定e9bdfd0d，当前变化显式失效。功能视图保留1740印次/1599保守分组/322未映射，独立显示当前1040登记；适用总数和整卡认证仍未知。
+**固定输入与已有结果：** `4aabf78b` 包含保守分级f21fc127、N54=4bcb195f、N55/雷恩加尔=84c3b6fd、Flow=fd699370和目录失效工具。旧组合恢复514例/工具104项只归原记录输入；N54 17 SQL局/11网络局及重启、N55 12 SQL局125原前缀/3篡改拒绝及85恢复例保持原范围。本轮纯治理变更104工具测试及来源引用检查通过，原件`var/qa/four-line-integration-start-20261023-v1/`位于①树；均不提升为新候选L3或整卡认证。
 
-**固定候选：** 本次组合包含N54=4bcb195f、N55/雷恩加尔=84c3b6fd、VEN三卡=fd699370及流程工具，集中推送后完整CI待验。N53/e9bdfd0d的[39940023088](https://github.com/DDDHL0704/riftbound/actions/runs/39940023088)最后仍运行；N51/23467a3f的[39921036196](https://github.com/DDDHL0704/riftbound/actions/runs/39921036196)已观察全部11任务成功，原artifact尚待逐项读取。上一已独立核验完整基线0469327e/[39907456961](https://github.com/DDDHL0704/riftbound/actions/runs/39907456961)，不认证之后源码。
+**远端CI接管快照（19:55 CST）：** 固定SHA `4aabf78b` / [39948594757](https://github.com/DDDHL0704/riftbound/actions/runs/39948594757)仍in_progress：scope、native_network、macOS/Windows打包成功，rule_suite和四片PostgreSQL运行中，scoped_rules跳过；无完整绿灯结论。夜间full/周与手动L3已配置，90天保留实际到期及转存仍待验；未配置CI异常自动唤醒。上一完整基线及历史run入口留在4aabf78b本页，不重复累计。
 
-**阻塞/待验：** 官方图库缺口、未实现/未认证卡与共享机制、最新固定候选完整回归/后端验收仍开放；N54冻结检查包含已定位旧LocalRecall期待，最终候选须验证校准后的源码。网页[S1–S8](../clients/web/docs/server-findings.md)尚需去重/复现后排后端优先级。客户端/可见桌面/Windows实机留后续阶段OPEN。
-
-**下一里程碑：** 完成N54/N55源码集成和本批安全验证，落可运行保守分级及功能身份视图，再处理确认的共享机制缺陷。首2–3试点记录大致编码/测试/整理耗时与净认证增量后估期；不承诺用户估算的卡数、期限或倍速。
-
-独有在途原件：`var/qa/untargeted-battlefield-damage-n54-20261023/`、`var/qa/draven-battle-death-n55-20261023/`；历史已提交细节见e9bdfd0d的本页及其链接，不重复累计。
+**原件与阻塞：** 两冻结目录分别为 `.worktrees/riftbound-backend-n54-check-20261023`、`riftbound-backend-n55-rengar-check-20261023`。原日志在 `/Users/dinghaolin/MyProjects/riftbound/var/qa/{untargeted-battlefield-damage-n54-20261023,draven-battle-death-n55-20261023}/sole-check-frozen-original-console-v1.log`，对应 `frozen-sole-check-v1/`；N54已知失败的原件/校准理由为前目录`legacy-selected-consumer-final-calibration-v4.json`，不重新分发已校准问题。来源缺口、未实现/未认证项、最新固定候选完整回归与后端验收仍开放；注册/目录新增和未知路径CI仍full。客户端/可见桌面/Windows实机留后续阶段OPEN，main未通过L3，产品不称READY。

@@ -1,15 +1,15 @@
 # Riftbound Project Agent Guide
 
-Current phase: [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). Keep the existing ACTIVE Goal and all applicable official backend rules in scope. Client development, packaging iteration, visible desktop pairs and Windows hardware acceptance remain OPEN for the later client phase; retain existing tests and CI.
+Current phase: [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). All applicable official backend rules remain in scope. The two replaced chats have paused Goals, not completed Goals. Integration works on delivery events without an automatic continuation Goal; the three development chats continue their assigned backend goals. Client development, packaging iteration, visible desktop pairs and Windows hardware acceptance remain OPEN for the later client phase; retain existing tests and CI.
 
-Current collaboration: two existing windows each own one complete mechanism module and assigned shared hooks. Main owns governance and integration. Notify only interface/source changes, conflicts, blockers or serious regressions immediately; otherwise send one complete delivery without acknowledgement loops. Do not wake stopped chats or create extra windows.
+Current collaboration: four authorized chats own integration/acceptance, combat/triggers/victory, costs/resources/action legality, and card effects/mechanism consumers. Exact chat IDs, branches, worktrees and method ownership are in the backend goal. Integration alone maintains governance, certification summaries and CI tools, reviews shared API/event contracts, and publishes main. Notify only real interface/source changes, conflicts, shared blockers or serious regressions immediately; otherwise send one complete delivery to integration without acknowledgement loops. Stopped chats remain read-only.
 
 ## Current scope and entry points
 
-- Work in this repository, /Users/dinghaolin/MyProjects/riftbound. The product is the Godot .NET macOS / Windows client with a server-authoritative engine; React DevUi is a debug and protocol client.
+- Use the assigned /Users/dinghaolin/MyProjects/.worktrees/riftbound-{integration,combat,payment,cards}-20261023 worktree with an explicit workdir for every Git/source operation. MyProjects itself is not a Git repository. The original /Users/dinghaolin/MyProjects/riftbound checkout is for read-only checks and necessary integration publication; old card and frozen check trees are not development trees. Preserve their source, bin, untracked evidence and databases.
 - Read docs/PROJECT_STATUS.md, docs/PROJECT_GOVERNANCE.md and the relevant part of docs/RULE_TEST_WORKFLOW.md first. Then read only the source manifest, scoped audit and tests relevant to the change.
 - Old CURRENT_*, P-stage and coordination documents are historical records, not active tasks, write locks or rule certification. Do not load giant cumulative lists to recover current work.
-- The preparation round is complete. On 2026-10-12 the user explicitly authorized a new active official-audit Goal. Continue until the complete source-version coverage and required acceptance evidence close, or the user explicitly pauses. Do not stop at a batch or green CI.
+- The preparation round is complete. The 2026-10-23 four-line authorization supersedes the old two-window/sole-core-writer arrangement. Development chats continue their assigned goals until closure or an explicit pause. Integration completes each actual handover/review batch and returns idle; no idle polling, infinite continuation Goal or claimed automatic CI monitoring.
 
 ## Development lifecycle
 
@@ -24,7 +24,7 @@ Current collaboration: two existing windows each own one complete mechanism modu
 - September and earlier rule implementations and green/coverage claims have no default trust. Re-certify the exact scope against current applicable official sources. Keep October scoped evidence within its stated scope.
 - Community platforms, TTS, old Java and generated planning documents are references only. Registration, implemented, RepresentativeRulePass, counts and CI green do not certify whole-card semantics.
 - Generic keywords, timing, costs, zones/information, lifecycle and triggers belong in shared engine flow. Avoid card-specific bypasses.
-- Preserve the full source universe and unresolved items. Complete certification needs every applicable card/rule/QA item, source gaps, executable evidence and required native gates closed.
+- Preserve the full source universe and unresolved items. Complete backend certification needs every applicable card/rule/QA item, source gaps, executable evidence and required backend gates closed; later client gates retain their OPEN identity.
 - The latest source coverage is linked from docs/PROJECT_STATUS.md. The 2026-10-11 checker remains a check of that historical rule/index baseline, not proof that later live-source deltas are absent.
 
 ## Project map
@@ -51,13 +51,15 @@ Current collaboration: two existing windows each own one complete mechanism modu
 
 - Apply L1/L2/L3 in docs/RULE_TEST_WORKFLOW.md. L1 is an isolated consumer of an already verified mechanism; shared timing, legality/permissions, hidden information, events/serialization, persistence/recovery, new mechanisms or uncertain impact require L2 or full.
 - L1: source, focused and affected regression plus legal/illegal/boundary assertions and one compact ledger row. Accumulate check/full in daily integration/nightly CI. L2: module focus, adjacent domains, affected original games and one check per actual integration batch; verify affected SQL/API/restart/replay and security in that batch. L3: weekly milestone/candidate complete backend acceptance.
+- Keep one main work package and at most one delivered batch awaiting integration per development chat. Shared files are divided by actual methods, not exclusive ownership of the whole Engine. Ask integration once for a conflicting hook and continue independent work. Commit/push each line's own codex/backend-* branch; integration alone reviews/merges/publishes main after checking remote ancestry and concurrent changes, without force/reset.
+- This host has 10 logical cores and 24 GiB. Targeted development tests use --jobs 1 or 2 when supported. Integration schedules new heavy check/full work, initially one new heavy task at a time; retain the existing N54/N55 frozen checks without duplicate runs. Use independent output, API ports and database identities; do not stop another line's service. Existing nightly CI needs no new Codex polling automation.
 - CI tier phase 1 is implemented locally: new independent test classes may use L1; mapped backend mechanism paths use L2 check plus all SQL/network jobs. Card registry/catalog-only additions and unknown paths still require full until safe consumer classification exists. Nightly/weekly/manual runs remain full; stable full gates keep their original meaning. Remote execution of this workflow is pending.
 - Preserve all original methods/Theory rows, 143 full-game methods/151 cases, 110 ordered pairs, 11 decks, seed 424242 and victory/replay assertions. Source-corrected expectations retain original failures and rationale.
 - Reuse results only for identical verified fixed inputs; integration adds actual differences. Do not edit running frozen source/bin. A previous full is a baseline, not current certification.
 - Put new large logs/TRX/SQL output/binaries in ignored local output or CI artifacts, not Git. Git keeps source/tests, compact provenance/results and retrievable paths/run IDs. Preserve committed historical evidence and useful original failures. A hash alone is not an accessible artifact.
 - Whole-card certification covers every effect/keyword/applicable branch and mechanism interaction with official evidence and executable semantic assertions. Registry/test counts and old obligation totals are not completion rates.
 - Run git diff --check and appropriate checks; commit/push coherent batches under existing authorization. Do not repeat unchanged full verification or generate cumulative evidence copies for every batch.
-- Only the latest fixed candidate with all applicable source/semantic/backend gates closed can finish the backend Goal. Never infer READY from a local batch or green CI.
+- Only the latest fixed candidate with all applicable source/semantic/backend gates closed can finish the backend stage. Never infer READY from a local batch or green CI, or mark the replaced paused Goals complete.
 
 ## Future page design
 
