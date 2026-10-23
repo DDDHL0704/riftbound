@@ -25,7 +25,9 @@ env:
 jobs:
   scope:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # A3 exhausted five minutes after checkout and before the bounded baseline fetch completed.
+    # Keep time for the retained-history fetch and all existing integrity checks.
+    timeout-minutes: 15
     outputs:
       full: ${{ steps.select.outputs.full }}
       tier: ${{ steps.select.outputs.tier }}

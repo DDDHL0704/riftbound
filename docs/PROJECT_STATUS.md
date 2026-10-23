@@ -5,9 +5,9 @@
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
 | 原固定候选，整体未过 | `cbcf5c24` / 不可变tag `backend-related-20261024-a2` | [Actions 39998674123](https://github.com/DDDHL0704/riftbound/actions/runs/39998674123)的scope实际SHA/tree/index一致；SQL分区2原FAIL已留原件并另作后继修复。scope/旧native_network/双平台desktop及SQL分区3最后读取为成功，full/SQL0/1最后读取仍运行；未据旧快照推断终态。原related_network作业虽绿且有两次实际API PID，**六房重启后均0 Joined、各两条INVALID_RECONNECT_TOKEN，不能证明成功重连**。原ZIP/绿receipt保留，[纠正合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md) |
-| 当前固定候选，等待真实门禁 | 不可变tag `backend-related-20261024-a3`；[成员与边界](audit/backend-related-20261024-a3.json)，功能边界`93a3b117`；SQL终局窄修复及N4/S4/N5/S5/N6/S6/N8/Lux/N9/C7 | 根目录1052/语义SHA `3bf8afc4…`；组合原运行**885/888、3 FAIL、0skip**，18533跟踪输入不变。三红均为新增卡的目录统计基线，逐卡核对后仅这三项另跑**3/3**；原885/888不改记888绿。C7机制54例、五消费者66例、N9的51例及所选S6/邻接例均在原运行通过。API/Postgres/公共driver构建过，公共CI工具58/58、重连永久纯守卫根47/47；现接76 SQL/八组重启，非真实门禁通过 |
-| 重连证据源码已收口，真实结果仍待门禁 | ②80f/a293/bb438、③027/a15、④2127/7b40及①公共守卫 | 最后根四类守卫**167/167**（C7 50、支付54、N3/N9 SQL43、完整消息20），四工程构建过，18498跟踪输入不变；封板Python安全检查124/124。实际拒绝A2原失败trace；完整Joined/轮换token/故意Error精确配对及DB数字原文均严格。恢复/duplicate/tamper各自七表exact；S3/S4仍仅预置两席正常开局范围，不能冒充空房入座。源码通过不等于真实PG/API重启通过 |
-| 共同接点与下一队列 | C8 dd6d43ac已交、独立排下一批；S7移动费用/有界数量/容量报价；装备下半部来源 | [已审接点](parallel/SHARED_BACKEND_CONTRACTS_2026-10-24.md)。C8新源码/151定向/QA4与内存8组167证据待①独立审，不混A3；S7仍独立开发。N9专用完整入口已接A3，真实门禁待执行。VEN011/027/073仅④报告来源缺口，①尚未独立核图，未登记机制或整卡完成 |
+| 原固定A3已有失败，其余门禁继续 | 不可变tag `backend-related-20261024-a3`；[成员与边界](audit/backend-related-20261024-a3.json)，功能边界`93a3b117`；SQL终局窄修复及N4/S4/N5/S5/N6/S6/N8/Lux/N9/C7 | 根目录1052/语义SHA `3bf8afc4…`；组合原运行**885/888、3 FAIL、0skip**，18533跟踪输入不变。三红均为新增卡的目录统计基线，逐卡核对后仅这三项另跑**3/3**；原885/888不改记888绿。C7机制54例、五消费者66例、N9的51例及所选S6/邻接例均在原运行通过。API/Postgres/公共driver构建过，公共CI工具58/58、重连永久纯守卫根47/47；现接76 SQL/八组重启，非真实门禁通过 |
+| A3实际结果回收 | [Actions 40022865383](https://github.com/DDDHL0704/riftbound/actions/runs/40022865383)，固定`9dbf36b3` | scope/related实际checkout SHA、tree、18550源index与封板一致；远端124检查过。scope被GitHub明确5分钟超时，停在历史基线fetch，后续治理/diff步骤未跑；①仅给后继scope增至15分钟，原run不改。related首S3 play/recover真实2人Joined、token轮换、API PID4194→4409、同Engine SHA/MVID及独立七表验证过，**tamper FAIL，后七组未执行**；要求action-log拒绝的断言失败，真实拒绝层未落诊断，已回③，不先认定篡改获准。旧native/双desktop过；规则与四SQL最后读取仍运行，整体未过 |
+| 下一队列与共享接点 | C8 `dd6d43ac`、S7 `65630619`、N10 `c9006d00`、N11 `3fa64e7b`完整源包待独立集成；C9五接点获批、未完成交付 | [已审接点](parallel/SHARED_BACKEND_CONTRACTS_2026-10-24.md)。全部排除A3，来源各自151/4/内存167、1626-WIP/固定163、20+112、单次182均保持原输入，不合称根通过。C9仅GA已贴附宿主自我替换、typed flag及身份散列；CN卡图/原1红1对照已核，不扩未注册RAD动画。VEN011/027/073仍仅④来源缺口报告，未登记整卡完成 |
 
 | 历史固定输入 | 结果与边界 |
 |---|---|

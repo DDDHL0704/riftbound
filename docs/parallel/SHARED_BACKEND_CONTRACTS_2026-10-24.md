@@ -29,6 +29,9 @@
 | S7 有界数量 | RESOURCE_CONVERSION_AMOUNT复用现有RuleChoice/PAY_COST；≤64合法项保持原顺序，大范围最多31步严格收缩二分，long边界并绑定来源/ability/range。Stele/Anomaly及普通/S5共享；合法0保留，能量通道仍固定+1，不在选择完成前支付/耗竭。最终重验当前来源/代际/池，无新DTO或全局选择时钟 |
 | S7 资源容量/报价 | 共享C=int.MaxValue-current.TotalPower，所有候选和成本用long；MAX-1+两枚异色符文两候选都保留但不能联合支付双色，权威须核可行选择，不能独立上界求和造虚拟池。实际availablePower/byTrait/ledger不变；仅0<C<候选总增量时省不可达的availablePowerByTraitWithPaymentResources，新增可选paymentResourcePowerCapacity=C，total仍可达最大值。非binding旧形状不变；恢复严格核条件存在性/C/total/candidates，错缺额外和伪造vector均拒绝。四有限QA可用真实SFD117/OGN268与66/70普通资源演示64/65边界，不能预设已付/已转换结果 |
 
+
+| C9 GA已贴附宿主摧毁替换 | ②五文件proposal b5c45075获批：OfficialArmamentDefinition可选ReplacesHostDestruction默认false、现38条中仅SFD051 true/来源追加（其他37条原文和顺序保留）；RuleInputIdentity纳入flag；新ReplacementKinds常量，无DTO/event kind。Core仅DestructionOptions/ApplyDestructionOption，按当前同位置贴附及host/gear代际/revision为独立强制实例；宿主当前controller，不限gear owner，宿主为效果源/召回source、granting gear为被摧毁目标。复用nested gear destruction及inherited-chain used set；旧GEAR分支含义不变。CN图fde3a9e/373.2+374+719.1已核，原1红1对照。多GA/真伤害/异控制/GA+Zhonya/Soraka与C8组/待决恢复和伪造待交；718.6无注册动画路径时仅标representation/恢复约束，不虚构RAD实际指令或CN适用性 |
+
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 
 核对的既有CN核心SHA `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`：C7 370.2/372，S6 166–168/430；VEN FAQ SHA `59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742`。S6 API原响应SHA `4dfaf40eda6e4f7b0a09624693c32f8f42933859fe12a9b1027a564a6aba44e2`。这些是所审输入，非全官网最新/整卡认证。①原件：`var/qa/related-backend-integration-20261024-v3/{c7-contract-review-v1.json,restricted-mana-shared-contract-review-v1.json}`。
