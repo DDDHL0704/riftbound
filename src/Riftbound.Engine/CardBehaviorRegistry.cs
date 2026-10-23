@@ -290,7 +290,8 @@ public sealed record CardBehaviorDefinition(
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
     FlowCostSpec? AppliedFlowCost = null,
-    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false)
+    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
+    int? PowerModifierAmountIfTargetEmpowered = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -466,6 +467,9 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·122", "烈阳之鹰", 3, "VEN_122_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
+        new("VEN·072", "深沉咆哮", 2, "VEN_072_CONDITIONAL_UNIT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2, CanPlayDuringSpellDuel: true,
+            PowerModifierAmountIfTargetEmpowered: 4),
         new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_RETURN_FRIENDLY_UNIT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             Mode: "RETURN_FRIENDLY_UNIT", ReturnsTargetToHand: true, CanPlayDuringPriority: true),

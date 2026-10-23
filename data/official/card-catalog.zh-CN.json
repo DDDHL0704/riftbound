@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1055,
+  "total": 1056,
   "cards": [
     {
       "id": 31005,
@@ -43904,6 +43904,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37766,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·072",
+      "cardName": "深沉咆哮",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n给予一名单位在本回合内{{S}}+2。如果该单位{{已强化}}，则改为给予其在本回合内{{S}}+4。",
+      "flavorText": "“荒漠屠夫”的雅号，可不是靠耐心挣来的。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/ea5f0d626f454b6f8a0a0ac4cd3ad845.png",
+      "backImage": "",
+      "listSort": 1920,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44653,6 +44701,21 @@
       "printedFaceIdentity": "VEN·122/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-122/166",
       "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, permanent self Might and Roam or counted Ward mechanisms; source/semantic/backend gates remain separate."
+    },
+    {
+      "cardNo": "VEN·072",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T21:15:27.520566+00:00",
+      "sourceId": 37766,
+      "sourceRecordSha256": "ff3bae50e852aaca39993eafbb28217852087ce8cb9d883a412d77c93d62ca76",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·072/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-072/166",
+      "reason": "Exact CN conditional Might consumer; semantic implementation and backend gates remain separate from registration."
     }
   ]
 }
