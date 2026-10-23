@@ -217,7 +217,7 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
-    public void PlayCardTypedOptionalPowerPromptDoesNotQuoteWrongTraitResources()
+    public async Task PlayCardTypedOptionalPowerPromptDoesNotQuoteWrongTraitResources()
     {
         const string redRuneObjectId = "P1-RUNE-RED-WRONG-TINY-GUARDIAN";
         var redRecycleAction = $"RECYCLE_RUNE:{redRuneObjectId}";
@@ -242,19 +242,27 @@ public sealed class PaymentEngineUnificationTests
             .Select(choice => choice.Id)
             .ToArray();
         Assert.DoesNotContain("SPEND_POWER:green:1", optionalCostChoices);
-        Assert.DoesNotContain(redRecycleAction, optionalCostChoices);
+        // Historical identity retained: acquisition is legal, while red still cannot pay the green fee.
+        Assert.Contains(redRecycleAction, optionalCostChoices);
         Assert.DoesNotContain(redTemporaryAction, optionalCostChoices);
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Empty(paymentResourceChoices);
+        Assert.Equal([redRecycleAction], paymentResourceChoices);
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
-            sourceRequirement["availablePowerByTraitWithPaymentResources"]));
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
-            sourceRequirement["paymentResourcePowerByChoice"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        var available = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, available[RuneTrait.Red]);
+        Assert.DoesNotContain(RuneTrait.Green, available.Keys);
+        var byChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, byChoice[redRecycleAction]["trait"]);
+        var before = MatchStateHasher.Hash(state);
+        var rejected = await new CoreRuleEngine().ResolveAsync(state, new("wrong-green-payment", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-UNIT-TINY-GUARDIAN", "OGN·044/298", [], OptionalCosts: [redRecycleAction, "SPEND_POWER:green:1"]), default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
     }
 
     [Fact]
@@ -2406,7 +2414,7 @@ public sealed class PaymentEngineUnificationTests
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
     }
 
-    private static MatchState AssembleState(RunePool runePool)
+    internal static MatchState AssembleState(RunePool runePool)
     {
         return new MatchState(
             "payment-engine-assemble-room",

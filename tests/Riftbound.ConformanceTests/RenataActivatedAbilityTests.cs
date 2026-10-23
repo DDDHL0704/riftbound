@@ -7,6 +7,10 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class RenataActivatedAbilityTests
 {
+    internal static MatchState AffordableBlueDrawPaymentState()
+        => BuildRenataState(P4ActivatedAbilityCatalog.RenataGlascCardNo,
+            new(1, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }));
+
     private const string RenataObjectId = "P1-RENATA";
     private const string BlueRuneObjectId = "P1-RUNE-BLUE";
     private const string RedRuneObjectId = "P1-RUNE-RED";

@@ -286,6 +286,7 @@ internal static class PaymentResourceSurplusSqlAcceptance
             branches, scope = "Explicit current-rule fixture, printed-cost acquisition, surplus, order, quote, hidden rune identities, rejection, cold idempotency, seven SQL tables and independent original replay. No whole-card certification."
         }, json));
         Console.WriteLine("POSTGRES_PAYMENT_SURPLUS_PASS: 2 actual SQL rooms; surplus/order/quote, foreign/stale rejection, cold idempotency, hidden information and forged-surplus rejection.");
+        await MightyPaymentResourceSurplusSqlAcceptance.RunAsync(source, Path.Combine(output, "mighty"));
     }
 
     private static MatchState Position(string room, int redPower)
