@@ -60,6 +60,27 @@ public sealed class TargetedActionReplacementEligibilityTests
     }
 
     [Fact]
+    public async Task StaleChosenSpellDoesNotStunAReplayedReactionUnitWithTheSameTransportId()
+    {
+        var run = new Driver(Position("UNL-042/219", reentryTarget: true));
+        await run.Act("P1", new PlayCardCommand("STUN1", "UNL-042/219", ["TARGET"]));
+        await run.Act("P1", new PassPriorityCommand());
+        await run.Act("P2", new PlayCardCommand("RECALL", "OGN·104/298", ["TARGET"])); await run.Top();
+        Assert.Contains("TARGET", run.State.PlayerZones["P2"].Hand);
+        Assert.Equal(1, run.State.CardObjects["TARGET"].ObjectGeneration);
+        if (run.State.PriorityPlayerId != "P2") await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        await run.Act("P2", new PlayCardCommand("TARGET", "SFD·025/221", [], Destination: "BASE"));
+        Assert.Equal(2, run.State.CardObjects["TARGET"].ObjectGeneration);
+        Assert.Equal(0, Assert.Single(run.State.StackItems).TargetGenerations!["TARGET"]);
+        await run.Cold();
+        await run.Top();
+        Assert.Contains("TARGET", run.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("STUNNED", run.State.CardObjects["TARGET"].UntilEndOfTurnEffects);
+        Assert.Contains("DRAW1", run.State.PlayerZones["P1"].Hand);
+        await run.Cold();
+    }
+
+    [Fact]
     public async Task MinimumOneOnPrintedOneMightHasNoNegativeLedgerAndKeepsIndependentDraw()
     {
         var run = new Driver(Position("UNL-042/219"));
@@ -73,14 +94,16 @@ public sealed class TargetedActionReplacementEligibilityTests
         await run.Cold();
     }
 
-    private static MatchState Position(string stun, bool opponentTurn = false)
+    private static MatchState Position(string stun, bool opponentTurn = false, bool reentryTarget = false)
     {
         var cards = new Dictionary<string, CardObjectState>(); var locations = new Dictionary<string, ObjectLocationState>();
         void Put(string id, string card, string owner, string zone, string? field = null)
         { cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, card, owner); locations[id] = new(owner, zone, field); }
         Put("VANGUARD", "OGN·059/298", "P1", "HAND"); Put("STUN1", stun, "P1", "HAND"); Put("STUN2", stun, "P1", "HAND");
         Put("RETURN", "UNL-134/219", "P1", "HAND"); Put("NEGATIVE", "OGN·095/298", "P1", "HAND");
-        Put("TARGET", "OGN·096/298", "P2", "BASE"); Put("DEFENDER", "OGN·096/298", "P1", "BATTLEFIELD", "FIELD");
+        Put("TARGET", reentryTarget ? "SFD·025/221" : "OGN·096/298", "P2", "BASE");
+        if (reentryTarget) Put("RECALL", "OGN·104/298", "P2", "HAND");
+        Put("DEFENDER", "OGN·096/298", "P1", "BATTLEFIELD", "FIELD");
         Put("FIELD", "OGN·278/298", "P1", "BATTLEFIELD", "FIELD"); cards["FIELD"] = cards["FIELD"] with { ControllerId = "P1" };
         foreach (var id in new[] { "DRAW1", "DRAW2", "DRAW3", "PRIVATE-P1" }) Put(id, "OGN·096/298", "P1", "MAIN_DECK");
         Put("PRIVATE-P2", "OGN·096/298", "P2", "MAIN_DECK");
@@ -90,10 +113,11 @@ public sealed class TargetedActionReplacementEligibilityTests
             timingState: TimingStates.NeutralOpen, playerZones: new Dictionary<string, PlayerZones> {
                 ["P1"] = PlayerZones.Empty with { Hand = ["VANGUARD", "STUN1", "STUN2", "RETURN", "NEGATIVE"],
                     Battlefields = ["FIELD", "DEFENDER"], MainDeck = ["DRAW1", "DRAW2", "DRAW3", "PRIVATE-P1"] },
-                ["P2"] = PlayerZones.Empty with { Base = ["TARGET"], MainDeck = ["PRIVATE-P2"] } },
+                ["P2"] = PlayerZones.Empty with { Base = ["TARGET"], MainDeck = ["PRIVATE-P2"], Hand = reentryTarget ? ["RECALL"] : [] } },
             cardObjects: cards, objectLocations: locations, runePools: new Dictionary<string, RunePool> {
                 ["P1"] = new(30, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 4, [RuneTrait.Purple] = 4, [RuneTrait.Green] = 4 }),
-                ["P2"] = new(30, 0) }, seed: 424242) with { CardPlays = new(5, [], []) };
+                ["P2"] = new(30, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 2, [RuneTrait.Red] = 2 }) },
+            seed: 424242) with { CardPlays = new(5, [], []) };
     }
 
     private sealed class Driver : IMatchJournal
