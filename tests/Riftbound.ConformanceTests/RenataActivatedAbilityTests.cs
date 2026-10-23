@@ -591,6 +591,19 @@ public sealed class RenataActivatedAbilityTests
             _ => RenataCommand()
         };
 
+        // Retain the original Theory row; CN 164.2.b/430 permits this surplus acquisition.
+        if (scenario == "unnecessary-recycle")
+        {
+            var acquired = await new CoreRuleEngine().ResolveAsync(state,
+                new("voluntary-surplus", "P1", "ACTIVATE_ABILITY"), command, default);
+            Assert.True(acquired.Accepted, acquired.ErrorMessage);
+            Assert.Equal(1, acquired.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Assert.DoesNotContain(BlueRuneObjectId, acquired.State.PlayerZones["P1"].Base);
+            Assert.Contains(BlueRuneObjectId, acquired.State.PlayerZones["P1"].RuneDeck);
+            Assert.Single(acquired.Events, e => e.Kind == "RUNE_RECYCLED");
+            return;
+        }
+
         await AssertRejectedNoMutationAsync(state, command);
     }
 
@@ -625,6 +638,19 @@ public sealed class RenataActivatedAbilityTests
             "unsupported-optional-cost" => RenataScoreCommand(optionalCosts: ["UNSUPPORTED_OPTIONAL_COST"]),
             _ => RenataScoreCommand()
         };
+
+        // Retain the original Theory row; CN 164.2.b/430 permits this surplus acquisition.
+        if (scenario == "unnecessary-recycle")
+        {
+            var acquired = await new CoreRuleEngine().ResolveAsync(state,
+                new("voluntary-surplus", "P1", "ACTIVATE_ABILITY"), command, default);
+            Assert.True(acquired.Accepted, acquired.ErrorMessage);
+            Assert.Equal(1, acquired.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Assert.DoesNotContain(BlueRuneObjectId, acquired.State.PlayerZones["P1"].Base);
+            Assert.Contains(BlueRuneObjectId, acquired.State.PlayerZones["P1"].RuneDeck);
+            Assert.Single(acquired.Events, e => e.Kind == "RUNE_RECYCLED");
+            return;
+        }
 
         await AssertRejectedNoMutationAsync(state, command);
     }

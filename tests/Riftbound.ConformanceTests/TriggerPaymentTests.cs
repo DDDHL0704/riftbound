@@ -1594,6 +1594,17 @@ public sealed class TriggerPaymentTests
             new PayCostCommand(payment.PaymentId, payment.PaymentWindow, paymentChoices),
             CancellationToken.None);
 
+        // Retain the original row; acquiring another yellow power is a voluntary resource action.
+        if (caseName == "unnecessary-resource") {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+            Assert.Contains("P1-FIORA-YELLOW-RUNE", result.State.PlayerZones["P1"].RuneDeck);
+            Assert.True(result.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+            var resolved = await OfficialGraveyardRecastTests.Top(result.State);
+            Assert.False(resolved.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+            return;
+        }
+
         Assert.False(result.Accepted);
         Assert.True(
             string.Equals(result.ErrorCode, ErrorCodes.InvalidTarget, StringComparison.Ordinal)
