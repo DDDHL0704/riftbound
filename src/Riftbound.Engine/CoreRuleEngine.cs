@@ -21492,6 +21492,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : IsBattlefieldObject(state, objectId),
             CardTargetScopes.FriendlyMainDeckCard => IsFriendlyMainDeckCard(state, playerId, objectId),
             CardTargetScopes.FriendlyGraveyardCard => IsFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
+                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
+                && state.Seats.ContainsKey(graveyardCard.OwnerId)
+                && IsFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
             CardTargetScopes.FriendlyBaseUnit => IsPlayerControlledBaseObject(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
@@ -24212,6 +24216,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
@@ -25621,7 +25626,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryReturnGraveyardCardToHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
+                var recipientId = stackItem.ControllerId;
+                if (behavior.TargetScope == CardTargetScopes.AnyGraveyardCard)
+                {
+                    if (!cardObjects.TryGetValue(targetObjectId, out var target)
+                        || string.IsNullOrWhiteSpace(target.OwnerId)
+                        || !state.Seats.ContainsKey(target.OwnerId)
+                        || !playerZones.TryGetValue(target.OwnerId, out var ownerZones)
+                        || !ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+                        continue;
+                    recipientId = target.OwnerId;
+                }
+                if (!TryReturnGraveyardCardToHand(playerZones, cardObjects, recipientId, targetObjectId))
                 {
                     continue;
                 }
@@ -25631,7 +25647,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     $"{behavior.DisplayName}让废牌堆里的牌返回手牌",
                     new Dictionary<string, object?>
                     {
-                        ["playerId"] = stackItem.ControllerId,
+                        ["playerId"] = recipientId,
                         ["sourceObjectId"] = stackItem.SourceObjectId,
                         ["targetObjectId"] = targetObjectId,
                         ["sourceZone"] = "GRAVEYARD",

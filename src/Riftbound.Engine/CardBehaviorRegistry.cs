@@ -331,6 +331,7 @@ public static class CardTargetScopes
     public const string FriendlyHandCardThenBattlefieldUnit = "FRIENDLY_HAND_CARD_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyMainDeckCard = "FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyGraveyardCard = "FRIENDLY_GRAVEYARD_CARD";
+    public const string AnyGraveyardCard = "ANY_GRAVEYARD_CARD";
     public const string AttackingUnit = "ATTACKING_UNIT";
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
@@ -478,6 +479,9 @@ public static class CardBehaviorRegistry
         new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
             ExtraDamagePerSameNameInControllerGraveyard: 1),
+        new("VEN·103", "往日阴影", 3, "VEN_103_RETURN_GRAVEYARD_UNITS_TO_OWNERS_HANDS", 0, 2,
+            TargetScope: CardTargetScopes.AnyGraveyardCard, MinTargetCount: 0,
+            TargetRequiredTag: CardObjectTags.UnitCard, ReturnsGraveyardTargetToHand: true),
         new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_RETURN_FRIENDLY_UNIT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             Mode: "RETURN_FRIENDLY_UNIT", ReturnsTargetToHand: true, CanPlayDuringPriority: true),

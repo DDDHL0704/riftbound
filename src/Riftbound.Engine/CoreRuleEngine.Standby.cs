@@ -41,7 +41,7 @@ public sealed partial class CoreRuleEngine
         // Only explicit nonlocal instructions override the original battlefield.
         if(scope is CardTargetScopes.BaseUnit or CardTargetScopes.FriendlyBaseUnit or CardTargetScopes.Legend
             or CardTargetScopes.FriendlyHandCard or CardTargetScopes.AnyHandCard or CardTargetScopes.OpponentHandCard
-            or CardTargetScopes.FriendlyGraveyardCard or CardTargetScopes.OpponentGraveyardCard
+            or CardTargetScopes.FriendlyGraveyardCard or CardTargetScopes.OpponentGraveyardCard or CardTargetScopes.AnyGraveyardCard
             or CardTargetScopes.OpponentMainDeckTopCard or CardTargetScopes.AnyMainDeckTopFiveCard or CardTargetScopes.StackSpell
             || scope==CardTargetScopes.FriendlyMainDeckCard && index>=behavior.MainDeckLookTargetStartIndex
             || scope==CardTargetScopes.FriendlyHandCardThenBattlefieldUnit && index==0
