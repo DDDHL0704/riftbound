@@ -45,15 +45,16 @@ internal static class AttachedSelfDestructionNetworkAcceptance
             var snapshots = new ConcurrentDictionary<string, JsonElement>();
             var prompts = new ConcurrentDictionary<string, ActionPromptDto>();
             var joined = new ConcurrentDictionary<string, PlayerSessionDto>();
-            var serverErrors = new ConcurrentQueue<string>();
-            var expectedErrors = new ConcurrentQueue<ExpectedError>();
+            var replies = new QaNetworkReplyAudit(room, players, json);
             var expectedErrorEvidence = new List<ExpectedError>();
             var connections = new Dictionary<string, HubConnection>();
-            var beforeReconnect = await CaptureSql(source, room, token);
+            SqlSample? beforeReconnect = null;
+            long finalTick = 0;
             SqlSample? afterReconnect = null, duplicateBefore = null, duplicateAfter = null, finalSql = null;
             string? failure = null;
             try
             {
+                beforeReconnect = await replies.UntilFaultAsync(CaptureSql(source, room, token), token);
                 foreach (var (player, reconnect) in players)
                 {
                     var client = new HubConnectionBuilder().WithUrl(url + "/hubs/game").AddJsonProtocol(options =>
@@ -62,37 +63,25 @@ internal static class AttachedSelfDestructionNetworkAcceptance
                     foreach (var method in new[] { "Joined", "Snapshot", "Prompt", "Events", "Error" })
                         client.On<WsServerMessage>(method, message => {
                             traces.Enqueue(new { recipient = player, method, message });
-                            if (message.Payload is not JsonElement payload) {
-                                if (method is "Joined" or "Error") serverErrors.Enqueue("Missing structured Joined/Error payload.");
-                                return;
-                            }
-                            if (method == "Joined") {
-                                if (message.RoomId != room || message.PlayerId != player || message.Type != MessageType.RECONNECT
-                                    || !joined.TryAdd(player, payload.Deserialize<PlayerSessionDto>(json)!))
-                                    serverErrors.Enqueue("Unexpected or repeated Joined identity/room/type.");
-                            }
-                            if (method == "Error") {
-                                var actual = new ExpectedError(player, message.PlayerId, payload.GetProperty("code").GetString()!);
-                                if (message.RoomId != room || message.Type != MessageType.ERROR
-                                    || !expectedErrors.TryDequeue(out var expected) || actual != expected)
-                                    serverErrors.Enqueue(payload.GetRawText());
-                            }
+                            replies.Observe(method, player, message);
+                            if (message.Payload is not JsonElement payload) return;
                             if (method == "Snapshot") snapshots[player] = payload.Clone();
                             if (method == "Prompt") prompts[player] = payload.Deserialize<ActionPromptDto>(json)!;
                         });
-                    await client.StartAsync(token);
+                    await replies.UntilFaultAsync(client.StartAsync(token), token);
                     var credential = item.GetProperty("credentials").GetProperty(player).GetString()!;
-                    var auth = await client.InvokeAsync<AuthResultDto>("Authenticate", player, credential, token);
+                    var auth = await replies.UntilFaultAsync(client.InvokeAsync<AuthResultDto>("Authenticate", player, credential, token), token);
                     Check(auth.Authenticated, "Dedicated C9 target-replacement identity authentication failed.");
-                    await client.InvokeAsync("Reconnect", room, player, reconnect, token);
-                    await client.InvokeAsync("RequestSnapshot", room, player, token);
+                    await replies.UntilFaultAsync(client.InvokeAsync("Reconnect", room, player, reconnect, token), token);
+                    joined[player] = await replies.WaitForJoinedAsync(player, token);
+                    await replies.UntilFaultAsync(client.InvokeAsync("RequestSnapshot", room, player, token), token);
                 }
                 var tick = recover ? previous.GetProperty("tick").GetInt64() : item.GetProperty("seedTick").GetInt64();
                 await WaitForViews(tick);
                 foreach (var player in players.Keys)
                     Check(joined[player].PlayerId == player && !string.IsNullOrWhiteSpace(joined[player].ReconnectToken)
                         && joined[player].ReconnectToken != players[player], "Each real Joined must supply its own rotated token.");
-                afterReconnect = await CaptureSql(source, room, token);
+                afterReconnect = await replies.UntilFaultAsync(CaptureSql(source, room, token), token);
                 if (!recover)
                 {
                     JsonElement lastRaw = default;
@@ -134,13 +123,14 @@ internal static class AttachedSelfDestructionNetworkAcceptance
                         {
                             var peer = players.Keys.Single(player => player != actor);
                             var expected = new ExpectedError(peer, actor, ErrorCodes.IdentityMismatch);
-                            expectedErrors.Enqueue(expected); expectedErrorEvidence.Add(expected);
-                            forbidden = await connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room,
-                                actor, "c9-wrong-authenticated-actor", raw, token);
+                            replies.ExpectError(peer, actor, ErrorCodes.IdentityMismatch); expectedErrorEvidence.Add(expected);
+                            forbidden = await replies.UntilFaultAsync(connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room,
+                                actor, "c9-wrong-authenticated-actor", raw, token), token);
+                            await replies.WaitForErrorAsync(peer, actor, ErrorCodes.IdentityMismatch, token);
                             Check(!forbidden.Accepted && forbidden.ErrorCode == ErrorCodes.IdentityMismatch,
                                 "An authenticated peer must not submit the other player's intent.");
                         }
-                        var receipt = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, intent, raw, token);
+                        var receipt = await replies.UntilFaultAsync(connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, intent, raw, token), token);
                         Check(receipt.Accepted, kind + " step " + (index - 1) + ": " + receipt.Message);
                         tick = receipt.ServerTick;
                         await WaitForViews(tick);
@@ -149,9 +139,10 @@ internal static class AttachedSelfDestructionNetworkAcceptance
                     Check(lastActor is not null && lastIntent is not null, "The network case must execute real commands.");
                     CheckBoundary(snapshots, prompts, p1, p2, kind, item.GetProperty("pending").GetBoolean());
                     var expectedStale = new ExpectedError(lastActor!, lastActor!, ErrorCodes.PromptExpired);
-                    expectedErrors.Enqueue(expectedStale); expectedErrorEvidence.Add(expectedStale);
-                    var stale = await connections[lastActor!].InvokeAsync<CommandReceiptDto>("SubmitIntent", room,
-                        lastActor, "c9-network-stale-" + kind, lastRaw, token);
+                    replies.ExpectError(lastActor!, lastActor!, ErrorCodes.PromptExpired); expectedErrorEvidence.Add(expectedStale);
+                    var stale = await replies.UntilFaultAsync(connections[lastActor!].InvokeAsync<CommandReceiptDto>("SubmitIntent", room,
+                        lastActor, "c9-network-stale-" + kind, lastRaw, token), token);
+                    await replies.WaitForErrorAsync(lastActor!, lastActor!, ErrorCodes.PromptExpired, token);
                     Check(!stale.Accepted && stale.ErrorCode == ErrorCodes.PromptExpired && stale.ServerTick == tick,
                         "A fresh intent carrying the previous prompt must be rejected without advancing state.");
                     await WaitForViews(tick);
@@ -164,18 +155,18 @@ internal static class AttachedSelfDestructionNetworkAcceptance
                 {
                     CheckBoundary(snapshots, prompts, p1, p2, kind, item.GetProperty("pending").GetBoolean());
                     CompareSavedViews();
-                    duplicateBefore = await CaptureSql(source, room, token);
+                    duplicateBefore = await replies.UntilFaultAsync(CaptureSql(source, room, token), token);
                     var actor = previous.GetProperty("lastActor").GetString()!;
-                    var duplicate = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                        previous.GetProperty("lastIntent").GetString()!, previous.GetProperty("raw"), token);
+                    var duplicate = await replies.UntilFaultAsync(connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                        previous.GetProperty("lastIntent").GetString()!, previous.GetProperty("raw"), token), token);
                     Check(duplicate.Accepted && duplicate.ServerTick == tick,
                         "After the actual API process restart, the original successful intent must remain idempotent.");
                     snapshots.Clear(); prompts.Clear();
                     foreach (var player in players.Keys)
-                        await connections[player].InvokeAsync("RequestSnapshot", room, player, token);
+                        await replies.UntilFaultAsync(connections[player].InvokeAsync("RequestSnapshot", room, player, token), token);
                     await WaitForViews(tick);
                     CompareSavedViews();
-                    duplicateAfter = await CaptureSql(source, room, token);
+                    duplicateAfter = await replies.UntilFaultAsync(CaptureSql(source, room, token), token);
                     Check(SameSql(afterReconnect, duplicateBefore) && SameSql(duplicateBefore, duplicateAfter),
                         "Snapshot requests and the actual duplicate must each preserve the post-reconnect seven-table rows exactly.");
                     resumes.Add(new { kind, room, tick, lastActor = actor, lastIntent = previous.GetProperty("lastIntent").GetString(),
@@ -183,10 +174,8 @@ internal static class AttachedSelfDestructionNetworkAcceptance
                         snapshots = snapshots.ToDictionary(p => p.Key, p => p.Value.Clone()),
                         prompts = prompts.ToDictionary(p => p.Key, p => p.Value) });
                 }
-                finalSql = await CaptureSql(source, room, token);
-                Check(serverErrors.IsEmpty && expectedErrors.IsEmpty, "No unexpected or missing network Error may reach a pass receipt.");
-                reports.Add(new { kind, room, tick, authenticatedPlayers = players.Keys.ToArray(),
-                    boundaryPreserved = true, originalIntentAfterActualRestart = recover });
+                finalSql = await replies.UntilFaultAsync(CaptureSql(source, room, token), token);
+                replies.CheckHealthy(); finalTick = tick;
 
                 void CompareSavedViews()
                 {
@@ -201,13 +190,14 @@ internal static class AttachedSelfDestructionNetworkAcceptance
 
                 async Task WaitForViews(long expectedTick)
                 {
-                    while (!expectedErrors.IsEmpty || players.Keys.Any(player => !joined.ContainsKey(player) || !snapshots.TryGetValue(player, out var snapshot)
+                    replies.CheckHealthy();
+                    while (players.Keys.Any(player => !joined.ContainsKey(player) || !snapshots.TryGetValue(player, out var snapshot)
                         || !prompts.TryGetValue(player, out var prompt) || snapshot.GetProperty("tick").GetInt64() != expectedTick
                         || prompt.SnapshotTick != expectedTick)) {
-                        Check(serverErrors.IsEmpty, "Actual C9 reconnect/view failed: " + string.Join("; ", serverErrors));
-                        await Task.Delay(20, token);
+                        replies.CheckHealthy();
+                        await replies.UntilFaultAsync(Task.Delay(20, token), token);
                     }
-                    Check(serverErrors.IsEmpty, "Actual C9 reconnect/view failed: " + string.Join("; ", serverErrors));
+                    replies.CheckHealthy();
                     foreach (var player in players.Keys)
                     {
                         var view = JsonSerializer.Serialize(new { snapshot = snapshots[player], prompt = prompts[player] }, json);
@@ -225,12 +215,26 @@ internal static class AttachedSelfDestructionNetworkAcceptance
             }
             finally
             {
+                var teardownFailures = new List<string>();
+                foreach (var connection in connections.Values) {
+                    try { await connection.DisposeAsync(); }
+                    catch (Exception error) { teardownFailures.Add(error.ToString()); }
+                }
+                // All callbacks through completed disposal must be included in
+                // the final audit and trace, before any case can report PASS.
+                try { replies.AssertComplete(); }
+                catch (Exception error) { teardownFailures.Add(error.ToString()); }
+                var originalFailure = failure;
+                failure ??= teardownFailures.Count == 0 ? null : string.Join("\n", teardownFailures);
                 await File.WriteAllTextAsync(Path.Combine(output, kind + (recover ? "-network-after-restart.json" : "-network-before-restart.json")),
-                    JsonSerializer.Serialize(new { room, kind, recover, failure, snapshots, prompts, joined,
+                    JsonSerializer.Serialize(new { room, kind, recover, failure, teardownFailures, snapshots, prompts, joined,
                         expectedErrors = expectedErrorEvidence, consumedTokens = players, beforeReconnect, afterReconnect, duplicateBefore, duplicateAfter, finalSql,
                         traces = traces.ToArray() }, json));
-                foreach (var connection in connections.Values) await connection.DisposeAsync();
+                if (originalFailure is null && teardownFailures.Count != 0)
+                    throw new InvalidOperationException("C9 reply/disposal audit failed: " + failure);
             }
+            reports.Add(new { kind, room, tick = finalTick, authenticatedPlayers = players.Keys.ToArray(),
+                boundaryPreserved = true, originalIntentAfterActualRestart = recover });
         }
         await File.WriteAllTextAsync(Path.Combine(output, recover ? "network-resume-after-restart.json" : "network-resume.json"),
             JsonSerializer.Serialize(new { cases = resumes }, json));

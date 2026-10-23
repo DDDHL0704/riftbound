@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -200,27 +201,46 @@ internal static class AttachedSelfDestructionSqlAcceptance
             var forged = state with { CardObjects = outerCards, PendingRuleChoice = pending with {
                 Request = pending.Request with { Options = options }, Origin = pending.Origin with { CardObjects = originCards } } };
 
-            var digest = await Digest(source, room); var rows = await CaptureLatestRows(source, room, state.Tick, original.LastEventSequence);
-            string? rejection = null;
+            string? digest = null, restoredDigest = null, rejection = null, registryCode = null;
+            List<SavedRow> rows = []; var restoreErrors = new List<string>();
+            bool? shapeConsistent = null; IReadOnlyList<string>? shapeErrors = null;
+            var registryReturned = false; var restoredOriginalAudit = false; Exception? attemptFailure = null;
             try {
+                digest = await Digest(source, room); rows = await CaptureLatestRows(source, room, state.Tick, original.LastEventSequence);
                 var snapshots = ResolutionResult.BuildSnapshots(forged); var prompts = ResolutionResult.BuildPrompts(forged);
                 foreach (var row in rows) {
                     object value = row.Table switch { "state_snapshots" => forged, "snapshots" => snapshots[row.Player!], _ => prompts[row.Player!] };
                     await UpdatePayload(source, room, row, JsonSerializer.Serialize(value, value.GetType(), Json));
                 }
-                var stored = await new PostgresMatchRecoveryStore(source).LoadAsync(room, default) ?? throw new InvalidOperationException("Missing poisoned C9 QA frame.");
-                Check(stored.IsConsistent == coherent, "The declared C9 shape-vs-original-birth rejection layer must match the actual stored frame.");
-                if (!coherent) Check(stored.ValidationErrors.Contains("invalid replacement choice continuation"), "Strict original request/answers/origin guard was bypassed.");
-                try { _ = await Registry(source).GetOrCreateAsync(room, default); }
-                catch (MatchSessionException error) when (error.Code == ErrorCodes.RecoveryInconsistent) { rejection = error.Message; }
-                Check(rejection is not null, "Actual SQL registry accepted a forged C9 pending transcript.");
-                if (coherent) Check(rejection!.Contains("action-log audit failed", StringComparison.Ordinal), "A coherent alternative must fail against unchanged original actions.");
+                var stored = await new PostgresMatchRecoveryStore(source).LoadAsync(room, default)
+                    ?? throw new InvalidOperationException("Missing poisoned C9 QA frame.");
+                shapeConsistent = stored.IsConsistent; shapeErrors = stored.ValidationErrors;
+                try { _ = await Registry(source).GetOrCreateAsync(room, default); registryReturned = true; }
+                catch (MatchSessionException error) { registryCode = error.Code; rejection = error.Message; }
             }
-            finally { foreach (var row in rows) await UpdatePayload(source, room, row, row.Payload); }
-            Check(await Digest(source, room) == digest, "Restore every temporary C9 projection row exactly.");
-            await LoadAndAudit(source, room);
-            Check(await Digest(source, room) == digest, "Post-tamper pure recovery must preserve the exact seven-table baseline.");
-            reports.Add(new { room, mode, coherent, rejection, originalHistoryNeverRewritten = true, originalSevenTableDigestRestored = true });
+            catch (Exception error) { attemptFailure = error; }
+            finally {
+                // Restore every captured row even if another restore fails; save
+                // actual outcomes before enforcing any expected rejection layer.
+                foreach (var row in rows) {
+                    try { await UpdatePayload(source, room, row, row.Payload); }
+                    catch (Exception error) { restoreErrors.Add(row.Table + ":" + row.Id + ": " + error); }
+                }
+                try { restoredDigest = await Digest(source, room); }
+                catch (Exception error) { restoreErrors.Add("seven-table restore sampling: " + error); }
+                if (digest is not null && restoredDigest == digest) {
+                    try {
+                        await LoadAndAudit(source, room);
+                        restoredOriginalAudit = await Digest(source, room) == digest;
+                    }
+                    catch (Exception error) { restoreErrors.Add("restored original audit: " + error); }
+                }
+                var evidence = new TamperAttemptEvidence(room, mode, coherent, shapeConsistent, shapeErrors, registryReturned,
+                    registryCode, rejection, attemptFailure?.ToString(), digest, restoredDigest, restoreErrors, restoredOriginalAudit);
+                // This is intentionally before RequireTamperRejection. Failure,
+                // wrong layer and failed restoration must remain inspectable.
+                await SaveTamperAttempt(output, evidence, rows, forged, reports);
+            }
         }
         var session = await Registry(source).GetOrCreateAsync(room, default); var request = state.PendingRuleChoice!.Request;
         var option = request.Options.Single(o => o.Id == "ATTACHED_GEAR:HOST:ANGEL-2");
@@ -235,6 +255,34 @@ internal static class AttachedSelfDestructionSqlAcceptance
         CheckGuardianEvents(completed.Events, c, item.GetProperty("p1").GetString()!, item.GetProperty("p2").GetString()!);
         await Write(output, "registry-tamper-results.json", new { status = "REAL_POSTGRES_C9_TAMPER_REJECTED_AND_ORIGINAL_PENDING_COMPLETED", reports,
             completedCommands = completed.Commands.Count, completeOriginalBirthReplayMatched = true });
+    }
+
+    private sealed record TamperAttemptEvidence(string Room, string Mode, bool Coherent, bool? ShapeConsistent,
+        IReadOnlyList<string>? ShapeErrors, bool RegistryReturned, string? RegistryCode, string? Rejection,
+        string? Exception, string? OriginalDigest, string? RestoredDigest, IReadOnlyList<string> RestoreErrors,
+        bool RestoredOriginalAudit);
+
+    private static async Task SaveTamperAttempt(string output, TamperAttemptEvidence evidence, object capturedRows,
+        MatchState forged, List<object> reports)
+    {
+        await Write(output, evidence.Mode + "-tamper-attempt.json", new { evidence, capturedRows, forgedState = forged });
+        reports.Add(evidence); await Write(output, "registry-tamper-attempts.json", reports);
+        RequireTamperRejection(evidence);
+    }
+
+    private static void RequireTamperRejection(TamperAttemptEvidence evidence)
+    {
+        Check(evidence.Exception is null, "C9 tamper operation failed; inspect its saved actual exception: " + evidence.Exception);
+        Check(evidence.OriginalDigest is not null && evidence.OriginalDigest == evidence.RestoredDigest
+            && evidence.RestoreErrors.Count == 0 && evidence.RestoredOriginalAudit,
+            "C9 original projection rows and exact seven-table audit were not fully restored; inspect the saved restore results.");
+        Check(evidence.ShapeConsistent == evidence.Coherent, "C9 actual shape rejection layer differs from the saved expectation.");
+        if (!evidence.Coherent) Check(evidence.ShapeErrors?.Contains("invalid replacement choice continuation") == true,
+            "C9 original request/origin structural guard did not reject this forged pending state.");
+        Check(!evidence.RegistryReturned && evidence.RegistryCode == ErrorCodes.RecoveryInconsistent,
+            "C9 registry did not reject this forged pending state with the expected code.");
+        Check(evidence.Rejection?.Contains(evidence.Coherent ? "action-log audit failed" : "invalid replacement choice continuation",
+            StringComparison.Ordinal) == true, "C9 registry rejected at a different layer; inspect the saved actual message.");
     }
 
     private sealed class Runner(NpgsqlDataSource source, string output, string room, string p1, string p2)
@@ -379,14 +427,18 @@ internal static class AttachedSelfDestructionSqlAcceptance
     {
         var rows = new StringBuilder();
         await using var connection = await source.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.RepeatableRead);
+        await using (var readOnly = new NpgsqlCommand("set transaction read only", connection, transaction))
+            await readOnly.ExecuteNonQueryAsync();
         foreach (var table in Tables)
         {
             rows.AppendLine(table);
-            await using var query = new NpgsqlCommand($"select row_to_json(t)::text from {table} t where match_id=@room order by row_to_json(t)::text", connection);
+            await using var query = new NpgsqlCommand($"select row_to_json(t)::text from {table} t where match_id=@room order by row_to_json(t)::text", connection, transaction);
             query.Parameters.AddWithValue("room", room);
             await using var reader = await query.ExecuteReaderAsync();
             while (await reader.ReadAsync()) rows.AppendLine(reader.GetString(0));
         }
+        await transaction.CommitAsync();
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rows.ToString()))).ToLowerInvariant();
     }
 
