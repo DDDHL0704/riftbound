@@ -274,6 +274,10 @@
     {
       "id": "selected-field-damage",
       "sourceType": "SelectedBattlefieldDamageSqlAcceptance"
+    },
+    {
+      "id": "draven-battle-death",
+      "sourceType": "DravenBattleDeathSqlAcceptance"
     }
   ]
 }

@@ -17,7 +17,7 @@ internal static class TriggerQueueRecoveryRules
     internal static bool ValidControllerOrderConfirmations(MatchState state)
     {
         if (!state.TriggerQueue.Any(t => t.ControllerOrderConfirmed)) return true;
-        var choices = state.TriggerQueue.GroupBy(t => (t.EnqueuedAtTick, t.ControllerId))
+        var choices = state.TriggerQueue.GroupBy(t => (t.EnqueuedAtTick, t.ControllerId, ResultInstruction: t.TriggeredByEventKind == "BATTLE_RESULT_DETERMINED"))
             .Where(group => group.Count() > 1).Select(group => group.Key.ControllerId).Distinct(StringComparer.Ordinal).ToHashSet();
         var confirmed = state.TriggerQueue.Where(t => t.ControllerOrderConfirmed)
             .Select(t => t.ControllerId).Distinct(StringComparer.Ordinal).ToHashSet();

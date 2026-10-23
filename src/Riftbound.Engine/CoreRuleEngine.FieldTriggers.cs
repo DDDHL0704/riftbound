@@ -110,6 +110,7 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
+            i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
@@ -117,6 +118,7 @@ public sealed partial class CoreRuleEngine
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i));
         if (item is null) return result;
+        if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);

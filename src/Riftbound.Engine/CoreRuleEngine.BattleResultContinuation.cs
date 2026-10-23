@@ -9,7 +9,7 @@ public sealed record LegendBattleWinDrawContext(ObjectBinding Source, string Car
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record BattleResultContinuation(string BattlefieldId, string AttackingPlayerId,
-    string? DefendingPlayerId, string WinnerPlayerId, long ResultTick,
+    string? DefendingPlayerId, string? WinnerPlayerId, long ResultTick,
     IReadOnlyList<string> AttackerObjectIds, IReadOnlyList<string> DefenderObjectIds,
     IReadOnlyList<string> SurvivingAttackerObjectIds, IReadOnlyList<string> SurvivingDefenderObjectIds,
     IReadOnlyList<string> DestroyedObjectIds, IReadOnlyList<string> RelatedEventKinds,
@@ -66,15 +66,23 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
         int overkill, List<GameEvent> events, out MatchState pending)
     {
+        // A synchronous replacement can suspend the parent across commands.
+        // Its result is born at the accepted completion, not the original attempt.
+        resultState = resultState with { Tick = RuleChoices.Value?.CompletionTick ?? resultState.Tick };
         pending = resultState;
-        if (winner is null) return false;
+        // Death instructions have already captured their ordinary skills, but
+        // their observer collector runs after this battle instruction completes.
+        // Do not establish control or close a no-winner battle ahead of them.
+        var hasCapturedDeaths = events.Any(e => e.Payload.GetValueOrDefault("capturedUnitDeath")
+            is CapturedUnitDeath { DravenBattleDeathScore: not null });
+        if (winner is null && !hasCapturedDeaths) return false;
         var role = winner == attacker ? "ATTACKER" : "DEFENDER";
         var queued = new List<TriggerQueueItemState>();
-        queued.AddRange(CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner,
+        if (winner is not null) queued.AddRange(CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner,
             attackers, defenders, resultState.Tick).Select(x => x.Trigger with { UnitBattleWinDraw = x.Context }));
-        queued.AddRange(CaptureKhazixBattleWinObservations(resultState, battlefield, winner,
+        if (winner is not null) queued.AddRange(CaptureKhazixBattleWinObservations(resultState, battlefield, winner,
             role, resultState.Tick).Select(x => x.Trigger with { KhazixBattleWin = x.Context }));
-        if (resultState.PlayerZones.TryGetValue(winner, out var winnerZones))
+        if (winner is not null && resultState.PlayerZones.TryGetValue(winner, out var winnerZones))
             foreach (var id in winnerZones.LegendZone)
                 if (resultState.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
                     && card.ControllerId == winner && LegendCardHasIdentity(card.CardNo, DravenLegendIdentityId))
@@ -85,14 +93,17 @@ public sealed partial class CoreRuleEngine
                         LegendBattleWinDrawEffect, "BATTLE_RESULT_DETERMINED")
                     { LegendBattleWinDraw = context, SourceCardNo = card.CardNo, EnqueuedAtTick = resultState.Tick });
                 }
-        var scoreObservations = CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
-            attackers, defenders, resultState.Tick);
+        var scoreObservations = winner is null ? Array.Empty<CapturedDravenBattleWinScore>()
+            : CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
+                attackers, defenders, resultState.Tick);
         queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
-        if (queued.Count == 0) return false;
+        if (queued.Count == 0 && !hasCapturedDeaths) return false;
 
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
+        if (winner is null)
+            events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attacker, defender));
         var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
             ? declaration.PublicObjectBindings : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, winner, resultState.Tick,
@@ -100,7 +111,7 @@ public sealed partial class CoreRuleEngine
             SurvivingBattleUnitObjectIds(zones, cards, defenders),
             events.Where(e => e.Kind == "UNIT_DESTROYED").Select(e => EventPayloadString(e, "targetObjectId")!)
                 .Where(id => attackers.Concat(defenders).Contains(id)).Distinct(StringComparer.Ordinal).ToArray(),
-            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE")
+            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE" or "BATTLE_NO_RESULT")
                 .Select(e => e.Kind).Distinct(StringComparer.Ordinal).ToArray(), bindings ?? [], overkill, "RESULT_TRIGGERS");
         events.Add(new("BATTLE_RESULT_DETERMINED", "判定战斗结果，先处理结果触发技能",
             new Dictionary<string, object?> { ["continuation"] = continuation }));
@@ -151,9 +162,13 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         CloseResolvedBattle(zones, cards, state.ObjectLocations, continuation.BattlefieldId, continuation.AttackerObjectIds,
             continuation.DefenderObjectIds, events);
+        var resultKind = continuation.WinnerPlayerId is null ? "NO_RESULT" : "CLOSED";
+        var resultReason = continuation.WinnerPlayerId is not null ? "BATTLE_CLOSED"
+            : continuation.SurvivingAttackerObjectIds.Count == 0 && continuation.SurvivingDefenderObjectIds.Count == 0
+                ? "ALL_PARTICIPANTS_DESTROYED" : "BOTH_SIDES_RETAIN_UNITS";
         var history = new BattleResolutionState(
-            $"battle-result:{state.Tick}:CLOSED:{continuation.BattlefieldId}:{continuation.AttackerObjectIds.FirstOrDefault() ?? continuation.AttackingPlayerId}",
-            state.Tick, "CLOSED", "BATTLE_CLOSED", continuation.BattlefieldId, continuation.AttackingPlayerId,
+            $"battle-result:{state.Tick}:{resultKind}:{continuation.BattlefieldId}:{continuation.AttackerObjectIds.FirstOrDefault() ?? continuation.AttackingPlayerId}",
+            state.Tick, resultKind, resultReason, continuation.BattlefieldId, continuation.AttackingPlayerId,
             continuation.DefendingPlayerId, continuation.WinnerPlayerId, continuation.AttackerObjectIds,
             continuation.DefenderObjectIds, continuation.SurvivingAttackerObjectIds, continuation.SurvivingDefenderObjectIds,
             continuation.DestroyedObjectIds, continuation.RelatedEventKinds.Append("BATTLE_CLOSED").Distinct().ToArray())

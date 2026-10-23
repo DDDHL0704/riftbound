@@ -134,10 +134,21 @@ public sealed class OfficialDravenBattleWinScoreTests
         var expectedAbilityScore = winsMatch || scenario is "attacker-win" or "defender-win" or "repeat-defender-win" ? 1 : 0;
         var conquestScore = scenario is "attacker-win" or "nonparticipant" or "empty-conquest" ? 1 : 0;
         Assert.Equal(initial.PlayerScores[sourcePlayer] + expectedAbilityScore + conquestScore, state.PlayerScores[sourcePlayer]);
-        // The separate combat-death ability remains an open consumer; this
-        // assertion only specifies the surviving participant's win trigger.
+        // Distinguish both printed skills: a defeated participant does not win,
+        // but its separately confirmed death skill grants one point to an opponent.
         var abilityScores = events.Where(e => e.Event.Kind == "SCORE_GAINED"
-            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "SOURCE")).ToArray();
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "SOURCE")
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "CAPTURED_DRAVEN_FIRST_BATTLE_WIN_SCORE")).ToArray();
+        var deathScores = events.Where(e => e.Event.Kind == "SCORE_GAINED"
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "CAPTURED_DRAVEN_BATTLE_DEATH_OPPONENT_SCORE")).ToArray();
+        Assert.Equal(scenario is "defeated" or "mutual-destruction" ? 1 : 0, deathScores.Length);
+        if (deathScores.Length > 0)
+        {
+            Assert.Equal("P2", deathScores[0].Event.Payload["playerId"]);
+            Assert.Equal("SOURCE", deathScores[0].Event.Payload["sourceObjectId"]);
+            Assert.Equal(1, deathScores[0].Event.Payload["amount"]);
+            Assert.Equal(1, state.PlayerScores["P2"]);
+        }
         Assert.Equal(expectedAbilityScore, abilityScores.Length);
         Assert.DoesNotContain(events, e => e.Event.Kind == "CARD_DRAWN");
         Assert.Equal(new[] { "DRAW" }, state.PlayerZones[sourcePlayer].MainDeck);
@@ -162,7 +173,13 @@ public sealed class OfficialDravenBattleWinScoreTests
         {
             for (var i = 0; i < 12 && state.StackItems.Count > 0; i++)
             {
-                Assert.Null(state.PendingCardChoice);
+                if (state.PendingCardChoice is { } choice)
+                {
+                    Assert.Equal("DRAVEN_BATTLE_DEATH_OPPONENT", choice.ChoiceWindow);
+                    Assert.Equal("P1", choice.PlayerId);
+                    await Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2"]));
+                    continue;
+                }
                 Assert.Null(state.PendingHandChoice);
                 Assert.Null(state.PendingPayment);
                 Assert.NotNull(state.PriorityPlayerId);

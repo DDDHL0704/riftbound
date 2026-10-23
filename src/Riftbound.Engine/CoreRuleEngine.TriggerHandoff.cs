@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
         var events = result.Events.ToList();
         if (pending.Length == 1 || AreDistinctCommandTriggers(pending))
         {
-            var admitted = pending.OrderBy(t => t.EnqueuedAtTick).ToArray();
+            var admitted = pending.OrderBy(t => t.EnqueuedAtTick).ThenBy(TriggerInstructionOrder).ToArray();
             var items = admitted.Select(t => BuildStackItemForOrderedTrigger(state, t)).ToArray();
             var item = items[^1];
             state = state with {

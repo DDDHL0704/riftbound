@@ -9,6 +9,7 @@ internal sealed record CapturedDeathObserver(string ObjectId, string ControllerI
 internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
 {
     public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
+    public DravenBattleDeathScoreContext? DravenBattleDeathScore { get; init; }
     public DestructionAttribution? Attribution { get; init; }
     public IReadOnlyList<CapturedGraveyardPlay> GraveyardPlays { get; init; } = [];
 }
@@ -52,7 +53,10 @@ public sealed partial class CoreRuleEngine
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(source.CardNo,t=>IsDeathObserverKind(t.Kind),out var spec)
                 && (spec.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !fact.WasMinion))
                 observers.Add(new(source.ObjectId,controller,new(source.CardNo!,spec.Kind,source.ObjectGeneration,fact)));
-        return new($"death-{frame.Origin.Tick}-{frame.DeathSequence++}",frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
+        var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
+        return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
+            DravenBattleDeathScore = CaptureDravenBattleDeathScore(state, zones, cards,
+                frame.CurrentDestructionLocations ?? state.ObjectLocations, unit, deathId, state.Tick + 1),
             LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit), GraveyardPlays = CaptureGraveyardPlays(zones, cards, unit) };
     }
 
@@ -72,6 +76,9 @@ public sealed partial class CoreRuleEngine
             events.Add(ev.Payload.ContainsKey("capturedUnitDeath") ? ev with { Payload=ev.Payload.Where(p=>p.Key!="capturedUnitDeath").ToDictionary(p=>p.Key,p=>p.Value) } : ev);
             if (!ev.Payload.TryGetValue("capturedUnitDeath",out var raw) || raw is not CapturedUnitDeath death || !seen.Add(death.Id)) continue;
             if (death.TurnNumber != state.TurnNumber) continue;
+            if (death.DravenBattleDeathScore is not null)
+                events[^1] = events[^1] with { Payload = new Dictionary<string, object?>(events[^1].Payload)
+                    { ["destroyedUnitFact"] = death.Unit, ["deathId"] = death.Id, ["deathBatch"] = death.Batch } };
             if (visitedBatches.Add(death.Batch) && state.Status == MatchStatuses.InProgress)
             {
                 // CN 383.1.b: choose the occurrence when the first event happens simultaneously.
@@ -93,6 +100,17 @@ public sealed partial class CoreRuleEngine
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
             QueueGraveyardPlays(state, death, deaths, queue, events);
+            if (death.DravenBattleDeathScore is { } dravenDeath)
+            {
+                // An optional replacement may suspend the parent instruction; its
+                // committed death belongs to this accepted completion tick.
+                dravenDeath = dravenDeath with { DeathTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
+                var trigger = BuildDravenBattleDeathScoreTrigger(dravenDeath);
+                queue.Add(trigger);
+                events.Add(BuildTriggerQueuedEvent(trigger) with { Payload = new Dictionary<string, object?>(BuildTriggerQueuedEvent(trigger).Payload)
+                    { ["dravenBattleDeathScore"] = dravenDeath, ["deathId"] = death.Id, ["deathBatch"] = death.Batch,
+                        ["enqueuedAtTick"] = dravenDeath.DeathTick } });
+            }
             foreach (var captured in death.LastBreathMights.Where(c => UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out var spec)
                 && c.Might >= spec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold)))

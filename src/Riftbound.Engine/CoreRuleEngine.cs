@@ -2852,7 +2852,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         for (var index = 0; index < legalBlocks.Count; index++)
         {
             if (!string.Equals(legalBlocks[index].ControllerId, submittedBlocks[index].ControllerId, StringComparison.Ordinal)
-                || legalBlocks[index].EnqueuedAtTick != submittedBlocks[index].EnqueuedAtTick)
+                || legalBlocks[index].EnqueuedAtTick != submittedBlocks[index].EnqueuedAtTick
+                || legalBlocks[index].InstructionOrder != submittedBlocks[index].InstructionOrder)
             {
                 return false;
             }
@@ -2876,12 +2877,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<TriggerControllerBlock> BuildApnapTriggerControllerBlocks(MatchState state)
     {
-        return state.TriggerQueue.GroupBy(t => t.EnqueuedAtTick).OrderBy(g => g.Key)
-            .SelectMany(moment => BuildApnapTriggerControllerBlocks(state, moment.ToArray(), moment.Key)).ToArray();
+        return state.TriggerQueue.GroupBy(t => (t.EnqueuedAtTick, Instruction: TriggerInstructionOrder(t)))
+            .OrderBy(g => g.Key.EnqueuedAtTick).ThenBy(g => g.Key.Instruction)
+            .SelectMany(moment => BuildApnapTriggerControllerBlocks(state, moment.ToArray(), moment.Key.EnqueuedAtTick, moment.Key.Instruction)).ToArray();
     }
 
     private static IReadOnlyList<TriggerControllerBlock> BuildApnapTriggerControllerBlocks(
-        MatchState state, IReadOnlyList<TriggerQueueItemState> triggers, long? enqueuedAtTick)
+        MatchState state, IReadOnlyList<TriggerQueueItemState> triggers, long? enqueuedAtTick, int instructionOrder)
     {
         var triggerIdsByController = triggers
             .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
@@ -2894,7 +2896,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
             .Select(controllerId => new TriggerControllerBlock(
                 controllerId,
-                triggerIdsByController.TryGetValue(controllerId, out var triggerIds) ? triggerIds : [], enqueuedAtTick))
+                triggerIdsByController.TryGetValue(controllerId, out var triggerIds) ? triggerIds : [], enqueuedAtTick, instructionOrder))
             .ToArray();
     }
 
@@ -2950,7 +2952,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var last = blocks.LastOrDefault();
             if (last is not null
                 && string.Equals(last.ControllerId, trigger.ControllerId, StringComparison.Ordinal)
-                && last.EnqueuedAtTick == trigger.EnqueuedAtTick)
+                && last.EnqueuedAtTick == trigger.EnqueuedAtTick && last.InstructionOrder == TriggerInstructionOrder(trigger))
             {
                 blocks[^1] = last with
                 {
@@ -2959,7 +2961,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            blocks.Add(new TriggerControllerBlock(trigger.ControllerId, [trigger.TriggerId], trigger.EnqueuedAtTick));
+            blocks.Add(new TriggerControllerBlock(trigger.ControllerId, [trigger.TriggerId], trigger.EnqueuedAtTick, TriggerInstructionOrder(trigger)));
         }
 
         return blocks;
@@ -3212,6 +3214,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (pendingChoice.ChoiceWindow == DravenDeathOpponentWindow) return ResolveDravenDeathOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
@@ -3255,13 +3258,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
         string ControllerId,
         IReadOnlyList<string> TriggerIds,
-        long? EnqueuedAtTick);
+        long? EnqueuedAtTick, int InstructionOrder);
 
     private static bool TryReadPayCostPayload(
         GameCommand command,
@@ -18942,6 +18945,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
+                && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
             rejection = Reject(state, "所选入场位置没有当前有效的出牌权限。", ErrorCodes.InvalidTarget);
@@ -24430,6 +24434,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitBattleWinDraw is { } unitBattleWin) return ResolveUnitBattleWinDraw(state, stackItem, unitBattleWin);
         if (stackItem.LegendBattleWinDraw is { } legendBattleWin) return ResolveLegendBattleWinDraw(state, stackItem, legendBattleWin);
         if (stackItem.KhazixBattleWin is { } khazixBattleWin) return ResolveKhazixBattleWin(state, stackItem, khazixBattleWin);
+        if (stackItem.DravenBattleDeathScore is { OpponentId: { } opponent } dravenDeath)
+            return ResolveDravenBattleDeathScore(state, stackItem, dravenDeath, opponent);
         if (stackItem.DravenBattleWinScore is { } dravenScore) return ResolveDravenBattleWinScore(state, stackItem, dravenScore);
         if (stackItem.SourcePlayDraw is not null) return ResolveSourcePlayDraw(state, stackItem);
         if (stackItem.CreatedTokenReady is not null) return ResolveCreatedTokenReady(state, stackItem);

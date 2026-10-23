@@ -21,7 +21,7 @@ internal static class BattleResultRecoveryRules
             || c.AssignedOverkillDamage < 0 || string.IsNullOrWhiteSpace(c.BattlefieldId)
             || !state.Seats.ContainsKey(c.AttackingPlayerId) || c.DefendingPlayerId is null
             || !state.Seats.ContainsKey(c.DefendingPlayerId) || c.AttackingPlayerId == c.DefendingPlayerId
-            || c.WinnerPlayerId != c.AttackingPlayerId && c.WinnerPlayerId != c.DefendingPlayerId
+            || c.WinnerPlayerId is not null && c.WinnerPlayerId != c.AttackingPlayerId && c.WinnerPlayerId != c.DefendingPlayerId
             || c.AttackerObjectIds is null || c.DefenderObjectIds is null || c.SurvivingAttackerObjectIds is null
             || c.SurvivingDefenderObjectIds is null || c.DestroyedObjectIds is null || c.RelatedEventKinds is null
             || c.PublicObjectBindings is null || c.AttackerObjectIds.Count == 0 || c.DefenderObjectIds.Count == 0) return false;
@@ -30,7 +30,10 @@ internal static class BattleResultRecoveryRules
             && c.SurvivingAttackerObjectIds.All(c.AttackerObjectIds.Contains)
             && c.SurvivingDefenderObjectIds.All(c.DefenderObjectIds.Contains)
             && c.DestroyedObjectIds.All(all.Contains)
-            && (c.WinnerPlayerId == c.AttackingPlayerId
+            && (c.WinnerPlayerId is null
+                ? c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
+                    || c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count > 0
+                : c.WinnerPlayerId == c.AttackingPlayerId
                 ? c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count == 0
                 : c.SurvivingDefenderObjectIds.Count > 0 && c.SurvivingAttackerObjectIds.Count == 0)
             && c.PublicObjectBindings.All(b => b is not null && b.Generation >= 0 && all.Contains(b.ObjectId));

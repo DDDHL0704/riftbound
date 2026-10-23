@@ -140,6 +140,8 @@ public static class MatchActionLogReplayer
             inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
         if (inputErrors.Count > 0) return inputErrors;
 
+        var deathErrors = DravenBattleDeathRecoveryRules.ValidateOriginalTriggers(recovery);
+        if (deathErrors.Count > 0) return deathErrors;
         var battleResultErrors = BattleResultRecoveryRules.ValidateOriginalTriggers(recovery);
         if (battleResultErrors.Count > 0) return battleResultErrors;
         var startErrors = BattlefieldStartRecoveryRules.ValidateOriginalTriggers(recovery);
@@ -23775,6 +23777,12 @@ public static partial class MatchRecoveryValidator
 
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
         foreach (var item in state.StackItems)
+            if (!DravenBattleDeathRecoveryRules.Valid(state, item)) errors.Add("invalid stacked Draven battle-death skill");
+        foreach (var item in state.TriggerQueue)
+            if (!DravenBattleDeathRecoveryRules.Valid(state, item)) errors.Add("invalid queued Draven battle-death skill");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.DravenDeathOpponentWindow } deathChoice
+            && !DravenBattleDeathRecoveryRules.ValidChoice(state, deathChoice)) errors.Add("invalid Draven death opponent choice");
+        foreach (var item in state.StackItems)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid stacked battle-result skill");
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
@@ -27228,7 +27236,7 @@ public static partial class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow))
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
                 authoritativeState.PendingCardChoice.LegalObjectIds,
@@ -27341,6 +27349,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
+                && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
@@ -27464,6 +27473,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
+                && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
@@ -33726,10 +33736,12 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => BattleResultRecoveryRules.IsCapturedSkill(state, item) && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
+        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+            && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => BattleResultRecoveryRules.IsCapturedSkill(state, item) && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
+        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+            && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)
     {

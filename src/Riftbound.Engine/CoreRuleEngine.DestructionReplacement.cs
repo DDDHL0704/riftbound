@@ -15,6 +15,7 @@ public sealed partial class CoreRuleEngine
         private readonly HashSet<string> previousDeaths = frame.CurrentDestructions;
         private readonly int? previousBatch = frame.CurrentDestructionBatch;
         private readonly LastKnownMightFrame? previousMight = frame.CurrentDestructionMightFrame;
+        private readonly IReadOnlyDictionary<string, ObjectLocationState>? previousLocations = frame.CurrentDestructionLocations;
         public HashSet<string> Replaced { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, FieldRemovalResult> Outcomes { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string> Controllers { get; } = new(StringComparer.Ordinal);
@@ -24,6 +25,7 @@ public sealed partial class CoreRuleEngine
             frame.CurrentDestructions = previousDeaths;
             frame.CurrentDestructionBatch = previousBatch;
             frame.CurrentDestructionMightFrame = previousMight;
+            frame.CurrentDestructionLocations = previousLocations;
         }
     }
 
@@ -41,6 +43,7 @@ public sealed partial class CoreRuleEngine
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
+        frame.CurrentDestructionLocations = locations ?? state.ObjectLocations;
         frame.CurrentDestructionMightFrame = remaining.Any(id => cards.TryGetValue(id, out var unit)
             && AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.TryGetTrigger(i.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out _)))

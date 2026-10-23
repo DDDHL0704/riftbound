@@ -43,7 +43,13 @@ public sealed partial class CoreRuleEngine
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
+    // Combat deaths occur before the later result-determination instruction
+    // (CN 467.3, 468.1, 468.3). Sharing a command tick does not make them
+    // simultaneous. Within either instruction the ordinary APNAP rule applies.
+    private static int TriggerInstructionOrder(TriggerQueueItemState trigger)
+        => trigger.TriggeredByEventKind == "BATTLE_RESULT_DETERMINED" ? 1 : 0;
+
     private static bool AreDistinctCommandTriggers(IReadOnlyList<TriggerQueueItemState> triggers)
         => triggers.All(t => t.EnqueuedAtTick is not null)
-            && triggers.Select(t => t.EnqueuedAtTick).Distinct().Count() == triggers.Count;
+            && triggers.Select(t => (t.EnqueuedAtTick, Instruction: TriggerInstructionOrder(t))).Distinct().Count() == triggers.Count;
 }
