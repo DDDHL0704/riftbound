@@ -36,8 +36,8 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Prior 1040 rows retained; VEN026/048/118 appended. Authority and scope are unchanged.
-        Assert.Equal("ab2a19d3750fc10d0a57713c33b07c2ea5c96d8292fb014844867b7a1e072274", RuleInputIdentity.Current.CatalogSha256);
+        // Prior 1043 rows retained; VEN120 appended. Authority and scope are unchanged.
+        Assert.Equal("043f3cd4f3d6535de0666c4540e93afdabc48805a8908f00d1935c6f249197ab", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
@@ -61,7 +61,9 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
+            "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83",
+            "ab2a19d3750fc10d0a57713c33b07c2ea5c96d8292fb014844867b7a1e072274" })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);
