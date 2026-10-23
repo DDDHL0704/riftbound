@@ -18656,6 +18656,9 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "rengar-permission-normal" or "rengar-permission-alt" or "rengar-permission-blocked" or "rengar-permission-alt-blocked"
+                or "rengar-permission-poor" or "rengar-permission-alt-poor"
+                => BuildRengarPermissionScenario(current, seed, scenarioId["rengar-permission-".Length..]),
             "burnout-action-conquest" or "burnout-action-draw-two" or "burnout-action-second-burnout"
                 or "burnout-action-hwei" or "burnout-action-portal-tie"
                 => BuildBurnoutActionScenario(current, seed, scenarioId["burnout-action-".Length..]),

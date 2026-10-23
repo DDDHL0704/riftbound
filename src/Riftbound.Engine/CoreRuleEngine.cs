@@ -18939,6 +18939,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
+                && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
             rejection = Reject(state, "所选入场位置没有当前有效的出牌权限。", ErrorCodes.InvalidTarget);

@@ -57,6 +57,7 @@ public sealed partial class CoreRuleEngine
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if ((IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
                     || AmbushLocationAllowed(state, player, behavior, destination)
+                    || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)
                     || behavior.AllowsPlayAtDestroyedAdditionalCostLocation && state.CardObjects.Values.Any(unit =>
                         CanDestroyFriendlyTraitUnitAsAdditionalCost(state, player, unit.ObjectId)
                         && state.ObjectLocations.TryGetValue(unit.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
