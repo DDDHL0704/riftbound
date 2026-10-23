@@ -301,13 +301,19 @@ internal static class OptionalAdditionalCostReductionSqlAcceptance
             catch (Exception exception) { unexpected = exception.ToString(); }
             finally
             {
+                var restoreErrors = new List<string>();
+                foreach (var row in selected)
+                {
+                    try { await Write(row, row.Payload); }
+                    catch (Exception exception) { restoreErrors.Add(row.Table + ":" + row.Id + ": " + exception); }
+                }
                 try
                 {
-                    foreach (var row in selected) await Write(row, row.Payload);
                     PaymentReconnectEvidence.ValidateExact(before, await PaymentReconnectEvidence.Capture(source, room));
-                    restored = true;
+                    restored = restoreErrors.Count == 0;
                 }
-                catch (Exception exception) { restoreError = exception.ToString(); }
+                catch (Exception exception) { restoreErrors.Add("Exact restore sampling: " + exception); }
+                restoreError = restoreErrors.Count == 0 ? null : string.Join("\n", restoreErrors);
                 await File.WriteAllTextAsync(Path.Combine(output, coordinated
                     ? "registry-forged-reduction-coherent-diagnostic.json" : "registry-forged-reduction-state-only-diagnostic.json"),
                     JsonSerializer.Serialize(new { room, actor, coordinated, shapeConsistent, shapeErrors,
