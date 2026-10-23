@@ -35,6 +35,22 @@ public sealed class NetworkReconnectSqlEvidenceTests
         => Reject(d => ChangeRow(d, "match_players", 0, row => row[field] = "FORGED"));
 
     [Theory]
+    [InlineData("matches", "rule_inputs", true)]
+    [InlineData("matches", "current_tick", false)]
+    [InlineData("match_players", "future_column", false)]
+    public void ProtectedSqlNumericRepresentationsMustRemainExact(string table, string field, bool nested)
+    {
+        var data = Position();
+        foreach (var (stage, value) in new[] { ("beforeReconnect", "1"), ("afterReconnect", "1.0") }) {
+            var rows = data[stage]!["tables"]![table]!.AsArray();
+            var row = JsonNode.Parse(rows[0]!.GetValue<string>())!.AsObject();
+            row[field] = JsonNode.Parse(nested ? "{\"schemaVersion\":" + value + "}" : value);
+            rows[0] = row.ToJsonString();
+        }
+        Assert.ThrowsAny<InvalidOperationException>(() => Rows(data));
+    }
+
+    [Theory]
     [InlineData("issued-hash")] [InlineData("consumed-token")] [InlineData("unchanged-token")] [InlineData("joined-seat")]
     [InlineData("missing-player")] [InlineData("extra-player")] [InlineData("late-timestamp")] [InlineData("early-timestamp")]
     [InlineData("wrong-match-timestamp")] [InlineData("extra-table")]
