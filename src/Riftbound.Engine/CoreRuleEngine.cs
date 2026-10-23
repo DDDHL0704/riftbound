@@ -26104,6 +26104,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
+                            if (statusEffectId == "STUNNED" && !CanExecuteStun(targetState)) continue;
                             var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState,
                                 TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId));
                             targetState = targetState with
