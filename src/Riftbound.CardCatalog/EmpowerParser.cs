@@ -8,6 +8,7 @@ public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alter
     int ManaReductionAtMostRunes = 0, int? RuneLimit = null, bool ReduceManaPerRune = false);
 public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords);
 public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
+public sealed record EmpoweredTargetReplacementSpec(IReadOnlyList<string> ActionKinds, int MightBonus);
 
 public static class EmpowerParser
 {
@@ -84,6 +85,17 @@ public static class EmpowerParser
             if (counter || negative.Success) result.Add(new(counter, negative.Success ? int.Parse(negative.Groups["n"].Value) : 0));
         }
         return result;
+    }
+
+    public static IReadOnlyList<EmpoweredTargetReplacementSpec> TargetReplacements(string text)
+    {
+        var clauses = Regex.Matches(text, @"^\{\{已强化>\}\}[ \t]*(?<body>[^\r\n]*)", RegexOptions.Multiline)
+            .Select(match => match.Groups["body"].Value.Trim())
+            .Where(body => body.Contains("将我选作目标", StringComparison.Ordinal) && body.Contains("改为", StringComparison.Ordinal)).ToArray();
+        // Current CN faces have one composite clause. Multiple independent
+        // clauses need a reviewed identity contract, not array-index identities.
+        if (clauses.Length != 1 || clauses[0] != "如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。") return [];
+        return [new(["STUN", "NEGATIVE_MIGHT", "RETURN_TO_HAND"], 3)];
     }
 
     private static int Integer(string value) => int.TryParse(value, out var n) ? n : value switch {

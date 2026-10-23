@@ -450,6 +450,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·086", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·181", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
         new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
             StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,
