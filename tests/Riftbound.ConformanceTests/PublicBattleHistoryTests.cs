@@ -58,6 +58,22 @@ public sealed class PublicBattleHistoryTests
         Assert.Equal(attackerEmptyDeck, attackerRemoved.Events.Any(e => e.Kind == "BURNOUT_APPLIED"));
         if (attackerEmptyDeck) Assert.Contains("HOST", driver.State.PlayerZones["P1"].Hand);
         else Assert.Contains("HOST", driver.State.PlayerZones["P1"].Graveyard);
+        if (attackerEmptyDeck)
+        {
+            // A captured old public source cannot authorize its current hand incarnation.
+            var item = Assert.Single(driver.State.StackItems);
+            var captured = Assert.IsType<DamageDistributionContext>(item.DamageDistribution);
+            Assert.True(captured.Source.Generation < driver.State.CardObjects["HOST"].ObjectGeneration);
+            foreach (var binding in new ObjectBinding?[] {
+                captured.Source with { Generation = driver.State.CardObjects["HOST"].ObjectGeneration }, null })
+            {
+                var forged = driver.State with { StackItems = [item with {
+                    DamageDistribution = captured with { Source = binding! } }] };
+                var view = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(forged)["P2"],
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                Assert.Equal("HIDDEN", view.GetProperty("stack")[0].GetProperty("sourceObjectId").GetString());
+            }
+        }
         if (driver.State.PriorityPlayerId != "P2") await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand());
         await driver.Act("P2", new PlayCardCommand("P2-SOUL", "SFD·163/221", ["ENEMY1", "P2-ALLY"]));
         var destroyed = await driver.Top();

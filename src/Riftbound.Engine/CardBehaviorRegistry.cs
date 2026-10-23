@@ -289,7 +289,8 @@ public sealed record CardBehaviorDefinition(
     bool DeckPlayOptionalReflexiveEmpower = false,
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
-    FlowCostSpec? AppliedFlowCost = null)
+    FlowCostSpec? AppliedFlowCost = null,
+    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -449,6 +450,22 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
+            StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,
+            FlowCost: new(3, 1, [RuneTrait.Red])),
+        new("VEN·120", "雷霆之怒 玛萨", 4, "MARZA_PLAY_UNIT_OPTIONAL_STUN_ENEMY_BATTLEFIELD", 0, 1,
+            TargetScope: CardTargetScopes.EnemyBattlefieldUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            MinTargetCount: 0, StatusEffectId: "STUNNED", PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4, SourceUnitTags: "约德尔人", TargetEffectAdditionalPowerCost: 1,
+            TargetEffectAdditionalPowerTrait: RuneTrait.Yellow),
+        new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·048", "云端亚龙", 6, "CLOUD_DRAKE_PLAY_UNIT_DRAW_1", 0, 0,
+            DrawCount: 1, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "龙"),
+        new("VEN·118", "龙角勇士", 6, "DRAGONHORN_WARRIOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark),
         new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
@@ -2486,6 +2503,7 @@ public static class CardBehaviorRegistry
             2,
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
@@ -6550,7 +6568,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "SFD·149a/221",
             "伊泽瑞尔",
@@ -6562,7 +6581,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "OGN·225/298",
             "烈阳首领",

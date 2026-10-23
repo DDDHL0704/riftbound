@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1040,
+  "total": 1045,
   "cards": [
     {
       "id": 31005,
@@ -43184,6 +43184,246 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37714,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·026",
+      "cardName": "战地乐团",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "当你打出我时，给予一名单位在本回合内{{S}}+3。",
+      "flavorText": "“节奏加快！”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/3fd46d2565794beebd1bb27eebb12134.png",
+      "backImage": "",
+      "listSort": 1972,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37739,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·048",
+      "cardName": "云端亚龙",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "龙",
+      "artist": "Wild Blue Studio",
+      "cardEffect": "当你打出我时，抽一张牌。",
+      "flavorText": "把问题抛到九霄云外。",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/6df5d2d5fb4349d1b68475c6b4efba95.png",
+      "backImage": "",
+      "listSort": 1947,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37818,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·118",
+      "cardName": "龙角勇士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "JiHun Lee",
+      "cardEffect": "{{壁垒}}（我在战斗中首先承担伤害。）",
+      "flavorText": "顾名思义，顶撞他们会有什么下场，你应该已经明白了。",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/ebf9cbfcf5004cfdae7d54c40db9d4b3.png",
+      "backImage": "",
+      "listSort": 1868,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37820,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·120",
+      "cardName": "雷霆之怒 玛萨",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "班德尔城",
+      "tag": "约德尔人",
+      "artist": "Kudos Productions",
+      "cardEffect": "你可以选择支付{{黄色}}，作为打出我的额外费用。 \n当你打出我时，如果你支付了该额外费用，则{{眩晕}}战场上的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "没想到吧……他比看上去还聒噪。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/3abf74fe0bd84789b0241551343af794.png",
+      "backImage": "",
+      "listSort": 1866,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37697,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·012",
+      "cardName": "表里杀缭乱",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "莺之歌",
+      "cardEffect": "让一名单位变为活跃状态，并给予其在本回合内{{强攻3}}。（如果其为进攻方，则{{S}}+3。）\n{{流转3红色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "flavorText": "哪怕只是缺了一点，都成不了艺术。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/76e1dc422a394f3d84f699b6961d5c43.png",
+      "backImage": "",
+      "listSort": 1989,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43709,6 +43949,81 @@
       "printedFaceIdentity": "VEN·081/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-081/166",
       "reason": "Three basic resource Flow spell consumers reuse the existing CN829 mechanism; branch implementation and semantic tests in progress, whole-card candidate certification pending integration."
+    },
+    {
+      "cardNo": "VEN·026",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T11:43:03.647093+00:00",
+      "sourceId": 37714,
+      "sourceRecordSha256": "fda3087ffa638d450aad1418262d47cd9f4e2472cf92021d92ab2fc27473b119",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·026/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-026/166",
+      "reason": "Exact CN ordinary unit consumers reuse existing post-entry temporary Might, draw and Bulwark mechanisms; original source metadata preserved. Registration is not whole-card candidate certification."
+    },
+    {
+      "cardNo": "VEN·048",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T11:43:03.898173+00:00",
+      "sourceId": 37739,
+      "sourceRecordSha256": "bd3379abbae849ac7496c6eae475b4e64e40d8415b25197aa87829dcd0c5e503",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·048/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-048/166",
+      "reason": "Exact CN ordinary unit consumers reuse existing post-entry temporary Might, draw and Bulwark mechanisms; original source metadata preserved. Registration is not whole-card candidate certification."
+    },
+    {
+      "cardNo": "VEN·118",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T11:43:04.128708+00:00",
+      "sourceId": 37818,
+      "sourceRecordSha256": "ca5f7310070a52deda70b08aade025518c209735ae6b947786ed0ec80bac707d",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·118/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-118/166",
+      "reason": "Exact CN ordinary unit consumers reuse existing post-entry temporary Might, draw and Bulwark mechanisms; original source metadata preserved. Registration is not whole-card candidate certification."
+    },
+    {
+      "cardNo": "VEN·120",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T12:38:34.297439+00:00",
+      "sourceId": 37820,
+      "sourceRecordSha256": "70c9910e293a9349e6fa83939cbde92e3e0816cae07444c276d5e198f79ae4fc",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·120/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-120/166",
+      "reason": "Exact CN optional additional-cost conditional post-entry target consumer. New mapping is not whole-card certification; shared conditional target timing under L2 review."
+    },
+    {
+      "cardNo": "VEN·012",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T14:29:10.662464+00:00",
+      "sourceId": 37697,
+      "sourceRecordSha256": "a0c46c50d144154b521b7f5bfb69114d69e0641d1489c1d5b9d7a19029925fed",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·012/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-012/166",
+      "reason": "Exact CN Flow consumer composed from ready-unit and temporary Assault grants. Registration and focused evidence are not whole-card certification."
     }
   ]
 }
