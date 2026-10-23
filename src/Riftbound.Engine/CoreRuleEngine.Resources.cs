@@ -4,6 +4,32 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static bool CanStartMalzaharResourceCost(MatchState state, string player, string sourceId, string targetId)
+    {
+        var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        if (!pool.HasSupportedAmounts) return false;
+        if ((long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
+
+        // The destruction cost may pause before the gain. A replacement can
+        // spend power, or its resource window can convert power first. Read the
+        // same options without applying them or borrowing the active frame.
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        cards[sourceId] = cards[sourceId] with { IsExhausted = true };
+        var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var cause = new StackItemState($"cost-{state.Tick + 1}-{sourceId}", player, sourceId,
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind, cards[sourceId].CardNo, [targetId]);
+        var options = DestructionOptions(state, zones, cards, pools, targetId, player, cause, null,
+            state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
+        // A gear replacement may cause a nested destruction and decision. This
+        // read-only check cannot prove that route impossible, so retain it.
+        if (options.Any(o => o.Kind == "GEAR" || o.Optional)) return true;
+        var local = CaptureLocalDestructionRecalls(state, zones, cards, state.ObjectLocations, [targetId]);
+        if (options.Count + local.Count > 1) return true;
+        return optionalAvailable
+            && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player).Count > 0;
+    }
+
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,
         ActivateAbilityCommand command, P4ActivatedAbilityDefinition ability)
     {
