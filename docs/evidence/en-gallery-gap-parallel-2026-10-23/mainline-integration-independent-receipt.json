@@ -1,0 +1,63 @@
+{
+  "atUtc": "2026-10-23T02:08:29.652954+00:00",
+  "status": "PASS_MAINLINE_SOURCE_DIAGNOSTIC_INTEGRATION84_TOOLS285_ORIGINAL_MEMBERS_AND_ALL17411_OBLIGATION_OBJECTS_RETAINED",
+  "ruleBatchCommit": "59281e95",
+  "parallelSourceCommits": [
+    "4a52b39e154de3f6c2805907fcc88f27098ead8f",
+    "5b3e1f72"
+  ],
+  "actualCurrentManifestSha256": "617dc58c795ae936e7bd25891fd96af0d9ae82edf66f7a9ebd3842ad16b4a250",
+  "sourceManifestPins": [
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/source-manifest.json",
+      "sha256": "225b8510789e1fe8e1377d738879c10f9e8e7958255faacd10665dba47c666d8"
+    },
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/v2/source-manifest.json",
+      "sha256": "ebe34ce565d481d6fa1f66994a4e5168c203aaaada9961a5ee0805c388564059"
+    }
+  ],
+  "first177AndLater108ArchiveMembersIndependentlyVerified": true,
+  "rootPythonTools": {
+    "cases": 84,
+    "seconds": 3.107,
+    "consoleSha256": "bd93d8d065a77888fad27a0b12ae15d0d84737873b43ca10fffe7d6b7511a503"
+  },
+  "all17411RemainingObligationObjectsExactlyRetained": true,
+  "original85ContextsAnd170ReviewsAnd271GatesAndSevenDeltasUnchanged": true,
+  "sourcePins": {
+    "path": "var/qa/final-conquest-score-current-cn16-20261023/parallel-first-source-integration-v1/current3380-source-hashes-and-modes-before-combined-commit-v1.json.gz",
+    "sha256": "4129ac255b9be197b317442e9c1c9904c3d13d4bd16f294da38112b9ec739138",
+    "count": 3380,
+    "original3378SourceHashesAndModesUnchanged": true,
+    "newFiles": 2,
+    "original3378TrackedManifest": {
+      "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/sole-check-start-inputs.json.gz",
+      "sha256": "a7415a877b0f384e1a5f9f36c6866c613d903d4a75ea730692a02eb1de973f6c"
+    },
+    "newToolFiles": {
+      "scripts/audit/gallery_gap_diagnostics.py": {
+        "sha256": "32827d23cfa2068a9e1af26a8868757bec5edee8dd60f270ce157978c7a8fd27",
+        "mode": "0o644"
+      },
+      "scripts/tests/test_gallery_gap_diagnostics.py": {
+        "sha256": "825fe06525c4f384747d72d5fb97cc62dd0f301eb19ecf11466f2e498e91f5bd",
+        "mode": "0o644"
+      }
+    }
+  },
+  "originalN49CheckScope": {
+    "cases": 13658,
+    "methods": 7615,
+    "sourceInputs": 3378,
+    "notReexecuted": true
+  },
+  "expectedCombinedFull": {
+    "cases": 13807,
+    "methods": 7756,
+    "sql": 63
+  },
+  "officialEnglishSourceGap8": "OPEN_IDENTITIES_APPLICABILITY_AND_ROOT_CAUSE_UNKNOWN",
+  "semanticCoverageCertified": false,
+  "wholeGoalComplete": false
+}

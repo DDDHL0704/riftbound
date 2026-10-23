@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "scope": "GLOBAL/en-US official gallery source-gap observation",
+  "report": {
+    "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/report.json",
+    "sha256": "b97c91350efba0ed3c20a85f302ffb85a67be03335259ac3da37679116813ef2",
+    "bytes": 24179
+  },
+  "files": [
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/archive-index.json",
+      "sha256": "40f137bd13840e250465ef2774e6971b8f7380df4555330726e9d0313a1d382e",
+      "bytes": 41245
+    },
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/original-captures.tar.xz",
+      "sha256": "1269d752f0f905d48c41244b3e01c0131b380d7cf13cf5c5025ee47516232089",
+      "bytes": 1893604
+    },
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/report.json",
+      "sha256": "b97c91350efba0ed3c20a85f302ffb85a67be03335259ac3da37679116813ef2",
+      "bytes": 24179
+    },
+    {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/source-receipts.json",
+      "sha256": "064353443ebb9563b8dff32d0d3aa7ae0e0618857b104d53b36c83e3fb8e43e4",
+      "bytes": 105365
+    }
+  ],
+  "archiveMembersIndependentlyVerified": 177,
+  "originalResponseByteIdentitiesVerified": true,
+  "sourceGapClosed": false,
+  "semanticCoverageCertified": false
+}

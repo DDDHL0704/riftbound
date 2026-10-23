@@ -91244,5 +91244,41 @@
   "precedingFixedF248ObservedCiBeforeFinalConquestPublication": {
     "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/preceding-fixed-f248-ci-observation.json",
     "sha256": "e22206f7fe1d87ee6a7fb859cd2631ad89fb36a4b82f339cba27598cf6607ca0"
+  },
+  "currentEnglishGalleryEightGapParallelReadback": {
+    "sourceCommit": "4a52b39e154de3f6c2805907fcc88f27098ead8f",
+    "mainRuleBatchCommit": "59281e950ec9ce317b82efad20a9648170413475",
+    "sourceManifest": {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/source-manifest.json",
+      "sha256": "225b8510789e1fe8e1377d738879c10f9e8e7958255faacd10665dba47c666d8"
+    },
+    "auditDocument": "docs/EN_GALLERY_GAP_PARALLEL_AUDIT_2026-10-23.md",
+    "region": "GLOBAL",
+    "language": "en-US",
+    "reviewDate": "2026-10-23",
+    "reportedTotal": 1416,
+    "returnedExactIdentities": 1408,
+    "sourceGap": 8,
+    "sourceGapState": "OPEN",
+    "missingExactPrintingIdentities": null,
+    "providerRootCause": "UNKNOWN",
+    "newSourceVersionDelta": false,
+    "allOriginal1740Printing14293RuleAnd17411ObligationIdentitiesRetained": true,
+    "existingSevenSourceDeltasUnchanged": true,
+    "all85OldContextsAnd170ReviewsUnchanged": true,
+    "newAuditToolsIndependentFromN49Frozen3378CheckInputs": true,
+    "newAuditToolsRequireFixedCombinedFull": true,
+    "wholeCardOrGoalCertified": false,
+    "additionalBoundedSingletonReadback": {
+      "sourceCommit": "5b3e1f72f81473be0577804506407e43c2ec65ce",
+      "sourceManifest": {
+        "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/v2/source-manifest.json",
+        "sha256": "ebe34ce565d481d6fa1f66994a4e5168c203aaaada9961a5ee0805c388564059"
+      },
+      "all108ArchivedMembersIndependentlyVerified": true,
+      "eightEmptyResponsesAreNotPrintingIdentities": true,
+      "sourceGapState": "OPEN",
+      "noNewRuleOrCardIdentityOrSourceVersionDelta": true
+    }
   }
 }
