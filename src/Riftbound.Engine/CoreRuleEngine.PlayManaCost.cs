@@ -13,13 +13,15 @@ public sealed partial class CoreRuleEngine
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         int additionalMana = 0, int optionalReduction = 0,
         IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null,
-        string? sourceObjectId = null)
+        string? sourceObjectId = null, int? componentEchoReduction = null)
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return new(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        var echoReduction = ResolveBattlefieldEchoCostReductionMana(state, playerId, behavior, optionalCosts ?? []);
+        var echoReduction = componentEchoReduction
+            ?? ResolveBattlefieldEchoCostReductionMana(state, playerId, behavior, optionalCosts ?? []);
         var increase = ResolveBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
         var effect = state.PendingEffectPlay is { } pending && pending.PlayerId == playerId ? pending : null;
-        var total = (effect?.IgnoreBaseMana == true || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost)) + Math.Max(0, additionalMana - echoReduction) + increase;
+        var total = (effect?.IgnoreBaseMana == true || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
+            + Math.Max(0, additionalMana - (componentEchoReduction.HasValue ? 0 : echoReduction)) + increase;
         var reductions = new List<(string Kind, int Amount, int Floor)> { ("card", effect?.ManaReduction ?? 0, 0) };
         if (behavior.PlaysSourceToBaseAsUnit)
             reductions.AddRange(StaticUnitCostReductionSourceBehaviors(state, playerId)
