@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { cardInfo } from "../game/cards";
 import { client } from "../net/client";
 import { enabledCandidate } from "../game/actions";
 import type { Prompt, Snapshot } from "../game/types";
@@ -13,13 +15,18 @@ const TEMPO: { action: string; label: string }[] = [
 export const TEMPO_ACTIONS = TEMPO.map((t) => t.action);
 
 /** Tempo controls sit beside the board, where the eye already is, not up in the sidebar. */
-export function Dock({ prompt, pending }: { prompt: Prompt | null; pending: boolean }) {
+type DockProps = { prompt: Prompt | null; pending: boolean; autoPass: boolean; onToggleAutoPass: () => void };
+
+export function Dock({ prompt, pending, autoPass, onToggleAutoPass }: DockProps) {
   const tempo = TEMPO.filter((t) => enabledCandidate(prompt, t.action));
   const tap = enabledCandidate(prompt, "TAP_RUNE");
   const runes = (tap?.sources ?? []).map((s) => s.id).slice(0, Number(tap?.metadata?.maxBatchSize ?? 12));
-  if (!tempo.length && runes.length < 2) return null;
   return (
     <div className="dock" onClick={(e) => e.stopPropagation()}>
+      <label className="dock__auto" title="对手行动后，如果你没有任何可以响应的牌或技能，自动让过">
+        <input type="checkbox" checked={autoPass} onChange={onToggleAutoPass} />
+        自动让过
+      </label>
       {runes.length >= 2 && (
         <button
           className="btn dock__runes"
@@ -28,19 +35,24 @@ export function Dock({ prompt, pending }: { prompt: Prompt | null; pending: bool
           // The engine resolves a batch atomically: either every rune taps or none do.
           onClick={() => void client.submit({ cmdType: "TAP_RUNE", sourceObjectId: runes[0], sourceObjectIds: runes })}
         >
-          横置全部符文 <b>+{runes.length}</b>
+          全部横置 <b>+{runes.length}</b>
         </button>
       )}
-      {tempo.map((t, i) => (
-        <button
-          key={t.action}
-          className={`btn dock__tempo${i === tempo.length - 1 ? " btn--primary" : ""}`}
-          disabled={pending}
-          onClick={() => void client.submit({ cmdType: t.action })}
-        >
-          {t.label}
-        </button>
-      ))}
+      {tempo.map((t, i) => {
+        const primary = i === tempo.length - 1;
+        return (
+          <button
+            key={t.action}
+            className={`btn dock__tempo${primary ? " btn--primary" : ""}`}
+            data-hotkey={primary ? "space" : undefined}
+            disabled={pending}
+            onClick={() => void client.submit({ cmdType: t.action })}
+          >
+            {t.label}
+            {primary && <kbd>空格</kbd>}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -169,5 +181,53 @@ export function EventFx({ meId }: { meId: string }) {
         </span>
       ))}
     </div>
+  );
+}
+
+type Shown = { id: number; cardNo: string; verb: string };
+let spotSeq = 0;
+
+/** When the opponent plays a card, show it large for a moment so the play is never missed. */
+export function Spotlight({ meId }: { meId: string }) {
+  const [shown, setShown] = useState<Shown | null>(null);
+  useEffect(() => {
+    let lastSeq = client.state.eventBatches.at(-1)?.seq ?? 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = client.subscribe(() => {
+      const fresh = client.state.eventBatches.filter((b) => b.seq > lastSeq);
+      if (!fresh.length) return;
+      lastSeq = fresh[fresh.length - 1].seq;
+      for (const e of fresh.flatMap((b) => b.events)) {
+        const p = e.payload ?? {};
+        const cardNo = typeof p.cardNo === "string" ? p.cardNo : undefined;
+        if (e.kind !== "CARD_PLAYED" || !cardNo || p.playerId === meId || !cardInfo(cardNo)) continue;
+        setShown({ id: ++spotSeq, cardNo, verb: "对手打出" });
+        clearTimeout(timer);
+        timer = setTimeout(() => setShown(null), 1700);
+      }
+    });
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [meId]);
+  const info = shown ? cardInfo(shown.cardNo) : undefined;
+  return (
+    <AnimatePresence>
+      {shown && info?.image && (
+        <motion.div
+          key={shown.id}
+          className="spotlight"
+          initial={{ opacity: 0, x: -40, scale: 0.85, rotate: -4 }}
+          animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, x: 30, scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300, damping: 24 }}
+          aria-live="polite"
+        >
+          <span className="spotlight__verb">{shown.verb}</span>
+          <img src={info.image} alt={info.name} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

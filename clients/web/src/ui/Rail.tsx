@@ -3,9 +3,8 @@ import { client, type ClientState } from "../net/client";
 import { cardName, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate } from "../game/actions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
-import { Card, EffectText } from "./Card";
+import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
-import type { Hover } from "./Table";
 import { cardInfo } from "../game/cards";
 
 type RailProps = {
@@ -14,8 +13,7 @@ type RailProps = {
   prompt: Prompt | null;
   objects: Record<string, GameObject>;
   mulligan: string[];
-  onHover: (cardNo: string | null, o?: GameObject) => void;
-  preview: Hover;
+  onHover: HoverHandler;
 };
 
 function nameOf(id: string, objects: Record<string, GameObject>, fallback?: string) {
@@ -23,7 +21,7 @@ function nameOf(id: string, objects: Record<string, GameObject>, fallback?: stri
   return o?.cardNo ? cardName(o.cardNo) : fallback ?? id;
 }
 
-export function Rail({ state, snapshot, prompt, objects, mulligan, onHover, preview }: RailProps) {
+export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: RailProps) {
   const meId = state.handle;
   const view = prompt?.view;
   const type = view?.type ?? "WAIT";
@@ -49,11 +47,11 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover, prev
         {enabledCandidate(prompt, "ASSIGN_EFFECT_DAMAGE") && <DamagePanel prompt={prompt} objects={objects} kind="effect" />}
         {type === "ORDER_TRIGGERS" && <TriggerPanel prompt={prompt} objects={objects} />}
         {(type === "HAND_CHOICE" || type === "CARD_CHOICE") && <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />}
-        {enabledCandidate(prompt, "PAY_COST") && <PayPanel prompt={prompt} objects={objects} />}
+        {enabledCandidate(prompt, "PAY_COST") && <PayPanel prompt={prompt} objects={objects} pool={snapshot.players[meId]?.runePool} />}
         <GenericPanel prompt={prompt} />
       </div>
 
-      <Preview preview={preview} snapshot={snapshot} objects={objects} />
+      <Preview snapshot={snapshot} objects={objects} />
       <StackView snapshot={snapshot} objects={objects} meId={meId} onHover={onHover} />
       <Log entries={state.log} objects={objects} />
 
@@ -84,16 +82,8 @@ function MulliganPanel({ prompt, selected, objects }: { prompt: Prompt; selected
   const max = prompt.view?.maxSelection ?? 2;
   return (
     <div className="panel">
-      <p>点击手牌，选出至多 {max} 张放回牌库底并重抽。</p>
-      {selected.length > 0 && (
-        <p className="muted">已选：{selected.map((id) => nameOf(id, objects)).join("、")}</p>
-      )}
-      <button
-        className="btn btn--primary btn--wide"
-        onClick={() => void client.submit({ cmdType: "MULLIGAN", handObjectIds: selected })}
-      >
-        {selected.length ? `换掉 ${selected.length} 张` : "保留起手"}
-      </button>
+      <p>在桌面中央点选至多 {max} 张想换掉的牌，再点「保留起手」或「换掉」。</p>
+      {selected.length > 0 && <p className="muted">已选：{selected.map((id) => nameOf(id, objects)).join("、")}</p>}
     </div>
   );
 }
@@ -406,7 +396,7 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
  * (pay / decline / a rule choice), optionally adding rune recycles. Without steps the player
  * pays every listed spend item and may add rune recycles to raise power.
  */
-function PayPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
+function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: Record<string, GameObject>; pool?: { mana: number; power: number } }) {
   const cand = enabledCandidate(prompt, "PAY_COST");
   const [recycles, setRecycles] = useState<string[]>([]);
   useEffect(() => setRecycles([]), [prompt?.promptId]);
@@ -420,7 +410,23 @@ function PayPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<
     : md.paymentResourceChoices ?? [];
   const cost = md.cost as { mana?: number; power?: number; powerByTrait?: Record<string, number> } | undefined;
   const pay = (ids: string[]) =>
-    void client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+    client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+  // Runes may be tapped inside a payment window; when the pool is short, tap first and then pay.
+  const readyRunes = (enabledCandidate(prompt, "TAP_RUNE")?.sources ?? []).map((r) => r.id);
+  const missingMana = Math.max(0, (cost?.mana ?? 0) - (pool?.mana ?? 0));
+  const tapThenPay = async (ids: string[]) => {
+    if (missingMana > 0 && readyRunes.length >= missingMana) {
+      const tap = readyRunes.slice(0, missingMana);
+      const receipt = await client.submit({ cmdType: "TAP_RUNE", sourceObjectId: tap[0], sourceObjectIds: tap });
+      if (!receipt?.accepted) return;
+      // Pay against the fresh prompt the tap produced.
+      const fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
+      await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+      return;
+    }
+    await pay(ids);
+  };
+  const payLabel = (base: string) => (missingMana > 0 && readyRunes.length >= missingMana ? `横置 ${missingMana} 枚符文并${base}` : base);
   const toggle = (id: string) => setRecycles((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
   return (
@@ -430,8 +436,12 @@ function PayPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<
           需要支付
           {cost.mana ? <span className="sym sym--mana">{cost.mana}</span> : null}
           {cost.power ? ` ${cost.power} 符能` : ""}
+          {pool && <span className="muted">（法力池：{pool.mana} 法力，{pool.power} 符能）</span>}
         </p>
       ) : null}
+      {missingMana > 0 && readyRunes.length < missingMana && (
+        <p className="small warn">法力不足，可用的未横置符文也不够，只能选择放弃。</p>
+      )}
       {recycleOptions.length > 0 && (
         <div className="panel__group">
           <p className="small">可回收符文来支付符能：</p>
@@ -448,14 +458,18 @@ function PayPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<
       {steps.length ? (
         <div className="tempo">
           {steps[0].choices.map((c) => (
-            <button key={c.id} className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`} onClick={() => pay([c.id])}>
-              {c.label}
+            <button
+              key={c.id}
+              className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`}
+              onClick={() => void (/DECLINE/.test(c.id) ? pay([c.id]) : tapThenPay([c.id]))}
+            >
+              {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
             </button>
           ))}
         </div>
       ) : (
-        <button className="btn btn--primary btn--wide" onClick={() => pay(spend.map((c) => c.id))}>
-          {spend.length ? spend.map((c) => c.label).join("，") : "确认支付"}
+        <button className="btn btn--primary btn--wide" onClick={() => void tapThenPay(spend.map((c) => c.id))}>
+          {payLabel(spend.length ? spend.map((c) => c.label).join("，") : "确认支付")}
         </button>
       )}
     </div>
@@ -496,34 +510,21 @@ function GenericPanel({ prompt }: { prompt: Prompt | null }) {
   );
 }
 
-/** A steady place to read cards: the hovered card, else whatever is about to resolve. */
-function Preview({ preview, snapshot, objects }: { preview: Hover; snapshot: Snapshot; objects: Record<string, GameObject> }) {
+/** What is about to resolve, readable without hovering. Hover previews float beside the card itself. */
+function Preview({ snapshot, objects }: { snapshot: Snapshot; objects: Record<string, GameObject> }) {
   const top = snapshot.stack?.length ? snapshot.stack[snapshot.stack.length - 1] : undefined;
-  const topNo = top && top.sourceVisibility !== "HIDDEN" ? ((top.cardNo as string) ?? objects[top.sourceObjectId as string]?.cardNo) : undefined;
-  const cardNo = preview?.cardNo ?? topNo;
-  const object = preview?.object ?? (top ? objects[top.sourceObjectId as string] : undefined);
+  const cardNo = top && top.sourceVisibility !== "HIDDEN" ? ((top.cardNo as string) ?? objects[top.sourceObjectId as string]?.cardNo) : undefined;
   const info = cardInfo(cardNo);
-  if (!cardNo || !info) {
-    return (
-      <section className="preview preview--empty">
-        <p className="muted small">把鼠标移到卡牌上查看详情。</p>
-      </section>
-    );
-  }
+  if (!cardNo || !info) return null;
   return (
     <section className="preview" aria-live="polite">
       {info.image && <img className="preview__art" src={info.image} alt="" />}
       <div className="preview__body">
+        <p className="rail__sub">即将结算</p>
         <h3 className="preview__name">{info.name}</h3>
         <p className="preview__meta">
           {info.category}
           {info.cost != null && <span className="sym sym--mana">{info.cost}</span>}
-          {object?.tags?.includes("CARD_TYPE:UNIT") && (
-            <span>
-              战力 {object.effectivePower}
-              {object.damage > 0 && `，伤 ${object.damage}`}
-            </span>
-          )}
         </p>
         {info.effect && (
           <p className="preview__effect">
@@ -551,7 +552,7 @@ function StackView({ snapshot, objects, meId, onHover }: { snapshot: Snapshot; o
               key={(item.stackItemId as string) ?? i}
               data-stack={item.stackItemId as string}
               className={mine ? "is-me" : "is-opp"}
-              onMouseEnter={() => onHover(no ?? null)}
+              onMouseEnter={(e) => onHover(no ?? null, undefined, e.currentTarget.getBoundingClientRect())}
               onMouseLeave={() => onHover(null)}
             >
               {hidden ? "未公开的效果" : no ? cardName(no) : String(item.abilityLabel ?? item.effectKind ?? "效果")}
@@ -570,6 +571,24 @@ function readable(text: string, objects: Record<string, GameObject>, pattern: Re
   return text.replace(/STACK-\d+-/g, "").replace(pattern, (id) => `「${cardName(objects[id]?.cardNo)}」`);
 }
 
+// A rune tap (or recycle) is followed by a "gained mana (power)" event saying the same thing.
+const ECHOES: Record<string, string> = { MANA_GAINED: "RUNE_TAPPED", POWER_GAINED: "RUNE_RECYCLED" };
+
+/** Drops echo lines and folds identical consecutive lines into one with a count. */
+function compact(entries: ClientState["log"]) {
+  const out: { entry: ClientState["log"][number]; count: number }[] = [];
+  let prevKind = "";
+  for (const e of entries) {
+    const echo = ECHOES[e.kind] === prevKind;
+    prevKind = e.kind;
+    if (echo) continue;
+    const last = out[out.length - 1];
+    if (last && last.entry.text === e.text && last.entry.tone === e.tone) last.count++;
+    else out.push({ entry: e, count: 1 });
+  }
+  return out;
+}
+
 function Log({ entries, objects }: { entries: ClientState["log"]; objects: Record<string, GameObject> }) {
   const ref = useRef<HTMLOListElement>(null);
   const pattern = useMemo(() => {
@@ -584,9 +603,10 @@ function Log({ entries, objects }: { entries: ClientState["log"]; objects: Recor
     <section className="log" aria-label="对局记录">
       <h3 className="rail__sub">对局记录</h3>
       <ol ref={ref}>
-        {entries.map((e) => (
-          <li key={e.id} className={`log__item log__item--${e.tone}`}>
-            {readable(e.text, objects, pattern)}
+        {compact(entries).map(({ entry, count }) => (
+          <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
+            {readable(entry.text, objects, pattern)}
+            {count > 1 && <span className="log__count">×{count}</span>}
           </li>
         ))}
       </ol>

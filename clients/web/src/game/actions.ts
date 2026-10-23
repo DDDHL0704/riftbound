@@ -30,6 +30,8 @@ export type ObjectAction = {
   powerShortfall: number;
   /** Recycle choices preselected to cover the shortfall (the player may change them). */
   presetCosts: string[];
+  /** The prompt this action was offered in; a submission after that prompt changed is stale. */
+  promptId?: string;
 };
 
 type PowerByChoice = Record<string, { power: number; trait?: string }>;
@@ -197,7 +199,7 @@ export function objectActions(prompt: Prompt | null): Map<string, ObjectAction[]
   const map = new Map<string, ObjectAction[]>();
   const add = (a: ObjectAction) => {
     const list = map.get(a.sourceObjectId) ?? [];
-    list.push(a);
+    list.push({ ...a, promptId: prompt?.promptId });
     map.set(a.sourceObjectId, list);
   };
   for (const candidate of prompt?.candidates ?? []) {

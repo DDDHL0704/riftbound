@@ -28,7 +28,7 @@ const STEP = async () => {
   if (document.querySelector(".result")) return "RESULT";
 
   // 1. A half-built selection on the board.
-  const bar = document.querySelector(".pickbar");
+  const bar = document.querySelector(".pickbar:not(.pickbar--leaving)");
   if (bar) {
     const toggles = [...bar.querySelectorAll(".chip--toggle input")];
     const confirm = [...bar.querySelectorAll("button")].find((b) => b.textContent.startsWith("确认"));
@@ -67,10 +67,10 @@ const STEP = async () => {
 
   // 2. Sidebar panels for prompts that are not plain main actions.
   if (title === "起手调度") {
-    const hand = [...document.querySelectorAll(".hand .card")];
+    const hand = [...document.querySelectorAll(".mulligan__card")];
     for (const c of hand) if (Math.random() < 0.3) c.click();
     await sleep(100);
-    const b = btns(".rail .panel button.btn--primary")[0];
+    const b = btns(".mulligan .btn--primary")[0];
     b?.click();
     return b ? "mulligan:" + b.textContent : null;
   }
@@ -131,11 +131,24 @@ const STEP = async () => {
     return "generic:" + title;
   }
 
+  // Rune multi-select bar: run one of its actions.
+  const runeButtons = btns(".runebar .btn");
+  if (runeButtons.length) {
+    const b = pick(runeButtons);
+    b.click();
+    return "runes:" + b.textContent.replace(/[+\d\s]+.*$/, "");
+  }
+
   // 3. Board actions: tap runes, play cards, use abilities, move units.
-  const actionable = [...document.querySelectorAll(".card--playable")].filter(vis);
+  const runes = [...document.querySelectorAll(".runes .card--playable")].filter(vis);
+  if (runes.length && title === "主行动" && Math.random() < 0.12) {
+    runes.slice(0, 1 + Math.floor(Math.random() * runes.length)).forEach((r) => r.click());
+    return "runes:select";
+  }
+  const actionable = [...document.querySelectorAll(".card--playable, .card--autopay")].filter((c) => vis(c) && !c.closest(".runes"));
   const mainTurn = title === "主行动" && turn.includes("你的回合");
   const reacting = title === "优先行动" || title === "法术对决";
-  const tapAll = btns(".dock button").find((b) => b.textContent.startsWith("横置全部符文"));
+  const tapAll = btns(".dock button").find((b) => b.textContent.startsWith("全部横置"));
   if (mainTurn && tapAll && Math.random() < 0.8) {
     tapAll.click();
     return "tap-all";
@@ -152,14 +165,18 @@ const STEP = async () => {
       item.click();
       return "act:" + label.replace(/\d+ ?(法力|符能|经验).*/, "").slice(0, 16);
     }
+    // Units skip the menu and go straight into choosing where to move.
+    if (document.querySelector(".pickbar:not(.pickbar--leaving)")) return "act:move";
     document.body.click();
   }
-  const pass = btns(".dock button").find((b) => ["让过", "让过焦点", "跳过"].includes(b.textContent));
+  // Dock labels may carry a hotkey hint after the text ("结束回合空格"), so match the start.
+  const label = (b) => b.textContent.replace(/空格$/, "");
+  const pass = btns(".dock button").find((b) => ["让过", "让过焦点", "跳过"].includes(label(b)));
   if (pass) {
     pass.click();
     return "pass:" + pass.textContent;
   }
-  const end = btns(".dock button").find((b) => b.textContent === "结束回合");
+  const end = btns(".dock button").find((b) => label(b) === "结束回合");
   if (end && mainTurn) {
     end.click();
     return "end-turn";
@@ -256,6 +273,8 @@ async function playMatch(browser, a, b, idx) {
         // legitimate race, reported apart from real rejections.
         if (toast && toast.includes("行动窗口已更新")) report.races = (report.races ?? 0) + 1;
         else if (toast && toast.startsWith("费用不足")) report.unaffordable = (report.unaffordable ?? 0) + 1;
+        // Auto-pay can only estimate cards that need targets; a miss keeps the mana for the turn.
+        else if (toast && toast.startsWith("已横置符文")) report.autoPayMiss = (report.autoPayMiss ?? 0) + 1;
         else if (toast) report.rejections.push({ player: i, after: label, title, toast });
       } else {
         const pending = await p.evaluate(PENDING);
@@ -299,6 +318,7 @@ for (const [i, [a, b]] of PAIRS.entries()) {
       rejections: r.rejections?.length,
       races: r.races,
       unaffordable: r.unaffordable,
+      autoPayMiss: r.autoPayMiss,
       pageErrors: r.pageErrors?.length,
       fx: r.fx,
       crash: r.crash,

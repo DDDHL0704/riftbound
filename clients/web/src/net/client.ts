@@ -111,6 +111,8 @@ const ERROR_TEXT: Record<string, string> = {
   INVALID_RECONNECT_TOKEN: "重连凭证已失效，请重新加入。",
 };
 
+const STALE_TEXT = "行动窗口已更新：局面刚刚变化，请按最新提示重新操作。";
+
 export function readableError(code: string | undefined, message: string | undefined) {
   if (message && /[\u4e00-\u9fff]/.test(message)) return message;
   return (code && ERROR_TEXT[code]) || message || "服务端拒绝了这个操作。";
@@ -333,10 +335,18 @@ export class GameClient {
     }
   }
 
-  /** Sends intent bound to the prompt it answers; the server decides legality. */
-  async submit(cmd: Record<string, unknown>): Promise<CommandReceipt | null> {
+  /**
+   * Sends intent bound to the prompt it answers; the server decides legality. `forPrompt` names the
+   * prompt a selection was built from: once that prompt is gone the selection is stale, so it is
+   * dropped here instead of being sent under the newer prompt's identity.
+   */
+  async submit(cmd: Record<string, unknown>, forPrompt?: string): Promise<CommandReceipt | null> {
     if (!this.connection || this.state.pending) return null;
     const prompt = this.state.prompt;
+    if (forPrompt && prompt?.promptId !== forPrompt) {
+      this.toast(STALE_TEXT, "info");
+      return null;
+    }
     const body = { ...cmd, promptId: prompt?.promptId, snapshotTick: prompt?.snapshotTick };
     this.set({ pending: true });
     try {

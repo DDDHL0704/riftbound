@@ -71,6 +71,18 @@ export type SnapshotPlayer = {
   objects: Record<string, GameObject>;
 };
 
+/** Mirrors SnapshotTableStandbySlotDto: objectId is present only when this viewer may know the card. */
+export type StandbySlot = {
+  slotId: string;
+  battlefieldObjectId: string;
+  sidePlayerId?: string | null;
+  controllerId?: string | null;
+  visible: boolean;
+  state: string;
+  isFaceDown: boolean;
+  objectId?: string;
+};
+
 export type TableBattlefield = {
   index: number;
   battlefieldObjectId: string;
@@ -82,6 +94,7 @@ export type TableBattlefield = {
   occupantObjectIds: string[];
   unitsBySide: Record<string, string[]>;
   standbyObjectIds: string[];
+  standbySlots: StandbySlot[];
   faceDownStandbyCount: number;
   hiddenStandbyCount: number;
   scoredThisTurn: boolean;
