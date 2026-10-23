@@ -14,6 +14,16 @@
     <Compile Include="../Riftbound.NativeNetworkSmoke/PaymentResourceSurplusNetworkAcceptance.cs" Link="PaymentResourceSurplusNetworkAcceptance.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/DamageDoublingCombatKeywordNetworkAcceptance.cs" Link="DamageDoublingCombatKeywordNetworkAcceptance.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/VenFlowCombatKeywordNetworkAcceptance.cs" Link="VenFlowCombatKeywordNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/OptionalAdditionalCostReductionSqlAcceptance.cs" Link="OptionalAdditionalCostReductionSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/OptionalAdditionalCostReductionNetworkAcceptance.cs" Link="OptionalAdditionalCostReductionNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/SelectedBattlefieldDamageSqlAcceptance.cs" Link="SelectedBattlefieldDamageSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/InstructionPowerPaymentSqlAcceptance.cs" Link="InstructionPowerPaymentSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/InstructionPowerPaymentNetworkAcceptance.cs" Link="InstructionPowerPaymentNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.RestrictedManaAcceptance/RestrictedManaSqlAcceptance.cs" Link="RestrictedManaSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.RestrictedManaAcceptance/RestrictedManaSqlAcceptance.Tamper.cs" Link="RestrictedManaSqlAcceptance.Tamper.cs" />
+    <Compile Include="../Riftbound.RestrictedManaAcceptance/RestrictedManaNetworkAcceptance.cs" Link="RestrictedManaNetworkAcceptance.cs" />
     <Content Include="../../src/Riftbound.Persistence/Sql/*.sql" Link="Sql/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json" Link="Fixtures/card-play-history-current-opening-20261017.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

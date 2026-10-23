@@ -46,6 +46,27 @@ class RestartSequenceTests(unittest.TestCase):
             RUNNER.run_case("synthetic-unit-only", self.output, driver, self.launch, self.stop, self.loaded)
         self.assertEqual([("start", "before-restart", 1), ("stop", 1)], self.calls)
 
+    def test_finish_resumes_only_after_readonly_recovery_verification(self):
+        def driver(phase, folder, stage=None):
+            self.calls.append((phase, stage))
+        result = RUNNER.run_case("instruction-power-payment", self.output, driver, self.launch, self.stop, self.loaded)
+        self.assertEqual([("prepare", None), ("start", "before-restart", 1), ("play", None),
+                          ("verify", "before-restart"), ("stop", 1), ("start", "after-restart", 2),
+                          ("recover", None), ("verify", "after-restart"), ("finish", None),
+                          ("verify", "final"), ("stop", 2), ("tamper", None)], self.calls)
+        self.assertEqual("PASSED", result["status"])
+
+    def test_failed_final_verification_stops_api_without_tamper_or_pass(self):
+        def driver(phase, folder, stage=None):
+            self.calls.append((phase, stage))
+            if stage == "final":
+                raise ValueError("final payment state differs")
+        with self.assertRaisesRegex(ValueError, "final payment state differs"):
+            RUNNER.run_case("restricted-mana-lux", self.output, driver, self.launch, self.stop, self.loaded)
+        self.assertIn(("verify", "after-restart"), self.calls)
+        self.assertEqual([("finish", None), ("verify", "final"), ("stop", 2)], self.calls[-3:])
+        self.assertNotIn(("tamper", None), self.calls)
+
     def test_pid_reuse_is_not_a_real_restart(self):
         def same_process(stage, folder):
             return type("Process", (), {"pid": 55})()

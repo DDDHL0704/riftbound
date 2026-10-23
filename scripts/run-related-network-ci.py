@@ -17,7 +17,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-CASES = ("payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords")
+CASES = ("payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords",
+         "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux")
+FINISH_CASES = ("instruction-power-payment", "restricted-mana-lux")
 SPEC = importlib.util.spec_from_file_location("candidate", ROOT / "scripts/ci-candidate.py")
 CANDIDATE = importlib.util.module_from_spec(SPEC)
 previous_bytecode_setting = sys.dont_write_bytecode
@@ -108,6 +110,11 @@ def run_case(case, output, driver, launch, shutdown, loaded):
                 raise ValueError("Recover must use a different actual API process.")
             driver("recover" if recover else "play", output)
             driver("verify", output, stage)
+            if recover and case in FINISH_CASES:
+                # Verify the recovered transcript and read-only SQL parity
+                # before resuming its original resource/payment instruction.
+                driver("finish", output)
+                driver("verify", output, "final")
             record = loaded(stage, process.pid, output)
         except BaseException as error:
             failure = error

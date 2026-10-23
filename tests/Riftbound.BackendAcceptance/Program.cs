@@ -9,18 +9,23 @@ using Riftbound.Persistence;
 
 if (args.Length == 0 || args[0] is "--help" or "help")
 {
-    Console.WriteLine("Usage: Riftbound.BackendAcceptance <payment-resource-surplus|damage-doubling-combat-keywords|ven-flow-combat-keywords> <sql|prepare|play|recover|verify|tamper> <output> [before-restart|after-restart]");
+    Console.WriteLine("Usage: Riftbound.BackendAcceptance <payment-resource-surplus|damage-doubling-combat-keywords|ven-flow-combat-keywords|optional-additional-cost-reductions|instruction-power-payment|restricted-mana-lux> <sql|prepare|play|recover|finish|verify|tamper> <output> [before-restart|after-restart|final]");
     Console.WriteLine("Use an independent PostgreSQL database and a dedicated loopback API. Actual API restart is performed by the CI owner between play and recover.");
     return;
 }
 
-var cases = new[] { "payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords" };
-var phases = new[] { "sql", "prepare", "play", "recover", "verify", "tamper" };
+var cases = new[] { "payment-resource-surplus", "damage-doubling-combat-keywords", "ven-flow-combat-keywords",
+    "optional-additional-cost-reductions", "instruction-power-payment", "restricted-mana-lux" };
+var phases = new[] { "sql", "prepare", "play", "recover", "finish", "verify", "tamper" };
 if (args.Length < 3 || !cases.Contains(args[0]) || !phases.Contains(args[1]))
     throw new ArgumentException("Specify one supported case, phase and output directory.");
 var caseId = args[0]; var phase = args[1];
-if (phase == "verify" ? args.Length != 4 || args[3] is not ("before-restart" or "after-restart") : args.Length != 3)
-    throw new ArgumentException("Only verify accepts a required before-restart or after-restart stage.");
+var hasFinish = caseId is "instruction-power-payment" or "restricted-mana-lux";
+if (phase == "finish" && !hasFinish)
+    throw new ArgumentException("Only instruction payment and restricted mana have a finish phase.");
+if (phase == "verify" ? args.Length != 4 || args[3] is not ("before-restart" or "after-restart" or "final")
+        || args[3] == "final" && !hasFinish : args.Length != 3)
+    throw new ArgumentException("Only verify accepts a required before-restart, after-restart or applicable final stage.");
 var output = Path.GetFullPath(args[2]);
 Directory.CreateDirectory(output);
 var stage = phase == "verify" ? args[3] : phase;
@@ -38,7 +43,7 @@ await using (var record = new FileStream(Path.Combine(output, "driver-runtime-" 
     await JsonSerializer.SerializeAsync(record, new { caseId, phase, stage, processId = Environment.ProcessId,
         baseDirectory = AppContext.BaseDirectory, ruleInputs = RuleInputIdentity.Current, assemblies = runtime }, json);
 
-if (phase is "play" or "recover")
+if (phase is "play" or "recover" or "finish")
 {
     var url = Environment.GetEnvironmentVariable("RIFTBOUND_SERVER_URL")
         ?? throw new ArgumentException("RIFTBOUND_SERVER_URL is required.");
@@ -49,6 +54,9 @@ if (phase is "play" or "recover")
         case "payment-resource-surplus": await PaymentResourceSurplusNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
         case "damage-doubling-combat-keywords": await DamageDoublingCombatKeywordNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
         case "ven-flow-combat-keywords": await VenFlowCombatKeywordNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
+        case "optional-additional-cost-reductions": await OptionalAdditionalCostReductionNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase == "recover"); break;
+        case "instruction-power-payment": await InstructionPowerPaymentNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase); break;
+        case "restricted-mana-lux": await RestrictedManaNetworkAcceptance.RunAsync(url.TrimEnd('/'), output, phase); break;
     }
 }
 else
@@ -83,6 +91,18 @@ else
         case ("ven-flow-combat-keywords", "prepare"): await VenFlowCombatKeywordSqlAcceptance.PrepareNetworkAsync(source, output); break;
         case ("ven-flow-combat-keywords", "verify"): await VenFlowCombatKeywordSqlAcceptance.VerifyNetworkAsync(source, output, stage); break;
         case ("ven-flow-combat-keywords", "tamper"): await VenFlowCombatKeywordSqlAcceptance.VerifyNetworkTamperAsync(source, output); break;
+        case ("optional-additional-cost-reductions", "sql"): await OptionalAdditionalCostReductionSqlAcceptance.RunAsync(source, sqlOutput); break;
+        case ("optional-additional-cost-reductions", "prepare"): await OptionalAdditionalCostReductionSqlAcceptance.PrepareNetworkAsync(source, output); break;
+        case ("optional-additional-cost-reductions", "verify"): await OptionalAdditionalCostReductionSqlAcceptance.VerifyNetworkAsync(source, output, stage); break;
+        case ("optional-additional-cost-reductions", "tamper"): await OptionalAdditionalCostReductionSqlAcceptance.VerifyNetworkTamperAsync(source, output); break;
+        case ("instruction-power-payment", "sql"): await SelectedBattlefieldDamageSqlAcceptance.RunAsync(source, sqlOutput); break;
+        case ("instruction-power-payment", "prepare"): await InstructionPowerPaymentSqlAcceptance.PrepareAsync(source, output); break;
+        case ("instruction-power-payment", "verify"): await InstructionPowerPaymentSqlAcceptance.VerifyAsync(source, output, stage); break;
+        case ("instruction-power-payment", "tamper"): await InstructionPowerPaymentSqlAcceptance.TamperAsync(source, output); break;
+        case ("restricted-mana-lux", "sql"): await RestrictedManaSqlAcceptance.RunAsync(source, sqlOutput); break;
+        case ("restricted-mana-lux", "prepare"): await RestrictedManaSqlAcceptance.PrepareAsync(source, output); break;
+        case ("restricted-mana-lux", "verify"): await RestrictedManaSqlAcceptance.VerifyAsync(source, output, stage); break;
+        case ("restricted-mana-lux", "tamper"): await RestrictedManaSqlAcceptance.TamperAsync(source, output); break;
         default: throw new ArgumentException("Unsupported acceptance stage.");
     }
 }

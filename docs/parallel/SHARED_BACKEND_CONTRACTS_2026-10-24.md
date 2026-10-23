@@ -15,8 +15,9 @@
 | C7 连续选择时间 | 真实Echo第二次回答暴露原completion tick推演不足；仅私有C7凭据沿原指令state.Tick+1固定，命令tick照常递增。ValidRuleChoice恢复为原new(p.Origin,p.Answers)，无全局completion clock覆盖；原红保留，完整回归待②交付 |
 | C7 消费者隐私守卫 | ④拥有测试源码；按JSON对象属性名递归精确匹配chosenActionReplacement，数组递归，普通sourcePath字符串不算字段。①核b98b811b补丁与实际旧泄露/普通字符串/嵌套属性4个对照；保持66身份及全部语义/回合末/回放断言，真实私有字段仍禁止 |
 | C7 公开EffectId | 真实OGN051入场技能→Reaction OGN104来源回手→替换+3→Mighty，公开ledger/timing的EffectId仍嵌入私有来源ID。②只改新EffectId为原指令AppliedTick/occurrence/目标ID/代际/AppliedOrder；同目标ledger原max+1保持唯一与溢出守卫。原StackId/controller/source/card仍全在私有witness，严格shape/hash/出生重放不变；两原红及Echo/伪造回归待交 |
+| C7 有限QA入口 | ②独立EmpoweredTargetReplacementScenario partial，两个id empowered-target-action-replacement / empowered-target-action-overflow；固定factory清单/current.RuleInputs/真实两席与DEV日志。普通两印次HAND起实际play/Empower；仅overflow显式表示int.MaxValue-1/已强化，固定高资源同样标QA。初态严格校验不能放宽，公共dispatcher/SQL/network由①接完整交付，未执行门禁仍OPEN |
 | S7 移动强加费用 | ③：StandardMovement及MoveFieldUnitsToChosenLocation按真实同时移动组、当时有效AttachedRuleText实例计费；内部IMPOSED_MOVEMENT_POWER_PAYMENT复用RuleChoice与PaymentPlan.Other，无新DTO。效果执行者item.ControllerId付款；效果可拒绝，已确认资源与先前出牌费保留，整组不移动/不付强加费，独立指示继续。资源后重验代际/合法性，before-movement facts/observers门禁，传递live RunePools并沿既有结果返回；单个/逐次/基地移动无费。SelectedBattlefield只加movement调用pools参数，保留S5/C7方法边界；需扩大caller后续语义则再交精确冲突 |
-| N9 强化源投影 | ④：真实强化入栈后OGN104回手，旧source gen1与HAND gen2不能公开关联；仅BuildStackItemSnapshotView的sourceId和CapturedBattleSourceIsPrivate(StackItemState)两predicate加EmpowerActivation非空，复用现有可见性。卡面/effect仍公开，owner合法手牌可见，opp/spectator隐藏；不改context/代际/原日志/隐藏守卫/C7Mighty。三原红、边界及恢复伪造拒绝待交 |
+| N9 强化源投影与严格恢复 | ④：旧source gen1与回手HAND gen2不能公开关联；两source predicate加EmpowerActivation非空，复用可见性；ValidateEmpoweredViews核对应stackItemId唯一行和每viewer的sourceId/visibility，缺失/重复/null均拒绝。玩家null-stack在既有ValidateAuthoritativeState入口记录required错误并跳过无效view，非空原守卫与spectator keyed校验保留。卡面/effect仍公开，owner/reveal照原权限；不改context/代际/原日志/C7Mighty。三原红、合法边界及伪造回归待完整交付 |
 
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 

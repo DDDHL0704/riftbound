@@ -290,6 +290,14 @@
     {
       "id": "ven-flow-combat-keywords",
       "sourceType": "VenFlowCombatKeywordSqlAcceptance"
+    },
+    {
+      "id": "optional-additional-cost-reductions",
+      "sourceType": "OptionalAdditionalCostReductionSqlAcceptance"
+    },
+    {
+      "id": "restricted-mana-lux",
+      "sourceType": "RestrictedManaSqlAcceptance"
     }
   ]
 }
