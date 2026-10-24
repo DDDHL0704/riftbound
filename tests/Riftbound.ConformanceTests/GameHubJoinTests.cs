@@ -3380,6 +3380,8 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(entry.Events);
     }
 
+    // Historical method names retain their original test identities. Malformed envelopes now fail
+    // before journaling; preserve the submitted raw samples and every private-data/broadcast check.
     [Fact]
     public async Task SubmitIntentMalformedCommandTypePreservesUnknownRawPayloadInJournalWithoutBroadcast()
     {
@@ -3408,8 +3410,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("FLIP_TABLE", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3420,19 +3422,14 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-malformed-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Array, rawCommand.GetProperty("cmdType").ValueKind);
         Assert.Equal("FLIP_TABLE", Assert.Single(rawCommand.GetProperty("cmdType").EnumerateArray()).GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3463,8 +3460,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3475,20 +3472,15 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-boolean-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal(JsonValueKind.True, rawCommand.GetProperty("cmdType").ValueKind);
         Assert.True(rawCommand.GetProperty("cmdType").GetBoolean());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3519,8 +3511,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3531,20 +3523,15 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-numeric-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal(JsonValueKind.Number, rawCommand.GetProperty("cmdType").ValueKind);
         Assert.Equal(42, rawCommand.GetProperty("cmdType").GetInt32());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3580,8 +3567,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain("FLIP_TABLE", errorJson, StringComparison.Ordinal);
@@ -3593,14 +3580,10 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-object-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         var rawCommandType = rawCommand.GetProperty("cmdType");
         Assert.Equal(JsonValueKind.Object, rawCommandType.ValueKind);
@@ -3608,7 +3591,6 @@ public sealed partial class GameHubJoinTests
         Assert.Equal(sentinel, rawCommandType.GetProperty("nested").GetProperty("audit").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3640,8 +3622,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain("PASS_PRIORITY", errorJson, StringComparison.Ordinal);
@@ -3654,14 +3636,10 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-duplicate-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal(JsonValueKind.Array, rawCommand.GetProperty("cmdType").ValueKind);
         var commandTypeProperties = rawCommand
@@ -3675,7 +3653,6 @@ public sealed partial class GameHubJoinTests
         Assert.Equal("FLIP_TABLE", Assert.Single(commandTypeProperties[1].EnumerateArray()).GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3706,8 +3683,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain("PASS_PRIORITY", errorJson, StringComparison.Ordinal);
@@ -3719,19 +3696,14 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-wrapped-known-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal(" PASS_PRIORITY ", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal(" PASS_PRIORITY ", rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3819,8 +3791,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3831,19 +3803,14 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-null-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal(JsonValueKind.Null, rawCommand.GetProperty("cmdType").ValueKind);
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3874,8 +3841,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("cmdType", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3886,19 +3853,14 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-whitespace-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.Equal("   ", rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3928,8 +3890,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("clientNote", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3940,19 +3902,14 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-missing-cmdtype-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Object, rawCommand.ValueKind);
         Assert.False(rawCommand.TryGetProperty("cmdType", out _));
         Assert.Equal(sentinel, rawCommand.GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawCommand.GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -3985,8 +3942,8 @@ public sealed partial class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.Equal(ErrorCodes.InvalidPayload, payload.Code);
+        Assert.Equal("行动请求格式无效，请按最新提示重试。", payload.Message);
         var errorJson = JsonSerializer.Serialize(error);
         Assert.DoesNotContain("FLIP_TABLE", errorJson, StringComparison.Ordinal);
         Assert.DoesNotContain(sentinel, errorJson, StringComparison.Ordinal);
@@ -3997,21 +3954,16 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);
 
-        Assert.Equal(journalCountBeforeUnsupported + 1, journal.Entries.Count);
-        var entry = Assert.Single(journal.Entries, entry =>
+        Assert.Equal(journalCountBeforeUnsupported, journal.Entries.Count);
+        Assert.DoesNotContain(journal.Entries, entry =>
             string.Equals(entry.ClientIntentId, "intent-nonobject-command-raw", StringComparison.Ordinal));
-        Assert.False(entry.Accepted);
-        Assert.Equal("UNKNOWN", entry.CommandType);
-        Assert.Equal("当前命令不受服务端支持。", entry.ErrorMessage);
-        Assert.NotNull(entry.RawCommand);
-        var rawCommand = entry.RawCommand.Value;
+        var rawCommand = cmd;
         Assert.Equal(JsonValueKind.Array, rawCommand.ValueKind);
         var rawItems = rawCommand.EnumerateArray().ToArray();
         Assert.Equal(2, rawItems.Length);
         Assert.Equal("FLIP_TABLE", rawItems[0].GetString());
         Assert.Equal(sentinel, rawItems[1].GetProperty("clientNote").GetString());
         Assert.Equal(sentinel, rawItems[1].GetProperty("nested").GetProperty("audit").GetString());
-        Assert.Empty(entry.Events);
     }
 
     [Fact]
@@ -6350,16 +6302,17 @@ public sealed partial class GameHubJoinTests
             sourceRequirement["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.DoesNotContain(bluePaymentResourceAction, paymentResourceChoices);
+        // CN 430 permits voluntary blue acquisition; only purple can pay this haste fee.
+        Assert.Contains(bluePaymentResourceAction, paymentResourceChoices);
         Assert.Contains(purplePaymentResourceAction, paymentResourceChoices);
-        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
-        Assert.DoesNotContain(RuneTrait.Blue, availablePowerByTraitWithPaymentResources.Keys);
+        Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Blue]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Purple]);
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
-        Assert.DoesNotContain(bluePaymentResourceAction, paymentResourcePowerByChoice.Keys);
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
         Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(paymentResourcePowerByChoice[purplePaymentResourceAction]["trait"]));
 
         var rejectedClients = new RecordingHubClients();
@@ -9652,9 +9605,47 @@ public sealed partial class GameHubJoinTests
             .SeedScenario(roomId, "P1", "battlefield-defender-steadfast", "seed-p7-9-battlefield-defender-steadfast");
 
         var p1Prompt = PromptFor(seedClients, "P1");
-        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
-        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-POSITION", StringComparison.Ordinal));
-        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", StringComparison.Ordinal));
+        var moveCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.MoveUnit);
+        Assert.Contains(moveCandidate.Destinations ?? [], choice => choice.Id == "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION");
+        Assert.Contains(moveCandidate.Sources ?? [], choice => choice.Id == "P1-BATTLEFIELD-FORTIFIED-ATTACKER");
+        var movedClients = new RecordingHubClients();
+        await CreateHub(movedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
+            .SubmitIntent(roomId, "P1", "fortified-role", JsonSerializer.SerializeToElement(new {
+                cmdType = "MOVE_UNIT", sourceObjectId = "P1-BATTLEFIELD-FORTIFIED-ATTACKER", origin = "BASE",
+                destination = "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION", optionalCosts = Array.Empty<string>(),
+                promptId = p1Prompt.PromptId, snapshotTick = p1Prompt.SnapshotTick }));
+        Assert.Empty(movedClients.CallerClient.Errors);
+        var preparationEvents = EventsFor(movedClients).ToList();
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        var choicePrompt = session.PromptFor("P2");
+        var choice = Assert.Single(choicePrompt.Candidates ?? [], c => c.Action == CommandTypes.ChooseCards);
+        Assert.Equal(1, choice.Metadata!["requiredCount"]);
+        Assert.Contains("P2-BATTLEFIELD-FORTIFIED-DEFENDER", Assert.IsAssignableFrom<IReadOnlyList<string>>(choice.Metadata["legalObjectIds"]));
+        var selectedClients = new RecordingHubClients();
+        await CreateHub(selectedClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
+            .SubmitIntent(roomId, "P2", "fortified-choice", JsonSerializer.SerializeToElement(new {
+                cmdType = "CHOOSE_CARDS", choiceId = choice.Metadata["choiceId"], choiceWindow = choice.Metadata["choiceWindow"],
+                chosenObjectIds = new[] { "P2-BATTLEFIELD-FORTIFIED-DEFENDER" },
+                promptId = choicePrompt.PromptId, snapshotTick = choicePrompt.SnapshotTick }));
+        Assert.Empty(selectedClients.CallerClient.Errors);
+        preparationEvents.AddRange(EventsFor(selectedClients));
+        Assert.DoesNotContain(preparationEvents, e => e.Kind is "BATTLEFIELD_TRIGGER_RESOLVED" or "DAMAGE_APPLIED");
+        for (var step = 0; !session.PromptFor("P1").Actions.Contains(CommandTypes.DeclareBattle); step++) {
+            Assert.InRange(step, 0, 7);
+            var passPrompt = new[] { session.PromptFor("P1"), session.PromptFor("P2") }.Single(p => p.Actionable
+                && (p.Actions.Contains(CommandTypes.PassPriority) || p.Actions.Contains(CommandTypes.PassFocus)));
+            var passClients = new RecordingHubClients();
+            await CreateHub(passClients, new RecordingGroupManager(), passPrompt.PlayerId == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: passPrompt.PlayerId)
+                .SubmitIntent(roomId, passPrompt.PlayerId, "fortified-pass-" + step, JsonSerializer.SerializeToElement(new {
+                    cmdType = passPrompt.Actions.Contains(CommandTypes.PassPriority) ? "PASS_PRIORITY" : "PASS_FOCUS",
+                    promptId = passPrompt.PromptId, snapshotTick = passPrompt.SnapshotTick }));
+            Assert.Empty(passClients.CallerClient.Errors);
+            preparationEvents.AddRange(EventsFor(passClients));
+        }
+        var battleCandidate = Assert.Single(session.PromptFor("P1").Candidates ?? [], c => c.Action == CommandTypes.DeclareBattle);
+        Assert.Contains(battleCandidate.Destinations ?? [], c => c.Id == "P2-BATTLEFIELD-FORTIFIED-POSITION");
+        Assert.Contains(battleCandidate.Targets ?? [], c => c.Id == "P2-BATTLEFIELD-FORTIFIED-DEFENDER");
 
         var invalidTargetClients = new RecordingHubClients();
         var invalidTargetBattle = JsonDocument.Parse("""
@@ -9673,7 +9664,7 @@ public sealed partial class GameHubJoinTests
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
         var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
-        Assert.Equal("该战场效果需要且只能选择 1 个防守单位。", invalidTargetPayload.Message);
+        Assert.Equal("只有需要选择战场效果目标时才能提交战场目标。", invalidTargetPayload.Message);
         Assert.DoesNotContain("Fortified Position", invalidTargetPayload.Message, StringComparison.Ordinal);
         Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
 
@@ -9684,7 +9675,6 @@ public sealed partial class GameHubJoinTests
               "battlefieldId": "P2-BATTLEFIELD-FORTIFIED-POSITION",
               "attackerObjectIds": ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
               "defenderObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
-              "battlefieldTargetObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
@@ -9692,7 +9682,7 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = preparationEvents.Concat(EventsFor(battleClients)).ToArray();
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO", StringComparison.Ordinal)

@@ -12,7 +12,6 @@ public sealed partial class CoreRuleEngine
         => (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
             && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
             && behavior.RequiredTargetCount > 0 && !IsDeferredDeckChoice(behavior)
-            && behavior.TargetEffectAdditionalManaCost == 0 && behavior.TargetEffectAdditionalPowerCost == 0
             && behavior.TargetScope is not (CardTargetScopes.FriendlyHandCard or CardTargetScopes.OpponentHandCard
                 or CardTargetScopes.AnyHandCard or CardTargetScopes.FriendlyMainDeckCard);
 
@@ -23,6 +22,7 @@ public sealed partial class CoreRuleEngine
         var scope = PlayCardTargetScopeForBehavior(behavior);
         return state.CardObjects.Keys.Where(id => (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
             && PermanentPlayHereTargetAllowed(state, item, behavior, id)
+            && (!behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard) || !state.CardObjects[id].IsFaceDown)
             && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id))
             && Enumerable.Range(0, maximum)
                 .Any(index => IsLegalChosenCardTarget(state, item.ControllerId, id, index, [id], scope, behavior)))
@@ -32,7 +32,9 @@ public sealed partial class CoreRuleEngine
     private static CardBehaviorDefinition PermanentPlayTargetBehavior(StackItemState item)
     {
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
-        return StandbyDefinition(PermanentPlayDefinition(behavior!, IsStackItemBattlefieldDestination(item)), item.PlayedFromStandby);
+        var current = StandbyDefinition(PermanentPlayDefinition(behavior!, IsStackItemBattlefieldDestination(item)), item.PlayedFromStandby);
+        return HasTargetEffectAdditionalCost(current) && TargetEffectAdditionalCostPaid(current, item.OptionalCosts)
+            ? current with { MinTargetCount = current.RequiredTargetCount } : current;
     }
 
     private static bool ValidPermanentPlayTargetSelection(MatchState state, StackItemState item, IReadOnlyList<string> selected)
@@ -44,6 +46,8 @@ public sealed partial class CoreRuleEngine
             && PlayCardTargetsExposeKnownCardNumbers(state, selected)
             && HasValidTargetGroup(state, behavior, selected) && HasRequiredAnyTargetTag(state, behavior, selected)
             && selected.All(id => PermanentPlayHereTargetAllowed(state, item, behavior, id))
+            && selected.All(id => !behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard)
+                || state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown)
             && (!behavior.SwapsSourceWithFirstTargetLocation || selected.All(id => CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id)))
             && selected.Select((id, index) => IsLegalChosenCardTarget(state, item.ControllerId, id, index,
                 selected, PlayCardTargetScopeForBehavior(behavior), behavior)).All(legal => legal);
@@ -95,7 +99,10 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidPermanentPlayTargetStack(MatchState state, StackItemState item)
         => !item.PermanentPlayTargetsPending || item.SourceConfirmed
             && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) && behavior.CardNo == item.CardNo
-            && HasIndependentPermanentTargets(StandbyDefinition(behavior, item.PlayedFromStandby)) && state.PriorityPlayerId is null
+            && HasIndependentPermanentTargets(StandbyDefinition(behavior, item.PlayedFromStandby))
+            && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)
+                && TryBuildTargetEffectAdditionalCost(item.OptionalCosts, behavior, out _, out _))
+            && state.PriorityPlayerId is null
             && (state.PendingCardChoice is not null || state.PendingPayment is not null || state.TriggerQueue.Count > 0)
             && (item.TargetGenerations is null || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment
                 && payment.ResolvingStackItemId == item.StackItemId && item.TargetGenerations.Count == item.TargetObjectIds.Count

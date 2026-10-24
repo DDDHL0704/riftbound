@@ -1,5 +1,6 @@
 using Riftbound.Contracts;
 using Riftbound.Engine;
+using System.Text.Json;
 using Xunit;
 using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
@@ -7,6 +8,34 @@ namespace Riftbound.ConformanceTests;
 
 internal static class BattleLimitedTestSupport
 {
+    // Native component matches retain their genuine role-establishing command.
+    // This uses the persisted-match validator, JSON cold restore and original replay.
+    internal static async Task<MatchSession> RecoverJournal(MatchState initial, ResolutionResult result,
+        IReadOnlyList<MatchJournalEntry> entries, IMatchJournal journal, CoreRuleEngine engine)
+    {
+        FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+        var state = result.State;
+        var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
+            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
+            e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+        var events = entries.SelectMany(e => e.Events.Select((v, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+        var sequence = entries[^1].CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(p => p,
+            p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);
+        Assert.Empty(errors);
+        var frame = new MatchRecoveryFrame(state.RoomId, state.Tick, sequence, commands, events, views,
+            errors, state, initial, spectator) { OpeningSeed = initial.Seed };
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        frame = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, json), json)!;
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, state, engine, default, events);
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        return MatchSession.Restore(frame, engine, journal);
+    }
+
     internal static void Runtime(Xunit.Abstractions.ITestOutputHelper output)
     {
         var engine = typeof(CoreRuleEngine).Assembly;

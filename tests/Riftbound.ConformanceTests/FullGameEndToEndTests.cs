@@ -26230,6 +26230,8 @@ public sealed partial class FullGameEndToEndTests
             ControllerId = "P2"
         };
 
+        // This new midgame initial position stages P1 attacking P2's established control.
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         return midgameState with
         {
             PlayerZones = playerZones,

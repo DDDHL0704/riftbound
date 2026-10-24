@@ -10252,7 +10252,7 @@ internal static class ActionPromptBuilder
                 costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
                 if (cost.Exhaust) costLabels.Add("横置");
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
-                var choices = ActivateAbilityPaymentResourceChoices(state, playerId, cost.Power, cost.TypedPower);
+                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
                 var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, choices);
                 requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
@@ -11726,65 +11726,21 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        var totalPower = ability.PowerCost + (ability.AppliesSpellshieldTargetTax
-            ? state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields)).Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).DefaultIfEmpty().Max() : 0);
-        return ActivateAbilityPaymentResourceChoices(state, playerId, totalPower, powerCostByTrait);
+        return RecycleRunePaymentResourceChoices(state, playerId,
+            "payment resource action: recycle rune while activating ability");
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
-        MatchState state, string playerId, int totalPower, IReadOnlyDictionary<string, int> powerCostByTrait)
+    private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
+        MatchState state, string playerId, string reason)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, totalPower, powerCostByTrait)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var recycleChoices = zones.Base
-            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-            .Where(objectId => RecycleRuneCanHelpActivateAbilityPowerCost(
-                state,
-                objectId,
-                runePool,
-                totalPower,
-                powerCostByTrait))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
+        return CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId)
+            .Select(actionId =>
             {
-                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for activate ability power");
-                return new ActionPromptChoiceDto(
-                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                    $"回收符文支付：{choice.Label}",
-                    choice.Reason);
+                var objectId = actionId[RecycleRunePaymentOptionalCostPrefix.Length..];
+                var choice = ObjectChoice(state, objectId, reason);
+                return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
             })
             .ToArray();
-        return recycleChoices.ToArray();
-    }
-
-    private static bool RecycleRuneCanHelpActivateAbilityPowerCost(
-        MatchState state,
-        string runeObjectId,
-        RunePool runePool,
-        int genericPowerCost,
-        IReadOnlyDictionary<string, int> powerCostByTrait)
-    {
-        if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-            || !TryGetRuneTrait(runeState, out var runeTrait))
-        {
-            return false;
-        }
-
-        if (powerCostByTrait.TryGetValue(runeTrait, out var requiredTraitPower)
-            && (!runePool.PowerByTrait.TryGetValue(runeTrait, out var availableTraitPower)
-                || availableTraitPower < requiredTraitPower))
-        {
-            return true;
-        }
-
-        return genericPowerCost > 0;
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
@@ -12369,38 +12325,7 @@ internal static class ActionPromptBuilder
         MatchState state,
         string playerId,
         AssembleEquipmentProfile assembleProfile)
-    {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (CanPayAssembleEquipmentCost(state, playerId, runePool, assembleProfile))
-        {
-            return [];
-        }
-
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        var recycleChoices = zones.Base
-            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
-                && TryGetRuneTrait(runeState, out var runeTrait)
-                && (AssembleEquipmentUsesAnyPower(assembleProfile)
-                    || string.Equals(runeTrait, assembleProfile.PowerTrait, StringComparison.Ordinal)))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, assembleProfile.PaymentResourceReason);
-                return new ActionPromptChoiceDto(
-                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                    $"回收符文支付：{choice.Label}",
-                    choice.Reason);
-            })
-            .ToArray();
-        return recycleChoices.ToArray();
-    }
+        => RecycleRunePaymentResourceChoices(state, playerId, assembleProfile.PaymentResourceReason);
 
     private static IReadOnlyDictionary<string, int> AssembleEquipmentPaymentResourcePowerByTrait(
         MatchState state,
@@ -14347,7 +14272,8 @@ internal static class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        string? sourceObjectId = null)
+        string? sourceObjectId = null,
+        ICollection<CoreRuleEngine.OptionalCostReductionGroup>? reductionGroups = null)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
@@ -14359,6 +14285,18 @@ internal static class ActionPromptBuilder
             ? currentExperience
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
+
+        var reductionChoiceIds = new HashSet<string>(StringComparer.Ordinal);
+        void AddReductionChoices(IReadOnlyList<ActionPromptChoiceDto> reductions)
+        {
+            foreach (var reduction in reductions)
+                if (reductionChoiceIds.Add(reduction.Id)) choices.Add(reduction);
+        }
+        var echoPool = runePool with
+        {
+            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
+        };
 
         if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
             choices.AddRange(CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).Select(cost => {
@@ -14378,30 +14316,30 @@ internal static class ActionPromptBuilder
                         $"支付后 {cost.Mana.Total} 法力 / {cost.GenericPower + cost.TypedPower.Values.Sum()} 符能");
                 }));
 
-        if (CanPromptSourceStealEnemyEquipmentOptionalCost(
-                state,
-                playerId,
-                behavior,
-                runePool,
-                paymentResourcePowerByTrait,
-                sourceObjectId))
+        if (HasSourceStealEnemyEquipmentOptionalCost(behavior))
         {
-            choices.AddRange(SourceStealEnemyEquipmentChoices(state, playerId, behavior));
+            var originalAffordable = CanPromptSourceStealEnemyEquipmentOptionalCost(state, playerId, behavior,
+                runePool, paymentResourcePowerByTrait, sourceObjectId);
+            foreach (var steal in SourceStealEnemyEquipmentChoices(state, playerId, behavior))
+            {
+                var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                    sourceObjectId, [steal.Id], echoPool, out var reductionChoices, reductionGroups);
+                if (!originalAffordable && !reduced) continue;
+                choices.Add(steal);
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         var echoReduction = EchoCostRules.Reduction(state, playerId);
-        var echoPool = runePool with
-        {
-            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
-        };
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
             PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool,
                 echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
-            if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
-                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed)) continue;
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [echo.Id], echoPool, out var reductionChoices, reductionGroups);
+            if (!reduced && (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed))) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
             parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
@@ -14414,33 +14352,42 @@ internal static class ActionPromptBuilder
             var reason = echo.PrintedCardNo is null ? "卡牌回响；每项可支付一次" : "授予回响；支付完整基础费用";
             if (echoReduction > 0 && echo.Mana > 0) reason += $"；已减免 {Math.Min(echoReduction, echo.Mana)} 法力";
             choices.Add(new ActionPromptChoiceDto(echo.Id, $"{origin}：{string.Join(" + ", parts)}", reason));
+            AddReductionChoices(reductionChoices);
         }
 
         foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
         {
             var hasteReadyPowerTrait = haste.Value;
-            if (behavior.MaySacrificeUnitForPrintedCostReduction
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [haste.Key], echoPool, out var reductionChoices, reductionGroups);
+            if (!reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
                 : runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
-                    behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait })) continue;
+                    behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
                 ? $"{behavior.HasteReadyPowerCost} 符能"
                 : $"{behavior.HasteReadyPowerCost} {RuneTraitLabel(hasteReadyPowerTrait)}符能";
             choices.Add(new ActionPromptChoiceDto(
                 haste.Key,
                 $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
+            AddReductionChoices(reductionChoices);
         }
 
-        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior)
-            && CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior))
         {
             var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}",
-                $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
-                SourceReadyOptionalCostReason(behavior.SourceReadyConditionKind)));
+            var id = $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
+                    SourceReadyOptionalCostReason(behavior.SourceReadyConditionKind)));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         if (behavior.OptionalExperienceCost > 0
@@ -14452,35 +14399,54 @@ internal static class ActionPromptBuilder
                 $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
         }
 
-        if (behavior.SourceBoonAdditionalManaCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost))
+        if (behavior.SourceBoonAdditionalManaCost > 0)
         {
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}",
-                $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
-        if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (behavior.SourceDrawAdditionalPowerCost > 0 && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0)
         {
             var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}",
-                $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
-        if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (behavior.SourceReadyPowerModifierAdditionalPowerCost > 0 && behavior.SourceReadyPowerModifierAmount != 0)
         {
             var sourceReadyPowerTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}",
-                $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         if (CanPromptTargetEffectAdditionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior, sourceObjectId))
         {
+            CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
+                TargetEffectAdditionalCostIds(behavior), echoPool, out var reductionChoices, reductionGroups);
+            AddReductionChoices(reductionChoices);
             var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
             if (behavior.TargetEffectAdditionalManaCost > 0)
             {
@@ -14705,205 +14671,18 @@ internal static class ActionPromptBuilder
             StringComparer.Ordinal);
     }
 
-    private sealed record PlayCardPowerPaymentRequirement(
-        int GenericPowerCost,
-        IReadOnlyDictionary<string, int> PowerCostByTrait);
-
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)) return [];
-        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId))
-        {
-            return [];
-        }
-
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        var paymentRequirements = PlayCardPowerPaymentResourceRequirements(state, playerId, runePool, behavior);
-        var recycleChoices = Array.Empty<ActionPromptChoiceDto>();
-        if (paymentRequirements.Count > 0
-            && state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            recycleChoices = zones.Base
-                .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
-                .Where(objectId => PlayCardRecycleRuneCanHelpPowerPayment(
-                    state,
-                    objectId,
-                    runePool,
-                    paymentRequirements))
-                .OrderBy(objectId => objectId, StringComparer.Ordinal)
-                .Select(objectId =>
-                {
-                    var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for trait power");
-                    return new ActionPromptChoiceDto(
-                        $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
-                        $"回收符文支付：{choice.Label}",
-                        choice.Reason);
-                })
-                .ToArray();
-        }
-
-        return recycleChoices
+        if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
+            || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
+        return RecycleRunePaymentResourceChoices(state, playerId,
+                "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .ToArray();
-    }
-
-    private static IReadOnlyList<PlayCardPowerPaymentRequirement> PlayCardPowerPaymentResourceRequirements(
-        MatchState state,
-        string playerId,
-        RunePool runePool,
-        CardBehaviorDefinition behavior)
-    {
-        var requirements = new List<PlayCardPowerPaymentRequirement>();
-        void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
-        {
-            var printed = PrintedPowerCostRules.ForPlay(behavior);
-            genericPowerCost += (printed.Traits.Count == 0 ? printed.Amount : 0) + PromptMaximumWardPower(state, playerId, behavior);
-            foreach (var allocation in PrintedPowerCostRules.AllocationsForPlay(behavior))
-            {
-                var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
-                    powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
-                if ((genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
-                    || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, normalizedPowerCostByTrait))
-                {
-                    continue;
-                }
-
-                requirements.Add(new PlayCardPowerPaymentRequirement(genericPowerCost, normalizedPowerCostByTrait));
-            }
-        }
-
-        AddRequirement(0);
-
-        // Include the combined cost: several individually affordable Echoes can
-        // still require additional runes when selected together.
-        var echoCosts = EchoCostRules.Available(state, playerId, behavior);
-        var echoGeneric = echoCosts.Sum(cost => cost.GenericPower);
-        IReadOnlyList<IReadOnlyDictionary<string, int>> echoAllocations =
-            [echoCosts.Aggregate((IReadOnlyDictionary<string, int>)new Dictionary<string, int>(),
-                (typed, cost) => PrintedPowerCostRules.Combine(typed, cost.TypedPower))];
-        foreach (var cardNo in EchoCostRules.PrintedCosts(echoCosts))
-        {
-            var printed = PrintedPowerCostRules.ForCard(cardNo);
-            echoGeneric += printed.Traits.Count == 0 ? printed.Amount : 0;
-            echoAllocations = echoAllocations.SelectMany(first => PrintedPowerCostRules.Allocations(cardNo)
-                .Select(second => PrintedPowerCostRules.Combine(first, second))).DistinctBy(PrintedPowerCostRules.ChoiceId).ToArray();
-        }
-        foreach (var allocation in echoAllocations) AddRequirement(echoGeneric, allocation);
-
-        if (behavior.DamageAmountFromOptionalPowerCost)
-        {
-            AddRequirement(runePool.TotalPower + 1);
-        }
-
-        foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
-        {
-            var hasteReadyPowerTrait = haste.Value;
-            AddRequirement(
-                string.IsNullOrWhiteSpace(hasteReadyPowerTrait) ? behavior.HasteReadyPowerCost : 0,
-                string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
-                    ? null
-                    : new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [hasteReadyPowerTrait] = behavior.HasteReadyPowerCost
-                    });
-        }
-
-        if (behavior.SourceDrawAdditionalPowerCost > 0
-            && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0)
-        {
-            var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(sourceDrawPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [sourceDrawPowerTrait] = behavior.SourceDrawAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
-            && behavior.SourceReadyPowerModifierAmount != 0)
-        {
-            var sourceReadyPowerTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(sourceReadyPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [sourceReadyPowerTrait] = behavior.SourceReadyPowerModifierAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (behavior.TargetEffectAdditionalPowerCost > 0)
-        {
-            var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
-            if (!string.IsNullOrWhiteSpace(targetEffectPowerTrait))
-            {
-                AddRequirement(
-                    0,
-                    new Dictionary<string, int>(StringComparer.Ordinal)
-                    {
-                        [targetEffectPowerTrait] = behavior.TargetEffectAdditionalPowerCost
-                    });
-            }
-        }
-
-        if (HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            && SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
-        {
-            var sourceStealTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-            AddRequirement(
-                0,
-                new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [sourceStealTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
-                });
-        }
-
-        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior))
-        {
-            var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
-            AddRequirement(
-                0,
-                new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [sourceReadyTrait] = behavior.SourceReadyAdditionalPowerCost
-                });
-        }
-
-        return requirements;
-    }
-
-    private static bool PlayCardRecycleRuneCanHelpPowerPayment(
-        MatchState state,
-        string runeObjectId,
-        RunePool runePool,
-        IReadOnlyList<PlayCardPowerPaymentRequirement> requirements)
-    {
-        if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-            || !TryGetRuneTrait(runeState, out var runeTrait))
-        {
-            return false;
-        }
-
-        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var existing)
-            ? existing + BasicRuneRecyclePowerGain
-            : BasicRuneRecyclePowerGain;
-        var adjustedPool = new RunePool(runePool.Mana, runePool.Power, powerByTrait);
-        return requirements.Any(requirement =>
-            PaymentCostRules.PowerDeficit(adjustedPool, requirement.GenericPowerCost, requirement.PowerCostByTrait)
-                < PaymentCostRules.PowerDeficit(runePool, requirement.GenericPowerCost, requirement.PowerCostByTrait));
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
@@ -15031,10 +14810,24 @@ internal static class ActionPromptBuilder
         string? sourceObjectId)
     {
         return behavior.TargetEffectAdditionalPowerCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
-                + behavior.TargetEffectAdditionalManaCost
-            && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
-            && PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0;
+            && (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+                    + behavior.TargetEffectAdditionalManaCost
+                && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
+                || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
+                    TargetEffectAdditionalCostIds(behavior), runePool with {
+                        Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
+                        PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait) }, out _))
+            && (CoreRuleEngine.HasIndependentPermanentTargets(behavior)
+                || PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0);
+    }
+
+    private static IReadOnlyList<string> TargetEffectAdditionalCostIds(CardBehaviorDefinition behavior)
+    {
+        var costs = new List<string>();
+        if (behavior.TargetEffectAdditionalManaCost > 0) costs.Add($"SPEND_MANA:{behavior.TargetEffectAdditionalManaCost}");
+        if (behavior.TargetEffectAdditionalPowerCost > 0)
+            costs.Add($"SPEND_POWER:{RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)}:{behavior.TargetEffectAdditionalPowerCost}");
+        return costs;
     }
 
     private static bool PromptTargetEffectAdditionalCostAvailable(
@@ -15173,7 +14966,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PromptMaximumWardPower(state, playerId, behavior) > 0
+        return PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
+            || PromptMaximumWardPower(state, playerId, behavior) > 0
             || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
                 || cost.TypedPower.Count > 0 || cost.PrintedCardNo is not null)
@@ -16328,8 +16122,12 @@ internal static class ActionPromptBuilder
             printedTypedCost = sacrifice.TypedPower;
         }
         var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
+        var reductionGroups = new List<CoreRuleEngine.OptionalCostReductionGroup>();
+        var optionalCostChoices = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
+            ? Array.Empty<ActionPromptChoiceDto>()
+            : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId, reductionGroups);
 
-        return new Dictionary<string, object?>
+        var requirement = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
@@ -16367,7 +16165,7 @@ internal static class ActionPromptBuilder
                 ? Enumerable.Range(0, behavior.RequiredTargetCount).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
-            ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
+            ["optionalCostChoices"] = optionalCostChoices,
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = runePool.Mana,
@@ -16382,6 +16180,17 @@ internal static class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        if (reductionGroups.Count > 0)
+            requirement["optionalCostReductionGroups"] = reductionGroups
+                .GroupBy(group => (group.SourceObjectId, group.SourceGeneration, group.SourceInstanceId, group.ComponentId))
+                .Select(group => new Dictionary<string, object?> {
+                    ["sourceObjectId"] = group.Key.SourceObjectId, ["sourceGeneration"] = group.Key.SourceGeneration,
+                    ["sourceInstanceId"] = group.Key.SourceInstanceId, ["ruleTextOrigin"] = group.First().RuleTextOrigin,
+                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 0, ["maxSelections"] = 1,
+                    ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
+                    ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
+                        .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
+        return requirement;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoiceForBehavior(
@@ -17508,6 +17317,9 @@ public sealed partial class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "DEV_SEED_SCENARIO"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             var nextState = BuildDevScenarioState(state, normalizedScenarioId) with
@@ -17599,6 +17411,9 @@ public sealed partial class MatchSession : IMatchSession
 
                 return cached.Result;
             }
+
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "SUBMIT_DECK"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17747,6 +17562,9 @@ public sealed partial class MatchSession : IMatchSession
 
                 return cached.Result;
             }
+
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "READY"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (state.Status == MatchStatuses.Finished)
             {
@@ -17946,6 +17764,9 @@ public sealed partial class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, command.CmdType))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
             // persist the request, including stale-prompt rejections.
@@ -18024,6 +17845,32 @@ public sealed partial class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, string? RawCommandHash, ResolutionResult Result);
+
+    // Match the existing recovery envelope rules before any uncached request can be journaled.
+    // Nullable-absent raw remains a separate typed-caller contract; do not fabricate wire JSON.
+    private static bool HasCanonicalPresentRawEnvelope(JsonElement? rawCommand, string expectedCommandType)
+    {
+        if (rawCommand is null) return true;
+        var raw = rawCommand.Value;
+        if (raw.ValueKind != JsonValueKind.Object) return false;
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var property in raw.EnumerateObject())
+            if (string.IsNullOrWhiteSpace(property.Name) || property.Name != property.Name.Trim()
+                || !names.Add(property.Name)) return false;
+        if (!raw.TryGetProperty("cmdType", out var type) || type.ValueKind != JsonValueKind.String)
+            return false;
+        var value = type.GetString();
+        if (string.IsNullOrWhiteSpace(value) || value != value.Trim()
+            || !string.Equals(value, expectedCommandType, StringComparison.Ordinal)) return false;
+        if (raw.TryGetProperty("promptId", out var prompt) && prompt.ValueKind != JsonValueKind.Null)
+        {
+            if (prompt.ValueKind != JsonValueKind.String) return false;
+            var text = prompt.GetString()!;
+            if (text.Length > 0 && (string.IsNullOrWhiteSpace(text) || text != text.Trim())) return false;
+        }
+        return !raw.TryGetProperty("snapshotTick", out var tick)
+            || tick.ValueKind == JsonValueKind.Number && tick.TryGetInt64(out var number) && number >= 0;
+    }
 
     private static bool HasCanonicalRequiredStringArray(JsonElement raw, string field)
     {
@@ -22695,7 +22542,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-SHIRANA-MONASTERY")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerWarhawkScenario(MatchState current, DevScenarioSeed seed)
@@ -22747,7 +22603,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-HUNTING-GROUNDS")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldWinningScoreScenario(MatchState current, DevScenarioSeed seed)
@@ -23269,7 +23134,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·291/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -23296,7 +23161,16 @@ public sealed partial class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-CANDLE-003",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-CANDLELIT-SANCTUM")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldMovePowerScenario(MatchState current, DevScenarioSeed seed)
@@ -24465,7 +24339,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24480,7 +24354,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SCRAPYARD")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerDiscardDrawScenario(MatchState current, DevScenarioSeed seed)
@@ -24518,7 +24401,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·298/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24537,7 +24420,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ZAUN-SUMP")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerRecycleRuneScenario(MatchState current, DevScenarioSeed seed)
@@ -24575,7 +24467,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·287/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24595,7 +24487,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THUNDER-RUNE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldDefendRevealSpellScenario(MatchState current, DevScenarioSeed seed)
@@ -24813,7 +24714,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldDefenderSteadfastScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303033,
@@ -24828,7 +24729,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P1] = Zones(
                     mainDeck: ["P1-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
-                    battlefields: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+                    baseZone: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -24861,6 +24762,10 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(seed.P1, "BASE"),
+            ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+            ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION") } };
     }
 
     private static MatchState BuildBattlefieldDefendMoveToBaseScenario(MatchState current, DevScenarioSeed seed)
@@ -25001,7 +24906,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·210/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25023,7 +24928,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-LEGEND-HALL")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerReadyRunesEndScenario(MatchState current, DevScenarioSeed seed)
@@ -25061,7 +24975,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·289/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25088,7 +25002,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.RuneCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOUNT-TARGON")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerDrawOtherScenario(MatchState current, DevScenarioSeed seed)
@@ -25136,7 +25059,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·217/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-OTHER-001"] = new(
                     "P1-BATTLEFIELD-OTHER-001",
                     cardNo: "OGN·280/298",
@@ -25175,7 +25098,16 @@ public sealed partial class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-DRAW-OTHER-003",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THRONE-OF-POWER")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerPowerfulDrawScenario(MatchState current, DevScenarioSeed seed)
@@ -25212,7 +25144,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25278,7 +25210,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25293,7 +25225,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-EMPEROR-SHRINE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerGoldScenario(MatchState current, DevScenarioSeed seed)
@@ -25330,7 +25271,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·220/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25345,7 +25286,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerReadyEquipmentScenario(MatchState current, DevScenarioSeed seed)
@@ -25383,7 +25333,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25412,7 +25362,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOONVEIL-ALTAR")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR")
+            }
+        };
     }
 
     private static MatchState BuildBattleScoreScenario(MatchState current, DevScenarioSeed seed)

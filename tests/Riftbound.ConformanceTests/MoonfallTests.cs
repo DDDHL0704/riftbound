@@ -13,6 +13,13 @@ public sealed class MoonfallTests
 
     internal static async Task<MatchState> Board()
     {
+        // Establish the actual battle and its response window instead of seeding
+        // a contested board with an unresolved battle-initialization task.
+        return (await Act(BeforeBattle(), "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []))).State;
+    }
+
+    internal static MatchState BeforeBattle()
+    {
         var s = OtherField(Group(3, 4), "D2");
         s = At(s, "D3", "P2", "BASE");
         s = s with {
@@ -20,9 +27,7 @@ public sealed class MoonfallTests
                 ["AOE"] = s.CardObjects["AOE"] with { CardNo = Spell } },
             RunePools = new Dictionary<string, RunePool>(s.RunePools) {
                 ["P1"] = new(3, 0, new Dictionary<string, int> { ["blue"] = 1 }) } };
-        // Establish the actual battle and its response window instead of seeding
-        // a contested board with an unresolved battle-initialization task.
-        return (await Act(s, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []))).State;
+        return s;
     }
 
     internal static PlayCardCommand Command(params string[] targets) => new("AOE", Spell, targets);

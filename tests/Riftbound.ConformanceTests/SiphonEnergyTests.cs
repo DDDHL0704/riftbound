@@ -12,7 +12,12 @@ public sealed class SiphonEnergyTests
     internal static PlayCardCommand Command(params string[] targets) => new("AOE", Spell, targets);
     internal static async Task<MatchState> Board()
     {
-        var s = await MoonfallTests.Board();
+        return (await Act(BeforeBattle(), "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []))).State;
+    }
+
+    internal static MatchState BeforeBattle()
+    {
+        var s = MoonfallTests.BeforeBattle();
         return s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["AOE"] = s.CardObjects["AOE"] with { CardNo = Spell } },
             RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(20, 20) } };

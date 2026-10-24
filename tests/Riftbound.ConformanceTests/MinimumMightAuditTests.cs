@@ -105,7 +105,7 @@ public sealed class MinimumMightAuditTests
         var views = ResolutionResult.BuildSnapshots(s).ToDictionary(p => p.Key,
             p => new RecoveredPlayerView(p.Key, s.Tick, 0, p.Value, null, null, null));
         var frame = MatchReplayRedactor.BuildSpectatorFrame(s.RoomId, s.Tick, 0, [], s);
-        return MatchRecoveryValidator.Validate(s.RoomId, 0, [], [], views, s, s.Tick, frame);
+        return MatchRecoveryValidator.ValidateComponentStateAndViews(s, views, frame);
     }
 
     [Theory]

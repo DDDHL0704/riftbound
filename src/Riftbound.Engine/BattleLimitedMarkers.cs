@@ -70,7 +70,8 @@ internal static class BattleLimitedMarkers
     internal static string Role(string kind) => kind == DoubleAttack ? "ATTACKER" : "DEFENDER";
     internal static bool Definition(string cardNo, string kind) => kind switch {
         DoubleAttack or DoubleDefend => cardNo is "SFD·110/221" or "SFD·110a/221",
-        SteadfastDefend => cardNo == "OGN·279/298", _ => false };
+        SteadfastDefend => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,
+            BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger, out _), _ => false };
     internal static string ScopeId(BattleLimitedScope scope) => ScopePrefix + JsonSerializer.Serialize(scope, Json);
     internal static string RoleId(BattleFirstRole role) => RolePrefix + JsonSerializer.Serialize(role, Json);
     internal static string GrantId(BattleLimitedGrant grant) => GrantPrefix + JsonSerializer.Serialize(grant, Json);
