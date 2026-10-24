@@ -74,7 +74,7 @@ public sealed class OwnedCardCombinationTests
     {
         var (initial, run) = await PaidDiscardDamageAtTemple(player, "move-damage-survived-");
         Assert.False(run.State.CardObjects["ASSASSIN"].IsExhausted);
-        await run.Act(player, new MoveUnitCommand("ASSASSIN", "BATTLEFIELD:F", "BASE", []));
+        await run.Act(player, new MoveUnitCommand("ASSASSIN", "BATTLEFIELD", "BASE", []));
         Assert.Equal("GRAVEYARD", run.State.ObjectLocations["ASSASSIN"].Zone);
         Assert.Contains("ASSASSIN", run.State.PlayerZones[player].Graveyard);
         Assert.Contains("NAMED-GRAVE", run.State.PlayerZones[player].Graveyard);
