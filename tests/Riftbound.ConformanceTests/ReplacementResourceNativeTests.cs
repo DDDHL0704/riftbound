@@ -42,7 +42,7 @@ public sealed class ReplacementResourceNativeTests
                 Assert.Equal(MatchStateHasher.HashValue(session.PromptFor("P2")),MatchStateHasher.HashValue(restoredSession.PromptFor("P2"))); }
             else { Assert.Null(state.PendingRuleChoice); Assert.Single(result.Events,e=>e.Kind=="ABILITY_ACTIVATED");
                 Assert.Equal(accept,state.PlayerZones["P2"].Base.Contains("D2")); Assert.Equal(accept?0:1,state.RunePools["P2"].TotalPower); }
-            var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+            var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
             var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
             var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,state,engine,default,events);
             Assert.True(replay.IsMatch,string.Join("; ",replay.Errors)); Export("replay.json",new{usedNative,nativeCount,replay});

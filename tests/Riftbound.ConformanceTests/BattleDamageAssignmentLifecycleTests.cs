@@ -3685,9 +3685,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = BattlefieldObjectId,
             assignments = legalAssignments.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick
@@ -3742,13 +3742,13 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             var rejectedRawAssignment = rejectedRawAssignments[assignmentIndex];
             Assert.Equal(
                 expectedAssignment.SourceObjectId,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.SourceObjectId)).GetString());
+                rejectedRawAssignment.GetProperty("sourceObjectId").GetString());
             Assert.Equal(
                 expectedAssignment.TargetObjectId,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.TargetObjectId)).GetString());
+                rejectedRawAssignment.GetProperty("targetObjectId").GetString());
             Assert.Equal(
                 expectedAssignment.Damage,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.Damage)).GetInt32());
+                rejectedRawAssignment.GetProperty("damage").GetInt32());
         }
 
         var duplicateRejected = await session.SubmitAsync(
@@ -3775,9 +3775,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = BattlefieldObjectId,
             assignments = legalAssignments.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick,
@@ -4806,9 +4806,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = command.BattlefieldId,
             assignments = command.Assignments?.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
@@ -4827,9 +4827,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = command.BattlefieldId,
             assignments = command.Assignments?.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick,
