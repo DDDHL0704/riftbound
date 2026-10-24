@@ -84,9 +84,14 @@ public sealed class HistoricalDamageSourcePrivacyTests
         var projected = Assert.IsType<Dictionary<string, object?>>(
             Assert.Single(ResolutionResult.BuildSnapshots(corrupt)["P2"].Stack));
         Assert.Equal("HIDDEN", projected["sourceObjectId"]);
-        var errors = Errors(Frame(corrupt, initial, driver));
+        var forgedFrame = Frame(corrupt, initial, driver);
+        var errors = Errors(forgedFrame);
+        var checkedFrame = forgedFrame with { ValidationErrors = errors };
+        driver.Export("mutation.json", new { mutation, errors, frame = checkedFrame, corrupt, projected });
         Assert.NotEmpty(errors);
-        driver.Export("mutation.json", new { mutation, errors, corrupt, projected });
+        var restoreError = Assert.Throws<MatchSessionException>(() => MatchSession.Restore(checkedFrame, new CoreRuleEngine(), driver));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, restoreError.Code);
+        driver.Export("restore-rejection.json", new { mutation, code = restoreError.Code, errors });
     }
 
     private static MatchRecoveryFrame Frame(MatchState state, MatchState initial, StandbyDefendObserverTests.Driver driver)
