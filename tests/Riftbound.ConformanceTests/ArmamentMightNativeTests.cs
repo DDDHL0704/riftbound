@@ -43,7 +43,7 @@ public sealed class ArmamentMightNativeTests
         result = await Submit("P2",Native("pass-2",result,"P2",new PassPriorityCommand()));
         Assert.Equal("HOST",result.State.CardObjects["GEAR"].AttachedToObjectId);Assert.Equal(6,ArmamentMightTests.Might(result.State));
         Assert.Equal(4,result.State.CardObjects["HOST"].Power);
-        var commands = journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands = journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors)); Export("result-snapshot.json",result.Snapshots["P1"]);
