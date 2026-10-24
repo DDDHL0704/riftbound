@@ -6,7 +6,8 @@ public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
-                && SourcePlayDrawSpec(behavior.CardNo) is null)
+                && SourcePlayDrawSpec(behavior.CardNo) is null
+                && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || (behavior.MainDeckLookCount > 0 && behavior.RecyclesSelectedMainDeckTargets);
