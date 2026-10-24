@@ -75,7 +75,7 @@ public sealed class OrdinaryPlaySourcePrivacyTests
             {
                 var views = frame.PlayerViews.ToDictionary();
                 views[opponent] = views[opponent] with { Snapshot = snapshots[opponent] with { Stack = malformed switch
-                    { "null-stack" => null, "empty-stack" => [], _ => [..snapshots[opponent].Stack!, ..snapshots[opponent].Stack!] } } };
+                    { "null-stack" => null!, "empty-stack" => [], _ => [..snapshots[opponent].Stack!, ..snapshots[opponent].Stack!] } } };
                 var forged = frame with { PlayerViews = views, ValidationErrors = [] };
                 var errors = Errors(forged);
                 Assert.Contains(errors, e => e.Contains("ordinary play skill", StringComparison.Ordinal));
