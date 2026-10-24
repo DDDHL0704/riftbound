@@ -105,7 +105,7 @@ internal static class VenEmpoweredSelfSqlAcceptance
             var frame = await LoadVerified(source, room); var state = frame.AuthoritativeState!;
             CheckBirth(frame, item.GetProperty("actor").GetString()!, item.GetProperty("peer").GetString()!);
             CheckPending(state, no, prefix == "private" ? "HIDDEN" : "VISIBLE"); CheckPayment(state, no, prefix != "public"); CheckPrivacy(state);
-            if (prefix != "public") CheckReturned(state, state.StackItems.Single().EmpowerActivation!.Source.Generation);
+            if (prefix != "public") CheckReturned(state, state.StackItems.Single(item => item.EmpowerActivation is not null).EmpowerActivation!.Source.Generation);
             Check((state.PendingCardChoice?.ChoiceWindow == "REVEALED_HAND_EFFECT") == (prefix == "revealed"), "Only the actual crab prefix may keep a real revealed-hand choice.");
             using var resume = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(dir, "network-resume.json")));
             var expected = resume.RootElement.GetProperty("acceptedIntents").EnumerateArray().Select(x => x.GetString()).ToArray();
