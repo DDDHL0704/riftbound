@@ -116,8 +116,8 @@ internal static class RestrictedManaNetworkAcceptance
                     && snapshots[actor].GetProperty("activePlayerId").GetString() == peer, "The match must normally enter the opponent's main phase.");
             }
             await audit.Complete();
-            await Save(folder, "network-" + mode + ".json", new { status = "REAL_SIGNALR_RESTRICTED_MANA_PASS", room, mode,
-                snapshots, prompts, traces = traces.ToArray(), scope = "Original room seats and finite QA position; restart driven externally. No ordinary-opening, UI or whole-card certification." });
+            await SaveNetworkReport(folder, mode, new { status = "REAL_SIGNALR_RESTRICTED_MANA_PASS", room, mode,
+                snapshots, prompts, traces = traces.ToArray(), scope = "Original room seats and finite QA position; restart driven externally. No ordinary-opening, UI or whole-card certification." }, json);
         }
         finally {
             await File.WriteAllTextAsync(Path.Combine(folder, "network-trace-" + (mode) + ".json"), JsonSerializer.Serialize(traces.ToArray(), json));
@@ -157,4 +157,8 @@ internal static class RestrictedManaNetworkAcceptance
                 && !snapshot.GetRawText().Contains("openingSeed", StringComparison.Ordinal), "Server-only authentication or opening data escaped.");
         }
     }
+
+    private static Task SaveNetworkReport(string folder, string mode, object report, JsonSerializerOptions json)
+        => File.WriteAllTextAsync(Path.Combine(folder, "network-" + mode + ".json"),
+            JsonSerializer.Serialize(report, report.GetType(), json));
 }
