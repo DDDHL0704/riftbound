@@ -19984,11 +19984,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.TryGetValue(id, out var current) && current.ObjectGeneration == binding.Generation))
                     .Concat(occupantObjectIds);
             }
-            var sourceObjectId = sourceCandidates.FirstOrDefault(objectId =>
+            var conqueringUnitObjectIds = sourceCandidates.Where(objectId =>
                     occupantObjectIds.Contains(objectId, StringComparer.Ordinal)
                     && cardObjects.TryGetValue(objectId, out var cardObject)
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
-                ?? nextControllerId;
+                .Distinct(StringComparer.Ordinal).ToArray();
+            var sourceObjectId = (concludingBattle ? conqueringUnitObjectIds.FirstOrDefault(objectId =>
+                    CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) > 0) : null)
+                ?? conqueringUnitObjectIds.FirstOrDefault() ?? nextControllerId;
             events.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{nextControllerId} 征服战场",
@@ -20037,7 +20040,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state with { PlayerScores = playerScores, UntilEndOfTurnEffects = untilEndOfTurnEffects,
                     WinnerPlayerId = winnerPlayerId, ObjectLocations = objectLocations },
                 playerZones, cardObjects, nextControllerId, battlefieldObjectId, sourceObjectId,
-                occupantObjectIds, assignedOverkillDamage, state.Tick, events);
+                conqueringUnitObjectIds, assignedOverkillDamage, state.Tick, events);
             objectLocations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
             playerScores = state.PlayerScores;
             untilEndOfTurnEffects = state.UntilEndOfTurnEffects;

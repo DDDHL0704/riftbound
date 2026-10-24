@@ -523,10 +523,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
+        // CN 468.1 cleanup precedes 468.5 control/conquest and 468.7 battle end.
+        Assert.True(damageRemovedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < conquerIndex);
         Assert.True(conquerIndex < experienceIndex);
-        Assert.True(experienceIndex < damageRemovedIndex);
-        Assert.True(damageRemovedIndex < battleClosedIndex);
-        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(experienceIndex < battleClosedIndex);
         Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
@@ -1295,10 +1296,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
+        // CN 468.1 cleanup precedes 468.5 control/conquest and 468.7 battle end.
+        Assert.True(damageRemovedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < conquerIndex);
         Assert.True(conquerIndex < experienceIndex);
-        Assert.True(experienceIndex < damageRemovedIndex);
-        Assert.True(damageRemovedIndex < battleClosedIndex);
-        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(experienceIndex < battleClosedIndex);
         Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
