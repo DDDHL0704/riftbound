@@ -1,8 +1,16 @@
 # VEN026／048／118 · 当前基础单位入场消费者
 
-2026-10-24。当前显式完整前置为 [PR170](https://github.com/DDDHL0704/riftbound/pull/170) 的 `69bd3c8c3f631b68771206b94e55e1c47b55e56b`，包含main `ceda49fec8bda2ace0cb9ac630496e09032dac07` 及②分配的 `c96bc5e631d27d42369b7faa4b44775fa0d0c857` 来源代际校验修复。相对此前置，生产仍仅目录3条精确来源及CardBehaviorRegistry的7行定义，无额外Engine/Contracts/Driver修改。
+2026-10-24。当前显式完整前置为 [PR170](https://github.com/DDDHL0704/riftbound/pull/170) 的 `a3a37eee4342b958ce9b93ffe0f769139b035745`，包含main `d713adad568999baa8703750b7893ec234c63d4c` 及②分配的 `c96bc5e631d27d42369b7faa4b44775fa0d0c857` 来源代际校验修复。相对此前置，生产仍仅目录3条精确来源及CardBehaviorRegistry的7行定义，无额外Engine/Contracts/Driver修改。
 
-## 当前组合复验
+## 当前支付主线组合
+
+固定受测源 `5d31184cfc53408d950a8a1d7ab08d0b32a31de3` 已完整吸收PR170源码 `89f6fbf260545141f7d10ff4043addba2878f703`；之后吸收其ready a3a仅增加父审计doc，再更新本文，无源码/测试/数据差异。构建0警告/错误，单线程893/893、零跳过。前一867例全部保留，另加main131主动资源26例；原三卡395例与完整新父项672例交集183不重复计数，并集884例，另9个元数据/原输入守卫。原9个L2失败名称仍全部通过。
+
+同一新运行件重新导出12个实际decoded入场帧，32接受命令/92事件和24个终态/事件伪造拒绝；完整父项另7个历史来源规范帧、35接受命令/126事件，6个协同负帧原命令/事件不变，Validator及可信报告Restore拒绝。原五个消费者/隐私/算术文件逐字不变；目录仍1043/842，原1040记录/顺序/来源保留。未将中盘输入计作规范SEATING、真实Postgres/API或完整对局。
+
+2506编译输入/1418运行文件全量哈希稳定，四模块InfoVersion指向受测源；RIF `188ce1a054cac9de061f183e05d08e9d11041f517134c84833f1e33ccd7e2bef`，Engine SHA256 `82d6cbf8fe3fa972070a58df87e1c86ee29f418cd70fc3f30f9fd635c33060be` / MVID `eb42987f-2d12-4763-9637-fa5c4d7af138`。PermanentPlayTargets完整文件与main相同，DamageDistribution完整文件与②c96相同，六个原未跟踪文件不变且未编入。新ignored原件 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr171-maind713-v1/` 含固定源/bin、实际TRX、全部新帧、清单、模块身份及已过verifier；`source-runtime-proof-v1.json` SHA256 `afbece61ec28c96a41120b40773ba7ac38bf77280996310f70be530614b9b1ee`。下述旧输入和反向保留原身份，不求和或改标；最新实际head/base/merge-result的完整L2仍须单独通过。未新启本机full/SQL/网络/矩阵，整卡认证增量0、backend NOT READY，适用分母UNKNOWN。
+
+## 前一ceda输入的组合复验
 
 固定验证源 `dfe924702e7c4edd360aa8461e04e774164cb073`；ready只更新本文。构建0警告/错误；单线程867/867通过、零跳过。原三卡395例与完整父项646例的名称/数量多重集合全部保留，183例交集只计一次，唯一并集858例，另加9项目录/当前输入/原11牌组输入守卫。未启动本机完整对局或L3。
 
