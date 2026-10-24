@@ -6,6 +6,12 @@ using System.Threading.Channels;
 using Riftbound.Contracts;
 using Riftbound.GodotClient;
 
+if (args.Length != 0)
+{
+    await ProcessRestartAcceptance.RunAsync(args);
+    return;
+}
+
 using (var own = JsonDocument.Parse("""
     {"cardNo":"SFD·125/221","isFaceDown":true,"ownerId":"p1","controllerId":"p1","effectivePower":99,"damage":88}
     """))
