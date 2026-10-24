@@ -1594,6 +1594,17 @@ public sealed class TriggerPaymentTests
             new PayCostCommand(payment.PaymentId, payment.PaymentWindow, paymentChoices),
             CancellationToken.None);
 
+        // Retain the original row; acquiring another yellow power is a voluntary resource action.
+        if (caseName == "unnecessary-resource") {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
+            Assert.Contains("P1-FIORA-YELLOW-RUNE", result.State.PlayerZones["P1"].RuneDeck);
+            Assert.True(result.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+            var resolved = await OfficialGraveyardRecastTests.Top(result.State);
+            Assert.False(resolved.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+            return;
+        }
+
         Assert.False(result.Accepted);
         Assert.True(
             string.Equals(result.ErrorCode, ErrorCodes.InvalidTarget, StringComparison.Ordinal)
@@ -1685,7 +1696,7 @@ public sealed class TriggerPaymentTests
         return await EquipTestDriver.FinishAsync(activated);
     }
 
-    private static async Task<ResolutionResult> ResolveFioraPowerfulReadyTriggerAsync(
+    internal static async Task<ResolutionResult> ResolveFioraPowerfulReadyTriggerAsync(
         MatchState state,
         CoreRuleEngine? engine = null)
     {
@@ -2268,7 +2279,7 @@ public sealed class TriggerPaymentTests
             .ToArray();
     }
 
-    private static MatchState BuildFioraPowerfulReadyState(
+    internal static MatchState BuildFioraPowerfulReadyState(
         int yellowPower = 0,
         bool includeYellowRune = false,
         string fioraCardNo = "SFD·180/221")
