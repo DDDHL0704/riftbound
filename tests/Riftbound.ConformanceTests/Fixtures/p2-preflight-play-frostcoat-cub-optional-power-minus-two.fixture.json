@@ -99,6 +99,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGER_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -148,6 +149,15 @@
       },
       {
         "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGER_CONFIRMED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-FROSTCOAT-CUB",
+          "targetObjectIds": [
+            "P2-FROSTCOAT-CUB-TARGET-001"
+          ]
+        }
       },
       {
         "kind": "PRIORITY_PASSED"

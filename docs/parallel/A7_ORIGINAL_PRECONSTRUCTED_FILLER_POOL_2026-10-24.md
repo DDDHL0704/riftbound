@@ -11,3 +11,9 @@ A7原样基线再次复现原失败；仅覆盖本修复两个文件的私有固
 2026-10-24 L2 后续：PR159/run40077028269 与 PR162/run40079191311 的原 ZIP/TRX 发现该白名单还误限了反射调用的通用配方构造器，5 个开局恢复用例在红黄传奇 SFD·187/221 处不足40张。修复源码 `71125bf0ebeba15f3d445d0bd9ca6b2e7fc621f7` 将白名单参数只传入原11配方路径；通用构造器继续使用完整合法低费池，颜色、费用、名称上限和赛制校验保持。
 
 固定源码编译0警告0错误，17例（原11配方两赛制精确输入、原预构筑验证、新5种自定义配方）与原3个开局恢复方法展开6例分别全过，23例无交集、零跳过。原输入SHA仍为 `242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa`；源码/完整运行目录两轮后哈希稳定。证据：`var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/filler-scope-v1/`（source-runtime-proof-v1.json、两份原TRX、固定源/bin）；失败运行ZIP和job日志在其上级目录。实际最新合并输入L2仍待执行核验；目录统计及另一个弃牌节点失败由独立后续处理，不将23例称为L2通过。
+
+旧base的实际L2 run40085771643已通过：head5f5e52b8、basebb8b7a17、受测merge `27a30f4edb2c323a190cf47898994815da8da6a8`；quality/targeted/rule_suite/L2 required均成功。已下载四份原ZIP、核对平台digest，并用未改写的实际discovery/plan/TRX重跑相同版本门禁，结果逐项等于原result.json：focus9938例/5726方法、rule_suite14041例/7697方法，均零跳过；两组有交集，不相加。计划记录的测试程序集SHA一致，上传产物未含该程序集二进制，故只核对了记录身份与实际TRX计划覆盖。main已前移，该旧绿灯不作为新base合入依据。
+
+新组合受测源 `0cc370e408fba506f3fc5795ff84e0435d9b83ca` 已吸收main `29367aaaa1b154d2b7843f8b8645d3cc64133c84`，无合并冲突；自有补牌生产/测试文件与旧5f5e52b8逐字相同，③PermanentPlayTargets文件与新main相同。编译0警告0错误，83/83、零跳过=原23例全部保留+main127的60个可选费用/目标时机相邻例；原11套两赛制精确输入、5种自定义配方及3个原失败开局恢复方法展开6例通过。2491源码/1418运行文件全量哈希稳定，四受查程序集InfoVersion指向新源，Engine MVID `fc2a8c9b-49f9-4c48-bd82-c4ecae07df24`。
+
+新原件 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr139-main293-v1/`，source-runtime-proof-v1.json SHA256 `401c5df4f5467812c32cfd9d59808de57edb164e80bbc140c1c32fc2db510594`；旧绿灯的四ZIP与独立门禁回验在相邻 `pr139-green-old-bb8-v1/`。本受测源之后仅更新本审计doc，新输入仍待其实际L2通过；无新full/SQL/网络/矩阵及整卡认证增量。
