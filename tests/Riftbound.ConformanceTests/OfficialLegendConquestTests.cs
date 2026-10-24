@@ -197,21 +197,51 @@ public sealed class OfficialLegendConquestTests
     [Fact]
     public async Task DeathDrawAndConquestUseApnapOrderingAndSeparateResponses()
     {
-        var s = CombatPosition();
-        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
-            ["D"] = s.CardObjects["D"] with { CardNo = "OGN·096/298" } } };
-        var opened = await CombatConquer(s);
-        Assert.Equal(2, opened.State.TriggerQueue.Count); Restore(opened.State);
-        var order = opened.State.TriggerQueue.OrderBy(t => t.ControllerId == "P2" ? 0 : 1).Select(t => t.TriggerId).ToArray();
-        var ordered = await Act(opened.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: order));
-        var paid = await Choose(ordered.State, "TARGET"); Restore(paid.State);
-        Assert.True(paid.State.CardObjects["TARGET"].IsExhausted);
-        var handCount = paid.State.PlayerZones["P2"].Hand.Count;
-        var death = await Top(paid.State);
-        Assert.Equal(handCount + 1, death.State.PlayerZones["P2"].Hand.Count);
-        Assert.True(death.State.CardObjects["TARGET"].IsExhausted);
-        var conquest = await Top(death.State);
-        Assert.False(conquest.State.CardObjects["TARGET"].IsExhausted); Restore(conquest.State);
+        var initial = CombatPosition();
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["D"] = initial.CardObjects["D"] with { CardNo = "OGN·096/298" } } };
+        var run = new VenBasicFlowSpellTests.Driver(initial);
+        await run.Act("P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
+        await run.Act("P1", new PassFocusCommand());
+        await run.Act("P2", new PassFocusCommand());
+        await run.Act("P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
+        for (var step = 0; step < 20 && run.State.PendingBattleResult is null && run.State.BattleState.IsActive; step++)
+        {
+            var prompt = ResolutionResult.BuildPrompts(run.State).Values.First(p => p.Actionable
+                && (p.Actions.Contains(CommandTypes.AssignCombatDamage) || p.Actions.Contains(CommandTypes.PassPriority)));
+            GameCommand command = prompt.Actions.Contains(CommandTypes.AssignCombatDamage)
+                ? new AssignCombatDamageCommand(run.State.BattleState.BattleId!, "BF", CombatTestDriver.Assignments(prompt))
+                : new PassPriorityCommand();
+            await run.Act(prompt.PlayerId, command);
+        }
+
+        // CN 468.2/468.4/468.6: death and conquest belong to successive tasks;
+        // APNAP cannot put the later control skill above the earlier death skill.
+        Assert.Equal("P2", Assert.Single(run.State.StackItems).ControllerId);
+        Assert.DoesNotContain(run.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        var handCount = run.State.PlayerZones["P2"].Hand.Count;
+        await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Equal(handCount, run.State.PlayerZones["P2"].Hand.Count);
+        await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Equal(handCount + 1, run.State.PlayerZones["P2"].Hand.Count);
+        Assert.True(run.State.CardObjects["TARGET"].IsExhausted);
+        var choice = Assert.IsType<PendingCardChoiceState>(run.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        await run.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["TARGET"]));
+        Assert.True(run.State.CardObjects["TARGET"].IsExhausted);
+        Assert.True(run.State.CardObjects["LEGEND"].IsExhausted);
+        await run.Top();
+        Assert.False(run.State.CardObjects["TARGET"].IsExhausted);
+        var death = Assert.Single(run.Events(), e => e.Event.Kind == "CARD_DRAWN"
+            && Equals(e.Event.Payload.GetValueOrDefault("playerId"), "P2"));
+        Assert.True(death.Sequence < Assert.Single(run.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED").Sequence);
+        await run.Replay();
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_C10_STAGE_CONSUMER_EVIDENCE") is { Length: > 0 } folder)
+        {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "death-before-conquest.json"), System.Text.Json.JsonSerializer.Serialize(
+                new { initial, final = run.State, commands = run.Commands(), events = run.Events() }));
+        }
     }
 
     [Fact]

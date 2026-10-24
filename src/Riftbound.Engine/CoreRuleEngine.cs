@@ -19843,10 +19843,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal)
             && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId, nextControllerId))
         {
-            var sourceObjectId = occupantObjectIds.FirstOrDefault(objectId =>
-                    cardObjects.TryGetValue(objectId, out var cardObject)
+            IEnumerable<string> sourceCandidates = occupantObjectIds;
+            if (concludingBattle && state.PendingBattleResult is { } battle
+                && battle.BattlefieldId == battlefieldObjectId && battle.WinnerPlayerId == nextControllerId)
+            {
+                var declared = battle.AttackingPlayerId == nextControllerId ? battle.AttackerObjectIds : battle.DefenderObjectIds;
+                sourceCandidates = declared.Where(id => battle.PublicObjectBindings.Any(binding => binding.ObjectId == id
+                    && cardObjects.TryGetValue(id, out var current) && current.ObjectGeneration == binding.Generation))
+                    .Concat(occupantObjectIds);
+            }
+            var conqueringUnitObjectIds = sourceCandidates.Where(objectId =>
+                    occupantObjectIds.Contains(objectId, StringComparer.Ordinal)
+                    && cardObjects.TryGetValue(objectId, out var cardObject)
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
-                ?? nextControllerId;
+                .Distinct(StringComparer.Ordinal).ToArray();
+            var sourceObjectId = (concludingBattle ? conqueringUnitObjectIds.FirstOrDefault(objectId =>
+                    CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) > 0) : null)
+                ?? conqueringUnitObjectIds.FirstOrDefault() ?? nextControllerId;
             events.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{nextControllerId} 征服战场",
@@ -19856,7 +19869,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldObjectId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["defeatedObjectIds"] = Array.Empty<string>(),
+                    ["defeatedObjectIds"] = concludingBattle && state.PendingBattleResult is { } result
+                        && result.BattlefieldId == battlefieldObjectId
+                            ? result.AttackingPlayerId == nextControllerId ? result.DefenderObjectIds : result.AttackerObjectIds
+                            : Array.Empty<string>(),
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamage,
                     ["reason"] = concludingBattle ? "BATTLE_CONTROL_AFTER_RESPONSES" : "NON_BATTLE_SPELL_DUEL_CONTROL"
                 }));
             var scoreState = state with
@@ -19891,7 +19908,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state with { PlayerScores = playerScores, UntilEndOfTurnEffects = untilEndOfTurnEffects,
                     WinnerPlayerId = winnerPlayerId, ObjectLocations = objectLocations },
                 playerZones, cardObjects, nextControllerId, battlefieldObjectId, sourceObjectId,
-                occupantObjectIds, assignedOverkillDamage, state.Tick, events);
+                conqueringUnitObjectIds, assignedOverkillDamage, state.Tick, events);
             objectLocations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
             playerScores = state.PlayerScores;
             untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
@@ -32435,6 +32452,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
             cardObjects[targetObjectId] = controlledTargetState;
+            RecallAttachedGroupToBase(playerZones, cardObjects, targetObjectId, controllerId);
             previousControllerId = playerId;
             return true;
         }

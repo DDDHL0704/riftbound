@@ -35,7 +35,8 @@ internal static class CombatTestDriver
     {
         engine ??= new CoreRuleEngine();
         var events = current.Events.ToList();
-        for (var step = 0; step < 20 && current.State.BattleState.IsActive; step++)
+        // Finishing damage must leave earned result/control skills for the caller's responses.
+        for (var step = 0; step < 20 && current.State.BattleState.IsActive && current.State.PendingBattleResult is null; step++)
         {
             var prompt = current.Prompts.Values.FirstOrDefault(prompt => prompt.Actionable
                 && (prompt.Actions.Contains(CommandTypes.AssignCombatDamage) || prompt.Actions.Contains(CommandTypes.PassPriority)));
