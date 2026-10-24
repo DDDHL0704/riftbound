@@ -19998,7 +19998,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldObjectId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["defeatedObjectIds"] = Array.Empty<string>(),
+                    ["defeatedObjectIds"] = concludingBattle && state.PendingBattleResult is { } result
+                        && result.BattlefieldId == battlefieldObjectId
+                            ? result.AttackingPlayerId == nextControllerId ? result.DefenderObjectIds : result.AttackerObjectIds
+                            : Array.Empty<string>(),
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamage,
                     ["reason"] = concludingBattle ? "BATTLE_CONTROL_AFTER_RESPONSES" : "NON_BATTLE_SPELL_DUEL_CONTROL"
                 }));
             var scoreState = state with
