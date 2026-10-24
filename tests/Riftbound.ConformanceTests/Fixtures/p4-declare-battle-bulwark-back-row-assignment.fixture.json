@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p92-p105 rules 814-826",
       "note": "壁垒要求先于同控制者非壁垒单位分配致命伤害，后排要求同控制者非后排单位先被分配致命伤害；本 fixture 只覆盖单攻击者、两防守者、壁垒优先与后排延后的 deterministic 分配，完整多单位选择仍后续扩展。"
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "Current CN core 190.3-190.4, 468.1-468.7, 471.1; SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11; physical pages 28-29,94-95",
+      "note": "Scoped current correction: real battlefield and explicit unit locations after completed duel; cleanup precedes result/control/conquest and battle closes last. Original seed, commands, damage, Hunt, survival and historical evidence remain; no whole-card certification."
     }
   ],
   "roomId": "p4-declare-battle-bulwark-back-row-assignment-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304383,
     "turnNumber": 383,
@@ -29,29 +37,52 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 0,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P1-BATTLEFIELD-VOLIBEAR"],
+        "battlefields": [
+          "BATTLEFIELD:P1-MAIN",
+          "P1-BATTLEFIELD-VOLIBEAR"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
         "championZone": []
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "battlefields": [
+          "P2-BATTLEFIELD-LEBLANC",
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -65,7 +96,13 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "坚守3", "壁垒"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "坚守3",
+          "壁垒"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BATTLEFIELD-LEBLANC": {
         "cardNo": "UNL-090/219",
@@ -73,7 +110,12 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "后排"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "后排"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BATTLEFIELD-MUTANT-KITTEN": {
         "cardNo": "UNL-036/219",
@@ -81,9 +123,49 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "坚守2",
+          "壁垒",
+          "猫科"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "BATTLEFIELD:P1-MAIN": {
+        "cardNo": "OGN·275/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P2"
       }
-    }
+    },
+    "objectLocations": {
+      "BATTLEFIELD:P1-MAIN": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P1-BATTLEFIELD-VOLIBEAR": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P2-BATTLEFIELD-LEBLANC": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      }
+    },
+    "untilEndOfTurnEffects": [
+      "BATTLEFIELD_SPELL_DUEL_COMPLETED:BATTLEFIELD:P1-MAIN"
+    ]
   },
   "commands": [
     {
@@ -92,9 +174,16 @@
       "cmd": {
         "cmdType": "DECLARE_BATTLE",
         "battlefieldId": "BATTLEFIELD:P1-MAIN",
-        "attackerObjectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
-        "defenderObjectIds": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
-        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        "attackerObjectIds": [
+          "P1-BATTLEFIELD-VOLIBEAR"
+        ],
+        "defenderObjectIds": [
+          "P2-BATTLEFIELD-LEBLANC",
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
+        "optionalCosts": [
+          "COMBAT_ASSIGNMENT"
+        ]
       }
     }
   ],
@@ -109,6 +198,10 @@
       "UNIT_DESTROYED",
       "UNIT_DESTROYED",
       "DAMAGE_REMOVED",
+      "BATTLE_RESULT_DETERMINED",
+      "BATTLEFIELD_CONTROL_RESOLVED",
+      "BATTLEFIELD_CONQUERED",
+      "SCORE_GAINED",
       "BATTLE_CLOSED"
     ],
     "events": [
@@ -119,9 +212,16 @@
         "payload": {
           "playerId": "P1",
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "attackerObjectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
-          "defenderObjectIds": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
-          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+          "attackerObjectIds": [
+            "P1-BATTLEFIELD-VOLIBEAR"
+          ],
+          "defenderObjectIds": [
+            "P2-BATTLEFIELD-LEBLANC",
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ],
+          "optionalCosts": [
+            "COMBAT_ASSIGNMENT"
+          ]
         }
       },
       {
@@ -224,7 +324,9 @@
         "sequence": 8,
         "payload": {
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "objectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
+          "objectIds": [
+            "P1-BATTLEFIELD-VOLIBEAR"
+          ],
           "count": 1,
           "previousDamageByObject": {
             "P1-BATTLEFIELD-VOLIBEAR": 7
@@ -234,14 +336,55 @@
         }
       },
       {
-        "kind": "BATTLE_CLOSED",
+        "kind": "BATTLE_RESULT_DETERMINED",
         "tick": 1,
         "sequence": 9
+      },
+      {
+        "kind": "BATTLEFIELD_CONTROL_RESOLVED",
+        "payload": {
+          "playerId": "P1",
+          "previousControllerId": "P2",
+          "controllerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 10
+      },
+      {
+        "kind": "BATTLEFIELD_CONQUERED",
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "defeatedObjectIds": [
+            "P2-BATTLEFIELD-LEBLANC",
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ]
+        },
+        "tick": 1,
+        "sequence": 11
+      },
+      {
+        "kind": "SCORE_GAINED",
+        "payload": {
+          "playerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 12
+      },
+      {
+        "kind": "BATTLE_CLOSED",
+        "tick": 1,
+        "sequence": 13
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 383,
@@ -250,21 +393,33 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-BATTLEFIELD-VOLIBEAR"],
+          "battlefields": [
+            "BATTLEFIELD:P1-MAIN",
+            "P1-BATTLEFIELD-VOLIBEAR"
+          ],
           "graveyard": []
         },
         "P2": {
           "hand": [],
           "base": [],
           "battlefields": [],
-          "graveyard": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"]
+          "graveyard": [
+            "P2-BATTLEFIELD-LEBLANC",
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ]
         }
       },
       "cardObjects": {
@@ -275,10 +430,26 @@
           "isAttacking": false,
           "isDefending": false,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "坚守3", "壁垒"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "坚守3",
+            "壁垒"
+          ]
+        },
+        "BATTLEFIELD:P1-MAIN": {
+          "cardNo": "OGN·275/298",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "tags": [
+            "CARD_TYPE:BATTLEFIELD"
+          ]
         }
       },
-      "stackItems": []
+      "stackItems": [],
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      }
     }
   }
 }

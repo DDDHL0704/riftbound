@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "核心规则定义战斗声明、战斗伤害与关键词；P4.385 把已接受 DECLARE_BATTLE 中的清场结果映射为狩猎征服经验，后续命令级回归也覆盖防守方赢得战斗并据守时的狩猎经验；完整得分、任务状态机和多攻防选择仍暂缓。"
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "Current CN core 190.3-190.4, 468.1-468.7, 471.1; SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11; physical pages 28-29,94-95",
+      "note": "Scoped current correction: real battlefield and explicit unit locations after completed duel; cleanup precedes result/control/conquest and battle closes last. Original seed, commands, damage, Hunt, survival and historical evidence remain; no whole-card certification."
     }
   ],
   "roomId": "p4-declare-battle-hunt-conquest-experience-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304385,
     "turnNumber": 385,
@@ -29,29 +37,51 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 0,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+        "battlefields": [
+          "BATTLEFIELD:P1-MAIN",
+          "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
         "championZone": []
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "battlefields": [
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -65,7 +95,12 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "狩猎3"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "狩猎3"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BATTLEFIELD-MUTANT-KITTEN": {
         "cardNo": "UNL-036/219",
@@ -73,9 +108,44 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "坚守2",
+          "壁垒",
+          "猫科"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "BATTLEFIELD:P1-MAIN": {
+        "cardNo": "OGN·275/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P2"
       }
-    }
+    },
+    "objectLocations": {
+      "BATTLEFIELD:P1-MAIN": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      }
+    },
+    "untilEndOfTurnEffects": [
+      "BATTLEFIELD_SPELL_DUEL_COMPLETED:BATTLEFIELD:P1-MAIN"
+    ]
   },
   "commands": [
     {
@@ -84,9 +154,15 @@
       "cmd": {
         "cmdType": "DECLARE_BATTLE",
         "battlefieldId": "BATTLEFIELD:P1-MAIN",
-        "attackerObjectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
-        "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
-        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        "attackerObjectIds": [
+          "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"
+        ],
+        "defenderObjectIds": [
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
+        "optionalCosts": [
+          "COMBAT_ASSIGNMENT"
+        ]
       }
     }
   ],
@@ -97,9 +173,12 @@
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
       "UNIT_DESTROYED",
-      "BATTLEFIELD_CONQUERED",
-      "EXPERIENCE_GAINED",
       "DAMAGE_REMOVED",
+      "BATTLE_RESULT_DETERMINED",
+      "BATTLEFIELD_CONTROL_RESOLVED",
+      "BATTLEFIELD_CONQUERED",
+      "SCORE_GAINED",
+      "EXPERIENCE_GAINED",
       "BATTLE_CLOSED"
     ],
     "events": [
@@ -110,9 +189,15 @@
         "payload": {
           "playerId": "P1",
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "attackerObjectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
-          "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
-          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+          "attackerObjectIds": [
+            "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"
+          ],
+          "defenderObjectIds": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ],
+          "optionalCosts": [
+            "COMBAT_ASSIGNMENT"
+          ]
         }
       },
       {
@@ -161,36 +246,14 @@
         }
       },
       {
-        "kind": "BATTLEFIELD_CONQUERED",
+        "kind": "DAMAGE_REMOVED",
         "tick": 1,
         "sequence": 5,
         "payload": {
-          "playerId": "P1",
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
-          "defeatedObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
-          "huntAmount": 3
-        }
-      },
-      {
-        "kind": "EXPERIENCE_GAINED",
-        "tick": 1,
-        "sequence": 6,
-        "payload": {
-          "playerId": "P1",
-          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
-          "cardNo": "UNL-100/219",
-          "amount": 3,
-          "totalExperience": 3
-        }
-      },
-      {
-        "kind": "DAMAGE_REMOVED",
-        "tick": 1,
-        "sequence": 7,
-        "payload": {
-          "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "objectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+          "objectIds": [
+            "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"
+          ],
           "count": 1,
           "previousDamageByObject": {
             "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG": 3
@@ -200,14 +263,67 @@
         }
       },
       {
+        "kind": "BATTLE_RESULT_DETERMINED",
+        "tick": 1,
+        "sequence": 6
+      },
+      {
+        "kind": "BATTLEFIELD_CONTROL_RESOLVED",
+        "payload": {
+          "playerId": "P1",
+          "previousControllerId": "P2",
+          "controllerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 7
+      },
+      {
+        "kind": "BATTLEFIELD_CONQUERED",
+        "tick": 1,
+        "sequence": 8,
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "defeatedObjectIds": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ],
+          "huntAmount": 3
+        }
+      },
+      {
+        "kind": "SCORE_GAINED",
+        "payload": {
+          "playerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 9
+      },
+      {
+        "kind": "EXPERIENCE_GAINED",
+        "tick": 1,
+        "sequence": 10,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "cardNo": "UNL-100/219",
+          "amount": 3,
+          "totalExperience": 3
+        }
+      },
+      {
         "kind": "BATTLE_CLOSED",
         "tick": 1,
-        "sequence": 8
+        "sequence": 11
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 385,
@@ -216,26 +332,42 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "experience": {
         "P1": 3,
         "P2": 0
       },
-      "untilEndOfTurnEffects": ["GAINED_EXPERIENCE_THIS_TURN:P1"],
+      "untilEndOfTurnEffects": [
+        "BATTLEFIELD_SPELL_DUEL_COMPLETED:BATTLEFIELD:P1-MAIN",
+        "BATTLEFIELD_SCORE_GAINED_THIS_TURN:BATTLEFIELD:P1-MAIN:P1",
+        "GAINED_EXPERIENCE_THIS_TURN:P1",
+        "BATTLEFIELD_BATTLE_SKIPPED:BATTLEFIELD:P1-MAIN"
+      ],
       "players": {
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+          "battlefields": [
+            "BATTLEFIELD:P1-MAIN",
+            "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"
+          ],
           "graveyard": []
         },
         "P2": {
           "hand": [],
           "base": [],
           "battlefields": [],
-          "graveyard": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+          "graveyard": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ]
         }
       },
       "cardObjects": {
@@ -246,10 +378,25 @@
           "isAttacking": false,
           "isDefending": false,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "狩猎3"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "狩猎3"
+          ]
+        },
+        "BATTLEFIELD:P1-MAIN": {
+          "cardNo": "OGN·275/298",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "tags": [
+            "CARD_TYPE:BATTLEFIELD"
+          ]
         }
       },
-      "stackItems": []
+      "stackItems": [],
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      }
     }
   }
 }
