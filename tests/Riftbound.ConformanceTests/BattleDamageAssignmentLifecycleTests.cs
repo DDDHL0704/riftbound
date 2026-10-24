@@ -3685,9 +3685,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = BattlefieldObjectId,
             assignments = legalAssignments.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick
@@ -3775,9 +3775,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = BattlefieldObjectId,
             assignments = legalAssignments.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick,
@@ -4806,9 +4806,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = command.BattlefieldId,
             assignments = command.Assignments?.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
@@ -4827,9 +4827,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             battlefieldId = command.BattlefieldId,
             assignments = command.Assignments?.Select(assignment => new
             {
-                assignment.SourceObjectId,
-                assignment.TargetObjectId,
-                assignment.Damage
+                sourceObjectId = assignment.SourceObjectId,
+                targetObjectId = assignment.TargetObjectId,
+                damage = assignment.Damage
             }),
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick,

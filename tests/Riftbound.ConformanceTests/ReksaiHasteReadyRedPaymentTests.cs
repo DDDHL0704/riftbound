@@ -535,7 +535,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -552,7 +552,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -568,7 +568,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         IReadOnlyList<string> optionalCosts)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(ReksaiObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(ReksaiObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(ReksaiCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
         Assert.Equal(

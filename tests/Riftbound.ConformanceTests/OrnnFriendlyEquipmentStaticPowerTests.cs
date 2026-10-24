@@ -1234,7 +1234,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -1251,7 +1251,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -1267,10 +1267,10 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         ActionPromptDto prompt)
     {
         Assert.Equal(
-            ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
+            ["cmdType", "sourceObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
             rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(command.SourceObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(command.SourceObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(command.CardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal(
             command.TargetObjectIds,

@@ -411,7 +411,7 @@ public sealed class DravenVanillaGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -432,7 +432,7 @@ public sealed class DravenVanillaGuardTests
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId
+            sourceObjectId = command.SourceObjectId
         });
     }
 
@@ -444,7 +444,7 @@ public sealed class DravenVanillaGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -466,7 +466,7 @@ public sealed class DravenVanillaGuardTests
             Assert.Equal(
                 [
                     "cmdType",
-                    "cardObjectId",
+                    "sourceObjectId",
                     "cardNo",
                     "targetObjectIds",
                     "optionalCosts",
@@ -477,7 +477,7 @@ public sealed class DravenVanillaGuardTests
         }
 
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(DravenObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(DravenObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(DravenPrimaryCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
         Assert.Empty(rawCommand.GetProperty("optionalCosts").EnumerateArray());
