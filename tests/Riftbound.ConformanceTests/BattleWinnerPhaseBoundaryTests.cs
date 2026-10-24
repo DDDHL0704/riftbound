@@ -84,7 +84,10 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
         Assert.Contains("HOST", run.State.PlayerZones["P1"].Graveyard); Assert.Contains("ATTACKER", run.State.PlayerZones["P2"].Graveyard);
         Assert.Null(run.State.CardObjects["HOME"].ControllerId); Assert.Null(run.State.PendingBattleResult);
         Assert.Single(run.Events(), e => e.Event.Kind == "BATTLE_NO_RESULT"); Assert.Single(run.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
-        Assert.DoesNotContain(run.Events(), e => e.Event.Kind is "BATTLE_RESULT_DETERMINED" or "BATTLEFIELD_CONQUERED");
+        // CN468.3 also determines a no-result outcome; it earns no victory or conquest.
+        var outcome = Assert.Single(run.Events(), e => e.Event.Kind == "BATTLE_RESULT_DETERMINED");
+        Assert.Null(Assert.IsType<BattleResultContinuation>(outcome.Event.Payload["continuation"]).WinnerPlayerId);
+        Assert.DoesNotContain(run.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
         await run.Replay(); Save("existing-no-winner", initial, run);
     }
 

@@ -761,8 +761,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
         Assert.Equal("P1", assigned.State.FocusPlayerId);
@@ -1904,9 +1904,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(responseClosedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(responseClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
         Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
@@ -2098,9 +2098,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(responseClosedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(responseClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
         Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
@@ -2393,9 +2393,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(responseClosedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(responseClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
         Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
@@ -2517,12 +2517,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.True(responseP1Pass.State.BattleState.IsActive, JsonSerializer.Serialize(new {
-            responseP1Pass.State.Status, responseP1Pass.State.WinnerPlayerId,
-            responseP1Pass.State.BattleState, responseP1Pass.State.SpellDuelState,
-            responseP1Pass.State.PendingBattleResult, responseP1Pass.State.PendingTaskQueue,
-            events = responseP1Pass.Events.Select(e => new { e.Kind,
-                field = e.Payload.GetValueOrDefault("battlefieldId") ?? e.Payload.GetValueOrDefault("battlefieldObjectId") }) }));
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
         Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Equal([NextAttackerObjectId], responseP1Pass.State.BattleState.AttackerObjectIds);
@@ -2555,9 +2550,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(responseClosedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(responseClosedIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         AssertNaturalAssignDamageNextContestPromptQueueAudit(responseP1Pass);
     }
