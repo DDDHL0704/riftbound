@@ -27,7 +27,7 @@ public sealed class CurrentKeywordAuraCommandTests(Xunit.Abstractions.ITestOutpu
             await run.Act("P1", new PlayCardCommand("SOURCE", "UNL-058/219", [], Destination: "BASE"));
             await run.Act("P1", new PlayCardCommand("TOKEN-SPELL", "OGN·094/298", []));
             await Drain(run);
-            target = Assert.Single(run.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.Token)
+            target = Assert.Single(run.State.CardObjects.Values, c => P6TokenFactoryCatalog.IsTokenFactory(c.TokenFactoryCardNo ?? c.CardNo ?? "")
                 && c.Tags.Contains(CardObjectTags.UnitCard)).ObjectId;
             Assert.Equal(3, run.State.CardObjects[target].Power);
             await run.Act("P1", new MoveUnitCommand(target, "BASE", "BATTLEFIELD:F", []));
