@@ -11,3 +11,5 @@
 - Each actual command retains structural recovery, JSON cold production-registry admission with original action/event audit, hidden unrevealed identifiers and unchanged duplicate history/state.
 - Evidence: `var/qa/ven-rune-printing-consumers-20261024/main-scoped-v1/`; focus 61/61, 348 commands (240 accepted/108 rejected), 1368 events; receipt SHA `b53788c4d804a3b913c19c075837cd96776efd59b6a5a7d4bdd471fe6255e774`. Rule-suite CI pending; older inputs/L3 separate.
 - Six b printings visibly carry PROMO and have empty product fields; dates/applicability remain UNKNOWN. Official universe 1740/14293 retained; whole-card certification delta 0, backend NOT READY.
+
+目录增量同时同步Ahri历史审计的当前总量1058与非历史印次数49；原1009历史记录逐字段比较及精确勘误映射保持。此前61例证据继续绑定原冻结输入；补充审计另存 `var/qa/cards-direct-pr-migration-20261024/historical-inventory-addons-v1/pr123/`，最新PR仍须实际L2通过。
