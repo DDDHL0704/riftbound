@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1040,
+  "total": 1041,
   "cards": [
     {
       "id": 31005,
@@ -43184,6 +43184,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37862,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "VEN·159",
+      "cardName": "均衡寺院",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Grafit Studio",
+      "cardEffect": "此处拥有{{壁垒}}的单位获得{{S}}+1。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/d0d87c0899a44a1f8c9b196071fe5425.png",
+      "backImage": "",
+      "listSort": 1824,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43709,6 +43757,22 @@
       "printedFaceIdentity": "VEN·081/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-081/166",
       "reason": "Three basic resource Flow spell consumers reuse the existing CN829 mechanism; branch implementation and semantic tests in progress, whole-card candidate certification pending integration."
+    },
+    {
+      "cardNo": "VEN·159",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T08:48:22.197777+00:00",
+      "sourceId": 37862,
+      "sourceRecordSha256": "ab78868b436d5b49f4956e0b936f21bbf1b3689396e041c2a6760a5aaf02a6e5",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "applicability": "UNKNOWN",
+      "printedFaceIdentity": "VEN·159/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-159/166",
+      "reason": "Exact current battlefield consumer of CURRENT_KEYWORD:壁垒 from PR160 head94d0f0f917f673f4fc1ed7aadf0aef535abb536c. Prior1040 entries and all1740 printing scope retained. Registration and focused tests do not certify whole-card semantics or backend acceptance."
     }
   ]
 }
