@@ -5343,7 +5343,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "play-card-active-with-first-ready-prompt-after-final-ready",
             new PlayCardCommand("missing-card", "MISSING-CARD", []),
-            PromptScopedBasicRawCommand(CommandTypes.PlayCard, prompt),
+            CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), PromptScopedBasicRawCommand(CommandTypes.PlayCard, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5485,7 +5485,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new PlayCardCommand("missing-card", "MISSING-CARD", []),
-            rawCommandFactory(prompt),
+            CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -9278,7 +9278,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -9350,7 +9350,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -11005,7 +11005,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-play-card-after-first-turn-surrender-match-finished",
                 new PlayCardCommand("missing-source", "missing-card", []),
-                RawCommandWithClientNote(CommandTypes.PlayCard, "fresh-play-card-after-match-finished"),
+                CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), RawCommandWithClientNote(CommandTypes.PlayCard, "fresh-play-card-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -13761,7 +13761,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(firstTurnPrompt),
+            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15155,7 +15155,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(waitPrompt),
+            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16507,7 +16507,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(waitPrompt),
+            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17521,7 +17521,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17593,7 +17593,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17682,7 +17682,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -17758,7 +17758,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -17854,7 +17854,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17926,7 +17926,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18197,7 +18197,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -18273,7 +18273,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -18369,7 +18369,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18457,7 +18457,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt),
+            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -20280,6 +20280,20 @@ public sealed class OfficialOpeningTests
             decklist.MainDeck,
             decklist.RuneDeck,
             decklist.Battlefields);
+    }
+
+    // Keep each historical prompt/tick envelope exactly as supplied while
+    // sending the complete native PLAY_CARD payload to the ingress boundary.
+    private static JsonElement CompletePlayCardWirePayload(GameCommand command, JsonElement envelope)
+    {
+        if (command is not PlayCardCommand playCard)
+            return envelope;
+
+        var raw = JsonSerializer.SerializeToNode(envelope)!.AsObject();
+        var payload = JsonSerializer.SerializeToNode(playCard, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+        foreach (var property in payload)
+            raw[property.Key] = property.Value?.DeepClone();
+        return JsonSerializer.SerializeToElement(raw);
     }
 
     private static JsonElement RawCommand(string cmdType)
