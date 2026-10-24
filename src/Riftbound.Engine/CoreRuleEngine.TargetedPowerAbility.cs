@@ -38,10 +38,6 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "此技能没有所选额外费用。", ErrorCodes.InvalidTarget);
 
         var tax = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out var taxedTargets);
-        var pool = state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
-        if (!AreRecycleRunePaymentResourceActionsRequired(pool, state.CardObjects, recycledRunes, tax,
-                new Dictionary<string, int>(StringComparer.Ordinal)))
-            return RejectWithCorePrompts(state, "此技能无需所选符文回收。", ErrorCodes.InvalidTarget);
         const string window = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, window, intent.PlayerId, command.SourceObjectId, command.AbilityId);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, window, intent.PlayerId, 0, 0, tax, tax,
