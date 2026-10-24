@@ -37,7 +37,7 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
     [Theory]
     [InlineData("此处拥有{{后排}}的单位获得{{S}}+1。")]
     [InlineData("你的此处拥有{{壁垒}}的单位获得{{S}}+1。")]
-    [InlineData("此处拥有{{壁垒}}的单位获得{{S}}+1。额外文本")]
+    [InlineData("此处拥有{{壁垒}}的单位获得{{S}}+1且改为+2")]
     public void ParserDoesNotInventAnotherKeywordOrControllerScope(string text)
         => Assert.DoesNotContain(StaticAuraParser.Parse(text), a => a.TargetFilter == "CURRENT_KEYWORD:壁垒");
 
@@ -53,7 +53,7 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             { ["F"] = state.CardObjects["F"] with { ControllerId = controller } } };
         AssertMight(state, "P1-TARGET", 4);
         AssertMight(state, "P2-TARGET", 4);
-        Assert.Equal(["P1-TARGET", "P2-TARGET"], Effects(state).Select(e => e.TargetObjectId).Order().ToArray());
+        Assert.Equal(["P1-TARGET", "P2-TARGET"], Effects(state).Select(e => e.TargetObjectId!).Order().ToArray());
         foreach (var effect in Effects(state))
         {
             Assert.Equal(1, effect.PowerDelta);
