@@ -213,11 +213,25 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             if (!continuous) Assert.Contains(target, run.State.PlayerZones[player].Hand);
         }
         await run.Replay();
-        var initialJson = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(initial, Json))!;
-        var finalJson = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(run.State, Json))!;
-        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(initialJson));
-        Assert.Equal(MatchStateHasher.Hash(run.State), MatchStateHasher.Hash(finalJson));
-        var jsonReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initialJson, run.Commands(), finalJson, new CoreRuleEngine(), default, run.Events());
+        var sequence = run.Events()[^1].Sequence;
+        var snapshots = ResolutionResult.BuildSnapshots(run.State); var prompts = ResolutionResult.BuildPrompts(run.State);
+        var views = run.State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, run.State.Tick, sequence,
+            snapshots[p], run.State.Tick, sequence, prompts[p]));
+        var frame = new MatchRecoveryFrame(run.State.RoomId, run.State.Tick, sequence, run.Commands(), run.Events(), views, [], run.State, initial,
+            MatchReplayRedactor.BuildSpectatorFrame(run.State.RoomId, run.State.Tick, sequence, [], run.State)) { OpeningSeed = initial.Seed };
+        var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(decoded.ReplayInitialState!));
+        Assert.Equal(MatchStateHasher.Hash(run.State), MatchStateHasher.Hash(decoded.AuthoritativeState!));
+        Assert.Empty(MatchRecoveryValidator.Validate(decoded.RoomId, decoded.LastEventSequence, decoded.Commands, decoded.Events,
+            decoded.PlayerViews, decoded.AuthoritativeState, decoded.CurrentTick, decoded.SpectatorReplayFrame));
+        var restored = MatchSession.Restore(decoded, new CoreRuleEngine(), run);
+        foreach (var viewer in run.State.Seats.Keys)
+        {
+            Assert.Equal(MatchStateHasher.HashValue(snapshots[viewer]), MatchStateHasher.HashValue(restored.SnapshotFor(viewer)));
+            Assert.Equal(MatchStateHasher.HashValue(prompts[viewer]), MatchStateHasher.HashValue(restored.PromptFor(viewer)));
+        }
+        var jsonReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(decoded.ReplayInitialState!, decoded.Commands,
+            decoded.AuthoritativeState!, new CoreRuleEngine(), default, decoded.Events);
         Assert.True(jsonReplay.IsMatch, string.Join("; ", jsonReplay.Errors));
         var forgeries = await RejectForgedHistory(initial, run);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN159_EVIDENCE") is { } root)
@@ -337,6 +351,7 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
         foreach (var owner in new[] { "P1", "P2" })
         {
             Put("LATE-" + owner, Wind, owner, "HAND");
+            foreach (var i in Enumerable.Range(1, 4)) Put(owner + "-PUBLIC-RUNE-" + i, "UNL-R03", owner, "BASE");
             foreach (var i in Enumerable.Range(1, 3))
             { Put("PRIVATE-" + owner + "-DRAW-" + i, "OGN·219/298", owner, "MAIN_DECK"); Put("PRIVATE-" + owner + "-RUNE-" + i, "UNL-R03", owner, "RUNE_DECK"); }
             string[] In(string zone) => locations.Where(p => p.Value.PlayerId == owner && p.Value.Zone == zone).Select(p => p.Key).ToArray();
