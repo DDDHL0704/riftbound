@@ -17,12 +17,13 @@ public sealed record BattleResultContinuation(string BattlefieldId, string Attac
 
 public sealed partial class CoreRuleEngine
 {
-    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result)
+    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
+            result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
@@ -43,7 +44,7 @@ public sealed partial class CoreRuleEngine
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected);
+            collected = RecordBattleDuelRoles(state, collected, roleEventOffset);
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
             collected = StampNewTriggerQueueTimes(state, collected);

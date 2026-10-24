@@ -2332,7 +2332,7 @@ public sealed record MatchState
                 effects.Add(sourceBattleStatePowerEffect);
             }
 
-            if (cardObject.UntilEndOfTurnPowerModifier != 0)
+            if (cardObject.UntilEndOfTurnPowerModifier != 0 || cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
             {
                 if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
                 {
@@ -2396,16 +2396,23 @@ public sealed record MatchState
 
             foreach (var effectId in cardObject.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
             {
+                if (BattleLimitedMarkers.PrivateMarker(effectId)) continue;
+                var battleGrant = cardObject.UntilEndOfTurnEffects.Select(text =>
+                    BattleLimitedMarkers.TryGrant(text, out var grant) ? grant : null)
+                    .SingleOrDefault(grant => grant?.KeywordEffectId == effectId);
                 effects.Add(new ContinuousEffectState(
                     $"OBJECT:{objectId}:{effectId}",
                     "OBJECT",
                     ContinuousEffectLayers.RuleText,
-                    "UNTIL_END_OF_TURN",
+                    battleGrant is null ? "UNTIL_END_OF_TURN" : BattleLimitedMarkers.Duration,
                     objectId,
-                    null,
+                    battleGrant?.SourceObjectId,
                     0,
                     ResolveBasePower(cardObject),
-                    cardObject.Power));
+                    cardObject.Power,
+                    battleGrant?.Context.Kind ?? "",
+                    battleGrant?.Context.CardNo,
+                    battleGrant is null ? "" : BattleLimitedMarkers.SourcePath));
             }
         }
 
@@ -2433,7 +2440,8 @@ public sealed record MatchState
 
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
-        return effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+        return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
@@ -6660,7 +6668,7 @@ public sealed record ResolutionResult(
             ["isAttacking"] = cardObject.IsAttacking,
             ["isDefending"] = cardObject.IsDefending,
             ["tags"] = cardObject.Tags,
-            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects,
+            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects.Where(effect => !BattleLimitedMarkers.PrivateMarker(effect)).ToArray(),
             ["manaCost"] = cardObject.ManaCost,
             ["attachedToObjectId"] = cardObject.AttachedToObjectId,
             ["cardNo"] = cardObject.CardNo,
@@ -13989,6 +13997,7 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
+            || battlefieldState.CardNo == "OGN·279/298"
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger,

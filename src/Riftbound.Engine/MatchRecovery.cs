@@ -1089,6 +1089,35 @@ public static partial class MatchRecoveryValidator
         long? currentTick = null,
         MatchReplayFrame? spectatorReplayFrame = null)
     {
+        return ValidateFrame(roomId, lastEventSequence, commands, events, playerViews,
+            authoritativeState, currentTick, spectatorReplayFrame, requireAcceptedBattleHistory: true);
+    }
+
+    // A component fixture has no journal. This checks its state and views, but
+    // cannot certify accepted birth or restore a persisted match. Recovery uses
+    // Validate above and retains the mandatory accepted-history check.
+    public static IReadOnlyList<string> ValidateComponentStateAndViews(
+        MatchState authoritativeState,
+        IReadOnlyDictionary<string, RecoveredPlayerView>? playerViews = null,
+        MatchReplayFrame? spectatorReplayFrame = null)
+    {
+        ArgumentNullException.ThrowIfNull(authoritativeState);
+        return ValidateFrame(authoritativeState.RoomId, 0, [], [],
+            playerViews ?? new Dictionary<string, RecoveredPlayerView>(), authoritativeState,
+            authoritativeState.Tick, spectatorReplayFrame, requireAcceptedBattleHistory: false);
+    }
+
+    private static IReadOnlyList<string> ValidateFrame(
+        string roomId,
+        long lastEventSequence,
+        IReadOnlyList<RecoveredCommand> commands,
+        IReadOnlyList<RecoveredEvent> events,
+        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
+        MatchState? authoritativeState,
+        long? currentTick,
+        MatchReplayFrame? spectatorReplayFrame,
+        bool requireAcceptedBattleHistory)
+    {
         var errors = new List<string>();
         if (authoritativeState is { } inputState && !RuleInputIdentity.IsCurrentState(inputState))
             errors.Add("authoritative rule input identity is missing or differs from running inputs");
@@ -1133,6 +1162,8 @@ public static partial class MatchRecoveryValidator
         ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, visibleState);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
+        if (requireAcceptedBattleHistory && authoritativeState is not null)
+            ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
         ValidateSpectatorReplayFrame(
             roomId,
             lastEventSequence,
@@ -6610,6 +6641,7 @@ public static partial class MatchRecoveryValidator
     private static bool IsKnownContinuousEffectDuration(string value)
     {
         return string.Equals(value, "UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            || string.Equals(value, "UNTIL_END_OF_BATTLE", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
@@ -10761,7 +10793,7 @@ public static partial class MatchRecoveryValidator
             objectId,
             objectPayload,
             "untilEndOfTurnEffects",
-            cardObject.UntilEndOfTurnEffects,
+            cardObject.UntilEndOfTurnEffects.Where(text => !BattleLimitedMarkers.PrivateMarker(text)).ToArray(),
             "until-end-of-turn effects",
             "until-end-of-turn effect",
             errors);
@@ -15724,7 +15756,8 @@ public static partial class MatchRecoveryValidator
             errors.Add($"{effectLabel} snapshot Might requires POWER_MODIFIER foundation metadata");
         }
         ValidateContinuousEffectPowerFloorConsistency(
-            effectLabel, minimumPower, resultingPower, requestedPowerDelta, appliedPowerDelta, snapshotMight, errors);
+            effectLabel, minimumPower, resultingPower, requestedPowerDelta, appliedPowerDelta, snapshotMight, errors,
+            effectKind, duration, sourceCardNo, sourcePath, effectId);
         var appliedOrder = ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "appliedOrder",
@@ -17509,6 +17542,12 @@ public static partial class MatchRecoveryValidator
         string? duration,
         List<string> errors, string? effectKind = null)
     {
+        if (duration == "UNTIL_END_OF_BATTLE") {
+            if (!(layer == ContinuousEffectLayers.PowerModifier && effectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND"
+                || layer == ContinuousEffectLayers.RuleText && effectKind == "BATTLE_STEADFAST_DEFEND"))
+                errors.Add($"{effectLabel} battle duration is invalid for its layer or definition");
+            return;
+        }
         if (effectKind == CoreRuleEngine.BoonAmplifierEffect && layer == ContinuousEffectLayers.StaticAura
             && duration == "UNTIL_END_OF_TURN") return;
         if (layer is null
@@ -18400,17 +18439,22 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(effectKind))
+        var battleKeyword = scope == "OBJECT" && effectKind == "BATTLE_STEADFAST_DEFEND" && sourceCardNo == "OGN·279/298"
+            && sourcePath == "CoreRuleEngine.ResolveBattleLimitedRoleSkill"
+            && TryReadObjectString(effectPayload, "duration", out var battleDuration) && battleDuration == "UNTIL_END_OF_BATTLE"
+            && TryReadObjectString(effectPayload, "effectId", out var battleEffectId) && battleEffectId is not null
+            && battleEffectId.StartsWith("OBJECT:", StringComparison.Ordinal) && battleEffectId.Contains(":COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal);
+        if (!battleKeyword && !string.IsNullOrWhiteSpace(effectKind))
         {
             errors.Add($"{effectLabel} RULE_TEXT effect kind must be absent");
         }
 
-        if (!string.IsNullOrWhiteSpace(sourceCardNo))
+        if (!battleKeyword && !string.IsNullOrWhiteSpace(sourceCardNo))
         {
             errors.Add($"{effectLabel} RULE_TEXT source card no must be absent");
         }
 
-        if (!string.IsNullOrWhiteSpace(sourcePath))
+        if (!battleKeyword && !string.IsNullOrWhiteSpace(sourcePath))
         {
             errors.Add($"{effectLabel} RULE_TEXT source path must be absent");
         }
@@ -18451,8 +18495,16 @@ public static partial class MatchRecoveryValidator
         int? requestedPowerDelta,
         int? appliedPowerDelta,
         int? snapshotMight,
-        List<string> errors)
+        List<string> errors, string? effectKind = null, string? duration = null, string? sourceCardNo = null,
+        string? sourcePath = null, string? effectId = null)
     {
+        if (duration == "UNTIL_END_OF_BATTLE" && effectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND"
+            && sourceCardNo is "SFD·110/221" or "SFD·110a/221" && sourcePath == "CoreRuleEngine.ResolveBattleLimitedRoleSkill"
+            && effectId?.StartsWith("BATTLE_LIMITED_POWER:", StringComparison.Ordinal) == true) {
+            if (minimumPower != 0 || snapshotMight is not > 0 || requestedPowerDelta != snapshotMight || appliedPowerDelta != snapshotMight)
+                errors.Add($"{effectLabel} battle double snapshot and additive deltas disagree");
+            return;
+        }
         if (minimumPower is not > 0 || requestedPowerDelta is >= 0)
         {
             if (snapshotMight.HasValue)
@@ -23094,6 +23146,7 @@ public static partial class MatchRecoveryValidator
         ValidateAuthoritativeStatePendingHandChoiceValues(authoritativeState.PendingHandChoice, errors);
         ValidateAuthoritativeStatePendingCardChoiceValues(authoritativeState.PendingCardChoice, errors);
         ValidateAuthoritativeStateUntilEndOfTurnEffectValues(authoritativeState.UntilEndOfTurnEffects, errors);
+        ValidateBattleLimitedMarkers(authoritativeState, errors);
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
@@ -23132,6 +23185,7 @@ public static partial class MatchRecoveryValidator
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattleLimitedView(view, authoritativeState, errors);
             ValidateDynamicPowerAuraViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEmpoweredViews(view.Snapshot, authoritativeState, view.PlayerId, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23913,7 +23967,7 @@ public static partial class MatchRecoveryValidator
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
-                || field.Kind is "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
+                || field.Kind is "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
                     || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
                     || item.Destination.Length != 0 || item.TargetedPowerAbility is not null || item.DamageDistribution is not null)
                 : item.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger stack context");
@@ -26660,7 +26714,7 @@ public static partial class MatchRecoveryValidator
                 modifier.RequestedPowerDelta,
                 modifier.PowerDelta,
                 modifier.SnapshotMight,
-                errors);
+                errors, modifier.EffectKind, modifier.Duration, modifier.SourceCardNo, modifier.SourcePath, modifier.EffectId);
 
             if (modifier.AppliedOrder is { } appliedOrder)
             {
