@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1040,
+  "total": 1041,
   "cards": [
     {
       "id": 31005,
@@ -43184,6 +43184,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "artist": "Kudos Productions",
+      "backImage": "",
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardColorList": [
+        "blue"
+      ],
+      "cardEffect": "打出一名3{{S}}的“机器人”。\n{{流转2蓝色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "cardGroupLimit": null,
+      "cardName": "迭代式设计",
+      "cardNo": "VEN·051",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": 4,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "重新发明车轮，未必见得是坏事。",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/55cd91e478d0406d8d1ff5101c254074.png",
+      "hero": "",
+      "id": 37742,
+      "isPreview": false,
+      "listSort": 1944,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
     }
   ],
   "scopedAdditions": [
@@ -43709,6 +43757,21 @@
       "printedFaceIdentity": "VEN·081/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-081/166",
       "reason": "Three basic resource Flow spell consumers reuse the existing CN829 mechanism; branch implementation and semantic tests in progress, whole-card candidate certification pending integration."
+    },
+    {
+      "cardNo": "VEN·051",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T04:54:35Z",
+      "sourceId": 37742,
+      "sourceRecordSha256": "33e988c8271fd7c3233e018924331f9726b0306288687e0de4eb3c71ab568caf",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·051/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-051/166",
+      "reason": "Exact robot-creation and Flow consumer using existing main mechanisms; whole-card and token-printing certification remain separate."
     }
   ]
 }
