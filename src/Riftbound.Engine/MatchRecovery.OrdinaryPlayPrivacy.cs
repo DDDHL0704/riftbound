@@ -5,7 +5,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateOrdinaryPrivatePlaySkillSnapshot(
         RecoveredPlayerView view, MatchState state, List<string> errors)
     {
-        if (view.SnapshotTick != state.Tick || view.Snapshot.Stack is null) return;
+        if (view.SnapshotTick != state.Tick) return;
         foreach (var skill in state.StackItems.Where(i => i.SourceConfirmed && i.PermanentPlaySource is null))
         {
             // This expectation comes from authoritative zones and disclosure
@@ -18,7 +18,7 @@ public static partial class MatchRecoveryValidator
                 && !CoreRuleEngine.CanViewObservedDeckCard(state, skill.SourceObjectId, view.PlayerId)
                 && !CoreRuleEngine.IsPubliclyRevealedHandCard(state, skill.SourceObjectId)
                 && !CoreRuleEngine.IsPubliclyRevealedDeckCard(state, skill.SourceObjectId);
-            var rows = view.Snapshot.Stack.Where(row => TryReadObjectString(row, "stackItemId", out var id)
+            var rows = (view.Snapshot.Stack ?? []).Where(row => TryReadObjectString(row, "stackItemId", out var id)
                 && id == skill.StackItemId).ToArray();
             if (rows.Length != 1) {
                 errors.Add($"snapshot for {view.PlayerId} ordinary play skill {skill.StackItemId} requires one exact stack row");

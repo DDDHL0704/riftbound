@@ -58,22 +58,39 @@ public sealed class OrdinaryPlaySourcePrivacyTests
                     "playAbility" => false, _ => "FORGED" };
                 var views = frame.PlayerViews.ToDictionary();
                 views[opponent] = views[opponent] with { Snapshot = snapshots[opponent] with { Stack = [row] } };
-                // The caller-provided validation list is empty. Restore must
-                // independently recompute the malformed current public view.
+                // The store validates persisted views before returning a frame.
+                // Restore consumes that report and rebuilds served views from
+                // the authoritative state, rather than replaying stored views.
                 var forged = frame with { PlayerViews = views, ValidationErrors = [] };
                 var errors = Errors(forged);
                 Assert.Contains(errors, e => e.Contains("ordinary play skill", StringComparison.Ordinal));
                 Assert.Equal(ErrorCodes.RecoveryInconsistent,
-                    Assert.Throws<MatchSessionException>(() => MatchSession.Restore(forged, new CoreRuleEngine(), run)).Code);
+                    Assert.Throws<MatchSessionException>(() => MatchSession.Restore(forged with { ValidationErrors = errors }, new CoreRuleEngine(), run)).Code);
+                var rebuilt = MatchSession.Restore(forged, new CoreRuleEngine(), run);
+                foreach (var viewer in new[] { "P1", "P2" })
+                    Assert.Equal(MatchStateHasher.HashValue(snapshots[viewer]), MatchStateHasher.HashValue(rebuilt.SnapshotFor(viewer)));
                 mutations.Add(new { key, errors });
+            }
+            foreach (var malformed in new[] { "null-stack", "empty-stack", "duplicate-row" })
+            {
+                var views = frame.PlayerViews.ToDictionary();
+                views[opponent] = views[opponent] with { Snapshot = snapshots[opponent] with { Stack = malformed switch
+                    { "null-stack" => null, "empty-stack" => [], _ => [..snapshots[opponent].Stack!, ..snapshots[opponent].Stack!] } } };
+                var forged = frame with { PlayerViews = views, ValidationErrors = [] };
+                var errors = Errors(forged);
+                Assert.Contains(errors, e => e.Contains("ordinary play skill", StringComparison.Ordinal));
+                Assert.Equal(ErrorCodes.RecoveryInconsistent,
+                    Assert.Throws<MatchSessionException>(() => MatchSession.Restore(forged with { ValidationErrors = errors }, new CoreRuleEngine(), run)).Code);
+                mutations.Add(new { key = malformed, errors });
             }
             var spectatorRow = new Dictionary<string, object?>(Assert.IsType<Dictionary<string, object?>>(Assert.Single(frame.SpectatorReplayFrame!.SpectatorSnapshot.Stack)))
                 { ["sourceObjectId"] = "SOURCE" };
             var spectatorForgery = frame with { SpectatorReplayFrame = frame.SpectatorReplayFrame with
                 { SpectatorSnapshot = frame.SpectatorReplayFrame.SpectatorSnapshot with { Stack = [spectatorRow] } }, ValidationErrors = [] };
-            Assert.NotEmpty(Errors(spectatorForgery));
+            var spectatorErrors = Errors(spectatorForgery);
+            Assert.NotEmpty(spectatorErrors);
             Assert.Equal(ErrorCodes.RecoveryInconsistent,
-                Assert.Throws<MatchSessionException>(() => MatchSession.Restore(spectatorForgery, new CoreRuleEngine(), run)).Code);
+                Assert.Throws<MatchSessionException>(() => MatchSession.Restore(spectatorForgery with { ValidationErrors = spectatorErrors }, new CoreRuleEngine(), run)).Code);
             var alteredEvents = run.Events().Select(e => e.Event.Kind == "TRIGGER_QUEUED" ? e with
                 { Event = e.Event with { Payload = new Dictionary<string, object?>(e.Event.Payload) { ["sourceObjectId"] = "OTHER" } } } : e).ToArray();
             var mismatch = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, run.Commands(), run.State, new CoreRuleEngine(), default, alteredEvents);
