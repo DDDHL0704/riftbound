@@ -20,8 +20,8 @@ public sealed class BattleCleanupDeathObserverTimingTests
         // ordinary observer are actually played. No captured death is injected.
         var initial = Opening(observer);
         var run = new Driver(initial);
-        if (observer) await run.Act("P1", new PlayCardCommand("OBSERVER", "UNL-068/219", [], Destination: "BASE"));
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·219/298", [], Destination: "BATTLEFIELD:HOME"));
+        if (observer) await run.Act("P1", new PlayCardCommand("OBSERVER", "UNL-068/219", [], Destination: "BASE"));
         await run.Act("P1", new EndTurnCommand());
         var funds = Enumerable.Range(1, 12).Select(i => "P2-FUND-" + i).ToArray();
         await run.Act("P2", new TapRuneCommand(funds[0], funds));
