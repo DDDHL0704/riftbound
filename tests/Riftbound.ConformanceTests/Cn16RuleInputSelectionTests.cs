@@ -39,7 +39,7 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
         // The 1040 card rows and authority are unchanged. The catalog identity now
         // includes the reviewed Guardian Angel host-destruction replacement profile.
-        Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All.Where(a => a.ReplacesHostDestruction)).CardNo);
+        Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All, a => a.ReplacesHostDestruction).CardNo);
         var guardian = Assert.IsType<OfficialArmamentDefinition>(OfficialArmamentCatalog.Find("SFD·051/221"));
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
