@@ -17,12 +17,13 @@ public sealed record BattleResultContinuation(string BattlefieldId, string Attac
 
 public sealed partial class CoreRuleEngine
 {
-    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result)
+    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
+            result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
@@ -43,7 +44,7 @@ public sealed partial class CoreRuleEngine
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected);
+            collected = RecordBattleDuelRoles(state, collected, roleEventOffset);
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
             collected = StampNewTriggerQueueTimes(state, collected);
@@ -60,7 +61,7 @@ public sealed partial class CoreRuleEngine
 
     // CN 468.3-468.7: result skills finish before control, and control skills
     // finish before the battle closes. Both damage and skipped-damage paths
-    // enter this same continuation when a result has pending observers.
+    // enter this same continuation for every determined winner.
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
         string battlefield, string attacker, string? defender, string? winner,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
@@ -97,7 +98,7 @@ public sealed partial class CoreRuleEngine
             : CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
                 attackers, defenders, resultState.Tick);
         queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
-        if (queued.Count == 0 && !hasCapturedDeaths) return false;
+        // A determined winner still requires the same cleanup/control/victory phases when no skill was earned.
 
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
@@ -184,11 +185,12 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = null, FocusPlayerId = null, PassedFocusPlayerIds = [], PassedPriorityPlayerIds = []
         };
         // CN 463: opposing occupants after battle end create a new pending
-        // battle. The completed battle's skip marker must not suppress it.
+        // battle. The completed battle's markers must not suppress its new duel.
         if (state.BattlefieldStates.TryGetValue(continuation.BattlefieldId, out var battlefield)
             && battlefield.OccupantControllerIds.Distinct(StringComparer.Ordinal).Count() > 1)
             state = state with { UntilEndOfTurnEffects = state.UntilEndOfTurnEffects
-                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)).ToArray() };
+                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)
+                    && effect != BattlefieldTaskMarkers.SpellDuelCompleted(continuation.BattlefieldId)).ToArray() };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(state, continuation.AttackingPlayerId, result.State);
         events.AddRange(advance.Events);
         return Rebuild(advance.State, events);
