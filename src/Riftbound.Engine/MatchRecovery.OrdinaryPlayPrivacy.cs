@@ -6,8 +6,7 @@ public static partial class MatchRecoveryValidator
         RecoveredPlayerView view, MatchState state, List<string> errors)
     {
         if (view.SnapshotTick != state.Tick || view.Snapshot.Stack is null) return;
-        foreach (var skill in state.StackItems.Where(i => i.SourceConfirmed && i.PermanentPlaySource is null
-            && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, i)))
+        foreach (var skill in state.StackItems.Where(i => i.SourceConfirmed && i.PermanentPlaySource is null))
         {
             // This expectation comes from authoritative zones and disclosure
             // permissions, never from the production snapshot being validated.
