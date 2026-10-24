@@ -18,10 +18,22 @@ public sealed class LocalDestructionRecallNativeTests
     public async Task ProductionLocalRecallChoicesRestoreAndReplay(string branch, string selected)
     {
         var s = branch == "simultaneous" ? LocalDestructionRecallTests.PositionFor(true) : Gear(LocalDestructionRecallTests.PositionFor());
-        if (branch == "source-after") s=LocalDestructionRecallTests.At(Source(LocalDestructionRecallTests.PositionFor(),"SFD·173/221","S2"),"S2","P2","BATTLEFIELD","BF");
+        if (branch == "source-after") {
+            s=LocalDestructionRecallTests.At(Source(LocalDestructionRecallTests.PositionFor(),"SFD·173/221","S2"),"S2","P2","BATTLEFIELD","BF");
+            // CN 373.2: after S2 recalls S, unstarted S protects its new base.
+            // Keep the original Theory row and native selection meaningful;
+            // the competing mandatory banish retains an actual choice window.
+            s=LocalDestructionRecallTests.At(s,"D","P2","BASE");
+            s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){
+                ["D"]=s.CardObjects["D"] with {UntilEndOfTurnEffects=["BANISH_IF_DESTROYED_THIS_TURN"]}}};
+        }
         var opened = await Open(s, branch is "simultaneous" or "source-after" ? "UNL-180/219" : "OGN·229/298",
             branch is "simultaneous" or "source-after" ? [] : ["D"]);
-        if (branch == "source-after") opened=await Select(opened.State,"LOCAL_RECALL:S:S2");
+        if (branch == "source-after") {
+            opened=await Select(opened.State,"LOCAL_RECALL:S:S2");
+            Assert.Contains(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id==selected);
+            Assert.Contains(opened.State.PendingRuleChoice.Request.Options,o=>o.Id=="BANISH:D");
+        }
         var initial = OfficialInsightAndSpellLockTests.Restore(opened.State);
         var journal = new Journal(); var engine = new CoreRuleEngine(); var session = new MatchSession(initial, engine, journal);
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_LOCAL_RECALL_EVIDENCE");
