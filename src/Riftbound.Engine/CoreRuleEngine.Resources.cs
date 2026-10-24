@@ -23,11 +23,21 @@ public sealed partial class CoreRuleEngine
             state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
         // A gear replacement may cause a nested destruction and decision. This
         // read-only check cannot prove that route impossible, so retain it.
-        if (options.Any(o => o.Kind == "GEAR" || o.Optional)) return true;
-        var local = CaptureLocalDestructionRecalls(state, zones, cards, state.ObjectLocations, [targetId]);
-        if (options.Count + local.Count > 1) return true;
-        return optionalAvailable
-            && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player).Count > 0;
+        if (options.Any(o => o.Kind is "GEAR" or "ATTACHED_GEAR")) return true;
+
+        // Choosing a replacement is not itself free capacity. Sett can spend
+        // one existing power; a recycled-rune payment has no net power debit.
+        long released = options.Any(o => o.Kind == "SETT" && !o.Payment.StartsWith("RUNE:", StringComparison.Ordinal)) ? 1 : 0;
+        if (optionalAvailable
+            && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player)
+                .Any(action => action.Ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
+        {
+            // Existing resource windows only exchange power/mana or add
+            // resources. Conversion can release at most the joint mana room;
+            // a legal zero conversion releases nothing.
+            released += Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+        }
+        return (long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
     }
 
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,
@@ -49,6 +59,8 @@ public sealed partial class CoreRuleEngine
             || !source.Tags.Contains(CardObjectTags.UnitCard)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo))
             return RejectWithCorePrompts(state, "技能来源或摧毁费用不合法。", ErrorCodes.InvalidTarget);
+        if (!CanStartMalzaharResourceCost(state, intent.PlayerId, command.SourceObjectId, costId))
+            return RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
 
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
