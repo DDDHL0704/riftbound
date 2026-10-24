@@ -51,7 +51,7 @@ jobs:
       - name: Source-index and governance integrity
         run: python3 scripts/audit/check-project-governance.py --output var/qa/l2-quality/governance.json
       - name: Check committed formatting
-        run: git show --format= --check "$GITHUB_SHA"
+        run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |

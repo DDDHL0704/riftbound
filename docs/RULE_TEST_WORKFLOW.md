@@ -34,7 +34,7 @@ A7 等已启动固定候选可完成并归档为历史证据，不取消、移�
 
 ```sh
 python3 scripts/test-rules.py focus payment --jobs 2
-python3 scripts/test-rules.py focus combat triggers --jobs 2
+python3 scripts/test-rules.py focus combat --jobs 2
 python3 scripts/test-rules.py focus --match OfficialMechanicalRecastTests
 python3 scripts/test-rules.py focus --include-games --match PreconstructedCatalogDecks
 ```

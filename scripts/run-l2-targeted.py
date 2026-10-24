@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run changed conformance classes plus adjacent domains, without external services."""
 import argparse
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -9,6 +10,17 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 DOMAINS = ['payment', 'combat', 'triggers', 'recovery', 'recast']
+SPEC = importlib.util.spec_from_file_location('rules_runner', ROOT / 'scripts/test-rules.py')
+RULES = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(RULES)
+
+
+def command_for(classes):
+    tokens = sorted({token for domain in DOMAINS for token in RULES.DOMAINS[domain]} | set(classes))
+    command = [sys.executable, str(ROOT / 'scripts/test-rules.py'), 'focus']
+    for token in tokens:
+        command.extend(['--match', token])
+    return command
 
 
 def changed_classes(root, base, head):
@@ -40,9 +52,7 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     classes = changed_classes(ROOT, a.base, a.commit)
-    command = [sys.executable, str(ROOT / 'scripts/test-rules.py'), 'focus', *DOMAINS]
-    for name in classes:
-        command.extend(['--match', name])
+    command = command_for(classes)
     subprocess.run(command + ['--jobs', '2', '--output', str(a.output)], cwd=ROOT, check=True)
     (a.output / 'selection.json').write_text(json.dumps(dict(commit=a.commit, base=a.base,
         domains=DOMAINS, changedClasses=classes, fullMatrixExecuted=False), indent=2) + '\n')

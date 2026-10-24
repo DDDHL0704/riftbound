@@ -99,6 +99,7 @@ def main():
             checked([dotnet, 'build', project, '-m:1', '--nologo', '-v:q'], 'build-' + name + '.log')
         api = ROOT / 'src/Riftbound.Api/bin/Debug/net10.0/Riftbound.Api.dll'
         driver = ROOT / 'tests/Riftbound.NativeNetworkSmoke/bin/Debug/net8.0/Riftbound.NativeNetworkSmoke.dll'
+        checked([dotnet, str(driver), 'restart-json-self-test'], 'snapshot-json-contract.log')
         runtime = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                    for path in [api, driver, api.parent / 'Riftbound.Engine.dll']}
         proof['runtimeSha256'] = runtime

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using Riftbound.Contracts;
 using Riftbound.GodotClient;
@@ -9,8 +10,30 @@ internal static class ProcessRestartAcceptance
     private sealed record Checkpoint(string Room, Peer[] Peers);
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
+    private static void RequireSameSnapshot(JsonElement expected, JsonElement actual)
+    {
+        if (!JsonNode.DeepEquals(JsonNode.Parse(expected.GetRawText()), JsonNode.Parse(actual.GetRawText())))
+            throw new InvalidOperationException("Cold process recovery changed the original private snapshot.");
+    }
+
     public static async Task RunAsync(string[] args)
     {
+        if (args.SequenceEqual(new[] { "restart-json-self-test" }))
+        {
+            using var wire = JsonDocument.Parse("{\"tick\":2,\"players\":{\"a\":{},\"b\":{}}}");
+            using var stored = JsonDocument.Parse(JsonSerializer.Serialize(wire.RootElement, Json));
+            RequireSameSnapshot(stored.RootElement, wire.RootElement);
+            foreach (var changed in new[] { "{\"tick\":3,\"players\":{\"a\":{},\"b\":{}}}", "{\"tick\":2,\"players\":{\"a\":{}}}" })
+            {
+                using var invalid = JsonDocument.Parse(changed);
+                var rejected = false;
+                try { RequireSameSnapshot(stored.RootElement, invalid.RootElement); }
+                catch (InvalidOperationException) { rejected = true; }
+                if (!rejected) throw new InvalidOperationException("Changed tick or private players must fail snapshot parity.");
+            }
+            Console.WriteLine("Restart JSON contract passed: retained indented checkpoint, compact wire, changed tick/player negatives.");
+            return;
+        }
         if (args.Length != 2 || args[0] is not ("restart-prepare" or "restart-recover"))
             throw new ArgumentException("Expected restart-prepare/restart-recover and a fresh evidence folder.");
         var url = Environment.GetEnvironmentVariable("RIFTBOUND_SERVER_URL")
@@ -81,13 +104,14 @@ internal static class ProcessRestartAcceptance
                         throw new InvalidOperationException("Private snapshot crossed an authenticated identity boundary.");
                     if (view.GetProperty("tick").GetInt64() < 2) continue;
                     var text = view.GetRawText();
+                    await File.WriteAllTextAsync(Path.Combine(folder, args[0] + $"-player-{i}-actual-view.json"),
+                        JsonSerializer.Serialize(view, Json), ct);
                     if (view.GetProperty("players").EnumerateObject().Count() != 2
                         || checkpoint.Peers.Any(p => text.Contains(p.Key, StringComparison.Ordinal)
                             || p.Token.Length != 0 && text.Contains(p.Token, StringComparison.Ordinal))
                         || tokens.Any(t => text.Contains(t, StringComparison.Ordinal)))
                         throw new InvalidOperationException("Both private players and credential redaction are required.");
-                    if (recover && peer.Snapshot.GetRawText() != text)
-                        throw new InvalidOperationException("Cold process recovery changed the original private snapshot.");
+                    if (recover) RequireSameSnapshot(peer.Snapshot, view);
                     peers.Add(peer with { Token = tokens[i], Snapshot = view.Clone() });
                     break;
                 }
