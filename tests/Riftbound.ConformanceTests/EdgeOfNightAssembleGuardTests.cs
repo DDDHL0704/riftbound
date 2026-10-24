@@ -156,7 +156,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             firstClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         var activation = assembled;
@@ -199,7 +199,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -254,7 +254,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -284,7 +284,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            changedStaleRawCommand,
+            NativeCommandWire.Bind(command, ref changedStaleRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -515,7 +515,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             acceptedClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -554,7 +554,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -596,7 +596,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            reorderedStaleRawCommand,
+            NativeCommandWire.Bind(command, ref reorderedStaleRawCommand),
             CancellationToken.None);
 
         Assert.False(reorderedReplay.Accepted);
@@ -623,7 +623,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -650,7 +650,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             "P1",
             staleClientIntentId,
             command,
-            changedStaleRawCommand,
+            NativeCommandWire.Bind(command, ref changedStaleRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);

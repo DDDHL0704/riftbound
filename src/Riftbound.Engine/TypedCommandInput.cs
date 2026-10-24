@@ -51,7 +51,6 @@ public sealed record TypedCommandInput(
         try
         {
             if (JsonSerializer.Deserialize(Value, type, Json) is not GameCommand restored
-                || string.IsNullOrWhiteSpace(restored.CmdType) || restored.CmdType != restored.CmdType.Trim()
                 || restored is not UnsupportedCommand
                     && (!CommandTypes.TryGetValue(restored.CmdType, out var expected) || expected != type)
                 || MatchStateHasher.HashValue(Value) != MatchStateHasher.HashValue(
@@ -84,8 +83,9 @@ public sealed record TypedCommandInput(
     }
 
     internal bool MatchesRecordedType(string commandType)
-        => TryScenario(out var scenario) ? commandType == ScenarioKind + ":" + scenario
-            : TryRestore(out var command) && command.CmdType == commandType;
+        => !string.IsNullOrWhiteSpace(commandType) && commandType == commandType.Trim()
+            && (TryScenario(out var scenario) ? commandType == ScenarioKind + ":" + scenario
+                : TryRestore(out var command) && command.CmdType == commandType);
 
     internal bool MatchesWire(JsonElement raw)
     {

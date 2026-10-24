@@ -18145,8 +18145,9 @@ public sealed partial class MatchSession : IMatchSession
     }
 
     private static bool MatchesPresentInput(JsonElement? rawCommand, string commandType, TypedCommandInput typedInput)
-        => rawCommand is null || MatchRecoveryValidator.HasCanonicalRawPayload(commandType, rawCommand.Value)
-            && typedInput.MatchesWire(rawCommand.Value);
+        => !string.IsNullOrWhiteSpace(commandType) && commandType == commandType.Trim()
+            && (rawCommand is null || MatchRecoveryValidator.HasCanonicalRawPayload(commandType, rawCommand.Value)
+                && typedInput.MatchesWire(rawCommand.Value));
 
     private static bool TryRejectStalePrompt(
         MatchState state,

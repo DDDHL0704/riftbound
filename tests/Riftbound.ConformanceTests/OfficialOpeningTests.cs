@@ -168,7 +168,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-invalid-deck",
             ToSubmitCommand(invalid),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(invalid), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -304,7 +304,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -319,7 +319,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-invalid-prompt",
             ToSubmitCommand(invalidP1Deck),
-            PromptScopedSubmitDeckRawCommand(invalidP1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(invalidP1Deck), PromptScopedSubmitDeckRawCommand(invalidP1Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -340,7 +340,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-invalid-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -364,7 +364,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -380,7 +380,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-stale-snapshot-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt, staleSnapshotTick),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -402,7 +402,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-stale-snapshot-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -426,7 +426,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -441,7 +441,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-with-p1-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -461,7 +461,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-wrong-player-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -484,7 +484,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-accepted",
             ToSubmitCommand(decklist),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(decklist), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -504,7 +504,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-replay",
             ToSubmitCommand(decklist),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(decklist), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -647,7 +647,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         Assert.True(p1Submit.Accepted, p1Submit.ErrorMessage);
         Assert.Single(journal.Entries);
@@ -661,7 +661,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-stale-prompt-accepted",
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -685,7 +685,7 @@ public sealed class OfficialOpeningTests
             "P2",
             staleClientIntentId,
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -730,7 +730,7 @@ public sealed class OfficialOpeningTests
             "P2",
             staleClientIntentId,
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -765,7 +765,7 @@ public sealed class OfficialOpeningTests
                 "P2",
                 staleClientIntentId,
                 ToSubmitCommand(p2Deck),
-                changedRawCommand,
+                NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref changedRawCommand),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
@@ -790,7 +790,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -829,7 +829,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -868,7 +868,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-prompt-scoped-ready-reject",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -892,7 +892,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -931,7 +931,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-wrong-player-ready-missing-deck-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -955,7 +955,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -995,7 +995,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-valid-after-stale-snapshot-ready-missing-deck-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1018,7 +1018,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -1067,7 +1067,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-before-raw-ready",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var rawCommand = RawCommand("READY");
 
@@ -1125,7 +1125,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -1180,7 +1180,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-stale-single-ready-prompt-replay",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -1203,7 +1203,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -1265,7 +1265,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(submitted.Accepted, submitted.ErrorMessage);
@@ -1326,7 +1326,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1342,7 +1342,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-after-ready",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -1372,7 +1372,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1395,7 +1395,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-after-ready-with-current-wait-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, readyPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, readyPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -1417,7 +1417,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-p1-ready-prompt-reject",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1441,7 +1441,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1465,7 +1465,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-after-ready-stale-snapshot-wait-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, readyPrompt, staleSnapshotTick),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, readyPrompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -1487,7 +1487,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-stale-snapshot-wait-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1511,7 +1511,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1534,7 +1534,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-with-p1-wait-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, readyPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, readyPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -1556,7 +1556,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-wrong-player-wait-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1580,7 +1580,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1622,7 +1622,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-ready-wait-prompt-replay",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1646,7 +1646,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1691,7 +1691,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-stale-snapshot-ready-wait-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1715,7 +1715,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -1759,7 +1759,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-wrong-player-ready-wait-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, submitPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -1783,13 +1783,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -1842,13 +1842,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -1942,13 +1942,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2045,13 +2045,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2147,13 +2147,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2183,7 +2183,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-both-decks-single-ready-current-wait-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, waitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -2250,13 +2250,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2287,7 +2287,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-both-decks-single-ready-stale-wait-prompt",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, waitPrompt, staleSnapshotTick),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, waitPrompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -2354,13 +2354,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2390,7 +2390,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-with-p1-wait-prompt-after-both-decks-single-ready",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, waitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -2460,13 +2460,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2708,13 +2708,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -2828,13 +2828,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3055,13 +3055,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3118,7 +3118,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-with-first-ready-prompt-after-final-ready",
             ToSubmitCommand(p1Deck),
-            PromptScopedSubmitDeckRawCommand(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), PromptScopedSubmitDeckRawCommand(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3166,13 +3166,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3229,7 +3229,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-with-p1-first-ready-prompt-after-final-ready",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3307,13 +3307,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3371,7 +3371,7 @@ public sealed class OfficialOpeningTests
             "P1",
             intentId,
             ToSubmitCommand(p1Deck),
-            rawCommandFactory(p1Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), rawCommandFactory(p1Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3425,13 +3425,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3489,7 +3489,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-with-first-ready-prompt-after-final-ready",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3537,13 +3537,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3601,7 +3601,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-with-first-ready-prompt-after-final-ready",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3679,13 +3679,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3745,7 +3745,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new MulliganCommand(selectedObjectIds),
-            rawCommandFactory(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), rawCommandFactory(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -3793,13 +3793,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -3934,13 +3934,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4046,13 +4046,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4157,13 +4157,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4268,13 +4268,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4409,13 +4409,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4521,13 +4521,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4662,13 +4662,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4774,13 +4774,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4837,7 +4837,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "move-unit-active-with-first-ready-prompt-after-final-ready",
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD:missing", []),
-            PromptScopedBasicRawCommand(CommandTypes.MoveUnit, prompt),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD:missing", []), PromptScopedBasicRawCommand(CommandTypes.MoveUnit, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -4915,13 +4915,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -4979,7 +4979,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD:missing", []),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD:missing", []), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5027,13 +5027,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5090,7 +5090,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "declare-battle-active-with-first-ready-prompt-after-final-ready",
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            PromptScopedBasicRawCommand(CommandTypes.DeclareBattle, prompt),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), PromptScopedBasicRawCommand(CommandTypes.DeclareBattle, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5168,13 +5168,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5232,7 +5232,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5280,13 +5280,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5343,7 +5343,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "play-card-active-with-first-ready-prompt-after-final-ready",
             new PlayCardCommand("missing-card", "MISSING-CARD", []),
-            CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), PromptScopedBasicRawCommand(CommandTypes.PlayCard, prompt)),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-card", "MISSING-CARD", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), PromptScopedBasicRawCommand(CommandTypes.PlayCard, prompt))),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5421,13 +5421,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5485,7 +5485,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new PlayCardCommand("missing-card", "MISSING-CARD", []),
-            CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), rawCommandFactory(prompt)),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-card", "MISSING-CARD", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-card", "MISSING-CARD", []), rawCommandFactory(prompt))),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5533,13 +5533,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5596,7 +5596,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "activate-ability-active-with-first-ready-prompt-after-final-ready",
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            PromptScopedBasicRawCommand(CommandTypes.ActivateAbility, prompt),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), PromptScopedBasicRawCommand(CommandTypes.ActivateAbility, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5674,13 +5674,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5738,7 +5738,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5786,13 +5786,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5849,7 +5849,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "tap-rune-active-with-first-ready-prompt-after-final-ready",
             new TapRuneCommand("missing-rune"),
-            PromptScopedBasicRawCommand(CommandTypes.TapRune, prompt),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), PromptScopedBasicRawCommand(CommandTypes.TapRune, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -5927,13 +5927,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -5991,7 +5991,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new TapRuneCommand("missing-rune"),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6039,13 +6039,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6102,7 +6102,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "recycle-rune-active-with-first-ready-prompt-after-final-ready",
             new RecycleRuneCommand("missing-rune"),
-            PromptScopedBasicRawCommand(CommandTypes.RecycleRune, prompt),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), PromptScopedBasicRawCommand(CommandTypes.RecycleRune, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6180,13 +6180,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6244,7 +6244,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new RecycleRuneCommand("missing-rune"),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6292,13 +6292,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6355,7 +6355,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "hide-card-active-with-first-ready-prompt-after-final-ready",
             new HideCardCommand("missing-source", "missing-card"),
-            PromptScopedBasicRawCommand(CommandTypes.HideCard, prompt),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), PromptScopedBasicRawCommand(CommandTypes.HideCard, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6433,13 +6433,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6497,7 +6497,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             new HideCardCommand("missing-source", "missing-card"),
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6545,13 +6545,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6608,7 +6608,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "reveal-card-active-with-first-ready-prompt-after-final-ready",
             new RevealCardCommand("missing-source", "missing-card", []),
-            PromptScopedBasicRawCommand(CommandTypes.RevealCard, prompt),
+            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), PromptScopedBasicRawCommand(CommandTypes.RevealCard, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -6932,13 +6932,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -6996,7 +6996,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             command,
-            rawCommandFactory(prompt),
+            NativeCommandWire.Bind(command, rawCommandFactory(prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -7047,13 +7047,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -7110,7 +7110,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             intentId,
             command,
-            PromptScopedBasicRawCommand(commandType, prompt),
+            NativeCommandWire.Bind(command, PromptScopedBasicRawCommand(commandType, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -7158,13 +7158,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -7226,13 +7226,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var bothSubmitted = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(bothSubmitted.Accepted, bothSubmitted.ErrorMessage);
@@ -7293,7 +7293,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -7308,7 +7308,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -7322,7 +7322,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready-replay",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -7357,7 +7357,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         Assert.True(p1Submit.Accepted, p1Submit.ErrorMessage);
         Assert.Single(journal.Entries);
@@ -7381,7 +7381,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready-prompt-accepted",
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -7399,7 +7399,7 @@ public sealed class OfficialOpeningTests
             "P2",
             staleClientIntentId,
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -7444,7 +7444,7 @@ public sealed class OfficialOpeningTests
             "P2",
             staleClientIntentId,
             ToSubmitCommand(p2Deck),
-            rawCommand,
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -7480,7 +7480,7 @@ public sealed class OfficialOpeningTests
                 "P2",
                 staleClientIntentId,
                 ToSubmitCommand(p2Deck),
-                changedRawCommand,
+                NativeCommandWire.Bind(ToSubmitCommand(p2Deck), ref changedRawCommand),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.ClientIntentConflict, conflict.Code);
@@ -7510,7 +7510,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -7531,7 +7531,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready-stale-snapshot-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, prompt, staleSnapshotTick),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, prompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -7551,7 +7551,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-stale-snapshot-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -7575,7 +7575,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var ready = await session.ReadyAsync(
             "P1",
@@ -7595,7 +7595,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-with-p2-prompt-after-ready",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -7615,7 +7615,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-valid-after-wrong-player-prompt",
             ToSubmitCommand(p2Deck),
-            PromptScopedSubmitDeckRawCommand(p2Deck, prompt),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), PromptScopedSubmitDeckRawCommand(p2Deck, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -7639,7 +7639,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync(
             "P1",
@@ -7650,7 +7650,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -7722,7 +7722,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync(
             "P1",
@@ -7733,7 +7733,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -7822,7 +7822,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync(
             "P1",
@@ -7833,7 +7833,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -7913,7 +7913,7 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync(
             "P1",
@@ -7924,7 +7924,7 @@ public sealed class OfficialOpeningTests
             "P2",
             "submit-p2-after-p1-ready",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p2Submitted.Accepted, p2Submitted.ErrorMessage);
@@ -8003,13 +8003,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var p2Submit = await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
 
         Assert.True(p1Submit.Accepted);
@@ -8051,7 +8051,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.True(activeMulligan.Accepted);
         Assert.Equal(MatchPhases.Mulligan, activeMulligan.State.Phase);
@@ -8069,7 +8069,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand("MULLIGAN")),
             CancellationToken.None);
 
         Assert.True(secondMulligan.Accepted);
@@ -8105,13 +8105,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var accepted = await session.ReadyAsync("P2", "ready-p2-accepted", RawCommand("READY"), CancellationToken.None);
@@ -8175,13 +8175,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         var p1Ready = await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         Assert.True(p1Ready.Accepted, p1Ready.ErrorMessage);
@@ -8344,13 +8344,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -8364,7 +8364,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-accepted",
             new MulliganCommand(selectedObjectIds),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), RawCommand("MULLIGAN")),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -8393,7 +8393,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-replay",
             new MulliganCommand(selectedObjectIds),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), RawCommand("MULLIGAN")),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -8429,13 +8429,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1-before-raw-mulligan",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2-before-raw-mulligan",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1-before-raw-mulligan", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2-before-raw-mulligan", RawCommand("READY"), CancellationToken.None);
@@ -8453,7 +8453,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -8473,7 +8473,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -8496,7 +8496,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-raw-intent",
             command,
-            RawCommandWithClientNote("MULLIGAN", "changed-payload"),
+            NativeCommandWire.Bind(command, RawCommandWithClientNote("MULLIGAN", "changed-payload")),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -8534,13 +8534,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -8559,7 +8559,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             acceptedClientIntentId,
             new MulliganCommand(selectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -8588,7 +8588,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(selectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -8639,7 +8639,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(selectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -8678,7 +8678,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(selectedObjectIds),
-            changedRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -8728,13 +8728,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -8750,7 +8750,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
 
@@ -8770,7 +8770,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-accepted",
             new MulliganCommand(secondSelectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -8795,7 +8795,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             staleClientIntentId,
             new MulliganCommand(secondSelectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(stalePromptReplay.Accepted);
@@ -8853,7 +8853,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             staleClientIntentId,
             new MulliganCommand(secondSelectedObjectIds),
-            rawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), ref rawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -8894,7 +8894,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             staleClientIntentId,
             new MulliganCommand(secondSelectedObjectIds),
-            changedRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -8936,7 +8936,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-unstamped-replay",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.False(unstampedReplay.Accepted);
@@ -8980,13 +8980,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -9007,7 +9007,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-first-turn-stale-accepted",
             new MulliganCommand(activeSelectedObjectIds),
-            activeRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), ref activeRawCommand),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -9029,7 +9029,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -9052,7 +9052,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(activeSelectedObjectIds),
-            activeRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), ref activeRawCommand),
             CancellationToken.None);
 
         Assert.False(stalePromptReplay.Accepted);
@@ -9110,7 +9110,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(activeSelectedObjectIds),
-            activeRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), ref activeRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateReplay.Accepted);
@@ -9151,7 +9151,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             staleClientIntentId,
             new MulliganCommand(activeSelectedObjectIds),
-            changedRawCommand,
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -9189,7 +9189,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-first-turn-unstamped-replay",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.False(unstampedReplay.Accepted);
@@ -9230,7 +9230,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "submit-deck-with-final-mulligan-prompt-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            PromptScopedSubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), PromptScopedSubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -9278,7 +9278,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -9302,7 +9302,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "submit-deck-with-final-mulligan-prompt-id-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            PromptIdOnlySubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), PromptIdOnlySubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -9350,7 +9350,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -9366,7 +9366,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "mulligan-second-final-with-prompt-id-after-first-turn",
             new MulliganCommand(context.SecondSelectedObjectIds),
-            PromptIdOnlyMulliganRawCommand(context.SecondSelectedObjectIds, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.SecondSelectedObjectIds), PromptIdOnlyMulliganRawCommand(context.SecondSelectedObjectIds, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -9382,9 +9382,9 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "mulligan-second-final-with-snapshot-after-first-turn",
             new MulliganCommand(context.SecondSelectedObjectIds),
-            SnapshotOnlyMulliganRawCommand(
+            NativeCommandWire.Bind(new MulliganCommand(context.SecondSelectedObjectIds), SnapshotOnlyMulliganRawCommand(
                 context.SecondSelectedObjectIds,
-                context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+                context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -9410,13 +9410,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -9432,7 +9432,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-before-final-prompt-stale-command",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -9457,7 +9457,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-before-stale-command",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, finalMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, finalMulliganPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -10151,7 +10151,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-tap-rune-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -10181,7 +10181,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-tap-rune-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -10214,14 +10214,14 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-tap-rune-raw-intent",
             command,
-            JsonSerializer.SerializeToElement(new
+            NativeCommandWire.Bind(command, JsonSerializer.SerializeToElement(new
             {
                 cmdType = CommandTypes.TapRune,
                 promptId = firstTurnPrompt.PromptId,
                 snapshotTick = firstTurnPrompt.SnapshotTick,
                 sourceObjectId = sourceId,
                 clientNote = "changed-payload"
-            }),
+            })),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -10286,7 +10286,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-recycle-rune-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -10359,7 +10359,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-recycle-rune-raw-intent",
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -10382,14 +10382,14 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "first-turn-recycle-rune-raw-intent",
             command,
-            JsonSerializer.SerializeToElement(new
+            NativeCommandWire.Bind(command, JsonSerializer.SerializeToElement(new
             {
                 cmdType = CommandTypes.RecycleRune,
                 promptId = firstTurnPrompt.PromptId,
                 snapshotTick = firstTurnPrompt.SnapshotTick,
                 sourceObjectId = sourceId,
                 clientNote = "changed-payload"
-            }),
+            })),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -10939,7 +10939,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-declare-battle-after-first-turn-surrender-match-finished",
                 new DeclareBattleCommand("missing-battlefield", [], [], []),
-                RawCommandWithClientNote(CommandTypes.DeclareBattle, "fresh-declare-battle-after-match-finished"),
+                NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), RawCommandWithClientNote(CommandTypes.DeclareBattle, "fresh-declare-battle-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11005,7 +11005,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-play-card-after-first-turn-surrender-match-finished",
                 new PlayCardCommand("missing-source", "missing-card", []),
-                CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), RawCommandWithClientNote(CommandTypes.PlayCard, "fresh-play-card-after-match-finished")),
+                NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), RawCommandWithClientNote(CommandTypes.PlayCard, "fresh-play-card-after-match-finished"))),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11071,7 +11071,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-activate-ability-after-first-turn-surrender-match-finished",
                 new ActivateAbilityCommand("missing-source", "missing-ability", []),
-                RawCommandWithClientNote(CommandTypes.ActivateAbility, "fresh-activate-ability-after-match-finished"),
+                NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), RawCommandWithClientNote(CommandTypes.ActivateAbility, "fresh-activate-ability-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11137,7 +11137,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-legend-act-after-first-turn-surrender-match-finished",
                 new LegendActCommand("missing-source", "missing-ability", []),
-                RawCommandWithClientNote(CommandTypes.LegendAct, "fresh-legend-act-after-match-finished"),
+                NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), RawCommandWithClientNote(CommandTypes.LegendAct, "fresh-legend-act-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11203,7 +11203,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-move-unit-after-first-turn-surrender-match-finished",
                 new MoveUnitCommand("missing-source", "missing-origin", "missing-destination"),
-                RawCommandWithClientNote(CommandTypes.MoveUnit, "fresh-move-unit-after-match-finished"),
+                NativeCommandWire.Bind(new MoveUnitCommand("missing-source", "missing-origin", "missing-destination"), RawCommandWithClientNote(CommandTypes.MoveUnit, "fresh-move-unit-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11269,7 +11269,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-assemble-equipment-after-first-turn-surrender-match-finished",
                 new AssembleEquipmentCommand("missing-source", "missing-target"),
-                RawCommandWithClientNote(CommandTypes.AssembleEquipment, "fresh-assemble-equipment-after-match-finished"),
+                NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), RawCommandWithClientNote(CommandTypes.AssembleEquipment, "fresh-assemble-equipment-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11336,7 +11336,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-pay-cost-after-first-turn-surrender-match-finished",
                 new PayCostCommand("missing-payment", "missing-window", []),
-                RawCommandWithClientNote(CommandTypes.PayCost, "fresh-pay-cost-after-match-finished"),
+                NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), RawCommandWithClientNote(CommandTypes.PayCost, "fresh-pay-cost-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11405,7 +11405,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-assign-combat-damage-after-first-turn-surrender-match-finished",
                 new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
-                RawCommandWithClientNote(CommandTypes.AssignCombatDamage, "fresh-assign-combat-damage-after-match-finished"),
+                NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), RawCommandWithClientNote(CommandTypes.AssignCombatDamage, "fresh-assign-combat-damage-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11475,7 +11475,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 freshOrderTriggersClientIntentId,
                 new OrderTriggersCommand(OrderedTriggerIds: []),
-                RawCommandWithClientNote(CommandTypes.OrderTriggers, "fresh-order-triggers-after-match-finished"),
+                NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), RawCommandWithClientNote(CommandTypes.OrderTriggers, "fresh-order-triggers-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11545,7 +11545,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 freshChooseHandCardsClientIntentId,
                 new ChooseHandCardsCommand("missing-choice", "missing-window", []),
-                RawCommandWithClientNote(CommandTypes.ChooseHandCards, "fresh-choose-hand-cards-after-match-finished"),
+                NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), RawCommandWithClientNote(CommandTypes.ChooseHandCards, "fresh-choose-hand-cards-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11613,7 +11613,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-tap-rune-after-first-turn-surrender-match-finished",
                 new TapRuneCommand("missing-rune-after-finished"),
-                RawCommandWithClientNote(CommandTypes.TapRune, "fresh-tap-rune-after-match-finished"),
+                NativeCommandWire.Bind(new TapRuneCommand("missing-rune-after-finished"), RawCommandWithClientNote(CommandTypes.TapRune, "fresh-tap-rune-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11679,7 +11679,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-recycle-rune-after-first-turn-surrender-match-finished",
                 new RecycleRuneCommand("missing-rune-after-finished"),
-                RawCommandWithClientNote(CommandTypes.RecycleRune, "fresh-recycle-rune-after-match-finished"),
+                NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune-after-finished"), RawCommandWithClientNote(CommandTypes.RecycleRune, "fresh-recycle-rune-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11745,7 +11745,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-hide-card-after-first-turn-surrender-match-finished",
                 new HideCardCommand("missing-source", "missing-card"),
-                RawCommandWithClientNote(CommandTypes.HideCard, "fresh-hide-card-after-match-finished"),
+                NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), RawCommandWithClientNote(CommandTypes.HideCard, "fresh-hide-card-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -11811,7 +11811,7 @@ public sealed class OfficialOpeningTests
                 context.ActivePlayerId,
                 "fresh-reveal-card-after-first-turn-surrender-match-finished",
                 new RevealCardCommand("missing-source", "missing-card", []),
-                RawCommandWithClientNote(CommandTypes.RevealCard, "fresh-reveal-card-after-match-finished"),
+                NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), RawCommandWithClientNote(CommandTypes.RevealCard, "fresh-reveal-card-after-match-finished")),
                 CancellationToken.None).AsTask());
 
         Assert.Equal(ErrorCodes.MatchFinished, rejected.Code);
@@ -13430,7 +13430,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new MulliganCommand([]),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new MulliganCommand([]), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13651,7 +13651,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13706,7 +13706,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13761,7 +13761,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(firstTurnPrompt)),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(firstTurnPrompt))),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13816,7 +13816,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13871,7 +13871,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new TapRuneCommand("missing-rune"),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13926,7 +13926,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new RecycleRuneCommand("missing-rune"),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -13981,7 +13981,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new HideCardCommand("missing-source", "missing-card"),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14036,7 +14036,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new RevealCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14091,7 +14091,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new LegendActCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14146,7 +14146,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new AssembleEquipmentCommand("missing-source", "missing-target"),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14202,7 +14202,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PayCostCommand("missing-payment", "missing-window", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14259,7 +14259,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14316,7 +14316,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new OrderTriggersCommand(OrderedTriggerIds: []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14373,7 +14373,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new ChooseHandCardsCommand("missing-choice", "missing-window", []),
-            rawCommandFactory(firstTurnPrompt),
+            NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), rawCommandFactory(firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14790,7 +14790,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new MulliganCommand([]),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new MulliganCommand([]), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -14840,7 +14840,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new MulliganCommand([]),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new MulliganCommand([]), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15049,7 +15049,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15102,7 +15102,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15155,7 +15155,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt))),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15208,7 +15208,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15261,7 +15261,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new TapRuneCommand("missing-rune"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15314,7 +15314,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new RecycleRuneCommand("missing-rune"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15367,7 +15367,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new HideCardCommand("missing-source", "missing-card"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15420,7 +15420,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new RevealCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15473,7 +15473,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new LegendActCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15526,7 +15526,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new AssembleEquipmentCommand("missing-source", "missing-target"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15580,7 +15580,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new PayCostCommand("missing-payment", "missing-window", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15635,7 +15635,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15690,7 +15690,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new OrderTriggersCommand(OrderedTriggerIds: []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15745,7 +15745,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             new ChooseHandCardsCommand("missing-choice", "missing-window", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -15910,7 +15910,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             ToSubmitCommand(context.SecondDeck),
-            rawCommandFactory(context, firstTurnPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), rawCommandFactory(context, firstTurnPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16128,7 +16128,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             ToSubmitCommand(context.SecondDeck),
-            rawCommandFactory(context, waitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), rawCommandFactory(context, waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16397,7 +16397,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new MoveUnitCommand("missing-unit", "BASE", "BATTLEFIELD", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16452,7 +16452,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new DeclareBattleCommand("missing-battlefield", [], [], []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new DeclareBattleCommand("missing-battlefield", [], [], []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16507,7 +16507,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new PlayCardCommand("missing-source", "missing-card", []),
-            CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
+            NativeCommandWire.Bind(new PlayCardCommand("missing-source", "missing-card", []), CompletePlayCardWirePayload(new PlayCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt))),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16562,7 +16562,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new ActivateAbilityCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new ActivateAbilityCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16617,7 +16617,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new TapRuneCommand("missing-rune"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new TapRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16672,7 +16672,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new RecycleRuneCommand("missing-rune"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new RecycleRuneCommand("missing-rune"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16727,7 +16727,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new HideCardCommand("missing-source", "missing-card"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new HideCardCommand("missing-source", "missing-card"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16782,7 +16782,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new RevealCardCommand("missing-source", "missing-card", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new RevealCardCommand("missing-source", "missing-card", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16837,7 +16837,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new LegendActCommand("missing-source", "missing-ability", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new LegendActCommand("missing-source", "missing-ability", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16892,7 +16892,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new AssembleEquipmentCommand("missing-source", "missing-target"),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new AssembleEquipmentCommand("missing-source", "missing-target"), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -16948,7 +16948,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new PayCostCommand("missing-payment", "missing-window", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new PayCostCommand("missing-payment", "missing-window", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17005,7 +17005,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new AssignCombatDamageCommand("missing-battle", "missing-battlefield", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17062,7 +17062,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new OrderTriggersCommand(OrderedTriggerIds: []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new OrderTriggersCommand(OrderedTriggerIds: []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17119,7 +17119,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             new ChooseHandCardsCommand("missing-choice", "missing-window", []),
-            rawCommandFactory(waitPrompt),
+            NativeCommandWire.Bind(new ChooseHandCardsCommand("missing-choice", "missing-window", []), rawCommandFactory(waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17284,7 +17284,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             ToSubmitCommand(context.ActiveDeck),
-            rawCommandFactory(context, waitPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), rawCommandFactory(context, waitPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -17449,7 +17449,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-mulligan-final-with-prompt-after-first-turn",
             new MulliganCommand(context.ActiveSelectedObjectIds),
-            PromptScopedMulliganRawCommand(context.ActiveSelectedObjectIds, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.ActiveSelectedObjectIds), PromptScopedMulliganRawCommand(context.ActiveSelectedObjectIds, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17473,7 +17473,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-submit-deck-with-final-mulligan-prompt-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            PromptScopedSubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), PromptScopedSubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -17521,7 +17521,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FinalMulliganPrompt))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17545,7 +17545,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-submit-deck-with-final-mulligan-prompt-id-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            PromptIdOnlySubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), PromptIdOnlySubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -17593,7 +17593,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17609,7 +17609,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-mulligan-final-with-prompt-id-after-first-turn",
             new MulliganCommand(context.ActiveSelectedObjectIds),
-            PromptIdOnlyMulliganRawCommand(context.ActiveSelectedObjectIds, context.FinalMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.ActiveSelectedObjectIds), PromptIdOnlyMulliganRawCommand(context.ActiveSelectedObjectIds, context.FinalMulliganPrompt)),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17634,7 +17634,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "submit-deck-with-final-mulligan-snapshot-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            SnapshotOnlySubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), SnapshotOnlySubmitDeckRawCommand(context.SecondDeck, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected, expectedMessage);
@@ -17682,7 +17682,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -17710,7 +17710,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-submit-deck-with-final-mulligan-snapshot-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            SnapshotOnlySubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), SnapshotOnlySubmitDeckRawCommand(context.ActiveDeck, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected, expectedMessage);
@@ -17758,7 +17758,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()))),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -17777,9 +17777,9 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "wrong-player-mulligan-final-with-snapshot-after-first-turn",
             new MulliganCommand(context.ActiveSelectedObjectIds),
-            SnapshotOnlyMulliganRawCommand(
+            NativeCommandWire.Bind(new MulliganCommand(context.ActiveSelectedObjectIds), SnapshotOnlyMulliganRawCommand(
                 context.ActiveSelectedObjectIds,
-                context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+                context.FinalMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFinalMulliganPromptAfterFirstTurnRejection(
@@ -17806,7 +17806,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "submit-deck-with-first-mulligan-prompt-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            PromptScopedSubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), PromptScopedSubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -17854,7 +17854,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17878,7 +17878,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "submit-deck-with-first-mulligan-prompt-id-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            PromptIdOnlySubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), PromptIdOnlySubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -17926,7 +17926,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17942,7 +17942,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "mulligan-active-first-with-prompt-id-after-first-turn",
             new MulliganCommand(context.ActiveSelectedObjectIds),
-            PromptIdOnlyMulliganRawCommand(context.ActiveSelectedObjectIds, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.ActiveSelectedObjectIds), PromptIdOnlyMulliganRawCommand(context.ActiveSelectedObjectIds, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -17958,9 +17958,9 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "mulligan-active-first-with-snapshot-after-first-turn",
             new MulliganCommand(context.ActiveSelectedObjectIds),
-            SnapshotOnlyMulliganRawCommand(
+            NativeCommandWire.Bind(new MulliganCommand(context.ActiveSelectedObjectIds), SnapshotOnlyMulliganRawCommand(
                 context.ActiveSelectedObjectIds,
-                context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+                context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -17982,13 +17982,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18008,7 +18008,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-before-first-prompt-stale-command",
             new MulliganCommand(activeSelectedObjectIds),
-            PromptScopedMulliganRawCommand(activeSelectedObjectIds, firstMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), PromptScopedMulliganRawCommand(activeSelectedObjectIds, firstMulliganPrompt)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -18029,7 +18029,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-before-first-prompt-stale-command",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18124,7 +18124,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-mulligan-first-with-prompt-after-first-turn",
             new MulliganCommand(context.SecondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(context.SecondSelectedObjectIds, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.SecondSelectedObjectIds), PromptScopedMulliganRawCommand(context.SecondSelectedObjectIds, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18149,7 +18149,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             "submit-deck-with-first-mulligan-snapshot-after-first-turn",
             ToSubmitCommand(context.ActiveDeck),
-            SnapshotOnlySubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            NativeCommandWire.Bind(ToSubmitCommand(context.ActiveDeck), SnapshotOnlySubmitDeckRawCommand(context.ActiveDeck, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected, expectedMessage);
@@ -18197,7 +18197,7 @@ public sealed class OfficialOpeningTests
             context.ActivePlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -18225,7 +18225,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-submit-deck-with-first-mulligan-snapshot-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            SnapshotOnlySubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), SnapshotOnlySubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected, expectedMessage);
@@ -18273,7 +18273,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, SnapshotOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -18292,9 +18292,9 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-mulligan-first-with-snapshot-after-first-turn",
             new MulliganCommand(context.SecondSelectedObjectIds),
-            SnapshotOnlyMulliganRawCommand(
+            NativeCommandWire.Bind(new MulliganCommand(context.SecondSelectedObjectIds), SnapshotOnlyMulliganRawCommand(
                 context.SecondSelectedObjectIds,
-                context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault()),
+                context.FirstMulliganPrompt.SnapshotTick.GetValueOrDefault())),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(
@@ -18321,7 +18321,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-submit-deck-with-first-mulligan-prompt-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            PromptScopedSubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), PromptScopedSubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -18369,7 +18369,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptScopedBasicRawCommand(commandType, context.FirstMulliganPrompt))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18385,7 +18385,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-mulligan-first-with-prompt-id-after-first-turn",
             new MulliganCommand(context.SecondSelectedObjectIds),
-            PromptIdOnlyMulliganRawCommand(context.SecondSelectedObjectIds, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(context.SecondSelectedObjectIds), PromptIdOnlyMulliganRawCommand(context.SecondSelectedObjectIds, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18409,7 +18409,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             "wrong-player-submit-deck-with-first-mulligan-prompt-id-after-first-turn",
             ToSubmitCommand(context.SecondDeck),
-            PromptIdOnlySubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt),
+            NativeCommandWire.Bind(ToSubmitCommand(context.SecondDeck), PromptIdOnlySubmitDeckRawCommand(context.SecondDeck, context.FirstMulliganPrompt)),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, submitDeckRejected);
@@ -18457,7 +18457,7 @@ public sealed class OfficialOpeningTests
             context.SecondPlayerId,
             intentId,
             command,
-            CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt)),
+            NativeCommandWire.Bind(command, CompletePlayCardWirePayload(command, PromptIdOnlyBasicRawCommand(commandType, context.FirstMulliganPrompt))),
             CancellationToken.None);
 
         AssertFirstMulliganPromptAfterFirstTurnRejection(context, rejected);
@@ -18477,13 +18477,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18498,7 +18498,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-no-selection",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -18527,7 +18527,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-no-selection",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18560,13 +18560,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18583,7 +18583,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-maximum-selection",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -18612,7 +18612,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-second-final-maximum-selection",
             new MulliganCommand(secondSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18642,13 +18642,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18664,7 +18664,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "wrong-player-mulligan",
             new MulliganCommand([]),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand([]), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.False(wrongPlayer.Accepted);
         Assert.Equal("现在不是该玩家的起手调整时机。", wrongPlayer.ErrorMessage);
@@ -18682,7 +18682,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "too-many-mulligan",
             new MulliganCommand(activeHand.Take(3).ToArray()),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(activeHand.Take(3).ToArray()), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.False(tooMany.Accepted);
         Assert.Equal("起手调整最多可选择 2 张牌。", tooMany.ErrorMessage);
@@ -18700,7 +18700,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "duplicate-mulligan",
             new MulliganCommand([activeHand[0], activeHand[0]]),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand([activeHand[0], activeHand[0]]), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.False(duplicate.Accepted);
         Assert.Equal("起手调整不能重复选择同一张牌。", duplicate.ErrorMessage);
@@ -18718,7 +18718,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "non-hand-mulligan",
             new MulliganCommand(["NOT-IN-HAND"]),
-            RawCommand("MULLIGAN"),
+            NativeCommandWire.Bind(new MulliganCommand(["NOT-IN-HAND"]), RawCommand("MULLIGAN")),
             CancellationToken.None);
         Assert.False(nonHand.Accepted);
         Assert.Equal("起手调整只能选择自己起手手牌中的牌。", nonHand.ErrorMessage);
@@ -18747,13 +18747,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18772,7 +18772,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-too-many-prompt",
             new MulliganCommand(invalidSelection),
-            PromptScopedMulliganRawCommand(invalidSelection, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(invalidSelection), PromptScopedMulliganRawCommand(invalidSelection, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -18793,7 +18793,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-valid-after-invalid-prompt",
             new MulliganCommand(validSelection),
-            PromptScopedMulliganRawCommand(validSelection, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(validSelection), PromptScopedMulliganRawCommand(validSelection, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18820,13 +18820,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18845,7 +18845,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-wrong-player-active-prompt",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -18865,7 +18865,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-valid-after-wrong-player-prompt",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18892,13 +18892,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18918,7 +18918,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-stale-snapshot-prompt",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt, staleSnapshotTick),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -18938,7 +18938,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-valid-after-stale-snapshot-prompt",
             new MulliganCommand(selectedObjectIds),
-            PromptScopedMulliganRawCommand(selectedObjectIds, prompt),
+            NativeCommandWire.Bind(new MulliganCommand(selectedObjectIds), PromptScopedMulliganRawCommand(selectedObjectIds, prompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -18965,13 +18965,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -18985,7 +18985,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-before-invalid-final",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -19006,7 +19006,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-final-too-many-prompt",
             new MulliganCommand(invalidSelection),
-            PromptScopedMulliganRawCommand(invalidSelection, secondPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(invalidSelection), PromptScopedMulliganRawCommand(invalidSelection, secondPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -19039,7 +19039,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-final-valid-after-invalid-prompt",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -19071,13 +19071,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -19091,7 +19091,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-before-wrong-player-final",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -19112,7 +19112,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-final-wrong-player-second-prompt",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -19144,7 +19144,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-final-valid-after-wrong-player-prompt",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -19176,13 +19176,13 @@ public sealed class OfficialOpeningTests
             "P1",
             "submit-p1",
             ToSubmitCommand(p1Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p1Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.SubmitDeckAsync(
             "P2",
             "submit-p2",
             ToSubmitCommand(p2Deck),
-            RawCommand("SUBMIT_DECK"),
+            NativeCommandWire.Bind(ToSubmitCommand(p2Deck), RawCommand("SUBMIT_DECK")),
             CancellationToken.None);
         await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
         var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
@@ -19196,7 +19196,7 @@ public sealed class OfficialOpeningTests
             activePlayerId,
             "mulligan-active-before-snapshot-mismatch-final",
             new MulliganCommand(activeSelectedObjectIds),
-            RawCommand(CommandTypes.Mulligan),
+            NativeCommandWire.Bind(new MulliganCommand(activeSelectedObjectIds), RawCommand(CommandTypes.Mulligan)),
             CancellationToken.None);
 
         Assert.True(activeMulligan.Accepted, activeMulligan.ErrorMessage);
@@ -19218,7 +19218,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-final-stale-snapshot-prompt",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt, staleSnapshotTick),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt, staleSnapshotTick)),
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
@@ -19250,7 +19250,7 @@ public sealed class OfficialOpeningTests
             secondPlayerId,
             "mulligan-final-valid-after-stale-snapshot-prompt",
             new MulliganCommand(secondSelectedObjectIds),
-            PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt),
+            NativeCommandWire.Bind(new MulliganCommand(secondSelectedObjectIds), PromptScopedMulliganRawCommand(secondSelectedObjectIds, secondPrompt)),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);

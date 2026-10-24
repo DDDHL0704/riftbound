@@ -5828,7 +5828,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             acceptedClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -5868,7 +5868,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -5910,7 +5910,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateRejected.Accepted);
@@ -5943,7 +5943,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -6013,7 +6013,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -6045,7 +6045,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -6076,7 +6076,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -6479,7 +6479,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             acceptedClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -6523,7 +6523,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -6570,7 +6570,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateRejected.Accepted);
@@ -6607,7 +6607,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -6695,7 +6695,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -6733,7 +6733,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -6769,7 +6769,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -46380,7 +46380,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -46420,7 +46420,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -46457,7 +46457,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -48433,7 +48433,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             acceptedClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -48481,7 +48481,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(replay.Accepted);
@@ -48532,7 +48532,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            staleRawCommand,
+            NativeCommandWire.Bind(command, ref staleRawCommand),
             CancellationToken.None);
 
         Assert.False(duplicateRejected.Accepted);
@@ -48573,7 +48573,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             staleClientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -48653,7 +48653,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -48697,7 +48697,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -48733,7 +48733,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
@@ -56173,7 +56173,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
@@ -56209,7 +56209,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            rawCommand,
+            NativeCommandWire.Bind(command, ref rawCommand),
             CancellationToken.None);
 
         Assert.True(replay.Accepted, replay.ErrorMessage);
@@ -56240,7 +56240,7 @@ public sealed class ConformanceFixtureRunnerTests
             "P1",
             clientIntentId,
             command,
-            changedRawCommand,
+            NativeCommandWire.Bind(command, ref changedRawCommand),
             CancellationToken.None);
 
         Assert.False(conflict.Accepted);
