@@ -114,8 +114,8 @@ internal static class ImposedMovementNetworkAcceptance
                     "Final payment or decline retains actual acquired resources and debits power exactly once.");
             }
             await audit.Complete();
-            await Save(folder, "network-" + mode + ".json", new { status = "REAL_SIGNALR_IMPOSED_MOVEMENT_PASS", room, kind, mode,
-                snapshots, prompts, traces = traces.ToArray(), scope = "Original empty-room birth and finite QA position. Restart is external; no ordinary-opening, UI or whole-card certification." });
+            await SaveNetworkReport(folder, mode, new { status = "REAL_SIGNALR_IMPOSED_MOVEMENT_PASS", room, kind, mode,
+                snapshots, prompts, traces = traces.ToArray(), scope = "Original empty-room birth and finite QA position. Restart is external; no ordinary-opening, UI or whole-card certification." }, json);
         }
         finally {
             await File.WriteAllTextAsync(Path.Combine(folder, "network-trace-" + (mode) + ".json"), JsonSerializer.Serialize(traces.ToArray(), json));
@@ -166,4 +166,8 @@ internal static class ImposedMovementNetworkAcceptance
                 && !JsonSerializer.Serialize(prompts[actor], json).Contains("QA-PRIVATE", StringComparison.Ordinal), "Payment choices must not reveal an opponent private identity.");
         }
     }
+
+    private static Task SaveNetworkReport(string folder, string mode, object report, JsonSerializerOptions json)
+        => File.WriteAllTextAsync(Path.Combine(folder, "network-" + mode + ".json"),
+            JsonSerializer.Serialize(report, report.GetType(), json));
 }
