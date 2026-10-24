@@ -3538,43 +3538,57 @@ public sealed record MatchState
 
             foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo).Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura))
             {
-                var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
-                    state,
-                    battlefieldObjectId,
-                    aura);
-                var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
-                var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-                var metadata = BattlefieldPowerStaticAuraProjectionMetadata(aura);
-
-                foreach (var participantObjectId in participantObjectIds)
-                {
-                    var participant = state.CardObjects[participantObjectId];
-                    var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                    effects.Add(new ContinuousEffectState(
-                        $"{metadata.EffectIdPrefix}:{battlefieldObjectId}:{participantObjectId}",
-                        "BATTLEFIELD",
-                        ContinuousEffectLayers.StaticAura,
-                        metadata.Duration,
-                        participantObjectId,
-                        battlefieldObjectId,
-                        aura.PowerDeltaPerParticipant,
-                        participant.Power,
-                        participant.Power + aura.PowerDeltaPerParticipant,
-                        aura.Kind,
-                        battlefield.CardNo,
-                        metadata.SourcePath,
-                        true,
-                        LayerEngineFoundationResiduals(),
-                        Condition: metadata.Condition,
-                        Lifecycle: metadata.Lifecycle,
-                        ParticipantObjectIds: participantObjectIds,
-                        SourceDependencyObjectIds: sourceDependencyObjectIds,
-                        TargetDependencyObjectIds: targetDependencyObjectIds,
-                        ParticipantDependencyObjectIds: participantDependencyObjectIds));
-                }
+                effects.AddRange(BuildBattlefieldPowerStaticAuraEffects(state, battlefieldObjectId, aura));
             }
         }
 
+        return effects;
+    }
+
+    internal static IReadOnlyList<ContinuousEffectState> BuildBattlefieldPowerStaticAuraEffects(
+        MatchState state, string battlefieldObjectId, StaticAuraSpec aura)
+    {
+        if (BattlefieldLocalRules.Battlefield(state, battlefieldObjectId) is not { } battlefield
+            || !StaticAuraSpecRules.IsBattlefieldPowerStaticAura(aura)) return [];
+        var effects = new List<ContinuousEffectState>();
+        var layerState = CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)
+            ? CoreRuleEngine.RecomputeRuleDerivedKeywords(state) : state;
+        var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
+            layerState,
+            battlefieldObjectId,
+            aura);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        var metadata = BattlefieldPowerStaticAuraProjectionMetadata(aura);
+
+        foreach (var participantObjectId in participantObjectIds)
+        {
+            var participant = state.CardObjects[participantObjectId];
+            var keywordSources = CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)
+                ? CoreRuleEngine.InspectCurrentKeywordFilter(layerState, aura, layerState.CardObjects[participantObjectId]).PublicKeywordSourceIds : [];
+            var sourceDependencyObjectIds = PublicStaticAuraDependencyObjectIds(state, new[] { battlefieldObjectId }.Concat(keywordSources));
+            var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+            effects.Add(new ContinuousEffectState(
+                $"{metadata.EffectIdPrefix}:{battlefieldObjectId}:{participantObjectId}",
+                "BATTLEFIELD",
+                ContinuousEffectLayers.StaticAura,
+                metadata.Duration,
+                participantObjectId,
+                battlefieldObjectId,
+                aura.PowerDeltaPerParticipant,
+                participant.Power,
+                participant.Power + aura.PowerDeltaPerParticipant,
+                aura.Kind,
+                battlefield.CardNo,
+                metadata.SourcePath,
+                true,
+                LayerEngineFoundationResiduals(),
+                Condition: metadata.Condition,
+                Lifecycle: metadata.Lifecycle,
+                ParticipantObjectIds: participantObjectIds,
+                SourceDependencyObjectIds: sourceDependencyObjectIds,
+                TargetDependencyObjectIds: targetDependencyObjectIds,
+                ParticipantDependencyObjectIds: participantDependencyObjectIds));
+        }
         return effects;
     }
 
@@ -4056,13 +4070,14 @@ public sealed record MatchState
         string battlefieldObjectId,
         StaticAuraSpec aura)
     {
+        if (CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)) state = CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
         var locatedParticipantObjectIds = state.ObjectLocations
             .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(entry.Key, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
-                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
+                && CoreRuleEngine.BattlefieldStaticAuraAppliesToParticipant(state, aura, participant)
                 && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -4078,7 +4093,7 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(objectId, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
-                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
+                && CoreRuleEngine.BattlefieldStaticAuraAppliesToParticipant(state, aura, participant)
                 && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)

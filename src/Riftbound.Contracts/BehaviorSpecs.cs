@@ -348,6 +348,7 @@ public static class TriggerZones
 public static class TriggerCardFilters
 {
     public const string TagPrefix = "TAG:";
+    public const string CurrentKeywordPrefix = "CURRENT_KEYWORD:";
 }
 
 public static class StaticAbilityKinds
