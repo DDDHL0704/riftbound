@@ -2517,7 +2517,12 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive, JsonSerializer.Serialize(new {
+            responseP1Pass.State.Status, responseP1Pass.State.WinnerPlayerId,
+            responseP1Pass.State.BattleState, responseP1Pass.State.SpellDuelState,
+            responseP1Pass.State.PendingBattleResult, responseP1Pass.State.PendingTaskQueue,
+            events = responseP1Pass.Events.Select(e => new { e.Kind,
+                field = e.Payload.GetValueOrDefault("battlefieldId") ?? e.Payload.GetValueOrDefault("battlefieldObjectId") }) }));
         Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Equal([NextAttackerObjectId], responseP1Pass.State.BattleState.AttackerObjectIds);
