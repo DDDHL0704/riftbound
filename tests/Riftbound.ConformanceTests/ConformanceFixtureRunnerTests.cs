@@ -5512,15 +5512,20 @@ public sealed class ConformanceFixtureRunnerTests
                 OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Contains("not required", result.ErrorMessage, StringComparison.Ordinal);
-        Assert.Empty(result.Events);
-        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
+        // Retain the historical method identity and original failure. CN 164.2.b,
+        // 166-167, 357.1.a and 430 allow acquiring more power than the actual cost.
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(state));
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
-        Assert.Empty(result.State.StackItems);
+        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        var paid = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(2, paid.Payload["totalPowerCost"]);
+        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
+            .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])));
     }
 
     [Fact]
@@ -57929,6 +57934,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-premodel", "P1", "DECLARE_BATTLE"),
@@ -57997,13 +58004,35 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conquestEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conquestEvent.Kind);
+                Assert.Equal("P1", conquestEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conquestEvent.Payload["battlefieldId"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
             });
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
@@ -58011,6 +58040,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -58448,6 +58479,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-hunt-conquest-experience", "P1", "DECLARE_BATTLE"),
@@ -58505,24 +58538,6 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("GRAVEYARD", destroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
             },
-            conqueredEvent =>
-            {
-                Assert.Equal("BATTLEFIELD_CONQUERED", conqueredEvent.Kind);
-                Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
-                Assert.Equal("BATTLEFIELD:P1-MAIN", conqueredEvent.Payload["battlefieldId"]);
-                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", conqueredEvent.Payload["sourceObjectId"]);
-                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(conqueredEvent.Payload["defeatedObjectIds"]));
-                Assert.Equal(3, conqueredEvent.Payload["huntAmount"]);
-            },
-            experienceEvent =>
-            {
-                Assert.Equal("EXPERIENCE_GAINED", experienceEvent.Kind);
-                Assert.Equal("P1", experienceEvent.Payload["playerId"]);
-                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", experienceEvent.Payload["sourceObjectId"]);
-                Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
-                Assert.Equal(3, experienceEvent.Payload["amount"]);
-                Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
-            },
             damageRemovedEvent =>
             {
                 Assert.Equal("DAMAGE_REMOVED", damageRemovedEvent.Kind);
@@ -58534,6 +58549,40 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conqueredEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conqueredEvent.Kind);
+                Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conqueredEvent.Payload["battlefieldId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", conqueredEvent.Payload["sourceObjectId"]);
+                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(conqueredEvent.Payload["defeatedObjectIds"]));
+                Assert.Equal(3, conqueredEvent.Payload["huntAmount"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
+            experienceEvent =>
+            {
+                Assert.Equal("EXPERIENCE_GAINED", experienceEvent.Kind);
+                Assert.Equal("P1", experienceEvent.Payload["playerId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", experienceEvent.Payload["sourceObjectId"]);
+                Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
+                Assert.Equal(3, experienceEvent.Payload["amount"]);
+                Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -58541,7 +58590,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(3, result.State.PlayerExperience["P1"]);
         Assert.Equal(0, result.State.PlayerExperience["P2"]);
-        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
@@ -58549,6 +58598,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -58640,6 +58691,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-bulwark-back-row", "P1", "DECLARE_BATTLE"),
@@ -58650,10 +58703,16 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-MUTANT-KITTEN", 3),
+                new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-LEBLANC", 7)],
+            [new("P2-BATTLEFIELD-MUTANT-KITTEN", "P1-BATTLEFIELD-VOLIBEAR", 3),
+                new("P2-BATTLEFIELD-LEBLANC", "P1-BATTLEFIELD-VOLIBEAR", 4)]);
+
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         Assert.Collection(
-            result.Events,
+            result.Events.Where(e => e.Kind is not ("BATTLE_DAMAGE_ASSIGNMENT_OPENED"
+                or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED" or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED")),
             battleEvent =>
             {
                 Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
@@ -58744,6 +58803,28 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(7, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conquestEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conquestEvent.Kind);
+                Assert.Equal("P1", conquestEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conquestEvent.Payload["battlefieldId"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -58755,9 +58836,13 @@ public sealed class ConformanceFixtureRunnerTests
                     ["P1-BATTLEFIELD-VOLIBEAR"],
                     Assert.IsType<string[]>(closedEvent.Payload["clearedObjectIds"]));
             });
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["BATTLE_DAMAGE_ASSIGNMENT_OPENED", "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "BATTLE_DAMAGE_STEP_STARTED", "COMBAT_DAMAGE_ASSIGNED"], result.Events
+            .Where(e => e.Kind is "BATTLE_DAMAGE_ASSIGNMENT_OPENED" or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED"
+                or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED").Select(e => e.Kind));
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
@@ -58766,6 +58851,8 @@ public sealed class ConformanceFixtureRunnerTests
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-LEBLANC", "GRAVEYARD");
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -59013,6 +59100,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-second-hunter", "P1", "DECLARE_BATTLE"),
@@ -59022,6 +59111,10 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VANGUARD", "P2-BATTLEFIELD-DEFENDER", 1),
+                new("P1-BATTLEFIELD-HUNTER", "P2-BATTLEFIELD-DEFENDER", 2)],
+            [new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-VANGUARD", 1)]);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -59039,7 +59132,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, experienceEvent.Payload["totalExperience"]);
 
         Assert.Equal(2, result.State.PlayerExperience["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-VANGUARD"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -59047,6 +59140,8 @@ public sealed class ConformanceFixtureRunnerTests
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-HUNTER"].IsAttacking);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -60615,7 +60710,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
@@ -60637,9 +60732,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
@@ -60664,7 +60759,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
         Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
-        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
@@ -61712,6 +61807,43 @@ public sealed class ConformanceFixtureRunnerTests
         }
     }
 
+    private static async Task<ResolutionResult> P4FinishBattleAssignments(ResolutionResult result,
+        IReadOnlyList<CombatDamageAssignmentDto> attackers, IReadOnlyList<CombatDamageAssignmentDto> defenders)
+    {
+        var events = result.Events.ToList();
+        foreach (var (player, assignments) in new[] { ("P1", attackers), ("P2", defenders) })
+        {
+            var battle = result.State.BattleState;
+            result = await new CoreRuleEngine().ResolveAsync(result.State,
+                new($"p4-assign-{player}", player, CommandTypes.AssignCombatDamage),
+                new AssignCombatDamageCommand(battle.BattleId!, battle.BattlefieldObjectId!, assignments), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            events.AddRange(result.Events);
+        }
+        return result with { Events = events };
+    }
+
+    // Current midgame initial data, prepared before the tested command/journal.
+    private static MatchState P4PhysicalBattlefieldState(MatchState state)
+    {
+        const string field = "BATTLEFIELD:P1-MAIN";
+        var cards = state.CardObjects.ToDictionary();
+        var zones = state.PlayerZones.ToDictionary();
+        var locations = new Dictionary<string, ObjectLocationState> { [field] = new("P1", "BATTLEFIELD", field) };
+        cards[field] = new(field, cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+            ownerId: "P1", controllerId: "P2");
+        foreach (var (player, playerZones) in state.PlayerZones)
+            foreach (var id in playerZones.Battlefields)
+            {
+                Assert.Contains(CardObjectTags.UnitCard, cards[id].Tags);
+                cards[id] = cards[id] with { OwnerId = player, ControllerId = player };
+                locations[id] = new(player, "BATTLEFIELD", field);
+            }
+        zones["P1"] = zones["P1"] with { Battlefields = [field, ..zones["P1"].Battlefields] };
+        return state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
+            UntilEndOfTurnEffects = [..state.UntilEndOfTurnEffects, BattlefieldTaskMarkers.SpellDuelCompleted(field)] };
+    }
+
     private static MatchState PunishmentState(int mana)
     {
         return new MatchState(
@@ -62414,6 +62546,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-SHIRANA-MONASTERY")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62461,6 +62600,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-HUNTING-GROUNDS")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62502,6 +62648,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SCRAPYARD")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62521,7 +62674,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62544,6 +62697,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ZAUN-SUMP")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62564,7 +62724,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·298/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62591,6 +62751,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THUNDER-RUNE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62611,7 +62778,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·287/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62817,6 +62984,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-LEGEND-HALL")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62836,7 +63010,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·210/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62866,6 +63040,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOUNT-TARGON")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62887,7 +63068,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·289/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62926,6 +63107,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THRONE-OF-POWER")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62956,7 +63144,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·217/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-OTHER-001"] = new(
                     "P1-BATTLEFIELD-OTHER-001",
                     cardNo: "OGN·280/298",
@@ -63028,7 +63216,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63090,7 +63278,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-WEAK-ATTACKER"] = new(
                     "P1-BATTLEFIELD-WEAK-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63128,6 +63316,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63146,7 +63341,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·220/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63169,6 +63364,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: mana) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-EMPEROR-SHRINE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63187,7 +63389,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63210,6 +63412,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOONVEIL-ALTAR")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63229,7 +63438,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -66637,6 +66846,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-CANDLELIT-SANCTUM")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -66661,7 +66877,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·291/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
                     cardNo: "SFD·125/221",

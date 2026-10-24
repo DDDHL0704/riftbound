@@ -36,7 +36,7 @@ public sealed class DevScenarioResetTests
         await Seed(used, "first", "standard-group-movement");
         var command = new MoveUnitCommand("P1-BASE-GUARD-001", "BASE", "BATTLEFIELD:P2-SHOWCASE-ARENA",
             SourceObjectIds: ["P1-BASE-GUARD-001", "P1-BATTLEFIELD-UNIT-001"]);
-        var moved = await used.SubmitAsync("P1", "move", command, JsonSerializer.SerializeToElement(command), CancellationToken.None);
+        var moved = await used.SubmitAsync("P1", "move", command, JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web)), CancellationToken.None);
         Assert.True(moved.Accepted, moved.ErrorMessage);
         Assert.Contains(moved.Events, item => item.Kind == "BATTLEFIELD_CONTESTED");
         var fresh = await Seed(Session(), "fresh", scenario);

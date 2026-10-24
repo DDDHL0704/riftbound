@@ -170,7 +170,7 @@ public sealed partial class CoreRuleEngine
             var costs = new Dictionary<string, int> { [spec.PowerCostTrait!] = spec.PowerCost!.Value };
             state = state with { PendingPayment = new("MIGHTY-COST:" + item.StackItemId, MightyCostWindow, item.ControllerId,
                 powerCostByTrait: costs, legalPaymentChoiceIds: [MightySpendChoice(spec), "DECLINE"],
-                paymentResourceActionIds: MightyPaymentResourceActions(state, item.ControllerId, costs),
+                paymentResourceActionIds: RecycleRunePaymentResourceActionIds(state, item.ControllerId),
                 reason: "支付符能以确认活跃技能；支付后双方响应。") {
                     ResolvingStackItemId = item.StackItemId }, PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         }
@@ -186,13 +186,13 @@ public sealed partial class CoreRuleEngine
 
     private static string MightySpendChoice(TriggerSpec spec) => $"SPEND_POWER:{spec.PowerCostTrait}:{spec.PowerCost}";
 
-    private static IReadOnlyList<string> MightyPaymentResourceActions(MatchState state, string player,
-        IReadOnlyDictionary<string, int> costs)
+    private static MatchState RefreshMightyPaymentResources(MatchState before, MatchState after)
     {
-        if (CanPayPowerCost(state.RunePools.GetValueOrDefault(player) ?? RunePool.Empty, 0, costs)) return [];
-        return state.PlayerZones[player].Base.Where(id => CanRecycleRuneForPayment(state, player, id)
-            && TryGetRuneTrait(state.CardObjects[id], out var trait) && costs.GetValueOrDefault(trait) > 0)
-            .Select(id => RecycleRunePaymentOptionalCostPrefix + id).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        if (before.PendingPayment is not { PaymentWindow: MightyCostWindow } prior
+            || after.PendingPayment is not { PaymentWindow: MightyCostWindow } current
+            || current.PaymentId != prior.PaymentId || !ValidMightySkillPayment(before, prior)) return after;
+        return after with { PendingPayment = current with {
+            PaymentResourceActionIds = RecycleRunePaymentResourceActionIds(after, current.PlayerId) } };
     }
 
     internal static bool ValidMightySkillPayment(MatchState state, PendingPaymentState pending)
@@ -205,7 +205,7 @@ public sealed partial class CoreRuleEngine
             && pending.PlayerId == item.ControllerId && pending.ManaCost == 0 && pending.PowerCost == 0
             && pending.PowerCostByTrait.Count == 1 && pending.PowerCostByTrait.GetValueOrDefault(spec.PowerCostTrait!) == spec.PowerCost
             && pending.ExperienceCost == 0 && pending.LegalPaymentChoiceIds.SequenceEqual(new[] { MightySpendChoice(spec), "DECLINE" })
-            && pending.PaymentResourceActionIds.SequenceEqual(MightyPaymentResourceActions(state, item.ControllerId, pending.PowerCostByTrait));
+            && pending.PaymentResourceActionIds.SequenceEqual(RecycleRunePaymentResourceActionIds(state, item.ControllerId));
     }
 
     internal static bool ValidMightySkillChoice(MatchState state, PendingCardChoiceState choice)
@@ -270,9 +270,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "强力技能付款选择无效。", ErrorCodes.InvalidTarget);
         if (spend[0] == "DECLINE") return ConfirmMightySkill(state, item, false);
         if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, resources, out var optional, out var actions, out var runeIds)
-            || optional.Count != 0 || !AreRecycleRunePaymentResourceActionsRequired(state.RunePools[intent.PlayerId], state.CardObjects,
-                runeIds, 0, pending.PowerCostByTrait))
-            return RejectWithCorePrompts(state, "支付资源动作无效或不必要。", ErrorCodes.InvalidTarget);
+            || optional.Count != 0)
+            return RejectWithCorePrompts(state, "支付资源动作无效。", ErrorCodes.InvalidTarget);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var zones = NormalizeZonesForSeats(state);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>();
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, runeIds,
