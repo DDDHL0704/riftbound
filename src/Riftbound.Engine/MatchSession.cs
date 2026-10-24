@@ -17584,6 +17584,9 @@ public sealed partial class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "DEV_SEED_SCENARIO"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             var nextState = BuildDevScenarioState(state, normalizedScenarioId) with
@@ -17675,6 +17678,9 @@ public sealed partial class MatchSession : IMatchSession
 
                 return cached.Result;
             }
+
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "SUBMIT_DECK"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17823,6 +17829,9 @@ public sealed partial class MatchSession : IMatchSession
 
                 return cached.Result;
             }
+
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, "READY"))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             if (state.Status == MatchStatuses.Finished)
             {
@@ -18022,6 +18031,9 @@ public sealed partial class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            if (!HasCanonicalPresentRawEnvelope(rawCommand, command.CmdType))
+                return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
             // persist the request, including stale-prompt rejections.
@@ -18100,6 +18112,32 @@ public sealed partial class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, string? RawCommandHash, ResolutionResult Result);
+
+    // Match the existing recovery envelope rules before any uncached request can be journaled.
+    // Nullable-absent raw remains a separate typed-caller contract; do not fabricate wire JSON.
+    private static bool HasCanonicalPresentRawEnvelope(JsonElement? rawCommand, string expectedCommandType)
+    {
+        if (rawCommand is null) return true;
+        var raw = rawCommand.Value;
+        if (raw.ValueKind != JsonValueKind.Object) return false;
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var property in raw.EnumerateObject())
+            if (string.IsNullOrWhiteSpace(property.Name) || property.Name != property.Name.Trim()
+                || !names.Add(property.Name)) return false;
+        if (!raw.TryGetProperty("cmdType", out var type) || type.ValueKind != JsonValueKind.String)
+            return false;
+        var value = type.GetString();
+        if (string.IsNullOrWhiteSpace(value) || value != value.Trim()
+            || !string.Equals(value, expectedCommandType, StringComparison.Ordinal)) return false;
+        if (raw.TryGetProperty("promptId", out var prompt) && prompt.ValueKind != JsonValueKind.Null)
+        {
+            if (prompt.ValueKind != JsonValueKind.String) return false;
+            var text = prompt.GetString()!;
+            if (text.Length > 0 && (string.IsNullOrWhiteSpace(text) || text != text.Trim())) return false;
+        }
+        return !raw.TryGetProperty("snapshotTick", out var tick)
+            || tick.ValueKind == JsonValueKind.Number && tick.TryGetInt64(out var number) && number >= 0;
+    }
 
     private static bool HasCanonicalRequiredStringArray(JsonElement raw, string field)
     {
