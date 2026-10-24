@@ -12,6 +12,15 @@ N17原13方法/38例全部断言与Theory行保留；只将旧未迁移fixture/d
 
 共享接点修改前读取②③实际SourceUnitEnterReadyRequirementsSatisfied、StaticAbilityParser.Parse和StaticAbilitySpec记录，内容与本基底完全一致。新条件仅为末尾nullable静态规格、精确中文句解析、既有进场条件读取当时控制者的真实墓地与完整已知名称；不改变UnitEntry算法、事件/MatchState/权限/选择/费用。未动③ValidPermanentPlayTargetStack。
 
-当前先冻结父Core/Parser的消费者前沿：仅保留新增nullable规格字段使原元数据断言可编译，6个原进场场景与完整45例VEN012将用独立输入实测。首轮实际51例为43通过/8失败：013有同名的4例未活跃是预期前沿，012另4例在新增JSON往返哈希失败。其原玩法断言均已通过；手工with追加法盾tag绕过构造器排序，而JSON构造器按Ordinal规范化，故仅规范两处初始tag集合顺序，全部原语义断言/数据行保留。更正夹具后的父Core/Parser前沿尚待执行。源码、旧原件、后续独立证据和TRX位于ignored `var/qa/cards-direct-pr-migration-20261024/n17-main-port-v1/`；来源位于相邻`n17-current-source-v1/`。
+精确测试源 `07b4e4e157996292d1218aab0a1216d7ca25748a` 全Conformance构建0警告0错误；325/325、149方法、零跳过，原150例的完整名称/数量多重集合全部保留。新范围含原N17的38例、完整VEN012的45例、父N14的34例/N15的49例/N13的31例，以及所有原活跃入场邻域、目录/历史/RuleInputs。新增用例按实时发现纳入，未删除旧150例中的2个VEN012邻域。同一冻结目录的原11套预组/两格式输入另1/1，无实际110场对局。
+
+N17有37份完整终态日志，96条命令（87接受/9拒绝）、275事件，全部终态JSON冷恢复；每命令隐藏/原日志/内存恢复与接受幂等检查，四种协调终态伪造被独立原日志拒绝。VEN012有18份接受终态JSON冷恢复日志，72条接受命令、268事件；26份直接Core拒绝实录保持状态/资源/视图/提示不变，另8份原Export是同组输入的重复记录，不累加覆盖。全部83个本卡/相邻消费者原用例及原语义断言保持。
+
+独立父Core/Parser前沿 `d7ceb5c1cf8b9885fa000318c61f6409a35469df` 实际51例为47通过/4预期失败：VEN012完整45通过，N17无同名2例通过、有1/2份同名的基地/战场4例仍休眠。六份实际终态在原断言前已导出。仅保留新增nullable规格字段使元数据断言可编译，Core/Parser字节与基底8f4c相同；与正式源仅这两个语义文件不同，前沿不是公开分支祖先。
+
+首轮e34fb1c4的51例实际43通过/8失败，除4个N17语义前沿，另4个VEN012法盾场景只在新增JSON往返哈希失败，原玩法断言均通过。原因是手工with追加初始tag绕过CardObjectState构造器的Ordinal规范化；只将两处初始tag集合排序/去重，保留相同集合、全部原费用/活跃/强攻/拒绝断言和数据行。更正后45/45及全部18终态JSON复核通过，未修改生产恢复或清洗已接受历史，原失败仍保留。
+
+2493源码输入与1418运行文件前后全量哈希稳定，N17和VEN012全部实录的实际三程序集路径/SHA/MVID/RuleInputs一致。当前RIF `1d470670b3d810e4f4cb749b53b07b37b10afc457fd343c8ebe5b195def18af8`。原件与旧失败/TRX/源码/bin在ignored `var/qa/cards-direct-pr-migration-20261024/n17-main-port-v1/`，当前 `main-source-test-receipt-v1.json` SHA256 `5a997a4480651d5b2660c75dc02d2803ecff574c5a8e0dbfead222c1f7e27da2`。来源在相邻`n17-current-source-v1/`；原六份未跟踪消费者哈希保持、未编译执行。
+
 
 本固定源未包含PR157的新ErrorCode恢复契约；后续重基到该契约时，自有journal→RecoveredCommand投影须传递实际entry.ErrorCode，不推断/回填旧历史。日常合入以最新PR head/base/merge输入的L2 required全绿及机械核验为准，夜间L3独立。本机不新跑full/check/SQL/网络/110场矩阵。净整卡认证增量0、backend NOT READY，1740印次/14293条款和适用功能分母UNKNOWN保持。
