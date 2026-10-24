@@ -154,6 +154,42 @@ public sealed class Ven032EmpoweredSelfConsumerTests
         await Export("negative-might-expiration", initial, driver);
     }
 
+    [Fact]
+    public async Task RecoveryRequiresTheHiddenEmpowerSourceAndRejectsPrivateOrUnrelatedPublicReplacements()
+    {
+        var initial = AddSpell(Position(5), "RETURN", "OGN·104/298", "P1"); var driver = await Play(initial);
+        await driver.Act("P1", Activate());
+        var captured = Assert.Single(driver.State.StackItems).EmpowerActivation!.Source;
+        await driver.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await driver.Top();
+        Assert.Contains("UNIT", driver.State.PlayerZones["P1"].Hand);
+        Assert.Equal(captured.Generation + 1, driver.State.CardObjects["UNIT"].ObjectGeneration);
+        var state = driver.State; var sequence = driver.Commands().Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var own = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshots["P1"].Stack));
+        var opponent = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshots["P2"].Stack));
+        Assert.Equal("UNIT", own["sourceObjectId"]); Assert.Equal("HIDDEN", opponent["sourceObjectId"]);
+        var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        var row = Assert.IsType<Dictionary<string, object?>>(Assert.Single(spectator.SpectatorSnapshot.Stack));
+        Assert.Equal("HIDDEN", row["sourceObjectId"]); Assert.Equal("HIDDEN", row["sourceVisibility"]);
+        Assert.Equal(No, row["cardNo"]); Assert.False(row.ContainsKey("empowerActivation"));
+        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, sequence, driver.Commands(), driver.Events(), views, state, state.Tick, spectator));
+        var commandHash = MatchStateHasher.HashValue(driver.Commands()); var eventHash = MatchStateHasher.HashValue(driver.Events());
+        var rejected = new Dictionary<string, IReadOnlyList<string>>();
+        foreach (var replacement in new[] { "UNIT", "ALLY" }) {
+            var stack = spectator.SpectatorSnapshot.Stack.ToArray();
+            stack[0] = new Dictionary<string, object?>(row) { ["sourceObjectId"] = replacement, ["sourceVisibility"] = "VISIBLE" };
+            var forged = spectator with { SpectatorSnapshot = spectator.SpectatorSnapshot with { Stack = stack } };
+            var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, driver.Commands(), driver.Events(), views, state, state.Tick, forged);
+            Assert.Contains(errors, e => e.Contains("stack source object ids disagree", StringComparison.Ordinal));
+            rejected[replacement] = errors;
+        }
+        Assert.Equal(commandHash, MatchStateHasher.HashValue(driver.Commands())); Assert.Equal(eventHash, MatchStateHasher.HashValue(driver.Events()));
+        JsonRestore(initial, driver); await Export("hidden-source-recovery", initial, driver);
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN032_EVIDENCE") is { Length: > 0 } output)
+            File.WriteAllText(Path.Combine(output, "hidden-source-recovery-negative-views.json"), JsonSerializer.Serialize(new { captured, rejected, commandHash, eventHash }, Json));
+    }
+
     private static MatchState Position(int runes = 0)
     {
         var state = BasePosition(); var cards = state.CardObjects.ToDictionary(); var locations = state.ObjectLocations.ToDictionary(); var zones = state.PlayerZones.ToDictionary();
