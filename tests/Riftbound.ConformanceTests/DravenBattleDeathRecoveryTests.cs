@@ -48,18 +48,30 @@ public sealed class DravenBattleDeathRecoveryTests
     public async Task LaterBattleResultConfirmsAfterEarlierDeathAndResolvesFirst(bool attackingDraven)
     {
         var run = await Open(false, false, 0, mixed: true, attackingDraven: attackingDraven);
-        // CN 467.3 -> 468.1 -> 468.3: these are successive instructions even
-        // though one accepted command performs them. APNAP cannot reverse them.
+        // Retain this original method/row identity. CN468.2 finishes death FEPR
+        // before468.3 determines the outcome; these are separate chains, so
+        // later result skills cannot resolve first by cross-phase LIFO.
         Assert.Empty(run.State.TriggerQueue);
-        Assert.Equal(Death, run.State.StackItems[0].EffectKind);
-        Assert.Equal("CAPTURED_LEGEND_BATTLE_WIN_DRAW", run.State.StackItems[1].EffectKind);
+        Assert.Equal(Death, Assert.Single(run.State.StackItems).EffectKind);
+        Assert.Equal("CLEANUP_TRIGGERS", run.State.PendingBattleResult!.Stage);
+        Assert.DoesNotContain(run.Events, e => e.Kind == "BATTLE_RESULT_DETERMINED");
         Assert.Equal(attackingDraven ? "P1" : "P2", run.State.PendingCardChoice!.PlayerId);
+        await run.Confirm();
+        for (var i = 0; run.State.StackItems.Any(item => item.EffectKind == Death); i++)
+        {
+            Assert.InRange(i, 0, 3);
+            await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        Assert.Equal("RESULT_TRIGGERS", run.State.PendingBattleResult!.Stage);
+        Assert.Equal("CAPTURED_LEGEND_BATTLE_WIN_DRAW", Assert.Single(run.State.StackItems).EffectKind);
         await run.Settle();
         var events = run.Events.ToList();
         var draw = Assert.Single(events, e => e.Kind == "CARD_DRAWN");
         var deathScore = Assert.Single(events, e => e.Kind == "SCORE_GAINED" && Equals(e.Payload.GetValueOrDefault("reason"), Death));
-        Assert.True(events.IndexOf(draw) < events.IndexOf(deathScore));
-        Assert.True(events.IndexOf(deathScore) < events.FindIndex(e => e.Kind == "BATTLE_CLOSED"));
+        var result = Assert.Single(events, e => e.Kind == "BATTLE_RESULT_DETERMINED");
+        Assert.True(events.IndexOf(deathScore) < events.IndexOf(result));
+        Assert.True(events.IndexOf(result) < events.IndexOf(draw));
+        Assert.True(events.IndexOf(draw) < events.FindIndex(e => e.Kind == "BATTLE_CLOSED"));
         run.Save("mixed-instructions-" + attackingDraven);
     }
 

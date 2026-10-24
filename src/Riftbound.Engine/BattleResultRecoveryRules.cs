@@ -17,7 +17,7 @@ internal static class BattleResultRecoveryRules
     internal static bool ValidContinuation(MatchState state)
     {
         if (state.PendingBattleResult is not { } c) return true;
-        if (c.Stage is not ("RESULT_TRIGGERS" or "CONTROL_TRIGGERS") || c.ResultTick <= 0 || c.ResultTick > state.Tick
+        if (c.Stage is not ("CLEANUP_TRIGGERS" or "RESULT_TRIGGERS" or "CONTROL_TRIGGERS") || c.ResultTick <= 0 || c.ResultTick > state.Tick
             || c.AssignedOverkillDamage < 0 || string.IsNullOrWhiteSpace(c.BattlefieldId)
             || !state.Seats.ContainsKey(c.AttackingPlayerId) || c.DefendingPlayerId is null
             || !state.Seats.ContainsKey(c.DefendingPlayerId) || c.AttackingPlayerId == c.DefendingPlayerId
@@ -30,12 +30,13 @@ internal static class BattleResultRecoveryRules
             && c.SurvivingAttackerObjectIds.All(c.AttackerObjectIds.Contains)
             && c.SurvivingDefenderObjectIds.All(c.DefenderObjectIds.Contains)
             && c.DestroyedObjectIds.All(all.Contains)
-            && (c.WinnerPlayerId is null
-                ? c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
+            && (c.Stage == "CLEANUP_TRIGGERS" ? c.WinnerPlayerId is null : c.WinnerPlayerId is null
+                ? c.AttackerRecalledByBattleCleanup || c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
                     || c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count > 0
                 : c.WinnerPlayerId == c.AttackingPlayerId
                 ? c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count == 0
                 : c.SurvivingDefenderObjectIds.Count > 0 && c.SurvivingAttackerObjectIds.Count == 0)
+            && (!c.AttackerRecalledByBattleCleanup || c.WinnerPlayerId is null)
             && c.PublicObjectBindings.All(b => b is not null && b.Generation >= 0 && all.Contains(b.ObjectId));
     }
 
@@ -84,9 +85,10 @@ internal static class BattleResultRecoveryRules
         if (!ValidContinuation(state)) return ["invalid captured battle result continuation"];
         if (state.PendingBattleResult is { } continuation)
         {
+            var cleanup = continuation.Stage == "CLEANUP_TRIGGERS";
             var origins = frame.Events.Where(e => e.Tick == continuation.ResultTick
-                && e.Event.Kind == "BATTLE_RESULT_DETERMINED"
-                && Same(e.Event.Payload.GetValueOrDefault("continuation"), continuation with { Stage = "RESULT_TRIGGERS" })).ToArray();
+                && e.Event.Kind == (cleanup ? "BATTLE_CLEANUP_COMPLETED" : "BATTLE_RESULT_DETERMINED")
+                && Same(e.Event.Payload.GetValueOrDefault("continuation"), continuation with { Stage = cleanup ? "CLEANUP_TRIGGERS" : "RESULT_TRIGGERS" })).ToArray();
             if (origins.Length != 1 || !HasOriginalCommand(origins.SingleOrDefault()))
                 errors.Add("battle result continuation differs from its original accepted result event");
         }

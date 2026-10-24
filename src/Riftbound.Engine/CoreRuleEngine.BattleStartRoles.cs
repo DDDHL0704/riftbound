@@ -43,15 +43,11 @@ public sealed partial class CoreRuleEngine
                 ceasedTokens: context.CeasedTokens, publicObjectBindings: context.PublicObjectBindings));
     }
 
-    private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result)
+    private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result, int roleEventOffset = 0)
     {
         if (!result.Accepted) return result;
         var state = result.State;
         if (result.Events.Any(e => e.Kind == "BATTLE_CLOSED")) {
-            if (TryReadBattleResponseDeclarationContext(state, string.Empty, out var closing)
-                && result.Events.Any(e => e.Kind == "BATTLE_CLOSED"
-                    && Equals(e.Payload?.GetValueOrDefault("battlefieldId"), closing.BattlefieldId)))
-                state = state with { UntilEndOfTurnEffects = ClearBattleResponseDeclarationContextMarkers(state.UntilEndOfTurnEffects) };
             var next = AdvancePendingBattlefieldTasksAfterStateChange(state, state.ActivePlayerId, before);
             state = next.State;
             result = result with { State = state, Events = result.Events.Concat(next.Events).ToArray(),
@@ -66,7 +62,7 @@ public sealed partial class CoreRuleEngine
             var defending = participating && !attacking;
             if (attacking != c.IsAttacking || defending != c.IsDefending)
                 cards[c.ObjectId] = c with { IsAttacking = attacking, IsDefending = defending };
-            var sameRoleObject = before.CardObjects.TryGetValue(c.ObjectId, out var previous)
+            var sameRoleObject = before.CardObjects.TryGetValue(c.ObjectId, out var previous) && context.InitialRolesEstablished
                 && previous.ObjectGeneration == c.ObjectGeneration && IsObjectLocatedAtBattlefield(before.PlayerZones, before.ObjectLocations, c.ObjectId, context.BattlefieldId);
             if (attacking && (!sameRoleObject || !previous!.IsAttacking)) newAttackers.Add(c.ObjectId);
             if (defending && (!sameRoleObject || !previous!.IsDefending)) newDefenders.Add(c.ObjectId);
@@ -74,20 +70,25 @@ public sealed partial class CoreRuleEngine
         state = state with { CardObjects = cards };
         var focus = context.InitialRolesEstablished ? state.FocusPlayerId ?? context.InitialFocusPlayerId! : context.InitialFocusPlayerId!;
         var roleKind = context.InitialRolesEstablished ? "BATTLE_ROLE_ACQUIRED" : "BATTLE_ROLES_ESTABLISHED";
-        var queue = CaptureAttackDamageTriggers(state, newAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+        var roleEventOrder = roleEventOffset + result.Events.Count(e => e.Kind != CapturedMightInstruction
+            && e.Kind != "INTERNAL_CARD_PLAY_COMPLETION");
+        state = CaptureFirstBattleRoles(state, context, newAttackers, newDefenders, roleEventOrder,
+            out var firstAttackers, out var firstDefenders, out var newScope);
+        var queue = CaptureAttackDamageTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }).ToList();
-        queue.AddRange(CaptureAttackDeckPlayTriggers(state, newAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+        queue.AddRange(CaptureAttackDeckPlayTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }));
-        queue.AddRange(CaptureCombatMightTriggers(state, newAttackers.Concat(newDefenders),
+        queue.AddRange(CaptureCombatMightTriggers(state, firstAttackers.Concat(firstDefenders),
             context.BattlefieldId, TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
-        queue.AddRange(CaptureEnemyAttackMightTriggers(state, newAttackers, context.BattlefieldId,
+        queue.AddRange(CaptureEnemyAttackMightTriggers(state, firstAttackers, context.BattlefieldId,
             TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
-        queue.AddRange(CaptureStandbyDefendTriggers(state, newDefenders, context.BattlefieldId,
+        queue.AddRange(CaptureStandbyDefendTriggers(state, firstDefenders, context.BattlefieldId,
             TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
-        foreach (var id in newDefenders.Where(id => HasFieldTrigger(cards[id].CardNo, "DEFEND")))
+        foreach (var id in firstDefenders.Where(id => HasFieldTrigger(cards[id].CardNo, "DEFEND")))
             queue.Add(new TriggerQueueItemState($"defend-{state.Tick}-{id}", cards[id].ControllerId!, id,
                 FieldTriggerEffect, roleKind, TimingStates.SpellDuelOpen) {
                     FieldContext = new(cards[id].CardNo!, "DEFEND", cards[id].ObjectGeneration, context.BattlefieldId, focus) });
+        queue.AddRange(CaptureBattleLimitedRoleSkills(state, context.BattlefieldId, firstAttackers, firstDefenders, newScope, focus, roleKind));
         var marker = BuildBattleResponseDeclarationContextMarker(context.BattlefieldId,
             context.AttackerObjectIds.Concat(newAttackers.Where(id => !context.DefenderObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(),
             context.DefenderObjectIds.Concat(newDefenders.Where(id => !context.AttackerObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(), context.OptionalCosts,

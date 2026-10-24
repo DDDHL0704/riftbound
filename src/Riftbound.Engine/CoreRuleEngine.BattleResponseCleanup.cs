@@ -25,7 +25,7 @@ public sealed partial class CoreRuleEngine
                 ["passedPriorityPlayerIds"] = SeatPlayerIds(state), ["combatDamageSkipped"] = true }));
         var resultState = state with { Tick = state.Tick + (advanceTick ? 1 : 0), PlayerZones = zones,
             CardObjects = cards, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
-        if (TryBeginBattleResultContinuation(resultState, battlefield, attackingPlayer, defendingPlayer, winner,
+        if (TryBeginBattleResultContinuation(resultState, battlefield, attackingPlayer, defendingPlayer,
             originalAttackers, originalDefenders, 0, events, out var pendingResult))
             return new(true, null, pendingResult, events, ResolutionResult.BuildSnapshots(pendingResult), BuildCorePrompts(pendingResult));
         ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
