@@ -9,5 +9,5 @@
 - Six canonical resource flows cover normal SEATING/decks/ready/mulligan/turn channeling, three printings per trait and both seats, seed 424242; no QA scenario.
 - Behavior assertions cover exact mana/typed-power gains, exhausted/wrong-owner/wrong-zone/missing/mixed-batch rejection, input-order deck-bottom recycling without shuffle and generation 1→2→3 reentry.
 - Each actual command retains structural recovery, JSON cold production-registry admission with original action/event audit, hidden unrevealed identifiers and unchanged duplicate history/state.
-- Evidence: `var/qa/ven-rune-printing-consumers-20261024/`; main-scoped focus is pending; rule-suite CI must pass for L2 merge. Earlier pilot/55 metadata cases stay separate; nightly fixed-main-SHA L3 is separate.
+- Evidence: `var/qa/ven-rune-printing-consumers-20261024/main-scoped-v1/`; focus 61/61, 348 commands (240 accepted/108 rejected), 1368 events; receipt SHA `b53788c4d804a3b913c19c075837cd96776efd59b6a5a7d4bdd471fe6255e774`. Rule-suite CI pending; older inputs/L3 separate.
 - Six b printings visibly carry PROMO and have empty product fields; dates/applicability remain UNKNOWN. Official universe 1740/14293 retained; whole-card certification delta 0, backend NOT READY.
