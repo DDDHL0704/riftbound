@@ -445,7 +445,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
         Directory.CreateDirectory(output);
         File.WriteAllText(Path.Combine(output, name + ".json"), JsonSerializer.Serialize(new { initial, final = run.State, commands = run.Commands(), events = run.Events(), runtime = RuntimeEvidence() }, Json));
     }
-    private static MatchState At(MatchState state, string id, string player, string zone, string? field = null)
+    internal static MatchState At(MatchState state, string id, string player, string zone, string? field = null)
     {
         var moved = LocalDestructionRecallTests.At(state, id, player, zone, field);
         var cards = moved.CardObjects.ToDictionary();
@@ -465,7 +465,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
             ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 4, [RuneTrait.Red] = 4 }),
             ["P2"] = new(20, 20, new Dictionary<string, int> { [RuneTrait.Green] = 4 }) } };
     }
-    private static MatchState UnitEntryPosition(string no)
+    internal static MatchState UnitEntryPosition(string no)
     {
         var cards = new Dictionary<string, CardObjectState>(); var locations = new Dictionary<string, ObjectLocationState>();
         void Put(string id, string cardNo, string owner, string zone, string? field = null)
@@ -485,7 +485,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
             playerZones: zones, cardObjects: cards, objectLocations: locations, runePools: new Dictionary<string, RunePool> { ["P1"] = new(20, 20), ["P2"] = new(20, 20) }, seed: 424242)
             with { CardPlays = new(5, [], []) };
     }
-    private sealed class Driver : IMatchJournal
+    internal sealed class Driver : IMatchJournal
     {
         private readonly MatchState initial;
         private readonly List<MatchJournalEntry> entries = [];

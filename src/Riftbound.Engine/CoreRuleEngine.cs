@@ -30297,6 +30297,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (ability.RequiresSameNameCardInControllerGraveyard is true
+            && (!cardObjects.TryGetValue(sourceObjectId, out var enteringSource)
+                || !playerZones.TryGetValue(controllerId, out var enteringControllerZones)
+                || !enteringControllerZones.Graveyard.Any(id =>
+                    cardObjects.TryGetValue(id, out var graveCard)
+                    && OfficialCardSourceIdentityGroups.SameKnownName(enteringSource.CardNo, graveCard.CardNo))))
+        {
+            return false;
+        }
+
         if (ability.MaxControllerHandCount.HasValue
             && (!playerZones.TryGetValue(controllerId, out var zones)
                 || zones.Hand.Count > ability.MaxControllerHandCount.Value))
