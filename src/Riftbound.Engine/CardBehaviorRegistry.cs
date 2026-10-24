@@ -289,7 +289,8 @@ public sealed record CardBehaviorDefinition(
     bool DeckPlayOptionalReflexiveEmpower = false,
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
-    FlowCostSpec? AppliedFlowCost = null)
+    FlowCostSpec? AppliedFlowCost = null,
+    int? PowerModifierAmountIfTargetEmpowered = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -453,6 +454,13 @@ public static class CardBehaviorRegistry
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
             DrawCount: 1, FlowCost: new(2, 0, [])),
+        new("VEN·093", "均衡渡命人", 4, "VEN_093_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·122", "烈阳之鹰", 3, "VEN_122_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
+        new("VEN·072", "深沉咆哮", 2, "VEN_072_CONDITIONAL_UNIT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2, CanPlayDuringSpellDuel: true,
+            PowerModifierAmountIfTargetEmpowered: 4),
         new("VEN·081", "狂袭", 4, "ONSLAUGHT_UNIT_POWER_PLUS_SIX", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 6, FlowCost: new(4, 0, [])),
         new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
