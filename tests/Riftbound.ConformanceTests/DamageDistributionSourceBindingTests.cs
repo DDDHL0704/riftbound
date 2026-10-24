@@ -46,7 +46,7 @@ public sealed class DamageDistributionSourceBindingTests
             "printing" => run.State with { CardObjects = new Dictionary<string, CardObjectState>(run.State.CardObjects)
                 { ["HOST"] = run.State.CardObjects["HOST"] with { CardNo = "OGN·041a/298" } } },
             _ => run.State with { StackItems = [item with { DamageDistribution = context with
-                { SourceLocation = mutation == "base" ? new("P1", "BASE") : new("P1", "BATTLEFIELD", "OTHER") } }] }
+                { SourceLocation = mutation == "base" ? new("P1", "BASE") : new("P1", "BATTLEFIELD", "UNCONTESTED-OTHER-FIELD") } }] }
         };
         var frame = Frame(corrupt, initial, run);
         var errors = Errors(frame);
@@ -120,11 +120,11 @@ public sealed class DamageDistributionSourceBindingTests
             initial = initial with
             {
                 CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects)
-                    { ["OTHER"] = new("OTHER", cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2") },
+                    { ["UNCONTESTED-OTHER-FIELD"] = new("UNCONTESTED-OTHER-FIELD", cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2") },
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations)
-                    { ["OTHER"] = new("P2", "BATTLEFIELD", "OTHER") },
+                    { ["UNCONTESTED-OTHER-FIELD"] = new("P2", "BATTLEFIELD", "UNCONTESTED-OTHER-FIELD") },
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones)
-                    { ["P2"] = initial.PlayerZones["P2"] with { Battlefields = [..initial.PlayerZones["P2"].Battlefields, "OTHER"] } }
+                    { ["P2"] = initial.PlayerZones["P2"] with { Battlefields = [..initial.PlayerZones["P2"].Battlefields, "UNCONTESTED-OTHER-FIELD"] } }
             };
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_DISTRIBUTION_SOURCE_174_EVIDENCE");
         var run = new Driver(initial, root is null ? null : Path.Combine(root, name));
