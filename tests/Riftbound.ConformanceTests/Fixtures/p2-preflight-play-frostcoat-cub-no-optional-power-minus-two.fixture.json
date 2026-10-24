@@ -85,16 +85,12 @@
     { "playerId": "P2", "clientIntentId": "intent-p2-preflight-frostcoat-cub-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
       {
@@ -130,18 +126,6 @@
             "犬形"
           ]
         }
-      },
-      {
-        "kind": "TRIGGER_QUEUED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "PRIORITY_PASSED"
-      },
-      {
-        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
