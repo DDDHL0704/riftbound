@@ -2385,7 +2385,7 @@ public sealed class TriggerPaymentTests
                 cardNo: "SFD·220/221",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                 "P1-BATTLEFIELD-GOLD-ATTACKER",
                 cardNo: "SFD·125/221",
@@ -2407,9 +2407,7 @@ public sealed class TriggerPaymentTests
             ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
             ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
         };
-        string[] untilEndOfTurnEffects = includeNextContest
-            ? [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")]
-            : [];
+        string[] untilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")];
         if (includeNextContest)
         {
             cardObjects["P1-BATTLEFIELD-NEXT-FIELD"] = new(
@@ -2479,8 +2477,8 @@ public sealed class TriggerPaymentTests
                 ["P1"] = 0,
                 ["P2"] = 0
             },
-            untilEndOfTurnEffects: includeNextContest ? untilEndOfTurnEffects : null,
-            objectLocations: includeNextContest ? objectLocations : null);
+            untilEndOfTurnEffects: untilEndOfTurnEffects,
+            objectLocations: objectLocations);
     }
 
     private static MatchState BuildOgnVayneConquerRecallState(

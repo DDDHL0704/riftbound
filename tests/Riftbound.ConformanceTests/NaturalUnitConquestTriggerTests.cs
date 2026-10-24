@@ -897,7 +897,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [KaisaTokenDrawSpellObjectId] = Spell(KaisaTokenDrawSpellObjectId, "P1", "SFD·076/221", 4),
