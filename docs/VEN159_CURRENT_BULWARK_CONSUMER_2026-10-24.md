@@ -49,3 +49,13 @@
 - 原编译可空比较错误、误用战斗分配API的18项失败、JSON读取配置及资源初态失败、旧登记统计失败分别保留于v1–v5及对应readback，未删除断言或修改已接受历史。v5/v6重复绿灯不另计覆盖。
 
 本机结果属于L1。合并仍须最新PR head/base/merge-result SHA的实际quality、targeted、rule_suite产物及 `L2 required` 全绿；当前包未完成整卡或L3认证。1740印次/14293条款来源范围保留，适用/功能分母仍 UNKNOWN。
+
+L2失败后续：run40081383548实际受测合并源 `f1bb569894706b48780698fcb63d8d2883e992bf`，规则套件14028例中5项失败均为目录/内容身份/历史成员断言；原ZIP12557006167已按平台digest核对并保留。新源在main `29367aaaa1b154d2b7843f8b8645d3cc64133c84` 上组合更新后的完整PR160 `688f4c503dc36a3d78ba97a32423ed7021ea625d`，两个合并均无冲突，③PermanentPlayTargets文件与该main逐字相同。
+
+受测源码 `d66e89a456d1f6efae644d5affeefd33792ae98d` 将本组合实际元数据校准为temp_might264/212、战场58印次/55功能组及55牌名、静态22/20、关键词12/11、模板35/35，并在原精确战场牌号集合末尾增加VEN159；Uncovered非PLAY_CARD战场分组为55。Lightning Rush沿用既有1036精确历史成员夹具，仍保留1036/1037与835/836及逐组序列化断言；内容身份为该1041目录的实际75bb47f5…621f3。统计不认证规则语义。
+
+新固定源编译0警告0错误，289/289、零跳过；原220用例名多重集完整保留，原5个L2失败均在本次通过集合，另含main127的60个相邻可选费用/目标时机用例、8个元数据用例及原11套两赛制输入守卫1例。相对旧ready576db9c0，本包目录/两个解析生产文件字节未变；相对完整父PR160，生产/数据仍仅原三文件。消费者全部断言和数据行未改，只将已实际解码的完整恢复frame加入新日志字段；不把上轮f55af44d的289重复计入当前覆盖。
+
+8份新日志共110命令（94接受/16拒绝）、270事件、8个完整实际解码JSON恢复帧及32个伪造拒绝，玩家/旁观视图、提示、接受重复、拒绝不变和原日志回放保留。2495源码输入、1418运行文件哈希稳定；Engine MVID `05af752c-1d8a-48aa-9566-c7fe5a5b72ff`，四个受查程序集InfoVersion均指向新源，实录中三运行模块SHA/MVID与manifest一致，MVID组成的implementation哈希及RIF `a2e29108a87df8e724ce79babcbc430cfa7fe55a962ec4d2518b48c037439b7a` 已独立重算吻合。
+
+新原件位于 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr166-current-v2/`，含固定源/bin、实际TRX、8份带完整frame的实录、module-identities.json及verify-final-v1.py；source-runtime-proof-v1.json SHA256 `d84ca851545f21e0e246c8af717a66a3af40082ab6d7dcf375bc55658c6f1efa`。原失败ZIP/inspection在父目录additional-runs-v1，旧反向对照只归原固定源；ready后续仅更新此审计doc。最新L2仍须实际验证，本机没有新full/SQL/网络/110场矩阵，净整卡认证增量0。
