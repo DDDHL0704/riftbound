@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1061,
+  "total": 1079,
   "cards": [
     {
       "id": 31005,
@@ -44192,6 +44192,810 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "red"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "炽烈符文",
+      "cardNo": "VEN·R01",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/0499a2ee6423449885b3d6dfb537389b.png",
+      "hero": "",
+      "id": 37910,
+      "isPreview": false,
+      "listSort": 1776,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "red"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "炽烈符文",
+      "cardNo": "VEN·R01a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/51c178a3e5cb4aa0b87763785e0344b9.png",
+      "hero": "",
+      "id": 37927,
+      "isPreview": false,
+      "listSort": 1758,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "red"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "炽烈符文",
+      "cardNo": "VEN·R01b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/eb67ff24863344efb4642b1226bd3317.png",
+      "hero": "",
+      "id": 37961,
+      "isPreview": false,
+      "listSort": 1752,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "green"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "翠意符文",
+      "cardNo": "VEN·R02",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/35f4b17c10d5449a8c06fae32c189eea.png",
+      "hero": "",
+      "id": 37911,
+      "isPreview": false,
+      "listSort": 1775,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "green"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "翠意符文",
+      "cardNo": "VEN·R02a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/158e5facd95949a5ab581abdbf93508c.png",
+      "hero": "",
+      "id": 37928,
+      "isPreview": false,
+      "listSort": 1757,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "green"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "翠意符文",
+      "cardNo": "VEN·R02b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/3af0eec556654b3384a41b913209a33a.png",
+      "hero": "",
+      "id": 37962,
+      "isPreview": false,
+      "listSort": 1751,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "blue"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "灵光符文",
+      "cardNo": "VEN·R03",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/a5a3e09880da4b7db8f4883c932e2be4.png",
+      "hero": "",
+      "id": 37912,
+      "isPreview": false,
+      "listSort": 1774,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "blue"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "灵光符文",
+      "cardNo": "VEN·R03a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/458b6f8a4179408283c423ee3366890b.png",
+      "hero": "",
+      "id": 37929,
+      "isPreview": false,
+      "listSort": 1756,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "blue"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "灵光符文",
+      "cardNo": "VEN·R03b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/2584753f351f4823b29debfc1174055a.png",
+      "hero": "",
+      "id": 37963,
+      "isPreview": false,
+      "listSort": 1750,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "orange"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "摧破符文",
+      "cardNo": "VEN·R04",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/5070253bb9264857935da7dc8513b6b9.png",
+      "hero": "",
+      "id": 37913,
+      "isPreview": false,
+      "listSort": 1773,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "orange"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "摧破符文",
+      "cardNo": "VEN·R04a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/0c73126162be4412969a21a457147f15.png",
+      "hero": "",
+      "id": 37930,
+      "isPreview": false,
+      "listSort": 1755,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "orange"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "摧破符文",
+      "cardNo": "VEN·R04b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/cef27ef2905e40398a60a4e6ef9922a7.png",
+      "hero": "",
+      "id": 37964,
+      "isPreview": false,
+      "listSort": 1749,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "purple"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "混沌符文",
+      "cardNo": "VEN·R05",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/303d35dab0e440d294d644a085d18477.png",
+      "hero": "",
+      "id": 37914,
+      "isPreview": false,
+      "listSort": 1772,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "purple"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "混沌符文",
+      "cardNo": "VEN·R05a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/84e45d89cb1344d7bb9876fceb4a58e0.png",
+      "hero": "",
+      "id": 37931,
+      "isPreview": false,
+      "listSort": 1754,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "purple"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "混沌符文",
+      "cardNo": "VEN·R05b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/934e97d246684748bd549fb5abe6facb.png",
+      "hero": "",
+      "id": 37965,
+      "isPreview": false,
+      "listSort": 1748,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti & Leah Chen",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "yellow"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "序理符文",
+      "cardNo": "VEN·R06",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/97dcedcfe3904fe59e1a9f4a14f5a3a5.png",
+      "hero": "",
+      "id": 37915,
+      "isPreview": false,
+      "listSort": 1771,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Greg Ghielmetti",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "yellow"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "序理符文",
+      "cardNo": "VEN·R06a",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/f7183182baf646dbb531a266908ae309.png",
+      "hero": "",
+      "id": 37932,
+      "isPreview": false,
+      "listSort": 1753,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
+    },
+    {
+      "artist": "Pixelverse",
+      "backImage": "",
+      "cardCategoryList": [
+        "rune"
+      ],
+      "cardCategoryNameList": [
+        "符文"
+      ],
+      "cardColorList": [
+        "yellow"
+      ],
+      "cardEffect": "",
+      "cardGroupLimit": null,
+      "cardName": "序理符文",
+      "cardNo": "VEN·R06b",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": null,
+      "errata": "",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260819/e0e8bb43f50e469fae61b7fea361b8ba.png",
+      "hero": "",
+      "id": 37966,
+      "isPreview": false,
+      "listSort": 1747,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "region": "",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
     }
   ],
   "scopedAdditions": [
