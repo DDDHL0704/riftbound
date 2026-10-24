@@ -655,9 +655,9 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Draw, 141, 141, 0, 0, 121, 121, 0);
-        AssertFamily(report, BehaviorTemplateIds.Damage, 152, 152, 0, 0, 133, 133, 0);
+        AssertFamily(report, BehaviorTemplateIds.Damage, 153, 153, 0, 0, 134, 134, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 128, 128, 0, 0, 119, 119, 0);
-        AssertFamily(report, BehaviorTemplateIds.Stun, 33, 33, 0, 0, 29, 29, 0);
+        AssertFamily(report, BehaviorTemplateIds.Stun, 35, 35, 0, 0, 31, 31, 0);
         Assert.All(report.Families, family =>
         {
             Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
@@ -688,8 +688,8 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Move, 125, 125, 0, 0, 104, 104, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 27, 27, 0, 0, 23, 23, 0);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 266, 266, 0, 0, 214, 214, 0);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 28, 28, 0, 0, 24, 24, 0);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 269, 269, 0, 0, 217, 217, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
         Assert.All(report.Families, family =>
@@ -981,12 +981,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
-            entries: 29,
-            specImplementedEntries: 29,
+            entries: 31,
+            specImplementedEntries: 31,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 25,
-            specImplementedFunctionalUnits: 25,
+            functionalUnits: 27,
+            specImplementedFunctionalUnits: 27,
             pendingFunctionalUnits: 0);
         Assert.All(lifecycleRows, row =>
         {

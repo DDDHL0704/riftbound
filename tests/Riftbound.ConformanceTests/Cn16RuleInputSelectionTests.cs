@@ -36,8 +36,8 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Prior 1040 rows retained; exact VEN008/043/093/103/122 added. Authority and scope are unchanged.
-        Assert.Equal("d043f2dbe0818e31504ef9569b8deab2b70a5350f7921094475fbd63f013845e", RuleInputIdentity.Current.CatalogSha256);
+        // Prior 1040 rows retained; exact VEN008/010/012/013/043/086/093/103/122/181 added.
+        Assert.Equal("a5d8ed850eaeb2ca2d89871e98a74f518e285368d67ec7c781866417d09f7188", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
