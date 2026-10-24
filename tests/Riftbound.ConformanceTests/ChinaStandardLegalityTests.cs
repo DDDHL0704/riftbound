@@ -64,7 +64,7 @@ public sealed class ChinaStandardLegalityTests
         var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo,
             deck.MainDeck, deck.RuneDeck, deck.Battlefields);
         var result = await session.SubmitDeckAsync("p1", "banned-deck", command,
-            JsonSerializer.SerializeToElement(command), CancellationToken.None);
+            JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web)), CancellationToken.None);
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
         Assert.Contains("荣耀竞技场", result.ErrorMessage);
