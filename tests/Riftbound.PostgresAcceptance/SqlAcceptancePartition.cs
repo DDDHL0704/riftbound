@@ -94,7 +94,7 @@ internal sealed class SqlAcceptancePartition
             throw new InvalidOperationException("Every executed SQL case must retain its actual outputs.");
         var receipt = new {
             status = IsPartition ? "REAL_POSTGRES_PARTITION_COMPLETE" : "REAL_POSTGRES_ALL_DEFAULT_CASES_COMPLETE",
-            fixedCommit = Environment.GetEnvironmentVariable("GITHUB_SHA"), partitionIndex = index, partitionCount = count,
+            fixedCommit = Environment.GetEnvironmentVariable("RIFTBOUND_FIXED_COMMIT") ?? Environment.GetEnvironmentVariable("GITHUB_SHA"), partitionIndex = index, partitionCount = count,
             manifestSha256 = FileHash(ManifestPath), orderedDefaultCases = manifest.Cases.Select(c => c.Id),
             expectedCases = expected, completedCases = completed, executions,
             actualRuleInputs = RuleInputIdentity.Current,
