@@ -23,6 +23,28 @@ public static class PreconstructedDeckCatalog
 {
     private const int MaxManaCostForLowCurveUnit = 2;
 
+    // These eleven preconstructed recipes keep the filler card numbers from
+    // their original 4fca367e inputs. Registering another low-cost unit must
+    // not silently replace cards in an existing preconstructed deck.
+    private static readonly HashSet<string> OriginalFillerCardNos = new(StringComparer.Ordinal)
+    {
+        "ARC-001/006", "FND-196/298", "OGN·009/298", "OGN·012/298", "OGN·013/298",
+        "OGN·024/298", "OGN·026/298", "OGN·027/298", "OGN·029/298", "OGN·039/298",
+        "OGN·044/298", "OGN·052/298", "OGN·087/298", "OGN·093/298", "OGN·095/298",
+        "OGN·096/298", "OGN·103/298", "OGN·104/298", "OGN·105/298", "OGN·114/298",
+        "OGN·116/298", "OGN·121/298", "OGN·122/298", "OGN·135/298", "OGN·139/298",
+        "OGN·171/298", "OGN·180/298", "OGN·183/298", "OGN·185/298", "OGN·197/298",
+        "OGN·210/298", "OGN·216/298", "OGN·217/298", "OGS·013/024", "SFD·008/221",
+        "SFD·018/221", "SFD·021/221", "SFD·022/221", "SFD·026/221", "SFD·036/221",
+        "SFD·041/221", "SFD·065/221", "SFD·069/221", "SFD·077/221", "SFD·080/221",
+        "SFD·085/221", "SFD·098/221", "SFD·099/221", "SFD·128/221", "SFD·130/221",
+        "SFD·155/221", "SFD·159/221", "SFD·167/221", "UNL-002/219", "UNL-003/219",
+        "UNL-022/219", "UNL-036/219", "UNL-040/219", "UNL-053/219", "UNL-055/219",
+        "UNL-065/219", "UNL-076/219", "UNL-081/219", "UNL-082/219", "UNL-092/219",
+        "UNL-093/219", "UNL-094/219", "UNL-111/219", "UNL-116/219", "UNL-137/219",
+        "UNL-194/219",
+    };
+
     private static readonly IReadOnlyList<PreconstructedDeckDefinition> Definitions =
     [
         new("jhin-lowcurve", "影焰枪手 · 烬", "低费单位起手，正面稳健铺场。", "UNL-181/219", "UNL-022/219"),
@@ -158,6 +180,7 @@ public static class PreconstructedDeckCatalog
         var champion = cardsByNo[championCardNo];
 
         var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
+            .Where(behavior => OriginalFillerCardNos.Contains(behavior.CardNo))
             .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
             // Battlefield-only ability targets do not constrain ordinary BASE
             // entry. Registering that ability must not silently replace cards
