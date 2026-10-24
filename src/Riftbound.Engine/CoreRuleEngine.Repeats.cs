@@ -53,7 +53,8 @@ public sealed partial class CoreRuleEngine
         if (destination.Length == 0) return behavior.MinTargetCount == 0 && execution.TargetObjectIds.Count == 0;
         if (destination.StartsWith("BASE:", StringComparison.Ordinal))
             return behavior.MovesTargetsToChosenLocation && state.Seats.ContainsKey(destination[5..])
-                && (execution.TargetObjectIds.Count == 0 || (behavior.TargetScope is CardTargetScopes.FriendlyUnit
+                && (execution.TargetObjectIds.Count == 0 || behavior.TargetScope == CardTargetScopes.AnyUnit
+                    || (behavior.TargetScope is CardTargetScopes.FriendlyUnit
                     or CardTargetScopes.FriendlyUnitThenFriendlyEquipment
                     ? destination[5..] == execution.MovementDeclarationPlayerId : destination[5..] != execution.MovementDeclarationPlayerId));
         return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
