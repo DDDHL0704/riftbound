@@ -108,8 +108,11 @@ public sealed class CurrentKeywordAuraProjectionTests
         Assert.Equal(["SONG", "SOURCE"], Inspect(state, target).PublicKeywordSourceIds);
         Assert.Equal(["F", "SONG", "SOURCE"], Assert.Single(Effects(state, Aura(CurrentBulwark))).SourceDependencyObjectIds);
         var changed = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
-            { ["SONG"] = gear with { ObjectGeneration = 2 } } };
+            { ["SOURCE"] = source with { ObjectGeneration = 2 } } };
         Assert.False(Inspect(changed, target).Matches); Assert.Empty(Effects(changed, Aura(CurrentBulwark)));
+        var reattached = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+            { ["SONG"] = gear with { AttachmentRevision = 2 } } };
+        Assert.False(Inspect(reattached, target).Matches); Assert.Empty(Effects(reattached, Aura(CurrentBulwark)));
         var hidden = state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations)
             { ["SONG"] = new("P1", "HAND") } };
         Assert.False(Inspect(hidden, target).Matches); Assert.Empty(Inspect(hidden, target).PublicKeywordSourceIds);
