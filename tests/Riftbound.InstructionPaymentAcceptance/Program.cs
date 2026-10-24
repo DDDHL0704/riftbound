@@ -8,6 +8,7 @@ if (args.Length == 0 || args[0] is "--help" or "help")
 {
     Console.WriteLine("Usage: dotnet run --project tests/Riftbound.InstructionPaymentAcceptance -- <identity|sql|prepare|play|recover|finish|verify|tamper> <output> [before-restart|after-restart|final]");
     Console.WriteLine("Independent database: ConnectionStrings__Riftbound. Dedicated loopback HTTP API: RIFTBOUND_SERVER_URL. Flow: sql, prepare, start API, play, verify before-restart, actual stop/restart API, recover, verify after-restart, finish, verify final, stop API, tamper. sql retains the existing 17 selected-field cases; network uses 2 new logged QA cases, not ordinary openings.");
+    Console.WriteLine("Every network selector also requires the same dedicated ConnectionStrings__Riftbound for read-only exact SQL evidence; consume real Joined token sidecars between phases.");
     return;
 }
 if (args.Length < 2 || args[0] is not ("identity" or "sql" or "prepare" or "play" or "recover" or "finish" or "verify" or "tamper"))

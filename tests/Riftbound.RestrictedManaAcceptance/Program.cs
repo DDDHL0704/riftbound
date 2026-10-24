@@ -9,6 +9,7 @@ if (args.Length == 0 || args[0] is "--help" or "help")
 {
     Console.WriteLine("Usage: dotnet run --project tests/Riftbound.RestrictedManaAcceptance -- <identity|sql|prepare|play|recover|finish|verify|tamper> <output> [before-restart|after-restart|final]");
     Console.WriteLine("Independent database: ConnectionStrings__Riftbound; dedicated loopback HTTP API: RIFTBOUND_SERVER_URL. Remote flow: sql, prepare, start API, play, verify before-restart, actually stop/restart API, recover, verify after-restart, finish, verify final, stop API, tamper. Two exact Lux prints; original empty-room/seats/finite-QA birth, not ordinary-opening certification. Never runs these heavy gates implicitly.");
+    Console.WriteLine("Every network selector also requires the same dedicated ConnectionStrings__Riftbound for read-only exact SQL evidence; consume real Joined token sidecars between phases.");
     return;
 }
 if (args.Length < 2 || args[0] is not ("identity" or "sql" or "prepare" or "play" or "recover" or "finish" or "verify" or "tamper"))
