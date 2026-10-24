@@ -290,6 +290,7 @@ public sealed record CardBehaviorDefinition(
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
     FlowCostSpec? AppliedFlowCost = null,
+    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0)
 {
@@ -2514,6 +2515,7 @@ public static class CardBehaviorRegistry
             2,
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
@@ -6578,7 +6580,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "SFD·149a/221",
             "伊泽瑞尔",
@@ -6590,7 +6593,8 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower: true),
         new(
             "OGN·225/298",
             "烈阳首领",

@@ -217,7 +217,7 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
-    public void PlayCardTypedOptionalPowerPromptDoesNotQuoteWrongTraitResources()
+    public async Task PlayCardTypedOptionalPowerPromptDoesNotQuoteWrongTraitResources()
     {
         const string redRuneObjectId = "P1-RUNE-RED-WRONG-TINY-GUARDIAN";
         var redRecycleAction = $"RECYCLE_RUNE:{redRuneObjectId}";
@@ -242,19 +242,27 @@ public sealed class PaymentEngineUnificationTests
             .Select(choice => choice.Id)
             .ToArray();
         Assert.DoesNotContain("SPEND_POWER:green:1", optionalCostChoices);
-        Assert.DoesNotContain(redRecycleAction, optionalCostChoices);
+        // Historical identity retained: acquisition is legal, while red still cannot pay the green fee.
+        Assert.Contains(redRecycleAction, optionalCostChoices);
         Assert.DoesNotContain(redTemporaryAction, optionalCostChoices);
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Empty(paymentResourceChoices);
+        Assert.Equal([redRecycleAction], paymentResourceChoices);
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
-            sourceRequirement["availablePowerByTraitWithPaymentResources"]));
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
-            sourceRequirement["paymentResourcePowerByChoice"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        var available = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, available[RuneTrait.Red]);
+        Assert.DoesNotContain(RuneTrait.Green, available.Keys);
+        var byChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, byChoice[redRecycleAction]["trait"]);
+        var before = MatchStateHasher.Hash(state);
+        var rejected = await new CoreRuleEngine().ResolveAsync(state, new("wrong-green-payment", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-UNIT-TINY-GUARDIAN", "OGN·044/298", [], OptionalCosts: [redRecycleAction, "SPEND_POWER:green:1"]), default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
     }
 
     [Fact]
@@ -389,8 +397,6 @@ public sealed class PaymentEngineUnificationTests
                 ["P1-UNIT-VI"] = new("P1", "BASE"),
                 [runeObjectId] = new("P1", "BASE")
             });
-        var initialHash = MatchStateHasher.Hash(state);
-
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-activate-vi-unneeded-recycle-rejected", "P1", "ACTIVATE_ABILITY"),
@@ -401,12 +407,12 @@ public sealed class PaymentEngineUnificationTests
                 [paymentResourceAction]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal(["P1-UNIT-VI", runeObjectId], result.State.PlayerZones["P1"].Base);
-        Assert.Empty(result.State.StackItems);
+        // Historical method identity retained; CN 164.2.b/430 permits voluntary surplus acquisition.
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
+        Assert.Contains(runeObjectId, result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Single(result.State.StackItems);
     }
 
     [Fact]
@@ -1922,8 +1928,6 @@ public sealed class PaymentEngineUnificationTests
                 }),
             runeObjectId,
             RuneCard(runeObjectId, RuneTrait.Red));
-        var initialHash = MatchStateHasher.Hash(state);
-
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-pending-pay-cost-unneeded-rune", "P1", CommandTypes.PayCost),
@@ -1933,13 +1937,12 @@ public sealed class PaymentEngineUnificationTests
                 [paymentResourceAction, "SPEND_POWER:red:1"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
-        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
-        Assert.NotNull(result.State.PendingPayment);
+        // Historical method identity retained; only the actual cost is consumed from the pool.
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Null(result.State.PendingPayment);
     }
 
     [Theory]
@@ -2411,7 +2414,7 @@ public sealed class PaymentEngineUnificationTests
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
     }
 
-    private static MatchState AssembleState(RunePool runePool)
+    internal static MatchState AssembleState(RunePool runePool)
     {
         return new MatchState(
             "payment-engine-assemble-room",
