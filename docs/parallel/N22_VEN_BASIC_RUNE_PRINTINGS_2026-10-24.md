@@ -1,0 +1,13 @@
+# N22 VEN basic-rune printing consumers
+- Scope: exact CN VEN·R01–R06, R01a–R06a and R01b–R06b, 18 physical printings of six existing basic-rune functional units.
+- Source: official card API current rune query, exact records and all 18 full faces read; source receipt SHA `150c21669bade45967c7cc338ed04972d8891e96e522f67a30b526bdb5e5deba`.
+- Authority: DOC01 CN 124.1, 161.2, 164.2 and 417.1; default two rune resource abilities are implicit in the six basic-rune types, not missing card-effect text.
+- Runtime change: append the 18 original API records only; reuse existing rune-category/COLOR/resource/zone/permission flows; no Engine, Contracts, API or persistence source changes.
+- PR source base `8ac0afba21574c94e7ce8a03ed83704524fee8e7`: old 1040 records unchanged, total 1058, rune rows 48→66, functional groups remain 839.
+- Metadata expectations change only entry/duplicate-entry totals (+18), saved logic (+18) and rune rows (+18); no existing test methods, Theory rows or game assertions removed.
+- New five-method/61-case focused tests bind canonical raw source hashes, exact factory identity, matching/off-trait deck legality and six existing functional groups.
+- Six canonical resource flows cover normal SEATING/decks/ready/mulligan/turn channeling, three printings per trait and both seats, seed 424242; no QA scenario.
+- Behavior assertions cover exact mana/typed-power gains, exhausted/wrong-owner/wrong-zone/missing/mixed-batch rejection, input-order deck-bottom recycling without shuffle and generation 1→2→3 reentry.
+- Each actual command retains structural recovery, JSON cold production-registry admission with original action/event audit, hidden unrevealed identifiers and unchanged duplicate history/state.
+- Evidence: `var/qa/ven-rune-printing-consumers-20261024/`; main-scoped focus is pending; rule-suite CI must pass for L2 merge. Earlier pilot/55 metadata cases stay separate; nightly fixed-main-SHA L3 is separate.
+- Six b printings visibly carry PROMO and have empty product fields; dates/applicability remain UNKNOWN. Official universe 1740/14293 retained; whole-card certification delta 0, backend NOT READY.
