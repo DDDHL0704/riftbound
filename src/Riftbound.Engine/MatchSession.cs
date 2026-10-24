@@ -12961,7 +12961,7 @@ internal static class ActionPromptBuilder
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
         var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
         return AvailablePlayMana(runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
-            && CanPayPlayPowerCosts(runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
+            && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
@@ -14345,12 +14345,15 @@ internal static class ActionPromptBuilder
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
-            PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool,
-                echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
+            var echoGeneric = (long)echo.GenericPower + CoreRuleEngine.SourceReplayPowerCost(state, playerId);
+            var canPayEcho = echoGeneric <= int.MaxValue
+                && PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool, (int)echoGeneric,
+                    echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]))
+                && PaymentCostRules.CanPayPowerCost(echoPool, generic, typed);
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], echoPool, out var reductionChoices, reductionGroups);
             if (!reduced && (AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
-                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed))) continue;
+                || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
             parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
@@ -14375,7 +14378,7 @@ internal static class ActionPromptBuilder
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
                 : AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
-                || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
+                || !CanPayHasteReadyPowerCost(state, playerId, runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
                 ? $"{behavior.HasteReadyPowerCost} 符能"
@@ -14429,7 +14432,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
-            if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            if (CanPaySourceDrawOptionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
                     $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
@@ -14444,7 +14447,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
-            if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            if (CanPaySourceReadyPowerModifierOptionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
                     $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
@@ -14715,7 +14718,7 @@ internal static class ActionPromptBuilder
                 StringComparer.Ordinal);
     }
 
-    private static bool CanPayPlayPowerCosts(RunePool pool, IReadOnlyDictionary<string, int> resources,
+    private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
         CardBehaviorDefinition behavior, int amount, string trait)
     {
         var available = pool with
@@ -14725,19 +14728,26 @@ internal static class ActionPromptBuilder
         };
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
+        var extraGeneric = (long)CoreRuleEngine.SourceReplayPowerCost(state, playerId)
+            + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
+        if (extraGeneric > int.MaxValue) return false;
         PrintedPowerCostRules.TrySelectForPlay(behavior, null, available,
-            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
+            (int)extraGeneric, extraTyped, out var generic, out var typed);
         return PaymentCostRules.CanPayPowerCost(available, generic, typed);
     }
 
     private static bool CanPayHasteReadyPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
-        => CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        => CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.HasteReadyPowerCost, HasteReadyPowerTrait(behavior));
 
     private static bool CanPaySourceDrawOptionalPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14754,11 +14764,13 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceDrawAdditionalPowerCost, sourceDrawPowerTrait);
     }
 
     private static bool CanPaySourceReadyPowerModifierOptionalCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14775,7 +14787,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceReadyPowerModifierAdditionalPowerCost, sourceReadyPowerTrait);
     }
 
@@ -14790,7 +14802,7 @@ internal static class ActionPromptBuilder
         return behavior.TargetEffectAdditionalPowerCost > 0
             && (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
                     + behavior.TargetEffectAdditionalManaCost
-                && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
+                && CanPayTargetEffectAdditionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
                     TargetEffectAdditionalCostIds(behavior), runePool with {
                         Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
@@ -14827,6 +14839,8 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayTargetEffectAdditionalPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14842,7 +14856,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.TargetEffectAdditionalPowerCost, targetEffectPowerTrait);
     }
 
@@ -14944,7 +14958,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
+        return CoreRuleEngine.SourceReplayPowerCost(state, playerId) > 0
+            || PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
             || PromptMaximumWardPower(state, playerId, behavior) > 0
             || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
