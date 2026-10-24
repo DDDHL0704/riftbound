@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
 
     // CN 468.3-468.7: result skills finish before control, and control skills
     // finish before the battle closes. Both damage and skipped-damage paths
-    // enter this same continuation when a result has pending observers.
+    // enter this same continuation for every determined winner.
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
         string battlefield, string attacker, string? defender, string? winner,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
@@ -97,7 +97,7 @@ public sealed partial class CoreRuleEngine
             : CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
                 attackers, defenders, resultState.Tick);
         queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
-        if (queued.Count == 0 && !hasCapturedDeaths) return false;
+        // A determined winner still requires the same cleanup/control/victory phases when no skill was earned.
 
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);

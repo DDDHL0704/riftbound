@@ -181,6 +181,8 @@ public sealed class LocalDestructionRecallTests
         var done=await CombatTestDriver.FinishAsync(battle);
         Assert.Contains("D",done.State.PlayerZones["P2"].Base);Assert.Contains("S",done.State.PlayerZones["P2"].Graveyard);
         Assert.Equal("P1",done.State.BattlefieldStates["BF"].ControllerId);Assert.False(done.State.BattleState.IsActive);Restore(done.State);
+        Assert.Equal(1, done.State.PlayerScores["P1"]);
+        Assert.Single(done.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
     }
 
     [Fact]
