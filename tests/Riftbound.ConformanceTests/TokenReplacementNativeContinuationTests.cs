@@ -53,7 +53,7 @@ public sealed class TokenReplacementNativeContinuationTests
         if (!legend) for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         Assert.Equal(branch=="accept"?3:1,OfficialTokenReplacementTests.Tokens(result.State).Length);
         Assert.Empty(result.State.StackItems);Assert.Null(result.State.PendingCardChoice);
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export("replay.json",new{nativeCommandUsed=native.HasValue,replay});

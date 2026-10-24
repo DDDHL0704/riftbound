@@ -39,7 +39,7 @@ public sealed class ElderDragonNativeTests
         if(branch!="ward-decline")for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         for(var i=0;i<12 && result.State.StackItems.Count>0;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         Assert.Equal(branch!="ward-decline",result.State.PlayerZones["P2"].Graveyard.Contains("E"));Assert.Equal(branch!="ward-decline",result.State.PlayerZones["P2"].Graveyard.Contains("D"));Assert.Empty(result.State.StackItems);
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export("result-snapshot.json",result.Snapshots["P1"]);Export("replay.json",new {nativeCommands=native,commands=commands.Length,replay});

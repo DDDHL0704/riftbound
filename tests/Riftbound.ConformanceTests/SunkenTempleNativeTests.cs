@@ -57,7 +57,7 @@ public sealed class SunkenTempleNativeTests
         Assert.Equal(branch == "pay" ? 1 : 0, state.PlayerZones["P1"].Hand.Count);
         Assert.Empty(state.StackItems); Assert.Null(state.PendingPayment);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, state, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors)); Assert.Equal(steps.Length, commands.Count(c => c.Accepted));

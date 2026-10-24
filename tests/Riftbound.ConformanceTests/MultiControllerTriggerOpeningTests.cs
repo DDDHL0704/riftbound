@@ -122,7 +122,7 @@ public sealed class MultiControllerTriggerOpeningTests(ITestOutputHelper output)
         async Task Cold()
         {
             var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId, entry.CommandType, entry.RawCommand,
-                entry.StartedTick, entry.CompletedTick, entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { RuleInputs = entry.RuleInputs }).ToArray();
+                entry.StartedTick, entry.CompletedTick, entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode, RuleInputs = entry.RuleInputs }).ToArray();
             var events = journal.Entries.SelectMany(entry => entry.Events.Select((gameEvent, index) => new RecoveredEvent(entry.StartedEventSequence + index + 1, entry.CompletedTick, index, gameEvent))).ToArray();
             var sequence = journal.Entries[^1].CompletedEventSequence;
             var views = initial.Seats.Keys.ToDictionary(player => player, player => new RecoveredPlayerView(player, state.Tick, sequence,

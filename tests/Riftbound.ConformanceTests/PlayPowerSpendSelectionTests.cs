@@ -131,7 +131,7 @@ public sealed partial class PlayPowerSpendSelectionTests
         {
             var state = authority ?? State; var last = Entries[^1];
             var commands = Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
             var events = Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, last.CompletedEventSequence,
@@ -163,6 +163,7 @@ public sealed partial class PlayPowerSpendSelectionTests
             var duplicate = await Dispatch(last.PlayerId, last.ClientIntentId, GameCommandJsonMapper.Map(last.RawCommand!.Value), last.RawCommand.Value);
             Save(label + "-duplicate", new { originalAccepted = last.Accepted, duplicate });
             Assert.Equal(last.Accepted, duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, Entries.Count);
+            Assert.Equal(last.ErrorCode, duplicate.ErrorCode);
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
         }
         public async Task Registry(string label, MatchRecoveryFrame? forged = null)

@@ -33,7 +33,7 @@ public sealed partial class PlayPowerSpendSelectionTests
         var warm = await run.Repeat(last.PlayerId, last.ClientIntentId, last.RawCommand!.Value);
         Assert.Equal(result.ErrorCode, warm.ErrorCode); Assert.Equal(count, run.Entries.Count);
         await run.Cold("invalid-selector");
-        // Cold rejection-code restoration remains an independently recorded OPEN gap.
+        Assert.Equal(result.ErrorCode, run.Entries[^1].ErrorCode);
         Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(run.State));
     }
 

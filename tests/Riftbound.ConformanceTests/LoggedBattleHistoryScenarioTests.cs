@@ -53,7 +53,7 @@ public sealed class LoggedBattleHistoryScenarioTests
         Assert.Equal("NO_RESULT", Assert.Single(current.State.BattleResolutions).Kind);
         Assert.All(current.State.BattleResolutions[0].PublicObjectBindings!, b => Assert.Equal(0, b.Generation));
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         Assert.StartsWith("DEV_SEED_SCENARIO:", commands[0].CommandType);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current.State, new CoreRuleEngine(), default, events);

@@ -41,7 +41,7 @@ public sealed class MundoBeginningNativeTests
         result=await Submit("P1",Native("recycle",result,"P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,["G2","G4","G5"])));
         Assert.Equal(new[]{"G1","G3"},result.State.PlayerZones["P1"].Graveyard);Assert.Equal(8,MundoBeginningTests.Might(result.State));
         Assert.Equal(MatchPhases.Main,result.State.Phase);Assert.Null(result.State.PendingCardChoice);Assert.Empty(result.State.StackItems);
-        var commands = journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands = journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events = journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors)); Export("result-snapshot.json",result.Snapshots["P1"]);
