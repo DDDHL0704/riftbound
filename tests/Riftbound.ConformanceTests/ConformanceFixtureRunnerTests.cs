@@ -37607,17 +37607,19 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldDefenderSteadfastTwoChoosesDefender()
     {
         var state = BattlefieldDefenderSteadfastState();
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-defender-steadfast", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "P2-BATTLEFIELD-FORTIFIED-POSITION",
-                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
-                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"],
-                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"]),
-            CancellationToken.None);
+        var result = await OfficialInsightAndSpellLockTests.Act(state, "P1",
+            new MoveUnitCommand("P1-BATTLEFIELD-FORTIFIED-ATTACKER", "BASE", "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION", []));
+        result = await StandbyDefendTeemoTests.ConfirmAndResolveDefend(result, "P2-BATTLEFIELD-FORTIFIED-DEFENDER");
+        var events = result.Events.ToList();
+        for (var pass = 0; result.State.FocusPlayerId is not null; pass++) {
+            Assert.InRange(pass, 0, 3);
+            result = await OfficialInsightAndSpellLockTests.Act(result.State, result.State.FocusPlayerId, new PassFocusCommand());
+            events.AddRange(result.Events);
+        }
+        result = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new DeclareBattleCommand(
+            "P2-BATTLEFIELD-FORTIFIED-POSITION", ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+            ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        events.AddRange(result.Events); result = result with { Events = events };
 
         Assert.True(result.Accepted);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
@@ -62906,13 +62908,17 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"]
+                    Base = ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
                     Battlefields = ["P2-BATTLEFIELD-FORTIFIED-POSITION", "P2-BATTLEFIELD-FORTIFIED-DEFENDER"]
                 }
             },
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new("P1", "BASE"),
+                ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION") },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(

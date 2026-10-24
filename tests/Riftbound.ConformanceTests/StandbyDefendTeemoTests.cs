@@ -52,36 +52,30 @@ public sealed class StandbyDefendTeemoTests
     }
 
     [Fact]
-    public void DeclareBattlePromptMetadataMultiplexesBattlefieldSteadfastAndTeemoDefendTriggerTargets()
+    public async Task DeclareBattlePromptMetadataMultiplexesBattlefieldSteadfastAndTeemoDefendTriggerTargets()
     {
-        var session = new MatchSession(
-            BuildState(
-                "OGN·121/298",
-                includeSecondEnemyTarget: true,
-                includeSecondDefender: true,
-                battlefieldCardNo: "OGN·279/298",
-                battlefieldControllerId: "P2"),
-            new CoreRuleEngine(),
-            NoopMatchJournal.Instance);
-
+        var initial = BuildState("OGN·121/298", includeSecondEnemyTarget: true, includeSecondDefender: true,
+            battlefieldCardNo: "OGN·279/298", battlefieldControllerId: "P2");
+        var session = new MatchSession(initial, new CoreRuleEngine(), NoopMatchJournal.Instance);
         var prompt = session.PromptFor("P1");
-
-        var candidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.DeclareBattle, StringComparison.Ordinal));
+        var candidate = Assert.Single(prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.DeclareBattle);
         var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
         var sourceRequirement = Assert.Single(
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
-            requirement => string.Equals(requirement["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
-
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minBattlefieldTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxBattlefieldTargetCount"]));
-        var battlefieldTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["battlefieldTargetChoicesByIndex"]);
-        Assert.Equal(
-            [TeemoObjectId, SecondDefenderObjectId],
-            battlefieldTargetChoicesByIndex["0"].Select(choice => choice.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray());
-        Assert.Single(battlefieldTargetChoicesByIndex);
+            requirement => Equals(requirement["sourceObjectId"], AttackerObjectId));
+        // CN 383.4f / 466.2c: this choice belongs to the earlier defended skill.
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minBattlefieldTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["maxBattlefieldTargetCount"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["battlefieldTargetChoicesByIndex"]));
+        var result = await OpenFortifiedDefend();
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal(BattlefieldObjectId, choice.SourceObjectId);
+        Assert.Equal(1, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
+        Assert.Equal(new[] { AttackerObjectId, SecondEnemyTargetObjectId, TeemoObjectId, SecondDefenderObjectId }
+            .Order(StringComparer.Ordinal), choice.LegalObjectIds.Order(StringComparer.Ordinal));
+        Assert.Equal(TopFiveMainDeckCards().Length + 1, result.State.PlayerZones["P2"].MainDeck.Count);
+        Assert.DoesNotContain(result.Events, e => e.Kind is "DAMAGE_APPLIED" or "MAIN_DECK_CARDS_REVEALED");
     }
 
     [Fact]
@@ -259,25 +253,30 @@ public sealed class StandbyDefendTeemoTests
     [Fact]
     public async Task FaceUpTeemoDefendTriggerMultiplexesBattlefieldSteadfastAndDamageTargets()
     {
-        var engine = new CoreRuleEngine();
-        var result = await engine.ResolveAsync(
-            BuildState(
-                "OGN·121/298",
-                includeSecondEnemyTarget: true,
-                includeSecondDefender: true,
-                battlefieldCardNo: "OGN·279/298",
-                battlefieldControllerId: "P2"),
-            new PlayerIntent("intent-teemo-face-up-defend-trigger-multiplexed-targets", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldObjectId,
-                [AttackerObjectId],
-                [TeemoObjectId, SecondDefenderObjectId],
-                OptionalCosts: ["COMBAT_ASSIGNMENT"],
-                BattlefieldTargetObjectIds: [TeemoObjectId]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        result = await ConfirmAndResolveDefend(result, SecondEnemyTargetObjectId);
+        var result = await OpenFortifiedDefend();
+        var events = result.Events.ToList();
+        for (var confirmation = 0; result.State.PendingCardChoice is { } choice; confirmation++) {
+            Assert.InRange(confirmation, 0, 1);
+            var target = choice.SourceObjectId == BattlefieldObjectId ? TeemoObjectId : SecondEnemyTargetObjectId;
+            Assert.Contains(target, choice.LegalObjectIds);
+            result = await OfficialInsightAndSpellLockTests.Act(result.State, "P2",
+                new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+            events.AddRange(result.Events);
+            Assert.DoesNotContain(result.Events, e => e.Kind is "MAIN_DECK_CARDS_REVEALED" or "DAMAGE_APPLIED");
+        }
+        for (var skill = 0; result.State.StackItems.Count > 0; skill++) {
+            Assert.InRange(skill, 0, 1);
+            result = await OfficialGraveyardRecastTests.Top(result.State); events.AddRange(result.Events);
+        }
+        for (var pass = 0; result.State.FocusPlayerId is not null; pass++) {
+            Assert.InRange(pass, 0, 3);
+            result = await OfficialInsightAndSpellLockTests.Act(result.State, result.State.FocusPlayerId, new PassFocusCommand());
+            events.AddRange(result.Events);
+        }
+        result = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new DeclareBattleCommand(
+            BattlefieldObjectId, [AttackerObjectId, SecondEnemyTargetObjectId], [TeemoObjectId, SecondDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        events.AddRange(result.Events);
+        result = await CombatTestDriver.FinishAsync(result with { Events = events });
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["trigger"], TriggerKinds.BattlefieldDefendGrantSteadfast)
             && Equals(gameEvent.Payload["targetObjectId"], TeemoObjectId)
@@ -393,7 +392,22 @@ public sealed class StandbyDefendTeemoTests
         Assert.DoesNotContain("TryGetBattlefieldDefendMoveFriendlyUnitToBaseTrigger", promptHelper, StringComparison.Ordinal);
     }
 
-    private static async Task<ResolutionResult> ConfirmAndResolveDefend(ResolutionResult result, string target)
+    private static async Task<ResolutionResult> OpenFortifiedDefend()
+    {
+        var state = BuildState("OGN·121/298", includeSecondEnemyTarget: true, includeSecondDefender: true,
+            battlefieldCardNo: "OGN·279/298", battlefieldControllerId: "P2");
+        foreach (var id in new[] { AttackerObjectId, SecondEnemyTargetObjectId })
+            state = LocalDestructionRecallTests.At(state, id, "P1", "BASE");
+        var result = await OfficialInsightAndSpellLockTests.Act(state, "P1", new MoveUnitCommand(
+            AttackerObjectId, "BASE", "BATTLEFIELD:" + BattlefieldObjectId, [], [AttackerObjectId, SecondEnemyTargetObjectId]));
+        Assert.Equal(2, result.State.TriggerQueue.Count);
+        var ordering = result.Prompts.Single(p => p.Value.Actionable && p.Value.Actions.Contains(CommandTypes.OrderTriggers)).Key;
+        var order = result.State.TriggerQueue.OrderBy(t => t.SourceObjectId == BattlefieldObjectId ? 0 : 1).Select(t => t.TriggerId).ToArray();
+        var ordered = await OfficialInsightAndSpellLockTests.Act(result.State, ordering, new OrderTriggersCommand(OrderedTriggerIds: order));
+        return ordered with { Events = result.Events.Concat(ordered.Events).ToArray() };
+    }
+
+    internal static async Task<ResolutionResult> ConfirmAndResolveDefend(ResolutionResult result, string target)
     {
         var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
         Assert.Equal("P2", choice.PlayerId);

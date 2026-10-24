@@ -24714,7 +24714,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldDefenderSteadfastScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303033,
@@ -24729,7 +24729,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P1] = Zones(
                     mainDeck: ["P1-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
-                    battlefields: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+                    baseZone: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -24762,6 +24762,10 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(seed.P1, "BASE"),
+            ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+            ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION") } };
     }
 
     private static MatchState BuildBattlefieldDefendMoveToBaseScenario(MatchState current, DevScenarioSeed seed)
