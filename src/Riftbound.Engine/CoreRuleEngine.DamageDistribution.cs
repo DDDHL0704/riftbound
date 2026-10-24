@@ -157,9 +157,11 @@ public sealed partial class CoreRuleEngine
         var keys = context.InitialBonuses.Select(b => b.Source.ObjectId + ":" + b.Source.Generation + ":" + b.Kind + ":" + (b.Origin?.Equipment.ObjectId ?? "PRINTED")).ToArray();
         if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Length || (long)spec.DamageAmount!.Value + context.InitialBonuses.Sum(b => (long)b.Amount) != context.InitialDamage) return false;
         var source = state.CardObjects[sourceId];
+        // Only a departed generation can retain a historical field location.
         return source.ObjectGeneration != context.Source.Generation
-            || (source.CardNo == context.CardNo && (!IsObjectOnField(state.PlayerZones, sourceId)
-                || state.ObjectLocations[sourceId] == context.SourceLocation));
+            || (source.CardNo == context.CardNo && IsObjectOnField(state.PlayerZones, sourceId)
+                && state.ObjectLocations.TryGetValue(sourceId, out var currentLocation)
+                && currentLocation == context.SourceLocation);
     }
     internal static bool ValidDistributionStack(MatchState state, StackItemState item)
     {

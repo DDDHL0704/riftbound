@@ -37,8 +37,16 @@ public sealed class LightningRushSourceIdentityTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         // Retain the exact N47 historical comparison after later independent additions.
-        string[] laterAdditions = ["VEN·003", "VEN·049", "VEN·081"];
-        var n47Cards = catalog.Cards.Where(c => !laterAdditions.Contains(c.CardNo)).ToArray();
+        using var historical = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "wild-claw-historical-1036-printings.json")));
+        Assert.Equal("5edb12e57576358f3ef4a9f9d6da92c313f12437",
+            historical.RootElement.GetProperty("sourceCommit").GetString());
+        var originalCardNos = historical.RootElement.GetProperty("cardNos").EnumerateArray()
+            .Select(card => card.GetString()!).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(1036, originalCardNos.Count);
+        Assert.DoesNotContain(LightningRushDeckDrawFlowTests.LightningRush, originalCardNos);
+        var n47Cards = catalog.Cards.Where(c => originalCardNos.Contains(c.CardNo)
+            || c.CardNo == LightningRushDeckDrawFlowTests.LightningRush).ToArray();
         var oldCards = n47Cards.Where(c => c.CardNo != LightningRushDeckDrawFlowTests.LightningRush).ToArray();
         Assert.Equal(1036, oldCards.Length); Assert.Equal(1037, n47Cards.Length);
         var oldUnits = FunctionalUnitBuilder.Build(oldCards); var units = FunctionalUnitBuilder.Build(n47Cards);

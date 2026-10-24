@@ -3538,43 +3538,57 @@ public sealed record MatchState
 
             foreach (var aura in StaticAuraSpecRules.GetStaticAuras(battlefield.CardNo).Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura))
             {
-                var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
-                    state,
-                    battlefieldObjectId,
-                    aura);
-                var sourceDependencyObjectIds = PublicFieldDependencyObjectIds(state, [battlefieldObjectId]);
-                var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
-                var metadata = BattlefieldPowerStaticAuraProjectionMetadata(aura);
-
-                foreach (var participantObjectId in participantObjectIds)
-                {
-                    var participant = state.CardObjects[participantObjectId];
-                    var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
-                    effects.Add(new ContinuousEffectState(
-                        $"{metadata.EffectIdPrefix}:{battlefieldObjectId}:{participantObjectId}",
-                        "BATTLEFIELD",
-                        ContinuousEffectLayers.StaticAura,
-                        metadata.Duration,
-                        participantObjectId,
-                        battlefieldObjectId,
-                        aura.PowerDeltaPerParticipant,
-                        participant.Power,
-                        participant.Power + aura.PowerDeltaPerParticipant,
-                        aura.Kind,
-                        battlefield.CardNo,
-                        metadata.SourcePath,
-                        true,
-                        LayerEngineFoundationResiduals(),
-                        Condition: metadata.Condition,
-                        Lifecycle: metadata.Lifecycle,
-                        ParticipantObjectIds: participantObjectIds,
-                        SourceDependencyObjectIds: sourceDependencyObjectIds,
-                        TargetDependencyObjectIds: targetDependencyObjectIds,
-                        ParticipantDependencyObjectIds: participantDependencyObjectIds));
-                }
+                effects.AddRange(BuildBattlefieldPowerStaticAuraEffects(state, battlefieldObjectId, aura));
             }
         }
 
+        return effects;
+    }
+
+    internal static IReadOnlyList<ContinuousEffectState> BuildBattlefieldPowerStaticAuraEffects(
+        MatchState state, string battlefieldObjectId, StaticAuraSpec aura)
+    {
+        if (BattlefieldLocalRules.Battlefield(state, battlefieldObjectId) is not { } battlefield
+            || !StaticAuraSpecRules.IsBattlefieldPowerStaticAura(aura)) return [];
+        var effects = new List<ContinuousEffectState>();
+        var layerState = CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)
+            ? CoreRuleEngine.RecomputeRuleDerivedKeywords(state) : state;
+        var participantObjectIds = BattlefieldScopedStaticAuraParticipantObjectIds(
+            layerState,
+            battlefieldObjectId,
+            aura);
+        var participantDependencyObjectIds = PublicFieldDependencyObjectIds(state, participantObjectIds);
+        var metadata = BattlefieldPowerStaticAuraProjectionMetadata(aura);
+
+        foreach (var participantObjectId in participantObjectIds)
+        {
+            var participant = state.CardObjects[participantObjectId];
+            var keywordSources = CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)
+                ? CoreRuleEngine.InspectCurrentKeywordFilter(layerState, aura, layerState.CardObjects[participantObjectId]).PublicKeywordSourceIds : [];
+            var sourceDependencyObjectIds = PublicStaticAuraDependencyObjectIds(state, new[] { battlefieldObjectId }.Concat(keywordSources));
+            var targetDependencyObjectIds = PublicFieldDependencyObjectIds(state, [participantObjectId]);
+            effects.Add(new ContinuousEffectState(
+                $"{metadata.EffectIdPrefix}:{battlefieldObjectId}:{participantObjectId}",
+                "BATTLEFIELD",
+                ContinuousEffectLayers.StaticAura,
+                metadata.Duration,
+                participantObjectId,
+                battlefieldObjectId,
+                aura.PowerDeltaPerParticipant,
+                participant.Power,
+                participant.Power + aura.PowerDeltaPerParticipant,
+                aura.Kind,
+                battlefield.CardNo,
+                metadata.SourcePath,
+                true,
+                LayerEngineFoundationResiduals(),
+                Condition: metadata.Condition,
+                Lifecycle: metadata.Lifecycle,
+                ParticipantObjectIds: participantObjectIds,
+                SourceDependencyObjectIds: sourceDependencyObjectIds,
+                TargetDependencyObjectIds: targetDependencyObjectIds,
+                ParticipantDependencyObjectIds: participantDependencyObjectIds));
+        }
         return effects;
     }
 
@@ -4056,13 +4070,14 @@ public sealed record MatchState
         string battlefieldObjectId,
         StaticAuraSpec aura)
     {
+        if (CoreRuleEngine.IsCurrentKeywordPowerFilter(aura)) state = CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
         var locatedParticipantObjectIds = state.ObjectLocations
             .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 && state.CardObjects.TryGetValue(entry.Key, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
-                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
+                && CoreRuleEngine.BattlefieldStaticAuraAppliesToParticipant(state, aura, participant)
                 && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -4078,7 +4093,7 @@ public sealed record MatchState
                 && state.CardObjects.TryGetValue(objectId, out var participant)
                 && participant.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !participant.IsFaceDown
-                && StaticAuraSpecRules.TargetMatchesFilter(aura, participant)
+                && CoreRuleEngine.BattlefieldStaticAuraAppliesToParticipant(state, aura, participant)
                 && IsObjectLocationCompatibleWithBattlefield(state, objectId, battlefieldObjectId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -5423,6 +5438,8 @@ public sealed record ResolutionResult(
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
+            || item.EmpowerActivation is not null
+            || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
         {
@@ -13002,6 +13019,11 @@ internal static class ActionPromptBuilder
             return state.PlayerZones.TryGetValue(playerId, out var zones) ? zones.Graveyard : [];
         }
 
+        if (targetScope == CardTargetScopes.AnyGraveyardCard)
+        {
+            return state.PlayerZones.Values.SelectMany(zones => zones.Graveyard).Distinct(StringComparer.Ordinal);
+        }
+
         if (string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal))
         {
             return state.PlayerZones
@@ -13084,6 +13106,10 @@ internal static class ActionPromptBuilder
                 : IsPromptBattlefieldObject(state, objectId),
             CardTargetScopes.FriendlyMainDeckCard => false,
             CardTargetScopes.FriendlyGraveyardCard => IsPromptFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
+                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
+                && state.Seats.ContainsKey(graveyardCard.OwnerId)
+                && IsPromptFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
             CardTargetScopes.FriendlyBaseUnit => IsPromptControlledBaseObject(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsPromptAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
@@ -14457,6 +14483,7 @@ internal static class ActionPromptBuilder
         }
 
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
+        choices.AddRange(PlayCardDiscardHandDamageOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
@@ -14565,6 +14592,24 @@ internal static class ActionPromptBuilder
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
                 $"弃置 {PromptHandCardLabel(state, objectId)}：费用减少 {behavior.ManaReductionIfDiscardHandCardOptionalCost}",
+                $"{behavior.DisplayName}的可选额外费用"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+
+        return zones.Hand
+            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"DISCARD_HAND_CARD:{objectId}",
+                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();
     }
@@ -16689,6 +16734,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "己方手牌，然后战场单位",
             CardTargetScopes.FriendlyMainDeckCard => "己方主牌堆牌",
             CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
+            CardTargetScopes.AnyGraveyardCard => "任意废牌堆牌",
             CardTargetScopes.AttackingUnit => "攻击中单位",
             CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",

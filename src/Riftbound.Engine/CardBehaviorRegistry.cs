@@ -290,7 +290,9 @@ public sealed record CardBehaviorDefinition(
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
     FlowCostSpec? AppliedFlowCost = null,
-    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false)
+    bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
+    int DamageAmountIfDiscardHandCardOptionalCost = 0,
+    int ExtraDamagePerSameNameInControllerGraveyard = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -328,6 +330,7 @@ public static class CardTargetScopes
     public const string FriendlyHandCardThenBattlefieldUnit = "FRIENDLY_HAND_CARD_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyMainDeckCard = "FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyGraveyardCard = "FRIENDLY_GRAVEYARD_CARD";
+    public const string AnyGraveyardCard = "ANY_GRAVEYARD_CARD";
     public const string AttackingUnit = "ATTACKING_UNIT";
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
@@ -450,10 +453,42 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·048", "云端亚龙", 6, "CLOUD_DRAKE_PLAY_UNIT_DRAW_1", 0, 0,
+            DrawCount: 1, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "龙"),
+        new("VEN·118", "龙角勇士", 6, "DRAGONHORN_WARRIOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark),
         new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
             DrawCount: 1, FlowCost: new(2, 0, [])),
+        new("VEN·093", "均衡渡命人", 4, "VEN_093_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·122", "烈阳之鹰", 3, "VEN_122_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
+        new("VEN·008", "无情打击", 3, "VEN_008_OPTIONAL_DISCARD_DAMAGE", 3, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            DamageAmountIfDiscardHandCardOptionalCost: 5),
+        new("VEN·043", "钢爪", 1, "STEELCLAW_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 0, SourceUnitTags: "猫科|法盾"),
+        new("VEN·103", "往日阴影", 3, "VEN_103_RETURN_GRAVEYARD_UNITS_TO_OWNERS_HANDS", 0, 2,
+            TargetScope: CardTargetScopes.AnyGraveyardCard, MinTargetCount: 0,
+            TargetRequiredTag: CardObjectTags.UnitCard, ReturnsGraveyardTargetToHand: true),
+        new("VEN·086", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·181", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ExtraDamagePerSameNameInControllerGraveyard: 1),
+        new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
+            StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,
+            FlowCost: new(3, 1, [RuneTrait.Red])),
+        new("VEN·013", "暗影刺客", 5, "VEN_013_SAME_NAME_GRAVEYARD_READY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("VEN·081", "狂袭", 4, "ONSLAUGHT_UNIT_POWER_PLUS_SIX", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 6, FlowCost: new(4, 0, [])),
         new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
