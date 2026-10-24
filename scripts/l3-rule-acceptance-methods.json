@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "scope": "Exact full legal-opening/cold-recovery/original-journal acceptance identities. All remain in nightly full; no timing-based filter. Mechanism tests and both L2 game smokes remain daily.",
+  "methods": [
+    {
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardOrdinaryTests.OriginalBlankLegalDecksExerciseSelfDestructionAndIndependentDecreeThenPaidOrDeclinedPhoenix",
+      "source": "tests/Riftbound.ConformanceTests/DestructionGraveyardOrdinaryTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.ConditionalCounterPaymentOpeningTests.OriginalBlankLegalDecksKeepIndependentResolutionPaymentsThroughColdRecovery",
+      "source": "tests/Riftbound.ConformanceTests/ConditionalCounterPaymentOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.CopiedLastBreathInsightOpeningTests.OrdinaryLegalLastBreathsKeepIndependentPrivateChoicesOffTurnRecoveryAndOriginalNextTurn",
+      "source": "tests/Riftbound.ConformanceTests/CopiedLastBreathInsightOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.CopiedDuelInsightOpeningTests.OrdinaryLegalCopiedDuelCostsCurrentDeckRecoveryAndOriginalInitiatorContinue",
+      "source": "tests/Riftbound.ConformanceTests/CopiedDuelInsightOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.ObservedDisclosureOpeningTests.OrdinaryOriginalOpeningPreservesDisclosureThroughBanishOriginalChoicePlayAndRecovery",
+      "source": "tests/Riftbound.ConformanceTests/ObservedDisclosureOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery",
+      "source": "tests/Riftbound.ConformanceTests/EmptyRevealFollowupTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.PakaaProtectorOpeningTests.OrdinaryBlankOpeningPaysForPakaThenMovesThroughSharedRevealAndOriginalReplay",
+      "source": "tests/Riftbound.ConformanceTests/PakaaProtectorOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay",
+      "source": "tests/Riftbound.ConformanceTests/MultiControllerTriggerOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.CreatedTokenReadyOpeningTests.LegalEmptyOpeningColdRecoversTheCreatedTokenTriggerAndReplaysEveryOriginalCommand",
+      "source": "tests/Riftbound.ConformanceTests/CreatedTokenReadyOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay",
+      "source": "tests/Riftbound.ConformanceTests/EmpoweredInsightOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.AttachedPredictOpeningTests.OrdinaryLegalCopiedGrantsKeepIndependentChoicesColdReplayAndOriginalNextTurn",
+      "source": "tests/Riftbound.ConformanceTests/AttachedPredictOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.HereLocationOpeningTests.ActualBlankOpeningKeepsTheAbilityControllerAfterTakeoverAcrossColdRecoveryAndOriginalReplay",
+      "source": "tests/Riftbound.ConformanceTests/HereLocationOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+      "source": "tests/Riftbound.ConformanceTests/ReversalTargetChoiceOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.OpponentBattlefieldControlOpeningTests.ANewEmptyOpeningRecoversNeutralOrSwappedBattlefieldControlBeforeVayneEntry",
+      "source": "tests/Riftbound.ConformanceTests/OpponentBattlefieldControlOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.RavenbloomPutIntoHandOpeningTests.OrdinaryDefendedRevealPreservesTheGenuineDrawCountAndOriginalNextTurn",
+      "source": "tests/Riftbound.ConformanceTests/RavenbloomPutIntoHandOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost",
+      "source": "tests/Riftbound.ConformanceTests/GrantedOriginHasteOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn",
+      "source": "tests/Riftbound.ConformanceTests/ObservedDeckPlayWindowOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    },
+    {
+      "method": "Riftbound.ConformanceTests.EmptyObservedDeckRepeatOpeningTests.OrdinaryBlankOpeningExecutesPaidSecondViewBeforeAllObservedUnitPlayOffers",
+      "source": "tests/Riftbound.ConformanceTests/EmptyObservedDeckRepeatOpeningTests.cs",
+      "reason": "Full legal opening plus cold recovery and complete original journal/replay; nightly L3, not mechanism-only feedback."
+    }
+  ]
+}
