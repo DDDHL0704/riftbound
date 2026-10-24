@@ -12959,7 +12959,7 @@ internal static class ActionPromptBuilder
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
         var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
         return AvailablePlayMana(runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
-            && CanPayPlayPowerCosts(runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
+            && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
@@ -14338,8 +14338,9 @@ internal static class ActionPromptBuilder
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
-            var canPayEcho = echoReachability.CanPayForPlay(behavior, echo.GenericPower, echo.TypedPower,
-                additionalPrintedCosts: EchoCostRules.PrintedCosts([echo]));
+            var echoGeneric = (long)echo.GenericPower + CoreRuleEngine.SourceReplayPowerCost(state, playerId);
+            var canPayEcho = echoGeneric <= int.MaxValue && echoReachability.CanPayForPlay(behavior,
+                (int)echoGeneric, echo.TypedPower, additionalPrintedCosts: EchoCostRules.PrintedCosts([echo]));
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
             if (!reduced && (AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
@@ -14368,7 +14369,7 @@ internal static class ActionPromptBuilder
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
                 : AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
-                || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
+                || !CanPayHasteReadyPowerCost(state, playerId, runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
                 ? $"{behavior.HasteReadyPowerCost} 符能"
@@ -14385,7 +14386,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            if (CanPaySourceReadyOptionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
                     $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
@@ -14422,7 +14423,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            if (CanPaySourceDrawOptionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
                     $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
@@ -14437,7 +14438,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            if (CanPaySourceReadyPowerModifierOptionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id,
                     $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
@@ -14492,7 +14493,7 @@ internal static class ActionPromptBuilder
         }
 
         var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceStealEnemyEquipmentAdditionalPowerCost, requiredTrait);
     }
 
@@ -14716,23 +14717,29 @@ internal static class ActionPromptBuilder
         return new RunePaymentReachability(runePool, paymentResourcePowerByTrait).TraitUpperBounds();
     }
 
-    private static bool CanPayPlayPowerCosts(RunePool pool, IReadOnlyDictionary<string, int> resources,
+    private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
         CardBehaviorDefinition behavior, int amount, string trait)
     {
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
-        return new RunePaymentReachability(pool, resources).CanPayForPlay(behavior,
-            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped);
+        var generic = (long)CoreRuleEngine.SourceReplayPowerCost(state, playerId)
+            + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
+        return generic <= int.MaxValue && new RunePaymentReachability(pool, resources)
+            .CanPayForPlay(behavior, (int)generic, extraTyped);
     }
 
     private static bool CanPayHasteReadyPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
-        => CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        => CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.HasteReadyPowerCost, HasteReadyPowerTrait(behavior));
 
     private static bool CanPaySourceDrawOptionalPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14749,11 +14756,13 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceDrawAdditionalPowerCost, sourceDrawPowerTrait);
     }
 
     private static bool CanPaySourceReadyPowerModifierOptionalCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14770,7 +14779,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceReadyPowerModifierAdditionalPowerCost, sourceReadyPowerTrait);
     }
 
@@ -14785,7 +14794,7 @@ internal static class ActionPromptBuilder
         return behavior.TargetEffectAdditionalPowerCost > 0
             && (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
                     + behavior.TargetEffectAdditionalManaCost
-                && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
+                && CanPayTargetEffectAdditionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
                     TargetEffectAdditionalCostIds(behavior), runePool, out _,
                     powerReachability: new RunePaymentReachability(runePool, paymentResourcePowerByTrait)))
@@ -14821,6 +14830,8 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayTargetEffectAdditionalPowerCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14836,7 +14847,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.TargetEffectAdditionalPowerCost, targetEffectPowerTrait);
     }
 
@@ -14871,6 +14882,8 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPaySourceReadyOptionalCost(
+        MatchState state,
+        string playerId,
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
         CardBehaviorDefinition behavior)
@@ -14886,7 +14899,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return CanPayPlayPowerCosts(runePool, paymentResourcePowerByTrait, behavior,
+        return CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior,
             behavior.SourceReadyAdditionalPowerCost, sourceReadyTrait);
     }
 
@@ -14937,7 +14950,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
+        return CoreRuleEngine.SourceReplayPowerCost(state, playerId) > 0
+            || PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
             || PromptMaximumWardPower(state, playerId, behavior) > 0
             || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
