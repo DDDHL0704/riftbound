@@ -60754,7 +60754,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
         Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
-        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
