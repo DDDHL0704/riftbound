@@ -22,7 +22,7 @@
     {
       "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
       "locator": "Current CN core 190.3-190.4, 468.1-468.7, 471.1; SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11; physical pages 28-29,94-95",
-      "note": "Scoped current correction: real battlefield and explicit unit locations after completed duel; cleanup precedes result/control/conquest and battle closes last. Original seed, commands, damage, Hunt, survival and historical evidence remain; no whole-card certification."
+      "note": "Scoped current correction: real battlefield and explicit unit locations after completed duel; cleanup precedes result/control/conquest and battle closes last. Original seed, commands, damage, Hunt, survival and historical evidence remain; no whole-card certification. Multiple recipients require both real assignment commands; original DECLARE_BATTLE stays byte-identical as command prefix, followed by explicit 3+7 attacker and 3+4 defender assignments. All original numerical payload expectations remain."
     }
   ],
   "roomId": "p4-declare-battle-bulwark-back-row-assignment-room",
@@ -185,12 +185,58 @@
           "COMBAT_ASSIGNMENT"
         ]
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-bulwark-assignment-P1",
+      "cmd": {
+        "cmdType": "ASSIGN_COMBAT_DAMAGE",
+        "battleId": "battle:BATTLEFIELD:P1-MAIN",
+        "battlefieldId": "BATTLEFIELD:P1-MAIN",
+        "assignments": [
+          {
+            "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+            "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+            "damage": 3
+          },
+          {
+            "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+            "targetObjectId": "P2-BATTLEFIELD-LEBLANC",
+            "damage": 7
+          }
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-bulwark-assignment-P2",
+      "cmd": {
+        "cmdType": "ASSIGN_COMBAT_DAMAGE",
+        "battleId": "battle:BATTLEFIELD:P1-MAIN",
+        "battlefieldId": "BATTLEFIELD:P1-MAIN",
+        "assignments": [
+          {
+            "sourceObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+            "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+            "damage": 3
+          },
+          {
+            "sourceObjectId": "P2-BATTLEFIELD-LEBLANC",
+            "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+            "damage": 4
+          }
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 1,
+    "finalTick": 3,
     "eventKinds": [
       "BATTLE_DECLARED",
+      "BATTLE_DAMAGE_ASSIGNMENT_OPENED",
+      "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+      "BATTLE_DAMAGE_STEP_STARTED",
+      "COMBAT_DAMAGE_ASSIGNED",
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
@@ -225,9 +271,47 @@
         }
       },
       {
-        "kind": "DAMAGE_APPLIED",
+        "kind": "BATTLE_DAMAGE_ASSIGNMENT_OPENED",
         "tick": 1,
-        "sequence": 2,
+        "payload": {
+          "battleId": "battle:BATTLEFIELD:P1-MAIN",
+          "battlefieldObjectId": "BATTLEFIELD:P1-MAIN",
+          "assigningPlayerId": "P1"
+        },
+        "sequence": 2
+      },
+      {
+        "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+        "tick": 2,
+        "payload": {
+          "battleId": "battle:BATTLEFIELD:P1-MAIN",
+          "assigningPlayerId": "P1",
+          "nextAssigningPlayerId": "P2"
+        },
+        "sequence": 3
+      },
+      {
+        "kind": "BATTLE_DAMAGE_STEP_STARTED",
+        "tick": 3,
+        "payload": {
+          "battleId": "battle:BATTLEFIELD:P1-MAIN",
+          "assigningPlayerId": "P2"
+        },
+        "sequence": 4
+      },
+      {
+        "kind": "COMBAT_DAMAGE_ASSIGNED",
+        "tick": 3,
+        "payload": {
+          "battleId": "battle:BATTLEFIELD:P1-MAIN",
+          "assigningPlayerId": "P2"
+        },
+        "sequence": 5
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 3,
+        "sequence": 6,
         "payload": {
           "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
           "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
@@ -244,8 +328,8 @@
       },
       {
         "kind": "DAMAGE_APPLIED",
-        "tick": 1,
-        "sequence": 3,
+        "tick": 3,
+        "sequence": 7,
         "payload": {
           "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
           "targetObjectId": "P2-BATTLEFIELD-LEBLANC",
@@ -262,8 +346,8 @@
       },
       {
         "kind": "DAMAGE_APPLIED",
-        "tick": 1,
-        "sequence": 4,
+        "tick": 3,
+        "sequence": 8,
         "payload": {
           "sourceObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
           "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
@@ -278,8 +362,8 @@
       },
       {
         "kind": "DAMAGE_APPLIED",
-        "tick": 1,
-        "sequence": 5,
+        "tick": 3,
+        "sequence": 9,
         "payload": {
           "sourceObjectId": "P2-BATTLEFIELD-LEBLANC",
           "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
@@ -294,8 +378,8 @@
       },
       {
         "kind": "UNIT_DESTROYED",
-        "tick": 1,
-        "sequence": 6,
+        "tick": 3,
+        "sequence": 10,
         "payload": {
           "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
           "targetObjectId": "P2-BATTLEFIELD-LEBLANC",
@@ -307,8 +391,8 @@
       },
       {
         "kind": "UNIT_DESTROYED",
-        "tick": 1,
-        "sequence": 7,
+        "tick": 3,
+        "sequence": 11,
         "payload": {
           "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
           "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
@@ -320,8 +404,8 @@
       },
       {
         "kind": "DAMAGE_REMOVED",
-        "tick": 1,
-        "sequence": 8,
+        "tick": 3,
+        "sequence": 12,
         "payload": {
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
           "objectIds": [
@@ -337,8 +421,8 @@
       },
       {
         "kind": "BATTLE_RESULT_DETERMINED",
-        "tick": 1,
-        "sequence": 9
+        "tick": 3,
+        "sequence": 13
       },
       {
         "kind": "BATTLEFIELD_CONTROL_RESOLVED",
@@ -347,8 +431,8 @@
           "previousControllerId": "P2",
           "controllerId": "P1"
         },
-        "tick": 1,
-        "sequence": 10
+        "tick": 3,
+        "sequence": 14
       },
       {
         "kind": "BATTLEFIELD_CONQUERED",
@@ -361,21 +445,21 @@
             "P2-BATTLEFIELD-MUTANT-KITTEN"
           ]
         },
-        "tick": 1,
-        "sequence": 11
+        "tick": 3,
+        "sequence": 15
       },
       {
         "kind": "SCORE_GAINED",
         "payload": {
           "playerId": "P1"
         },
-        "tick": 1,
-        "sequence": 12
+        "tick": 3,
+        "sequence": 16
       },
       {
         "kind": "BATTLE_CLOSED",
-        "tick": 1,
-        "sequence": 13
+        "tick": 3,
+        "sequence": 17
       }
     ],
     "promptActions": {

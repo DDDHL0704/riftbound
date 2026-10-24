@@ -58698,10 +58698,16 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-MUTANT-KITTEN", 3),
+                new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-LEBLANC", 7)],
+            [new("P2-BATTLEFIELD-MUTANT-KITTEN", "P1-BATTLEFIELD-VOLIBEAR", 3),
+                new("P2-BATTLEFIELD-LEBLANC", "P1-BATTLEFIELD-VOLIBEAR", 4)]);
+
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         Assert.Collection(
-            result.Events,
+            result.Events.Where(e => e.Kind is not ("BATTLE_DAMAGE_ASSIGNMENT_OPENED"
+                or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED" or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED")),
             battleEvent =>
             {
                 Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
@@ -58825,7 +58831,11 @@ public sealed class ConformanceFixtureRunnerTests
                     ["P1-BATTLEFIELD-VOLIBEAR"],
                     Assert.IsType<string[]>(closedEvent.Payload["clearedObjectIds"]));
             });
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["BATTLE_DAMAGE_ASSIGNMENT_OPENED", "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "BATTLE_DAMAGE_STEP_STARTED", "COMBAT_DAMAGE_ASSIGNED"], result.Events
+            .Where(e => e.Kind is "BATTLE_DAMAGE_ASSIGNMENT_OPENED" or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED"
+                or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED").Select(e => e.Kind));
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
@@ -59096,6 +59106,10 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VANGUARD", "P2-BATTLEFIELD-DEFENDER", 1),
+                new("P1-BATTLEFIELD-HUNTER", "P2-BATTLEFIELD-DEFENDER", 2)],
+            [new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-VANGUARD", 1)]);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -60691,7 +60705,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
@@ -60713,9 +60727,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
@@ -61786,6 +61800,22 @@ public sealed class ConformanceFixtureRunnerTests
             Entries.Add(entry);
             return ValueTask.CompletedTask;
         }
+    }
+
+    private static async Task<ResolutionResult> P4FinishBattleAssignments(ResolutionResult result,
+        IReadOnlyList<CombatDamageAssignmentDto> attackers, IReadOnlyList<CombatDamageAssignmentDto> defenders)
+    {
+        var events = result.Events.ToList();
+        foreach (var (player, assignments) in new[] { ("P1", attackers), ("P2", defenders) })
+        {
+            var battle = result.State.BattleState;
+            result = await new CoreRuleEngine().ResolveAsync(result.State,
+                new($"p4-assign-{player}", player, CommandTypes.AssignCombatDamage),
+                new AssignCombatDamageCommand(battle.BattleId!, battle.BattlefieldObjectId!, assignments), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            events.AddRange(result.Events);
+        }
+        return result with { Events = events };
     }
 
     // Current midgame initial data, prepared before the tested command/journal.
