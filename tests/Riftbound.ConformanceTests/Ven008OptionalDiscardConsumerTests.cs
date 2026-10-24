@@ -130,6 +130,55 @@ public sealed class Ven008OptionalDiscardConsumerTests
     }
 
     [Theory]
+    [InlineData("SFD·149/221", false)] [InlineData("SFD·149/221", true)]
+    [InlineData("SFD·149a/221", false)] [InlineData("SFD·149a/221", true)]
+    public async Task EzrealCannotReduceThePrintedManaOrReplaceTheOptionalDiscard(string reducer, bool discard)
+    {
+        var initial = OnBase(Position(), "EZREAL", reducer, "P1");
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(reducer, out var behavior));
+        Assert.True(behavior.MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower);
+        var play = Assert.Single(ResolutionResult.BuildPrompts(initial)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var row = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            play.Metadata!["sourceRequirements"]), r => Equals(r["sourceObjectId"], "SPELL"));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["optionalCostChoices"]);
+        Assert.Contains(choices, c => c.Id == "DISCARD_HAND_CARD:FODDER");
+        Assert.DoesNotContain(choices, c => c.Id.StartsWith("OPTIONAL_COST_REDUCTION:", StringComparison.Ordinal));
+        var command = Cast(discard);
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana); Assert.Equal(0, quote.Cost.GenericPower);
+        var driver = new Driver(initial); await driver.Act("P1", command);
+        Assert.Equal(initial.RunePools["P1"].Mana - 3, driver.State.RunePools["P1"].Mana);
+        Assert.Equal(initial.RunePools["P1"].TotalPower, driver.State.RunePools["P1"].TotalPower);
+        Assert.Equal(discard, driver.State.PlayerZones["P1"].Graveyard.Contains("FODDER"));
+        Assert.Equal(!discard, driver.State.PlayerZones["P1"].Hand.Contains("FODDER"));
+        Assert.Equal(discard ? 5 : 3, Assert.Single(driver.State.StackItems).DamageAmount);
+        await driver.Top(); Assert.Equal(discard ? 5 : 3, Damage(driver));
+        await Export("ezreal-keeps-discard-" + reducer.Replace('/', '_') + "-" + discard, initial, driver);
+    }
+
+    [Theory]
+    [InlineData("SFD·149/221", "MANA", false)] [InlineData("SFD·149/221", "MANA", true)]
+    [InlineData("SFD·149/221", "POWER-any", false)] [InlineData("SFD·149/221", "POWER-any", true)]
+    [InlineData("SFD·149a/221", "MANA", false)] [InlineData("SFD·149a/221", "MANA", true)]
+    [InlineData("SFD·149a/221", "POWER-any", false)] [InlineData("SFD·149a/221", "POWER-any", true)]
+    public async Task ForgingEzrealResourceReductionForTheDiscardRejectsWithoutPayment(string reducer, string mode, bool discard)
+    {
+        var initial = OnBase(Position(), "EZREAL", reducer, "P1"); var before = MatchStateHasher.Hash(initial);
+        var reduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:" + mode;
+        var command = Cast(discard) with { OptionalCosts = discard ? ["DISCARD_HAND_CARD:FODDER", reduction] : [reduction] };
+        var result = await new CoreRuleEngine().ResolveAsync(initial,
+            new("ezreal-cannot-pay-discard", "P1", CommandTypes.PlayCard), command, default);
+        Assert.False(result.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events); Assert.Equal(before, MatchStateHasher.Hash(result.State));
+        Assert.Equal(before, MatchStateHasher.Hash(initial));
+        var driver = new Driver(initial); await Reject(driver, "P1", command);
+        Assert.Equal(before, MatchStateHasher.Hash(driver.State));
+        Assert.Contains("FODDER", driver.State.PlayerZones["P1"].Hand);
+        Assert.Empty(driver.Events());
+        await Export("ezreal-invalid-discard-reduction-" + reducer.Replace('/', '_') + "-" + mode + "-" + discard, initial, driver);
+    }
+
+    [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task TheOpponentsRealMovementDuelAllowsEitherPrintedPaymentBranch(bool discard)
     {
