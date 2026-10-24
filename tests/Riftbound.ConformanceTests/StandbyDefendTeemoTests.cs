@@ -70,6 +70,14 @@ public sealed class StandbyDefendTeemoTests
             sourceRequirement["battlefieldTargetChoicesByIndex"]));
         var result = await OpenFortifiedDefend();
         var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal(TeemoObjectId, choice.SourceObjectId);
+        Assert.Equal(1, choice.RequiredCount);
+        Assert.Equal(new[] { AttackerObjectId, SecondEnemyTargetObjectId }.Order(StringComparer.Ordinal),
+            choice.LegalObjectIds.Order(StringComparer.Ordinal));
+        var selected = await OfficialInsightAndSpellLockTests.Act(result.State, "P2",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [SecondEnemyTargetObjectId]));
+        result = selected with { Events = result.Events.Concat(selected.Events).ToArray() };
+        choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
         Assert.Equal(BattlefieldObjectId, choice.SourceObjectId);
         Assert.Equal(1, choice.RequiredCount); Assert.Equal(1, choice.MaxCount);
         Assert.Equal(new[] { AttackerObjectId, SecondEnemyTargetObjectId, TeemoObjectId, SecondDefenderObjectId }

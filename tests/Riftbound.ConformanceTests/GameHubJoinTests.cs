@@ -9606,7 +9606,7 @@ public sealed partial class GameHubJoinTests
 
         var p1Prompt = PromptFor(seedClients, "P1");
         var moveCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.MoveUnit);
-        Assert.Contains(moveCandidate.Destinations ?? [], choice => choice.Id == "P2-BATTLEFIELD-FORTIFIED-POSITION");
+        Assert.Contains(moveCandidate.Destinations ?? [], choice => choice.Id == "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION");
         Assert.Contains(moveCandidate.Sources ?? [], choice => choice.Id == "P1-BATTLEFIELD-FORTIFIED-ATTACKER");
         var movedClients = new RecordingHubClients();
         await CreateHub(movedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")

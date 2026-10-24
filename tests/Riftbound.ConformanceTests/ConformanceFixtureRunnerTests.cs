@@ -37640,8 +37640,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
         Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal(["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", "GRAVEYARD");
+        // Defending Might is 2 + Steadfast2 = 4, so the attacker's original 3 damage is nonlethal.
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains("P2-BATTLEFIELD-FORTIFIED-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+            result.State.ObjectLocations["P2-BATTLEFIELD-FORTIFIED-DEFENDER"]);
+        Assert.Equal(2, result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].Power);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].Damage);
+        Assert.DoesNotContain(result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].UntilEndOfTurnEffects,
+            e => e.StartsWith("COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal));
     }
 
     [Fact]
