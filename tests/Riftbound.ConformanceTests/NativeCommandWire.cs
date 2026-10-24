@@ -26,6 +26,14 @@ internal static class NativeCommandWire
         var raw = JsonNode.Parse(original.GetRawText())!.AsObject();
         var payload = JsonSerializer.SerializeToNode(command, command.GetType(), Web)!.AsObject();
         var added = false;
+        // The battle executor treats omitted attacker/defender lists as empty.
+        if (command is DeclareBattleCommand)
+            foreach (var field in new[] { "attackerObjectIds", "defenderObjectIds" })
+                if (!raw.ContainsKey(field))
+                {
+                    raw[field] = payload[field]?.DeepClone() ?? new JsonArray();
+                    added = true;
+                }
         foreach (var property in payload)
             if (property.Key != "cmdType" && property.Value is not null && !raw.ContainsKey(property.Key))
             {
