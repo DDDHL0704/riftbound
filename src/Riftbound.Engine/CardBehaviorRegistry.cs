@@ -290,7 +290,8 @@ public sealed record CardBehaviorDefinition(
     bool GravesUnselectedMainDeckLookCards = false,
     FlowCostSpec? FlowCost = null,
     FlowCostSpec? AppliedFlowCost = null,
-    int DamageAmountIfDiscardHandCardOptionalCost = 0)
+    int DamageAmountIfDiscardHandCardOptionalCost = 0,
+    int ExtraDamagePerSameNameInControllerGraveyard = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -461,6 +462,13 @@ public static class CardBehaviorRegistry
         new("VEN·008", "无情打击", 3, "VEN_008_OPTIONAL_DISCARD_DAMAGE", 3, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
             DamageAmountIfDiscardHandCardOptionalCost: 5),
+        new("VEN·086", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·181", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ExtraDamagePerSameNameInControllerGraveyard: 1),
         new("VEN·081", "狂袭", 4, "ONSLAUGHT_UNIT_POWER_PLUS_SIX", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 6, FlowCost: new(4, 0, [])),
         new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
