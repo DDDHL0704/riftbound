@@ -1,5 +1,13 @@
 # N17 · CN VEN013 暗影刺客与完整 VEN012 相邻前置
 
+当前固定受测源 `231441186cb623ed6342282c0f2aec00f328545b` 已完整吸收main `d713adad568999baa8703750b7893ec234c63d4c` 及PR159源码 `c3b3b91f21f27badd7aeae3371310490150457e9`。之后吸收PR139 ready `3fe12cba3cc56caae4d3a24555b23d76474cba1f`、PR159 ready `07fda1011dd0e01306bb6f293be7372d997de289`，相对受测源只改变两份父审计doc，再增加本文说明，无源码/测试/数据差异。Registry唯一冲突按①分配顺序保留main减费bool=false、自有弃牌伤害int=0、同名墓地额外伤害int=0；未改③目标方法，PermanentPlayTargets完整文件与当前main相同。
+
+当前构建0警告/错误，单线程552/552、零跳过；原388例与父项342例的精确名称/数量多重集合全部保留，178例交集只计一次。原VEN012全部45例、原325范围、两赛制11套原输入、原seed31胜利/回放及旧L2的12个精确失败名称均通过。目录1050/849及VEN013、VEN010、VEN012三个消费者源与此前a6fa逐字相同，VEN008源与完整父项c3b逐字相同；没有缩小数据行或语义断言。
+
+当前运行件导出VEN013的37份终态日志和4份独立伪造终态拒绝；后者仅含forged/isMatch/errors，保留实际新RIF，不冒称完整恢复帧或模块表。原JSON恢复及原日志校验在用例内实际执行，37份日志的三模块path/SHA/MVID与同次运行件一致。VEN008/VEN103各46个新文件和VEN010的25个文件亦同身份，含重叠前沿/坏raw前缀，不求和计作唯一命令或完整对局。原VEN012的18份接受日志、直接Core拒绝原件和旧私有反向仍绑定各自原输入；本轮45例的实际TRX单独记证。
+
+2503编译输入/1418运行文件全量哈希稳定，四程序集InfoVersion指向受测源；RIF `8573ccbdcf42528b5520e24d55e4ab5872578b56477bb28704c1d45bd84d8b96`，Engine MVID `9a6009c1-6bb6-49db-bb59-17e62633b920`；六个原未跟踪文件保持且未编入。新原件在ignored `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr162-maind713-v1/`，含固定源/bin、实际TRX、所有新文件、清单、module-identities及已过verify-final-v1.py；`source-runtime-proof-v1.json` SHA256 `5e97027f9a79e57fe447233df4e3d1441f93090ce44574c165977ef6d2bff552`。最新实际head/base/merge-result的quality、targeted、rule_suite及L2 required仍须全部通过后合入；无新本机full/SQL/网络/矩阵，整卡认证增量0、backend NOT READY，适用分母UNKNOWN。
+
 完整干净前置为 PR159 `47209c78954a55080556dceaa65722d4e0c619ea` 与 PR156 `0ef35c1d3892fcbd244a9034d9b666a30a48833f`，合并基底 `8f4c68759c7caf14f9e49b67f0e7be17eca5a551` 已包含 main907、入口、原预组补位、VEN008/093/122、VEN010同名判断及VEN103返手的完整源与测试。两边共同1043条记录和来源元数据逐项相同；只对各自新增记录做精确并集，没有旧累计WIP祖先。GP086/181仍只是已知同名的来源/基础注册前置，其C7效果未认证。
 
 CN37698 / VEN·013/166 SC，暗影刺客，5法力/0符能/5战力。唯一印刷指示是自己废牌堆存在同名牌时活跃进场，不消耗该牌。当前CN官方API于2026-10-24T08:17:18Z刷新，规范记录SHA256 `0843eac06a158f4949b579b3eecee13b6e0f89e1927f5c264c04a5c2cbcb99d4`，图像SHA256 `59003d53d6812ac8729aa8863d7ecb4de3001aa48f962248cf5fe4f69b235dfc`，与原f52bab3c源完全相同，完整卡面已读。
