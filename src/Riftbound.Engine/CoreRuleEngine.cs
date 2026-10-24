@@ -26288,6 +26288,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     var powerModifierAmount = ShouldApplyPowerModifierToTarget(behavior, targetIndex)
                         ? ResolvePowerModifierAmount(
+                            state with { PlayerZones = playerZones, CardObjects = cardObjects },
                             behavior,
                             targetIndex,
                             playerZones,
@@ -27912,7 +27913,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
         {
-            var appliedPowerDelta = sourceState.Power;
+            var appliedPowerDelta = ResolveCurrentFieldUnitPower(state, sourceState);
             var nextSourceState = ApplyDirectUntilEndPowerModifier(
                 sourceState,
                 stackItem.SourceObjectId,
@@ -31093,6 +31094,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static int ResolvePowerModifierAmount(
+        MatchState state,
         CardBehaviorDefinition behavior,
         int targetIndex,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -31103,7 +31105,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.UsesTargetCurrentPowerAsPowerModifier
             && cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
-            return targetState.Power;
+            return ResolveCurrentFieldUnitPower(state, targetState);
         }
 
         if (behavior.UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier)
