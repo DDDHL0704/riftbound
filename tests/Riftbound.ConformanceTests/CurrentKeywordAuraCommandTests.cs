@@ -57,8 +57,10 @@ public sealed class CurrentKeywordAuraCommandTests(Xunit.Abstractions.ITestOutpu
 
         // A fresh invalid intent retains state, events, both views and prompts.
         var raw = JsonSerializer.SerializeToElement(new { cmdType = "PLAY_CARD", sourceObjectId = "PRIVATE-P2-DRAW-1",
-            cardNo = "OGN·219/298", targetObjectIds = Array.Empty<string>() });
+            cardNo = "OGN·219/298", targetObjectIds = Array.Empty<string>(),
+            promptId = ResolutionResult.BuildPrompts(run.State)["P1"].PromptId, snapshotTick = run.State.Tick });
         await run.ActRetained(new("P1", "n21-private-source-reject", raw), false);
+        Assert.Contains("出牌只能选择当前允许的来源", Assert.Single(run.Commands(), command => !command.Accepted).ErrorMessage);
 
         if (mode == "temporary")
         {

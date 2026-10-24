@@ -43,6 +43,35 @@ public sealed class CurrentKeywordAuraProjectionTests
     }
 
     [Theory]
+    [InlineData("ANY:CURRENT_KEYWORD:壁垒|TAG:ABSENT", false)]
+    [InlineData("ANY:TAG:ABSENT|CARD_NAME:莽莽魄罗", true)]
+    [InlineData("CARD_NAME:莽莽魄罗", true)]
+    public void ExistingCompoundAndNameFiltersRetainTheirMeaning(string filter, bool matches)
+    {
+        var state = Position("temporary");
+        Assert.Equal(matches ? new[] { "P1-TARGET" } : [], Members(state, Aura(filter)));
+        Assert.Equal(matches, AuthorityMatches(state, Aura(filter), state.CardObjects["P1-TARGET"]));
+    }
+
+    [Theory]
+    [InlineData(false, 2)]
+    [InlineData(true, 1)]
+    public void PossessionIsIndependentOfBackRowAndDamageImmunity(bool bulwark, int priority)
+    {
+        var state = Position("temporary");
+        var target = Printed("P1-TARGET", "OGN·189/298", "P1");
+        target = target with { MovementCountThisTurn = bulwark ? 2 : 0,
+            Tags = bulwark ? target.Tags : [..target.Tags, CardCombatKeywordNames.BackRow],
+            UntilEndOfTurnEffects = bulwark ? ["COMBAT_KEYWORD:壁垒:1"] : [] };
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [target.ObjectId] = target } };
+        Assert.Equal(bulwark, Inspect(state, target).Matches);
+        var actualPriority = (int)typeof(CoreRuleEngine).GetMethod("CombatDamageTargetPriorityFor",
+            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [state, target.ObjectId])!;
+        Assert.Equal(priority, actualPriority);
+        Assert.Equal(bulwark ? new[] { target.ObjectId } : [], Members(state, Aura(CurrentBulwark)));
+    }
+
+    [Theory]
     [InlineData("face-down")]
     [InlineData("private-location")]
     [InlineData("other-controller")]
