@@ -75,6 +75,8 @@ public sealed partial class CoreRuleEngine
             if (closed.Payload?.GetValueOrDefault("battlefieldId") is string closedField)
                 state = ExpireBattleLimitedScope(state, closedField);
         if (TryReadBattleResponseDeclarationContext(state, string.Empty, out var closing)
+            // Task advancement may already have opened a fresh duel on this field.
+            && closing.InitialRolesEstablished
             && result.Events.Any(e => e.Kind == "BATTLE_CLOSED"
                 && Equals(e.Payload?.GetValueOrDefault("battlefieldId"), closing.BattlefieldId)))
             state = state with { UntilEndOfTurnEffects = ClearBattleResponseDeclarationContextMarkers(state.UntilEndOfTurnEffects) };

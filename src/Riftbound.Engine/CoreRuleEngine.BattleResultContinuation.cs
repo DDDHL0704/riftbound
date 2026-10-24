@@ -185,11 +185,12 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = null, FocusPlayerId = null, PassedFocusPlayerIds = [], PassedPriorityPlayerIds = []
         };
         // CN 463: opposing occupants after battle end create a new pending
-        // battle. The completed battle's skip marker must not suppress it.
+        // battle. The completed battle's markers must not suppress its new duel.
         if (state.BattlefieldStates.TryGetValue(continuation.BattlefieldId, out var battlefield)
             && battlefield.OccupantControllerIds.Distinct(StringComparer.Ordinal).Count() > 1)
             state = state with { UntilEndOfTurnEffects = state.UntilEndOfTurnEffects
-                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)).ToArray() };
+                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)
+                    && effect != BattlefieldTaskMarkers.SpellDuelCompleted(continuation.BattlefieldId)).ToArray() };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(state, continuation.AttackingPlayerId, result.State);
         events.AddRange(advance.Events);
         return Rebuild(advance.State, events);
