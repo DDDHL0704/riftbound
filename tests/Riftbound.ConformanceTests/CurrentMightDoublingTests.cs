@@ -31,20 +31,20 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
         var initial = Opening(ability, alternate);
         var run = await Prepare(initial, equipped);
         var before = equipped ? 4 : 3;
-        Assert.Equal(before, Might(run.State));
+        AssertMight(run.State, before);
         await RejectPrivateTarget(run, ability);
         await Double(run, ability, "DOUBLE-1");
         Save($"repeat-{ability}-{equipped}-{alternate}-first", initial, run);
-        Assert.Equal(before * 2, Might(run.State));
+        AssertMight(run.State, before * 2);
         Assert.Equal(before, Assert.Single(run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers).PowerDelta);
         await Double(run, ability, "DOUBLE-2");
         Save($"repeat-{ability}-{equipped}-{alternate}-second", initial, run);
-        Assert.Equal(before * 4, Might(run.State));
+        AssertMight(run.State, before * 4);
         Assert.Equal(new[] { before, before * 2 }, run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers.Select(m => m.PowerDelta));
 
         await run.Act("P1", new EndTurnCommand());
         Assert.Equal(3, run.State.CardObjects["TARGET"].Power);
-        Assert.Equal(before, Might(run.State));
+        AssertMight(run.State, before);
         Assert.Empty(run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers);
         await run.Replay();
         Save($"repeat-{ability}-{equipped}-{alternate}-expired", initial, run);
@@ -57,18 +57,18 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
     {
         var initial = Opening(ability);
         var run = await Prepare(initial, true);
-        Assert.Equal(4, Might(run.State));
+        AssertMight(run.State, 4);
         await run.Act("P1", DoubleCommand(ability, "DOUBLE-1"));
         await run.Act("P1", new PlayCardCommand("BUFF", "OGN·058/298", ["TARGET"]));
         await run.Top();
         Assert.Single(run.State.StackItems);
-        Assert.Equal(6, Might(run.State));
+        AssertMight(run.State, 6);
         await run.Top();
         Save($"reaction-{ability}", initial, run);
-        Assert.Equal(12, Might(run.State));
+        AssertMight(run.State, 12);
         Assert.Equal(new[] { 2, 6 }, run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers.Select(m => m.PowerDelta));
         await run.Act("P1", new EndTurnCommand());
-        Assert.Equal(4, Might(run.State));
+        AssertMight(run.State, 4);
         Assert.Equal(3, run.State.CardObjects["TARGET"].Power);
         await run.Replay();
     }
@@ -83,17 +83,26 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
         await run.Act("P1", new PlayCardCommand("READY", "OGN·146/298", ["TARGET"]));
         await run.Top();
         await run.Act("P1", new MoveUnitCommand("TARGET", "BASE", "BATTLEFIELD:F", []));
+        for (var i = 0; run.State.Phase != MatchPhases.Main || run.State.TimingState != TimingStates.NeutralOpen; i++)
+        {
+            Assert.InRange(i, 0, 8);
+            if (run.State.StackItems.Count > 0) await run.Top();
+            else if (run.State.FocusPlayerId is { } focus) await run.Act(focus, new PassFocusCommand());
+            else if (run.State.PriorityPlayerId is { } priority) await run.Act(priority, new PassPriorityCommand());
+            else Assert.Fail("The earned movement window has no legal continuation.");
+        }
+        Assert.Equal("P1", run.State.TurnPlayerId);
         await run.Act("P1", new PlayCardCommand("DEBUFF", "UNL-182/219", ["TARGET"], Mode: "BATTLEFIELD_UNIT_POWER_MINUS_4"));
         await run.Top();
         var negative = ability ? -1 : -2;
         Assert.Equal(negative, run.State.CardObjects["TARGET"].Power);
-        Assert.Equal(0, Might(run.State));
+        AssertMight(run.State, 0);
         Assert.Equal(0, run.State.CardObjects["TARGET"].Damage);
         var ledger = run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers.ToArray();
         await Double(run, ability, "DOUBLE-1");
         Save($"negative-{ability}", initial, run);
         Assert.Equal(negative, run.State.CardObjects["TARGET"].Power);
-        Assert.Equal(0, Might(run.State));
+        AssertMight(run.State, 0);
         Assert.Equal(ledger, run.State.CardObjects["TARGET"].UntilEndOfTurnPowerModifiers);
         if (!ability) Assert.Contains(CardObjectTags.Ephemeral, run.State.CardObjects["TARGET"].Tags);
         else Assert.Equal(0, run.Events().Last(e => e.Event.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN").Event.Payload["appliedPowerDelta"]);
@@ -141,6 +150,17 @@ public sealed class CurrentMightDoublingTests(ITestOutputHelper output)
     private static int Might(MatchState state) => (int)typeof(CoreRuleEngine)
         .GetMethod("ResolveCurrentFieldUnitPower", BindingFlags.NonPublic | BindingFlags.Static)!
         .Invoke(null, [state, state.CardObjects["TARGET"]])!;
+
+    private static void AssertMight(MatchState state, int expected)
+    {
+        Assert.Equal(expected, Might(state));
+        foreach (var snapshot in ResolutionResult.BuildSnapshots(state).Values)
+        {
+            var card = JsonSerializer.SerializeToElement(snapshot, Json).GetProperty("players")
+                .GetProperty("P1").GetProperty("objects").GetProperty("TARGET");
+            Assert.Equal(expected, card.GetProperty("effectivePower").GetInt32());
+        }
+    }
 
     private void Save(string name, MatchState initial, Driver run)
     {
