@@ -14353,7 +14353,8 @@ internal static class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        string? sourceObjectId = null)
+        string? sourceObjectId = null,
+        ICollection<CoreRuleEngine.OptionalCostReductionGroup>? reductionGroups = null)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
@@ -14365,6 +14366,18 @@ internal static class ActionPromptBuilder
             ? currentExperience
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
+
+        var reductionChoiceIds = new HashSet<string>(StringComparer.Ordinal);
+        void AddReductionChoices(IReadOnlyList<ActionPromptChoiceDto> reductions)
+        {
+            foreach (var reduction in reductions)
+                if (reductionChoiceIds.Add(reduction.Id)) choices.Add(reduction);
+        }
+        var echoPool = runePool with
+        {
+            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
+        };
 
         if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
             choices.AddRange(CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).Select(cost => {
@@ -14384,30 +14397,30 @@ internal static class ActionPromptBuilder
                         $"支付后 {cost.Mana.Total} 法力 / {cost.GenericPower + cost.TypedPower.Values.Sum()} 符能");
                 }));
 
-        if (CanPromptSourceStealEnemyEquipmentOptionalCost(
-                state,
-                playerId,
-                behavior,
-                runePool,
-                paymentResourcePowerByTrait,
-                sourceObjectId))
+        if (HasSourceStealEnemyEquipmentOptionalCost(behavior))
         {
-            choices.AddRange(SourceStealEnemyEquipmentChoices(state, playerId, behavior));
+            var originalAffordable = CanPromptSourceStealEnemyEquipmentOptionalCost(state, playerId, behavior,
+                runePool, paymentResourcePowerByTrait, sourceObjectId);
+            foreach (var steal in SourceStealEnemyEquipmentChoices(state, playerId, behavior))
+            {
+                var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                    sourceObjectId, [steal.Id], echoPool, out var reductionChoices, reductionGroups);
+                if (!originalAffordable && !reduced) continue;
+                choices.Add(steal);
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         var echoReduction = EchoCostRules.Reduction(state, playerId);
-        var echoPool = runePool with
-        {
-            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
-            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
-        };
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
             PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool,
                 echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
-            if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
-                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed)) continue;
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [echo.Id], echoPool, out var reductionChoices, reductionGroups);
+            if (!reduced && (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed))) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
             parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
@@ -14420,33 +14433,42 @@ internal static class ActionPromptBuilder
             var reason = echo.PrintedCardNo is null ? "卡牌回响；每项可支付一次" : "授予回响；支付完整基础费用";
             if (echoReduction > 0 && echo.Mana > 0) reason += $"；已减免 {Math.Min(echoReduction, echo.Mana)} 法力";
             choices.Add(new ActionPromptChoiceDto(echo.Id, $"{origin}：{string.Join(" + ", parts)}", reason));
+            AddReductionChoices(reductionChoices);
         }
 
         foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
         {
             var hasteReadyPowerTrait = haste.Value;
-            if (behavior.MaySacrificeUnitForPrintedCostReduction
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [haste.Key], echoPool, out var reductionChoices, reductionGroups);
+            if (!reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
                 : runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
-                    behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait })) continue;
+                    behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
                 ? $"{behavior.HasteReadyPowerCost} 符能"
                 : $"{behavior.HasteReadyPowerCost} {RuneTraitLabel(hasteReadyPowerTrait)}符能";
             choices.Add(new ActionPromptChoiceDto(
                 haste.Key,
                 $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
+            AddReductionChoices(reductionChoices);
         }
 
-        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior)
-            && CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (CanPromptSourceReadyOptionalCost(state, playerId, behavior))
         {
             var sourceReadyTrait = RuneTrait.Normalize(behavior.SourceReadyAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}",
-                $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
-                SourceReadyOptionalCostReason(behavior.SourceReadyConditionKind)));
+            var id = $"SPEND_POWER:{sourceReadyTrait}:{behavior.SourceReadyAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceReadyOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"{behavior.DisplayName}活跃：支付 {behavior.SourceReadyAdditionalPowerCost} {RuneTraitLabel(sourceReadyTrait)}符能",
+                    SourceReadyOptionalCostReason(behavior.SourceReadyConditionKind)));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         if (behavior.OptionalExperienceCost > 0
@@ -14458,35 +14480,54 @@ internal static class ActionPromptBuilder
                 $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
         }
 
-        if (behavior.SourceBoonAdditionalManaCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost))
+        if (behavior.SourceBoonAdditionalManaCost > 0)
         {
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}",
-                $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
-        if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (behavior.SourceDrawAdditionalPowerCost > 0 && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0)
         {
             var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}",
-                $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_POWER:{sourceDrawPowerTrait}:{behavior.SourceDrawAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceDrawOptionalPowerCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"额外支付 {behavior.SourceDrawAdditionalPowerCost} {RuneTraitLabel(sourceDrawPowerTrait)}符能：抽 {behavior.SourceDrawCountIfOptionalPowerCostPaid} 张牌",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
-        if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior))
+        if (behavior.SourceReadyPowerModifierAdditionalPowerCost > 0 && behavior.SourceReadyPowerModifierAmount != 0)
         {
             var sourceReadyPowerTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}",
-                $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
-                $"{behavior.DisplayName}的可选额外费用"));
+            var id = $"SPEND_POWER:{sourceReadyPowerTrait}:{behavior.SourceReadyPowerModifierAdditionalPowerCost}";
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], echoPool, out var reductionChoices, reductionGroups);
+            if (CanPaySourceReadyPowerModifierOptionalCost(runePool, paymentResourcePowerByTrait, behavior) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id,
+                    $"额外支付 {behavior.SourceReadyPowerModifierAdditionalPowerCost} {RuneTraitLabel(sourceReadyPowerTrait)}符能：活跃并本回合战力 +{behavior.SourceReadyPowerModifierAmount}",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
         }
 
         if (CanPromptTargetEffectAdditionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior, sourceObjectId))
         {
+            CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
+                TargetEffectAdditionalCostIds(behavior), echoPool, out var reductionChoices, reductionGroups);
+            AddReductionChoices(reductionChoices);
             var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
             if (behavior.TargetEffectAdditionalManaCost > 0)
             {
@@ -15037,10 +15078,24 @@ internal static class ActionPromptBuilder
         string? sourceObjectId)
     {
         return behavior.TargetEffectAdditionalPowerCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
-                + behavior.TargetEffectAdditionalManaCost
-            && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
-            && PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0;
+            && (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+                    + behavior.TargetEffectAdditionalManaCost
+                && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
+                || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
+                    TargetEffectAdditionalCostIds(behavior), runePool with {
+                        Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
+                        PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait) }, out _))
+            && (CoreRuleEngine.HasIndependentPermanentTargets(behavior)
+                || PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0);
+    }
+
+    private static IReadOnlyList<string> TargetEffectAdditionalCostIds(CardBehaviorDefinition behavior)
+    {
+        var costs = new List<string>();
+        if (behavior.TargetEffectAdditionalManaCost > 0) costs.Add($"SPEND_MANA:{behavior.TargetEffectAdditionalManaCost}");
+        if (behavior.TargetEffectAdditionalPowerCost > 0)
+            costs.Add($"SPEND_POWER:{RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait)}:{behavior.TargetEffectAdditionalPowerCost}");
+        return costs;
     }
 
     private static bool PromptTargetEffectAdditionalCostAvailable(
@@ -16334,8 +16389,12 @@ internal static class ActionPromptBuilder
             printedTypedCost = sacrifice.TypedPower;
         }
         var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
+        var reductionGroups = new List<CoreRuleEngine.OptionalCostReductionGroup>();
+        var optionalCostChoices = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
+            ? Array.Empty<ActionPromptChoiceDto>()
+            : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId, reductionGroups);
 
-        return new Dictionary<string, object?>
+        var requirement = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
@@ -16373,7 +16432,7 @@ internal static class ActionPromptBuilder
                 ? Enumerable.Range(0, behavior.RequiredTargetCount).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
-            ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
+            ["optionalCostChoices"] = optionalCostChoices,
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = runePool.Mana,
@@ -16388,6 +16447,17 @@ internal static class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        if (reductionGroups.Count > 0)
+            requirement["optionalCostReductionGroups"] = reductionGroups
+                .GroupBy(group => (group.SourceObjectId, group.SourceGeneration, group.SourceInstanceId, group.ComponentId))
+                .Select(group => new Dictionary<string, object?> {
+                    ["sourceObjectId"] = group.Key.SourceObjectId, ["sourceGeneration"] = group.Key.SourceGeneration,
+                    ["sourceInstanceId"] = group.Key.SourceInstanceId, ["ruleTextOrigin"] = group.First().RuleTextOrigin,
+                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 0, ["maxSelections"] = 1,
+                    ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
+                    ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
+                        .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
+        return requirement;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PlayCardPaymentResourcePowerByChoiceForBehavior(
