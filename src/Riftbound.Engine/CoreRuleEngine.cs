@@ -32567,6 +32567,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
             cardObjects[targetObjectId] = controlledTargetState;
+            RecallAttachedGroupToBase(playerZones, cardObjects, targetObjectId, controllerId);
             previousControllerId = playerId;
             return true;
         }
