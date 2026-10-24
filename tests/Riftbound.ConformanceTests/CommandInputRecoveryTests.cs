@@ -83,6 +83,24 @@ public sealed class CommandInputRecoveryTests
     }
 
     [Fact]
+    public async Task DirectScenarioReplayRejectsTypedInputForADifferentRecordedScenario()
+    {
+        var run = await Run.Create("binding-scenario-recorded-type");
+        var seeded = await run.Session.SeedScenarioAsync("p1", "original-scenario", "pay-cost-window", null, default);
+        Assert.True(seeded.Accepted, seeded.ErrorMessage);
+        AssertRecovered(await run.Recovery("original-scenario"));
+        var original = Frame(run);
+        var commands = original.Commands.ToArray();
+        var typed = Assert.IsType<TypedCommandInput>(commands[^1].TypedCommand);
+        commands[^1] = commands[^1] with { TypedCommand = typed with {
+            Value = JsonSerializer.SerializeToElement(new { scenarioId = "typed-power-payment" }, Web) } };
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(original.ReplayInitialState!, commands,
+            original.AuthoritativeState!, new CoreRuleEngine(), default, original.Events);
+        Assert.False(replay.IsMatch);
+        Assert.Contains(replay.Errors, error => error.Contains("invalid typed command input", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task AnUnknownTypedRejectionCannotLoseItsOriginalPayloadDuringRecovery()
     {
         var run = await Run.Create("binding-unknown-typed-input");

@@ -745,6 +745,10 @@ public static class MatchActionLogReplayer
         RecoveredCommand recovered,
         CancellationToken cancellationToken)
     {
+        if (recovered.TypedCommand is { } input
+            && (recovered.RawCommand is not null || !input.MatchesRecordedType(recovered.CommandType)))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid typed command input");
+
         if (recovered.Accepted && recovered.CommandType == MatchSession.RoomSeatCommandType)
             return await session.ReplayRoomSeatAsync(recovered, cancellationToken).ConfigureAwait(false);
 
@@ -763,9 +767,6 @@ public static class MatchActionLogReplayer
         }
 
         var rawCommand = recovered.RawCommand;
-        if (recovered.TypedCommand is { } input
-            && (rawCommand is not null || !input.MatchesRecordedType(recovered.CommandType)))
-            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid typed command input");
         var command = rawCommand is { } raw ? GameCommandJsonMapper.Map(raw)
             : (recovered.TypedCommand ?? TypedCommandInput.Parameterless(recovered.CommandType))?.Restore()
                 ?? throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "command execution input is missing");
