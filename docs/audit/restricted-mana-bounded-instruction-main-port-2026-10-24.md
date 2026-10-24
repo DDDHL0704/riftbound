@@ -7,3 +7,4 @@
 - 原P7方法/Theory保留并沿e77857d2校准为结算付款后核原伤害/余额/来源，旧失败保留；25个开局partial-wire修正由独立PR134交付，不拼成本包结果。旧S6/SQL/网络数据只作历史，不代表本移植main或最新L2通过。
 - 801256d6仅选网络报告的实际JSON enum序列化选项，未虚构缺失的reconnect审计调用；issue105的旋转会话/SQL证据仍单列OPEN。现有独立SQL/网络入口仅做编译检查，本机不重开真实数据库/网络/重启矩阵。
 - 当前固定源码/模块身份、定向及相邻TRX、编译预检与原失败统一保留于var/qa/payment-prs-20261024/restricted-mana/。按最新约定，合并仍须实际L2 rules-suite CI；L3由夜间固定main SHA承接，本审计不关闭整个后端Goal。
+- 当前候选同步 main `ceda49fec8bda2ace0cb9ac630496e09032dac07` 与直接资源前置 #131 `a7d10977695c683df0bb63e6ace09dd74aea4dfe`，以该前置显示本包实际增量。Complete仍只保留收集前/整个延续循环后的两处资源守卫；资源视图检查保留在已协调的非空snapshot分支、原turn/stack检查之前，后续集成保留④的null-stack保护。原733方法身份/P7断言、失败和旧输入证据保留；新输入另跑定向并等待最新实际L2。
