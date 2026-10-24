@@ -74,12 +74,17 @@ public sealed class CurrentKeywordAuraParticipantTests
     }
 
     [Theory]
-    [InlineData("intrinsic", true)]
-    [InlineData("temporary", false)]
-    public void ExistingTagFilterRetainsItsLiteralMeaning(string mode, bool matches)
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ExistingTagFilterRetainsItsLiteralMeaning(bool literalTag)
     {
-        var members = Members(Position(mode), Aura("TAG:壁垒"));
-        Assert.Equal(matches ? new[] { "P1-TARGET" } : [], members);
+        var state = Position("temporary");
+        var target = state.CardObjects["P1-TARGET"];
+        var tags = target.Tags.Where(tag => tag != CardCombatKeywordNames.Bulwark).ToArray();
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+            { [target.ObjectId] = target with { Tags = literalTag ? [..tags, CardCombatKeywordNames.Bulwark] : tags } } };
+        var members = Members(state, Aura("TAG:壁垒"));
+        Assert.Equal(literalTag ? new[] { "P1-TARGET" } : [], members);
     }
 
     [Fact]
