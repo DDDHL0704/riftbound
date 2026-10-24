@@ -5,3 +5,4 @@
 - 保留全部旧方法/Theory及语义断言；原“资源已足所以应隐藏符文”预期按规则校准为合法候选与实际获取正控，原始前失败及来源论证在var/qa/payment-s3-20261023/，不改已接受raw或RuleInputs。
 - 新main移植6b965f71的26个VoluntaryPaymentResourceChoicesTests已通过，最终固定定向/相邻及原main同测试对照、模块身份和TRX在var/qa/payment-prs-20261024/voluntary-resources/。旧2476合并覆盖与SQL/SignalR证据仅保留为旧输入历史，不冒充当前main。
 - 既有SQL/网络消费者源码作为可运行后继入口保留；不新启本机重型数据库/网络验收。按最新人类约定以定向与实际规则CI构成L2，真实网络/数据库/重启L3归夜间固定main SHA。
+- 当前候选已同步 main `ceda49fec8bda2ace0cb9ac630496e09032dac07` 的出牌入口与可选费用减免，保留各费用组件的实际支付约束；原 429 个定向/相邻用例与新增主线费用、预览和入口家族一同复核。旧 head 的绿色 L2 只对应旧输入，当前候选须通过最新实际 L2 后合入。
