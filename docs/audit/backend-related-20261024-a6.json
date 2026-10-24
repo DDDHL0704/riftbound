@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_A5_TWO_ACCEPTANCE_LEAF_REPAIRS_NOT_CERTIFICATION",
+  "batchId": "backend-related-20261024-a6",
+  "immutableRef": "refs/tags/backend-related-20261024-a6",
+  "candidateIdentity": "Resolve the immutable ref to full SHA. Dispatched candidate_sha, event GITHUB_SHA and actual checkout must match; retain per-job candidate artifacts.",
+  "baseCandidate": "72e5d63d8562cee3884e1507868048e5b267e45c",
+  "baseManifest": "docs/audit/backend-related-20261024-a5.json",
+  "baseManifestSha256": "f4b8e07a991e906fee58af1c9f8c1184c75c4ae33cb70b10923b1a26c0962376",
+  "inheritedMembers": "All source and original gates of the immutable A5 base, plus only the following two acceptance deltas.",
+  "codeBoundaryBeforeMetadataSeal": "cb3ff60c1d7dfd6e336dc1057b3048c0b71ee7c3",
+  "members": [
+    {
+      "id": "A5-Lux-network-report-serializer",
+      "sourceCommit": "801256d61dcf04f42e5c4514ff8f51c68abd2c86",
+      "integratedCommit": "a68e0259dbfa38d98468e241d2558bb3a31504da",
+      "scope": "RunCase report writer uses its existing local enum options; original trace, default Save, all assertions and strict runner unchanged."
+    },
+    {
+      "id": "A5-N9-SQL-first-peer-rejection-invariance",
+      "sourceCommit": "daab4564c8e60e7f741860e9a90ef39c8abb6289",
+      "integratedCommit": "cb3ff60c1d7dfd6e336dc1057b3048c0b71ee7c3",
+      "scope": "Only Context.Act stores original before/result diagnostics before checks and compares both complete projections with JsonNode.DeepEquals. Accepted/hash/events and all other methods/recipes/cold/replay/security assertions retained."
+    }
+  ],
+  "narrowRepairBoundary": {
+    "productionDataScriptsWorkflowByteEqualToA5": true,
+    "acceptancePathsChangedFromA5": [
+      "tests/Riftbound.PostgresAcceptance/VenEmpoweredSelfSqlAcceptance.cs",
+      "tests/Riftbound.RestrictedManaAcceptance/RestrictedManaNetworkAcceptance.cs"
+    ],
+    "otherTestSourcesAndProjectsByteEqualToA5": true,
+    "allParentFeatureDeltasExcluded": true,
+    "noNewErrorCodeDtoPersistenceSchemaOrGuardRelaxation": true,
+    "noA5TagRetargetRetryOrCancellation": true,
+    "meaningfulA5OtherJobsContinue": true,
+    "membershipMayNotGrowAfterSeal": true
+  },
+  "catalog": {
+    "rows": 1052,
+    "semanticSha256": "3bf8afc44964c6706be63503055fedb383004119d4d632c7803ca2bf9b8cd2f0"
+  },
+  "networkCases": [
+    "payment-resource-surplus",
+    "damage-doubling-combat-keywords",
+    "ven-flow-combat-keywords",
+    "optional-additional-cost-reductions",
+    "instruction-power-payment",
+    "restricted-mana-lux",
+    "empowered-target-action-replacement",
+    "ven-empowered-self"
+  ],
+  "sqlCaseCount": 76,
+  "sqlPartitionCount": 4,
+  "requiredRemoteGates": [
+    "rules full",
+    "all four PostgreSQL partitions",
+    "native_network",
+    "all eight related network groups including actual restart/finish/verify",
+    "existing desktop gates"
+  ],
+  "verificationBeforeSeal": {
+    "rootSourceHead": "cb3ff60c1d7dfd6e336dc1057b3048c0b71ee7c3",
+    "backendAndPostgresEntryBuilds": true,
+    "rootActualWriterOpaqueEnvelopes": 98,
+    "rootActualJoinedRows": 4,
+    "rootUnchangedOriginalNetworkControls": 12,
+    "ownerBinaryShaAndMvidIndependentlyRead": 12,
+    "sourceAndEvidenceReview": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/a5-two-repair-intake-v1/source-and-owner-evidence-review-v1.json",
+    "rootTargetedReceipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/a5-two-repair-intake-v1/root-targeted-verification-v1.json",
+    "n9OwnerRealIsolatedPg": "One fixed-A5-source first VEN043 peer rejection only; original -6 red, final exit0, 4 commands/3 events, original cold/replay plus 8 comparison controls. No whole matrix or Linux-runtime equivalence.",
+    "actualA6RemoteGates": "NOT_YET_DISPATCHED"
+  },
+  "originalFailures": {
+    "runId": 40039778429,
+    "networkJobId": 120708374062,
+    "networkArtifactId": 12539093652,
+    "networkZipSha256": "ba42706a66cc6dcc26b36da7f48bd2d9b1eac21d08ab6e8a36295aa121ac9af4",
+    "sql3JobId": 120708374117,
+    "sql3ArtifactId": 12540857673,
+    "sql3ZipSha256": "ddcd1052c23ccad8fa468a1198fd93fa33d8ab03305d31af3086610abed25cf4",
+    "n9OriginalCiBeforeAfterStillUnavailable": true
+  },
+  "excludedNextFeatures": [
+    "frozen-B1 C8/S7/N10/N11/N12/C9/N13",
+    "C10",
+    "C11 including v2 component validation API proposal",
+    "N14",
+    "N15",
+    "N16",
+    "N17",
+    "VEN057",
+    "resource capacity prompts",
+    "P7 test calibration",
+    "two-rune menus",
+    "S5 explicit power allocation",
+    "rejected-cache ErrorCode contract"
+  ],
+  "knownOpenBoundaries": [
+    "whole-card certification remains zero and applicable functional denominator unknown",
+    "raw null/nonobject persistence gap unchanged",
+    "N9 local ordering diagnosis does not fabricate missing original CI values",
+    "writer corrected reports are diagnostics, never replacements for immutable original artifacts",
+    "actual root/A6 runtime identities are distinct from owner runs and original Linux A5",
+    "original other cards/boundaries/complete games/SQL/API/restart/security must be validated by unchanged remote gates"
+  ],
+  "wholeCardCertificationDelta": 0,
+  "wholeCardOrVisibleClientCertification": false,
+  "backendStageComplete": false,
+  "mainRuntimePublished": false
+}
