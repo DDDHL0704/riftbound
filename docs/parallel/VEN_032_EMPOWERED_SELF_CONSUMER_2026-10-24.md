@@ -1,9 +1,10 @@
 # N10 · VEN032 霜衣狼母
 
 从 main `8ac0afba21574c94e7ce8a03ed83704524fee8e7` 独立迁移精确 CN37720 / VEN·032/166 SC；3法力、3战力、绿色、犬形。复用主线已有强化12按所控场上符文减费至零、强化后持续+3的机制，只增加目录及消费者注册。
-2026-10-24重新取得官网API记录和完整卡图，与旧已核读原件一致：记录SHA256 `cce147fbc2f6b2a9ccdd5334de85a52cb089a1b4a15a3c41acf20404d8f8deaf`，图SHA256 `d151ca82de043d446e866ca012c2c175d5e47f08eab042855ad499704440d45e`；QA=null、勘误空，发布/生效日期UNKNOWN。未合并全球VEN-032/166身份。
+2026-10-24重新取得[官网API](https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb)记录和完整卡图，与旧已核读原件一致：记录SHA256 `cce147fbc2f6b2a9ccdd5334de85a52cb089a1b4a15a3c41acf20404d8f8deaf`，图SHA256 `d151ca82de043d446e866ca012c2c175d5e47f08eab042855ad499704440d45e`；QA=null、勘误空，发布/生效日期UNKNOWN。未合并全球VEN-032/166身份。
 主线保留原1040条目录记录、顺序、scopedAdditions和原抓取元数据；仅新增一条精确来源。同步目录1041/功能分组840和历史审计当前1041/非历史32计数，原1009历史记录逐字段比较保持。
 原8方法/20例语义断言完整保留；将旧分支独有辅助夹具与记录驱动置于本卡测试中，使用正常占有的战场初态，保留实际命令、支付、控制权、对象代次、跨回合、负战力、拒绝不变性、原日志回放与JSON低层恢复。未增加QA调度路径或改强化支付/结算机制。
 首轮固定主线源码 `354adf58165ab60e889b12e78cc252919b4d69de` 全项目构建零警告零错误，定向76例74过2败：原回手-before分支在强化技能仍在栈上时暴露来源的新手牌ID；另有原解析器测试所需 `docs/evidence/empower-2026-10-13/source-readback.json` 未列入本地选取归档。原始源码、运行文件、TRX和失败保留。第二固定输入 `54ac7a2fdd6cab0110121afc9838815230f6af81` 补附件并修投影，75/76，剩余失败定位到对应旁观者恢复预期尚未包含强化来源私有化。
-共享修复在 `ResolutionResult.BuildStackItemSnapshotView` 将已有 `VisibleObjectIdForViewer` 同样用于 `EmpowerActivation` 来源，在 `MatchRecoveryValidator.CapturedBattleSourceIsPrivate(StackItemState)` 为同一来源保持独立的区域隐私预期；卡号/效果继续公开，私有来源ID隐藏，不改公共隐藏守卫或原20例语义断言。新加1例以真实出牌/强化/回手、双方与旁观者投影、JSON恢复和未动原日志，分别拒绝泄露私有来源及伪装另一公开来源的旁观者视图。按L2，新固定输入的实际结果待验证。
-旧20/20及相邻112/112属于不同源输入，分开保留；实际普通规则L2 CI待执行。原件见 `var/qa/ven-frostcoat-matriarch-20261024/`，本批另存 `var/qa/cards-direct-pr-migration-20261024/n10-main-port-v1/`。目录/注册及测试数量不等于整卡认证，净整卡认证0，后端/产品NOT READY。
+共享修复在 `ResolutionResult.BuildStackItemSnapshotView` 将已有 `VisibleObjectIdForViewer` 同样用于 `EmpowerActivation` 来源，在 `MatchRecoveryValidator.CapturedBattleSourceIsPrivate(StackItemState)` 为同一来源保持独立的区域隐私预期；卡号/效果继续公开，私有来源ID隐藏，不改公共隐藏守卫或原20例语义断言。新加1例以真实出牌/强化/回手、双方与旁观者投影、JSON恢复和未动原日志，分别拒绝泄露私有来源及伪装另一公开来源的旁观者视图。
+固定源码 `7a9e73fc45e4e24cfb3d7fe9ed728d55bc8fa921` 全项目构建零警告零错误，定向81/81、零跳过：本卡21、原强化38、解析器8、受影响目录9、原旁观者恢复4、原历史记录1。20份最终夹具88条实际命令（84接受/4拒绝）、285事件，另保留3种折扣/资源篡改与2种来源视图篡改拒绝。逐命令原日志回放、重复幂等、双方拒绝不变性及低层JSON恢复通过；未声明普通牌组出生/registry认证。2488份选取源码与1417运行文件前后哈希一致，实际加载路径/SHA/MVID另核；RIF `d7d8aa4ab32f9ba6827c32b0da2e7ada9a0ea1dcd3fbfebd95ced25083678f6f`。本批收据 `main-source-test-receipt-v3.json` SHA256 `11a507bc920ea1fe6cd9961276b84928e7b6f9bf048c3682262d33eedefc7bfb`。
+旧20/20及相邻112/112属于不同源输入，分开保留；实际普通规则L2 CI待执行后方可合并。原件见 `var/qa/ven-frostcoat-matriarch-20261024/`，本批另存 `var/qa/cards-direct-pr-migration-20261024/n10-main-port-v1/`。目录/注册及测试数量不等于整卡认证，净整卡认证0，后端/产品NOT READY。
