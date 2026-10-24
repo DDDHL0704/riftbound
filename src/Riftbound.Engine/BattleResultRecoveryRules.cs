@@ -81,7 +81,7 @@ internal static class BattleResultRecoveryRules
     internal static IReadOnlyList<string> ValidateOriginalTriggers(MatchRecoveryFrame frame)
     {
         if (frame.AuthoritativeState is not { } state) return [];
-        var errors = new List<string>();
+        var errors = ValidateClosedCleanupRecalls(state, frame.Commands, frame.Events).ToList();
         if (!ValidContinuation(state)) return ["invalid captured battle result continuation"];
         if (state.PendingBattleResult is { } continuation)
         {
@@ -117,6 +117,58 @@ internal static class BattleResultRecoveryRules
                 || Text(origins[0].Event, "effectKind") != effect
                 || !Same(origins[0].Event.Payload.GetValueOrDefault("battleWinContext"), context))
                 errors.Add("captured battle-result skill differs from its original trigger birth");
+        }
+    }
+
+    internal static IReadOnlyList<string> ValidateClosedCleanupRecalls(MatchState state,
+        IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events)
+    {
+        var errors = new List<string>();
+        foreach (var h in state.BattleResolutions ?? [])
+        {
+            if (h?.Reason != CoreRuleEngine.CleanupRecallNoResultReason) continue;
+            var closes = events.Where(e => e.Event.Kind == "BATTLE_CLOSED" && e.Tick == h.Tick
+                && Text(e.Event, "battlefieldId") == h.BattlefieldId).ToArray();
+            var close = closes.Length == 1 ? closes[0] : null;
+            var origin = close is null ? default : Latest("BATTLE_RESULT_DETERMINED", close.Sequence, h.BattlefieldId);
+            var cleanup = origin.Event is null ? default : Latest("BATTLE_CLEANUP_COMPLETED", origin.Event.Sequence, h.BattlefieldId);
+            var c = origin.Context; var start = cleanup.Context;
+            var previousClose = cleanup.Event is null ? 0 : events.Where(e => e.Event.Kind == "BATTLE_CLOSED"
+                && e.Sequence < cleanup.Event.Sequence && Text(e.Event, "battlefieldId") == h.BattlefieldId)
+                .Select(e => e.Sequence).DefaultIfEmpty(0).Max();
+            var recalled = start is not null && start.AttackerObjectIds is not null && cleanup.Event is not null
+                && events.Any(e => e.Sequence > previousClose && e.Sequence < cleanup.Event.Sequence
+                    && e.Event.Kind == "UNIT_RECALLED_TO_BASE" && Text(e.Event, "battlefieldId") == h.BattlefieldId
+                    && Text(e.Event, "reason") == CoreRuleEngine.CleanupRecallNoResultReason
+                    && start.AttackerObjectIds.Contains(Text(e.Event, "targetObjectId") ?? "") && Accepted(e));
+            if (h.Kind != "NO_RESULT" || h.WinnerPlayerId is not null || !Accepted(close) || !Accepted(origin.Event)
+                || !Accepted(cleanup.Event) || !recalled || start is null || !start.AttackerRecalledByBattleCleanup
+                || start.Stage != "CLEANUP_TRIGGERS" || start.AttackingPlayerId != h.AttackingPlayerId
+                || start.DefendingPlayerId != h.DefendingPlayerId || c is null || !c.AttackerRecalledByBattleCleanup
+                || c.Stage != "RESULT_TRIGGERS" || c.WinnerPlayerId is not null || c.ResultTick != origin.Event!.Tick
+                || c.ResultTick > h.Tick || c.AttackingPlayerId != h.AttackingPlayerId || c.DefendingPlayerId != h.DefendingPlayerId
+                || !Same(c.AttackerObjectIds, h.AttackerObjectIds) || !Same(c.DefenderObjectIds, h.DefenderObjectIds)
+                || !Same(c.SurvivingAttackerObjectIds, h.SurvivingAttackerObjectIds)
+                || !Same(c.SurvivingDefenderObjectIds, h.SurvivingDefenderObjectIds)
+                || !Same(c.DestroyedObjectIds, h.DestroyedObjectIds) || !Same(c.PublicObjectBindings, h.PublicObjectBindings))
+                errors.Add("closed cleanup-recall history differs from its original accepted result");
+        }
+        return errors;
+
+        bool Accepted(RecoveredEvent? e) => e is not null && commands.Count(c => c.Accepted
+            && c.CompletedTick == e.Tick && c.StartedEventSequence < e.Sequence && e.Sequence <= c.CompletedEventSequence) == 1;
+        (RecoveredEvent? Event, BattleResultContinuation? Context) Latest(string kind, long before, string field)
+            => events.Where(e => e.Event.Kind == kind && e.Sequence < before)
+                .Select(e => (Event: (RecoveredEvent?)e, Context: Read(e)))
+                .Where(x => x.Context?.BattlefieldId == field).OrderByDescending(x => x.Event!.Sequence).FirstOrDefault();
+        BattleResultContinuation? Read(RecoveredEvent e)
+        {
+            try {
+                var value = e.Event.Payload.GetValueOrDefault("continuation");
+                return value as BattleResultContinuation ?? JsonSerializer.SerializeToElement(value, Json).Deserialize<BattleResultContinuation>(Json);
+            }
+            catch (Exception error) when (error is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
+            { return null; }
         }
     }
 

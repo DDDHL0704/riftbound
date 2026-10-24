@@ -1163,7 +1163,10 @@ public static partial class MatchRecoveryValidator
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         if (requireAcceptedBattleHistory && authoritativeState is not null)
+        {
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
+            errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
+        }
         ValidateSpectatorReplayFrame(
             roomId,
             lastEventSequence,
@@ -6244,6 +6247,7 @@ public static partial class MatchRecoveryValidator
         return string.Equals(value, "BATTLE_CLOSED", StringComparison.Ordinal)
             || string.Equals(value, "BATTLE_NO_RESULT", StringComparison.Ordinal)
             || string.Equals(value, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
+            || string.Equals(value, CoreRuleEngine.CleanupRecallNoResultReason, StringComparison.Ordinal)
             || string.Equals(value, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal);
     }
 
@@ -6310,6 +6314,7 @@ public static partial class MatchRecoveryValidator
         {
             "CLOSED" => string.Equals(reason, "BATTLE_CLOSED", StringComparison.Ordinal),
             "NO_RESULT" => string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal)
+                || string.Equals(reason, CoreRuleEngine.CleanupRecallNoResultReason, StringComparison.Ordinal)
                 || string.Equals(reason, "BOTH_SIDES_RETAIN_UNITS", StringComparison.Ordinal),
             _ => false
         };
@@ -6477,6 +6482,10 @@ public static partial class MatchRecoveryValidator
         {
             return;
         }
+
+        // This cause is independently bound to accepted cleanup/result/close events
+        // by normal recovery; component diagnostics cannot authorize that history.
+        if (string.Equals(reason, CoreRuleEngine.CleanupRecallNoResultReason, StringComparison.Ordinal)) return;
 
         if (string.Equals(reason, "ALL_PARTICIPANTS_DESTROYED", StringComparison.Ordinal))
         {

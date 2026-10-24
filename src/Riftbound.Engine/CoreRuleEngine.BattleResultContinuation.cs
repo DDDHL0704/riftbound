@@ -22,6 +22,8 @@ public sealed record BattleResultContinuation(string BattlefieldId, string Attac
 
 public sealed partial class CoreRuleEngine
 {
+    internal const string CleanupRecallNoResultReason = "BATTLE_CLEANUP_ATTACKER_RECALL";
+
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = CaptureDuelChainFocus(state, result);
@@ -139,16 +141,16 @@ public sealed partial class CoreRuleEngine
         queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
-        if (winner is null)
-            events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attacker, defender));
         var bindings = cleanup.PublicObjectBindings.Concat(CaptureBattlePublicBindings(resultState,
             liveAttackers.Concat(liveDefenders))).DistinctBy(binding => (binding.ObjectId, binding.Generation)).ToArray();
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, winner, resultState.Tick,
             attackers, defenders, liveAttackers, liveDefenders,
             cleanup.DestroyedObjectIds, cleanup.RelatedEventKinds.Concat(events.Where(e => e.Kind is "DAMAGE_APPLIED"
                 or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE" or "BATTLE_NO_RESULT")
-                .Select(e => e.Kind)).Distinct(StringComparer.Ordinal).ToArray(), bindings, cleanup.AssignedOverkillDamage, "RESULT_TRIGGERS")
+                .Select(e => e.Kind)).Concat(winner is null ? ["BATTLE_NO_RESULT"] : [])
+                .Distinct(StringComparer.Ordinal).ToArray(), bindings, cleanup.AssignedOverkillDamage, "RESULT_TRIGGERS")
         { AttackerRecalledByBattleCleanup = cleanup.AttackerRecalledByBattleCleanup };
+        if (winner is null) events.Add(BuildBattleNoResultEvent(continuation));
         events.Add(new("BATTLE_RESULT_DETERMINED", "判定战斗结果，先处理结果触发技能",
             new Dictionary<string, object?> { ["continuation"] = continuation }));
         events.AddRange(queued.Select(trigger =>
@@ -175,6 +177,19 @@ public sealed partial class CoreRuleEngine
             && EffectiveFieldControllerId(resultState.PlayerZones, entry.Key, card) == player)
             .Select(entry => entry.Key).Order(StringComparer.Ordinal).ToArray();
     }
+
+    private static string BattleResultReason(BattleResultContinuation c) => c.WinnerPlayerId is not null ? "BATTLE_CLOSED"
+        : c.AttackerRecalledByBattleCleanup ? CleanupRecallNoResultReason
+        : c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
+            ? "ALL_PARTICIPANTS_DESTROYED" : "BOTH_SIDES_RETAIN_UNITS";
+
+    private static GameEvent BuildBattleNoResultEvent(BattleResultContinuation c)
+        => new("BATTLE_NO_RESULT", "战斗没有胜者", new Dictionary<string, object?> {
+            ["battlefieldId"] = c.BattlefieldId, ["attackingPlayerId"] = c.AttackingPlayerId,
+            ["defendingPlayerId"] = c.DefendingPlayerId, ["attackerObjectIds"] = c.AttackerObjectIds.ToArray(),
+            ["defenderObjectIds"] = c.DefenderObjectIds.ToArray(),
+            ["survivingAttackerObjectIds"] = c.SurvivingAttackerObjectIds.ToArray(),
+            ["survivingDefenderObjectIds"] = c.SurvivingDefenderObjectIds.ToArray(), ["reason"] = BattleResultReason(c) });
 
     private static bool BattleSettlementHasPendingItems(MatchState state) => state.StackItems.Count > 0
         || state.TriggerQueue.Any(IsImmediateTrigger) || state.PendingPayment is not null
@@ -208,9 +223,7 @@ public sealed partial class CoreRuleEngine
         CloseResolvedBattle(zones, cards, state.ObjectLocations, continuation.BattlefieldId, continuation.AttackerObjectIds,
             continuation.DefenderObjectIds, events);
         var resultKind = continuation.WinnerPlayerId is null ? "NO_RESULT" : "CLOSED";
-        var resultReason = continuation.WinnerPlayerId is not null ? "BATTLE_CLOSED"
-            : continuation.SurvivingAttackerObjectIds.Count == 0 && continuation.SurvivingDefenderObjectIds.Count == 0
-                ? "ALL_PARTICIPANTS_DESTROYED" : "BOTH_SIDES_RETAIN_UNITS";
+        var resultReason = BattleResultReason(continuation);
         var history = new BattleResolutionState(
             $"battle-result:{state.Tick}:{resultKind}:{continuation.BattlefieldId}:{continuation.AttackerObjectIds.FirstOrDefault() ?? continuation.AttackingPlayerId}",
             state.Tick, resultKind, resultReason, continuation.BattlefieldId, continuation.AttackingPlayerId,
