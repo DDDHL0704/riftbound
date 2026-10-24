@@ -24,3 +24,9 @@ N17有37份完整终态日志，96条命令（87接受/9拒绝）、275事件，
 
 
 本固定源未包含PR157的新ErrorCode恢复契约；后续重基到该契约时，自有journal→RecoveredCommand投影须传递实际entry.ErrorCode，不推断/回填旧历史。日常合入以最新PR head/base/merge输入的L2 required全绿及机械核验为准，夜间L3独立。本机不新跑full/check/SQL/网络/110场矩阵。净整卡认证增量0、backend NOT READY，1740印次/14293条款和适用功能分母UNKNOWN保持。
+
+L2后续：run40079191311 的实际合并源为 `a897f66e99c12d7c2827a23605aab531dd177a12`；原规则套件14173中12失败的ZIP/TRX均保留。对应6个目录/成员/内容身份断言、5个PR139通用配方白名单失败及1个VEN043改变原seed31补牌输入的失败，已吸收完整PR159修复 `d1f66febedf077765953953430d9b9d054869ac5` 与PR139 `5f5e52b8d34d0c1b2e0756b134f151c396be50b6`，再按本组合1050精确目录校准P6与内容身份。没有删除原方法、Theory行、弃牌/胜利或回放断言。
+
+新受测源 `90d395bb08b1a96dc91e41915828121b09f1b920` 独立编译0警告0错误，388/388、零跳过；原325例完整测试名多重集保留，原12失败例均在本次通过集合，原seed31弃牌/得分胜利/原日志回放及两赛制11套精确输入通过。2494源码输入、1418运行文件全量哈希稳定；Engine MVID `837c047e-53aa-4042-8d14-cdb8e80cb57d`，受查三程序集InformationalVersion均指向该受测源。相对旧ready9f027939，生产/数据仅补牌白名单作用范围修复，VEN012/013算法、Registry和目录字节未变。
+
+新证据位于 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr162-current-v1/`，source-runtime-proof-v1.json SHA256 `356ffc7220e73ecd1d2acd7c97b4f8f282c8c5cef69d5f7cff14b4f59f05a9a5`，含固定源/bin、实际TRX与模块身份；父目录保留4份原失败CI ZIP及job日志。受测源之后仅吸收PR159审计doc与本卡审计doc，最新实际L2仍待通过。旧37/18份日志和反例仍只归原受测源，不按新RIF重标。后续组合PR173时还须复制实际entry.TypedCommand，保持其null省略与PR157 required-nullable ErrorCode不同，不合成raw或回填旧历史。
