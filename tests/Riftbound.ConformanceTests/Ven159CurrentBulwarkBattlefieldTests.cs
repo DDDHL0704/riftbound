@@ -245,7 +245,7 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             File.WriteAllText(Path.Combine(root, player + "-" + mode.Replace('/', '_') + ".json"), JsonSerializer.Serialize(new
             {
                 scope = "Explicit midgame HAND input; ordinary typed commands, cold restore, duplicate, rejection and original replay; no canonical seating or full game",
-                initial, commands = run.Commands(), events = run.Events(), final = run.State, samples, forgeries,
+                initial, frame = decoded, commands = run.Commands(), events = run.Events(), final = run.State, samples, forgeries,
                 runtime = new { baseDirectory = AppContext.BaseDirectory, ruleInputs = RuleInputIdentity.Current,
                     modules = new[] { typeof(CoreRuleEngine).Assembly, typeof(OfficialCardCatalog).Assembly, typeof(GameCommand).Assembly }.Select(a => new
                         { path = a.Location, sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(a.Location))).ToLowerInvariant(), mvid = a.ManifestModule.ModuleVersionId }) }
