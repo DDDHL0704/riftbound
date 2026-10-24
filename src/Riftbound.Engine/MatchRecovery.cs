@@ -23110,6 +23110,12 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
+            if (view.Snapshot.Stack is null)
+            {
+                errors.Add($"snapshot for {view.PlayerId} requires a stack collection");
+                continue;
+            }
+
             if (view.Snapshot.TurnNumber != authoritativeState.TurnNumber)
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state turn number");
