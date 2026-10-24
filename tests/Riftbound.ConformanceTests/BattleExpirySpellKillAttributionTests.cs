@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -68,6 +69,7 @@ public sealed class BattleExpirySpellKillAttributionTests(ITestOutputHelper outp
             Assert.Equal(damage.Event.Payload["stackItemId"], cause.InstanceId);
             Assert.Single(run.Events(), e => PhoenixQueued(e, "P1"));
             Assert.DoesNotContain(run.Events(), e => PhoenixQueued(e, "P2"));
+            BattleLimitedCleanupTests.Save("expiry-spell-kill-positive-earned", initial, run);
         }
         else
         {
@@ -91,6 +93,19 @@ public sealed class BattleExpirySpellKillAttributionTests(ITestOutputHelper outp
             {
                 Assert.True(immediateLethal); Assert.Equal("TRIGGER_COST_CONFIRMATION", cost.PaymentWindow);
                 await run.Act("P1", new PayCostCommand(cost.PaymentId, cost.PaymentWindow, ["DECLINE"]));
+            }
+            else if (run.State.PriorityPlayerId is null && run.State.TriggerQueue.Count > 1)
+            {
+                var choices = ResolutionResult.BuildPrompts(run.State).SelectMany(pair =>
+                    pair.Value.Candidates!.Where(c => c.Action == CommandTypes.OrderTriggers && c.Enabled)
+                        .Select(candidate => (Player: pair.Key, Candidate: candidate)));
+                var choice = Assert.Single(choices);
+                var metadata = JsonSerializer.SerializeToElement(choice.Candidate.Metadata,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                var ids = metadata.GetProperty("orderedTriggerIds").Deserialize<string[]>()!;
+                Assert.Equal(run.State.TriggerQueue.Where(t => t.ControllerId == choice.Player)
+                    .Select(t => t.TriggerId).Order(), metadata.GetProperty("reorderableTriggerIds").Deserialize<string[]>()!.Order());
+                await run.Act(choice.Player, new OrderTriggersCommand(OrderedTriggerIds: ids));
             }
             else if (run.State.StackItems.Count > 0) await run.Top();
             else Assert.Fail("The earned battle continuation has no playable item.");
