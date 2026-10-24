@@ -62414,6 +62414,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-SHIRANA-MONASTERY")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62461,6 +62468,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-HUNTING-GROUNDS")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62502,6 +62516,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SCRAPYARD")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62521,7 +62542,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62544,6 +62565,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ZAUN-SUMP")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62564,7 +62592,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·298/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62591,6 +62619,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THUNDER-RUNE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62611,7 +62646,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·287/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62817,6 +62852,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-LEGEND-HALL")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62836,7 +62878,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·210/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62866,6 +62908,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOUNT-TARGON")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62887,7 +62936,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·289/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62926,6 +62975,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THRONE-OF-POWER")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62956,7 +63012,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·217/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-OTHER-001"] = new(
                     "P1-BATTLEFIELD-OTHER-001",
                     cardNo: "OGN·280/298",
@@ -63028,7 +63084,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63090,7 +63146,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-WEAK-ATTACKER"] = new(
                     "P1-BATTLEFIELD-WEAK-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63128,6 +63184,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63146,7 +63209,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·220/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63169,6 +63232,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: mana) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-EMPEROR-SHRINE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63187,7 +63257,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63210,6 +63280,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOONVEIL-ALTAR")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63229,7 +63306,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -66637,6 +66714,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-CANDLELIT-SANCTUM")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -66661,7 +66745,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·291/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
                     cardNo: "SFD·125/221",
