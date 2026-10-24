@@ -90,7 +90,12 @@ public sealed class ConquestLifecycleRegressionTests
         var cards = state.CardObjects.ToDictionary(x => x.Key, x => x.Value);
         cards["DEFENDER"] = new("DEFENDER", cardNo: "SFD·125/221", power: 1,
             tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2");
-        var result = await Resolve(state with { PlayerZones = zones, CardObjects = cards }, "P1",
+        cards["BF"] = cards["BF"] with { ControllerId = "P2" };
+        var locations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+            ["BF"] = new("P2", "BATTLEFIELD", "BF"), ["UNIT"] = new("P1", "BATTLEFIELD", "BF"),
+            ["DEFENDER"] = new("P2", "BATTLEFIELD", "BF") };
+        var result = await Resolve(state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations,
+            UntilEndOfTurnEffects = [..state.UntilEndOfTurnEffects, BattlefieldTaskMarkers.SpellDuelCompleted("BF")] }, "P1",
             new DeclareBattleCommand("BF", ["UNIT"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
         Assert.NotNull(result.State.PendingHandChoice);
         Assert.Equal(3, result.State.PlayerZones["P1"].Hand.Count);

@@ -5,6 +5,8 @@ public sealed record OfficialArmamentDefinition(string CardNo, string SourceCard
 {
     public bool CopiesHostPrintedRulesText { get; init; }
     public bool CopiesChosenFriendlyUnit { get; init; }
+    // While attached: destroy this equipment instead, then heal, exhaust and recall the host.
+    public bool ReplacesHostDestruction { get; init; }
 }
 
 // The official gallery stores the lower armament box separately from rules text.

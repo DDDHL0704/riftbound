@@ -165,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var advanced = AdvanceBattleResultContinuation(completed with { Events = [] });
                 if (ReferenceEquals(advanced.State, completed.State)) break;
-                var addition = CollectResolutionEffects(completed.State, advanced);
+                var addition = CollectResolutionEffects(completed.State, advanced, completed.Events.Count);
                 completed = addition with { Events = completed.Events.Concat(addition.Events).ToArray() };
             }
             return ValueTask.FromResult(completed);
@@ -12326,22 +12326,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? command.BattlefieldTargetObjectIds
             : [];
         const bool hasUnitDefendTriggerTargetChoice = false;
-        if (!TryResolveBattlefieldDefenderSteadfastChoice(
-                state,
-                playerZones,
-                defendingPlayerId ?? string.Empty,
-                battlefieldId,
-                defenderBattlefieldTargetObjectIds,
-                defenderObjectIds,
-                hasUnitDefendTriggerTargetChoice,
-                out var battlefieldSteadfastObjectId,
-                out var battlefieldSteadfastObjectSourceId,
-                out var battlefieldSteadfastCardNo,
-                out var battlefieldSteadfastGrantedKeyword,
-                out var battlefieldSteadfastKeywordBonus,
-                out var battlefieldSteadfastRejection))
+        var hasDefenderBattlefieldMoveTargets = TryGetBattlefieldCardObject(
+                playerZones, state.CardObjects, battlefieldId, out _, out var defenderBattlefieldState)
+            && !string.IsNullOrWhiteSpace(defendingPlayerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(defenderBattlefieldState, defendingPlayerId)
+            && BattlefieldTriggerSpecRules.TryGetTrigger(
+                defenderBattlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
+                out var defenderBattlefieldMoveTrigger)
+            && BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(defenderBattlefieldMoveTrigger);
+        if (NormalizeTargetObjectIds(defenderBattlefieldTargetObjectIds ?? []).Count > 0
+            && !hasDefenderBattlefieldMoveTargets
+            && !hasUnitDefendTriggerTargetChoice)
         {
-            return battlefieldSteadfastRejection;
+            return RejectWithCorePrompts(
+                state,
+                "只有需要选择战场效果目标时才能提交战场目标。",
+                ErrorCodes.InvalidTarget);
         }
         if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
                 state,
@@ -12358,7 +12359,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return battlefieldDefenderMoveRejection;
         }
-        var battlefieldEffectTargetObjectIds = new[] { battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId }
+        var battlefieldEffectTargetObjectIds = new[] { null, battlefieldDefenderMoveObjectId }
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId!)
             .ToArray();
@@ -12575,24 +12576,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rngCursor);
         rngCursor = battlefieldRevealSpellTrigger.RngCursor;
         combatEvents.AddRange(battlefieldRevealSpellTrigger.Events);
-        if (!string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId))
-        {
-            combatEvents.Add(new GameEvent(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{defendingPlayerId} 防守战场并强化单位",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = defendingPlayerId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["battlefieldObjectId"] = battlefieldSteadfastObjectSourceId,
-                    ["battlefieldCardNo"] = battlefieldSteadfastCardNo,
-                    ["trigger"] = TriggerKinds.BattlefieldDefendGrantSteadfast,
-                    ["targetObjectId"] = battlefieldSteadfastObjectId,
-                    ["keyword"] = battlefieldSteadfastGrantedKeyword,
-                    ["keywordBonus"] = battlefieldSteadfastKeywordBonus
-                }));
-        }
-
         var hasMultipleAttackers = attackerObjectIds.Count > 1;
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
         var defenderAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, defenderObjectIds, defenderStates);
@@ -12622,8 +12605,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     0,
                     defendingPlayerId,
                     battlefieldId,
-                    battlefieldSteadfastObjectId,
-                    battlefieldSteadfastKeywordBonus,
+                    null,
+                    0,
                     readyEnemyUnitCount,
                     out var assaultBonus,
                     out var attackerStaticPowerBonus);
@@ -12642,8 +12625,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         defendingUnitCount,
                         null,
                         battlefieldId,
-                        battlefieldSteadfastObjectId,
-                        battlefieldSteadfastKeywordBonus,
+                        null,
+                        0,
                         0,
                         out _,
                         out _,
@@ -12699,8 +12682,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     defendingUnitCount,
                     null,
                     battlefieldId,
-                    battlefieldSteadfastObjectId,
-                    battlefieldSteadfastKeywordBonus,
+                    null,
+                    0,
                     0,
                     out var steadfastBonus,
                     out var defenderStaticPowerBonus);
@@ -12724,8 +12707,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         0,
                         defendingPlayerId,
                         battlefieldId,
-                        battlefieldSteadfastObjectId,
-                        battlefieldSteadfastKeywordBonus,
+                        null,
+                        0,
                         readyEnemyUnitCount,
                         out _,
                         out _,
@@ -12829,7 +12812,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
                     ["attackerObjectIds"] = attackerObjectIds.ToArray(), ["defenderObjectIds"] = defenderObjectIds.ToArray(),
                     ["optionalCosts"] = optionalCosts.ToArray(), ["battlefieldTargetObjectIds"] = new[] {
-                        battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId, icevaleArcherAttackTargetObjectId }
+                        null, battlefieldDefenderMoveObjectId, icevaleArcherAttackTargetObjectId }
                         .Where(id => !string.IsNullOrWhiteSpace(id)).ToArray() }));
             return new(true, null, pendingResult, combatEvents, ResolutionResult.BuildSnapshots(pendingResult), BuildCorePrompts(pendingResult));
         }
@@ -13042,7 +13025,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["battlefieldTargetObjectIds"] = new[]
                         {
-                            battlefieldSteadfastObjectId,
+                            null,
                             battlefieldDefenderMoveObjectId,
                             icevaleArcherAttackTargetObjectId
                         }
@@ -13071,11 +13054,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
         var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
-        var damagedParticipantObjectIds = survivingAttackerObjectIds
-            .Concat(survivingDefenderObjectIds)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+        var damagedParticipantObjectIds = cardObjects.Values
+            .Where(cardObject => IsFaceUpNonStandbyUnit(cardObject)
+                && IsObjectOnField(playerZones, cardObject.ObjectId)
                 && cardObject.Damage > 0)
-            .Distinct(StringComparer.Ordinal)
+            .Select(cardObject => cardObject.ObjectId)
+            .Order(StringComparer.Ordinal)
             .ToArray();
         if (damagedParticipantObjectIds.Length > 0)
         {
@@ -16346,101 +16330,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return false;
-    }
-
-    private static bool TryResolveBattlefieldDefenderSteadfastChoice(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string defendingPlayerId,
-        string battlefieldId,
-        IReadOnlyList<string>? battlefieldTargetObjectIds,
-        IReadOnlyList<string> defenderObjectIds,
-        bool allowUnitDefendTriggerTargets,
-        out string? targetObjectId,
-        out string battlefieldObjectId,
-        out string? battlefieldCardNo,
-        out string? grantedKeyword,
-        out int keywordBonus,
-        out ResolutionResult rejection)
-    {
-        targetObjectId = null;
-        battlefieldObjectId = string.Empty;
-        battlefieldCardNo = null;
-        grantedKeyword = null;
-        keywordBonus = 0;
-        rejection = default!;
-
-        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        var hasBattlefieldObject = TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState);
-        var sourceControlledByDefender = hasBattlefieldObject
-            && !string.IsNullOrWhiteSpace(defendingPlayerId)
-            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId);
-        TriggerSpec? steadfastTrigger = null;
-        if (sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger,
-                out var candidateSteadfastTrigger)
-            && BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(candidateSteadfastTrigger))
-        {
-            steadfastTrigger = candidateSteadfastTrigger;
-        }
-        var isSteadfastBattlefield = steadfastTrigger is not null;
-        var isMoveToBaseBattlefield = sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
-                out var moveToBaseTrigger)
-            && BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
-        if (!isSteadfastBattlefield)
-        {
-            if (requestedTargetObjectIds.Count > 0
-                && !isMoveToBaseBattlefield
-                && !allowUnitDefendTriggerTargets)
-            {
-                rejection = RejectWithCorePrompts(
-                    state,
-                    "只有需要选择战场效果目标时才能提交战场目标。",
-                    ErrorCodes.InvalidTarget);
-                return false;
-            }
-
-            return true;
-        }
-
-        battlefieldCardNo = battlefieldState.CardNo;
-        grantedKeyword = steadfastTrigger!.GrantedKeyword;
-        keywordBonus = steadfastTrigger.KeywordBonus.GetValueOrDefault();
-        var requestedDefenderTargetObjectIds = requestedTargetObjectIds
-            .Where(requestedTargetObjectId => defenderObjectIds.Contains(requestedTargetObjectId, StringComparer.Ordinal))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var selectedTargetObjectId = requestedDefenderTargetObjectIds.Length == 0 && defenderObjectIds.Count == 1
-            ? defenderObjectIds[0]
-            : requestedDefenderTargetObjectIds.Length == 1
-                ? requestedDefenderTargetObjectIds[0]
-                : string.Empty;
-        if (requestedTargetObjectIds.Count != requestedDefenderTargetObjectIds.Length
-            && !allowUnitDefendTriggerTargets)
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "该战场效果需要且只能选择 1 个防守单位。",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(selectedTargetObjectId))
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "该战场效果需要且只能选择 1 个防守单位。",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
-        targetObjectId = selectedTargetObjectId;
-        return true;
     }
 
     private static bool TryResolveIcevaleArcherAttackPaymentChoice(
@@ -19975,10 +19864,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal)
             && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId, nextControllerId))
         {
-            var sourceObjectId = occupantObjectIds.FirstOrDefault(objectId =>
-                    cardObjects.TryGetValue(objectId, out var cardObject)
+            IEnumerable<string> sourceCandidates = occupantObjectIds;
+            if (concludingBattle && state.PendingBattleResult is { } battle
+                && battle.BattlefieldId == battlefieldObjectId && battle.WinnerPlayerId == nextControllerId)
+            {
+                var declared = battle.AttackingPlayerId == nextControllerId ? battle.AttackerObjectIds : battle.DefenderObjectIds;
+                sourceCandidates = declared.Where(id => battle.PublicObjectBindings.Any(binding => binding.ObjectId == id
+                    && cardObjects.TryGetValue(id, out var current) && current.ObjectGeneration == binding.Generation))
+                    .Concat(occupantObjectIds);
+            }
+            var conqueringUnitObjectIds = sourceCandidates.Where(objectId =>
+                    occupantObjectIds.Contains(objectId, StringComparer.Ordinal)
+                    && cardObjects.TryGetValue(objectId, out var cardObject)
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
-                ?? nextControllerId;
+                .Distinct(StringComparer.Ordinal).ToArray();
+            var sourceObjectId = (concludingBattle ? conqueringUnitObjectIds.FirstOrDefault(objectId =>
+                    CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) > 0) : null)
+                ?? conqueringUnitObjectIds.FirstOrDefault() ?? nextControllerId;
             events.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{nextControllerId} 征服战场",
@@ -19988,7 +19890,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldObjectId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["defeatedObjectIds"] = Array.Empty<string>(),
+                    ["defeatedObjectIds"] = concludingBattle && state.PendingBattleResult is { } result
+                        && result.BattlefieldId == battlefieldObjectId
+                            ? result.AttackingPlayerId == nextControllerId ? result.DefenderObjectIds : result.AttackerObjectIds
+                            : Array.Empty<string>(),
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamage,
                     ["reason"] = concludingBattle ? "BATTLE_CONTROL_AFTER_RESPONSES" : "NON_BATTLE_SPELL_DUEL_CONTROL"
                 }));
             var scoreState = state with
@@ -20023,7 +19929,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state with { PlayerScores = playerScores, UntilEndOfTurnEffects = untilEndOfTurnEffects,
                     WinnerPlayerId = winnerPlayerId, ObjectLocations = objectLocations },
                 playerZones, cardObjects, nextControllerId, battlefieldObjectId, sourceObjectId,
-                occupantObjectIds, assignedOverkillDamage, state.Tick, events);
+                conqueringUnitObjectIds, assignedOverkillDamage, state.Tick, events);
             objectLocations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
             playerScores = state.PlayerScores;
             untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
@@ -32567,6 +32473,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
             cardObjects[targetObjectId] = controlledTargetState;
+            RecallAttachedGroupToBase(playerZones, cardObjects, targetObjectId, controllerId);
             previousControllerId = playerId;
             return true;
         }
