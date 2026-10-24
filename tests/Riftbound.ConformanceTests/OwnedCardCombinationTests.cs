@@ -62,8 +62,9 @@ public sealed class OwnedCardCombinationTests
         await run.Act(player, new PlayCardCommand("GRANT", "OGN·057/298", ["ASSASSIN"]));
         await run.Top(); await Drain(run);
         Might(run.State, "ASSASSIN", 6);
-        await run.Act(player, new PlayCardCommand("PULSE", "VEN·049", []));
-        await run.Act(player, new PassPriorityCommand());
+        await run.Act(player, new MoveUnitCommand("CROSS-MOVER", "BASE", "BATTLEFIELD:OTHER", []));
+        Assert.Equal(TimingStates.SpellDuelOpen, run.State.TimingState);
+        await run.Act(player, new PassFocusCommand());
         await run.Act(opponent, new PlayCardCommand("DAMAGE", "VEN·008", ["ASSASSIN"], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]));
         Assert.Equal(37, run.State.RunePools[opponent].Mana);
         Assert.Contains("FODDER", run.State.PlayerZones[opponent].Graveyard);
@@ -75,6 +76,8 @@ public sealed class OwnedCardCombinationTests
         Assert.Equal(5, damage.Event.Payload["damage"]);
         await Checkpoint("damage-survived-" + player, initial, run);
         await Drain(run);
+        Assert.Equal("BATTLEFIELD", run.State.ObjectLocations["ASSASSIN"].Zone);
+        Might(run.State, "ASSASSIN", 6);
         await run.Act(player, new EndTurnCommand());
         Assert.Equal("GRAVEYARD", run.State.ObjectLocations["ASSASSIN"].Zone);
         Assert.Contains("ASSASSIN", run.State.PlayerZones[player].Graveyard);
@@ -165,13 +168,13 @@ public sealed class OwnedCardCombinationTests
             locations[id] = new(owner, zone, field);
         }
         Put("F", "VEN·159", "P1", "BATTLEFIELD", "F"); cards["F"] = cards["F"] with { ControllerId = player };
-        Put("OTHER", "OGN·278/298", "P1", "BATTLEFIELD", "OTHER"); cards["OTHER"] = cards["OTHER"] with { ControllerId = player };
+        Put("OTHER", "OGN·278/298", "P1", "BATTLEFIELD", "OTHER"); cards["OTHER"] = cards["OTHER"] with { ControllerId = damage ? null : player };
         Put("ANCHOR", "OGN·175/298", player, "BATTLEFIELD", "F");
-        Put("OTHER-ANCHOR", "OGN·175/298", player, "BATTLEFIELD", "OTHER");
+        if (!damage) Put("OTHER-ANCHOR", "OGN·175/298", player, "BATTLEFIELD", "OTHER");
         if (damage)
         {
             Put("ASSASSIN", "VEN·013", player, "HAND"); Put("NAMED-GRAVE", "VEN·013", player, "GRAVEYARD");
-            Put("GRANT", "OGN·057/298", player, "HAND"); Put("PULSE", "VEN·049", player, "HAND");
+            Put("GRANT", "OGN·057/298", player, "HAND"); Put("CROSS-MOVER", "OGN·219/298", player, "BASE");
             Put("DAMAGE", "VEN·008", Other(player), "HAND"); Put("FODDER", "OGN·219/298", Other(player), "HAND");
         }
         else
