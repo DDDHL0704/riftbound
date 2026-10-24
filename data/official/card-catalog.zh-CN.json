@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1045,
+  "total": 1048,
   "cards": [
     {
       "id": 31005,
@@ -43424,6 +43424,150 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37984,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·086",
+      "cardName": "普朗克",
+      "subTitle": "海上霸主",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "普朗克",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化橙色橙色}}（支付{{橙色}}{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+      "flavorText": "“死亡把我吐了出来。”",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/d52dca4cab1746078dff7c5a59b7be3c.png",
+      "backImage": "",
+      "listSort": 1905,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{强化橙色橙色}}（支付{{橙色}}{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+      "otherDesc": 0
+    },
+    {
+      "id": 37985,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·181",
+      "cardName": "普朗克",
+      "subTitle": "海上霸主",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "普朗克",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Grafit Studio",
+      "cardEffect": "{{强化橙色橙色}}\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+      "flavorText": "“我的心是铁做的。”",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/60df8f95b5d94da78a7049efa4bea8b1.png",
+      "backImage": "",
+      "listSort": 1802,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{强化橙色橙色}}\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+      "otherDesc": 0
+    },
+    {
+      "id": 37695,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·010",
+      "cardName": "蚀骨诅咒",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对战场上的一名单位造成2点伤害。你的废牌堆中每有一张此牌的同名卡牌，此牌便造成1点额外伤害。",
+      "flavorText": "“那是啥？！”\n——常见遗言",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/c026ee8cfd8a46d5bf7933740066125f.png",
+      "backImage": "",
+      "listSort": 1991,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44024,6 +44168,51 @@
       "printedFaceIdentity": "VEN·103/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-103/166",
       "reason": "Exact CN any-graveyard return consumer under semantic development; registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·086",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:08:25.433550+00:00",
+      "sourceId": 37984,
+      "sourceRecordSha256": "e0a5c0aa66205f2627465762eaf5f36ad7e95a09005edd4c2c0dc319cb32e766",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·086/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-086/166",
+      "reason": "Exact CN empowered unit registration and structured target-replacement profile prerequisite. Shared C7 replacement resolution and whole-card certification remain open."
+    },
+    {
+      "cardNo": "VEN·181",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:08:25.433550+00:00",
+      "sourceId": 37985,
+      "sourceRecordSha256": "ed9436e277e47b11204606c5bc063ed3fcf24bc79728669c3e19b84a338b9eff",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·181/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-181/166",
+      "reason": "Exact CN empowered unit registration and structured target-replacement profile prerequisite. Shared C7 replacement resolution and whole-card certification remain open."
+    },
+    {
+      "cardNo": "VEN·010",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:08:25.433550+00:00",
+      "sourceId": 37695,
+      "sourceRecordSha256": "3c0278c3307f660a859184fb0ee82c9affece5c8dc59a0fe6e40573631cfd9a4",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·010/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-010/166",
+      "reason": "Exact CN resolution-time same-name graveyard damage consumer under development; registration is not whole-card certification."
     }
   ]
 }

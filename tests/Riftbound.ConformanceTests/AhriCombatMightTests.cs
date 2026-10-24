@@ -239,7 +239,7 @@ public sealed class AhriCombatMightTests
         Assert.NotNull(root);
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1045, current.Cards.Count);
+        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1048, current.Cards.Count);
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
@@ -292,7 +292,7 @@ public sealed class AhriCombatMightTests
             }
             else Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(actual));
         }
-        Assert.Equal(36, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
+        Assert.Equal(39, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
         var added = Assert.Single(current.Cards, c => c.CardNo == "VEN·SP3");
         Assert.Equal("VEN·SP3", added.CardNo); Assert.Equal(37918, added.Id); Assert.Equal(3, added.Power);
         Assert.Equal(3, added.Energy); Assert.Equal(1, added.ReturnEnergy);
