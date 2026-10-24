@@ -3742,13 +3742,13 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             var rejectedRawAssignment = rejectedRawAssignments[assignmentIndex];
             Assert.Equal(
                 expectedAssignment.SourceObjectId,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.SourceObjectId)).GetString());
+                rejectedRawAssignment.GetProperty("sourceObjectId").GetString());
             Assert.Equal(
                 expectedAssignment.TargetObjectId,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.TargetObjectId)).GetString());
+                rejectedRawAssignment.GetProperty("targetObjectId").GetString());
             Assert.Equal(
                 expectedAssignment.Damage,
-                rejectedRawAssignment.GetProperty(nameof(CombatDamageAssignmentDto.Damage)).GetInt32());
+                rejectedRawAssignment.GetProperty("damage").GetInt32());
         }
 
         var duplicateRejected = await session.SubmitAsync(
