@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-kerplunk-echo-stun-attacking-unit",
-  "description": "Kerplunk pays Echo 2 and repeats stunning an attacking unit.",
+  "description": "Kerplunk pays Echo 2 and completes both executions, while an already stunned unit is not stunned again.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -23,6 +23,11 @@
       "source": "data/official/upstream/2026-10-08/rules-manifest.json",
       "locator": "CN core 820.2, 820.3, 321",
       "note": "2026-10-08: ordered executions within one stack item, including repeated draw 1, with lethal cleanup only after the last execution."
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "DOC-01 physical77 / CN424.1.a.1",
+      "note": "Current CN rule: already stunned units cannot be stunned again. Echo still pays and completes both executions; only the first applies STUNNED. SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11."
     }
   ],
   "roomId": "p2-preflight-kerplunk-echo-room",
@@ -148,7 +153,6 @@
       "STACK_ITEM_RESOLVED",
       "STATUS_EFFECT_APPLIED",
       "SPELL_EXECUTION_COMPLETED",
-      "STATUS_EFFECT_APPLIED",
       "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
@@ -199,14 +203,6 @@
         "kind": "SPELL_EXECUTION_COMPLETED",
         "payload": {
           "executionIndex": 0
-        }
-      },
-      {
-        "kind": "STATUS_EFFECT_APPLIED",
-        "payload": {
-          "sourceObjectId": "P1-SPELL-KERPLUNK",
-          "targetObjectId": "P2-UNIT-001",
-          "effectId": "STUNNED"
         }
       },
       {
