@@ -198,7 +198,7 @@ public sealed class VenBasicFlowSpellTests
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Red] = 20 }), ["P2"] = new(20, 20) }, seed: 424242)
             with { CardPlays = new(5, [], []) };
     }
-    private sealed class Driver : IMatchJournal
+    internal sealed class Driver : IMatchJournal
     {
         private readonly MatchState initial;
         private readonly List<MatchJournalEntry> entries = [];
@@ -232,6 +232,34 @@ public sealed class VenBasicFlowSpellTests
             Assert.True(duplicate.Accepted);
             Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
             Assert.Equal(hash, MatchStateHasher.Hash(State));
+            await Replay();
+        }
+        internal async Task ActRetained(ConformanceCommand retained, bool expectedAccepted)
+        {
+            var before = MatchStateHasher.Hash(State); var snapshotsBefore = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(State));
+            var promptsBefore = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(State));
+            var raw = retained.Cmd.Clone(); var command = GameCommandJsonMapper.Map(raw);
+            var result = await session.SubmitAsync(retained.PlayerId, retained.ClientIntentId, command, raw, default);
+            Assert.Equal(expectedAccepted, result.Accepted); State = result.State;
+            if (!expectedAccepted) {
+                Assert.Equal(before, MatchStateHasher.Hash(State)); Assert.Empty(result.Events);
+                Assert.Equal(snapshotsBefore, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(State)));
+                Assert.Equal(promptsBefore, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(State)));
+            }
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            var sequence = entries[^1].CompletedEventSequence;
+            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
+            var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
+            var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
+            Assert.Empty(errors);
+            var frame = new MatchRecoveryFrame(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
+            session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
+            if (expectedAccepted) {
+                var count = entries.Count; var hash = MatchStateHasher.Hash(State);
+                var duplicate = await session.SubmitAsync(retained.PlayerId, retained.ClientIntentId, command, raw, default);
+                Assert.True(duplicate.Accepted); Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            }
             await Replay();
         }
         internal async Task Top() { await Act(State.PriorityPlayerId!, new PassPriorityCommand()); await Act(State.PriorityPlayerId!, new PassPriorityCommand()); }
