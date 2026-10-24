@@ -654,8 +654,8 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Stun
             ]);
 
-        AssertFamily(report, BehaviorTemplateIds.Draw, 141, 141, 0, 0, 121, 121, 0);
-        AssertFamily(report, BehaviorTemplateIds.Damage, 151, 151, 0, 0, 132, 132, 0);
+        AssertFamily(report, BehaviorTemplateIds.Draw, 142, 142, 0, 0, 122, 122, 0);
+        AssertFamily(report, BehaviorTemplateIds.Damage, 152, 152, 0, 0, 133, 133, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 128, 128, 0, 0, 119, 119, 0);
         AssertFamily(report, BehaviorTemplateIds.Stun, 33, 33, 0, 0, 29, 29, 0);
         Assert.All(report.Families, family =>
@@ -689,7 +689,7 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
         AssertFamily(report, BehaviorTemplateIds.Banish, 27, 27, 0, 0, 23, 23, 0);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 263, 263, 0, 0, 211, 211, 0);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 264, 264, 0, 0, 212, 212, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
         Assert.All(report.Families, family =>
@@ -971,12 +971,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 552,
-            specImplementedEntries: 552,
+            entries: 554,
+            specImplementedEntries: 554,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 442,
-            specImplementedFunctionalUnits: 442,
+            functionalUnits: 444,
+            specImplementedFunctionalUnits: 444,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,

@@ -77,7 +77,7 @@ public sealed class VenUnitEntryRecoveryWitnessTests
             File.WriteAllText(Path.Combine(root, no + "-" + player + "-" + destination.Replace(':', '_') + ".json"), JsonSerializer.Serialize(new
             {
                 scope = "Explicit midgame HAND input with public battlefield anchors; actual ordinary entry; not canonical seating/full game",
-                initial, commands = run.Commands(), events = run.Events(), final = run.State,
+                initial, frame = decoded, commands = run.Commands(), events = run.Events(), final = run.State,
                 forgeries = new[] { new { kind = "current-power", rejected.IsMatch, rejected.Errors },
                     new { kind = "entry-event", rejectedEvents.IsMatch, rejectedEvents.Errors } },
                 runtime = new { baseDirectory = AppContext.BaseDirectory, ruleInputs = RuleInputIdentity.Current,
