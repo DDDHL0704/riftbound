@@ -75,6 +75,7 @@ public sealed class AhriCombatMightNativeTests
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, done.State, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Export("replay.json", new { native = dir is not null && File.Exists(Path.Combine(dir, "choose-command.json")), commands = commands.Length,
+            actualCommands = commands, actualEvents = events, initial, final = done.State,
             replay, finalHash = MatchStateHasher.Hash(done.State) });
         Export("result-snapshot.json", done.Snapshots[player]);
     }

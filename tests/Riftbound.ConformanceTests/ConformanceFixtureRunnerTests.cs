@@ -37610,6 +37610,9 @@ public sealed class ConformanceFixtureRunnerTests
         var result = await OfficialInsightAndSpellLockTests.Act(state, "P1",
             new MoveUnitCommand("P1-BATTLEFIELD-FORTIFIED-ATTACKER", "BASE", "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION", []));
         result = await StandbyDefendTeemoTests.ConfirmAndResolveDefend(result, "P2-BATTLEFIELD-FORTIFIED-DEFENDER");
+        var defendingView = JsonSerializer.SerializeToElement(result.Snapshots["P2"], new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.Equal(4, defendingView.GetProperty("players").GetProperty("P2").GetProperty("objects")
+            .GetProperty("P2-BATTLEFIELD-FORTIFIED-DEFENDER").GetProperty("effectivePower").GetInt32());
         var events = result.Events.ToList();
         for (var pass = 0; result.State.FocusPlayerId is not null; pass++) {
             Assert.InRange(pass, 0, 3);
@@ -37639,6 +37642,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
+        var attackerDamageEvent = Assert.Single(result.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("combatRole"), "ATTACKER"));
+        Assert.Equal("P1-BATTLEFIELD-FORTIFIED-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-FORTIFIED-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
         Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
         // Defending Might is 2 + Steadfast2 = 4, so the attacker's original 3 damage is nonlethal.
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);

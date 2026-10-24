@@ -88,6 +88,7 @@ public sealed class SiphonEnergyNativeTests
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, result.State, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Export("replay.json", new { native, replay, commands = commands.Length,
+            actualCommands = commands, actualEvents = events, initial, final = result.State,
             chosenTargets = targets, finalHash = MatchStateHasher.Hash(result.State) });
     }
 
