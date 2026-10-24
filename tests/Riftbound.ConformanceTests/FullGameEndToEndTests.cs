@@ -22673,12 +22673,21 @@ public sealed partial class FullGameEndToEndTests
         string championCardNo,
         IReadOnlyList<string> requiredMainDeckCardNos)
     {
+        // Keep the original full-game fixture inputs when independent cards
+        // are registered. Required scenario cards remain explicit below.
+        using var historical = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "wild-claw-historical-1036-printings.json")));
+        var originalCardNos = historical.RootElement.GetProperty("cardNos").EnumerateArray()
+            .Select(card => card.GetString()!).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(1036, originalCardNos.Count);
+        originalCardNos.UnionWith(["VEN·156", "VEN·003", "VEN·049", "VEN·081"]);
         var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, legendCardNo, StringComparison.Ordinal));
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
         var cardsByNo = catalog.Cards
             .Where(card => !string.IsNullOrWhiteSpace(card.CardNo))
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
         var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
+            .Where(behavior => originalCardNos.Contains(behavior.CardNo))
             .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
             // A battlefield-only play ability does not require targets when the
             // unit enters BASE. Keep the original fixture deck membership when
