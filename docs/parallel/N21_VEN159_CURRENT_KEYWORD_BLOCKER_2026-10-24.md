@@ -1,13 +1,13 @@
 # N21 VEN159 current-keyword consumer blocker
-- Status: SOURCE/ISOLATED PROOF ONLY; L2 interface allocation pending; no runtime registration or shared source change applied.
+- Status: L2 queued; ② prepares the shared proposal after C11, ④ owns exact consumer/evidence; algorithm/filter/parser/runtime registration remain unapproved and unapplied.
 - Own base: `bb40ec7b006bd5fc8b9fc63abc06c618145a124f`; do not import N17/N19 ancestry into integration.
 - Official CN record `37862`, `VEN·159` 均衡寺院: `此处拥有{{壁垒}}的单位获得{{S}}+1。`; full face read and matched.
-- Exact record SHA `ab78868b436d5b49f4956e0b936f21bbf1b3689396e041c2a6760a5aaf02a6e5`; face SHA `2a85df0277bfde88480e8a870c40a86a7653cbf9f225a8cb91f2bb12b23188db`.
+- Canonical record SHA `ab78868b436d5b49f4956e0b936f21bbf1b3689396e041c2a6760a5aaf02a6e5`; raw record bytes `ebcbcc6b08ff14b685a6c37ba49697664d724ec116db082e342978d27b08756a`; face `2a85df0277bfde88480e8a870c40a86a7653cbf9f225a8cb91f2bb12b23188db`.
 - DOC01 CN 815.3 makes possession of Bulwark an inspectable unit characteristic; 815.2 does not stack duplicate Bulwark.
-- v5 compares original versus private parser-only builds: six fresh fixtures per variant, each 48 accepted commands / 250 events, not one combined run.
-- Both seats really play a unit, advance turns, move to the temple, and use real OGN057 Parry; every command passes structural recovery, original-fixture replay, and cold duplicate assertions.
-- Original parser produces no aura: intrinsic and Parry-granted Bulwark remain Might 3; the private parser recognizes one aura and intrinsic Bulwark becomes 4.
-- Private parser-only Parry grant remains 3 instead of 4 in both seats, while retained-state engine readback recognizes Bulwark damage priority 0; plain/expiry controls remain 3. Consumer incomplete.
-- Shared blocker: `StaticAuraSpecRules.TargetMatchesFilter` checks raw Tags; request coordinated current-keyword semantics for battlefield power execution, participant projection, and recovery dependencies before registration.
-- Evidence: `var/qa/ven-159-bulwark-aura-20261024/source-v1/` and `private-probe-v1/real-play-probe-v5/`; initial factory/resource/window fixture failures retained separately.
+- Retained v5: six fresh fixtures per variant, each 48 commands / 250 events; original has four Might reds, private parser-only fixes intrinsic and retains two temporary-grant reds.
+- v8: two exact Lillia printings × both seats, four fixtures / 56 commands / 216 events; continuous Bulwark still gives Might 3 instead of 4; real source withdrawal generation 1→2 removes its grant.
+- v11: eight fixtures / 106 commands / 426 events; real no-target Windsong Wing play → trigger choice wrongly offers and returns temporary/continuous-grant targets in four cases; intrinsic/plain controls match.
+- v12: four fixtures / 68 commands / 276 events; intrinsic plus two real Parry grants stays Might 4 once; temporary-only grants still miss the aura, then expire normally.
+- Each new run separately passes all-command structural recovery, original-fixture action/event replay and cold duplicates; no summed certification count. Priority 0 is only diagnostic, never a HasBulwark implementation.
+- Evidence: `var/qa/ven-159-bulwark-aura-20261024/review-v3/`; root proposal-only allocation receipt `4df18182`; extra Might/prompt callers, layered dependencies and any algorithm still require review.
 - No canonical seating/production registry/SQL/API/CI proof; dates/applicability and denominator UNKNOWN; backend NOT READY; whole-card certification delta 0.
