@@ -3611,7 +3611,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost : behavior.DamageAmount,
+            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost
+                : behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.DiscardedOptionalCostTargetObjectIds.Count > 0
+                    ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
@@ -22913,7 +22915,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (normalizedOptionalCosts.Count == 1
             && (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
-                || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0)
+                || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0
+                || behavior.DamageAmountIfDiscardHandCardOptionalCost > 0)
             && TryParseDiscardHandCardOptionalCost(
                 normalizedOptionalCosts[0],
                 out var discardedTargetObjectId))
