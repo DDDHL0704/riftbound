@@ -25,8 +25,8 @@ public sealed class BattleLimitedRecontestTests
                 : zone == "LEGEND" ? zones[owner] with { LegendZone = [..zones[owner].LegendZone, id] }
                 : zones[owner] with { Hand = [..zones[owner].Hand, id] };
         }
-        Put("LATE", "OGN·210/298", "P1", "HAND");
-        Put("WIND", "OGN·173/298", "P1", "HAND");
+        Put("LATE", "OGN·241/298", "P1", "HAND");
+        Put("P1-YELLOW", "UNL-R06", "P1", "BASE");
         Put("P2-ORANGE", "UNL-R04", "P2", "BASE");
         Put("LEGEND", "SFD·185/221", "P2", "LEGEND");
         foreach (var i in Enumerable.Range(1, 3)) Put("P1-FUND-" + i, "UNL-R06", "P1", "BASE");
@@ -35,7 +35,6 @@ public sealed class BattleLimitedRecontestTests
         try
         {
             await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
-            await run.Act("P1", new PlayCardCommand("LATE", "OGN·210/298", [], Destination: "BASE"));
             await run.Act("P1", new EndTurnCommand());
             var funding = Enumerable.Range(1, 12).Select(i => "P2-FUND-" + i).ToArray();
             await run.Act("P2", new TapRuneCommand(funding[0], funding));
@@ -49,9 +48,14 @@ public sealed class BattleLimitedRecontestTests
             if (run.State.PriorityPlayerId != "P1") await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
             var funds = Enumerable.Range(1, 3).Select(i => "P1-FUND-" + i).ToArray();
             await run.Act("P1", new TapRuneCommand(funds[0], funds));
-            await run.Act("P1", new PlayCardCommand("WIND", "OGN·173/298", ["LATE"], Destination: "BATTLEFIELD:HOME"));
-            await run.Top();
-            await run.Top();
+            await run.Act("P1", new RecycleRuneCommand("P1-YELLOW"));
+            // Shen has Reaction and HOME remains controlled by P1 during result responses.
+            await run.Act("P1", new PlayCardCommand("LATE", "OGN·241/298", [], Destination: "BATTLEFIELD:HOME"));
+            for (var i = 0; run.State.PendingBattleResult is not null; i++)
+            {
+                Assert.InRange(i, 0, 3);
+                await run.Top();
+            }
             Assert.Null(run.State.PendingBattleResult);
             Assert.True(run.State.SpellDuelState.IsActive);
             Assert.Equal(2, run.Events().Count(e => e.Event.Kind == "BATTLE_ROLES_ESTABLISHED"));
