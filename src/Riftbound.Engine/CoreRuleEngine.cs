@@ -18762,6 +18762,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var optionalCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalCostReductionChoice).ToArray();
+        normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsOptionalCostReductionChoice(cost)).ToArray();
         var printedPowerChoices = normalizedCommandOptionalCosts
             .Where(cost => cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
         if (printedPowerChoices.Length > 1)
@@ -18833,7 +18835,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
+        if (!(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
+            && !HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
         {
             rejection = Reject(
                 state,
@@ -18989,8 +18992,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         var paymentTargets = repeatExecutions is null ? Enumerable.Range(0, effectRepeatCount).SelectMany(_ => targetObjectIds).ToArray() : repeatExecutions.SelectMany(e => e.TargetObjectIds).ToArray();
+        var originalExtraManaCost = extraManaCost;
+        var originalOptionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum()
+            + EchoCostRules.PrintedCosts(EchoCostRules.Selected(state, intent.PlayerId, behavior, optionalCosts))
+                .Sum(cardNo => PrintedPowerCostRules.ForCard(cardNo).Amount);
+        if (!TryApplyOptionalCostReductions(state, intent.PlayerId, command.SourceObjectId, behavior, optionalCosts,
+                extraManaCost, extraPowerCost, extraPowerCostByTrait, optionalCostReductionChoices, out var optionalReductions))
+        {
+            rejection = Reject(state, "所选可选额外费用减免不合法。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        extraManaCost = optionalReductions.ExtraMana;
+        extraPowerCost = optionalReductions.ExtraGenericPower;
+        extraPowerCostByTrait = optionalReductions.ExtraTypedPower;
         var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
-            optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId);
+            optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId,
+            componentEchoReduction: optionalReductions.EchoManaReduction);
         var battlefieldEchoCostReductionMana = manaCost.EchoReduction;
         var costReductionMana = manaCost.CardReduction;
         optionalCostManaReduction = manaCost.OptionalReduction;
@@ -19006,9 +19023,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             spellshieldTaxTargetObjectIds = [];
         }
         var totalManaCost = manaCost.Total;
-        var echoPrintedCosts = EchoCostRules.PrintedCosts(EchoCostRules.Selected(state, intent.PlayerId, behavior, optionalCosts));
-        var optionalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum()
-            + echoPrintedCosts.Sum(cardNo => PrintedPowerCostRules.ForCard(cardNo).Amount);
+        var echoPrintedCosts = optionalReductions.PrintedCosts;
+        var optionalPowerCost = originalOptionalPowerCost;
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         var paymentAdjustedPool = ApplyRecycleRunePaymentToPool(
@@ -19092,7 +19108,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 luxSpellOnlyResourceSourceObjectIds,
                 luxSpellOnlyGeneratedMana,
                 luxSpellOnlyConsumedMana,
-                luxSpellOnlyRemainingMana));
+                luxSpellOnlyRemainingMana,
+                optionalReductions));
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
         {
@@ -19140,7 +19157,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan,
             paymentAdjustedPool,
             currentExperience,
-            extraManaCost) { RepeatExecutions = repeatExecutions, OptionalCostPowerReduction = optionalCostPowerReduction };
+            originalExtraManaCost) { RepeatExecutions = repeatExecutions,
+                OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -19180,9 +19198,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string>? luxSpellOnlyResourceSourceObjectIds = null,
         int luxSpellOnlyGeneratedMana = 0,
         int luxSpellOnlyConsumedMana = 0,
-        int luxSpellOnlyRemainingMana = 0)
+        int luxSpellOnlyRemainingMana = 0,
+        OptionalCostReductionResult? optionalReductions = null)
     {
-        return new Dictionary<string, object?>(StringComparer.Ordinal)
+        var metadata = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["costReductionMana"] = costReductionMana,
             ["optionalCostManaReduction"] = optionalCostManaReduction,
@@ -19201,6 +19220,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["luxSpellOnlyConsumedMana"] = luxSpellOnlyConsumedMana,
             ["luxSpellOnlyRemainingMana"] = luxSpellOnlyRemainingMana
         };
+        if (optionalReductions is { ChoiceIds.Count: > 0 })
+        {
+            metadata["costReductionChoices"] = optionalReductions.ChoiceIds.ToArray();
+            metadata["optionalCostReductions"] = optionalReductions.Receipts;
+            metadata["optionalAdditionalManaReduction"] = optionalReductions.ManaReduction;
+            metadata["optionalAdditionalPowerReduction"] = optionalReductions.PowerReduction;
+        }
+        return metadata;
     }
 
     private static bool CanPassPriority(MatchState state, string playerId)
@@ -35270,6 +35297,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
+        public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(
