@@ -49,6 +49,8 @@ public sealed partial class CoreRuleEngine
             Adjust("流转替代费用", flow.Mana - plan.Behavior.ManaCost,
                 flow.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         Adjust("额外费用", plan.AdditionalManaCost, plan.OptionalPowerCost);
+        Adjust("可选额外费用减免", -(plan.OptionalAdditionalReductions?.ManaReduction ?? 0),
+            -(plan.OptionalAdditionalReductions?.PowerReduction ?? 0));
         Adjust("卡牌减费", -plan.CostReductionMana);
         Adjust("所选额外费用带来的减免", -plan.OptionalCostManaReduction, -plan.OptionalCostPowerReduction);
         Adjust("回响部分减费", -plan.BattlefieldEchoCostReductionMana);
