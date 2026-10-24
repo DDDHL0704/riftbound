@@ -297,9 +297,9 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             var controller = state.CardObjects[id].ControllerId!;
             Assert.Equal(expected, view.GetProperty("players").GetProperty(controller).GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32());
         }
-        var method = typeof(ResolutionResult).GetMethod("BattleEffectivePowerFor", BindingFlags.Static | BindingFlags.NonPublic,
-            [typeof(MatchState), typeof(string)])!;
-        Assert.Equal(expected, (int)method.Invoke(null, [state, id])!);
+        var method = typeof(CoreRuleEngine).GetMethod("ResolveCurrentFieldUnitPower", BindingFlags.Static | BindingFlags.NonPublic,
+            [typeof(MatchState), typeof(CardObjectState)])!;
+        Assert.Equal(expected, (int)method.Invoke(null, [state, state.CardObjects[id]])!);
         Assert.Equal(hash, MatchStateHasher.Hash(state));
     }
 
