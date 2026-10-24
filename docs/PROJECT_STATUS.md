@@ -1,17 +1,12 @@
-# 当前项目状态 · 2026-10-23
+# 当前项目状态 · 2026-10-24
 
-**后端未完成；原两窗 Goal 已 paused。** 四线按用户新安排接续，①事件驱动且无 Goal，②③④各自开发；完整身份与方法边界见[目标/分工](BACKEND_RULES_GOAL_2026-10-23.md)。全部当前适用官方后端规则、原1740印次/14293条款及缺口保留；功能卡分母与整卡认证仍未知。[L1/L2/L3工作流](RULE_TEST_WORKFLOW.md) · [来源历史入口](audit/current-manifest.json)
+**日常合入走 L2；完整后端验收尚未闭合。** 用户已授权四线在所属方法内自行实现、提 PR，最新 PR 合并输入的 `L2 required` 通过即可合 main，不要求每个 PR 人工批准。只有跨线同时修改同一方法才由①协调；普通 helper、完整包和逐表达式不再额外审批。
 
-| 当前队列 | 已确认状态 | 下一步 |
-|---|---|---|
-| ① 集成与后端验收 | 独立树/分支起步基线4aabf78b已与远端核对；治理/CI/认证汇总归① | 本次登记后返回空闲，按完整交付审阅/集成，不轮询等待 |
-| ② 战斗、触发与胜负 | 新树/分支共同基线4aabf78b | 战斗伤害分配 → 销毁替代 → 战斗续体；独占对应方法 |
-| ③ 费用、资源与行动合法性 | 新树/分支共同基线4aabf78b；网页报告仅作线索 | 先核实S3，再S1/S2/S5支付窗口与候选，不改②续体 |
-| ④ 卡牌效果与机制族 | VEN·026/048/118首轮35例34过；VEN048响应召回后栈来源ID触发隐藏守卫，修复待验 | 普通SourceConfirmed投影边界已分配④，保留原红测/公共守卫，完整L2源码待交付 |
-| ① 接管 N54 / N55 冻结check | 19:55 CST两进程仍运行；3434/3424源输入哈希/模式全部稳定；均无终态/summary；N54旧LocalRecall失败已保留且主线已来源校准 | 原固定源/bin继续，不重跑；终态及最新完整候选仍待验 |
+- **L2：** [backend-l2.yml](../.github/workflows/backend-l2.yml) 在 PR/main/manual 执行定向与相邻域断言、全部普通规则测试及原两条完整对局冒烟。汇总核对固定 SHA、测试程序集和实际 TRX；失败、跳过或缺产物不能绿，不依赖 SQL/网络汇总。
+- **L3：** [native-desktop.yml](../.github/workflows/native-desktop.yml) 每天 02:00（上海）固定一次 main 起始完整 SHA，保留完整矩阵、真实 PostgreSQL/SignalR、进程重启和原日志回放。夜间失败由对应模块独立修复，阻止完整验收声明及相关改动，不冻结无关规则包。
+- **当前交付：** CI/策略分支从 `8ac0afba…` 单独起步，未带入 `cc2bbe79…` 集成积压或三线未合并规则源码。当前 PR/运行结果以 GitHub 为准；本页不累计历史交付表。
+- **历史候选：** A7=`da80739b…` / [run 40055102708](https://github.com/DDDHL0704/riftbound/actions/runs/40055102708) 保留原运行；04:15 UTC 收件时已核验 SQL 1/3 各 19 项，其余完整结果待收。A2–A6 原失败与修复线索保留，不作为所有日常合入的先决条件；B1/source queue 仅作迁移清单。
+- **职责：** ① CI/验收脚本/环境及实际方法冲突；②战斗/触发/胜负；③费用/资源/合法性；④卡牌消费者/注册。只发送可交付包、真实冲突或阻塞，不发 ACK。
+- **完成边界：** 当前适用来源、全部规则语义及 L3 仍有缺口；本次净整卡认证增量 0。客户端、可见双端、安装包和 Windows 实机留后续阶段 OPEN。旧两窗 Goal 保持 paused，固定证据/数据库保留。
 
-**固定输入与已有结果：** `4aabf78b` 包含保守分级f21fc127、N54=4bcb195f、N55/雷恩加尔=84c3b6fd、Flow=fd699370和目录失效工具。旧组合恢复514例/工具104项只归原记录输入；N54 17 SQL局/11网络局及重启、N55 12 SQL局125原前缀/3篡改拒绝及85恢复例保持原范围。本轮纯治理变更104工具测试及来源引用检查通过，原件`var/qa/four-line-integration-start-20261023-v1/`位于①树；均不提升为新候选L3或整卡认证。
-
-**远端CI接管快照（19:55 CST）：** 固定SHA `4aabf78b` / [39948594757](https://github.com/DDDHL0704/riftbound/actions/runs/39948594757)仍in_progress：scope、native_network、macOS/Windows打包成功，rule_suite和四片PostgreSQL运行中，scoped_rules跳过；无完整绿灯结论。夜间full/周与手动L3已配置，90天保留实际到期及转存仍待验；未配置CI异常自动唤醒。上一完整基线及历史run入口留在4aabf78b本页，不重复累计。
-
-**原件与阻塞：** 两冻结目录分别为 `.worktrees/riftbound-backend-n54-check-20261023`、`riftbound-backend-n55-rengar-check-20261023`。原日志在 `/Users/dinghaolin/MyProjects/riftbound/var/qa/{untargeted-battlefield-damage-n54-20261023,draven-battle-death-n55-20261023}/sole-check-frozen-original-console-v1.log`，对应 `frozen-sole-check-v1/`；N54已知失败的原件/校准理由为前目录`legacy-selected-consumer-final-calibration-v4.json`，不重新分发已校准问题。来源缺口、未实现/未认证项、最新固定候选完整回归与后端验收仍开放；注册/目录新增和未知路径CI仍full。客户端/可见桌面/Windows实机留后续阶段OPEN，main未通过L3，产品不称READY。
+[工作流](RULE_TEST_WORKFLOW.md) · [目标与分工](BACKEND_RULES_GOAL_2026-10-23.md) · [治理](PROJECT_GOVERNANCE.md) · [来源历史入口](audit/current-manifest.json)

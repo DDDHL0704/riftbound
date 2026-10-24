@@ -1,13 +1,9 @@
-name: Native desktop and China rules
+name: Backend L3 nightly
 
 on:
-  push:
-    branches: [main, 'codex/native-platform-*']
-  pull_request:
-  workflow_dispatch:
   schedule:
-    - cron: '0 18 * * 1-6' # 02:00 Asia/Shanghai, daily full
-    - cron: '0 18 * * 0'   # weekly L3, longer artifact retention
+    - cron: '0 18 * * *' # 02:00 Asia/Shanghai; one fixed main snapshot per night
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,29 +11,33 @@ permissions:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
   DOTNET_NOLOGO: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
   scope:
+    name: Fix nightly main SHA
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     outputs:
-      full: ${{ steps.select.outputs.full }}
-      tier: ${{ steps.select.outputs.tier }}
-      sql: ${{ steps.select.outputs.sql }}
-      network: ${{ steps.select.outputs.network }}
-      packaging: ${{ steps.select.outputs.packaging }}
+      commit: ${{ steps.fixed.outputs.commit }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: main
           fetch-depth: 2
+      - name: Freeze main once for every L3 job
+        id: fixed
+        run: |
+          python3 - <<'PYFIX'
+          import os, subprocess
+          commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+              stream.write('commit=' + commit + '\n')
+          subprocess.run(['python3', 'scripts/ci-candidate.py', '--expected', commit,
+                          '--output', 'var/qa/ci-scope/checkout.json'], check=True)
+          PYFIX
       - name: Verification safeguards
         run: python3 -m unittest discover -s scripts/tests -v
-      - name: Determine scope from fixed Git inputs
-        id: select
-        run: >-
-          python3 scripts/ci-change-scope.py
-          --event "$GITHUB_EVENT_PATH" --head "$GITHUB_SHA"
-          --output var/qa/ci-scope/decision.json --github-output "$GITHUB_OUTPUT"
       - name: Make retained audit commit available without rewriting evidence
         run: |
           python3 - <<'PYBASELINE'
@@ -52,67 +52,24 @@ jobs:
           PYBASELINE
       - name: Source-index and governance integrity
         run: python3 scripts/audit/check-project-governance.py --output var/qa/ci-scope/governance.json
-      - name: Check committed diff formatting
-        run: |
-          python3 - <<'PY'
-          import json
-          import subprocess
-          from pathlib import Path
-          decision = json.loads(Path('var/qa/ci-scope/decision.json').read_text())
-          base, head = decision['baseSha'], decision['headSha']
-          available = base and subprocess.run(['git', 'cat-file', '-e', base+'^{commit}'],
-                                              stderr=subprocess.DEVNULL).returncode == 0
-          command = ['git', 'diff', '--check', base, head] if available else ['git', 'show', '--format=', '--check', head]
-          subprocess.run(command, check=True)
-          PY
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: verification-scope
           path: var/qa/ci-scope/
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 30 }}
-
-  scoped_rules:
-    needs: scope
-    if: ${{ needs.scope.result == 'success' && (needs.scope.outputs.tier == 'L1' || needs.scope.outputs.tier == 'L2') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 2
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          dotnet-version: |
-            8.0.x
-            10.0.x
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: verification-scope
-          path: var/qa/fixed-scope
-      - name: Reproduce Git scope and execute focused or integration checks
-        run: python3 scripts/run-scoped-ci.py --decision var/qa/fixed-scope/decision.json --output var/qa/ci-scoped
-      - name: State bounded execution
-        if: always()
-        run: echo 'Scoped backend verification. Complete rule matrix was NOT executed; SQL/network jobs retain their own required outcomes.' >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: scoped-conformance-results
-          path: var/qa/ci-scoped/
-          retention-days: 7
+          retention-days: 90
 
   rule_suite:
     needs: scope
-    # A failed or missing selector still executes the complete fixed inputs.
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    # All nightly jobs use the one main SHA selected by scope.
+    if: ${{ needs.scope.result == 'success' }}
     runs-on: ubuntu-latest
     # Each independent full job has its own six-hour budget. Run the rule
     # suite and real SQL/network in the first wave; never remove test inputs.
     timeout-minutes: 360
     concurrency:
-      group: rule-suite-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      group: rule-suite-${{ github.ref }}-${{ needs.scope.outputs.commit }}
+      cancel-in-progress: false
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -126,9 +83,14 @@ jobs:
           --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
           --health-interval 5s --health-timeout 5s --health-retries 12
     env:
+      RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
       ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -149,12 +111,12 @@ jobs:
           path: |
             var/qa/ci-rules/
             var/qa/ci-rule-suite-commit.txt
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
 
   postgres_partitions:
     needs: scope
-    # A failed or missing selector still executes the complete fixed inputs.
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.sql != 'false') }}
+    # All nightly jobs use the one main SHA selected by scope.
+    if: ${{ needs.scope.result == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -164,8 +126,8 @@ jobs:
     # suite and real SQL/network in the first wave; never remove test inputs.
     timeout-minutes: 360
     concurrency:
-      group: postgres-${{ github.ref }}-${{ github.sha }}-${{ matrix.partition }}
-      cancel-in-progress: true
+      group: postgres-${{ github.ref }}-${{ needs.scope.outputs.commit }}-${{ matrix.partition }}
+      cancel-in-progress: false
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -179,9 +141,14 @@ jobs:
           --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
           --health-interval 5s --health-timeout 5s --health-retries 12
     env:
+      RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
       ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -202,18 +169,22 @@ jobs:
           path: |
             var/qa/ci-postgres/
             var/qa/ci-postgres-partition-commit.txt
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
 
   native_network:
     needs: scope
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.network != 'false') }}
+    if: ${{ needs.scope.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     concurrency:
-      group: native-network-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      group: native-network-${{ github.ref }}-${{ needs.scope.outputs.commit }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
@@ -245,61 +216,73 @@ jobs:
         with:
           name: native-network-results
           path: var/qa/ci-native-network/
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
 
   postgres:
-    needs: [scope, postgres_partitions, native_network]
-    if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.sql != 'false') }}
+    needs: [scope, postgres_partitions, native_network, related_network]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
-      group: postgres-gate-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      group: postgres-gate-${{ github.ref }}-${{ needs.scope.outputs.commit }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           pattern: postgres-partition-*
           merge-multiple: false
           path: var/qa/ci-sql-inputs
-      - name: Require every fixed SQL case and native network result
+      - name: Require every fixed SQL case, SignalR and process restart result
         env:
+          RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
           RIFTBOUND_SCOPE_RESULT: ${{ needs.scope.result }}
           RIFTBOUND_POSTGRES_PARTITIONS_RESULT: ${{ needs.postgres_partitions.result }}
           RIFTBOUND_NATIVE_NETWORK_RESULT: ${{ needs.native_network.result }}
+          RIFTBOUND_RELATED_NETWORK_RESULT: ${{ needs.related_network.result }}
         run: >-
-          python3 scripts/sql-ci-gate.py --commit "$GITHUB_SHA"
+          python3 scripts/sql-ci-gate.py --commit "$RIFTBOUND_FIXED_COMMIT"
           --manifest tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json
           --inputs var/qa/ci-sql-inputs --scope "$RIFTBOUND_SCOPE_RESULT"
           --postgres-partitions "$RIFTBOUND_POSTGRES_PARTITIONS_RESULT"
           --native-network "$RIFTBOUND_NATIVE_NETWORK_RESULT"
+          --related-network "$RIFTBOUND_RELATED_NETWORK_RESULT"
           --output var/qa/ci-sql-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: postgres-results
           path: var/qa/ci-sql-gate/
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
 
   rules:
     needs: [scope, rule_suite, postgres]
     # Keep the existing required check. Failed/cancelled/skipped full children
     # must reach this gate and fail; a skipped child must never appear green.
-    if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
-      group: rules-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
+      group: rules-${{ github.ref }}-${{ needs.scope.outputs.commit }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - name: Require every fixed full child job
         env:
+          RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
           RIFTBOUND_SCOPE_RESULT: ${{ needs.scope.result }}
           RIFTBOUND_RULE_SUITE_RESULT: ${{ needs.rule_suite.result }}
           RIFTBOUND_POSTGRES_RESULT: ${{ needs.postgres.result }}
         run: >-
-          python3 scripts/full-ci-gate.py --commit "$GITHUB_SHA"
+          python3 scripts/full-ci-gate.py --commit "$RIFTBOUND_FIXED_COMMIT"
           --scope "$RIFTBOUND_SCOPE_RESULT" --rule-suite "$RIFTBOUND_RULE_SUITE_RESULT"
           --postgres "$RIFTBOUND_POSTGRES_RESULT" --output var/qa/ci-full-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -307,44 +290,73 @@ jobs:
         with:
           name: full-verification-gate
           path: var/qa/ci-full-gate/
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
+
+  related_network:
+    name: SQL SignalR process restart
+    needs: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+      PGPASSWORD: riftbound_ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Real PostgreSQL and two-player SignalR with actual API process restart
+        run: python3 scripts/run-process-restart-ci.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/ci-process-restart
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: process-restart-results
+          path: var/qa/ci-process-restart/
+          retention-days: 90
 
   desktop:
     needs: scope
-    # Materialize the matrix even for docs, keeping both existing check names.
-    if: ${{ always() && !cancelled() }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
-    # Documentation checks need no native runner or packaging tool downloads.
-    runs-on: ${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' && 'ubuntu-latest' || matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 40
-    concurrency:
-      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}-${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' && github.run_id || 'full' }}
-      cancel-in-progress: true
     steps:
-      - name: Selected scope; packaging not executed
-        if: ${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' }}
-        run: echo 'Scoped verification. Desktop packaging was not executed. See verification-scope.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
         with:
           dotnet-version: |
             8.0.x
             10.0.x
       - run: python3 clients/godot/tools/ci-desktop.py
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
         shell: bash
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false') }}
+        if: always()
         with:
           name: native-${{ matrix.os }}
           path: |
             clients/godot/exports/ci-logs/
             clients/godot/exports/macos/Riftbound.zip
             clients/godot/exports/windows/Riftbound-windows-x64.zip
-          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
+          retention-days: 90
           compression-level: 0

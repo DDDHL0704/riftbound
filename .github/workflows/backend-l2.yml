@@ -1,0 +1,151 @@
+name: Backend L2
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l2-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - name: Verify exact checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-quality/checkout.json
+      - name: L2 verification and rule-runner safeguards
+        run: |
+          python3 -m unittest discover -s scripts/tests -p 'test_l2*.py' -v
+          python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
+          python3 -m unittest discover -s scripts/tests -p test_project_governance.py -v
+          python3 -m unittest discover -s scripts/tests -p test_current_audit.py -v
+      - name: Make retained audit commit available without rewriting evidence
+        run: |
+          python3 - <<'PYBASELINE'
+          import json, re, subprocess
+          from pathlib import Path
+          path = Path('docs/audit/legacy-source-baseline.json')
+          if path.exists():
+              commit = json.loads(path.read_text())['commit']
+              assert re.fullmatch(r'[0-9a-f]{40}', commit)
+              if subprocess.run(['git', 'cat-file', '-e', commit+'^{commit}'], stderr=subprocess.DEVNULL).returncode:
+                  subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', commit], check=True, timeout=120)
+          PYBASELINE
+      - name: Source-index and governance integrity
+        run: python3 scripts/audit/check-project-governance.py --output var/qa/l2-quality/governance.json
+      - name: Check committed formatting
+        run: git show --format= --check "$GITHUB_SHA"
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Compile production API
+        run: dotnet build src/Riftbound.Api -m:1 --nologo -v:q
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-quality
+          path: var/qa/l2-quality/
+          retention-days: 14
+
+  targeted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Verify exact checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
+      - name: Targeted and adjacent rule assertions
+        env:
+          RIFTBOUND_L2_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --base "$RIFTBOUND_L2_BASE" --output var/qa/l2-targeted/tests
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-targeted
+          path: var/qa/l2-targeted/
+          retention-days: 14
+
+  rule_suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Verify exact checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-rule-suite/checkout.json
+      - name: Every ordinary rule method and both original complete-game smokes
+        run: python3 scripts/test-rules.py check --jobs 2 --output var/qa/l2-rule-suite/tests
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-rule-suite
+          path: var/qa/l2-rule-suite/
+          retention-days: 14
+
+  l2_required:
+    name: L2 required
+    needs: [quality, targeted, rule_suite]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-targeted
+          path: var/qa/l2-inputs/targeted
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-rule-suite
+          path: var/qa/l2-inputs/rule_suite
+      - name: Require successful children and actual fixed-input TRX coverage
+        env:
+          RIFTBOUND_QUALITY: ${{ needs.quality.result }}
+          RIFTBOUND_TARGETED: ${{ needs.targeted.result }}
+          RIFTBOUND_RULE_SUITE: ${{ needs.rule_suite.result }}
+        run: >-
+          python3 scripts/l2-ci-gate.py --commit "$GITHUB_SHA"
+          --quality "$RIFTBOUND_QUALITY" --targeted "$RIFTBOUND_TARGETED"
+          --rule-suite "$RIFTBOUND_RULE_SUITE" --inputs var/qa/l2-inputs
+          --output var/qa/l2-gate/result.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-required-result
+          path: var/qa/l2-gate/
+          retention-days: 30
