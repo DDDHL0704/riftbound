@@ -180,6 +180,27 @@ public sealed class Ven008OptionalDiscardConsumerTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
+    public async Task VoluntaryBlueAcquisitionKeepsThePrintedManaAndActualDiscardPayment(bool discard)
+    {
+        var initial = VoluntaryPaymentResourceChoicesTests.WithRune(Position(), RuneTrait.Blue);
+        var command = Cast(discard) with { OptionalCosts = discard
+            ? ["DISCARD_HAND_CARD:FODDER", "RECYCLE_RUNE:EXTRA-RUNE"] : ["RECYCLE_RUNE:EXTRA-RUNE"] };
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana);
+        Assert.Equal(0, quote.Cost.GenericPower); Assert.Empty(quote.Cost.PowerByTrait);
+        var driver = new Driver(initial); await driver.Act("P1", command);
+        Assert.Equal(initial.RunePools["P1"].Mana - 3, driver.State.RunePools["P1"].Mana);
+        Assert.Equal(initial.RunePools["P1"].TotalPower + 1, driver.State.RunePools["P1"].TotalPower);
+        Assert.Equal(1, driver.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Contains("EXTRA-RUNE", driver.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(discard, driver.State.PlayerZones["P1"].Graveyard.Contains("FODDER"));
+        Assert.Equal(!discard, driver.State.PlayerZones["P1"].Hand.Contains("FODDER"));
+        await driver.Top(); Assert.Equal(discard ? 5 : 3, Damage(driver));
+        await Export("voluntary-blue-keeps-discard-" + discard, initial, driver);
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
     public async Task TheOpponentsRealMovementDuelAllowsEitherPrintedPaymentBranch(bool discard)
     {
         var initial = Position() with { ActivePlayerId = "P2", TurnPlayerId = "P2" };
