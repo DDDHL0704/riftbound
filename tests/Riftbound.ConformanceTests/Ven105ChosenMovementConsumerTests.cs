@@ -138,6 +138,7 @@ public sealed class Ven105ChosenMovementConsumerTests
     {
         var initial = Position(); var run = new Driver(initial);
         await run.Act("P1", new PlayCardCommand("SPELL", No, ["ALLY"], Destination: "BATTLEFIELD:BF")); await run.Top();
+        await CloseUnopposedBattlefieldWindow(run);
         Assert.Contains("SPELL", run.State.PlayerZones["P1"].Graveyard);
         await run.Act("P1", new PlayCardCommand("SPELL", No, ["ALLY"], Destination: "BASE:P1")); await run.Top();
         Assert.Equal("BASE", run.State.ObjectLocations["ALLY"].Zone); Assert.Equal(24, run.State.RunePools["P1"].Mana);
@@ -157,6 +158,7 @@ public sealed class Ven105ChosenMovementConsumerTests
         raw["promptId"] = ResolutionResult.BuildPrompts(initial)["P1"].PromptId; raw["snapshotTick"] = initial.Tick;
         var retained = JsonSerializer.SerializeToElement(raw, Json); var run = new Driver(initial);
         await run.Act("P1", new PlayCardCommand("SPELL", No, ["ALLY"], Destination: "BATTLEFIELD:BF")); await run.Top();
+        await CloseUnopposedBattlefieldWindow(run);
         var fresh = new CoreRuleEngine().PreviewPlayCard(run.State, "P1", PlayCostPreviewTests.Request(run.State, command));
         Assert.True(fresh.CanPay, fresh.Message);
         var before = MatchStateHasher.Hash(run.State);
@@ -351,6 +353,15 @@ public sealed class Ven105ChosenMovementConsumerTests
         var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
         raw["promptId"] = ResolutionResult.BuildPrompts(run.State)[player].PromptId; raw["snapshotTick"] = run.State.Tick;
         await run.ActRetained(new(player, "ven105-reject-" + run.Commands().Length, JsonSerializer.SerializeToElement(raw, Json)), false);
+    }
+    private static async Task CloseUnopposedBattlefieldWindow(Driver run)
+    {
+        Assert.Equal(TimingStates.SpellDuelOpen, run.State.TimingState);
+        Assert.Empty(run.State.StackItems);
+        Assert.False(run.State.BattleState.IsActive);
+        await run.Act(run.State.FocusPlayerId!, new PassFocusCommand());
+        await run.Act(run.State.FocusPlayerId!, new PassFocusCommand());
+        Assert.Equal(TimingStates.NeutralOpen, run.State.TimingState);
     }
     private static MatchRecoveryFrame Frame(MatchState initial, Driver run, MatchState? state = null)
     {
