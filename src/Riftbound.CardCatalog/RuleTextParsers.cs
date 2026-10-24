@@ -2668,6 +2668,20 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (Regex.IsMatch(
+                    segment,
+                    @"^如果你的废牌堆中有一张和我同名的卡牌，则我以活跃状态进场。?$",
+                    RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for a known same-name card in the controller graveyard.",
+                    RequiresSameNameCardInControllerGraveyard: true));
+                continue;
+            }
+
             var sourceUnitMaxHandEnterReadyMatch = Regex.Match(
                 segment,
                 @"如果你的手牌不超过(?<max>[0-9一两二三四五六七八九十]+)张，则我以活跃状态进场。?$",

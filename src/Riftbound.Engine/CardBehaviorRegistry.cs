@@ -482,6 +482,8 @@ public static class CardBehaviorRegistry
         new("VEN·103", "往日阴影", 3, "VEN_103_RETURN_GRAVEYARD_UNITS_TO_OWNERS_HANDS", 0, 2,
             TargetScope: CardTargetScopes.AnyGraveyardCard, MinTargetCount: 0,
             TargetRequiredTag: CardObjectTags.UnitCard, ReturnsGraveyardTargetToHand: true),
+        new("VEN·013", "暗影刺客", 5, "VEN_013_SAME_NAME_GRAVEYARD_READY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_RETURN_FRIENDLY_UNIT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             Mode: "RETURN_FRIENDLY_UNIT", ReturnsTargetToHand: true, CanPlayDuringPriority: true),

@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1059,
+  "total": 1060,
   "cards": [
     {
       "id": 31005,
@@ -44096,6 +44096,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37698,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·013",
+      "cardName": "暗影刺客",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "JiHun Lee",
+      "cardEffect": "如果你的废牌堆中有一张和我同名的卡牌，则我以活跃状态进场。",
+      "flavorText": "当太阳升起，没有人会记得她曾来过。",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/790d0cf8de4843d991fdb2a777ce4918.png",
+      "backImage": "",
+      "listSort": 1988,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44905,6 +44953,20 @@
       "printedFaceIdentity": "VEN·103/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-103/166",
       "reason": "Exact CN any-graveyard unit return consumer under semantic development; registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·013",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T23:56:14.005079+00:00",
+      "sourceId": 37698,
+      "sourceRecordSha256": "0843eac06a158f4949b579b3eecee13b6e0f89e1927f5c264c04a5c2cbcb99d4",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·013/166 SC",
+      "reason": "Exact CN same-name graveyard active-entry consumer under semantic development; registration is not whole-card certification."
     }
   ]
 }
