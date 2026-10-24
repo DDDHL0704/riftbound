@@ -153,8 +153,8 @@ public static partial class MatchRecoveryValidator
                     || card.UntilEndOfTurnEffects.Count(t => t == keyword) != 1 || !pairedKeywords.Add(keyword))
                     errors.Add("invalid battle keyword grant pair");
             }
-            foreach (var p in card.UntilEndOfTurnPowerModifiers)
-                if ((p.Duration == "UNTIL_END_OF_BATTLE" || p.EffectId.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal)
+            foreach (var p in card.UntilEndOfTurnPowerModifiers ?? [])
+                if (p is not null && (p.Duration == "UNTIL_END_OF_BATTLE" || p.EffectId?.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal) == true
                     || p.EffectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND") && !pairedPowers.Contains(p.EffectId))
                     errors.Add("unpaired battle power ledger");
         }
