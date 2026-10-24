@@ -83,9 +83,6 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         var runes = EmpowerRules.ControlledRunes(state, intent.PlayerId); var mana = EmpowerRules.Mana(ability.Spec, ability.Cost, runes);
         var cost = ability.Cost; var totalPower = cost.Power + cost.TypedPower.Values.Sum();
-        var pool = state.RunePools.TryGetValue(intent.PlayerId, out var currentPool) ? currentPool : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(pool, state.CardObjects, recycled, cost.Power, cost.TypedPower))
-            return RejectWithCorePrompts(state, "该强化技能不需要这些回收符文支付动作。", ErrorCodes.InvalidTarget);
         var plan = new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId,
             source.ObjectId, ability.Id), "ACTIVATE_ABILITY", intent.PlayerId, cost.Mana, mana, cost.Power, totalPower, cost.TypedPower,
             paymentResourceActionIds: resources, reason: EmpowerRules.Effect, sourceObjectId: source.ObjectId, abilityId: ability.Id);
