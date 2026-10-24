@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1043,
+  "total": 1045,
   "cards": [
     {
       "id": 31005,
@@ -43328,6 +43328,102 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37733,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·043",
+      "cardName": "钢爪",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "皮尔特沃夫",
+      "tag": "猫科",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{强化7}}（支付{{7}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+7。",
+      "flavorText": "老鼠越变越大，小猫也要想办法。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/df893a9f16fd4c68b4f28ecbb2d64f67.png",
+      "backImage": "",
+      "listSort": 1953,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37800,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·103",
+      "cardName": "往日阴影",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "让最多两名单位从任意废牌堆返回其所属的手牌。",
+      "flavorText": "“没有人可以逃离他们的影子。”\n——劫",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/bc80d4b1b46c4500849062000b163838.png",
+      "backImage": "",
+      "listSort": 1886,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43898,6 +43994,36 @@
       "printedFaceIdentity": "VEN·008/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-008/166",
       "reason": "Exact CN optional discard consumer under semantic development; registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·043",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:42:55.415532+00:00",
+      "sourceId": 37733,
+      "sourceRecordSha256": "a08a650c6fe94935d625247ac20f1542e53f3488a5be4abe1826090684ca7fe6",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·043/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-043/166",
+      "reason": "Exact source/basic-unit prerequisite for original inactive graveyard Ward assertion; source metadata and registration are not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·103",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:42:55.415532+00:00",
+      "sourceId": 37800,
+      "sourceRecordSha256": "a497ccb0fc73058fe1693f47f9aaceaf0dd272d329d2528144bed236183c6d39",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·103/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-103/166",
+      "reason": "Exact CN any-graveyard return consumer under semantic development; registration is not whole-card certification."
     }
   ]
 }
