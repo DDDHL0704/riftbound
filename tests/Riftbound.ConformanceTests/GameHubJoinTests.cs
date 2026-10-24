@@ -8966,7 +8966,28 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-participant", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = EventsFor(battleClients).ToList();
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        foreach (var (player, assignments) in new (string, CombatDamageAssignmentDto[])[] {
+            ("P1", [new("P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", 4),
+                new("P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", 2),
+                new("P1-BATTLE-MULTI-PARTICIPANT-YI", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", 3)]),
+            ("P2", [new("P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", 4),
+                new("P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", 2),
+                new("P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", "P1-BATTLE-MULTI-PARTICIPANT-YI", 1)]) }) {
+            var assignmentPrompt = session.PromptFor(player);
+            Assert.Contains(CommandTypes.AssignCombatDamage, assignmentPrompt.Actions);
+            var assignmentMetadata = JsonSerializer.SerializeToElement(assignmentPrompt.View!.Metadata);
+            battleClients = new RecordingHubClients();
+            await CreateHub(battleClients, new RecordingGroupManager(), player == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: player)
+                .SubmitIntent(roomId, player, "p7-9-multi-assign-" + player, JsonSerializer.SerializeToElement(new {
+                    cmdType = "ASSIGN_COMBAT_DAMAGE", battleId = assignmentMetadata.GetProperty("battleId").GetString(),
+                    battlefieldId = "BATTLEFIELD:P1-MAIN", assignments,
+                    promptId = assignmentPrompt.PromptId, snapshotTick = assignmentPrompt.SnapshotTick },
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            Assert.Empty(battleClients.CallerClient.Errors); battleEvents.AddRange(EventsFor(battleClients));
+        }
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-GAREN", StringComparison.Ordinal)

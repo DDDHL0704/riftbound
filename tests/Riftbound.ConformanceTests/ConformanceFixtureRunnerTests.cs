@@ -58123,7 +58123,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
         var noResultEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
-        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", noResultEvent.Payload["reason"]);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", noResultEvent.Payload["reason"]);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
         var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
@@ -59016,6 +59016,9 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER", 5), new("P1-BATTLEFIELD-YI", "P2-BATTLEFIELD-DEFENDER", 2)],
+            [new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-GAREN", 5), new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-YI", 1)]);
+
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         var battleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
@@ -59045,7 +59048,7 @@ public sealed class ConformanceFixtureRunnerTests
             && Equals(gameEvent.Payload["damage"], 1));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
@@ -59221,6 +59224,11 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-BULWARK", 4), new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER", 2),
+                new("P1-BATTLEFIELD-YI", "P2-BATTLEFIELD-DEFENDER", 3)],
+            [new("P2-BATTLEFIELD-BULWARK", "P1-BATTLEFIELD-GAREN", 4), new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-GAREN", 2),
+                new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-YI", 1)]);
+
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         var battleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
@@ -59278,7 +59286,7 @@ public sealed class ConformanceFixtureRunnerTests
             && Equals(gameEvent.Payload["damage"], 1));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
