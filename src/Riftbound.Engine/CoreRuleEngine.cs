@@ -161,7 +161,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var completed = CollectResolutionEffects(state, result);
             // Each stage's newly produced events are collected once before the
             // next stage can run. A resulting chain/choice suspends settlement.
-            for (var stage = 0; stage < 2; stage++)
+            for (var stage = 0; stage < 3; stage++)
             {
                 var advanced = AdvanceBattleResultContinuation(completed with { Events = [] });
                 if (ReferenceEquals(advanced.State, completed.State)) break;
