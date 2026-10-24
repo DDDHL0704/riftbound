@@ -2925,7 +2925,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
         Assert.Contains(CommandTypes.PlayCard, prompt.EnabledActions());
-        var staleRawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
+        var missingTargetsRawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
+        var malformed = await session.SubmitAsync("P1", "intent-punishment-stale-missing-targets", command,
+            missingTargetsRawCommand, CancellationToken.None);
+        Assert.False(malformed.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, malformed.ErrorCode);
+        Assert.Same(state, malformed.State);
+        Assert.Empty(malformed.Events);
+        Assert.Empty(journal.Entries);
+        var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         const string acceptedClientIntentId = "intent-punishment-play-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-punishment-play-stale-prompt-replay";
 
@@ -3105,7 +3113,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(prompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
         Assert.Contains(CommandTypes.PlayCard, prompt.EnabledActions());
-        var rawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
+        var missingTargetsRawCommand = PromptScopedRawCommand(CommandTypes.PlayCard, prompt);
+        var malformed = await session.SubmitAsync("P1", "intent-punishment-idempotency-missing-targets", command,
+            missingTargetsRawCommand, CancellationToken.None);
+        Assert.False(malformed.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, malformed.ErrorCode);
+        Assert.Same(state, malformed.State);
+        Assert.Empty(malformed.Events);
+        Assert.Empty(journal.Entries);
+        var rawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         const string clientIntentId = "intent-punishment-play-raw-idempotency";
 
         var accepted = await session.SubmitAsync(
@@ -21285,7 +21301,8 @@ public sealed class ConformanceFixtureRunnerTests
             .ToArray();
 
         Assert.Equal(0, sourceRequirement["minTargetCount"]);
-        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        // The paid entry trigger chooses a target after the permanent enters (Core Rule 359.2).
+        Assert.Equal(0, sourceRequirement["maxTargetCount"]);
         Assert.Contains(optionalCostChoices, choice =>
             string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal)
             && string.Equals(choice.Label, "额外支付 1 法力，需同时支付 1 红色符能", StringComparison.Ordinal));
@@ -21366,7 +21383,8 @@ public sealed class ConformanceFixtureRunnerTests
             sourceRequirement["optionalCostChoices"]);
 
         Assert.Equal(0, sourceRequirement["minTargetCount"]);
-        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        // The paid entry trigger chooses a target after the permanent enters (Core Rule 359.2).
+        Assert.Equal(0, sourceRequirement["maxTargetCount"]);
         var optionalPowerModifierCost = Assert.Single(
             optionalCostChoices,
             choice => string.Equals(choice.Id, "SPEND_POWER:blue:1", StringComparison.Ordinal));
@@ -61668,6 +61686,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             """{"type":11,"roomId":"room","playerId":"P1","serverTick":7,"payload":{"code":"UNSUPPORTED_COMMAND","message":"sample"},"protocolVersion":1,"schemaVersion":1}""",
             json);
+    }
+
+    private static JsonElement PromptScopedPlayCardRawCommand(PlayCardCommand command, ActionPromptDto prompt)
+    {
+        var raw = JsonSerializer.SerializeToNode(command, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+        raw["promptId"] = prompt.PromptId;
+        raw["snapshotTick"] = prompt.SnapshotTick;
+        return JsonSerializer.SerializeToElement(raw);
     }
 
     private static JsonElement PromptScopedRawCommand(string cmdType, ActionPromptDto prompt)
