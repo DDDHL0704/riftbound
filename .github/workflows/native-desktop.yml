@@ -296,7 +296,7 @@ jobs:
     name: SQL SignalR process restart
     needs: scope
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     services:
       postgres:
         image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
@@ -329,6 +329,15 @@ jobs:
         with:
           name: process-restart-results
           path: var/qa/ci-process-restart/
+          retention-days: 90
+      - name: Declared payment SQL and authenticated reconnect stages
+        if: ${{ !cancelled() }}
+        run: python3 scripts/run-payment-reconnect-ci.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/ci-payment-reconnect
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: payment-reconnect-results
+          path: var/qa/ci-payment-reconnect/
           retention-days: 90
 
   desktop:
