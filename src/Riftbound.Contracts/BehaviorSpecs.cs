@@ -348,7 +348,6 @@ public static class TriggerZones
 public static class TriggerCardFilters
 {
     public const string TagPrefix = "TAG:";
-    public const string CurrentKeywordPrefix = "CURRENT_KEYWORD:";
 }
 
 public static class StaticAbilityKinds
@@ -481,6 +480,7 @@ public static class StaticAuraTargetFilters
     public const string Token = "TOKEN";
     public const string UnitToken = "UNIT_TOKEN";
     public const string TagPrefix = "TAG:";
+    public const string CurrentKeywordPrefix = "CURRENT_KEYWORD:";
 }
 
 public sealed record BehaviorSpec(
