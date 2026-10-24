@@ -22630,24 +22630,30 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(
-            normalizedOptionalCosts,
-            behavior,
-            out var hasteExtraManaCost,
-            out var hasteExtraPowerCost,
-            out var hasteExtraPowerTrait))
+        // Haste is one independent optional additional cost (CN 356.2/805.1).
+        // An outside-hand grant does not replace the unit's printed options.
+        var hasteCosts = normalizedOptionalCosts.Where(CardPermissionKeywordRules.IsHasteReadyCostChoice).ToArray();
+        if (hasteCosts.Length > 0)
         {
-            extraManaCost = hasteExtraManaCost;
+            if (!CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(hasteCosts, behavior,
+                    out var hasteExtraManaCost, out var hasteExtraPowerCost, out var hasteExtraPowerTrait)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !CardPermissionKeywordRules.IsHasteReadyCostChoice(cost)).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts, behavior, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            extraManaCost += hasteExtraManaCost;
             if (string.IsNullOrWhiteSpace(hasteExtraPowerTrait))
             {
-                extraPowerCost = hasteExtraPowerCost;
+                extraPowerCost += hasteExtraPowerCost;
             }
             else
             {
-                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                extraPowerCostByTrait = PrintedPowerCostRules.Combine(extraPowerCostByTrait, new Dictionary<string, int>(StringComparer.Ordinal)
                 {
                     [hasteExtraPowerTrait] = hasteExtraPowerCost
-                };
+                });
             }
 
             return true;

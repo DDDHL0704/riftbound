@@ -14,6 +14,11 @@ public sealed partial class CoreRuleEngine
             || !state.PlayerZones.TryGetValue(player, out var zones) || zones.Hand.Contains(source, StringComparer.Ordinal)
             || !HasOutsideHandHasteGrant(state, player)) return behavior;
 
+        return WithGrantedHasteCost(behavior);
+    }
+
+    private static CardBehaviorDefinition WithGrantedHasteCost(CardBehaviorDefinition behavior)
+    {
         var traits = PrintedPowerCostRules.ForCard(behavior.CardNo).Traits;
         return behavior with {
             SourceUnitTags = string.Join('|', ParseDelimitedValues(behavior.SourceUnitTags)

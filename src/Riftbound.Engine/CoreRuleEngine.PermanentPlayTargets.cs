@@ -101,7 +101,7 @@ public sealed partial class CoreRuleEngine
             && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) && behavior.CardNo == item.CardNo
             && HasIndependentPermanentTargets(StandbyDefinition(behavior, item.PlayedFromStandby))
             && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)
-                && TryBuildTargetEffectAdditionalCost(item.OptionalCosts, behavior, out _, out _))
+                && TryBuildConfirmedPermanentTargetAdditionalCost(item, behavior, out _, out _))
             && state.PriorityPlayerId is null
             && (state.PendingCardChoice is not null || state.PendingPayment is not null || state.TriggerQueue.Count > 0)
             && (item.TargetGenerations is null || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment
