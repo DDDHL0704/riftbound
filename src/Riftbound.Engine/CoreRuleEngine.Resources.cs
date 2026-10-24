@@ -4,6 +4,42 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static bool CanStartMalzaharResourceCost(MatchState state, string player, string sourceId, string targetId)
+    {
+        var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        if (!pool.HasSupportedAmounts) return false;
+        if ((long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
+
+        // The destruction cost may pause before the gain. A replacement can
+        // spend power, or its resource window can convert power first. Read the
+        // same options without applying them or borrowing the active frame.
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        cards[sourceId] = cards[sourceId] with { IsExhausted = true };
+        var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var cause = new StackItemState($"cost-{state.Tick + 1}-{sourceId}", player, sourceId,
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind, cards[sourceId].CardNo, [targetId]);
+        var options = DestructionOptions(state, zones, cards, pools, targetId, player, cause, null,
+            state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
+        // A gear replacement may cause a nested destruction and decision. This
+        // read-only check cannot prove that route impossible, so retain it.
+        if (options.Any(o => o.Kind is "GEAR" or "ATTACHED_GEAR")) return true;
+
+        // Choosing a replacement is not itself free capacity. Sett can spend
+        // one existing power; a recycled-rune payment has no net power debit.
+        long released = options.Any(o => o.Kind == "SETT" && !o.Payment.StartsWith("RUNE:", StringComparison.Ordinal)) ? 1 : 0;
+        if (optionalAvailable
+            && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player)
+                .Any(action => action.Ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
+        {
+            // Existing resource windows only exchange power/mana or add
+            // resources. Conversion can release at most the joint mana room;
+            // a legal zero conversion releases nothing.
+            released += Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+        }
+        return (long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
+    }
+
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,
         ActivateAbilityCommand command, P4ActivatedAbilityDefinition ability)
     {
@@ -23,6 +59,8 @@ public sealed partial class CoreRuleEngine
             || !source.Tags.Contains(CardObjectTags.UnitCard)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo))
             return RejectWithCorePrompts(state, "技能来源或摧毁费用不合法。", ErrorCodes.InvalidTarget);
+        if (!CanStartMalzaharResourceCost(state, intent.PlayerId, command.SourceObjectId, costId))
+            return RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
 
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
