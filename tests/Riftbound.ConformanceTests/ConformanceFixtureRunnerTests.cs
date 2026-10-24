@@ -58098,6 +58098,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -58135,7 +58136,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", recalledEvent.Payload["reason"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].Damage);
@@ -58144,9 +58145,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
         Assert.Empty(result.State.StackItems);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P2", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal("NO_RESULT", battleResolution.Kind);
-        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", battleResolution.Reason);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", battleResolution.Reason);
         Assert.Contains("DAMAGE_REMOVED", battleResolution.RelatedEventKinds);
         Assert.Contains("UNIT_RECALLED_TO_BASE", battleResolution.RelatedEventKinds);
         var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
@@ -59001,6 +59004,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-036/219")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -59042,7 +59046,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
         Assert.Equal(1, result.State.Tick);
-        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -59051,6 +59055,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
         Assert.Equal("CLOSED", battleResolution.Kind);
@@ -59203,6 +59209,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-036/219")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -59272,7 +59279,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
         Assert.Equal(1, result.State.Tick);
-        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -59282,6 +59289,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
         Assert.Equal("CLOSED", battleResolution.Kind);

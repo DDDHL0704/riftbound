@@ -8986,7 +8986,9 @@ public sealed partial class GameHubJoinTests
         var battleSnapshot = SnapshotFor(battleClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
-        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Contains("BATTLEFIELD:P1-MAIN", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"])
+            .Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-GAREN"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
         var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);

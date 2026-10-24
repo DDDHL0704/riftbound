@@ -22074,7 +22074,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildBattleMultiParticipantScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303076,
@@ -22087,7 +22087,7 @@ public sealed partial class MatchSession : IMatchSession
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 [seed.P1] = Zones(
-                    battlefields: ["P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
+                    battlefields: ["BATTLEFIELD:P1-MAIN", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -22097,6 +22097,8 @@ public sealed partial class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BATTLEFIELD:P1-MAIN"] = new("BATTLEFIELD:P1-MAIN", cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P1, controllerId: seed.P2),
                 ["P1-BATTLE-MULTI-PARTICIPANT-GAREN"] = new(
                     "P1-BATTLE-MULTI-PARTICIPANT-GAREN",
                     cardNo: "OGS·007/024",
@@ -22126,6 +22128,14 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with {
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["BATTLEFIELD:P1-MAIN"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P1-BATTLE-MULTI-PARTICIPANT-GAREN"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P1-BATTLE-MULTI-PARTICIPANT-YI"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK"] = new(seed.P2, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN") },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BATTLEFIELD:P1-MAIN")] };
     }
 
     private static MatchState BuildBattleNoResultScenario(MatchState current, DevScenarioSeed seed)
