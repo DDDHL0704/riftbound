@@ -1,0 +1,13 @@
+# S3 剩余符能篡改验收修复 · 2026-10-24
+- Refs #106；base #161 / `0681ba9dd3591912756dec05a19a9d274841ec0e`；实现 `bee0e2992974dcba0b530aa672c04b2ea4355b8c`，仅S3验收叶和新guard，不改生产恢复。
+- 原叶只改权威状态，却要求原日志层拒绝；当前原生结构负控实际有4条total/typed视图错误、不含action-log audit，证明旧断言层次错误，不代表篡改获准。
+- 保留单行结构负控，再协调权威+双snapshot+双prompt共5行；分别要求结构拒绝与形状通过后完整原日志final-state hash拒绝。
+- 每次新registry，严格code/layer/hash和不缓存；finally先落实际诊断，再按捕获id/payload精确还原，本房7表及他房认证行完整不变。
+- 同registry恢复原双方Web视图并复验原日志；保留原真实restart后的外层VerifyNetworkAsync检查，不伪造重启检查点。
+- 原73d65208两Fact/断言保留，仅新投影复制实际ErrorCode；另4例覆盖两拒绝层、额外蓝与同总额换色，恢复后原接受/拒绝缓存保真且不再扣费。
+- 同固定DLL6/6新守卫＋216/216共享重连/S4/费用/恢复相邻＝222/222，无重叠、零skip；每个新场景保留10命令32事件原前缀及9接受/1拒绝。
+- PostgreSQL入口编译成功，未执行数据库；PDB核233个Engine源与父相同、原578个测试程序集源文档与原572个Conformance C#不变，新SQL叶编译校验和吻合提交。
+- 原件在本线 `var/qa/payment-prs-20261024/s3-surplus-tamper-106/`，入口 `fixed-source-runtime-proof-v8.json` SHA `bc4b32c03f0ac1db30e0cc848e3281e435fb26a4351e70d4dc6d2a99ea10450b`，含TRX、实际加载身份、原/伪造帧、代码/PDB保留证明与编译日志。
+- 最新main已合#120；本包不改CI，需①同步当前main启用L2，并把实际S3 selector接到固定候选夜间调用链，通用restart烟测不替代本叶。
+- 原A3 Linux失败/ZIP、旧Mac最小PG原件按issue106原身份保留；本轮无新SQL/Hub/双玩家/实际API重启/check/full，不追标历史通过。
+- 实际L2 rules-suite/main与夜间固定候选L3待①；issue保持OPEN、净整卡认证增量0，后端Goal继续。
