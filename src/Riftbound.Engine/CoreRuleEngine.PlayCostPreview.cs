@@ -36,7 +36,16 @@ public sealed partial class CoreRuleEngine
         }
         if (EffectPlayIgnoresAllCosts(state, playerId))
             Adjust("效果忽略一切费用", -plan.Behavior.ManaCost, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
-        else if (state.PendingEffectPlay is { } effect && effect.IgnoreBaseMana) Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+        else if (plan.Behavior.StandbyPlayFrom is not null)
+            Adjust("待命忽略基础费用", -plan.Behavior.ManaCost, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
+        else
+        {
+            if (state.PendingEffectPlay is { IgnoreBaseMana: true } effect && effect.PlayerId == playerId)
+                Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+            if (plan.Behavior.IgnorePrintedPowerCost)
+                Adjust("效果忽略基础符能", 0, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
+        }
+        Adjust("效果替代基础费用", 0, SourceReplayPowerCost(state, playerId));
         if (plan.Behavior.AppliedFlowCost is { } flow)
             Adjust("流转替代费用", flow.Mana - plan.Behavior.ManaCost,
                 flow.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
