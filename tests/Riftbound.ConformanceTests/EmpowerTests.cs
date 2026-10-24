@@ -150,6 +150,14 @@ public sealed class EmpowerTests
         if (branch == "hidden") s = s with { CardObjects = new Dictionary<string,CardObjectState>(s.CardObjects) { ["HOST"] = s.CardObjects["HOST"] with { IsFaceDown = true } } };
         if (branch == "recycle") command = command with { OptionalCosts = ["RECYCLE_RUNE:EMPOWER-RUNE-0"] };
         var done = await new CoreRuleEngine().ResolveAsync(s, new("bad", actor, CommandTypes.ActivateAbility), command, default);
+        // Retain the original row: the red power cost consumes one of the acquired pool's resources.
+        if (branch == "recycle") {
+            Assert.True(done.Accepted, done.ErrorMessage);
+            Assert.Equal(s.RunePools["P1"].PowerByTrait[RuneTrait.Red], done.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+            Assert.Contains("EMPOWER-RUNE-0", done.State.PlayerZones["P1"].RuneDeck);
+            Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
+            return;
+        }
         Assert.False(done.Accepted); Assert.Empty(done.Events); Assert.Equal(MatchStateHasher.Hash(s), MatchStateHasher.Hash(done.State));
     }
 
