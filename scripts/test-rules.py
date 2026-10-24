@@ -29,6 +29,29 @@ DOMAINS = {
 }
 SMOKE = ['OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts',
          'OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash']
+L3_POLICY = ROOT / 'scripts/l3-rule-acceptance-methods.json'
+
+
+def l3_acceptance_methods(path=L3_POLICY):
+    policy = json.loads(Path(path).read_text())
+    rows = policy.get('methods', [])
+    names = [row['method'] for row in rows]
+    if (policy.get('schemaVersion') != 1 or not rows or len(set(names)) != len(names)
+            or any(not re.fullmatch(r'Riftbound\.ConformanceTests\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+', name)
+                   for name in names)
+            or any(not row.get('source') or not row.get('reason') for row in rows)):
+        raise ValueError('Invalid explicit L3 acceptance-method policy.')
+    return set(names)
+
+
+def l2_rule_methods(methods):
+    deferred = l3_acceptance_methods()
+    if not deferred <= methods:
+        raise ValueError('A declared L3 method was renamed or removed; reconcile the retained test identity.')
+    smoke = {name for name in methods if name.startswith(FULL_CLASS) and name.rsplit('.', 1)[-1] in SMOKE}
+    if len(smoke) != len(SMOKE):
+        raise ValueError('A required smoke test was renamed or removed; update the checked plan.')
+    return {name for name in methods if not name.startswith(FULL_CLASS)} - deferred | smoke
 
 
 def method(name):
@@ -67,22 +90,27 @@ def load_weights(path):
     return weights
 
 
-def plan(methods, profile, jobs, tokens, weights, include_games=False):
+def plan(methods, profile, jobs, tokens, weights, include_games=False, l2_only=False):
+    deferred = l3_acceptance_methods() if profile == 'l2' or l2_only else set()
+    if deferred and not deferred <= methods:
+        raise ValueError('A declared L3 method was renamed or removed.')
+    exclude = ''.join('&FullyQualifiedName!=' + name for name in sorted(deferred))
     if profile == 'focus':
         selected = {name for name in methods if (include_games or not name.startswith(FULL_CLASS))
-                    and any(token.casefold() in name.casefold() for token in tokens)}
+                    and name not in deferred and any(token.casefold() in name.casefold() for token in tokens)}
         if not selected:
             raise ValueError('No tests match; a zero-test success is forbidden.')
         expression = '(' + '|'.join('FullyQualifiedName~' + token for token in tokens) + ')'
         return [{'name': 'focus', 'methods': selected,
-                 'filter': expression if include_games else expression + '&FullyQualifiedName!~' + FULL_CLASS}]
+                 'filter': (expression if include_games else expression + '&FullyQualifiedName!~' + FULL_CLASS) + exclude}]
     ordinary = {name for name in methods if not name.startswith(FULL_CLASS)}
-    if profile == 'check':
+    if profile in {'check', 'l2'}:
         smoke = {name for name in methods if name.startswith(FULL_CLASS) and name.rsplit('.', 1)[-1] in SMOKE}
         if len(smoke) != len(SMOKE):
             raise ValueError('A required smoke test was renamed or removed; update the checked plan.')
-        return [{'name': 'check', 'methods': ordinary | smoke, 'filter':
-                 'FullyQualifiedName!~' + FULL_CLASS + '|' + '|'.join('FullyQualifiedName=' + n for n in sorted(smoke))}]
+        selected = l2_rule_methods(methods) if profile == 'l2' else ordinary | smoke
+        expression = '(FullyQualifiedName!~' + FULL_CLASS + '|' + '|'.join('FullyQualifiedName=' + n for n in sorted(smoke)) + ')'
+        return [{'name': profile, 'methods': selected, 'filter': expression + exclude}]
     games = sorted(methods - ordinary, key=lambda n: (-weights.get(n, 1), n))
     bins = [[] for _ in range(min(jobs, len(games)))]
     loads = [0.0] * len(bins)
@@ -131,10 +159,11 @@ def terminate(process):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('profile', choices=['focus', 'check', 'full'], nargs='?', default='check')
+    parser.add_argument('profile', choices=['focus', 'check', 'l2', 'full'], nargs='?', default='check')
     parser.add_argument('domain', nargs='?', choices=sorted(DOMAINS))
     parser.add_argument('--match', action='append', default=[], help='Additional test-name token for focus; repeatable')
     parser.add_argument('--include-games', action='store_true', help='Explicitly allow matched full-game tests in focus')
+    parser.add_argument('--l2-only', action='store_true', help='Focus excludes only explicitly declared full-opening L3 acceptance methods')
     parser.add_argument('--jobs', type=int, default=min(4, os.cpu_count() or 1))
     parser.add_argument('--timings', type=Path, help='Prior TRX or timing JSON, used only to balance full shards')
     parser.add_argument('--expect-trx', type=Path, help='Full benchmark only: require exact case parity with this baseline')
@@ -148,6 +177,8 @@ def main():
         parser.error('Domains and --match apply only to focus; refusing to ignore a requested filter.')
     if args.include_games and args.profile != 'focus':
         parser.error('--include-games applies only to focus.')
+    if args.l2_only and (args.profile != 'focus' or args.include_games):
+        parser.error('--l2-only applies only to focus without full-game inclusion.')
     if any(not re.fullmatch(r'[A-Za-z0-9_.]+', token) for token in tokens):
         parser.error('Filter tokens allow letters, numbers, underscores and dots only.')
     if args.expect_trx and args.profile != 'full':
@@ -176,9 +207,11 @@ def main():
         # Timing history affects balancing only, never membership or pass reuse.
         candidates = sorted((PROJECT / 'TestResults').glob('*full*.trx'), key=lambda p: p.stat().st_mtime, reverse=True)
         timings = candidates[0] if candidates else ROOT / 'scripts/rule-test-timings.json'
-    shards = plan(methods, args.profile, args.jobs, tokens, load_weights(timings), args.include_games)
+    shards = plan(methods, args.profile, args.jobs, tokens, load_weights(timings), args.include_games, args.l2_only)
     document = {'profile': args.profile, 'discoveredMethods': len(methods), 'jobs': args.jobs,
                 'includeGames': args.include_games,
+                'l2Only': args.l2_only or args.profile == 'l2',
+                'deferredL3Methods': sorted(l3_acceptance_methods()) if args.l2_only or args.profile == 'l2' else [],
                 'testAssemblySha256': hashlib.sha256((PROJECT / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll').read_bytes()).hexdigest(),
                 'timings': str(timings) if timings else None,
                 'shards': [{**s, 'methods': sorted(s['methods'])} for s in shards]}
