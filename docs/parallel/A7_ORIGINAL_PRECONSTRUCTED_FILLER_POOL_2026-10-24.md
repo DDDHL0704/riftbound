@@ -1,5 +1,9 @@
 # 既有预构筑补牌池稳定性
 
+当前组合固定源 `944e01e82c3b80d448f92c53950e86860c719bf6` 已干净吸收main `d713adad568999baa8703750b7893ec234c63d4c` 的入口与主动符文资源规则；ready仅更新本文。编译0警告/错误，单线程173/173、零跳过：原83例完整保留，新增main124原入口64例和main131主动资源26例，无交集。原23例中的11套双格式精确输入、5种自定义配方及3个原失败开局恢复方法展开6例均保留，源输入夹具SHA仍为下述242e8dc2。
+
+自有PreconstructedDeckCatalog及PreconstructedFillerScopeTests与此前03dc逐字相同；PermanentPlayTargets完整文件与上述main相同。2497个编译输入/1418个运行文件全量哈希稳定，四模块InfoVersion指向受测源；Engine MVID `5f5a39f8-62b2-4587-af31-7d3ceeb046a1`，六个原未跟踪文件不变且未编入。ignored新原件 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr139-maind713-v1/` 保留固定源/bin、实际TRX、清单、module-identities.json及已通过verifier；`source-runtime-proof-v1.json` SHA256 `275a3e6b4f746e7c9fe4694ae0e3f2eaa943eb8a575a722b727018e876e254ad`。下述旧83例和各版L2结果保持原输入身份，不求和或改标；最新实际head/base/merge-result的quality、targeted、rule_suite及required仍须全部通过。未新启本机full/SQL/网络/矩阵，整卡认证增量0、backend NOT READY。
+
 A7 固定源 `da80739bd17631e231a17dccced06d306b26fa8d` 的原失败指出 `CoreRules/lillia-lowcurve` 配方变化。单FQN在A7重新复现失败，在 main `8ac0afba` 原样通过；两个输入和原失败均保留。
 对A7真实程序集调用构造器并逐一比较两赛制全部11份配方，确认实际变化为4个牌组ID × 2赛制，共8份配方；自动扫描新注册的低费单位使每份加入3张 `VEN·043`，替换原来的牌。此为构造输入漂移，未据此推断151个完整对局的业务验收。
 本修复仅把既有定义的自动补牌范围限制到原配方中的71个精确主牌牌号，继续执行原来的已实现单位、费用、目标、颜色、赛制、牌名张数和合法性校验。新增消费者不再自动替换既有配方，显式必选牌的配置保持。
