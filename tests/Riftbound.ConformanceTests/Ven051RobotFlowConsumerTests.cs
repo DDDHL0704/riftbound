@@ -197,12 +197,11 @@ public sealed class Ven051RobotFlowConsumerTests
     {
         var cards = new Dictionary<string, CardObjectState>();
         var locations = new Dictionary<string, ObjectLocationState>();
-        void Put(string id, string no, string owner, string zone, string? field = null)
-        { cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner); locations[id] = new(owner, zone, field); }
+        void Put(string id, string no, string owner, string zone)
+        { cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner); locations[id] = new(owner, zone); }
         Put("SPELL", No, "P1", flow ? "GRAVEYARD" : "HAND");
-        Put("ALLY", "OGN·219/298", "P1", "BASE"); Put("ENEMY", "OGN·219/298", "P2", "BATTLEFIELD", "OTHER");
+        Put("ALLY", "OGN·219/298", "P1", "BASE"); Put("ENEMY", "OGN·219/298", "P2", "BASE");
         Put("GEAR", "SFD·022/221", "P1", "BASE"); Put("GRAVE", "OGN·219/298", "P1", "GRAVEYARD");
-        Put("BF", "OGN·278/298", "P1", "BATTLEFIELD", "BF"); Put("OTHER", "OGN·278/298", "P2", "BATTLEFIELD", "OTHER");
         cards["ALLY"] = cards["ALLY"] with { IsExhausted = true };
         cards["ENEMY"] = cards["ENEMY"] with { IsExhausted = true };
         var zones = new Dictionary<string, PlayerZones>();
@@ -210,8 +209,7 @@ public sealed class Ven051RobotFlowConsumerTests
         {
             var deck = Enumerable.Range(1, 3).Select(i => player + "-DRAW-" + i).ToArray();
             foreach (var id in deck) Put(id, "OGN·219/298", player, "MAIN_DECK");
-            zones[player] = PlayerZones.Empty with { Base = player == "P1" ? ["ALLY", "GEAR"] : [],
-                Battlefields = player == "P1" ? ["BF"] : ["OTHER", "ENEMY"], MainDeck = deck,
+            zones[player] = PlayerZones.Empty with { Base = player == "P1" ? ["ALLY", "GEAR"] : ["ENEMY"], MainDeck = deck,
                 Hand = player == "P1" && !flow ? ["SPELL"] : [],
                 Graveyard = player == "P1" ? flow ? ["GRAVE", "SPELL"] : ["GRAVE"] : [] };
         }
