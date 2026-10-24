@@ -145,14 +145,15 @@ public static class PreconstructedDeckCatalog
         var decks = new List<PreconstructedDeck>(Definitions.Count);
         foreach (var definition in Definitions)
         {
-            var decklist = BuildLowCurveDeck(
+            var decklist = BuildLowCurveDeckCore(
                 catalog,
                 cardsByNo,
                 definition.LegendCardNo,
                 definition.ChampionCardNo,
                 definition.RequiredMainDeckCardNos ?? [],
                 definition.RequiredBattlefieldCardNos ?? [],
-                definition.RuneDeckCardNos);
+                definition.RuneDeckCardNos,
+                OriginalFillerCardNos);
             var validation = OfficialDeckValidator.Validate(decklist, catalog, format);
             if (!validation.IsValid)
             {
@@ -174,13 +175,25 @@ public static class PreconstructedDeckCatalog
         IReadOnlyList<string> requiredMainDeckCardNos,
         IReadOnlyList<string> requiredBattlefieldCardNos,
         IReadOnlyList<string>? runeDeckCardNos)
+        => BuildLowCurveDeckCore(catalog, cardsByNo, legendCardNo, championCardNo,
+            requiredMainDeckCardNos, requiredBattlefieldCardNos, runeDeckCardNos, null);
+
+    private static OfficialDecklist BuildLowCurveDeckCore(
+        OfficialCardCatalog catalog,
+        IReadOnlyDictionary<string, OfficialCard> cardsByNo,
+        string legendCardNo,
+        string championCardNo,
+        IReadOnlyList<string> requiredMainDeckCardNos,
+        IReadOnlyList<string> requiredBattlefieldCardNos,
+        IReadOnlyList<string>? runeDeckCardNos,
+        IReadOnlySet<string>? fillerCardNos)
     {
         var legend = cardsByNo[legendCardNo];
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
         var champion = cardsByNo[championCardNo];
 
         var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
-            .Where(behavior => OriginalFillerCardNos.Contains(behavior.CardNo))
+            .Where(behavior => fillerCardNos is null || fillerCardNos.Contains(behavior.CardNo))
             .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
             // Battlefield-only ability targets do not constrain ordinary BASE
             // entry. Registering that ability must not silently replace cards
