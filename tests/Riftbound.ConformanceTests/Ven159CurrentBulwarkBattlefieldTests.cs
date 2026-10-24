@@ -204,6 +204,11 @@ public sealed class Ven159CurrentBulwarkBattlefieldTests
             samples.Add(new { stage = "keyword-lost", target, expectedMight = 3 });
             var chooser = run.State.TurnPlayerId!;
             var lateSource = "LATE-" + chooser;
+            if (mode == "temporary")
+            {
+                await run.Act(chooser, new TapRuneCommand(chooser + "-PUBLIC-RUNE-1"));
+                await run.Act(chooser, new TapRuneCommand(chooser + "-PUBLIC-RUNE-2"));
+            }
             await run.Act(chooser, new PlayCardCommand(lateSource, Wind, []));
             choice = Assert.IsType<PendingCardChoiceState>(run.State.PendingCardChoice);
             Assert.Contains(target, choice.LegalObjectIds);
