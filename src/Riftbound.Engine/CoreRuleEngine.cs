@@ -3563,8 +3563,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentId);
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
+        var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience);
         if (!paymentCommit.Accepted)
@@ -18448,7 +18449,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+        {
+            rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (behavior.DamageAmountFromOptionalPowerCost
             && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
         {
@@ -18724,15 +18730,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
-        if (!PrintedPowerCostRules.TrySelectForPlay(behavior, printedPowerChoices.SingleOrDefault(),
-                paymentAdjustedPool, extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId), extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait, echoPrintedCosts))
+        var sacrificePowerReduction = SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power;
+        var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
+        int totalGenericPowerCost;
+        IReadOnlyDictionary<string, int> totalPowerCostByTrait;
+        // Recursive repeat plans validate one target declaration before their
+        // taxes are combined. Authorize the selected debit only on the full plan.
+        var selectedPrintedCost = powerSpend is null || !validateRepeats
+            ? PrintedPowerCostRules.TrySelectForPlay(behavior, printedPowerChoices.SingleOrDefault(),
+                paymentAdjustedPool, extraGenericPower, extraPowerCostByTrait, out totalGenericPowerCost, out totalPowerCostByTrait, echoPrintedCosts)
+            : PrintedPowerCostRules.TrySelectForPlayWithFeasibility(behavior, printedPowerChoices.SingleOrDefault(),
+                paymentAdjustedPool, extraGenericPower, extraPowerCostByTrait, out totalGenericPowerCost, out totalPowerCostByTrait, echoPrintedCosts,
+                (generic, typed) => PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, generic,
+                    ApplySacrificePowerReduction(typed, sacrificePowerReduction)));
+        if (!selectedPrintedCost)
         {
-            rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, powerSpend is null ? "Invalid printed power allocation." : "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
             return false;
         }
         var powerBeforeSacrificeReduction = totalPowerCostByTrait.Values.Sum();
-        totalPowerCostByTrait = ApplySacrificePowerReduction(totalPowerCostByTrait,
-            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
+        totalPowerCostByTrait = ApplySacrificePowerReduction(totalPowerCostByTrait, sacrificePowerReduction);
         var optionalCostPowerReduction = powerBeforeSacrificeReduction - totalPowerCostByTrait.Values.Sum();
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         if (!CanGainSpellOnlyMana(paymentAdjustedPool, (long)luxSpellOnlyResourceSourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana))
@@ -18843,7 +18860,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAdjustedPool,
             currentExperience,
             originalExtraManaCost) { RepeatExecutions = repeatExecutions,
-                OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions };
+                OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
+                PowerSpend = powerSpend };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -34946,6 +34964,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
+        public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(
