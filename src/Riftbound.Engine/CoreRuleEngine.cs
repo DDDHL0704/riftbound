@@ -3595,7 +3595,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost : behavior.DamageAmount,
+            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost
+                : behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.DiscardedOptionalCostTargetObjectIds.Count > 0
+                    ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
@@ -21480,6 +21482,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : IsBattlefieldObject(state, objectId),
             CardTargetScopes.FriendlyMainDeckCard => IsFriendlyMainDeckCard(state, playerId, objectId),
             CardTargetScopes.FriendlyGraveyardCard => IsFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
+                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
+                && state.Seats.ContainsKey(graveyardCard.OwnerId)
+                && IsFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
             CardTargetScopes.FriendlyBaseUnit => IsPlayerControlledBaseObject(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
@@ -22781,7 +22787,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (normalizedOptionalCosts.Count == 1
             && (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
-                || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0)
+                || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0
+                || behavior.DamageAmountIfDiscardHandCardOptionalCost > 0)
             && TryParseDiscardHandCardOptionalCost(
                 normalizedOptionalCosts[0],
                 out var discardedTargetObjectId))
@@ -24199,6 +24206,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
@@ -25608,7 +25616,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryReturnGraveyardCardToHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
+                var recipientId = stackItem.ControllerId;
+                if (behavior.TargetScope == CardTargetScopes.AnyGraveyardCard)
+                {
+                    if (!cardObjects.TryGetValue(targetObjectId, out var target)
+                        || string.IsNullOrWhiteSpace(target.OwnerId)
+                        || !state.Seats.ContainsKey(target.OwnerId)
+                        || !playerZones.TryGetValue(target.OwnerId, out var ownerZones)
+                        || !ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+                        continue;
+                    recipientId = target.OwnerId;
+                }
+                if (!TryReturnGraveyardCardToHand(playerZones, cardObjects, recipientId, targetObjectId))
                 {
                     continue;
                 }
@@ -25618,7 +25637,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     $"{behavior.DisplayName}让废牌堆里的牌返回手牌",
                     new Dictionary<string, object?>
                     {
-                        ["playerId"] = stackItem.ControllerId,
+                        ["playerId"] = recipientId,
                         ["sourceObjectId"] = stackItem.SourceObjectId,
                         ["targetObjectId"] = targetObjectId,
                         ["sourceZone"] = "GRAVEYARD",
@@ -30146,6 +30165,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (ability.RequiresSameNameCardInControllerGraveyard is true
+            && (!cardObjects.TryGetValue(sourceObjectId, out var enteringSource)
+                || !playerZones.TryGetValue(controllerId, out var enteringControllerZones)
+                || !enteringControllerZones.Graveyard.Any(id =>
+                    cardObjects.TryGetValue(id, out var graveCard)
+                    && OfficialCardSourceIdentityGroups.SameKnownName(enteringSource.CardNo, graveCard.CardNo))))
+        {
+            return false;
+        }
+
         if (ability.MaxControllerHandCount.HasValue
             && (!playerZones.TryGetValue(controllerId, out var zones)
                 || zones.Hand.Count > ability.MaxControllerHandCount.Value))
@@ -33816,6 +33845,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             damageAmount = stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
         }
 
+        if (behavior.ExtraDamagePerSameNameInControllerGraveyard > 0
+            && state.PlayerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        {
+            var count = controllerZones.Graveyard.Count(id => state.CardObjects.TryGetValue(id, out var card)
+                && OfficialCardSourceIdentityGroups.SameKnownName(stackItem.CardNo, card.CardNo));
+            damageAmount = checked(damageAmount + checked(behavior.ExtraDamagePerSameNameInControllerGraveyard * count));
+        }
+
         if (!IsSpellPlayBehavior(behavior) && !stackItem.SourceConfirmed)
         {
             return damageAmount;
@@ -33826,6 +33863,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // not be converted into damage by a numeric bonus.
         if (damageAmount == 0 && !behavior.DamageAmountFromTargetMarkedDamage
             && !behavior.DamageAmountFromFirstTargetManaCost && !behavior.DamageAmountFromOptionalPowerCost
+            && behavior.ExtraDamagePerSameNameInControllerGraveyard <= 0
             && behavior.DamageAmount == 0 && behavior.ConditionalDamageAmount == 0)
             return 0;
 

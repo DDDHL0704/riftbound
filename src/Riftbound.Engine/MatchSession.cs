@@ -13002,6 +13002,11 @@ internal static class ActionPromptBuilder
             return state.PlayerZones.TryGetValue(playerId, out var zones) ? zones.Graveyard : [];
         }
 
+        if (targetScope == CardTargetScopes.AnyGraveyardCard)
+        {
+            return state.PlayerZones.Values.SelectMany(zones => zones.Graveyard).Distinct(StringComparer.Ordinal);
+        }
+
         if (string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal))
         {
             return state.PlayerZones
@@ -13084,6 +13089,10 @@ internal static class ActionPromptBuilder
                 : IsPromptBattlefieldObject(state, objectId),
             CardTargetScopes.FriendlyMainDeckCard => false,
             CardTargetScopes.FriendlyGraveyardCard => IsPromptFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
+                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
+                && state.Seats.ContainsKey(graveyardCard.OwnerId)
+                && IsPromptFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
             CardTargetScopes.FriendlyBaseUnit => IsPromptControlledBaseObject(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsPromptAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
@@ -14457,6 +14466,7 @@ internal static class ActionPromptBuilder
         }
 
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
+        choices.AddRange(PlayCardDiscardHandDamageOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
@@ -14565,6 +14575,24 @@ internal static class ActionPromptBuilder
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
                 $"弃置 {PromptHandCardLabel(state, objectId)}：费用减少 {behavior.ManaReductionIfDiscardHandCardOptionalCost}",
+                $"{behavior.DisplayName}的可选额外费用"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+
+        return zones.Hand
+            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"DISCARD_HAND_CARD:{objectId}",
+                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();
     }
@@ -16689,6 +16717,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "己方手牌，然后战场单位",
             CardTargetScopes.FriendlyMainDeckCard => "己方主牌堆牌",
             CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
+            CardTargetScopes.AnyGraveyardCard => "任意废牌堆牌",
             CardTargetScopes.AttackingUnit => "攻击中单位",
             CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",

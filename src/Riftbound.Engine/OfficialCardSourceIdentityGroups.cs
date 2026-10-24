@@ -12,6 +12,12 @@ internal static class OfficialCardSourceIdentityGroups
 
     public static string DisplayName(string cardNo) => Names.Value.GetValueOrDefault(NormalizeCardNo(cardNo), cardNo);
 
+    public static bool SameKnownName(string? firstCardNo, string? secondCardNo)
+        => Names.Value.TryGetValue(NormalizeCardNo(firstCardNo), out var first)
+            && Names.Value.TryGetValue(NormalizeCardNo(secondCardNo), out var second)
+            && !string.IsNullOrWhiteSpace(first) && !string.IsNullOrWhiteSpace(second)
+            && string.Equals(first, second, StringComparison.Ordinal);
+
     public static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildByRepresentativeCardNo(
         IEnumerable<string?> representativeCardNos)
     {
