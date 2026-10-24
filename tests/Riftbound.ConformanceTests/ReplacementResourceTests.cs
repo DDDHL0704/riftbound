@@ -126,7 +126,7 @@ public sealed class ReplacementResourceTests
             "wrong-type" => card with { Tags = [CardObjectTags.UnitCard] },
             "wrong-card" => card with { CardNo = "OGN·096/298" },
             "swift" => card with { CardNo = P4ActivatedAbilityCatalog.MalzaharCardNo,Tags = [CardObjectTags.UnitCard] },
-            "restricted" => card with { CardNo = P4ActivatedAbilityCatalog.LuxCardNo,Tags = [CardObjectTags.UnitCard] },
+            "restricted" => OfficialGarenConquestBattlefieldCountTests.Printed("RESOURCE", P4ActivatedAbilityCatalog.LuxCardNo, "P2"),
             _ => card };
         s = s with { CardObjects = new Dictionary<string,CardObjectState>(s.CardObjects) { ["RESOURCE"] = card } };
         var opened = await Open(s);
@@ -140,11 +140,30 @@ public sealed class ReplacementResourceTests
             Restore(done.State);
             return;
         }
-        Assert.DoesNotContain(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id.StartsWith("RESOURCE:"));
+        // Preserve the original restricted row. CN430.3 permits acquiring this
+        // reaction resource here; its spell-only restriction still forbids use
+        // as the replacement's power payment. Original failure: S6 fixed-v10.
+        if (reason == "restricted")
+            Assert.Contains(opened.State.PendingRuleChoice!.Request.Options, o => o.Id.StartsWith("RESOURCE:RESOURCE:"));
+        else Assert.DoesNotContain(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id.StartsWith("RESOURCE:"));
         var request = opened.State.PendingRuleChoice.Request;
         var result = await new CoreRuleEngine().ResolveAsync(opened.State,new("bad","P2",CommandTypes.PayCost),
             new PayCostCommand(request.Id,"RULE_REPLACEMENT",[$"RESOURCE:RESOURCE:{P4ActivatedAbilityCatalog.HoneyfruitResourceAbilityId}:"]),default);
         Assert.False(result.Accepted); Assert.Equal(MatchStateHasher.Hash(opened.State),MatchStateHasher.Hash(result.State));
+        if (reason == "restricted")
+        {
+            var generated = await Resource(opened.State); Restore(generated.State);
+            Assert.Single(generated.State.PendingRuleChoice!.Answers);
+            // This existing destruction continuation keeps its board frozen;
+            // the acquisition commits with the final replacement decision.
+            Assert.Equal(0, generated.State.RunePools["P2"].SpellOnlyMana);
+            Assert.Equal(1, generated.State.RunePools["P2"].Power);
+            var done = await Choose(generated.State); Restore(done.State);
+            Assert.Equal(0, done.State.RunePools["P2"].Power);
+            Assert.Equal(2, done.State.RunePools["P2"].SpellOnlyMana);
+            Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
+            Assert.Single(done.Events, e => e.Kind == "MANA_GAINED");
+        }
     }
 
     [Fact]

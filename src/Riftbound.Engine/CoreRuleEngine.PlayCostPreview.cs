@@ -24,7 +24,8 @@ public sealed partial class CoreRuleEngine
                 "当前选择无法打出，请检查目标、位置和支付资源。");
 
         var pool = plan.AvailablePool;
-        var missingMana = Math.Max(0, plan.TotalManaCost - pool.Mana);
+        var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose);
+        var missingMana = Math.Max(0, plan.TotalManaCost - availableMana);
         var missingPower = PaymentCostRules.PowerDeficit(pool, plan.AnyPowerCost, plan.PowerCostByTrait);
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, plan.AnyPowerCost, plan.PowerCostByTrait) : default;
@@ -53,9 +54,12 @@ public sealed partial class CoreRuleEngine
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,
-            pool.Mana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
-            accepted ? pool.Mana - plan.TotalManaCost - plan.LuxSpellOnlyRemainingMana : null,
-            accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments);
+            availableMana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
+            accepted ? availableMana - plan.TotalManaCost : null,
+            accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments) {
+                AvailableSpellOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0,
+                RemainingSpellOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell
+                    ? Math.Max(0, pool.SpellOnlyMana - plan.TotalManaCost) : 0 };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);
