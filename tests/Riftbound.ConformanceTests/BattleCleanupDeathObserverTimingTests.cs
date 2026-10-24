@@ -19,18 +19,7 @@ public sealed class BattleCleanupDeathObserverTimingTests
         // Explicit midgame HAND opening; both combatants and the optional
         // ordinary observer are actually played. No captured death is injected.
         var initial = Opening(observer);
-        var run = new Driver(initial);
-        await run.Act("P1", new PlayCardCommand("HOST", "OGN·219/298", [], Destination: "BATTLEFIELD:HOME"));
-        if (observer) await run.Act("P1", new PlayCardCommand("OBSERVER", "UNL-068/219", [], Destination: "BASE"));
-        await run.Act("P1", new EndTurnCommand());
-        var funds = Enumerable.Range(1, 12).Select(i => "P2-FUND-" + i).ToArray();
-        await run.Act("P2", new TapRuneCommand(funds[0], funds));
-        await run.Act("P2", new PlayCardCommand("ATTACKER", "OGN·219/298", [], Destination: "BASE"));
-        await run.Act("P2", new PlayCardCommand("READY", "OGN·146/298", ["ATTACKER"]));
-        await run.Top();
-        await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", []));
-        await BattleLimitedTestSupport.PassFocus(run);
-        await BattleLimitedTestSupport.Declare(run);
+        var run = await Fight(initial);
         Save(observer ? "with-observer-before-resolution" : "without-observer", initial, run);
 
         Assert.Contains("HOST", run.State.PlayerZones["P1"].Graveyard);
@@ -59,6 +48,23 @@ public sealed class BattleCleanupDeathObserverTimingTests
         Assert.Single(run.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
         await run.Replay();
         Save(observer ? "with-observer-completed" : "without-observer-completed", initial, run);
+    }
+
+    internal static async Task<Driver> Fight(MatchState initial)
+    {
+        var run = new Driver(initial);
+        await run.Act("P1", new PlayCardCommand("HOST", "OGN·219/298", [], Destination: "BATTLEFIELD:HOME"));
+        if (initial.CardObjects.ContainsKey("OBSERVER")) await run.Act("P1", new PlayCardCommand("OBSERVER", "UNL-068/219", [], Destination: "BASE"));
+        await run.Act("P1", new EndTurnCommand());
+        var funds = Enumerable.Range(1, 12).Select(i => "P2-FUND-" + i).ToArray();
+        await run.Act("P2", new TapRuneCommand(funds[0], funds));
+        await run.Act("P2", new PlayCardCommand("ATTACKER", "OGN·219/298", [], Destination: "BASE"));
+        await run.Act("P2", new PlayCardCommand("READY", "OGN·146/298", ["ATTACKER"]));
+        await run.Top();
+        await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", []));
+        await BattleLimitedTestSupport.PassFocus(run);
+        await BattleLimitedTestSupport.Declare(run);
+        return run;
     }
 
     internal static MatchState Opening(bool observer)

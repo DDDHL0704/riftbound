@@ -67,7 +67,7 @@ public sealed partial class CoreRuleEngine
     // CN468.1-468.2: finish battle cleanup and its earned FEPR before deciding
     // an outcome. Empty queues advance in Complete without a response window.
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
-        string battlefield, string attacker, string? defender, string? winner,
+        string battlefield, string attacker, string? defender,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
         int overkill, List<GameEvent> events, out MatchState pending)
     {

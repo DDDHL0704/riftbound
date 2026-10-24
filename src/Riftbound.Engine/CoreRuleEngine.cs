@@ -12799,14 +12799,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 combatEvents);
         }
 
-        var resultWinner = TryResolveBattleWinnerPlayerId(playerZones, cardObjects, attackerObjectIds,
-            defenderObjectIds, defendingPlayerId, intent.PlayerId, out var capturedWinner) ? capturedWinner : null;
         var resultState = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones), RunePools = runePools,
             TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
         if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
-            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+            attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
         {
             combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
