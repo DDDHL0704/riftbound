@@ -450,6 +450,13 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·048", "云端亚龙", 6, "CLOUD_DRAKE_PLAY_UNIT_DRAW_1", 0, 0,
+            DrawCount: 1, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "龙"),
+        new("VEN·118", "龙角勇士", 6, "DRAGONHORN_WARRIOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark),
         new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
