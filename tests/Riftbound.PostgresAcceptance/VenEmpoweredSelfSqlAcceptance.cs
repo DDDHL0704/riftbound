@@ -328,11 +328,40 @@ internal static class VenEmpoweredSelfSqlAcceptance
             var raw = JsonSerializer.SerializeToElement(node); var mapped = GameCommandJsonMapper.Map(raw);
             var before = MatchStateHasher.Hash(State); var views = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(State), Json);
             var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(State), Json); var id = "n9-step-" + submissions;
+            var evidence = !accepted ? Path.Combine(Environment.GetEnvironmentVariable("RIFTBOUND_N9_REJECTION_EVIDENCE")
+                ?? Path.Combine(Environment.GetEnvironmentVariable("RIFTBOUND_POSTGRES_EVIDENCE") ?? "var/qa/postgres-acceptance",
+                    "ven-empowered-self", "rejection-diagnostics"), room) : null;
+            JsonElement? beforeState = evidence is { Length: > 0 } ? JsonSerializer.SerializeToElement(State, Json) : null;
+            MatchRecoveryFrame? prefixBefore = evidence is { Length: > 0 }
+                ? await new PostgresMatchRecoveryStore(source).LoadAsync(room, default) : null;
             var result = await Session.SubmitAsync(player, id, mapped, raw, default);
+            if (evidence is { Length: > 0 }) {
+                Directory.CreateDirectory(evidence);
+                var resultViews = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(result.State), Json);
+                var resultPrompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(result.State), Json);
+                var prefixAfter = await new PostgresMatchRecoveryStore(source).LoadAsync(room, default);
+                await File.WriteAllTextAsync(Path.Combine(evidence, id + "-rejection.json"), JsonSerializer.Serialize(new {
+                    room, player, clientIntentId = id, expectedAccepted = accepted, raw,
+                    result.Accepted, result.ErrorCode, result.ErrorMessage, result.Events,
+                    before = new { state = beforeState, hash = before,
+                        snapshots = JsonSerializer.Deserialize<JsonElement>(views), prompts = JsonSerializer.Deserialize<JsonElement>(prompts) },
+                    after = new { state = result.State, hash = MatchStateHasher.Hash(result.State),
+                        snapshots = JsonSerializer.Deserialize<JsonElement>(resultViews), prompts = JsonSerializer.Deserialize<JsonElement>(resultPrompts) },
+                    comparisons = new { eventsEmpty = result.Events.Count == 0, stateHashEqual = MatchStateHasher.Hash(result.State) == before,
+                        snapshotsTextEqual = resultViews == views, promptsTextEqual = resultPrompts == prompts,
+                        snapshotsStructuralEqual = JsonNode.DeepEquals(JsonNode.Parse(resultViews), JsonNode.Parse(views)),
+                        promptsStructuralEqual = JsonNode.DeepEquals(JsonNode.Parse(resultPrompts), JsonNode.Parse(prompts)) },
+                    prefixBefore, prefixAfter,
+                    runtime = new { ruleInputs = State.RuleInputs, appContext = AppContext.BaseDirectory,
+                        assemblies = new[] { typeof(CoreRuleEngine).Assembly, typeof(Riftbound.CardCatalog.OfficialCardCatalog).Assembly, typeof(GameCommand).Assembly }
+                            .Select(a => new { name = a.GetName().Name, loadedPath = a.Location, mvid = a.ManifestModule.ModuleVersionId,
+                                sha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(a.Location))).ToLowerInvariant() }) }
+                }, Json));
+            }
             Check(result.Accepted == accepted, result.ErrorMessage); State = result.State; submissions++;
             if (!accepted) Check(result.Events.Count == 0 && MatchStateHasher.Hash(State) == before
-                && JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(State), Json) == views
-                && JsonSerializer.Serialize(ResolutionResult.BuildPrompts(State), Json) == prompts, "Rejected intent changed authoritative state, views, prompts or events.");
+                && JsonNode.DeepEquals(JsonSerializer.SerializeToNode(ResolutionResult.BuildSnapshots(State), Json), JsonNode.Parse(views))
+                && JsonNode.DeepEquals(JsonSerializer.SerializeToNode(ResolutionResult.BuildPrompts(State), Json), JsonNode.Parse(prompts)), "Rejected intent changed authoritative state, views, prompts or events.");
             await Cold(id);
             if (accepted) {
                 var digest = await Digest(source, room); var duplicate = await Session.SubmitAsync(player, id, mapped, raw, default);
