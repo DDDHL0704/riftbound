@@ -66,9 +66,14 @@ public static class PrintedPowerCostRules
         IReadOnlyList<string>? additionalPrintedCosts = null)
         => TrySelect(ForPlay(behavior), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts);
 
+    internal static bool TrySelectForPlayWithFeasibility(CardBehaviorDefinition behavior, string? choice, RunePool pool,
+        int extraGeneric, IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
+        IReadOnlyList<string> additionalPrintedCosts, Func<int, IReadOnlyDictionary<string, int>, bool> feasibility)
+        => TrySelect(ForPlay(behavior), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts, feasibility);
+
     private static bool TrySelect(Cost cost, string? choice, RunePool pool, int extraGeneric,
         IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
-        IReadOnlyList<string>? additionalPrintedCosts)
+        IReadOnlyList<string>? additionalPrintedCosts, Func<int, IReadOnlyDictionary<string, int>, bool>? feasibility = null)
     {
         generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0);
         var allocations = Allocations(cost);
@@ -88,8 +93,10 @@ public static class PrintedPowerCostRules
                 .DistinctBy(ChoiceId).ToArray();
         }
         var genericCost = generic;
-        typed = allocations.Select(a => Combine(a, extraTyped))
-            .OrderBy(a => PaymentCostRules.PowerDeficit(pool, genericCost, a)).First();
+        var candidates = allocations.Select(a => Combine(a, extraTyped));
+        if (feasibility is not null) candidates = candidates.Where(a => feasibility(genericCost, a));
+        typed = candidates.OrderBy(a => PaymentCostRules.PowerDeficit(pool, genericCost, a)).FirstOrDefault()!;
+        if (typed is null) { typed = extraTyped; return false; }
         return true;
     }
 }
