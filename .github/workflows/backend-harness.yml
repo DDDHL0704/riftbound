@@ -1,0 +1,66 @@
+name: Backend acceptance harness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/*ci*.py'
+      - 'scripts/tests/test_*ci*.py'
+      - 'scripts/tests/test_l3_workflow.py'
+      - 'tests/Riftbound.NativeNetworkSmoke/**'
+      - 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  restart_harness:
+    name: L3 harness smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+      PGPASSWORD: riftbound_ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: L3 harness safeguards
+        run: |
+          python3 -m unittest discover -s scripts/tests -p test_process_restart_ci.py -v
+          python3 -m unittest discover -s scripts/tests -p test_sql_ci_gate.py -v
+          python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
+          python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
+      - name: Real PostgreSQL and two-player SignalR with actual API process restart
+        run: python3 scripts/run-process-restart-ci.py --expected "${{ github.sha }}" --output var/qa/ci-process-restart
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: process-restart-results
+          path: var/qa/ci-process-restart/
+          retention-days: 90
