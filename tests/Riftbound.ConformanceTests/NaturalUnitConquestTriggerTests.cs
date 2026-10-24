@@ -654,7 +654,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 4, "OGN·039/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [DrawObjectId] = Unit(DrawObjectId, "P1", 2)
@@ -707,7 +707,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [KaisaSpellObjectId] = Spell(KaisaSpellObjectId, "P1", "OGN·048/298", 2),
@@ -768,7 +768,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [KaisaRuneSpellObjectId] = Spell(KaisaRuneSpellObjectId, "P1", "OGN·134/298", 2)
@@ -839,7 +839,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [KaisaTokenSpellObjectId] = Spell(KaisaTokenSpellObjectId, "P1", "OGN·094/298", 3)
@@ -959,7 +959,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [KaisaObjectId] = Unit(KaisaObjectId, "P1", 6, "OGN·112/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1),
             [KaisaCopyTokenSpellObjectId] = Spell(KaisaCopyTokenSpellObjectId, "P1", "UNL-200/219", 3)
@@ -1037,7 +1037,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [RumbleObjectId] = Unit(RumbleObjectId, "P1", 4, "SFD·026/221") with
             {
                 Tags = [CardObjectTags.UnitCard, "机械", "约德尔人"]
@@ -1106,7 +1106,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [TreantObjectId] = Unit(TreantObjectId, "P1", 4, "UNL-029/219"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
         };
@@ -1156,7 +1156,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [YetiObjectId] = Unit(YetiObjectId, "P1", 6, "UNL-018/219"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
         };
@@ -1206,7 +1206,7 @@ public sealed class NaturalUnitConquestTriggerTests
                 cardNo: "OGN·275/298",
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                 ownerId: "P1",
-                controllerId: "P1"),
+                controllerId: "P2"),
             [TryndamereObjectId] = Unit(TryndamereObjectId, "P1", 8, "OGN·034/298"),
             [DefenderObjectId] = Unit(DefenderObjectId, "P2", 1)
         };
