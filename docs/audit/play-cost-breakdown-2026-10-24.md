@@ -1,7 +1,8 @@
 # 待命与替代费用的预览明细
-- 问题：[Issue116](https://github.com/DDDHL0704/riftbound/issues/116)；基线3400539606a076fb8fd69785fcc4ef7a9b54bd30。只补PreviewPlayCard的减免/替代费用说明；应付、扣款、候选、DTO形状、时序、SQL与恢复实现不改。
-- 来源沿用固定CN核心PDF d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11 的356.1.a–b、811.1.b；手雷现有来源docs/evidence/dancing-grenade-2026-10-14/source-current.json。不是新来源全集或整卡认证。
-- 新4方法10例：真实待命布置跨回合、手雷再次打出/法盾/不足、观察后替代或免费打出、普通/急速对照；原生产确认3PASS/7明细FAIL。首轮新夹具tick/跨回合清池错误及修正原因另留原件，不算生产缺陷。
-- WIP定向与相邻旧预览/restricted mana/Echo/Flow共90/90、0skip；所有旧测试源码未改，新确认测试逐字节保留。提交后另重建固定源码验证，不把WIP版本当作固定提交。
-- 10个新中局场景实际54条接受命令/177事件：每步原生帧校验、恢复及冷重复，全部原日志回放通过；原/修复的所有原始请求、非身份日志字段及完整事件相等，各自实际RuleInputs/MVID与完整状态哈希单独保留。
-- 原件与运行时证据：var/qa/play-cost-breakdown-20261024/{original340-v1,original340-v2,wip-v3}/、original340-confirmed-v2.json、wip-proof-v4.json；固定提交结果另留同目录receipt/proof。无普通出生、SQL/API实网重启、重型全矩阵或后端READY结论。
+- 问题：[Issue116](https://github.com/DDDHL0704/riftbound/issues/116)。独立PR以main 8ac0afba为基底，只移植7d5f5994的三个文件，不合入原费用长分支。
+- 只补PreviewPlayCard的待命基础法力/符能减免、效果免除基础符能与SourceReplay替代符能说明；应付、扣款、候选、DTO形状、时序及恢复实现不改。
+- 来源沿用固定CN核心PDF d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11 的356.1.a–b、811.1.b；手雷来源docs/evidence/dancing-grenade-2026-10-14/source-current.json。不是新来源全集或整卡认证。
+- 新4方法10例包含真实待命跨回合、手雷再次打出/法盾/不足、观察后的替代或免费打出、普通/急速对照；原340生产3PASS/7明细FAIL及首次夹具错误均保留在var/qa/play-cost-breakdown-20261024/，不把夹具错误算生产缺陷。
+- 新main基底移植2a4b9701已重新构建10/10、0skip；新分支的后续定向/相邻结果、原始请求与程序集身份保存在var/qa/payment-prs-20261024/issue116/，旧长分支90例仅作历史证据。
+- 10个中局场景逐步检查正常帧、恢复、冷重复和完整原日志；属于明确中局夹具，不声称普通出生或真实网络/数据库验收。
+- 按2026-10-24最新人类约定：定向与规则套件构成L2，实际PR规则CI未绿前不合入；真实网络/数据库/重启等L3归夜间固定main SHA，不阻塞无关日常修复。
