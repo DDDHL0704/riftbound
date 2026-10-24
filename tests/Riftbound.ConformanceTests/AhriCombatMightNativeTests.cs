@@ -30,6 +30,12 @@ public sealed class AhriCombatMightNativeTests
             using var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, name + "-command.json"))); return doc.RootElement.Clone();
         }
         var journal = new Journal(); var engine = new CoreRuleEngine(); var session = new MatchSession(initial, engine, journal);
+        async Task<ResolutionResult> Submit(string actor, string intent, GameCommand input, JsonElement wire)
+        {
+            var result = await session.SubmitAsync(actor, intent, input, wire, default);
+            session = await BattleLimitedTestSupport.RecoverJournal(initial, result, journal.Entries, journal, engine);
+            return result;
+        }
         Export("selection.json", new { targetObjectIds = new[] { target }, sourceObjectId = defend ? "ENEMY1" : "HOST" });
         Export("snapshot.json", ResolutionResult.BuildSnapshots(initial)["P1"]);
         var prompt = session.PromptFor("P1"); Export("move-prompt.json", prompt);
@@ -37,7 +43,7 @@ public sealed class AhriCombatMightNativeTests
             optionalCosts = Array.Empty<string>(), promptId = prompt.PromptId, snapshotTick = initial.Tick });
         var move = Assert.IsType<MoveUnitCommand>(GameCommandJsonMapper.Map(moveRaw));
         Assert.Equal("HOST", move.SourceObjectId); Assert.Contains(move.Origin, new[] { "", "BASE" }); Assert.Equal("BATTLEFIELD:F", move.Destination);
-        var moved = await session.SubmitAsync("P1", "move", move, moveRaw, default); Assert.True(moved.Accepted, moved.ErrorMessage);
+        var moved = await Submit("P1", "move", move, moveRaw); Assert.True(moved.Accepted, moved.ErrorMessage);
         var choice = moved.State.PendingCardChoice!; Assert.NotNull(choice); Assert.Equal(player, choice.PlayerId);
         prompt = session.PromptFor(player); Export("choose-prompt.json", prompt);
         var raw = Raw("choose", new { cmdType = "CHOOSE_CARDS", choiceId = choice.ChoiceId, choiceWindow = choice.ChoiceWindow,
@@ -45,18 +51,18 @@ public sealed class AhriCombatMightNativeTests
         var command = Assert.IsType<ChooseCardsCommand>(GameCommandJsonMapper.Map(raw));
         Assert.Equal(choice.ChoiceId, command.ChoiceId); Assert.Equal(choice.ChoiceWindow, command.ChoiceWindow);
         Assert.Equal(new[] { target }, command.ChosenObjectIds);
-        var selected = await session.SubmitAsync(player, "choose", command, raw, default); Assert.True(selected.Accepted, selected.ErrorMessage);
+        var selected = await Submit(player, "choose", command, raw); Assert.True(selected.Accepted, selected.ErrorMessage);
         Assert.Equal(initial.CardObjects[target].Power, selected.State.CardObjects[target].Power);
         OfficialGraveyardRecastTests.Restore(selected.State); Assert.Empty(MinimumMightAuditTests.PublicErrors(selected.State));
         var duplicate = await session.SubmitAsync(player, "choose", command, raw, default);
         Assert.Equal(MatchStateHasher.Hash(selected.State), MatchStateHasher.Hash(duplicate.State));
-        var stale = await session.SubmitAsync(player, "stale-choose", command, raw, default);
+        var stale = await Submit(player, "stale-choose", command, raw);
         Assert.False(stale.Accepted); Assert.Equal(MatchStateHasher.Hash(selected.State), MatchStateHasher.Hash(stale.State));
         var done = selected;
         foreach (var name in new[] { "pass-1", "pass-2" }) {
             var actor = done.State.PriorityPlayerId!; prompt = session.PromptFor(actor); Export(name + "-prompt.json", prompt);
             var passRaw = Raw(name, new { cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = done.State.Tick });
-            done = await session.SubmitAsync(actor, name, Assert.IsType<PassPriorityCommand>(GameCommandJsonMapper.Map(passRaw)), passRaw, default);
+            done = await Submit(actor, name, Assert.IsType<PassPriorityCommand>(GameCommandJsonMapper.Map(passRaw)), passRaw);
             Assert.True(done.Accepted, done.ErrorMessage);
         }
         Assert.Equal(defend ? 1 : 0, done.State.CardObjects[target].Power);
@@ -64,7 +70,7 @@ public sealed class AhriCombatMightNativeTests
         Assert.Equal("P1", done.State.FocusPlayerId); OfficialGraveyardRecastTests.Restore(done.State);
         Assert.Empty(MinimumMightAuditTests.PublicErrors(done.State));
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, done.State, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
