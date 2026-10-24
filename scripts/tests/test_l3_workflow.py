@@ -1,3 +1,4 @@
+import fnmatch
 import re
 from pathlib import Path
 import unittest
@@ -6,6 +7,35 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class WorkflowCandidateTests(unittest.TestCase):
+    @staticmethod
+    def harness_matches(path):
+        text = (ROOT / '.github/workflows/backend-harness.yml').read_text()
+        block = re.search(r"^    paths:\n((?:      (?:- .+|#.*)\n)+)", text, re.M)
+        if block is None:
+            raise AssertionError('The harness needs an explicit pull-request path scope.')
+        patterns = re.findall(r"^      - '([^']+)'$", block.group(1), re.M)
+        return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
+
+    def test_payment_consumers_do_not_start_the_shared_restart_harness(self):
+        # These two actual PR131 changes triggered the unintended extra run.
+        for path in ('tests/Riftbound.NativeNetworkSmoke/PaymentAcceptanceStartupHook.cs',
+                     'tests/Riftbound.NativeNetworkSmoke/PaymentResourceSurplusNetworkAcceptance.cs',
+                     'tests/Riftbound.NativeNetworkSmoke/OptionalAdditionalCostReductionNetworkAcceptance.cs'):
+            with self.subTest(path=path):
+                self.assertFalse(self.harness_matches(path))
+
+    def test_shared_restart_tools_still_start_the_harness(self):
+        for path in ('.github/workflows/backend-harness.yml',
+                     'scripts/run-process-restart-ci.py',
+                     'scripts/tests/test_process_restart_ci.py',
+                     'scripts/tests/test_l3_workflow.py',
+                     'tests/Riftbound.NativeNetworkSmoke/Program.cs',
+                     'tests/Riftbound.NativeNetworkSmoke/ProcessRestartAcceptance.cs',
+                     'tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj',
+                     'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs'):
+            with self.subTest(path=path):
+                self.assertTrue(self.harness_matches(path))
+
     def test_nightly_pins_main_once_and_all_children_use_that_exact_sha(self):
         text = (ROOT / ".github/workflows/native-desktop.yml").read_text()
         jobs = dict(re.findall(r"^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)", text, re.M | re.S))
