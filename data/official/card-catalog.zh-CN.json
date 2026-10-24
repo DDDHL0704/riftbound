@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1040,
+  "total": 1045,
   "cards": [
     {
       "id": 31005,
@@ -43184,6 +43184,246 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37790,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·093",
+      "cardName": "均衡渡命人",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "他的生命已经与这把剑密不可分。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/ac01912ff4704b838d15ff4d2fa49d33.png",
+      "backImage": "",
+      "listSort": 1896,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37822,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·122",
+      "cardName": "烈阳之鹰",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "巨神峰",
+      "tag": "鸟类",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1和{{法盾2}}。（对手必须支付{{A}}{{A}}才能将我选作法术或技能的目标。）",
+      "flavorText": "它的啼鸣，唤醒了黎明。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/14381fa7f9ee4c3285f4168161915a91.png",
+      "backImage": "",
+      "listSort": 1864,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37693,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·008",
+      "cardName": "无情打击",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n你可以选择弃置一张手牌，作为打出此牌的额外费用。\n对战场上的一名单位造成3点伤害。如果你支付了该额外费用，则改为对其造成5点伤害。",
+      "flavorText": "既已选择摧毁，那就不要留情。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/29bd038b4bdb466397f8d6271fc03fa7.png",
+      "backImage": "",
+      "listSort": 1993,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37733,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·043",
+      "cardName": "钢爪",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "皮尔特沃夫",
+      "tag": "猫科",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{强化7}}（支付{{7}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+7。",
+      "flavorText": "老鼠越变越大，小猫也要想办法。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/df893a9f16fd4c68b4f28ecbb2d64f67.png",
+      "backImage": "",
+      "listSort": 1953,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37800,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·103",
+      "cardName": "往日阴影",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "让最多两名单位从任意废牌堆返回其所属的手牌。",
+      "flavorText": "“没有人可以逃离他们的影子。”\n——劫",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/bc80d4b1b46c4500849062000b163838.png",
+      "backImage": "",
+      "listSort": 1886,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43709,6 +43949,81 @@
       "printedFaceIdentity": "VEN·081/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-081/166",
       "reason": "Three basic resource Flow spell consumers reuse the existing CN829 mechanism; branch implementation and semantic tests in progress, whole-card candidate certification pending integration."
+    },
+    {
+      "cardNo": "VEN·093",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T06:37:16.819757+00:00",
+      "sourceId": 37790,
+      "sourceRecordSha256": "56cae7a3fbefc81586b36f1a67ef9f275f63bd629836e9c40b4f7641cf618cc9",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·093/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-093/166",
+      "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, permanent self Might and Roam or counted Ward mechanisms; source/semantic/backend gates remain separate."
+    },
+    {
+      "cardNo": "VEN·122",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T06:37:16.819757+00:00",
+      "sourceId": 37822,
+      "sourceRecordSha256": "017e5f1c4dc6534a5862295511d5e61248b87a94684974d674a9d50521bdbb15",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·122/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-122/166",
+      "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, permanent self Might and Roam or counted Ward mechanisms; source/semantic/backend gates remain separate."
+    },
+    {
+      "cardNo": "VEN·008",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T06:54:00.201926+00:00",
+      "sourceId": 37693,
+      "sourceRecordSha256": "9027dd01da9b155351cb8f3457ead78d0faae6d4ee036296c9bb462f0f992f8b",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·008/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-008/166",
+      "reason": "Exact CN optional discard consumer under semantic development; registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·043",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:42:55.415532+00:00",
+      "sourceId": 37733,
+      "sourceRecordSha256": "a08a650c6fe94935d625247ac20f1542e53f3488a5be4abe1826090684ca7fe6",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·043/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-043/166",
+      "reason": "Exact source/basic-unit prerequisite for original inactive graveyard Ward assertion; source metadata and registration are not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·103",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T07:42:55.415532+00:00",
+      "sourceId": 37800,
+      "sourceRecordSha256": "a497ccb0fc73058fe1693f47f9aaceaf0dd272d329d2528144bed236183c6d39",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·103/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-103/166",
+      "reason": "Exact CN any-graveyard return consumer under semantic development; registration is not whole-card certification."
     }
   ]
 }
