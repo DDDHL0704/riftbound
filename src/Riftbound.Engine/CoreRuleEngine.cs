@@ -14298,11 +14298,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
             .Where(StaticAuraSpecRules.IsBattlefieldPowerStaticAura)
-            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(aura, cardObject))
+            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(state, aura, cardObject))
             .Sum(aura => aura.PowerDeltaPerParticipant);
     }
 
-    private static bool BattlefieldStaticAuraAppliesToParticipant(StaticAuraSpec aura, CardObjectState cardObject)
+    internal static bool BattlefieldStaticAuraAppliesToParticipant(MatchState state, StaticAuraSpec aura, CardObjectState cardObject)
     {
         if (string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldUnits, StringComparison.Ordinal))
         {
@@ -14310,7 +14310,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return string.Equals(aura.TargetScope, StaticAuraTargetScopes.SameBattlefieldFilteredUnits, StringComparison.Ordinal)
-            && StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject);
+            && (aura.TargetFilter?.StartsWith(StaticAuraTargetFilters.CurrentKeywordPrefix, StringComparison.Ordinal) == true
+                ? InspectCurrentKeywordFilter(state, aura, cardObject).Matches
+                : StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject));
     }
 
     private static int ResolveBattlefieldKeywordStaticAuraBonus(
@@ -14330,7 +14332,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return StaticAuraSpecRules.GetStaticAuras(battlefieldState.CardNo)
             .Where(StaticAuraSpecRules.IsBattlefieldKeywordStaticAura)
-            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(aura, cardObject))
+            .Where(aura => BattlefieldStaticAuraAppliesToParticipant(state, aura, cardObject))
             .Select(aura => GrantedCombatKeywordAmount(aura, combatKeyword))
             .DefaultIfEmpty(0)
             .Max();
@@ -14606,32 +14608,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        var bonus = 0;
-        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
-        {
-            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || !string.Equals(
-                    EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura)
-                .Where(aura => PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(
-                    aura,
-                    sourceObjectId,
-                    objectId,
-                    cardObject)))
-            {
-                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
-            }
-        }
-
-        return bonus;
+        var layerState = ReferenceEquals(playerZones, state.PlayerZones) ? state : state with { PlayerZones = playerZones };
+        return CurrentPublicKeywordGrants(layerState, cardObject, combatKeyword)
+            .Where(grant => StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura(grant.Aura))
+            .Select(grant => GrantedCombatKeywordAmount(grant.Aura, combatKeyword)).DefaultIfEmpty(0).Max();
     }
 
     private static bool PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(

@@ -3353,6 +3353,27 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var currentBulwarkBattlefieldPowerMatch = Regex.Match(
+                segment,
+                @"^此处拥有\{\{壁垒\}\}的单位获得\{\{S\}\}\+(\d+)。?$",
+                RegexOptions.CultureInvariant);
+            if (currentBulwarkBattlefieldPowerMatch.Success
+                && int.TryParse(currentBulwarkBattlefieldPowerMatch.Groups[1].Value, out var currentBulwarkPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    currentBulwarkPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Current Bulwark possession uses the shared battlefield power filter.",
+                    StaticAuraTargetFilters.CurrentKeywordPrefix + "壁垒"));
+                continue;
+            }
+
             var brushBattlefieldFilteredPowerMatch = Regex.Match(
                 segment,
                 @"此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得\{\{S\}\}\+(\d+)",
