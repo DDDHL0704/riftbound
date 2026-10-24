@@ -198,7 +198,7 @@ public sealed class VenBasicFlowSpellTests
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Red] = 20 }), ["P2"] = new(20, 20) }, seed: 424242)
             with { CardPlays = new(5, [], []) };
     }
-    private sealed class Driver : IMatchJournal
+    internal sealed class Driver : IMatchJournal
     {
         private readonly MatchState initial;
         private readonly List<MatchJournalEntry> entries = [];
