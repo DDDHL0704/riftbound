@@ -155,7 +155,8 @@ public static partial class MatchRecoveryValidator
             }
             foreach (var p in card.UntilEndOfTurnPowerModifiers ?? [])
                 if (p is not null && (p.Duration == "UNTIL_END_OF_BATTLE" || p.EffectId?.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal) == true
-                    || p.EffectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND") && !pairedPowers.Contains(p.EffectId))
+                    || p.EffectKind is "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND")
+                    && (p.EffectId is null || !pairedPowers.Contains(p.EffectId)))
                     errors.Add("unpaired battle power ledger");
         }
     }
