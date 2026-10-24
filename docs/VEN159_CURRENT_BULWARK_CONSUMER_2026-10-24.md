@@ -2,6 +2,16 @@
 
 2026-10-24。整卡认证净增量 **0**，后端仍 **NOT READY**。登记数、局部语义及回放结果不替代适用来源和完整候选验收。
 
+## 当前支付主线组合
+
+固定测试源 `a5aeb8aec8020fc6da1d9e9d19266ffd9a1e2c9a` 为旧ready `b2a3a816234d9cf8a974b0e91488b9aa6b48e513` 与main `d713adad568999baa8703750b7893ec234c63d4c` 的精确自动合并树，完整父PR160 `688f4c503dc36a3d78ba97a32423ed7021ea625d` 保留；ready仅更新本文。自有目录/解析/登记及原消费者断言不变，PermanentPlayTargets完整文件与新main相同。
+
+编译0警告/错误，单线程379/379、零跳过：原289例多重集合全部保留，另加main124入口64例和main131主动资源26例，无交集，最初L2的5个失败名称均通过。同一新运行件重新导出8个实际decoded完整帧，仍110命令（94接受/16拒绝）/270事件及32个伪造拒绝；中盘初态的身份保持，不计规范开局/完整对局。2501编译输入/1418运行文件全量哈希稳定；四模块InfoVersion指向受测源，RIF `fe9c86ff481deaa398c024df609a56098bdadcfdae26fce503ccb57c05bb97e3`；六个原未跟踪文件不变且未编入。
+
+当前ignored原件 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr166-maind713-v1/` 含固定源/bin、实际TRX、完整帧、清单、模块身份和已过verifier；`source-runtime-proof-v1.json` SHA256 `4e323010294d825f61b5ea79c6ff24abbb06a0e767dfdc983456c39626ced626`。下述旧结果保留原身份，不改标或求和。
+
+旧base293的实际L2 run `40088473467` 已通过：head b2a3a816、受测merge `4b4e60e502fc12da8d27042707e93d8234efad9b`。四ZIP平台digest已核对，相同版本门禁对原discovery/plan/TRX回验逐项等于原required结果：focus9965例/5735方法，rule_suite14152例/7726方法，零跳过；两profile重叠不求和。测试程序集身份仅核对原计划记录，产物未含DLL二进制。原件在相邻 `pr166-green-old-main293-v1/`，独立收据SHA256 `85ef706e6e5eb0f50ee2b1a9bd9bb97f05d72b0196ecf578c24a480003003d77`。该绿灯不授权当前main合并，最新实际head/base/merge-result的L2及实际artifact仍须全部通过；未新启本机full/SQL/网络/矩阵。
+
 ## 官方来源与边界
 
 - CN `37862` / `VEN·159/166 SC`，均衡寺院，战场。2026-10-24T08:48:22.197777Z 从 [官方卡牌接口](https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb) 读取：`此处拥有{{壁垒}}的单位获得{{S}}+1。` 未限定控制方。
