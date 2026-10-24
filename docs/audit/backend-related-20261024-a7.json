@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_A6_N9_VERIFIER_ONE_EXPRESSION_NARROW_REPAIR_NOT_CERTIFICATION",
+  "batchId": "backend-related-20261024-a7",
+  "immutableRef": "refs/tags/backend-related-20261024-a7",
+  "candidateIdentity": "Resolve immutable ref to full SHA; dispatch candidate_sha, event GITHUB_SHA and actual checkout must match. Keep actual source-index receipts.",
+  "baseCandidate": "7e0766252c287b90b23d8b717f38d4f1ef0c8d9d",
+  "baseManifest": "docs/audit/backend-related-20261024-a6.json",
+  "baseManifestSha256": "30366e1b113eeb7c73961c1b44dc1f9a7aaaf1ed81c9d749b89c3ead02b55fb9",
+  "inheritedMembers": "All fixed A6 members referenced by the base manifest; no parent development features imported.",
+  "codeBoundaryBeforeMetadataSeal": "4661f463e53d1129b7bb81ee47ef87b5c8f6d07a",
+  "members": [
+    {
+      "id": "A6-N9-returned-source-verifier-selection",
+      "primaryLine": 4,
+      "sourceCommit": "d434cc8c31fa2494db308cdce438db25ae1e93c8",
+      "integratedCommit": "4661f463e53d1129b7bb81ee47ef87b5c8f6d07a",
+      "paths": [
+        "tests/Riftbound.PostgresAcceptance/VenEmpoweredSelfSqlAcceptance.cs",
+        "tests/Riftbound.ConformanceTests/N9ReturnedSourceCardinalityTests.cs",
+        "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj",
+        "docs/parallel/A6_N9_RETURNED_SOURCE_SELECTION_2026-10-24.md"
+      ],
+      "leafBeforeSha256": "a44d53e586585aebdd52ac665b9d3c41042af93de9f16aed3b8e157921e812d2",
+      "leafAfterSha256": "330c55d645f01d90eadbd6b1430e42c0521b7cf8e8dd9bf05709a40727508692",
+      "actualChange": "VerifyNetworkAsync selects unique EmpowerActivation-bearing item instead of entire stack.Single for returned source generation. Preserve preceding CheckPending and every generation/cost/privacy/birth/history/SQL assertion."
+    }
+  ],
+  "narrowRepairBoundary": {
+    "productionDataScriptsWorkflowByteEqualToA6": true,
+    "acceptanceLeafChange": "One expression in VerifyNetworkAsync; actual real crab hand-reveal item retained.",
+    "permanentGuardCases": 9,
+    "newProjectReference": "Conformance→existing PostgresAcceptance; all prior root Compile links preserved.",
+    "otherTestSourcesAndOriginalFullGamesByteEqualToA6": true,
+    "allParentFeatureDeltasExcluded": true,
+    "noNewErrorCodeDtoPersistenceSchemaOrGuardRelaxation": true,
+    "noA6TagRetargetRetryOrCancellation": true,
+    "meaningfulA6OtherJobsContinue": true,
+    "membershipMayNotGrowAfterSeal": true
+  },
+  "catalog": {
+    "rows": 1052,
+    "semanticSha256": "3bf8afc44964c6706be63503055fedb383004119d4d632c7803ca2bf9b8cd2f0"
+  },
+  "networkCases": [
+    "payment-resource-surplus",
+    "damage-doubling-combat-keywords",
+    "ven-flow-combat-keywords",
+    "optional-additional-cost-reductions",
+    "instruction-power-payment",
+    "restricted-mana-lux",
+    "empowered-target-action-replacement",
+    "ven-empowered-self"
+  ],
+  "sqlCaseCount": 76,
+  "sqlPartitionCount": 4,
+  "requiredRemoteGates": [
+    "rules full",
+    "all four PostgreSQL partitions",
+    "native_network",
+    "all eight related network groups including actual restart/finish/verify",
+    "existing desktop gates"
+  ],
+  "verificationBeforeSeal": {
+    "rootSourceHead": "4661f463e53d1129b7bb81ee47ef87b5c8f6d07a",
+    "rootIsolatedConformanceAndBackendEntryBuilds": true,
+    "rootBothBuildsZeroWarningsAndErrors": true,
+    "rootActual1052FocusedCases": 9,
+    "rootPassed": 9,
+    "rootSkipped": 0,
+    "rootActualRuleInputs": "74e943c37463ba1567eed73b89fad95892322bfa689d36abd33ee34bf2a8f627",
+    "sourceAndOwnerReview": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/a6-n9-returned-selection-intake-v1/source-and-owner-evidence-review-v1.json",
+    "rootTargetedReceipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/a6-n9-returned-selection-intake-v1/root-targeted-verification-v1.json",
+    "ownerFixedA6SinglePrefix": "Separate actual dual-player SignalR/PostgreSQL VEN043 revealed prefix: original -6/corrected0 using identical four frozen core DLLs andRIFe40;15commands33events, exact seven-table digest and reverse/zero/multiple controls. Not originalCI private frame, restart/recover/tamper, whole matrix or Linux binary equivalence.",
+    "ownerCurrentN19ParentFocus": "Separate9/9 on ownerRIF5c; not root/A7/source-fixedSQL identity.",
+    "actualA7RemoteGates": "NOT_YET_DISPATCHED"
+  },
+  "originalFailure": {
+    "runId": 40049395550,
+    "jobId": 120738821679,
+    "artifactId": 12543890797,
+    "artifactZipSha256": "c9c8122ce692629c391458dbed01fad3a32945519ebc41811a389025f1b10a92",
+    "triage": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-integration-20261023/var/qa/related-backend-integration-20261024-v3/a6-terminated-failure-triage-v1/failure-triage-v1.json",
+    "phase": "N9 before-restart third043-revealed SQL verifier",
+    "beforeFix": "Legitimate Empower plus real crab-reveal stack caused whole-stack Single exception.",
+    "originalCiThirdPrivateFrameStillUnavailable": true
+  },
+  "excludedNextFeatures": [
+    "frozen-B1 C8/S7/N10/N11/N12/C9/N13",
+    "C10",
+    "C11 including expiry observer private prototype",
+    "N14",
+    "N15",
+    "N16",
+    "N17",
+    "N19",
+    "VEN057",
+    "resource capacity prompts",
+    "S5 explicit power allocation",
+    "S7 imposed explicit allocation",
+    "Issue115 raw-envelope b9ba79cc",
+    "rejected-cache ErrorCode contract"
+  ],
+  "knownOpenBoundaries": [
+    "Whole-card certification remains0; applicable functional denominator unknown.",
+    "Raw null/nonobject ingress b9 remains a separately reviewed future source package, not integrated into A7.",
+    "Typed nullable-absent raw, whole payload equivalence and cold rejection-code preservation remainOPEN.",
+    "Root/owner Mac and LinuxCI runtime identities are distinct; only exact fixed-source evidence is reused.",
+    "Source/tests/commit/CI/runtime/whole-card acceptance remain separate; full required Actions gates pending."
+  ],
+  "wholeCardCertificationDelta": 0,
+  "wholeCardOrVisibleClientCertification": false,
+  "backendStageComplete": false,
+  "mainRuntimePublished": false
+}
