@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 spec=importlib.util.spec_from_file_location('rules_runner',Path(__file__).parents[1]/'test-rules.py')
@@ -61,5 +62,36 @@ class RuleRunnerTests(unittest.TestCase):
 
     def test_check_requires_named_smoke_tests(self):
         with self.assertRaises(ValueError):runner.plan({runner.PREFIX+'A.Test'},'check',4,[],{})
+
+    def test_l2_defers_exact_full_opening_identity_and_full_still_contains_every_method(self):
+        deferred = runner.PREFIX + 'OpeningTests.FullJournalRecovery'
+        fast = runner.PREFIX + 'RecoveryTests.MechanismBoundary'
+        new_untagged = runner.PREFIX + 'OpeningTests.NewUnclassifiedCase'
+        matrix = runner.FULL_CLASS + 'OriginalMatrix'
+        smoke = {runner.FULL_CLASS + name for name in runner.SMOKE}
+        methods = {deferred, fast, new_untagged, matrix} | smoke
+        with patch.object(runner, 'l3_acceptance_methods', return_value={deferred}):
+            l2 = runner.plan(methods, 'l2', 2, [], {})[0]
+            self.assertEqual({fast, new_untagged} | smoke, l2['methods'])
+            self.assertIn('FullyQualifiedName!=' + deferred, l2['filter'])
+            full = runner.plan(methods, 'full', 4, [], {})
+            all_full = [name for shard in full for name in shard['methods']]
+            self.assertEqual(methods, set(all_full))
+            self.assertEqual(len(methods), len(all_full))
+            self.assertEqual({deferred, matrix}, methods - l2['methods'])
+            focused = runner.plan(methods, 'focus', 2, ['Recovery'], {}, l2_only=True)[0]
+            self.assertEqual({fast}, focused['methods'])
+            with self.assertRaises(ValueError):
+                runner.plan(methods - {deferred}, 'l2', 2, [], {})
+
+    def test_declared_l3_methods_resolve_to_preserved_source_methods(self):
+        import json
+        rows = json.loads(runner.L3_POLICY.read_text())['methods']
+        names = runner.l3_acceptance_methods()
+        self.assertEqual(18, len(names))
+        for row in rows:
+            self.assertIn(row['method'], names)
+            text = (runner.ROOT / row['source']).read_text()
+            self.assertIn(row['method'].rsplit('.', 1)[-1] + '(', text)
 
 if __name__=='__main__':unittest.main()
