@@ -24,7 +24,7 @@ def require(condition, message):
 
 def verify(commit, manifest_path, folder, jobs):
     require(re.fullmatch(r'[0-9a-f]{40}', commit) is not None, 'A fixed commit is required.')
-    require(set(jobs) == {'scope', 'postgres_partitions', 'native_network'}
+    require(set(jobs) == {'scope', 'postgres_partitions', 'native_network', 'related_network'}
             and all(value == 'success' for value in jobs.values()), 'Every SQL/network child must succeed.')
     manifest_path, folder = Path(manifest_path), Path(folder)
     manifest = json.loads(manifest_path.read_text())
@@ -93,12 +93,13 @@ def main():
     parser.add_argument('--commit', required=True)
     parser.add_argument('--manifest', type=Path, required=True)
     parser.add_argument('--inputs', type=Path, required=True)
-    for key in ['scope', 'postgres-partitions', 'native-network']:
+    for key in ['scope', 'postgres-partitions', 'native-network', 'related-network']:
         parser.add_argument('--' + key, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     result = verify(args.commit, args.manifest, args.inputs, {'scope': args.scope,
-                    'postgres_partitions': args.postgres_partitions, 'native_network': args.native_network})
+                    'postgres_partitions': args.postgres_partitions, 'native_network': args.native_network,
+                    'related_network': args.related_network})
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open('x') as stream:
         json.dump(result, stream, indent=2)
