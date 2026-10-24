@@ -21,7 +21,7 @@ class SqlCiGateTests(unittest.TestCase):
         self.addCleanup(self.folder.cleanup)
         self.root = Path(self.folder.name)
         self.commit = '1' * 40
-        self.jobs = dict.fromkeys(['scope', 'postgres_partitions', 'native_network'], 'success')
+        self.jobs = dict.fromkeys(['scope', 'postgres_partitions', 'native_network', 'related_network'], 'success')
         self.manifest = json.loads(MANIFEST.read_text())
         self.ids = [row['id'] for row in self.manifest['cases']]
         self.paths = []
@@ -91,10 +91,10 @@ class SqlCiGateTests(unittest.TestCase):
         self.assertEqual('draven-battle-death', self.ids[68])
 
     def test_every_failed_cancelled_skipped_or_missing_child_fails_closed(self):
-        for values in itertools.product(['success', 'failure', 'cancelled', 'skipped', ''], repeat=3):
+        for values in itertools.product(['success', 'failure', 'cancelled', 'skipped', ''], repeat=4):
             with self.subTest(values=values):
-                self.jobs = dict(zip(['scope', 'postgres_partitions', 'native_network'], values))
-                if values == ('success',) * 3:
+                self.jobs = dict(zip(['scope', 'postgres_partitions', 'native_network', 'related_network'], values))
+                if values == ('success',) * 4:
                     self.verify()
                 else:
                     with self.assertRaises(ValueError):
@@ -168,9 +168,9 @@ class SqlCiGateTests(unittest.TestCase):
             self.assertNotIn('continue-on-error', jobs[name])
         self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
         self.assertIn('fail-fast: false', jobs['postgres_partitions'])
-        self.assertIn('github.sha }}-${{ matrix.partition', jobs['postgres_partitions'])
+        self.assertIn('needs.scope.outputs.commit }}-${{ matrix.partition', jobs['postgres_partitions'])
         self.assertIn('--ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
-        self.assertIn('    needs: [scope, postgres_partitions, native_network]\n', jobs['postgres'])
+        self.assertIn('    needs: [scope, postgres_partitions, native_network, related_network]\n', jobs['postgres'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('    needs: [scope, rule_suite, postgres]\n', jobs['rules'])
 
