@@ -168,7 +168,7 @@ public sealed class BurnoutVictoryBeforeCleanupTests
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(
             e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick,
             e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted,
-            e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((ev, i) =>
             new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         internal async Task Act(string actor, GameCommand command)

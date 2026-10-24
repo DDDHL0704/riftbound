@@ -38,6 +38,10 @@ public sealed record MatchJournalEntry(
     IReadOnlyList<RuleEvidenceRef>? RulesEvidence = null)
 {
     [System.Text.Json.Serialization.JsonRequired]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.Never)]
+    public string? ErrorCode { get; init; }
+
+    [System.Text.Json.Serialization.JsonRequired]
     public long OpeningSeed { get; init; }
 
     [System.Text.Json.Serialization.JsonRequired]

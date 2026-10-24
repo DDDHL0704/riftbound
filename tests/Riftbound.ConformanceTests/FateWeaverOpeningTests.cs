@@ -99,7 +99,7 @@ public sealed class FateWeaverOpeningTests(ITestOutputHelper output)
             var sequence = journal.Entries[^1].CompletedEventSequence;
             var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
                 e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
-                e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+                e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
             var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) =>
                 new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
             var views = initial.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, current.Tick,

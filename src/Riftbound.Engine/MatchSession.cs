@@ -17071,7 +17071,7 @@ public sealed partial class MatchSession : IMatchSession
                 [],
                 ResolutionResult.BuildSnapshots(restoredState),
                 ResolutionResult.BuildPrompts(restoredState),
-                command.Accepted ? null : ErrorCodes.UnsupportedCommand);
+                command.ErrorCode);
             intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
                 command.CommandType,
                 RawCommandFingerprint(command.RawCommand),
@@ -17335,7 +17335,7 @@ public sealed partial class MatchSession : IMatchSession
                     events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode },
                 cancellationToken).ConfigureAwait(false);
             lastEventSequence = completedEventSequence;
 
@@ -17482,7 +17482,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17552,7 +17552,7 @@ public sealed partial class MatchSession : IMatchSession
                         promptRejection.Events,
                         promptRejection.Snapshots,
                         promptRejection.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = promptRejection.ErrorCode },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
@@ -17680,7 +17680,7 @@ public sealed partial class MatchSession : IMatchSession
                         events,
                         result.Snapshots,
                         result.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
             }
@@ -17779,7 +17779,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)

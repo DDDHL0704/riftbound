@@ -136,7 +136,7 @@ public sealed class RavenbloomPutIntoHandOpeningTests(ITestOutputHelper output)
             Assert.False(bad.Accepted); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(bad.State));
         }
         RecoveredCommand[] Commands() => journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
-            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(
             e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         MatchRecoveryFrame Frame(MatchState target, IReadOnlyList<RecoveredEvent> events)

@@ -34,7 +34,7 @@ public sealed class LightningRushScenarioTests
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(setup.State)); ArmamentMightTests.PublicRecovery(setup.State);
         var entry = Assert.Single(journal.Entries); Assert.Equal("DEV_SEED_SCENARIO:" + scene, entry.CommandType);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((value, index) => new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, value))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, setup.State, new CoreRuleEngine(), default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));

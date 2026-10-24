@@ -52,7 +52,7 @@ public sealed class RevealedHandContinuationTests
         if(decline)Export("hand-hidden","snapshot.json",ResolutionResult.BuildSnapshots(result.State)["P1"]);
         if(decline)Assert.Contains("U",result.State.PlayerZones["P2"].Hand);
         else {Assert.Equal("BF",result.State.ObjectLocations["U"].BattlefieldObjectId);Assert.Contains("STUNNED",result.State.CardObjects["U"].UntilEndOfTurnEffects);}
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export(decline?"hand-decline":"hand-play","replay.json",new{nativeCommandsUsed=actual.All(x=>x),replay});
