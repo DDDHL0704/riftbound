@@ -80,7 +80,8 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{RedRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        // CN 430 allows voluntary green acquisition while the haste fee remains red.
+        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}", $"RECYCLE_RUNE:{RedRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
         Assert.DoesNotContain(
             paymentResourceChoices,
             choice => choice.Id.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal));
@@ -88,6 +89,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
         Assert.Equal(RuneTrait.Red, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{RedRuneObjectId}"]["trait"]);
+        Assert.Equal(RuneTrait.Green, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{GreenRuneObjectId}"]["trait"]);
 
         var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTrait"]);
@@ -95,6 +97,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
+        Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Green]);
     }
 
     [Fact]
@@ -118,7 +121,10 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .ToArray();
-        Assert.Empty(paymentResourceChoices);
+        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Green]);
+        Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
     }
 
     [Theory]
@@ -466,6 +472,19 @@ public sealed class ReksaiHasteReadyRedPaymentTests
                 optionalCosts: [HasteOptionalCostNames.HasteReady]),
             _ => ReksaiCommand(ReksaiCardNo)
         };
+
+        // Retain the original Theory row; CN 164.2.b/430 permits this surplus acquisition.
+        if (scenario == "unnecessary-recycle")
+        {
+            var acquired = await new CoreRuleEngine().ResolveAsync(state,
+                new("voluntary-surplus", "P1", "PLAY_CARD"), command, default);
+            Assert.True(acquired.Accepted, acquired.ErrorMessage);
+            Assert.Equal(1, acquired.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+            Assert.DoesNotContain(RedRuneObjectId, acquired.State.PlayerZones["P1"].Base);
+            Assert.Contains(RedRuneObjectId, acquired.State.PlayerZones["P1"].RuneDeck);
+            Assert.Single(acquired.Events, e => e.Kind == "RUNE_RECYCLED");
+            return;
+        }
 
         await AssertRejectedNoMutationAsync(state, command);
     }
