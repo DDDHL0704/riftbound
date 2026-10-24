@@ -102,5 +102,5 @@ public sealed class HistoricalDamageSourcePrivacyTests
 
     private static IReadOnlyList<string> Errors(MatchRecoveryFrame frame)
         => MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
-            frame.PlayerViews, frame.AuthoritativeState, frame.LastAcceptedTick, frame.SpectatorView);
+            frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick, frame.SpectatorReplayFrame);
 }
