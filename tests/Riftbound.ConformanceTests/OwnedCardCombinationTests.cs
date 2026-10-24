@@ -54,6 +54,36 @@ public sealed class OwnedCardCombinationTests
     [InlineData("P2")]
     public async Task TempleKeepsActualGraveyardReadyAssassinAliveThroughPaidDiscardDamageUntilGrantExpires(string player)
     {
+        var (initial, run) = await PaidDiscardDamageAtTemple(player, "damage-survived-");
+        var opponent = Other(player);
+        await run.Act(player, new EndTurnCommand());
+        Assert.Equal("BATTLEFIELD", run.State.ObjectLocations["ASSASSIN"].Zone);
+        Assert.Equal(0, run.State.CardObjects["ASSASSIN"].Damage);
+        Assert.DoesNotContain(CardCombatKeywordNames.Bulwark, run.State.CardObjects["ASSASSIN"].Tags);
+        Might(run.State, "ASSASSIN", 5);
+        Assert.DoesNotContain("ASSASSIN", run.State.PlayerZones[player].Graveyard);
+        Assert.Contains("NAMED-GRAVE", run.State.PlayerZones[player].Graveyard);
+        Assert.Contains("FODDER", run.State.PlayerZones[opponent].Graveyard);
+        await Checkpoint("damage-final-" + player, initial, run, true);
+    }
+
+    [Theory]
+    [InlineData("P1")]
+    [InlineData("P2")]
+    public async Task LosingTempleBeforeTurnEndMakesTheActuallyDamagedAssassinLethalAfterMovingToBase(string player)
+    {
+        var (initial, run) = await PaidDiscardDamageAtTemple(player, "move-damage-survived-");
+        Assert.False(run.State.CardObjects["ASSASSIN"].IsExhausted);
+        await run.Act(player, new MoveUnitCommand("ASSASSIN", "BATTLEFIELD:F", "BASE", []));
+        Assert.Equal("GRAVEYARD", run.State.ObjectLocations["ASSASSIN"].Zone);
+        Assert.Contains("ASSASSIN", run.State.PlayerZones[player].Graveyard);
+        Assert.Contains("NAMED-GRAVE", run.State.PlayerZones[player].Graveyard);
+        Assert.Contains("FODDER", run.State.PlayerZones[Other(player)].Graveyard);
+        await Checkpoint("move-damage-final-" + player, initial, run, true);
+    }
+
+    private static async Task<(MatchState Initial, Driver Run)> PaidDiscardDamageAtTemple(string player, string checkpointPrefix)
+    {
         var initial = Opening(player, true); var run = new Driver(initial); var opponent = Other(player);
         await run.Act(player, new PlayCardCommand("ASSASSIN", "VEN·013", [], Destination: "BATTLEFIELD:F"));
         Assert.False(run.State.CardObjects["ASSASSIN"].IsExhausted);
@@ -74,16 +104,12 @@ public sealed class OwnedCardCombinationTests
         Might(run.State, "ASSASSIN", 6);
         var damage = Assert.Single(run.Events(), e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "DAMAGE"));
         Assert.Equal(5, damage.Event.Payload["damage"]);
-        await Checkpoint("damage-survived-" + player, initial, run);
+        await Checkpoint(checkpointPrefix + player, initial, run);
         await Drain(run);
         Assert.Equal("BATTLEFIELD", run.State.ObjectLocations["ASSASSIN"].Zone);
+        Assert.Equal(5, run.State.CardObjects["ASSASSIN"].Damage);
         Might(run.State, "ASSASSIN", 6);
-        await run.Act(player, new EndTurnCommand());
-        Assert.Equal("GRAVEYARD", run.State.ObjectLocations["ASSASSIN"].Zone);
-        Assert.Contains("ASSASSIN", run.State.PlayerZones[player].Graveyard);
-        Assert.Contains("NAMED-GRAVE", run.State.PlayerZones[player].Graveyard);
-        Assert.Contains("FODDER", run.State.PlayerZones[opponent].Graveyard);
-        await Checkpoint("damage-final-" + player, initial, run, true);
+        return (initial, run);
     }
 
     private static async Task Checkpoint(string name, MatchState initial, Driver run, bool final = false)
