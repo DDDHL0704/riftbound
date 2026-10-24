@@ -242,6 +242,62 @@ public sealed class PaymentReconnectEvidenceTests
         finally { Directory.Delete(folder, true); }
     }
 
+    [Fact]
+    public async Task BothFreshJoinedSessionsCanAdvanceAndPersistTheirActualTokens()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "payment-joined-positive-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        try
+        {
+            var source = NpgsqlDataSource.Create("Host=127.0.0.1;Port=1;Database=never-opened;Username=test");
+            await using (var audit = new PaymentReconnectEvidence(source, "R", folder, "recover",
+                new Dictionary<string, string> { ["P1"] = "old-one", ["P2"] = "old-two" }))
+            {
+                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+                foreach (var player in new[] { "P2", "P1" })
+                {
+                    Assert.True(audit.Observe(player, "Joined", new(MessageType.RECONNECT, "R", player, 0,
+                        JsonSerializer.SerializeToElement(new PlayerSessionDto(player, player, "actual-new-" + player), Web))));
+                    await audit.RequireJoined(player, deadline.Token);
+                    audit.Healthy();
+                }
+            }
+            var saved = JsonSerializer.Deserialize<Dictionary<string, string>>(
+                await File.ReadAllTextAsync(Path.Combine(folder, "current-session-tokens.json")), Web)!;
+            Assert.Equal(2, saved.Count);
+            Assert.Equal("actual-new-P1", saved["P1"]);
+            Assert.Equal("actual-new-P2", saved["P2"]);
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
+    [Fact]
+    public async Task MatchingExpectedErrorsCanBeConsumedInConsecutiveRejectedIntents()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "payment-error-positive-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        try
+        {
+            var source = NpgsqlDataSource.Create("Host=127.0.0.1;Port=1;Database=never-opened;Username=test");
+            await using var audit = new PaymentReconnectEvidence(source, "R", folder, "play",
+                new Dictionary<string, string> { ["P1"] = "old-one", ["P2"] = "old-two" });
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            foreach (var intent in new[] { "first", "second" })
+            {
+                var expected = new CommandReceiptDto("R", "P1", intent, "DECIDE", false, 7, "unchanged", "rejected", ErrorCodes.InvalidTarget);
+                var receipt = await audit.Reject("P1", "P1", ErrorCodes.InvalidTarget, () =>
+                {
+                    Assert.True(audit.Observe("P1", "Error", new(MessageType.ERROR, "R", "P1", 7,
+                        JsonSerializer.SerializeToElement(new ErrorDto(ErrorCodes.InvalidTarget, "expected rejection"), Web))));
+                    return Task.FromResult(expected);
+                }, deadline.Token);
+                Assert.Same(expected, receipt);
+                audit.Healthy();
+            }
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
     private static PaymentReconnectEvidence.Rotation Proof() => new(Rows(false), Rows(true),
         new Dictionary<string, string> { ["P1"] = "old-P1", ["P2"] = "old-P2" },
         new Dictionary<string, string> { ["P1"] = "new-P1", ["P2"] = "new-P2" });
