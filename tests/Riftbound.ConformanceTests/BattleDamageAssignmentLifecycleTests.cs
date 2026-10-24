@@ -403,8 +403,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
         Assert.Equal("P1", assigned.State.FocusPlayerId);
@@ -427,6 +427,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
+            // Defender control is explicit; battlefield ownership is independent.
+            [BattlefieldObjectId] = state.CardObjects[BattlefieldObjectId] with { ControllerId = "P2" },
             [AttackerObjectId] = state.CardObjects[AttackerObjectId] with
             {
                 CardNo = "UNL-059/219",
@@ -524,8 +526,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.True(conquerIndex < experienceIndex);
         Assert.True(experienceIndex < damageRemovedIndex);
         Assert.True(damageRemovedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
         Assert.Equal("P1", assigned.State.FocusPlayerId);
@@ -547,6 +549,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, BackRowDefenderObjectId]);
         var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
+            // Defender control is explicit; battlefield ownership is independent.
+            [BattlefieldObjectId] = state.CardObjects[BattlefieldObjectId] with { ControllerId = "P2" },
             [AttackerObjectId] = state.CardObjects[AttackerObjectId] with
             {
                 Power = 1,
@@ -1145,6 +1149,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
+            // Defender control is explicit; battlefield ownership is independent.
+            [BattlefieldObjectId] = state.CardObjects[BattlefieldObjectId] with { ControllerId = "P2" },
             [SecondAttackerObjectId] = state.CardObjects[SecondAttackerObjectId] with
             {
                 CardNo = "UNL-059/219",
@@ -1292,8 +1298,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.True(conquerIndex < experienceIndex);
         Assert.True(experienceIndex < damageRemovedIndex);
         Assert.True(damageRemovedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
         Assert.Equal("P1", assigned.State.FocusPlayerId);
@@ -1314,6 +1320,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, BackRowDefenderObjectId]);
         var cardObjects = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
+            // Defender control is explicit; battlefield ownership is independent.
+            [BattlefieldObjectId] = state.CardObjects[BattlefieldObjectId] with { ControllerId = "P2" },
             [AttackerObjectId] = state.CardObjects[AttackerObjectId] with
             {
                 Power = 1,
@@ -1738,9 +1746,10 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var nextSpellDuelStartedEventIndex = EventIndex(assigned.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
-        Assert.True(battleClosedIndex < controlEventIndex);
+        Assert.True(controlEventIndex < battleClosedIndex);
         Assert.True(controlEventIndex < standbyRemovedEventIndex);
-        Assert.True(standbyRemovedEventIndex < nextContestEventIndex);
+        Assert.True(standbyRemovedEventIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestEventIndex);
         Assert.True(nextContestEventIndex < nextSpellDuelStartedEventIndex);
 
         var standbyRemovedEvent = assigned.Events[standbyRemovedEventIndex];
@@ -2224,8 +2233,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
 
         Assert.True(responseClosedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
-        Assert.True(controlResolvedIndex < nextContestIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
         Assert.Equal(TimingStates.SpellDuelOpen, responseP1Pass.State.TimingState);
         Assert.Equal("P1", responseP1Pass.State.FocusPlayerId);
@@ -6278,7 +6287,10 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.All(damageIndexes, damageIndex => Assert.True(assignedIndex < damageIndex));
         Assert.True(damageIndexes.Max() < Math.Min(bulwarkDestroyedIndex, backRowDestroyedIndex));
         Assert.True(Math.Max(bulwarkDestroyedIndex, backRowDestroyedIndex) < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlResolvedIndex);
+        var resultIndex = EventIndex(events, gameEvent => gameEvent.Kind == "BATTLE_RESULT_DETERMINED");
+        Assert.True(Math.Max(bulwarkDestroyedIndex, backRowDestroyedIndex) < resultIndex);
+        Assert.True(resultIndex < controlResolvedIndex);
+        Assert.True(controlResolvedIndex < battleClosedIndex);
     }
 
     private static int AssertDamageApplied(IReadOnlyList<GameEvent> events, CombatDamageAssignmentDto assignment)
