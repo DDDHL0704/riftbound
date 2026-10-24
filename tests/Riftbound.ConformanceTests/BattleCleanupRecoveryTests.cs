@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Reflection;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -23,7 +24,10 @@ public sealed class BattleCleanupRecoveryTests
         var initial = BattleCleanupDeathObserverTimingTests.Opening(true);
         var run = await BattleCleanupDeathObserverTimingTests.Fight(initial);
         var valid = Frame(initial, run);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(valid, new CoreRuleEngine(), default));
+        // This is explicitly a midgame opening. Do not claim formal legal-match
+        // birth validation; use its production original-event check and the
+        // exact-initial command/event replayer without relaxing the birth gate.
+        Assert.Empty(OriginalEventErrors(valid));
         var pending = run.State.PendingBattleResult!;
         Assert.Equal("CLEANUP_TRIGGERS", pending.Stage);
         pending = attack switch
@@ -38,11 +42,18 @@ public sealed class BattleCleanupRecoveryTests
         var originalEvents = JsonSerializer.Serialize(run.Events(), Json);
         var forged = run.State with { PendingBattleResult = pending };
         var frame = Frame(initial, run, forged);
-        Assert.NotEmpty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        Assert.NotEmpty(OriginalEventErrors(frame));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands,
+            frame.AuthoritativeState!, new CoreRuleEngine(), default, frame.Events);
+        Assert.False(replay.IsMatch);
         Assert.Equal(originalCommands, JsonSerializer.Serialize(frame.Commands, Json));
         Assert.Equal(originalEvents, JsonSerializer.Serialize(frame.Events, Json));
         await run.Replay();
     }
+
+    private static IReadOnlyList<string> OriginalEventErrors(MatchRecoveryFrame frame)
+        => (IReadOnlyList<string>)typeof(CoreRuleEngine).Assembly.GetType("Riftbound.Engine.BattleResultRecoveryRules")!
+            .GetMethod("ValidateOriginalTriggers", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [frame])!;
 
     [Theory]
     [InlineData("missing")]
