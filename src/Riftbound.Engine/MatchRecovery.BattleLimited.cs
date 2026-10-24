@@ -15,7 +15,7 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectString(e.Event.Payload, "attackingPlayerId", out var player) && player == attacker).Take(2).ToArray();
             return matching.Length == 1 ? matching[0] : null;
         }
-        foreach (var text in state.UntilEndOfTurnEffects) {
+        foreach (var text in state.UntilEndOfTurnEffects ?? []) {
             if (BattleLimitedMarkers.TryScope(text, out var scope) && scope is not null) {
                 var birth = RoleEvent(scope.StartedAtTick, scope.RoleEventOrder, scope.BattlefieldId, scope.AttackingPlayerId);
                 if (birth is null || birth.Event.Kind != "BATTLE_ROLES_ESTABLISHED" || !Accepted(birth))
@@ -47,15 +47,15 @@ public static partial class MatchRecoveryValidator
             }
     }
 
-    private static bool BattleMarkerFamily(string text) => text.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal)
-        || text.StartsWith("BATTLE_ROLE_", StringComparison.Ordinal);
+    private static bool BattleMarkerFamily(string? text) => text?.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal) == true
+        || text?.StartsWith("BATTLE_ROLE_", StringComparison.Ordinal) == true;
 
     // Decode the private wire format, then independently check its meaning and
     // its exact ledger/keyword pair. Original action replay still proves birth.
     private static void ValidateBattleLimitedMarkers(MatchState state, List<string> errors)
     {
         var scopes = new List<BattleLimitedScope>(); var roles = new List<BattleFirstRole>();
-        foreach (var text in state.UntilEndOfTurnEffects.Where(BattleMarkerFamily)) {
+        foreach (var text in (state.UntilEndOfTurnEffects ?? []).Where(BattleMarkerFamily)) {
             if (BattleLimitedMarkers.TryScope(text, out var scope) && scope is not null) scopes.Add(scope);
             else if (BattleLimitedMarkers.TryRole(text, out var role) && role?.Scope is not null) roles.Add(role);
             else errors.Add("invalid or misplaced private battle marker");

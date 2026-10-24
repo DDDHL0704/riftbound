@@ -110,10 +110,10 @@ internal static class BattleLimitedMarkers
             foreach (var item in value.EnumerateArray()) if (!UniqueKeys(item)) return false;
         return true;
     }
-    private static bool Read<T>(string value, string prefix, out T? result) where T : class
+    private static bool Read<T>(string? value, string prefix, out T? result) where T : class
     {
         result = null;
-        if (!value.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        if (value is null || !value.StartsWith(prefix, StringComparison.Ordinal)) return false;
         try {
             using var document = JsonDocument.Parse(value[prefix.Length..]);
             if (document.RootElement.ValueKind != JsonValueKind.Object || !UniqueKeys(document.RootElement)) return false;
