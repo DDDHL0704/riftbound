@@ -86,6 +86,100 @@ public sealed class OfficialPrintedPowerCostTests
             playerZones: new Dictionary<string, PlayerZones> { ["P1"] = PlayerZones.Empty with { Hand = ["CARD"] }, ["P2"] = PlayerZones.Empty },
             cardObjects: new Dictionary<string, CardObjectState> { ["CARD"] = new("CARD", cardNo: cardNo, ownerId: "P1", controllerId: "P1") });
 
+    // CN core 164.2.b, 166-167 and 430.2-430.4: gaining resources is a
+    // player choice; the cost consumes only the required amount from the pool.
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    [InlineData(1, true)]
+    [InlineData(2, false)]
+    [InlineData(2, true)]
+    public async Task PlayerMayRecycleMoreRunesThanPrintedCostNeeds(int existingRedPower, bool exhausted)
+    {
+        var state = SurplusRunePosition(existingRedPower, exhausted);
+        var before = MatchStateHasher.Hash(state);
+        var candidate = Assert.Single(ResolutionResult.BuildPrompts(state)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
+        var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
+        Assert.Equal(["RECYCLE_RUNE:RUNE-A", "RECYCLE_RUNE:RUNE-B"], resources.Select(c => c.Id));
+        var command = new PlayCardCommand("CARD", "SFD·006/221", [],
+            OptionalCosts: ["RECYCLE_RUNE:RUNE-B", "RECYCLE_RUNE:RUNE-A"]);
+        var engine = new CoreRuleEngine();
+        var quote = engine.PreviewPlayCard(state, "P1", new("surplus-quote", "prompt", state.Tick, command));
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(before, MatchStateHasher.Hash(state));
+
+        var result = await engine.ResolveAsync(state, new("surplus-play", "P1", CommandTypes.PlayCard), command, default);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(existingRedPower + 1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(["BOTTOM", "RUNE-B", "RUNE-A"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(["CARD"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["RUNE-B", "RUNE-A"], result.Events.Where(e => e.Kind == "RUNE_RECYCLED")
+            .Select(e => Assert.IsType<string>(e.Payload["sourceObjectId"])));
+        var paid = Assert.Single(result.Events, e => e.Kind == "COST_PAID");
+        Assert.Equal(["RECYCLE_RUNE:RUNE-B", "RECYCLE_RUNE:RUNE-A"], Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
+        Assert.Equal(1, paid.Payload["totalPowerCost"]);
+        Assert.Equal(quote.Cost!.RemainingPowerByTrait![RuneTrait.Red], result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+    }
+
+    [Theory]
+    [InlineData("foreign")]
+    [InlineData("hidden")]
+    [InlineData("not-rune")]
+    [InlineData("missing")]
+    [InlineData("wrong-trait")]
+    public async Task ExtraRuneAcquisitionStillRejectsInvalidResourcesOrUnpaidCost(string scenario)
+    {
+        var state = SurplusRunePosition(scenario == "wrong-trait" ? 0 : 1, true);
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        cards["RUNE-A"] = scenario switch
+        {
+            "foreign" => cards["RUNE-A"] with { ControllerId = "P2", OwnerId = "P2" },
+            "hidden" => cards["RUNE-A"] with { IsFaceDown = true },
+            "not-rune" => cards["RUNE-A"] with { Tags = [CardObjectTags.UnitCard] },
+            "wrong-trait" => cards["RUNE-A"] with { Tags = [CardObjectTags.RuneCard, "COLOR:blue"] },
+            _ => cards["RUNE-A"]
+        };
+        state = state with { CardObjects = cards };
+        var before = MatchStateHasher.Hash(state);
+        var result = await Play(state, [$"RECYCLE_RUNE:{(scenario == "missing" ? "MISSING" : "RUNE-A")}"]);
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    public async Task ServerDoesNotChooseRuneAcquisitionForPlayer(int existingRedPower, bool accepted)
+    {
+        var state = SurplusRunePosition(existingRedPower, false);
+        var result = await Play(state);
+        Assert.Equal(accepted, result.Accepted);
+        Assert.Equal(["BOTTOM"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Contains("RUNE-A", result.State.PlayerZones["P1"].Base);
+        Assert.Contains("RUNE-B", result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(result.Events, e => e.Kind is "RUNE_RECYCLED" or "POWER_GAINED");
+        if (!accepted) Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+    }
+
+    private static MatchState SurplusRunePosition(int redPower, bool exhausted)
+    {
+        var state = Position("SFD·006/221", new(3, 0, new Dictionary<string, int> { [RuneTrait.Red] = redPower }));
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var id in new[] { "RUNE-A", "RUNE-B", "BOTTOM" })
+            cards[id] = new(id, cardNo: "UNL-R01", isExhausted: exhausted,
+                tags: [CardObjectTags.RuneCard, "COLOR:red"], ownerId: "P1", controllerId: "P1");
+        return state with { CardObjects = cards,
+            PlayerZones = new Dictionary<string, PlayerZones> {
+                ["P1"] = state.PlayerZones["P1"] with { Base = ["RUNE-A", "RUNE-B"], RuneDeck = ["BOTTOM"] },
+                ["P2"] = PlayerZones.Empty
+            } };
+    }
+
     [Fact]
     public async Task TwoRunePaymentIsOfferedAndCommittedAtomically()
     {
@@ -101,7 +195,8 @@ public sealed class OfficialPrintedPowerCostTests
         var candidate = Assert.Single(prompt.Candidates!, x => x.Action == CommandTypes.PlayCard);
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
         var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
-        Assert.Equal(["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green"], resources.Select(x => x.Id));
+        // Acquiring red is legal; it still cannot substitute for this green/blue printed fee.
+        Assert.Equal(["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green", "RECYCLE_RUNE:red"], resources.Select(x => x.Id));
         Assert.Equal(2, requirement["printedPowerCost"]);
         Assert.Equal(3, Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["printedPowerChoices"]).Count);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_NATIVE_PAYMENT_FIXTURE") is { Length: > 0 } path)
@@ -109,6 +204,10 @@ public sealed class OfficialPrintedPowerCostTests
         var rejected = await Play(state, ["RECYCLE_RUNE:green"]);
         Assert.False(rejected.Accepted);
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
+        var wrongTrait = await Play(state, ["RECYCLE_RUNE:green", "RECYCLE_RUNE:red"]);
+        Assert.False(wrongTrait.Accepted);
+        Assert.Empty(wrongTrait.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(wrongTrait.State));
         var accepted = await Play(state, ["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green"]);
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
