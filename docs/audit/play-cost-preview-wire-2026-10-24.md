@@ -1,0 +1,4 @@
+# 费用预览后提交实际PLAY_CARD请求
+- 保留原SessionPreviewIsReadOnlyAndCannotAuthorizeAStaleSubmission方法及全部原语义断言；增加原仅信封请求的INVALID_PAYLOAD/零事件/状态与空日志前控，再以Web序列化实际command正文、promptId和snapshotTick重交同intent。
+- 本main基底#109的38例原件已证明该旧正控确实失败，属于缺少必需目标数组的测试输入错误，不放宽入口或恢复校验；具体TRX见var/qa/payment-prs-20261024/issue109/before-wire-test-fix-v1/。
+- 输入构造移植34005396的已有窄修复；不改全局提示信封helper、原历史journal、RuleInputs、卡牌费用或恢复DTO。后续固定定向结果由该PR实际收据及L2规则CI确认。
