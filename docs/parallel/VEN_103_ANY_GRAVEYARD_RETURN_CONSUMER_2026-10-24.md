@@ -21,3 +21,11 @@
 具体后续契约：PR157 当前尚未合入 main；重基到其 required-nullable `RecoveredCommand.ErrorCode` 时，本类新 Driver.Commands 投影须传递实际 `entry.ErrorCode`，连同继承的自有投影一起核对；不推断/回填旧历史，不将当前日志冒充新契约日志。
 
 日常合入仍须最新 PR 合并输入的 `L2 required`（quality/targeted/rule_suite）全部真实通过并重新机械核对 head/base/merge SHA 后执行；该 CI 当前待确认。本机不新跑 full/check/SQL/网络或 110 场矩阵。来源/注册/定向均不代替整卡认证；净整卡认证增量 0，backend NOT READY。1740 印次/14293 条款保留，当前适用功能分母 UNKNOWN。
+
+L2 实际失败后续：run40077028269 真正受测合并源为 `64b413a36045f33e0095543bcf77d0544f53bd9e`，并非后来页面重算的合并SHA。原规则套件12个失败均保留：6个目录/历史成员/内容身份断言未随新增印次更新，5个自定义开局配方受到PR139白名单误限，1个seed31弃牌节点因新注册VEN043替换3张UNL-053而改变输入。没有删除失败方法、Theory行、弃牌/胜利/回放断言。
+
+新固定测试源 `352210cd66515254f433f80925800ccf3284b813` 吸收PR139修复 `5f5e52b8d34d0c1b2e0756b134f151c396be50b6`：白名单只用于原11命名配方。测试辅助构造器从既有1036精确成员夹具加原4张后续牌固定原1040输入宇宙；Lightning Rush也复用精确1036成员，保留1036/1037及逐组序列化原断言。原待命对局全部字段与CoreRules/vex-response原夹具逐项一致；原seed31弃牌、得分胜利及原日志回放实际通过。当前P6全局统计按1045精确目录校准，不按测试数认证语义。
+
+新源编译0警告0错误；143例定向加原115例计划中其余35例，共178例无交集全过、零跳过，原115用例名多重集完整保留，原L2失败12例全在本次通过集合。2491源码输入、1418运行文件在两轮后哈希稳定；Engine MVID `aec62ffb-3802-4c40-824a-0a588eaf77c1`，三受查程序集InformationalVersion均指向新受测源。相对旧ready47209c78，生产/数据只有PreconstructedDeckCatalog作用范围修复，注册及目录字节未变；旧42份日志仍只归原受测源。
+
+新原件位于 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/`，含4份原CI ZIP及job日志；`pr159-current-v1/source-runtime-proof-v1.json` SHA256 `8a12e41071683a27431be966bfbd0013141bf56a23afdf1fb82ff02b10e1a617`，同目录为新固定源/bin、2份实际TRX和module-identities.json。ready后续仅更新本审计说明，最新L2仍待真实通过。若后续组合PR173，还须原样传递实际entry.TypedCommand；它的null省略语义与PR157必需保留的nullable ErrorCode不同，不合成raw或回填旧日志。
