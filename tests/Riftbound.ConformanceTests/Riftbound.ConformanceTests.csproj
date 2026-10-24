@@ -4,6 +4,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../Riftbound.PostgresAcceptance/PaymentReconnectEvidence.cs" Link="PaymentReconnectEvidence.cs" />
+    <Compile Include="../Riftbound.ImposedMovementAcceptance/ImposedMovementSqlAcceptance.cs" Link="ImposedMovementSqlAcceptance.cs" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.2" />

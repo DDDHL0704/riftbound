@@ -23,17 +23,17 @@ public sealed partial class CoreRuleEngine
 
     private static void ResolveTargetReferencedMovement(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, ObjectLocationState> locations,
-        StackItemState item, CardBehaviorDefinition behavior, List<GameEvent> events)
+        Dictionary<string, RunePool> pools, StackItemState item, CardBehaviorDefinition behavior, List<GameEvent> events)
     {
         var spec = behavior.TargetReferencedMovement!;
-        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
         if (!IsTargetReferencedMovementRelationAllowed(current, item.ControllerId, behavior, item.TargetObjectIds, spec.MovingTargetIndex)
             || !IsLegalChosenCardTarget(current, item.ControllerId, item.TargetObjectIds[spec.ReferenceTargetIndex],
                 spec.ReferenceTargetIndex, item.TargetObjectIds, PlayCardTargetScopeForBehavior(behavior), behavior)
             || !IsLegalChosenCardTarget(current, item.ControllerId, item.TargetObjectIds[spec.MovingTargetIndex],
                 spec.MovingTargetIndex, item.TargetObjectIds, PlayCardTargetScopeForBehavior(behavior), behavior)) return;
         var field = ReferencedMovementBattlefield(current, item.TargetObjectIds[spec.ReferenceTargetIndex], spec)!;
-        MoveFieldUnitsToChosenLocation(current, zones, cards, locations, item,
+        MoveFieldUnitsToChosenLocation(current, zones, cards, locations, pools, item,
             [item.TargetObjectIds[spec.MovingTargetIndex]], "BATTLEFIELD:" + field.ObjectId, events);
     }
 
