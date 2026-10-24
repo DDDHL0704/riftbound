@@ -52,63 +52,54 @@ class FullCiGateTests(unittest.TestCase):
             self.assertEqual('2' * 40, result['commit'])
             self.assertEqual({'scope': 'success', 'rule_suite': 'success', 'postgres': 'success'}, result['jobs'])
 
-    def test_workflow_starts_both_full_jobs_from_scope_and_preserves_required_rules_gate(self):
+    def test_nightly_runs_all_full_children_from_the_fixed_main_snapshot(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        condition = "always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')"
-        for name in ['rule_suite', 'postgres_partitions']:
+        for name in ['rule_suite', 'postgres_partitions', 'native_network', 'related_network']:
             self.assertIn('    needs: scope\n', jobs[name])
-            required = condition if name == 'rule_suite' else condition.replace('outputs.full', 'outputs.sql')
-            self.assertIn(required, jobs[name])
-            self.assertIn('github.sha', jobs[name])
+            self.assertIn('ref: ${{ needs.scope.outputs.commit }}', jobs[name])
+            self.assertNotIn('continue-on-error', jobs[name])
+        for name in ['rule_suite', 'postgres_partitions']:
             self.assertIn('timeout-minutes: 360', jobs[name])
-        self.assertIn('    needs: scope\n', jobs['native_network'])
-        self.assertIn(condition.replace('outputs.full', 'outputs.network'), jobs['native_network'])
-        self.assertIn('    needs: [scope, postgres_partitions, native_network]\n', jobs['postgres'])
+            self.assertIn('image: postgres:16.13@sha256:', jobs[name])
+            self.assertIn('ConnectionStrings__Riftbound: Host=127.0.0.1;', jobs[name])
+        self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', jobs['rule_suite'])
+        self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
+        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
+        self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['native_network'])
+        self.assertIn('python3 scripts/run-process-restart-ci.py', jobs['related_network'])
+        self.assertIn('needs: [scope, postgres_partitions, native_network, related_network]', jobs['postgres'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
-        self.assertIn('    needs: [scope, rule_suite, postgres]\n', jobs['rules'])
-        self.assertIn("always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')", jobs['rules'])
-        self.assertNotIn('!cancelled()', jobs['rules'])
+        self.assertIn('needs: [scope, rule_suite, postgres]', jobs['rules'])
+        self.assertIn('if: ${{ always() }}', jobs['rules'])
         self.assertIn('python3 scripts/full-ci-gate.py', jobs['rules'])
         for job in ['scope', 'rule_suite', 'postgres']:
             self.assertIn('${{ needs.' + job + '.result }}', jobs['rules'])
 
-    def test_full_workflow_keeps_actual_postgres_for_unit_smokes_and_all_full_sql_and_network_commands(self):
+    def test_one_nightly_schedule_and_manual_entry_keep_full_meaning_separate_from_daily_l2(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
-        jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres_partitions']:
-            self.assertIn('image: postgres:16.13@sha256:', jobs[job])
-            self.assertIn('ConnectionStrings__Riftbound: Host=127.0.0.1;', jobs[job])
-        self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', jobs['rule_suite'])
-        self.assertIn('name: conformance-results', jobs['rule_suite'])
-        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
-        self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
-        self.assertNotIn('--opening-randomness-only', jobs['postgres_partitions'])
-        self.assertNotIn('--hwei-move-discard-types-only', jobs['postgres_partitions'])
-        self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['native_network'])
-        self.assertLess(jobs['native_network'].index('dotnet build src/Riftbound.Api'), jobs['native_network'].index('dotnet run --project src/Riftbound.Api --no-build'))
-        self.assertIn('name: postgres-results', jobs['postgres'])
-        self.assertIn('var/qa/ci-postgres/', jobs['postgres_partitions'])
-
-    def test_scoped_ci_is_separate_and_full_gate_and_schedules_remain_complete(self):
-        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
-        self.assertIn("cron: '0 18 * * 1-6'", text)
-        self.assertIn("cron: '0 18 * * 0'", text)
-        self.assertIn('python3 scripts/run-scoped-ci.py', text)
-        self.assertIn('Complete rule matrix was NOT executed', text)
-        self.assertIn("&& 90 || 7", text)
-        self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', text)
+        self.assertIn("cron: '0 18 * * *'", text)
+        self.assertEqual(1, text.count('cron:'))
+        triggers = text.split('permissions:', 1)[0]
+        self.assertIn('workflow_dispatch:', triggers)
+        self.assertNotIn('  push:', triggers)
+        self.assertNotIn('  pull_request:', triggers)
+        self.assertIn('retention-days: 90', text)
         self.assertNotIn('continue-on-error', text)
+        daily = (ROOT / '.github/workflows/backend-l2.yml').read_text()
+        self.assertIn('  push:', daily)
+        self.assertIn('  pull_request:', daily)
+        self.assertIn('python3 scripts/test-rules.py l2 --jobs 2', daily)
+        self.assertNotIn('scripts/test-rules.py full', daily)
+        self.assertNotIn('services:', daily)
 
-    def test_full_jobs_do_not_downgrade_errors_or_conditionally_skip_real_gates(self):
+    def test_actual_test_and_full_gate_steps_cannot_be_conditionally_skipped(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres_partitions', 'native_network', 'postgres', 'rules']:
-            self.assertNotIn('continue-on-error', jobs[job])
         for job, name in [('rule_suite', 'Complete rule suite with checked process shards'),
                           ('postgres_partitions', 'Real PostgreSQL complete checked partition'),
                           ('native_network', 'Native client connection recovery'),
-                          ('postgres', 'Require every fixed SQL case and native network result'),
+                          ('postgres', 'Require every fixed SQL case, SignalR and process restart result'),
                           ('rules', 'Require every fixed full child job')]:
             block = jobs[job].split('      - name: ' + name + '\n', 1)[1]
             block = re.split(r'\n      - ', block, maxsplit=1)[0]
