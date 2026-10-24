@@ -32,3 +32,9 @@
 - 原三卡58例源/bin/失败在同级 `unit-entry-main-port-v1/`，本包不以旧648例或该负控代替当前绿灯。
 
 实际L2须核对最新PR head/base/merge-result SHA、quality/targeted/rule_suite产物和零跳过后方可合入；本机结果属于L1。三卡消费者作为后续独立包显式依赖此修复，适用来源/全规则/L3与整卡认证仍开放。
+
+L2后续候选（NOT READY）：run40083957495实际受测 `62d7a93e0b0b304f71202ed21ef0788a31261f8c`，规则套件13988例有4个公开历史来源断言失败。原SourceConfirmed条件误把合法分摊伤害旧代际引用HOST隐藏。本地后续源 `29b476754c4a8ced6508428c26a556f1bab97f49` 新增独立partial helper：仅在DamageDistribution来源严格早于当前代际且现有ValidDistributionStack完整通过时保留公开历史引用；普通来源仍匿名，三处投影/独立校验条件一致，②原伤害上下文方法未修改。未改已协调的ValidateAuthoritativeState资源/空栈插入顺序。
+
+新范围实际67例=66通过/1失败，原L2的4个公开历史失败已通过，原12个普通来源隐私用例保持通过。7份规范中局日志各5条接受命令/18事件，JSON冷恢复与原日志回放通过；原来源代际0、真实BURNOUT后手牌代际1。5种损坏上下文被拒绝；唯一失败为current-generation负例，原断言保留。2491源码/1418运行文件全量哈希稳定。新完整原件在 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr170-history-v1/`；failure-source-runtime-proof-v1.json SHA256 `79a1eb056a9ffdeedefb3d98eacdc609d77feee56275ddd3856459bbfb80e6fe`。
+
+新增实际共享缺陷 [Issue174](https://github.com/DDDHL0704/riftbound/issues/174)：将捕获来源代际改为当前手牌代际并重建协调视图，保持原命令/事件，MatchRecoveryValidator返回0错误且Restore接受；给P2的外层sourceObjectId虽为HIDDEN，内部damageDistribution.source却为HOST/1。原日志重放IsMatch=false；未验证真实Postgres/API路径，不将构造帧复现扩大为整个持久层结论。独立小型复现程序/实际输出在相邻 `pr170-current-generation-reproducer-v1/`，actual-reproducer-output.json SHA256 `a9399d6353724469503ef89cc942b4f5c702b04f3a4fd7c0b3b79793300e9272`。共享接点为CoreRuleEngine.ValidDistributionContext，交①协调归属后组合明确修复提交；未删除current-generation数据行，也不称本候选可合入。原Issue168仍OPEN，467例原结果仍只归原固定源。
