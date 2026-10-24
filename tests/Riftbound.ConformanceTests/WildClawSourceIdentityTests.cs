@@ -75,9 +75,15 @@ public sealed class WildClawSourceIdentityTests
     public async Task OneNewFunctionalIdentityPreservesEveryPriorFunctionalUnitIdAndMembership()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        // Preserve this original N46 comparison exactly. The subsequent CN156
-        // addition has its own full1036-to1037 retention test.
-        var wildClawScope = catalog.Cards.Where(c => c.CardNo != "VEN·156").ToArray();
+        // Keep the exact original N46 membership as later printings are added.
+        using var historical = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "wild-claw-historical-1036-printings.json")));
+        var retainedCardNos = historical.RootElement.GetProperty("cardNos").EnumerateArray()
+            .Select(cardNo => cardNo.GetString()!).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(1036, retainedCardNos.Count);
+        var wildClawScope = catalog.Cards.Where(c => retainedCardNos.Contains(c.CardNo)).ToArray();
+        Assert.Equal(retainedCardNos.OrderBy(cardNo => cardNo, StringComparer.Ordinal),
+            wildClawScope.Select(card => card.CardNo).OrderBy(cardNo => cardNo, StringComparer.Ordinal));
         var oldCards = wildClawScope.Where(c => c.CardNo != WildClawPendingReflexiveTests.WildClaw).ToArray();
         Assert.Equal(1035, oldCards.Length); Assert.Equal(1036, wildClawScope.Length);
         var oldUnits = FunctionalUnitBuilder.Build(oldCards); var currentUnits = FunctionalUnitBuilder.Build(wildClawScope);
