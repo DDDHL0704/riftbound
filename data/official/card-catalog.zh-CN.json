@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1060,
+  "total": 1061,
   "cards": [
     {
       "id": 31005,
@@ -44139,6 +44139,54 @@
       "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/790d0cf8de4843d991fdb2a777ce4918.png",
       "backImage": "",
       "listSort": 1988,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37742,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·051",
+      "cardName": "迭代式设计",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "打出一名3{{S}}的“机器人”。\n{{流转2蓝色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "flavorText": "重新发明车轮，未必见得是坏事。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/55cd91e478d0406d8d1ff5101c254074.png",
+      "backImage": "",
+      "listSort": 1944,
       "status": 1,
       "cardGroupLimit": null,
       "isPreview": false,
