@@ -123,8 +123,20 @@ public sealed class PlayCostPreviewTests
         var expired = await session.PreviewPlayCardAsync("P1", request with { SnapshotTick = state.Tick - 1 }, default);
         Assert.Equal(ErrorCodes.PromptExpired, expired.ErrorCode);
         Assert.Null(expired.Cost);
-        var commit = await session.SubmitAsync("P1", request.RequestId, request.Command, JsonSerializer.SerializeToElement(new
-        { cmdType = "PLAY_CARD", request.PromptId, request.SnapshotTick }), default);
+        var envelopeOnly = JsonSerializer.SerializeToElement(new
+        { cmdType = "PLAY_CARD", request.PromptId, request.SnapshotTick });
+        var malformed = await session.SubmitAsync("P1", request.RequestId, request.Command, envelopeOnly, default);
+        Assert.False(malformed.Accepted);
+        Assert.Equal(ErrorCodes.InvalidPayload, malformed.ErrorCode);
+        Assert.Empty(malformed.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(malformed.State));
+        Assert.Empty(journal.Entries);
+        var raw = JsonSerializer.SerializeToNode(request.Command, request.Command.GetType(),
+            new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+        raw["promptId"] = request.PromptId;
+        raw["snapshotTick"] = request.SnapshotTick;
+        var wire = JsonSerializer.SerializeToElement(raw);
+        var commit = await session.SubmitAsync("P1", request.RequestId, GameCommandJsonMapper.Map(wire), wire, default);
         Assert.True(commit.Accepted, commit.ErrorMessage);
         Assert.Single(journal.Entries);
         var stale = await session.PreviewPlayCardAsync("P1", request, default);
