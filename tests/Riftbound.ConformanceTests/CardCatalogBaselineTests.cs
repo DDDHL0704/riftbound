@@ -304,7 +304,7 @@ public sealed class CardCatalogBaselineTests
             StringComparison.Ordinal));
         Assert.All(implementedSpecs, spec => Assert.Contains("Representative rule pass", spec.ConformanceReason, StringComparison.Ordinal));
         Assert.Equal(106, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "传奇", StringComparison.Ordinal)));
-        Assert.Equal(57, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "战场", StringComparison.Ordinal)));
+        Assert.Equal(58, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "战场", StringComparison.Ordinal)));
         Assert.All(implementedSpecs, spec =>
         {
             Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo));
