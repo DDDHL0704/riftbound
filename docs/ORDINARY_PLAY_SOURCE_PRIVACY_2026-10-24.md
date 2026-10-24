@@ -2,6 +2,16 @@
 
 [Issue168](https://github.com/DDDHL0704/riftbound/issues/168)。本包修复已公开入场技能的当前来源身份泄漏；技能原印次、效果、控制者和playAbility保留。新VEN登记0、整卡认证增量0，backend NOT READY。
 
+## 当前支付主线组合
+
+固定受测源 `89f6fbf260545141f7d10ff4043addba2878f703` 为完整旧ready `69bd3c8c3f631b68771206b94e55e1c47b55e56b` 与main `d713adad568999baa8703750b7893ec234c63d4c` 的精确自动合并树，ready仅更新本文。独立普通来源helper与恢复partial逐字保留，DamageDistribution完整文件与②c96相同，PermanentPlayTargets完整文件与main相同；无自有生产新改动。
+
+构建0警告/错误，单线程672/672、零跳过；完整原646例加main131的26例主动资源用例，无交集。原67例及其失败行、原467例、12个普通来源隐私控制与旧L2四个公开历史失败名称均保留通过。新运行件7规范完整帧仍35接受命令/126事件，6个协调负帧保留各自原5命令/18事件，Validator和可信报告Restore均拒绝。
+
+独立校验器重新针对本轮实际JSON及冻结模块执行：规范帧Validator零错误、Restore成功、原回放true；当前私有HOST/1篡改帧明确为“invalid distributed damage ability”、Restore以RECOVERY_INCONSISTENT拒绝、原回放false，原命令/事件相同。程序输出指向本受测源和实际MVID；数据通过校验器输出目录的data链接显式绑定同一冻结运行件。最初未绑定AppContext数据查找时的两次身份拒绝原件保留；无生产修改或数据回填。未验证真实Postgres/API。
+
+2500编译输入/1418运行文件全量哈希稳定，四模块InfoVersion与实际身份一致；RIF `94280d478678e1d66a643a9969dfeafd6d3407a608666c986b7a2c6155acc613`，Engine MVID `f2c8af44-5ca1-4821-8f98-3c1093fc152b` / SHA256 `2f6779d7d3571ae6f707b68a44ebea09fabed3929c46a151af8124886edfd918`。六原未跟踪文件不变且未编入。当前ignored原件 `var/qa/cards-direct-pr-migration-20261024/l2-failure-pr159-pr162-v1/pr170-maind713-v1/` 含固定源/bin、实际TRX、全部新帧、清单、独立校验程序/实际输出及已过verifier；`source-runtime-proof-v1.json` SHA256 `739af762ca0a87a9959fa9c1ff55b21e04798540df98e6851713f9e0285d7884`，独立实际输出SHA256 `95c08a2e6dd632515665e292fdf597a9108ba6e246d17aed92c75d1baa9aa3a6`。旧29与6b7及其他旧源/bin/TRX/实录均保持原输入身份。最新实际head/base/merge-result的quality、targeted、rule_suite与L2 required及实际artifact仍须全部通过；Issue168/174不在此关闭，无新本机full/SQL/网络/矩阵。
+
 ## 现象与范围
 
 当前main `bb8b7a17a72f446c40da1bad9f5651588ec86e0c` 的既有 `OGN·087/298` 即可复现：明确中盘手牌初态，实际打出并保留抽牌技能，再以 `OGN·104/298` 返回来源；对手和旁观者的技能sourceObjectId仍指向新的私有区域物体。三卡独立迁移源104e4f600原58例为51P/7F/0skip，原Basic/Projection文件逐字保留；该旧牌反例证明问题不依赖新VEN登记。失败停在接受RETURN结算后的隐藏扫描，不称失败步骤已通过冷恢复。
