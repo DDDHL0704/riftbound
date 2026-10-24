@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1040,
+  "total": 1041,
   "cards": [
     {
       "id": 31005,
@@ -43184,6 +43184,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "artist": "Kudos Productions",
+      "backImage": "",
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardColorList": [
+        "purple"
+      ],
+      "cardEffect": "移动一名不高于3{{S}}的单位。\n{{流转4紫色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "cardGroupLimit": null,
+      "cardName": "奥义！幽步",
+      "cardNo": "VEN·105",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": 2,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "一举一动，皆是虚招。",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/84640f6fa25b4b22b013becc77d939c3.png",
+      "hero": "",
+      "id": 37802,
+      "isPreview": false,
+      "listSort": 1884,
+      "otherDesc": 0,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "region": "",
+      "returnEnergy": 1,
+      "status": 1,
+      "subTitle": "",
+      "tag": ""
     }
   ],
   "scopedAdditions": [
@@ -43709,6 +43757,21 @@
       "printedFaceIdentity": "VEN·081/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-081/166",
       "reason": "Three basic resource Flow spell consumers reuse the existing CN829 mechanism; branch implementation and semantic tests in progress, whole-card candidate certification pending integration."
+    },
+    {
+      "cardNo": "VEN·105",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T05:13:26.841576+00:00",
+      "sourceId": 37802,
+      "sourceRecordSha256": "a1d708fb924b82bbe7ca8321bf40897b30a0e8a58d50605b542882bd0463f7e7",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·105/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-105/166",
+      "reason": "Small-unit chosen movement and Flow consumer using existing mechanisms; repeat destination preserves AnyUnit controller bases; whole-card certification remains separate."
     }
   ]
 }
