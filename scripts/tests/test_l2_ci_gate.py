@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('l2_gate', ROOT / 'scripts/l2-ci-gate.py')
@@ -18,20 +19,28 @@ class L2GateTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.commit = '1' * 40
         self.jobs = dict.fromkeys(['quality', 'targeted', 'rule_suite'], 'success')
-        for name, profile in [('targeted', 'focus'), ('rule_suite', 'check')]:
+        policy = patch.object(GATE.RULES, 'l3_acceptance_methods', return_value=set())
+        policy.start()
+        self.addCleanup(policy.stop)
+        for name, profile in [('targeted', 'focus'), ('rule_suite', 'l2')]:
             folder = self.root / name
             tests = folder / 'tests'
             shard = tests / profile
             shard.mkdir(parents=True)
+            methods = ['Riftbound.ConformanceTests.ExampleTests.RealAssertion']
+            if profile == 'l2':
+                methods += [GATE.RULES.FULL_CLASS + name for name in GATE.RULES.SMOKE]
             self.write(folder / 'checkout.json', dict(status='FIXED_CANDIDATE_CHECKOUT_VERIFIED',
                 actualSha=self.commit, expectedSha=self.commit))
             self.write(tests / 'plan.json', dict(profile=profile, testAssemblySha256='a' * 64,
-                shards=[dict(name=profile, methods=['Riftbound.ConformanceTests.ExampleTests.RealAssertion'])]))
-            self.write(tests / 'summary.json', dict(status='PASSED', profile=profile, total=1,
-                shards=[dict(shard=profile, total=1, passed=1, failed=0, notExecuted=0)]))
-            (shard / 'results.trx').write_text('''<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
-<Results><UnitTestResult testName="Riftbound.ConformanceTests.ExampleTests.RealAssertion" outcome="Passed" /></Results>
-<ResultSummary><Counters total="1" passed="1" failed="0" notExecuted="0" /></ResultSummary></TestRun>''')
+                l2Only=True, deferredL3Methods=[], shards=[dict(name=profile, methods=methods)]))
+            self.write(tests / 'summary.json', dict(status='PASSED', profile=profile, total=len(methods),
+                shards=[dict(shard=profile, total=len(methods), passed=len(methods), failed=0, notExecuted=0)]))
+            (tests / 'discovery.log').write_text('Tests:\n' + ''.join('    ' + name + '\n' for name in methods))
+            rows = ''.join('<UnitTestResult testName="' + name + '" outcome="Passed" />' for name in methods)
+            (shard / 'results.trx').write_text('<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">'
+                + '<Results>' + rows + '</Results><ResultSummary><Counters total="' + str(len(methods))
+                + '" passed="' + str(len(methods)) + '" failed="0" notExecuted="0" /></ResultSummary></TestRun>')
 
     def write(self, path, value):
         path.write_text(json.dumps(value))
@@ -42,7 +51,7 @@ class L2GateTests(unittest.TestCase):
     def test_both_real_profiles_are_required_but_l3_is_not_claimed(self):
         result = self.verify()
         self.assertEqual('L2_REQUIRED_PASSED', result['status'])
-        self.assertEqual(['focus', 'check'], [r['profile'] for r in result['results']])
+        self.assertEqual(['focus', 'l2'], [r['profile'] for r in result['results']])
         self.assertFalse(result['l3SqlNetworkRestartOrFullMatrixCertified'])
 
     def test_failed_skipped_cancelled_pending_or_missing_children_never_pass(self):
@@ -97,3 +106,18 @@ class L2GateTests(unittest.TestCase):
         summary = json.loads(path.read_text())
         self.write(path, {**summary, 'total': 2})
         with self.assertRaises(ValueError): self.verify()
+
+    def test_plan_cannot_silently_drop_a_discovered_mechanism_method(self):
+        tests = self.root / 'rule_suite/tests'
+        with (tests / 'discovery.log').open('a') as stream:
+            stream.write('    Riftbound.ConformanceTests.NewMechanismTests.MustStillRun\n')
+        with self.assertRaisesRegex(ValueError, 'omits a required mechanism'):
+            self.verify()
+
+    def test_extra_deferred_method_is_not_a_valid_exemption(self):
+        path = self.root / 'targeted/tests/plan.json'
+        plan = json.loads(path.read_text())
+        plan['deferredL3Methods'] = ['Riftbound.ConformanceTests.ExampleTests.RealAssertion']
+        self.write(path, plan)
+        with self.assertRaisesRegex(ValueError, 'explicitly declared L3'):
+            self.verify()

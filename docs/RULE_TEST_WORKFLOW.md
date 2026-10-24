@@ -7,10 +7,10 @@
 | 等级 | 执行范围 | 用途 |
 |---|---|---|
 | L1 | 本机定向/受影响回归，合法、非法、边界与拒绝不变性 | 开发反馈，不单独作为 main 合入绿灯 |
-| L2 | 定向及相邻域断言；所有普通规则方法及原两条完整对局冒烟；工具/来源完整性 | PR/main 的 `L2 required`；不依赖 SQL、native_network、related_network 或其汇总 |
+| L2 | 定向及相邻域断言；机制规则方法及原两条完整对局冒烟；工具/来源完整性 | PR/main 的 `L2 required`；不依赖 SQL、native_network、related_network 或其汇总 |
 | L3 | 固定 main SHA 的完整规则/143完整方法151例、11牌组110配对、seed424242、真实SQL、双玩家SignalR、权限/隐藏信息、进程重启与完整原日志回放 | 每天02:00上海时间一次；显式手动调查亦可。完整验收与阶段完成依据 |
 
-[backend-l2.yml](../.github/workflows/backend-l2.yml) 对每个 PR 合并结果 SHA、main push SHA 和手动输入执行 L2，不用路径豁免关闭规则测试。定向入口包含 payment/combat/triggers/recovery/recast 相邻域及本次变化的普通测试类；`check` 实时发现并执行全部普通方法及两条原完整对局冒烟。未知路径或目录新增同样执行 L2，其完整矩阵在夜间运行，不再强制每包发 A8/A9。
+[backend-l2.yml](../.github/workflows/backend-l2.yml) 对每个 PR 合并结果 SHA、main push SHA 和手动输入执行 L2，不用路径豁免关闭规则测试。定向入口包含 payment/combat/triggers/recovery/recast 相邻域及本次变化的普通测试类；`l2` 实时发现并执行机制规则及两条原完整对局冒烟；[精确L3方法清单](../scripts/l3-rule-acceptance-methods.json)中的18个完整合法开局/冷恢复/全原日志方法留在夜间 `full`，原方法、Theory行、夹具与断言均保留，按源码用途分层，不按耗时自动豁免。未知或新增方法继续在L2执行。未知路径或目录新增同样执行 L2，其完整矩阵在夜间运行，不再强制每包发 A8/A9。
 
 `L2 required` 必须取得 quality、targeted、rule_suite 三个成功结果，并复核对应 SHA、程序集、非空计划、实际 TRX 方法覆盖、全部通过与零跳过。失败、取消、跳过、未执行、缺产物、错版或零测试均失败；不允许 `continue-on-error` 或删语义断言换绿。L2 结果明确不认证 L3 SQL/网络/完整矩阵。真实 SQL 的原单元冒烟在未配置数据库时不代表真实 SQL 执行；实际 SQL 只看 L3 产物。
 
@@ -39,7 +39,7 @@ python3 scripts/test-rules.py focus --match OfficialMechanicalRecastTests
 python3 scripts/test-rules.py focus --include-games --match PreconstructedCatalogDecks
 ```
 
-`check` 执行全部普通规则加两条原完整对局冒烟；`full` 实时发现全部测试并按方法分片。两者的重型执行由 Actions 承担；`full --plan-only` 仍会构建/发现测试，不是规则通过结果。域筛选只是可检查选择，无法代替规则语义或完整认证。
+`check` 保留旧完整普通规则加两条冒烟的范围；`l2` 仅将清单中的完整开局回放验收留给夜间。`full` 实时发现全部测试并按方法分片。两者的重型执行由 Actions 承担；`full --plan-only` 仍会构建/发现测试，不是规则通过结果。域筛选只是可检查选择，无法代替规则语义或完整认证。
 
 ## 执行完整性
 

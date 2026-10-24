@@ -17,7 +17,7 @@ SPEC.loader.exec_module(RULES)
 
 def command_for(classes):
     tokens = sorted({token for domain in DOMAINS for token in RULES.DOMAINS[domain]} | set(classes))
-    command = [sys.executable, str(ROOT / 'scripts/test-rules.py'), 'focus']
+    command = [sys.executable, str(ROOT / 'scripts/test-rules.py'), 'focus', '--l2-only']
     for token in tokens:
         command.extend(['--match', token])
     return command

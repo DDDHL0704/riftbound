@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Require actual fixed-commit focus/check TRX results for daily merging."""
+"""Require actual fixed-commit focus/l2 TRX results for daily merging."""
 import argparse
 import importlib.util
 import json
@@ -35,13 +35,20 @@ def verify_tests(folder, profile, commit):
         rows, counters = RULES.report(tests / name / 'results.trx')
         RULES.verify(rows, counters, expected)
         total += counters['total']
+    discovered = RULES.discover((tests / 'discovery.log').read_text())
+    declared_l3 = RULES.l3_acceptance_methods()
+    if (plan.get('l2Only') is not True or set(plan.get('deferredL3Methods', [])) != declared_l3
+            or not declared_l3 <= discovered or methods & declared_l3):
+        raise ValueError('L2 may defer only its explicitly declared L3 acceptance methods.')
+    if profile == 'l2' and methods != RULES.l2_rule_methods(discovered):
+        raise ValueError('L2 rule-suite plan omits a required mechanism or smoke method.')
     actual_summaries = summary.get('shards', [])
     if (len(actual_summaries) != len(names) or {s['shard'] for s in actual_summaries} != names
             or summary.get('total') != total or total <= 0
             or any(s.get('passed') != s.get('total') or s.get('failed') != 0
                    or s.get('notExecuted') != 0 for s in actual_summaries)):
         raise ValueError('L2 summary differs from the actual passing TRX results.')
-    return dict(profile=profile, methods=len(methods), cases=total,
+    return dict(profile=profile, methods=len(methods), cases=total, deferredL3Methods=sorted(declared_l3),
                 testAssemblySha256=plan['testAssemblySha256'])
 
 
@@ -51,7 +58,7 @@ def verify(commit, jobs, inputs):
     if set(jobs) != {'quality', 'targeted', 'rule_suite'} or any(v != 'success' for v in jobs.values()):
         raise ValueError('Every L2 child must execute and succeed: ' + repr(jobs))
     results = [verify_tests(Path(inputs) / name, profile, commit)
-               for name, profile in [('targeted', 'focus'), ('rule_suite', 'check')]]
+               for name, profile in [('targeted', 'focus'), ('rule_suite', 'l2')]]
     if len({r['testAssemblySha256'] for r in results}) != 1:
         raise ValueError('L2 children ran different test assemblies.')
     return dict(status='L2_REQUIRED_PASSED', commit=commit, jobs=jobs, results=results,

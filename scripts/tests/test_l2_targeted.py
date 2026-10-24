@@ -25,6 +25,7 @@ class TargetSelectionTests(unittest.TestCase):
             args = command[1:] + ['--plan-only', '--output', str(root / 'plan')]
             with patch.object(RUNNER.RULES, 'ROOT', root), patch.object(RUNNER.RULES, 'PROJECT', project), \
                  patch.object(RUNNER.RULES, 'load_weights', return_value={}), \
+                 patch.object(RUNNER.RULES, 'l3_acceptance_methods', return_value=set()), \
                  patch.object(RUNNER.RULES.subprocess, 'run', return_value=SimpleNamespace(stdout=discovery, stderr='')), \
                  patch.object(RUNNER.RULES.shutil, 'which', return_value='/synthetic/dotnet'), \
                  patch('sys.argv', args):

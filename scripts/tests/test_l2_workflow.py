@@ -14,7 +14,7 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertIn('needs: [quality, targeted, rule_suite]', jobs['l2_required'])
         self.assertIn('if: ${{ always() }}', jobs['l2_required'])
         self.assertIn('scripts/run-l2-targeted.py', jobs['targeted'])
-        self.assertIn('scripts/test-rules.py check --jobs 2', jobs['rule_suite'])
+        self.assertIn('scripts/test-rules.py l2 --jobs 2', jobs['rule_suite'])
         for name in ['quality', 'targeted', 'rule_suite']:
             self.assertNotRegex(jobs[name], r'(?m)^    if:')
         for forbidden in ['services:', 'needs.postgres', 'needs.native_network', 'needs.related_network',
