@@ -136,7 +136,7 @@ public sealed record TypedCommandInput(
             "READY" => new ReadyCommand(), "PASS_PRIORITY" => new PassPriorityCommand(),
             "PASS_FOCUS" => new PassFocusCommand(), "PASS" => new PassCommand(),
             "END_TURN" => new EndTurnCommand(), "SURRENDER" => new SurrenderCommand(),
-            _ => CommandTypes.ContainsKey(commandType) ? null : new UnsupportedCommand(commandType)
+            _ => null
         };
         return command is null ? null : Capture(command);
     }

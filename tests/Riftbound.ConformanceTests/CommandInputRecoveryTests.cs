@@ -83,6 +83,29 @@ public sealed class CommandInputRecoveryTests
     }
 
     [Fact]
+    public async Task AnUnknownTypedRejectionCannotLoseItsOriginalPayloadDuringRecovery()
+    {
+        var run = await Run.Create("binding-unknown-typed-input");
+        var player = Assert.IsType<string>(ResolutionResult.OpeningMulliganPlayerId(run.State));
+        var command = new UnsupportedCommand("BINDING_UNKNOWN", JsonSerializer.SerializeToElement(new { actualArgument = "preserved" }));
+        var rejected = await run.Session.SubmitAsync(player, "unknown-typed-input", command, null, default);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
+        AssertRecovered(await run.Recovery("original-unknown-input"));
+        var original = Frame(run);
+        var commands = original.Commands.ToArray();
+        commands[^1] = commands[^1] with { TypedCommand = null };
+        var errors = MatchRecoveryValidator.Validate(original.RoomId, original.LastEventSequence, commands,
+            original.Events, original.PlayerViews, original.AuthoritativeState, original.CurrentTick, original.SpectatorReplayFrame);
+        Assert.Contains(errors, error => error.Contains("raw command is required", StringComparison.Ordinal));
+        var store = new RawEnvelopeFrameStore(original with { Commands = commands, ValidationErrors = errors });
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, store);
+        var failure = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync(original.RoomId, default));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
+        Assert.Equal(1, store.Loads);
+    }
+
+    [Fact]
     public async Task ActualTypedPaymentKeepsItsSpendAndReceiptAcrossColdRecovery()
     {
         var run = await Run.Create("binding-typed-payment");

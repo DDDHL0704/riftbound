@@ -1285,7 +1285,8 @@ public static partial class MatchRecoveryValidator
 
             if (command.RawCommand is null
                 && command.TypedCommand is null
-                && CommandRequiresRawPayload(normalizedCommandType))
+                && (CommandRequiresRawPayload(normalizedCommandType)
+                    || TypedCommandInput.Parameterless(normalizedCommandType) is null))
             {
                 errors.Add(
                     $"command {normalizedClientIntentId} raw command is required for {normalizedCommandType}");
