@@ -175,6 +175,110 @@ public sealed class Ven057EmpoweredMovementConsumerTests
         finally { await Save("actual-control-recall-is-not-move", initial, game); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task TwoActualMovesInOneTurnHaveNoOncePerTurnDrawLimit(bool empowered)
+    {
+        var initial = Add(Add(Position(), "READY-A", "UNL-009/219"), "READY-B", "UNL-009/219"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, []));
+            if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
+            var turn = game.State.TurnNumber; var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            var draws = Draws(game, "P1");
+            for (var move = 1; move <= 2; move++)
+            {
+                var mana = game.State.RunePools["P1"].Mana;
+                await game.Act("P1", new PlayCardCommand(move == 1 ? "READY-A" : "READY-B", "UNL-009/219", ["UNIT"]));
+                Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); await game.Top();
+                Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+                var hand = game.State.PlayerZones["P1"].Hand.Count; var before = Draws(game, "P1");
+                await game.Act("P1", new MoveUnitCommand("UNIT", move == 1 ? "BASE" : "BATTLEFIELD", move == 1 ? "BATTLEFIELD:BF" : "BASE", []));
+                Assert.Equal(turn, game.State.TurnNumber); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
+                Assert.Equal(move, game.State.CardObjects["UNIT"].MovementCountThisTurn); Assert.Equal(before, Draws(game, "P1"));
+                Assert.Equal(empowered ? 1 : 0, SourceEffects(game, "UNIT"));
+                if (empowered) { await game.Top(); Assert.Equal(before + 1, Draws(game, "P1")); Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count); }
+                await FinishWindow(game);
+                Assert.Equal(draws + (empowered ? move : 0), Draws(game, "P1")); Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered);
+            }
+            Assert.Equal(2, game.Events().Count(e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal)));
+            Assert.Equal("BASE", game.State.ObjectLocations["UNIT"].Zone); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("same-turn-two-moves-" + empowered, initial, game); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task CanonicalOpeningPaysRealBluePowerAndColdRecoversItsEarnedMoveDraw(string actor)
+    {
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "lillia-lowcurve", "UNL-R03", [No, No, No]);
+        try
+        {
+            await game.WaitFor(actor, 6, No); await game.Tap(actor);
+            await game.Act(actor, new RecycleRuneCommand(game.Runes(actor).First()));
+            Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Blue]);
+            var unit = game.Hand(actor, No).First(); var mana = game.State.RunePools[actor].Mana;
+            await game.Act(actor, new PlayCardCommand(unit, No, []));
+            Assert.Equal(mana - 3, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit)); await game.ColdCheckpoint();
+            await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
+            Assert.Equal(mana - 6, game.State.RunePools[actor].Mana); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+            var pool = game.State.RunePools[actor];
+            var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) { [actor] = pool with { Mana = pool.Mana + 3 } } };
+            await game.RejectCoordinatedForgery("refunded-three-mana-after-actual-empower-payment", refunded);
+            await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit)); await game.ColdCheckpoint();
+            await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            Assert.Equal(actor, game.State.TurnPlayerId); Assert.False(game.State.CardObjects[unit].IsExhausted);
+            var field = game.State.PlayerZones[actor].Battlefields.First(game.State.BattlefieldStates.ContainsKey);
+            var hand = game.State.PlayerZones[actor].Hand.Count; var deck = game.State.PlayerZones[actor].MainDeck.Count;
+            var generation = game.State.CardObjects[unit].ObjectGeneration;
+            await game.Act(actor, new MoveUnitCommand(unit, "BASE", "BATTLEFIELD:" + field, []));
+            Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.Equal(1, game.State.CardObjects[unit].MovementCountThisTurn);
+            Assert.Equal(hand, game.State.PlayerZones[actor].Hand.Count); Assert.Equal(deck, game.State.PlayerZones[actor].MainDeck.Count);
+            Assert.Single(game.State.StackItems, item => item.SourceObjectId == unit); await game.ColdCheckpoint();
+            await game.Top(); Assert.Equal(hand + 1, game.State.PlayerZones[actor].Hand.Count); Assert.Equal(deck - 1, game.State.PlayerZones[actor].MainDeck.Count);
+            await FinishWindow(game); Assert.True(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven057-movement-" + actor); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task AnActuallyTakenEmpoweredUnitsMoveDrawsForItsCurrentControllerRatherThanItsOwner(string thief)
+    {
+        var owner = thief == "P1" ? "P2" : "P1";
+        var initial = Add(Add(Add(Position(), "TAKEN", No, owner), "TAKE", "OGN·203/298", thief), "READY", "UNL-009/219", thief) with {
+            TurnPlayerId = owner, ActivePlayerId = owner,
+            RunePools = new Dictionary<string, RunePool> { [owner] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }), [thief] = new(0, 0) } };
+        for (var i = 0; i < 10; i++) initial = Add(initial, "CONTROL-RUNE-" + i, "UNL-R05", thief, "BASE");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act(owner, new PlayCardCommand("TAKEN", No, [], Destination: "BATTLEFIELD:" + (owner == "P1" ? "BF" : "OTHER")));
+            await game.Act(owner, new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top(); await game.Act(owner, new EndTurnCommand());
+            for (var i = 0; i < 10; i++) await game.Act(thief, new TapRuneCommand("CONTROL-RUNE-" + i));
+            for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
+            Assert.Equal(2, game.State.RunePools[thief].Mana); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
+            Assert.Equal(owner, game.State.CardObjects["TAKEN"].OwnerId); Assert.Equal(thief, game.State.CardObjects["TAKEN"].ControllerId);
+            Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal("BASE", game.State.ObjectLocations["TAKEN"].Zone);
+            Assert.Equal(0, SourceEffects(game, "TAKEN")); Assert.DoesNotContain(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal));
+            await game.Act(thief, new PlayCardCommand("READY", "UNL-009/219", ["TAKEN"])); await game.Top();
+            Assert.Equal(0, game.State.RunePools[thief].Mana); Assert.False(game.State.CardObjects["TAKEN"].IsExhausted);
+            var draws = Draws(game, thief); var ownerDraws = Draws(game, owner); var hand = game.State.PlayerZones[thief].Hand.Count;
+            var generation = game.State.CardObjects["TAKEN"].ObjectGeneration;
+            await game.Act(thief, new MoveUnitCommand("TAKEN", "BASE", "BATTLEFIELD:" + (thief == "P1" ? "BF" : "OTHER"), []));
+            Assert.Equal(generation, game.State.CardObjects["TAKEN"].ObjectGeneration); Assert.Equal(1, game.State.CardObjects["TAKEN"].MovementCountThisTurn);
+            Assert.Equal(draws, Draws(game, thief)); Assert.Equal(ownerDraws, Draws(game, owner)); Assert.Equal(1, SourceEffects(game, "TAKEN"));
+            Assert.Equal(thief, Assert.Single(game.State.StackItems, item => item.SourceObjectId == "TAKEN").ControllerId);
+            await game.Top(); Assert.Equal(draws + 1, Draws(game, thief)); Assert.Equal(ownerDraws, Draws(game, owner));
+            Assert.Equal(hand + 1, game.State.PlayerZones[thief].Hand.Count); Assert.Equal(owner, game.State.CardObjects["TAKEN"].OwnerId);
+            await FinishWindow(game); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-controlled-source-move-" + thief, initial, game); }
+    }
+
     private static ActivateAbilityCommand Activate() => new("UNIT", "EMPOWER:0:0", []);
     private static MatchState Position() => VenUnitEntryBasicTests.Position(No) with { RunePools = new Dictionary<string, RunePool> {
         ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
@@ -193,6 +297,16 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
             else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
             else Assert.Fail("The actual movement did not expose the next ordinary response step.");
+        }
+    }
+    private static async Task FinishWindow(VenEmpowerCanonicalOpeningTests.CanonicalGame game)
+    {
+        for (var i = 0; game.State.TimingState != TimingStates.NeutralOpen; i++)
+        {
+            Assert.InRange(i, 0, 11);
+            if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
+            else Assert.Fail("The actual canonical movement did not expose the next ordinary response step.");
         }
     }
     private static int SourceEffects(Driver game, string source)
