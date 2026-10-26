@@ -17073,7 +17073,7 @@ public sealed partial class MatchSession : IMatchSession
                 command.Accepted ? null : ErrorCodes.UnsupportedCommand);
             intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
                 command.CommandType,
-                RawCommandFingerprint(command.RawCommand),
+                InputFingerprint(command.RawCommand, command.TypedCommand ?? TypedCommandInput.Parameterless(command.CommandType)),
                 result);
         }
     }
@@ -17268,7 +17268,10 @@ public sealed partial class MatchSession : IMatchSession
         var normalizedScenarioId = NormalizeScenarioId(scenarioId);
         var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
-        var rawCommandHash = RawCommandFingerprint(rawCommand);
+        if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
+            rawCommand = presentRaw.Clone();
+        var typedInput = TypedCommandInput.CaptureScenario(normalizedScenarioId);
+        var rawCommandHash = InputFingerprint(rawCommand, typedInput);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -17282,11 +17285,17 @@ public sealed partial class MatchSession : IMatchSession
                         ClientIntentConflictMessage);
                 }
 
+                if (!MatchesPresentInput(rawCommand, commandType, typedInput))
+                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+
                 return cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "DEV_SEED_SCENARIO"))
                 return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
+            if (!MatchesPresentInput(rawCommand, commandType, typedInput))
+                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17337,7 +17346,7 @@ public sealed partial class MatchSession : IMatchSession
                     events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
             lastEventSequence = completedEventSequence;
 
@@ -17363,7 +17372,11 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
-        var rawCommandHash = RawCommandFingerprint(rawCommand);
+        if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
+            rawCommand = presentRaw.Clone();
+        var typedInput = TypedCommandInput.Capture(command);
+        command = (SubmitDeckCommand)typedInput.Restore();
+        var rawCommandHash = InputFingerprint(rawCommand, typedInput);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -17377,11 +17390,17 @@ public sealed partial class MatchSession : IMatchSession
                         ClientIntentConflictMessage);
                 }
 
+                if (!MatchesPresentInput(rawCommand, "SUBMIT_DECK", typedInput))
+                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+
                 return cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "SUBMIT_DECK"))
                 return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
+            if (!MatchesPresentInput(rawCommand, "SUBMIT_DECK", typedInput))
+                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17487,7 +17506,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17514,7 +17533,10 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
-        var rawCommandHash = RawCommandFingerprint(rawCommand);
+        if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
+            rawCommand = presentRaw.Clone();
+        var typedInput = TypedCommandInput.Capture(new ReadyCommand());
+        var rawCommandHash = InputFingerprint(rawCommand, typedInput);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -17528,11 +17550,17 @@ public sealed partial class MatchSession : IMatchSession
                         ClientIntentConflictMessage);
                 }
 
+                if (!MatchesPresentInput(rawCommand, "READY", typedInput))
+                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
+
                 return cached.Result;
             }
 
             if (!HasCanonicalPresentRawEnvelope(rawCommand, "READY"))
                 return ResolutionResult.Rejected(state, "行动请求格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
+            if (!MatchesPresentInput(rawCommand, "READY", typedInput))
+                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
             if (state.Status == MatchStatuses.Finished)
             {
@@ -17560,7 +17588,7 @@ public sealed partial class MatchSession : IMatchSession
                         promptRejection.Events,
                         promptRejection.Snapshots,
                         promptRejection.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
@@ -17688,7 +17716,7 @@ public sealed partial class MatchSession : IMatchSession
                         events,
                         result.Snapshots,
                         result.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
             }
@@ -17714,7 +17742,11 @@ public sealed partial class MatchSession : IMatchSession
         RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
-        var rawCommandHash = RawCommandFingerprint(rawCommand);
+        if (rawCommand is { } presentRaw && presentRaw.ValueKind != JsonValueKind.Undefined)
+            rawCommand = presentRaw.Clone();
+        var typedInput = TypedCommandInput.Capture(command);
+        command = (GameCommand)typedInput.Restore();
+        var rawCommandHash = InputFingerprint(rawCommand, typedInput);
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -17728,6 +17760,9 @@ public sealed partial class MatchSession : IMatchSession
                         ClientIntentConflictMessage,
                         ErrorCodes.ClientIntentConflict);
                 }
+
+                if (!MatchesPresentInput(rawCommand, command.CmdType, typedInput))
+                    return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
                 return cached.Result;
             }
@@ -17748,6 +17783,9 @@ public sealed partial class MatchSession : IMatchSession
                 && rawCommand is { ValueKind: JsonValueKind.Object } raw
                 && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
                 return ResolutionResult.Rejected(state, "战场目标选项格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
+            if (!MatchesPresentInput(rawCommand, command.CmdType, typedInput))
+                return ResolutionResult.Rejected(state, "行动请求输入不一致或格式无效。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17794,7 +17832,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17812,7 +17850,7 @@ public sealed partial class MatchSession : IMatchSession
         }
     }
 
-    private sealed record CachedResolution(string CommandType, string? RawCommandHash, ResolutionResult Result);
+    private sealed record CachedResolution(string CommandType, string? InputHash, ResolutionResult Result);
 
     // Match the existing recovery envelope rules before any uncached request can be journaled.
     // Nullable-absent raw remains a separate typed-caller contract; do not fabricate wire JSON.
@@ -17882,18 +17920,20 @@ public sealed partial class MatchSession : IMatchSession
             return true;
         }
 
-        // Legacy recovered commands can lack raw payloads, so only enforce payload identity when both sides are fingerprinted.
-        return cached.RawCommandHash is not null
-            && rawCommandHash is not null
-            && !string.Equals(cached.RawCommandHash, rawCommandHash, StringComparison.Ordinal);
+        return !string.Equals(cached.InputHash, rawCommandHash, StringComparison.Ordinal);
     }
 
-    private static string? RawCommandFingerprint(JsonElement? rawCommand)
+    private static string? InputFingerprint(JsonElement? rawCommand, TypedCommandInput? typedInput)
     {
         return rawCommand is { } command
-            ? MatchStateHasher.HashValue(command)
-            : null;
+            ? command.ValueKind == JsonValueKind.Undefined ? "raw:undefined" : "raw:" + MatchStateHasher.HashValue(command)
+            : typedInput?.Fingerprint;
     }
+
+    private static bool MatchesPresentInput(JsonElement? rawCommand, string commandType, TypedCommandInput typedInput)
+        => !string.IsNullOrWhiteSpace(commandType) && commandType == commandType.Trim()
+            && (rawCommand is null || MatchRecoveryValidator.HasCanonicalRawPayload(commandType, rawCommand.Value)
+                && typedInput.MatchesWire(rawCommand.Value));
 
     private static bool TryRejectStalePrompt(
         MatchState state,

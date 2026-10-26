@@ -190,7 +190,7 @@ public sealed class DuskRoseLabControllerYouTests
         Assert.Equal("P2-BATTLEFIELD-ROSE-SACRIFICE", paid.State.StackItems[0].TriggerCost!.DestructionTarget!.ObjectId);
         var last = journal.Entries[^1];
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((value, i) =>
             new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, value))).ToArray();
         var views = last.Snapshots.ToDictionary(p => p.Key, p => new RecoveredPlayerView(p.Key, last.CompletedTick,

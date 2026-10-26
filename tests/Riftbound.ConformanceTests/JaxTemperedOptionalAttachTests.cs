@@ -540,7 +540,7 @@ public sealed class JaxTemperedOptionalAttachTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -557,7 +557,7 @@ public sealed class JaxTemperedOptionalAttachTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -573,7 +573,7 @@ public sealed class JaxTemperedOptionalAttachTests
         IReadOnlyList<string> optionalCosts)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(JaxObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(JaxObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(JaxCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
         Assert.Equal(
