@@ -108,7 +108,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
         var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
         var main = original.MainDeck.ToList();
         for (var i = 0; i < additions.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
-        main.AddRange(additions);
+        main.InsertRange(0, additions);
         var deck = original with { MainDeck = main, RuneDeck = Enumerable.Repeat(rune, 12).ToArray() };
         Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
         var initial = MatchReplayInitialStateBuilder.FromSeats("VEN-CANONICAL-" + templateId + "-" + actor,
