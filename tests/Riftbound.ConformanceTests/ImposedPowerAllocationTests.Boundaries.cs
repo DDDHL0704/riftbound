@@ -161,7 +161,7 @@ public sealed partial class ImposedPowerAllocationTests
         await run.Cold("rejected-checkpoint");
         var cold = await run.Repeat(input.Actor, input.Intent, input.Raw);
         run.Save("cold-rejection", new { originalCode = rejected.ErrorCode, cold });
-        // The pre-existing cold rejection ErrorCode gap remains a separate issue.
+        Assert.Equal(rejected.ErrorCode, cold.ErrorCode);
         Assert.False(cold.Accepted); Assert.Empty(cold.Events); Assert.Equal(rejected.ErrorMessage, cold.ErrorMessage);
         Assert.Equal(count + 1, run.Entries.Count); Assert.Equal(state, MatchStateHasher.Hash(run.State));
         await ToConfirmation(run, 2, 0, Colors(1, 1), enter: entry);
