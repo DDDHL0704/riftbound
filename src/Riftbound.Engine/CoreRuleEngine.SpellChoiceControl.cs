@@ -90,8 +90,7 @@ public sealed partial class CoreRuleEngine
             if (selected.StartsWith("PAY:RUNE:", StringComparison.Ordinal))
             {
                 var rune = selected[9..];
-                var paid = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, new(), player, [rune], events, RuleChoiceWindow);
-                foreach (var pair in paid) pools[pair.Key] = pair.Value;
+                ApplyRuleChoiceRecycleRuneResource(context, zones, cards, pools, player, rune, events, RuleChoiceWindow);
                 TryGetRuneTrait(cards[rune], out traitToSpend!);
             }
             pool = pools[player];

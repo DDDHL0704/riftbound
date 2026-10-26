@@ -64,6 +64,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools, string player,
         ReplacementResourceAction action, List<GameEvent> events)
     {
+        var capture = BeginRuleChoiceResourceStep(context, player, action.Choice.Id);
         var intent = new PlayerIntent("replacement-resource", player, CommandTypes.ActivateAbility);
         var result = P4ActivatedAbilityCatalog.IsLuxResourceAbility(action.Ability.AbilityId)
             ? ResolveLuxRestrictedMana(context, intent, action.Command)
@@ -76,6 +77,7 @@ public sealed partial class CoreRuleEngine
         var frame = RuleChoices.Value!;
         frame.NestedTriggers.AddRange(result.State.TriggerQueue.Where(t => !context.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)));
         frame.NestedDestroyedOwners.UnionWith(result.State.DestroyedUnitOwnerIdsThisTurn.Except(context.DestroyedUnitOwnerIdsThisTurn));
+        CompleteRuleChoiceResourceStep(capture, result.State, result.Events);
         static void Replace<T>(Dictionary<string,T> target, IReadOnlyDictionary<string,T> source)
         {
             if (ReferenceEquals(target, source)) return;

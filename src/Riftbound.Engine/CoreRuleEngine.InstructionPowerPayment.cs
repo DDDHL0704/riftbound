@@ -69,19 +69,12 @@ public sealed partial class CoreRuleEngine
             }
             if (selected.StartsWith("TAP_RUNE:", StringComparison.Ordinal))
             {
-                var tapped = ResolveTapRune(context, new("instruction-power-resource", player, CommandTypes.TapRune),
-                    new(selected[9..]));
-                if (!tapped.Accepted) throw new InvalidOperationException("Invalid instruction rune resource: " + tapped.ErrorMessage);
-                foreach (var pair in tapped.State.CardObjects) cards[pair.Key] = pair.Value;
-                foreach (var pair in tapped.State.RunePools) pools[pair.Key] = pair.Value;
-                events.AddRange(tapped.Events);
+                ApplyRuleChoiceTapRuneResource(context, zones, cards, pools, player, selected[9..], events);
                 continue;
             }
             if (selected.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal))
             {
-                var generated = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, new(), player,
-                    [selected[13..]], events, InstructionPowerPaymentKind);
-                foreach (var pair in generated) pools[pair.Key] = pair.Value;
+                ApplyRuleChoiceRecycleRuneResource(context, zones, cards, pools, player, selected[13..], events, InstructionPowerPaymentKind);
                 continue;
             }
 
