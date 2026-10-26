@@ -687,8 +687,8 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Recall, 50, 50, 0, 0, 44, 44, 0);
         AssertFamily(report, BehaviorTemplateIds.Move, 127, 127, 0, 0, 106, 106, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
-        // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 30, 30, 0, 0, 26, 26, 0);
+        // VEN110 adds a classified banish template; these text counts do not certify its pending observer.
+        AssertFamily(report, BehaviorTemplateIds.Banish, 31, 31, 0, 0, 27, 27, 0);
         // The text classifier includes VEN050's Steadfast reminder and VEN070/VEN007 permanent empowered bonuses.
         // Actual defender-only and permanent self effects are asserted separately.
         AssertFamily(report, BehaviorTemplateIds.TempMight, 276, 276, 0, 0, 224, 224, 0);
