@@ -145,6 +145,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             var draws = Draws(game, "P1"); await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_MOVED"); Assert.Equal(draws, Draws(game, "P1")); Assert.Equal(0, SourceEffects(game, "UNIT"));
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal));
             await game.Replay(); Restore(game.State);
         }
         finally { await Save("actual-return-is-not-move", initial, game); }
@@ -169,6 +170,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             Assert.Equal("BASE", game.State.ObjectLocations["TAKEN"].Zone); Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered);
             Assert.Equal(0, game.State.CardObjects["TAKEN"].MovementCountThisTurn); Assert.Equal(0, SourceEffects(game, "TAKEN"));
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_MOVED"); Assert.Equal(draws, Draws(game, "P1")); await game.Replay(); Restore(game.State);
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal));
         }
         finally { await Save("actual-control-recall-is-not-move", initial, game); }
     }
