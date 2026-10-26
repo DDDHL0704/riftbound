@@ -222,6 +222,98 @@ public sealed class ResourceCostReplacementCapacityTests
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
+    public static IEnumerable<object[]> PureEquipmentCapacityBoundaries()
+        => from setup in new[] { "single", "double", "attached" }
+           from typed in new[] { false, true }
+           from capacity in new[] { 0, 1, 2 }
+           select new object[] { setup, typed, capacity };
+
+    [Theory]
+    [MemberData(nameof(PureEquipmentCapacityBoundaries))]
+    public async Task PureEquipmentReplacementChainsCannotPromiseUnrepresentableResourceGain(string setup, bool typed, int capacity)
+    {
+        // The large pool is an explicit representation-boundary fixture. The
+        // attached branch obtains its binding and restores its spent power
+        // through real assemble/pass/recycle commands, without editing history.
+        var initial = Position("pay1");
+        initial = initial with {
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P1"] = new(int.MaxValue, typed ? 0 : int.MaxValue - capacity,
+                    typed ? new Dictionary<string, int> { [RuneTrait.Red] = int.MaxValue - capacity - (setup == "attached" ? 1 : 0),
+                        [RuneTrait.Green] = setup == "attached" ? 1 : 0 } : null) },
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["LEGEND"] = initial.CardObjects["LEGEND"] with { IsExhausted = true } } };
+        initial = AddBase(initial, "GEAR1", "OGN·077/298");
+        if (setup == "double") initial = AddBase(initial, "GEAR2", "OGN·077/298");
+        if (setup == "attached")
+        {
+            initial = AddBase(initial, "ANGEL", "SFD·051/221");
+            initial = AddBase(initial, "SETUP-RUNE", "OGN·042/298");
+        }
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        if (setup == "attached")
+        {
+            await driver.Act("P1", new AssembleEquipmentCommand("ANGEL", "A", ["ASSEMBLE_GREEN"]));
+            await driver.Top();
+            await driver.Act("P1", new RecycleRuneCommand("SETUP-RUNE"));
+            Assert.Equal("A", driver.State.CardObjects["ANGEL"].AttachedToObjectId);
+            Assert.NotNull(driver.State.CardObjects["ANGEL"].AttachedRuleText);
+        }
+        var before = driver.State; var hash = MatchStateHasher.Hash(before);
+        Assert.Equal(int.MaxValue - capacity, before.RunePools["P1"].TotalPower);
+        Assert.Equal(int.MaxValue, before.RunePools["P1"].Mana);
+        var gears = setup == "single" ? new[] { "GEAR1" } : setup == "double" ? ["GEAR1", "GEAR2"] : ["GEAR1", "ANGEL"];
+        Assert.All(gears, id => {
+            Assert.Contains(CardObjectTags.EquipmentCard, before.CardObjects[id].Tags);
+            Assert.DoesNotContain(CardObjectTags.UnitCard, before.CardObjects[id].Tags);
+        });
+        var prompt = ResolutionResult.BuildPrompts(before)["P1"];
+        var command = BoundedResourceQuantityTests.Native(new ActivateAbilityCommand("MALZ", P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, ["A"]));
+        var engine = new CoreRuleEngine();
+        var opened = await engine.ResolveAsync(before, new("pure-gear-cost", "P1", CommandTypes.ActivateAbility), command, default);
+        var attempts = new List<object>();
+        ResolutionResult final = opened;
+        if (opened.Accepted && opened.State.PendingRuleChoice is { } pending)
+        {
+            foreach (var option in pending.Request.Options)
+            {
+                var next = await engine.ResolveAsync(opened.State, new("pure-gear-answer-" + attempts.Count, "P1", CommandTypes.PayCost),
+                    new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [option.Id]), default);
+                attempts.Add(new { option.Id, next.Accepted, next.ErrorCode, next.ErrorMessage, next.State, next.Events });
+                if (next.Accepted) final = next;
+            }
+        }
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_IMPOSED_MOVEMENT_EVIDENCE") is { Length: > 0 } folder)
+        {
+            Directory.CreateDirectory(folder);
+            await File.WriteAllTextAsync(Path.Combine(folder, $"pure-equipment-capacity-{setup}-{typed}-{capacity}.json"),
+                JsonSerializer.Serialize(new { scope = "Finite MAX representation fixture; real attachment setup; no ordinary opening or external services.",
+                    initial, setupCommands = driver.Commands(), setupEvents = driver.Events(), before, prompt, command, opened, attempts },
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
+        }
+        Assert.Equal(hash, MatchStateHasher.Hash(before));
+        if (capacity < P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower)
+        {
+            Assert.DoesNotContain(prompt.Candidates ?? [], c => c.Action == CommandTypes.ActivateAbility
+                && (c.Sources ?? []).Any(source => source.Id == "MALZ"));
+            Assert.False(opened.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, opened.ErrorCode);
+            Assert.Empty(opened.Events); Assert.Null(opened.State.PendingRuleChoice);
+            Assert.Equal(hash, MatchStateHasher.Hash(opened.State));
+        }
+        else
+        {
+            Assert.True(opened.Accepted, opened.ErrorMessage);
+            Assert.True(final.Accepted, final.ErrorMessage); Assert.Null(final.State.PendingRuleChoice);
+            Assert.Equal(int.MaxValue, final.State.RunePools["P1"].TotalPower);
+            Assert.Equal(int.MaxValue, final.State.RunePools["P1"].Mana);
+            Assert.True(final.State.CardObjects["MALZ"].IsExhausted);
+            Assert.True(final.State.CardObjects["A"].IsExhausted);
+            Assert.Contains("A", final.State.PlayerZones["P1"].Base);
+            Assert.Single(gears, id => final.State.PlayerZones["P1"].Graveyard.Contains(id));
+            Assert.Empty(OfficialInsightAndSpellLockTests.Errors(final.State));
+        }
+    }
+
     private static MatchState Position(string branch)
     {
         var state = AddBase(WithPool(ImposedMovementContinuationTests.Position("standard"),
