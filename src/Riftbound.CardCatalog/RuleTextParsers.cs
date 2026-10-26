@@ -2668,6 +2668,20 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (Regex.IsMatch(
+                    segment,
+                    @"^如果你的废牌堆中有一张和我同名的卡牌，则我以活跃状态进场。?$",
+                    RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceUnitEnterReady,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Source-unit active-entry static ability parsed for a known same-name card in the controller graveyard.",
+                    RequiresSameNameCardInControllerGraveyard: true));
+                continue;
+            }
+
             var sourceUnitMaxHandEnterReadyMatch = Regex.Match(
                 segment,
                 @"如果你的手牌不超过(?<max>[0-9一两二三四五六七八九十]+)张，则我以活跃状态进场。?$",
@@ -3336,6 +3350,27 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Combat static aura parsed for B1 routing; execution is available when combat power calculation reads BehaviorSpec.StaticAuras.",
                     RequiredReadyEnemyUnitCount: 1));
+                continue;
+            }
+
+            var currentBulwarkBattlefieldPowerMatch = Regex.Match(
+                segment,
+                @"^此处拥有\{\{壁垒\}\}的单位获得\{\{S\}\}\+(\d+)。?$",
+                RegexOptions.CultureInvariant);
+            if (currentBulwarkBattlefieldPowerMatch.Success
+                && int.TryParse(currentBulwarkBattlefieldPowerMatch.Groups[1].Value, out var currentBulwarkPowerDelta))
+            {
+                auras.Add(new StaticAuraSpec(
+                    StaticAuraKinds.BattlefieldFilteredUnitsPower,
+                    StaticAuraLayer,
+                    "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD",
+                    StaticAuraTargetScopes.SameBattlefieldFilteredUnits,
+                    StaticAuraParticipantScopes.SameBattlefieldFilteredPublicUnits,
+                    currentBulwarkPowerDelta,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Current Bulwark possession uses the shared battlefield power filter.",
+                    StaticAuraTargetFilters.CurrentKeywordPrefix + "壁垒"));
                 continue;
             }
 
