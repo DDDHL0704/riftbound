@@ -244,6 +244,7 @@
       "UNIT_DESTROYED",
       "UNIT_DESTROYED",
       "DAMAGE_REMOVED",
+      "BATTLE_CLEANUP_COMPLETED",
       "BATTLE_RESULT_DETERMINED",
       "BATTLEFIELD_CONTROL_RESOLVED",
       "BATTLEFIELD_CONQUERED",
@@ -420,9 +421,14 @@
         }
       },
       {
-        "kind": "BATTLE_RESULT_DETERMINED",
+        "kind": "BATTLE_CLEANUP_COMPLETED",
         "tick": 3,
         "sequence": 13
+      },
+      {
+        "kind": "BATTLE_RESULT_DETERMINED",
+        "tick": 3,
+        "sequence": 14
       },
       {
         "kind": "BATTLEFIELD_CONTROL_RESOLVED",
@@ -432,7 +438,7 @@
           "controllerId": "P1"
         },
         "tick": 3,
-        "sequence": 14
+        "sequence": 15
       },
       {
         "kind": "BATTLEFIELD_CONQUERED",
@@ -446,7 +452,7 @@
           ]
         },
         "tick": 3,
-        "sequence": 15
+        "sequence": 16
       },
       {
         "kind": "SCORE_GAINED",
@@ -454,12 +460,12 @@
           "playerId": "P1"
         },
         "tick": 3,
-        "sequence": 16
+        "sequence": 17
       },
       {
         "kind": "BATTLE_CLOSED",
         "tick": 3,
-        "sequence": 17
+        "sequence": 18
       }
     ],
     "promptActions": {

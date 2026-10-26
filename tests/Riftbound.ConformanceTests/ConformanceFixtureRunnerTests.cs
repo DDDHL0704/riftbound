@@ -58022,6 +58022,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
+            },
             resultEvent =>
             {
                 Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
@@ -58570,6 +58578,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
+            },
             resultEvent =>
             {
                 Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
@@ -58823,6 +58839,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(7, previousDamageByObject["P1-BATTLEFIELD-VOLIBEAR"]);
                 Assert.Equal(7, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+            },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
             },
             resultEvent =>
             {

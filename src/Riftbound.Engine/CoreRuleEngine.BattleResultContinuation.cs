@@ -80,8 +80,10 @@ public sealed partial class CoreRuleEngine
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         var cleanupStart = events.Count;
         ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
+        // A response can remove an earlier role unit before the actual damage participants are declared.
         var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
-            ? declaration.PublicObjectBindings : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
+            ? declaration.PublicObjectBindings?.Where(b => attackers.Contains(b.ObjectId) || defenders.Contains(b.ObjectId)).ToArray()
+            : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, null, resultState.Tick,
             attackers.ToArray(), defenders.ToArray(), SurvivingBattleUnitObjectIds(zones, cards, attackers),
             SurvivingBattleUnitObjectIds(zones, cards, defenders),

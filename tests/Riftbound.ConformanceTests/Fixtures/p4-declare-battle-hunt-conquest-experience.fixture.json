@@ -174,6 +174,7 @@
       "DAMAGE_APPLIED",
       "UNIT_DESTROYED",
       "DAMAGE_REMOVED",
+      "BATTLE_CLEANUP_COMPLETED",
       "BATTLE_RESULT_DETERMINED",
       "BATTLEFIELD_CONTROL_RESOLVED",
       "BATTLEFIELD_CONQUERED",
@@ -263,9 +264,14 @@
         }
       },
       {
-        "kind": "BATTLE_RESULT_DETERMINED",
+        "kind": "BATTLE_CLEANUP_COMPLETED",
         "tick": 1,
         "sequence": 6
+      },
+      {
+        "kind": "BATTLE_RESULT_DETERMINED",
+        "tick": 1,
+        "sequence": 7
       },
       {
         "kind": "BATTLEFIELD_CONTROL_RESOLVED",
@@ -275,12 +281,12 @@
           "controllerId": "P1"
         },
         "tick": 1,
-        "sequence": 7
+        "sequence": 8
       },
       {
         "kind": "BATTLEFIELD_CONQUERED",
         "tick": 1,
-        "sequence": 8,
+        "sequence": 9,
         "payload": {
           "playerId": "P1",
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
@@ -297,12 +303,12 @@
           "playerId": "P1"
         },
         "tick": 1,
-        "sequence": 9
+        "sequence": 10
       },
       {
         "kind": "EXPERIENCE_GAINED",
         "tick": 1,
-        "sequence": 10,
+        "sequence": 11,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
@@ -314,7 +320,7 @@
       {
         "kind": "BATTLE_CLOSED",
         "tick": 1,
-        "sequence": 11
+        "sequence": 12
       }
     ],
     "promptActions": {

@@ -63,6 +63,41 @@ public sealed class BattleCleanupRecallHistoryTests
         await SacredProtectorTests.Replay(initial, run);
     }
 
+    [Fact]
+    public async Task AResponseReturningAnEarlierRoleUnitCannotAddItToTheLaterCombatHistory()
+    {
+        var initial = AttackDamageDistributionTests.Spell(SacredProtectorTests.DefenderPosition(1),
+            "RESPONSE", "OGN·104/298", "P1");
+        var run = SacredProtectorTests.Driver(initial, "returned-companion-history");
+        await run.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:F", []));
+        if (run.State.FocusPlayerId != "P1") await run.Act(run.State.FocusPlayerId!, new PassFocusCommand());
+        await run.Act("P1", new PlayCardCommand("RESPONSE", "OGN·104/298", ["FRIEND"]));
+        await run.Top(); await SacredProtectorTests.FinishCombat(run, 0);
+        var state = run.State; var h = Assert.Single(state.BattleResolutions);
+        Assert.Equal("NO_RESULT", h.Kind); Assert.Equal(RecallReason, h.Reason);
+        Assert.Equal(new[] { "ENEMY" }, h.AttackerObjectIds); Assert.Equal(new[] { "HOST" }, h.DefenderObjectIds);
+        Assert.Contains("FRIEND", state.PlayerZones["P1"].Hand); Assert.Equal(1, state.CardObjects["FRIEND"].ObjectGeneration);
+        Assert.Equal(new[] { "ENEMY", "HOST" }, h.PublicObjectBindings!.Select(b => b.ObjectId).Order().ToArray());
+        Assert.Contains(run.Events(), e => e.Event.Kind == "BATTLE_ROLES_ESTABLISHED"
+            && JsonSerializer.Serialize(e.Event.Payload, Json).Contains("FRIEND", StringComparison.Ordinal));
+        var frame = Frame(initial, run); Assert.Empty(Errors(frame));
+        var cold = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+        var restored = MatchSession.Restore(cold, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        Assert.Equal(MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(state)["P1"]),
+            MatchStateHasher.HashValue(restored.SnapshotFor("P1")));
+        var originalCommands = JsonSerializer.Serialize(run.Commands(), Json); var originalEvents = JsonSerializer.Serialize(run.Events(), Json);
+        foreach (var generation in new long[] { 0, 1 })
+        {
+            var forged = state with { BattleResolutions = [h with {
+                DefenderObjectIds = generation == 1 ? h.DefenderObjectIds.Append("FRIEND").ToArray() : h.DefenderObjectIds,
+                PublicObjectBindings = h.PublicObjectBindings!.Append(new ObjectBinding("FRIEND", generation)).ToArray() }] };
+            Assert.Contains("invalid captured public battle history reference", MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+            await Reject(Frame(initial, run, forged));
+        }
+        Assert.Equal(originalCommands, JsonSerializer.Serialize(run.Commands(), Json)); Assert.Equal(originalEvents, JsonSerializer.Serialize(run.Events(), Json));
+        await SacredProtectorTests.Replay(initial, run);
+    }
+
     private static async Task Reject(MatchRecoveryFrame frame)
     {
         Assert.Contains(Errors(frame), e => e.Contains("closed cleanup-recall history", StringComparison.Ordinal));
