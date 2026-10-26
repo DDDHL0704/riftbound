@@ -127,6 +127,127 @@ public sealed class Ven059EmpoweredCostConsumerTests
         finally { await Save("counter-retains-payment", initial, game); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActualReturnBeforePaymentRemovesTheDiscountAndReturnAfterPaymentCannotRefundIt(bool afterPayment)
+    {
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", "VEN·032", []));
+            await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
+            Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+            if (afterPayment) await game.Act("P1", Play());
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            if (!afterPayment) await game.Act("P1", Play());
+            Assert.Equal(afterPayment ? 23 : 21, game.State.RunePools["P1"].Mana);
+            Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Assert.Equal("SPELL", Assert.Single(game.State.StackItems).SourceObjectId);
+            JsonRestore(initial, game); await game.Top();
+            Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(afterPayment ? 23 : 21, game.State.RunePools["P1"].Mana);
+            await game.Replay(); JsonRestore(initial, game);
+        }
+        finally { await Save("actual-return-payment-boundary-" + afterPayment, initial, game); }
+    }
+
+    [Fact]
+    public async Task TwoActuallyEmpoweredObjectsReduceTheSpellOnlyOnce()
+    {
+        var initial = Add(Position(), "SECOND", "VEN·032"); var game = new Driver(initial);
+        try
+        {
+            foreach (var id in new[] { "UNIT", "SECOND" })
+            {
+                await game.Act("P1", new PlayCardCommand(id, "VEN·032", []));
+                await game.Act("P1", new ActivateAbilityCommand(id, "EMPOWER:0:0", [])); await game.Top();
+                Assert.True(game.State.CardObjects[id].IsEmpowered);
+            }
+            Assert.Equal(10, game.State.RunePools["P1"].Mana);
+            await game.Act("P1", Play()); Assert.Equal(9, game.State.RunePools["P1"].Mana);
+            Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            await game.Top(); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay(); JsonRestore(initial, game);
+        }
+        finally { await Save("two-empowered-objects-once", initial, game); }
+    }
+
+    [Fact]
+    public async Task SwiftCanBePlayedByTheNonTurnPlayerInAnActualOpenSpellDuel()
+    {
+        var initial = Add(Relocate(Position(), "UNIT", "P1", "BASE"), "P2-SPELL", No, "P2"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:OTHER"));
+            Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState); Assert.Equal("P1", game.State.TurnPlayerId);
+            if (game.State.FocusPlayerId != "P2") await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+            Assert.Equal("P2", game.State.FocusPlayerId);
+            await game.Act("P2", new PlayCardCommand("P2-SPELL", No, ["ALLY"]));
+            Assert.Equal(17, game.State.RunePools["P2"].Mana); Assert.Equal(19, game.State.RunePools["P2"].TotalPower);
+            Assert.Equal(TimingStates.SpellDuelClosed, game.State.TimingState); Assert.Equal(0, game.State.CardObjects["ALLY"].Damage);
+            JsonRestore(initial, game); await game.Top();
+            Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Contains("P2-SPELL", game.State.PlayerZones["P2"].Graveyard); await game.Replay(); JsonRestore(initial, game);
+        }
+        finally { await Save("actual-non-turn-duel-swift", initial, game); }
+    }
+
+    [Fact]
+    public async Task SwiftCannotBeUsedAsAReactionInsideAnActualClosedChain()
+    {
+        var initial = Add(Position(), "REACTION", "OGN·048/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("REACTION", "OGN·048/298", []));
+            Assert.Equal(TimingStates.NeutralClosed, game.State.TimingState);
+            await Reject(game.State, "P1", Play()); Assert.Contains("SPELL", game.State.PlayerZones["P1"].Hand);
+            await game.Top(); await game.Replay(); JsonRestore(initial, game);
+        }
+        finally { await Save("actual-closed-chain-rejects-swift", initial, game); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task CanonicalOpeningPaysOneManaAndBlueAfterActualEmpowerAndRejectsACoherentManaRefund(string actor)
+    {
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "lillia-lowcurve", "UNL-R03",
+            ["VEN·032", "VEN·032", "VEN·032", No, No, No]);
+        try
+        {
+            await game.WaitFor(actor, 8, "VEN·032", No); await game.Tap(actor);
+            var unit = game.Hand(actor, "VEN·032").First();
+            await game.Act(actor, new PlayCardCommand(unit, "VEN·032", []));
+            await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            Assert.Equal(actor, game.State.TurnPlayerId); Assert.False(game.State.CardObjects[unit].IsExhausted);
+            var field = game.State.CardObjects.Values.First(c => c.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)).ObjectId;
+            await game.Act(actor, new MoveUnitCommand(unit, "BASE", "BATTLEFIELD:" + field));
+            Assert.Equal(TimingStates.SpellDuelOpen, game.State.TimingState);
+            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand()); await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+            var runes = game.Runes(actor); Assert.InRange(runes.Length, 9, 12);
+            var empowerMana = Math.Max(0, 12 - (runes.Length - 1));
+            foreach (var rune in runes.Take(empowerMana + 1)) await game.Act(actor, new TapRuneCommand(rune));
+            await game.Act(actor, new RecycleRuneCommand(runes[0]));
+            Assert.Equal(runes.Length - 1, game.Runes(actor).Length);
+            Assert.Equal(empowerMana + 1, game.State.RunePools[actor].Mana); Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Blue]);
+            await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
+            Assert.Equal(empowerMana, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
+            await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(1, game.State.RunePools[actor].Mana); await game.ColdCheckpoint();
+            var spell = game.Hand(actor, No).First();
+            await game.Act(actor, new PlayCardCommand(spell, No, [unit]));
+            Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            Assert.Equal(0, game.State.CardObjects[unit].Damage); Assert.Equal(spell, Assert.Single(game.State.StackItems).SourceObjectId);
+            await game.ColdCheckpoint();
+            var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+                [actor] = game.State.RunePools[actor] with { Mana = 2 } } };
+            await game.RejectCoordinatedForgery("invented-empowered-cost-mana-refund", refunded);
+            await game.Top(); Assert.Equal(4, game.State.CardObjects[unit].Damage);
+            Assert.Contains(spell, game.State.PlayerZones[actor].Graveyard); Assert.Equal(0, game.State.RunePools[actor].Mana);
+            await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven059-" + actor); }
+    }
+
     private static PlayCardCommand Play(string target = "ENEMY") => new("SPELL", No, [target]);
     private static MatchState Position()
     {
@@ -143,7 +264,8 @@ public sealed class Ven059EmpoweredCostConsumerTests
     private static MatchState Relocate(MatchState state, string id, string owner, string zone, string? field = null)
     {
         var old = state.PlayerZones[owner];
-        var zones = old with { Base = old.Base.Where(x => x != id).ToArray(), Battlefields = old.Battlefields.Where(x => x != id).ToArray() };
+        var zones = old with { Base = old.Base.Where(x => x != id).ToArray(), Battlefields = old.Battlefields.Where(x => x != id).ToArray(),
+            Hand = old.Hand.Where(x => x != id).ToArray() };
         zones = zone == "BASE" ? zones with { Base = [..zones.Base, id] } : zones with { Battlefields = [..zones.Battlefields, id] };
         return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(owner, zone, field) },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zones } };
