@@ -69,6 +69,7 @@ public sealed partial class CoreRuleEngine
                 gained = ApplyReplacementResourceAction(context, zones, cards, pools, player, resource, events);
             else
             {
+                var capture = BeginRuleChoiceResourceStep(context, player, selected);
                 var intent = new PlayerIntent("imposed-movement-resource", player,
                     selected.StartsWith("TAP_RUNE:", StringComparison.Ordinal) ? CommandTypes.TapRune : CommandTypes.RecycleRune);
                 gained = intent.CommandType == CommandTypes.TapRune
@@ -79,6 +80,7 @@ public sealed partial class CoreRuleEngine
                 ReplaceMovementPaymentState(cards, gained.State.CardObjects);
                 ReplaceMovementPaymentState(pools, gained.State.RunePools);
                 events.AddRange(gained.Events);
+                CompleteRuleChoiceResourceStep(capture, gained.State, gained.Events);
             }
             ReplaceMovementPaymentState(locations, gained.State.ObjectLocations);
             acquired = true;
