@@ -46,7 +46,7 @@ public sealed class MechanicalRecastContinuationTests
         if(!decline)result=await Native("play-mech",new PlayCardCommand("MECH2","SFD·075/221",[]));
         Assert.Empty(result.State.StackItems);Assert.Null(result.State.PendingEffectPlay);
         Assert.Contains(decline?"B":"MECH2",result.State.PlayerZones["P1"].Base);
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,new CoreRuleEngine(),default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export(decline?"decline":"play-mech","replay.json",new{nativeCommandsUsed=usedNative.All(x=>x),replay});
