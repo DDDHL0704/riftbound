@@ -34,12 +34,12 @@ public sealed class LuxRestrictedManaSourceTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var priorCards = catalog.Cards.Where(card => card.CardNo != "VEN·SP6").ToArray();
-        Assert.Equal(1082, priorCards.Length);
-        Assert.Equal(1083, catalog.Cards.Count);
+        Assert.Equal(1083, priorCards.Length);
+        Assert.Equal(1084, catalog.Cards.Count);
         var priorUnits = FunctionalUnitBuilder.Build(priorCards);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(863, priorUnits.Count);
-        Assert.Equal(864, units.Count);
+        Assert.Equal(864, priorUnits.Count);
+        Assert.Equal(865, units.Count);
         foreach (var prior in priorUnits)
         {
             var actual = Assert.Single(units, unit => unit.Id == prior.Id);

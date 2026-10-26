@@ -138,6 +138,126 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
         finally { await Save("inactive-source-" + branch, initial, game); }
     }
 
+    [Theory]
+    [InlineData("wrong-trait")] [InlineData("mana")] [InlineData("target")] [InlineData("repeated")]
+    public async Task IllegalTypedEmpowerPaymentsAndTargetsLeaveTheOriginalStateUnchanged(string branch)
+    {
+        var initial = Position();
+        if (branch == "wrong-trait") initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 2 }) } };
+        if (branch == "mana") initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(7, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 2 }) } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, []));
+            if (branch == "repeated") { await game.Act("P1", Activate()); await game.Top(); }
+            var command = Activate() with { TargetObjectIds = branch == "target" ? ["UNIT"] : [] };
+            var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
+            raw["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; raw["snapshotTick"] = game.State.Tick;
+            await game.ActRetained(new("P1", "ven130-rejected-" + branch, JsonSerializer.SerializeToElement(raw, Json)), false);
+            Assert.Equal(branch == "repeated", game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Empty(game.State.StackItems); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("invalid-activation-" + branch, initial, game); }
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActuallyCopiedTextRequiresTheEmpoweredHostAndStopsGrantingItsAuraWhenDetached(bool detachBeforeEmpower)
+    {
+        var initial = Add(ShadySpectaclesTests.Position(No), "DETACH", "SFD·011/221") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 3, [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            var original = Might(game.State, "HOST");
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
+            var copy = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", copy.Request.Kind);
+            await game.Act("P1", new PayCostCommand(copy.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+            Assert.Equal(No, game.State.CardObjects["HOST"].CardNo); Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+            var copiedMight = Might(game.State, "HOST");
+            var requirement = ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!.Where(c => c.Action == CommandTypes.ActivateAbility)
+                .SelectMany(c => Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(c.Metadata!["sourceRequirements"]))
+                .Single(row => (string?)row["sourceObjectId"] == "HOST" && (string?)row["abilityId"] == "EMPOWER:0:0");
+            await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []) with { AbilityInstanceId = Assert.IsType<string>(requirement["abilityInstanceId"]) });
+            Assert.Equal("GEAR", Assert.Single(game.State.StackItems).EmpowerActivation!.Origin!.Equipment.ObjectId);
+            Assert.Equal(copiedMight, Might(game.State, "HOST"));
+            if (detachBeforeEmpower)
+            {
+                await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top();
+                Assert.Equal(original, Might(game.State, "HOST")); Assert.NotEqual(No, game.State.CardObjects["HOST"].CardNo);
+            }
+            await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            Assert.Equal(detachBeforeEmpower ? original : copiedMight + 2, Might(game.State, "HOST"));
+            if (!detachBeforeEmpower)
+            {
+                await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top();
+                Assert.Equal(original, Might(game.State, "HOST")); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            }
+            Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-copy-" + detachBeforeEmpower, initial, game); }
+    }
+
+    [Theory]
+    [InlineData(1)] [InlineData(2)]
+    public async Task EachActuallyAttachedRuleTextInstanceAddsItsOwnCurrentFriendlyEmpoweredBonus(int copies)
+    {
+        var initial = Add(EmpowerTests.Position(No), "EMPOWER-ALLY", "VEN·070") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(60, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 2, [RuneTrait.Green] = 3, [RuneTrait.Orange] = 2 }), ["P2"] = new(20, 20) } };
+        if (copies == 2) initial = AttachedRuleTextTests.AddSong(initial, "SONG2");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("HOST", No, []));
+            await game.Act("P1", new PlayCardCommand("EMPOWER-ALLY", "VEN·070", []));
+            await game.Act("P1", new ActivateAbilityCommand("EMPOWER-ALLY", "EMPOWER:0:0", [])); await game.Top();
+            for (var i = 0; i < copies; i++)
+            {
+                await game.Act("P1", new AssembleEquipmentCommand(i == 0 ? "GEAR" : "SONG2", "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
+                Assert.Equal("HOST", game.State.CardObjects[i == 0 ? "GEAR" : "SONG2"].AttachedToObjectId);
+            }
+            var hostMight = Might(game.State, "HOST"); Assert.Equal(6, Might(game.State, "EMPOWER-ALLY"));
+            await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+            Assert.Equal(hostMight, Might(game.State, "HOST")); Assert.Equal(6, Might(game.State, "EMPOWER-ALLY"));
+            await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            Assert.Equal(6 + 2 * (copies + 1), Might(game.State, "EMPOWER-ALLY"));
+            Assert.Equal(hostMight + 2 * (copies + 1), Might(game.State, "HOST"));
+            Assert.False(game.State.CardObjects["GEAR"].IsEmpowered); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-text-instances-" + copies, initial, game); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task CanonicalOpeningPaysRealYellowPowerAndColdRecoversTheCurrentPassive(string actor)
+    {
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "poppy-standby", "UNL-R06", [No, No, No]);
+        try
+        {
+            await game.WaitFor(actor, 8, No); await game.Tap(actor);
+            await game.Act(actor, new RecycleRuneCommand(game.Runes(actor).First()));
+            Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Yellow]);
+            var unit = game.Hand(actor, No).First(); var mana = game.State.RunePools[actor].Mana;
+            await game.Act(actor, new PlayCardCommand(unit, No, [])); Assert.Equal(mana - 5, game.State.RunePools[actor].Mana);
+            Assert.Equal(5, game.Might(actor, unit)); await game.ColdCheckpoint();
+            await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
+            Assert.Equal(mana - 8, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(5, game.Might(actor, unit)); await game.ColdCheckpoint();
+            var pool = game.State.RunePools[actor];
+            var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+                [actor] = pool with { Mana = pool.Mana + 3, PowerByTrait = new Dictionary<string, int>(pool.PowerByTrait) { [RuneTrait.Yellow] = 1 } } } };
+            await game.RejectCoordinatedForgery("refunded-printed-empower-mana-and-yellow", refunded);
+            await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(7, game.Might(actor, unit));
+            Assert.Equal(5, game.State.CardObjects[unit].Power); await game.ColdCheckpoint();
+            await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            Assert.Equal(7, game.Might(actor, unit)); await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven130-" + actor); }
+    }
+
     private static ActivateAbilityCommand Activate() => new("UNIT", "EMPOWER:0:0", []);
     private static MatchState Position() => VenUnitEntryBasicTests.Position(No) with { RunePools = new Dictionary<string, RunePool> {
         ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 2, [RuneTrait.Orange] = 2, [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
