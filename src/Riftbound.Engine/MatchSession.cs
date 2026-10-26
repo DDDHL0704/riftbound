@@ -17971,9 +17971,15 @@ public sealed partial class MatchSession : IMatchSession
 
     private static string? InputFingerprint(JsonElement? rawCommand, TypedCommandInput? typedInput)
     {
-        return rawCommand is { } command
-            ? command.ValueKind == JsonValueKind.Undefined ? "raw:undefined" : "raw:" + MatchStateHasher.HashValue(command)
-            : typedInput?.Fingerprint;
+        if (rawCommand is not { } command) return typedInput?.Fingerprint;
+        if (command.ValueKind == JsonValueKind.Undefined) return "raw:undefined";
+        var canonical = command.ValueKind == JsonValueKind.Object
+            && command.TryGetProperty("cmdType", out var type) && type.ValueKind == JsonValueKind.String
+            && MatchRecoveryValidator.HasCanonicalRawPayload(type.GetString()!, command);
+        // Invalid numeric field forms must still conflict before ordinary payload
+        // validation when an intent already belongs to a different valid input.
+        return canonical ? "raw:canonical:" + CommandInputFingerprint.Hash(command)
+            : "raw:malformed:" + MatchStateHasher.HashValue(command);
     }
 
     private static bool MatchesPresentInput(JsonElement? rawCommand, string commandType, TypedCommandInput typedInput)
