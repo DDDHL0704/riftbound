@@ -27,11 +27,14 @@ public sealed partial class CoreRuleEngine
             if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             {
                 var stele = ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId;
-                var pool = state.RunePools.GetValueOrDefault(player) ?? RunePool.Empty;
-                var available = stele ? pool.Mana : pool.TotalPower;
-                for (var amount = 1; amount <= available; amount++)
-                    Add([(stele ? P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix : P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix) + amount],
-                        stele ? $"横置：将 {amount} 法力转为符能" : $"横置：将 {amount} 符能转为法力");
+                var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+                if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum)) continue;
+                var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
+                if ((long)maximum + 1 > ResourceQuantityRules.DirectChoiceLimit)
+                    Add([prefix + ResourceQuantityRules.ChooseAmountSuffix], $"横置：选择 0–{maximum} 的转换数量");
+                else
+                    for (var amount = 0; amount <= maximum; amount++)
+                        Add([prefix + amount], stele ? $"横置：将 {amount} 法力转为符能" : $"横置：将 {amount} 符能转为法力");
             }
             else
             {
@@ -45,6 +48,7 @@ public sealed partial class CoreRuleEngine
             }
             void Add(string[] costs, string label)
             {
+                if (!ReplacementResourceAmountsSupported(state, player, ability, costs)) return;
                 var name = CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var card) ? card.DisplayName
                     : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) ? "金币" : state.CardObjects[id].CardNo;
                 var key = $"RESOURCE:{id}:{ability.AbilityId}:{string.Join(',',costs)}";
@@ -54,13 +58,42 @@ public sealed partial class CoreRuleEngine
         return actions;
     }
 
+    private static bool ReplacementResourceAmountsSupported(MatchState state, string player,
+        P4ActivatedAbilityDefinition ability, string[] costs)
+    {
+        var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        if (!pool.HasSupportedAmounts) return false;
+        if (P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId))
+            return CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana);
+        long mana = pool.Mana, power = pool.TotalPower;
+        if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
+        {
+            var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
+            if (costs.SequenceEqual([prefix + ResourceQuantityRules.ChooseAmountSuffix]))
+                return ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out _);
+            if (!TryReadResourceConversionAmount(ability.AbilityId, costs, out var amount)) return false;
+            if (ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
+            { mana -= amount; power += amount; }
+            else { power -= amount; mana += amount; }
+        }
+        else if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId))
+        { power++; if (RenataGoldBonusActive(state, player)) mana++; }
+        else
+        {
+            mana += P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId)
+                ? costs.Length == 1 ? 1 : 0 : ability.GeneratedMana;
+            power += ability.GeneratedPower + P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability).Values.Sum(v => (long)v);
+        }
+        return mana >= 0 && mana + pool.SpellOnlyMana <= int.MaxValue && power is >= 0 and <= int.MaxValue;
+    }
+
     private static MatchState ReplacementResourceContext(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools, string player)
         => state with { PlayerZones = zones, CardObjects = cards, RunePools = pools, PendingRuleChoice = null,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
             PendingPayment = new("replacement-resource", RuleChoiceWindow, player) };
 
-    private static void ApplyReplacementResourceAction(MatchState context, Dictionary<string, PlayerZones> zones,
+    private static ResolutionResult ApplyReplacementResourceAction(MatchState context, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools, string player,
         ReplacementResourceAction action, List<GameEvent> events)
     {
@@ -81,6 +114,7 @@ public sealed partial class CoreRuleEngine
         frame.NestedTriggers.AddRange(result.State.TriggerQueue.Where(t => !context.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)));
         frame.NestedDestroyedOwners.UnionWith(result.State.DestroyedUnitOwnerIdsThisTurn.Except(context.DestroyedUnitOwnerIdsThisTurn));
         CompleteRuleChoiceResourceStep(capture, result.State, result.Events);
+        return result;
         static void Replace<T>(Dictionary<string,T> target, IReadOnlyDictionary<string,T> source)
         {
             if (ReferenceEquals(target, source)) return;

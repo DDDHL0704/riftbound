@@ -111,6 +111,17 @@ public sealed partial class CoreRuleEngine
         var source = state.CardObjects[command.SourceObjectId];
         var choices = command.OptionalCosts ?? [];
         var pool = state.RunePools.TryGetValue(intent.PlayerId, out var available) ? available : RunePool.Empty;
+        if (ResourceQuantityRules.ConversionPrefix(ability.AbilityId) is { } conversionPrefix
+            && choices.SequenceEqual([conversionPrefix + ResourceQuantityRules.ChooseAmountSuffix]))
+        {
+            if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum))
+                return RejectWithCorePrompts(state, "资源数量超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
+            if ((long)maximum + 1 <= ResourceQuantityRules.DirectChoiceLimit)
+                return RejectWithCorePrompts(state, "该数量范围应直接选择精确数字。", ErrorCodes.InvalidTarget);
+            var selected = ChooseBoundedQuantity(state, intent.PlayerId, command.SourceObjectId, ability.AbilityId,
+                "RESOURCE_CONVERSION", 0, maximum, ResourceConversionAmountKind, "选择此次资源转换的数量（包含 0）；确认前不横置或支付资源。");
+            choices = [conversionPrefix + selected.ToString(System.Globalization.CultureInfo.InvariantCulture)];
+        }
         var mana = ability.GeneratedMana;
         var power = ability.GeneratedPower;
         var traits = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability);

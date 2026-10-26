@@ -24,21 +24,21 @@ public sealed partial class CoreRuleEngine
 
     private static void ResolveCommandedMovement(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, ObjectLocationState> locations,
-        StackItemState item, CardBehaviorDefinition behavior, List<GameEvent> events)
+        Dictionary<string, RunePool> pools, StackItemState item, CardBehaviorDefinition behavior, List<GameEvent> events)
     {
         var spec = behavior.CommandedMovement!;
         var destination = item.Destination;
         if (!destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             || BattlefieldLocalRules.Battlefield(state, destination[12..]) is null) return;
-        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
         var target = item.TargetObjectIds.ElementAtOrDefault(spec.FirstTargetIndex);
         if (target is { Length: > 0 }
             && (!spec.DestinationControlledByCaster || current.BattlefieldStates.GetValueOrDefault(destination[12..])?.ControllerId == item.ControllerId))
-            MoveFieldUnitsToChosenLocation(current, zones, cards, locations, item, [target], destination, events);
+            MoveFieldUnitsToChosenLocation(current, zones, cards, locations, pools, item, [target], destination, events);
 
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Commanded movement needs a rule choice frame.");
         current = state with { PlayerZones = new Dictionary<string,PlayerZones>(zones),
-            CardObjects = new Dictionary<string,CardObjectState>(cards), ObjectLocations = ReconcileObjectLocations(locations,zones) };
+            CardObjects = new Dictionary<string,CardObjectState>(cards), ObjectLocations = ReconcileObjectLocations(locations,zones), RunePools = pools };
         var opponents = state.Seats.Keys.Where(id => id != item.ControllerId).Order(StringComparer.Ordinal).ToArray();
         if (opponents.Length == 0) return;
         var opponent = opponents.Length == 1 ? opponents[0] : frame.Choose(item.ControllerId,
@@ -55,7 +55,7 @@ public sealed partial class CoreRuleEngine
             legal.Select(c => new RuleChoiceOption("MOVE:" + c.ObjectId,
                 OfficialCardSourceIdentityGroups.DisplayName(c.CardNo ?? "") + "（" + c.ObjectId + "）", [c.ObjectId])).ToArray(),
             kind: "MOVEMENT_SELECTION", preview: current);
-        MoveFieldUnitsToChosenLocation(current, zones, cards, locations,
+        MoveFieldUnitsToChosenLocation(current, zones, cards, locations, pools,
             item with { ControllerId = opponent }, [selected[5..]], destination, events);
     }
 }
