@@ -60,6 +60,39 @@ public sealed class EmpoweredUnitAuraTests
         });
     }
 
+    [Fact]
+    public async Task ASourceAtBaseChangesActualBattleAssignmentDamageSurvivalAndConquest()
+    {
+        await Run("actual-battle-assignment", 0, async game => {
+            await Enter(game, 0); await Activate(game); var score = game.State.PlayerScores.GetValueOrDefault("P1");
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+            await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:OTHER", []));
+            var sawPool = false; var sawThreshold = false;
+            for (var step = 0; step < 30 && !game.Events().Any(e => e.Event.Kind == "BATTLE_CLOSED"); step++) {
+                var prompts = ResolutionResult.BuildPrompts(game.State);
+                var assignment = prompts.Values.FirstOrDefault(p => p.Candidates?.Any(c => c.Action == CommandTypes.AssignCombatDamage && c.Enabled) == true);
+                if (assignment is not null) {
+                    var metadata = JsonSerializer.SerializeToElement(assignment.View!.Metadata, Json);
+                    if (assignment.PlayerId == "P1") { Assert.Equal(6, metadata.GetProperty("assignableDamagePool").GetProperty("ALLY").GetInt32()); sawPool = true; }
+                    else { Assert.Equal(6, metadata.GetProperty("lethalDamageThreshold").GetProperty("ALLY").GetInt32()); sawThreshold = true; }
+                    await game.Act(assignment.PlayerId, new AssignCombatDamageCommand(game.State.BattleState.BattleId!, "OTHER", CombatTestDriver.Assignments(assignment)));
+                }
+                else if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+                else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
+                else {
+                    var actor = prompts.Values.First(p => p.Candidates?.Any(c => c.Action == CommandTypes.DeclareBattle && c.Enabled) == true).PlayerId;
+                    var battle = game.State.BattleState;
+                    await game.Act(actor, new DeclareBattleCommand("OTHER", battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
+                }
+            }
+            Assert.True(sawPool); Assert.True(sawThreshold); Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
+            Assert.Equal(6, game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "ALLY")
+                && e.Event.Payload.ContainsKey("combatRole")).Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
+            Assert.Contains("ALLY", game.State.PlayerZones["P1"].Battlefields); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(score + 1, game.State.PlayerScores["P1"]);
+        }, initial => LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"));
+    }
+
     public static IEnumerable<object[]> ProjectionMutations()
         => from viewer in new[] { "P1", "P2", "spectator" }
            from mutation in new[] { "delta", "before", "after", "source", "card", "condition", "lifecycle", "dependencies", "missing", "extra" }
@@ -85,7 +118,7 @@ public sealed class EmpoweredUnitAuraTests
                     "source" => "sourceObjectId", "card" => "sourceCardNo", "dependencies" => "sourceDependencyObjectIds", _ => mutation };
                 row[key] = mutation is "delta" or "before" or "after" ? 999 : mutation == "dependencies" ? Array.Empty<string>() : "FORGED";
             }
-            snapshot.Timing["continuousEffects"] = rows.ToArray();
+            Assert.IsAssignableFrom<IDictionary<string, object?>>(snapshot.Timing)["continuousEffects"] = rows.ToArray();
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
         });
     }
@@ -120,9 +153,9 @@ public sealed class EmpoweredUnitAuraTests
     { await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top(); }
     private static int Might(MatchState state, string player, string id) => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[player], Json)
         .GetProperty("players").GetProperty(player).GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
-    private static async Task Run(string label, int copies, Func<Driver, Task> body)
+    private static async Task Run(string label, int copies, Func<Driver, Task> body, Func<MatchState, MatchState>? prepare = null)
     {
-        var initial = Position(copies); var game = new Driver(initial);
+        var initial = Position(copies); if (prepare is not null) initial = prepare(initial); var game = new Driver(initial);
         try { await body(game); await game.Replay(); }
         finally {
             if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN130_EVIDENCE") is { Length: > 0 } output) {
