@@ -178,11 +178,31 @@ public sealed class PaymentEngineUnificationTests
         var preview = generated.State.PendingRuleChoice!.Request.Preview!;
         Assert.Equal(1, preview.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
         Assert.Equal(1, preview.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal(1, generated.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, generated.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal([redRuneObjectId], generated.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", blueRuneObjectId], generated.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", generated.State.ObjectLocations[blueRuneObjectId].Zone);
+        Assert.Contains(blueRuneObjectId, generated.State.PendingRuleChoice.Origin.PlayerZones["P1"].Base);
+        Assert.Single(generated.Events, e => e.Kind == "RUNE_RECYCLED");
+        Assert.DoesNotContain(generated.Events, e => e.Kind == "COST_PAID"
+            && Equals(e.Payload.GetValueOrDefault("paymentWindow"), "INSTRUCTION_POWER_PAYMENT"));
         var wrongTrait = await InstructionPowerPaymentTimingTests.Pay(generated.State, "SPEND_POWER:red:2");
         Assert.False(wrongTrait.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, wrongTrait.ErrorCode);
         Assert.Empty(wrongTrait.Events);
         Assert.Equal(MatchStateHasher.Hash(generated.State), MatchStateHasher.Hash(wrongTrait.State));
-        Assert.Contains(blueRuneObjectId, wrongTrait.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(blueRuneObjectId, wrongTrait.State.PlayerZones["P1"].Base);
+        Assert.Contains(blueRuneObjectId, wrongTrait.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, wrongTrait.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var completed = await InstructionPowerPaymentTimingTests.Pay(wrongTrait.State, "SPEND_POWER:0");
+        Assert.True(completed.Accepted, completed.ErrorMessage);
+        Assert.Null(completed.State.PendingRuleChoice);
+        Assert.Equal(1, completed.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, completed.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Contains(blueRuneObjectId, completed.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(completed.Events, e => e.Kind == "RUNE_RECYCLED");
+        Assert.Single(generated.Events.Concat(wrongTrait.Events).Concat(completed.Events), e => e.Kind == "RUNE_RECYCLED");
     }
 
     [Fact]
