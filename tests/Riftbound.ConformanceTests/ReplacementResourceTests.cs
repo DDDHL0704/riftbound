@@ -284,6 +284,7 @@ public sealed class ReplacementResourceTests
                 endsMatch, initial=s, confirmation=generated,
                 scope="Scoped existing animated-token fixture: resource death must finish before its enclosing replacement. No ordinary-room/SQL/API/L3 claim." }));
         }
+        Restore(generated.State);
         Assert.Equal(s.TurnNumber,generated.State.DeathLedger.TurnNumber);
         Assert.Equal(1,generated.State.DeathLedger.Counts.GetValueOrDefault("P2"));
         Assert.Contains("P2",generated.State.DestroyedUnitOwnerIdsThisTurn);
