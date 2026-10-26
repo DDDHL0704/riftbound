@@ -6,6 +6,27 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    private static MatchState RuleChoiceResourceContext(MatchState context)
+        => RuleChoices.Value?.ResourceDeathLedger is { } ledger ? context with { DeathLedger = ledger } : context;
+
+    private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result)
+    {
+        if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath"))) return result;
+        var frame = RuleChoices.Value!; var completionTick = frame.CompletionTick;
+        try
+        {
+            // Resource deaths settle at their own confirmed answer, including
+            // when the containing command is replayed by a later answer.
+            frame.CompletionTick = frame.AnswerTick;
+            var completed = RecordDeathObservers(context, result);
+            completed = StampNewTriggerQueueTimes(context, completed with {
+                State = completed.State with { Tick = frame.AnswerTick } });
+            frame.ResourceDeathLedger = completed.State.DeathLedger;
+            return completed;
+        }
+        finally { frame.CompletionTick = completionTick; }
+    }
+
     // Child contexts may already contain uncommitted outer effects. Apply only
     // their changes to the original checkpoint, never their whole After/Preview.
     private static MatchState CommitRuleChoiceResources(MatchState origin, IReadOnlyList<RuleChoiceResourceStep> steps)
@@ -21,7 +42,7 @@ public sealed partial class CoreRuleEngine
                 // Tick belongs to the accepted outer command. The child payment
                 // window exists only to authorize its immediate resource action.
                 if (key is "tick" or "pendingPayment" or "pendingRuleChoice") continue;
-                committed[key] = ApplyRuleChoiceResourceDifference(committed[key], before[key], after[key], key == "runePools");
+                committed[key] = ApplyRuleChoiceResourceDifference(committed[key], before[key], after[key], key);
             }
         }
         var next = committed.Deserialize<MatchState>(ResourceStepJson)!;
@@ -30,13 +51,15 @@ public sealed partial class CoreRuleEngine
         return next;
     }
 
-    private static JsonNode? ApplyRuleChoiceResourceDifference(JsonNode? current, JsonNode? before, JsonNode? after, bool pool)
+    private static JsonNode? ApplyRuleChoiceResourceDifference(JsonNode? current, JsonNode? before, JsonNode? after, string path)
     {
         if (JsonNode.DeepEquals(before, after)) return current?.DeepClone();
-        if (after is null && !pool) return null;
+        var additive = path.StartsWith("runePools.", StringComparison.Ordinal)
+            || path.StartsWith("deathLedger.counts.", StringComparison.Ordinal);
+        if (after is null && !additive) return null;
         // Resource gains/conversions are deltas even when an earlier uncommitted
         // instruction has spent part of the pool visible to the child.
-        if (pool && (before is JsonValue || after is JsonValue))
+        if (additive && (before is JsonValue || after is JsonValue))
             return JsonValue.Create(checked((int)((current?.GetValue<int>() ?? 0)
                 + (long)(after?.GetValue<int>() ?? 0) - (before?.GetValue<int>() ?? 0))));
         if (before is JsonObject || after is JsonObject)
@@ -46,7 +69,7 @@ public sealed partial class CoreRuleEngine
             foreach (var key in prior.Select(p => p.Key).Union(next.Select(p => p.Key)))
             {
                 if (JsonNode.DeepEquals(prior[key], next[key])) continue;
-                result[key] = ApplyRuleChoiceResourceDifference(result[key], prior[key], next[key], pool);
+                result[key] = ApplyRuleChoiceResourceDifference(result[key], prior[key], next[key], path + "." + key);
                 if (result[key] is null) result.Remove(key);
             }
             return result;

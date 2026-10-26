@@ -21,7 +21,9 @@ public sealed partial class CoreRuleEngine
     private sealed class RuleChoiceFrame(MatchState origin, IReadOnlyList<RuleChoiceAnswer> answers)
     {
         public MatchState Origin { get; } = origin;
-        public long CompletionTick { get; init; } = origin.Tick + 1;
+        public long CompletionTick { get; set; } = origin.Tick + 1;
+        public long AnswerTick => Origin.Tick + cursor + 1;
+        public TurnDeathLedger? ResourceDeathLedger { get; set; }
         public HashSet<string> DestructionCandidates { get; set; } = new(StringComparer.Ordinal);
         public HashSet<string> CurrentDestructions { get; set; } = [];
         public HashSet<string> AppliedDestructionReplacements { get; set; } = new(StringComparer.Ordinal);
