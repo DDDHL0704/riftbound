@@ -84,14 +84,20 @@ public sealed class RuleChoiceRuneCapacityTests
         var firstEvent = run.Events().Length;
         var acquired = await run.Submit(new PayCostCommand(request.Id, "RULE_REPLACEMENT", [prefix + "CAP-RUNE"]));
         Assert.True(acquired.Accepted, acquired.ErrorMessage);
-        Assert.DoesNotContain(acquired.Events, e => e.Kind is "RUNE_TAPPED" or "RUNE_RECYCLED" or "MANA_GAINED" or "POWER_GAINED" or "COST_PAID");
+        // CN430.2: the accepted resource action resolves at this answer, before
+        // the still-pending outer payment. The original no-event expectation
+        // predates immediate resource commitment; its failed input is retained.
+        Assert.Single(acquired.Events, e => e.Kind == (mana ? "RUNE_TAPPED" : "RUNE_RECYCLED"));
+        Assert.Single(acquired.Events, e => e.Kind == (mana ? "MANA_GAINED" : "POWER_GAINED"));
+        Assert.DoesNotContain(acquired.Events, e => e.Kind == "COST_PAID");
         request = run.State.PendingRuleChoice!.Request;
         var working = request.Preview!.RunePools[run.Player];
         Assert.True(working.HasSupportedAmounts);
         Assert.Equal(before.Mana + (mana ? 1 : 0), working.Mana);
         Assert.Equal(before.SpellOnlyMana, working.SpellOnlyMana);
         Assert.Equal(before.TotalPower + (mana ? 0 : 1), working.TotalPower);
-        Assert.Equal(checkpoint, MatchStateHasher.HashValue(run.State.RunePools));
+        Assert.NotEqual(checkpoint, MatchStateHasher.HashValue(run.State.RunePools));
+        Assert.Equal(working, run.State.RunePools[run.Player]);
         Assert.Equal(origin, MatchStateHasher.Hash(run.State.PendingRuleChoice.Origin));
         Assert.DoesNotContain(request.Options, o => o.Id.StartsWith(prefix, StringComparison.Ordinal));
         Assert.Contains(request.Options, o => o.Id == (mana ? "RECYCLE_RUNE:" : "TAP_RUNE:") + "SPARE-RUNE");
@@ -233,17 +239,21 @@ public sealed class RuleChoiceRuneCapacityTests
     {
         private MatchSession session;
         private readonly List<MatchJournalEntry> entries = [];
+        private readonly string evidenceId = Guid.NewGuid().ToString("N");
         private int intents;
         public MatchState Initial { get; }
         public MatchState State { get; private set; }
         public string Player { get; }
         public Run(MatchState initial, string player)
-        { Initial = State = initial; Player = player; session = new(initial, new CoreRuleEngine(), this); }
+        {
+            Initial = State = initial; Player = player; session = new(initial, new CoreRuleEngine(), this);
+            Evidence("initial-" + evidenceId, new { initial, player });
+        }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token)
         { entries.Add(entry); return ValueTask.CompletedTask; }
         public RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId,
             e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
-            e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
         public RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((ev, i) =>
             new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         public async Task<ResolutionResult> Submit(GameCommand command, string? player = null)
@@ -253,8 +263,17 @@ public sealed class RuleChoiceRuneCapacityTests
             raw["promptId"] = session.PromptFor(actor).PromptId;
             raw["snapshotTick"] = State.Tick;
             var wire = JsonSerializer.SerializeToElement(raw);
-            var result = await session.SubmitAsync(actor, "capacity-choice-" + intents++, GameCommandJsonMapper.Map(wire), wire, default);
+            var intent = "capacity-choice-" + intents++; var before = State;
+            ResolutionResult result;
+            try { result = await session.SubmitAsync(actor, intent, GameCommandJsonMapper.Map(wire), wire, default); }
+            catch (Exception exception)
+            {
+                Evidence("exception-" + evidenceId + "-" + intents,
+                    new { actor, intent, wire, before, exception = exception.ToString(), commands = Commands(), events = Events() });
+                throw;
+            }
             if (result.Accepted) State = result.State;
+            Evidence("command-" + evidenceId + "-" + intents, new { actor, intent, wire, before, result });
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             return result;
         }
