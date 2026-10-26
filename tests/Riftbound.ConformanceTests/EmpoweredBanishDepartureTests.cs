@@ -43,7 +43,7 @@ public sealed partial class EmpoweredBanishBoundaryTests
     [Fact]
     public async Task BanishingAHostDetachesItsEquipmentWithoutDestroyingOrBanishingTheEquipment()
     {
-        var initial = Put(Position(), "TARGET-GEAR", "SFD·022/221", "P2", "BATTLEFIELD", "OTHER");
+        var initial = Put(Position("OGN·096/298"), "TARGET-GEAR", "SFD·022/221", "P2", "BATTLEFIELD", "OTHER");
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["TARGET-GEAR"] = initial.CardObjects["TARGET-GEAR"] with { AttachedToObjectId = "TARGET" } } };
         await Run("host-equipment-departure", initial, async game => {
