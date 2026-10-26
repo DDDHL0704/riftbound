@@ -129,6 +129,30 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         finally { await Save("generic-reduction-removes-red-power", initial, game); }
     }
 
+    [Fact]
+    public async Task AZeroPrintedManaSpellIsNotRaisedToTheAurasFloorAndStillKeepsItsLookPrivate()
+    {
+        var initial = Position("SFD·122/221") with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(7, 0), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Act("P1", new PlayCardCommand("SPELL", "SFD·122/221", []));
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            Assert.Null(game.State.PendingCardChoice); Restore(initial, game); await game.Top();
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal(new[] { "P1-DRAW-1", "P1-DRAW-2" }, choice.ContextObjectIds);
+            foreach (var viewer in new[] { "P2" })
+                foreach (var id in choice.ContextObjectIds)
+                    Assert.DoesNotContain(id, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)[viewer], Json));
+            Restore(initial, game); await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [choice.LegalObjectIds[0]]));
+            Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems);
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("zero-base-mana-floor-no-increase", initial, game); }
+    }
+
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task ActualSourceReturnChangesFutureCostsButCannotRefundAnAlreadyPaidSpell(bool afterPayment)
