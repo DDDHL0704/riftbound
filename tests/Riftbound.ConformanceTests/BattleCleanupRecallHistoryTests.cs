@@ -98,6 +98,25 @@ public sealed class BattleCleanupRecallHistoryTests
         await SacredProtectorTests.Replay(initial, run);
     }
 
+    [Theory]
+    [InlineData("BATTLE_CLOSED")]
+    [InlineData("UNIT_RECALLED_TO_BASE")]
+    [InlineData("BATTLE_RESULT_DETERMINED")]
+    [InlineData("BATTLE_CLEANUP_COMPLETED")]
+    public async Task NullOriginalPayloadsRejectTheHistoryInsteadOfThrowing(string kind)
+    {
+        var (initial, run) = await Open(true, 0, "null-payload-" + kind);
+        var frame = Frame(initial, run); Assert.Empty(Errors(frame));
+        Assert.Single(frame.Events, e => e.Event.Kind == kind);
+        var commands = JsonSerializer.Serialize(run.Commands(), Json); var events = JsonSerializer.Serialize(run.Events(), Json);
+        var malformed = frame with { Events = frame.Events.Select(e => e.Event.Kind == kind
+            ? e with { Event = e.Event with { Payload = null! } } : e).ToArray() };
+        Assert.Contains(Errors(malformed), e => e.Contains("payload is required", StringComparison.Ordinal));
+        await Reject(malformed);
+        Assert.Equal(commands, JsonSerializer.Serialize(run.Commands(), Json)); Assert.Equal(events, JsonSerializer.Serialize(run.Events(), Json));
+        await SacredProtectorTests.Replay(initial, run);
+    }
+
     private static async Task Reject(MatchRecoveryFrame frame)
     {
         Assert.Contains(Errors(frame), e => e.Contains("closed cleanup-recall history", StringComparison.Ordinal));

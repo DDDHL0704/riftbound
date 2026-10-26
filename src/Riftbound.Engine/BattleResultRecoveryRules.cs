@@ -174,6 +174,6 @@ internal static class BattleResultRecoveryRules
 
     private static bool Same(object? a, object? b) => a is not null && b is not null
         && JsonNode.DeepEquals(JsonSerializer.SerializeToNode(a, a.GetType(), Json), JsonSerializer.SerializeToNode(b, b.GetType(), Json));
-    private static string? Text(GameEvent e, string key) => e.Payload.GetValueOrDefault(key) switch
+    private static string? Text(GameEvent e, string key) => e.Payload?.GetValueOrDefault(key) switch
     { string value => value, JsonElement { ValueKind: JsonValueKind.String } value => value.GetString(), _ => null };
 }
