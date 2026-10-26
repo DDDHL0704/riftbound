@@ -42,7 +42,7 @@ public sealed class Ven059EmpoweredCostConsumerTests
             await game.Act("P1", Play());
             Assert.Equal(before.Mana - (empower ? 1 : 3), game.State.RunePools["P1"].Mana);
             Assert.Equal(before.PowerByTrait[RuneTrait.Blue] - 1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
-            Assert.Equal(0, game.State.CardObjects["ENEMY"].DamageMarked);
+            Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
             var item = Assert.Single(game.State.StackItems); Assert.Equal("SPELL", item.SourceObjectId);
             Assert.Equal(new[] { "ENEMY" }, item.TargetObjectIds);
             JsonRestore(initial, game); await game.Top();
@@ -78,7 +78,7 @@ public sealed class Ven059EmpoweredCostConsumerTests
         try
         {
             await game.Act("P1", Play(target)); Assert.Equal(37, game.State.RunePools["P1"].Mana);
-            Assert.Equal(0, game.State.CardObjects[target].DamageMarked); await game.Top();
+            Assert.Equal(0, game.State.CardObjects[target].Damage); await game.Top();
             Assert.Contains(target, game.State.PlayerZones[owner].Graveyard);
             Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay(); JsonRestore(initial, game);
         }
@@ -121,7 +121,7 @@ public sealed class Ven059EmpoweredCostConsumerTests
             await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·045/298", [id])); await game.Top();
             Assert.Empty(game.State.StackItems); Assert.Equal(37, game.State.RunePools["P1"].Mana);
             Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
-            Assert.Equal(0, game.State.CardObjects["ENEMY"].DamageMarked); Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Graveyard);
             Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay(); JsonRestore(initial, game);
         }
         finally { await Save("counter-retains-payment", initial, game); }
