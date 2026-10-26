@@ -40,6 +40,15 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(3, game.Might(actor, unit));
             await game.ColdCheckpoint();
+            var pending = Assert.Single(game.State.StackItems);
+            var forgedDiscount = game.State with
+            {
+                StackItems = [pending with { EmpowerActivation = captured with
+                    { ControlledRunes = runes + 1, PaidMana = captured.PaidMana - 1 } }],
+                RunePools = new Dictionary<string, RunePool>(game.State.RunePools)
+                    { [actor] = game.State.RunePools[actor] with { Mana = game.State.RunePools[actor].Mana + 1 } }
+            };
+            await game.RejectCoordinatedForgery("invented-rune-discount-and-refunded-mana", forgedDiscount);
             await game.Top();
             Assert.True(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(3, game.State.CardObjects[unit].Power);
@@ -82,6 +91,9 @@ public sealed class VenEmpowerCanonicalOpeningTests
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Assert.Equal(1, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
             Assert.Equal(before - 1, game.State.RunePools[actor].Mana);
+            var premature = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects)
+                { [unit] = game.State.CardObjects[unit] with { IsEmpowered = true } } };
+            await game.RejectCoordinatedForgery("premature-empowered-status-before-resolution", premature);
             await game.Top();
             Assert.True(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(5, game.Might(actor, unit));
@@ -139,6 +151,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
         private IMatchSession Session { get; set; } = null!;
         private readonly List<MatchJournalEntry> entries = [];
         private readonly HashSet<string> publicObjects = [];
+        private readonly List<object> recoveryRejections = [];
         private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
 
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token)
@@ -186,18 +199,39 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Fail("The cards were not naturally drawn before the bounded turn limit.");
         }
 
-        private MatchRecoveryFrame Frame()
+        private MatchRecoveryFrame Frame(MatchState? authoritativeState = null)
         {
+            var state = authoritativeState ?? State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
                 { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand }).ToArray();
             var events = entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
-            var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);
-            var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
-            var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
-            var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, commands, events, views, State, State.Tick, spectator);
-            return new(State.RoomId, State.Tick, sequence, commands, events, views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
+            var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+            var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+            var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);
+            return new(state.RoomId, state.Tick, sequence, commands, events, views, errors, state, initial, spectator) { OpeningSeed = initial.Seed };
+        }
+
+        internal async Task RejectCoordinatedForgery(string label, MatchState forged)
+        {
+            var original = Frame(); var attempted = Frame(forged);
+            var originalHash = MatchStateHasher.Hash(State); var count = entries.Count;
+            Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
+            Assert.Equal(MatchStateHasher.HashValue(original.Commands), MatchStateHasher.HashValue(attempted.Commands));
+            Assert.Equal(MatchStateHasher.HashValue(original.Events), MatchStateHasher.HashValue(attempted.Events));
+            var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(attempted, Json), Json)!;
+            var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
+            var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(State.RoomId, default));
+            Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
+            Assert.Contains("match recovery action-log audit failed", failure.Message, StringComparison.Ordinal);
+            Assert.Contains("replayed final state hash", failure.Message, StringComparison.Ordinal);
+            Assert.Equal(count, entries.Count); Assert.Equal(originalHash, MatchStateHasher.Hash(State));
+            recoveryRejections.Add(new { label, structuralErrors = attempted.ValidationErrors, failure.Code, failure.Message,
+                originalStateHash = originalHash, forgedStateHash = MatchStateHasher.Hash(forged),
+                commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events), frame = decoded });
+            await ColdCheckpoint();
         }
 
         internal async Task ColdCheckpoint()
@@ -234,7 +268,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
                     sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(a.Location))).ToLowerInvariant() });
             await File.WriteAllTextAsync(Path.Combine(folder, label + ".json"), JsonSerializer.Serialize(new {
                 scope = "Canonical seating, legal submitted decks, natural draws/channeling, real commands and production cold registry; no SQL/network or whole-card certification", initial,
-                frame = Frame(), runtime, last = last is { } value ? new { value.Player, value.Intent, value.Raw } : null }, Json));
+                frame = Frame(), recoveryRejections, runtime, last = last is { } value ? new { value.Player, value.Intent, value.Raw } : null }, Json));
         }
     }
 
