@@ -36,10 +36,32 @@ public sealed class DeathObserverAuditTests
         var s=Source(Source(Position(power:0),"OGN·118/298"),"ARC-006/006","VIKTOR");
         s=AddResource(s,P4ActivatedAbilityCatalog.GoldTokenUnlCardNo);
         s=s with { CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,Tags=[..s.CardObjects["RESOURCE"].Tags,CardObjectTags.UnitCard] } } };
+            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,
+                Tags=s.CardObjects["RESOURCE"].Tags.Append(CardObjectTags.UnitCard).Order(StringComparer.Ordinal).ToArray() } } };
+        // Normalize only the synthetic initial animation, before any command.
+        OfficialInsightAndSpellLockTests.Restore(s);
         var generated=await Resource((await Open(s)).State);
-        var done=await Choose(generated.State,"DECLINE");
-        Assert.Single(done.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="OBSERVER");
+        Assert.Equal(1,generated.State.DeathLedger.Counts["P2"]);
+        Assert.Single(generated.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
+        Assert.Single(generated.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="OBSERVER");
+        Assert.DoesNotContain(generated.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="D");
+        var earned=Assert.Single(generated.State.TriggerQueue,t=>t.SourceObjectId=="OBSERVER");
+        Assert.Equal("RESOURCE",earned.DeathObserver!.Destroyed.ObjectId);
+        Assert.Equal("P2",earned.DeathObserver.Destroyed.ControllerId);
+        Assert.Equal(s.CardObjects["RESOURCE"].ObjectGeneration,earned.DeathObserver.Destroyed.Generation);
+        Assert.Equal(generated.State.Tick,earned.EnqueuedAtTick);
+        var restored=OfficialInsightAndSpellLockTests.Restore(generated.State);
+        var done=await Choose(restored,"DECLINE");
+        // The resource death was already committed at its answer tick; the
+        // later outer death cannot earn or publish the first-death skill again.
+        Assert.Equal(2,done.State.DeathLedger.Counts["P2"]);
+        Assert.Single(done.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="D");
+        Assert.DoesNotContain(done.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="OBSERVER");
+        Assert.Single(generated.Events.Concat(done.Events),e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="OBSERVER");
+        Assert.Equal(MatchStateHasher.HashValue(earned),MatchStateHasher.HashValue(Assert.Single(done.State.TriggerQueue,t=>t.SourceObjectId=="OBSERVER")));
+        Assert.Equal(new[]{"D","RESOURCE"},done.State.TriggerQueue.Where(t=>t.SourceObjectId=="VIKTOR")
+            .Select(t=>t.DeathObserver!.Destroyed.ObjectId).Order(StringComparer.Ordinal));
+        Assert.Equal(2,generated.Events.Concat(done.Events).Count(e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR"));
         var errors=OfficialInsightAndSpellLockTests.Errors(done.State);
         Assert.True(errors.Count==0,string.Join("; ",errors)); Restore(done.State);
     }
