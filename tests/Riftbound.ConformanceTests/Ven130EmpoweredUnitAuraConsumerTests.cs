@@ -88,6 +88,8 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
         initial = Add(initial, "EMPOWER-ENEMY", "VEN·070", "P2", "BASE");
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["EMPOWER-ENEMY"] = initial.CardObjects["EMPOWER-ENEMY"] with { IsEmpowered = true } } };
+        if (sourceDestination == "BATTLEFIELD:BF" && allyDestination == "BASE")
+            initial = LocalDestructionRecallTests.At(initial, "ALLY", "P1", "BATTLEFIELD", "BF");
         var game = new Driver(initial);
         try
         {
