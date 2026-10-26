@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1081,
+  "total": 1082,
   "cards": [
     {
       "id": 31005,
@@ -45092,6 +45092,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37746,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·055",
+      "cardName": "实干研究员",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的法术费用减少{{1}}和{{A}}，不得低于{{1}}。",
+      "flavorText": "“预知测试第11次：成功，但第14和19次将会失败。如果跳过这两次，会发生什么呢？”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/628d0ca60fb4422f86472886bfb50375.png",
+      "backImage": "",
+      "listSort": 1940,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46360,6 +46408,33 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; shared battlefield damage and Swift consumer, empowered-object cost predicate under payment review. No whole-card certification or alternate-printing inheritance."
+    },
+    {
+      "cardNo": "VEN·055",
+      "sourceId": 37746,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "实干研究员",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T12:59:58.372613+00:00",
+      "sourceRecordSha256": "f56a6fa3aeaa855cb38e9367f451a8245cb3139ba9e2ac91380312d11ed4dadb",
+      "sourceResponseSha256": "acac8d7c7c3d17fd9ca399d375d697ce4af10e71bfadcf742224450ab280d10c",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·055/166 SC",
+      "frontImageSha256": "b96365baaca5306c7c222235ddfc5165d2d73e3b56e3213d88b3ac103f139b04",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing; resource Empower and conditional spell mana/power discount consumer under shared-cost review. Registration is not support or whole-card certification."
     }
   ]
 }
