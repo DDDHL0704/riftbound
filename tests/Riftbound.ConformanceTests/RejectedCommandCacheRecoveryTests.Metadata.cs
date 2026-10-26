@@ -137,7 +137,9 @@ public sealed partial class RejectedCommandCacheRecoveryTests
             Assert.Equal(JsonSerializer.Serialize(recorded.TypedCommand, Web), JsonSerializer.Serialize(readTyped, Web));
             Assert.Equal(recorded.ErrorCode, decoded.ErrorCode);
             Assert.Equal(JsonSerializer.Serialize(recorded.TypedCommand, Web), JsonSerializer.Serialize(decoded.TypedCommand, Web));
-            Assert.Equal(recorded.RawCommand?.GetRawText(), decoded.RawCommand?.GetRawText());
+            Assert.True(JsonNode.DeepEquals(JsonNode.Parse(recorded.RawCommand?.GetRawText() ?? "null"),
+                JsonNode.Parse(decoded.RawCommand?.GetRawText() ?? "null")),
+                "Stored raw JSON must preserve every request field and value across the database encoder.");
             return decoded;
         }
 
