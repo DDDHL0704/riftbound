@@ -56,6 +56,7 @@ jobs:
       - name: L3 harness safeguards
         run: |
           python3 -m unittest discover -s scripts/tests -p test_process_restart_ci.py -v
+          python3 -m unittest discover -s scripts/tests -p test_payment_reconnect_ci.py -v
           python3 -m unittest discover -s scripts/tests -p test_sql_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
