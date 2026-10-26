@@ -84,13 +84,22 @@ public sealed class TerminalFaceDownDisclosureTests
         var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations);
         foreach (var id in initial.PlayerZones["P1"].MainDeck) { cards.Remove(id); locations.Remove(id); }
         cards["TERMINAL-DRAW"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-DRAW", "OGN·047/298", "P1");
-        cards["TERMINAL-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-RUNE", "OGN·089/298", "P1");
+        cards["TERMINAL-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-RUNE", "SFD·R03", "P1");
         locations["TERMINAL-DRAW"] = new("P1", "HAND"); locations["TERMINAL-RUNE"] = new("P1", "RUNE_DECK");
+        // The two draws share one real burnout: its graveyard refill supplies
+        // the requested cards before the normal victory check (CN321/323.1).
+        string[] refill = ["TERMINAL-G0", "TERMINAL-G1", "TERMINAL-G2"];
+        foreach (var id in refill)
+        {
+            cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·083/298", "P1");
+            locations[id] = new("P1", "GRAVEYARD");
+        }
         initial = initial with { CardObjects = cards, ObjectLocations = locations,
             RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(20, 3) },
             PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = 0, ["P2"] = 7 },
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
-                Hand = initial.PlayerZones["P1"].Hand.Append("TERMINAL-DRAW").ToArray(), MainDeck = [], RuneDeck = ["TERMINAL-RUNE"] } } };
+                Hand = initial.PlayerZones["P1"].Hand.Append("TERMINAL-DRAW").ToArray(), MainDeck = [], RuneDeck = ["TERMINAL-RUNE"],
+                Graveyard = initial.PlayerZones["P1"].Graveyard.Concat(refill).ToArray() } } };
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var session = new MatchSession(initial, engine, journal);
         var state = initial;
@@ -115,6 +124,7 @@ public sealed class TerminalFaceDownDisclosureTests
         Assert.Equal(8, state.PlayerScores["P2"]); Assert.Equal("P2", state.WinnerPlayerId);
         Assert.Single(Events(journal), e => e.Event.Kind == "BURNOUT_APPLIED");
         Assert.Single(Events(journal), e => e.Event.Kind == "MATCH_WON");
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state));
         Assert.Equal(physicalCard, MatchStateHasher.HashValue(state.CardObjects["SHADOW"]));
         AssertPublicFaceDownCardAndHiddenZones(state, ended.Snapshots);
         FullGameEndToEndTests.AssertNoHiddenZoneLeak(ended);
