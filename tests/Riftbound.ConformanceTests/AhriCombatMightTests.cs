@@ -239,7 +239,7 @@ public sealed class AhriCombatMightTests
         Assert.NotNull(root);
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1077, current.Cards.Count);
+        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1078, current.Cards.Count);
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
