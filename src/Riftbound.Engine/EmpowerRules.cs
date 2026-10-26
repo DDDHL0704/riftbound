@@ -111,11 +111,14 @@ public sealed partial class CoreRuleEngine
             out var extra, out var resources, out var recycled))
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         ObjectBinding? discarded = null;
-        if (EmpowerRules.RequiresHandDiscard(ability.Cost)
-            ? requestedCosts.Count != (command.OptionalCosts?.Count ?? 0)
-                || !TrySelectEmpowerHandDiscardCost(state, intent.PlayerId, source.ObjectId, extra, out discarded)
-            : extra.Count != 0)
-            return RejectWithCorePrompts(state, "请恰好选择一张合法手牌支付强化费用。", ErrorCodes.InvalidTarget);
+        if (EmpowerRules.RequiresHandDiscard(ability.Cost))
+        {
+            if (requestedCosts.Count != (command.OptionalCosts?.Count ?? 0)
+                || !TrySelectEmpowerHandDiscardCost(state, intent.PlayerId, source.ObjectId, extra, out discarded))
+                return RejectWithCorePrompts(state, "请恰好选择一张合法手牌支付强化费用。", ErrorCodes.InvalidTarget);
+        }
+        else if (extra.Count != 0)
+            return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         var runes = EmpowerRules.ControlledRunes(state, intent.PlayerId); var mana = EmpowerRules.Mana(ability.Spec, ability.Cost, runes);
         var cost = ability.Cost; var totalPower = cost.Power + cost.TypedPower.Values.Sum();
         var plan = new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId,
