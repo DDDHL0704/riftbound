@@ -17,9 +17,9 @@ public sealed class Ven059EmpoweredCostConsumerTests
     public async Task ExactNewPrintingPreservesAllPriorFunctionalGroupsAndMembers()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var priorCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
-        Assert.Equal(1081, priorCards.Length); Assert.Equal(1082, catalog.Cards.Count);
+        Assert.Equal(1082, priorCards.Length); Assert.Equal(1083, catalog.Cards.Count);
         var prior = FunctionalUnitBuilder.Build(priorCards); var current = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(862, prior.Count); Assert.Equal(863, current.Count);
+        Assert.Equal(863, prior.Count); Assert.Equal(864, current.Count);
         foreach (var unit in prior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(current, c => c.Id == unit.Id)));
         Assert.Equal(No, Assert.Single(Assert.Single(current, c => c.Cards.Any(card => card.CardNo == No)).Cards).CardNo);
     }

@@ -14,6 +14,17 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     [Fact]
+    public async Task ExactNewPrintingPreservesEveryPriorFunctionalGroupAndMember()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var priorCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
+        Assert.Equal(1082, priorCards.Length); Assert.Equal(1083, catalog.Cards.Count);
+        var prior = FunctionalUnitBuilder.Build(priorCards); var current = FunctionalUnitBuilder.Build(catalog.Cards);
+        Assert.Equal(863, prior.Count); Assert.Equal(864, current.Count);
+        foreach (var unit in prior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(current, c => c.Id == unit.Id)));
+        Assert.Equal(No, Assert.Single(Assert.Single(current, c => c.Cards.Any(card => card.CardNo == No)).Cards).CardNo);
+    }
+
+    [Fact]
     public async Task ExactPrintingKeepsTheSpellDiscardCostSeparateFromItsEmpoweredBanishTrigger()
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadDefaultAsync()).Cards, c => c.CardNo == No);
