@@ -12,10 +12,14 @@ The fresh official API and personally viewed whole card face are retained under 
 | `65fd70ae2b46af809daad80dc52c18f7d382ea2c` | Corrected standard movement in both directions, empowered/unempowered | 2 pass,2 missing-trigger failures; all actual movement commands accepted |
 | `b6381c04b062e47ad8e7329338ca0d78788f6be0` | 25 catalog/source guards and2 strengthened recall/return controls | 24 pass;3 stale classifier-count failures; all requested methods executed |
 | `507bafb5b6e46d4bf7ae5e1c283deaf89f937f97` | 3 corrected classifier guards and6 new consumer rows | 4 pass,5 missing-trigger failures;0 skipped |
+| `e6aea678ea488fae042fe5a113ff2ed13606d208` | 4 new copied-Empower/detachment rows | 4 fixture failures: omitted SFD011's mandatory draw1; original results retained |
+| `6cd9e314f921c3954b6c980f134f173558547925` | Same4 rows after exact support-source correction | 4 pass,0 skipped; copied Empower costs only3 mana and survives actual copy removal |
 
 The latest passing consumer performs two actual standard moves in the same turn without empowerment and draws no card. The five new failures preserve actual empowered movement after readying, both legal canonical openings and both takeover directions. Each stops at missing source-skill birth; later draw and lifetime assertions remain present and unexecuted.
 
 Both canonical openings begin from empty seating with seed424242, submit valid decks, naturally draw/channel, pay actual blue power and mana, and pass normal production cold recovery and a coordinated3-mana-refund forgery rejection before the movement failure. P1 retains26 accepted commands/112 events; P2 retains24/101. Both physical-rune takeover paths retain25 accepted commands/65 events, original owner/current controller and actual ready/move actions. No state edit substitutes for movement or removal of empowerment.
+
+The new copy rows separately empower the original unit or leave it unempowered, then really assemble/copy with VEN137 and choose the host's acquired Empower by its prompt instance ID. The host remains initially unempowered, pays3 mana without power, and its pending activation resolves even if SFD011 removes the copy first. Each then moves the empowered, restored physical host after copy removal and verifies no extra draw. Fresh API and whole-card readback confirm SFD011 itself draws1; its schema uses `cardCategoryList` where the runtime snapshot uses `cardCategory`. The corrected four rows retain13/36 or16/43 accepted commands/events, one support draw, and zero draws after movement. They do not verify the still-missing positive copied movement trigger.
 
 Original logs, TRX, requested-versus-discovered methods, actual compile inputs and five loaded module hashes remain in the ignored QA directory. The original six untracked drafts remain unchanged and excluded from compile. Results are not rebound to later documentation or composition commits.
 
