@@ -108,6 +108,11 @@ public sealed class Ven007RequiredDiscardConsumerTests
                 Assert.Contains("弃置", Assert.IsType<string>(row["abilityLabel"]));
                 var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["optionalCostChoices"]);
                 Assert.Equal(new[] { "DISCARD_HAND_CARD:FODDER", "DISCARD_HAND_CARD:SPARE" }, choices.Select(c => c.Id).Where(id => id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal)).Order());
+                Assert.Equal(1, row["requiredAdditionalCostChoiceCount"]);
+                var required = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["additionalCostChoices"]).ToArray();
+                Assert.Equal(new[] { "DISCARD_HAND_CARD:FODDER", "DISCARD_HAND_CARD:SPARE" }, required.Select(c => c.Id).Order());
+                Assert.All(required, choice => Assert.Equal(choice.Id["DISCARD_HAND_CARD:".Length..], Assert.Single(choice.ObjectIds!)));
+                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<string>>(row["requiredOptionalCosts"]));
             }
             else foreach (var row in rows)
                 Assert.DoesNotContain(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["optionalCostChoices"]), c => c.Id.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal));
