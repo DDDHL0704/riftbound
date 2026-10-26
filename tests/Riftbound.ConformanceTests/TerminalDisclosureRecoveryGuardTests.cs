@@ -33,6 +33,7 @@ public sealed class TerminalDisclosureRecoveryGuardTests
         Assert.Equal(MatchStatuses.InProgress, hidden.State.Status); Assert.Null(hidden.State.WinnerPlayerId);
         Assert.False(Objects(hidden.Snapshots["P2"]).TryGetProperty(StandbyId, out _));
         var original = Cold(Frame(initial, hidden.State, journal));
+        Assert.Equal(MatchStateHasher.Hash(hidden.State), MatchStateHasher.Hash(original.AuthoritativeState!));
         Assert.False(Objects(original.SpectatorReplayFrame!.SpectatorSnapshot).TryGetProperty(StandbyId, out _));
         var originalAudit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default);
         Assert.True(originalAudit.Count == 0, string.Join("\n", originalAudit));
@@ -48,7 +49,8 @@ public sealed class TerminalDisclosureRecoveryGuardTests
             forged.Events, forged.PlayerViews, forged.AuthoritativeState, forged.CurrentTick, forged.SpectatorReplayFrame);
         Assert.True(shape.Count == 0, string.Join("\n", shape));
         var audit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(forged, new CoreRuleEngine(), default);
-        Assert.Contains(audit, error => error.Contains("final-state hash mismatch", StringComparison.Ordinal));
+        var mismatch = $"replayed final state hash {MatchStateHasher.Hash(hidden.State)} does not match expected {MatchStateHasher.Hash(forged.AuthoritativeState!)}";
+        Assert.Equal("action-log replay audit failed: " + mismatch, Assert.Single(audit));
         var before = JsonSerializer.Serialize(journal.Entries, Json);
         var store = new Store(forged); var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal, store);
         var failures = new List<string>();
@@ -56,8 +58,7 @@ public sealed class TerminalDisclosureRecoveryGuardTests
         {
             var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(initial.RoomId, default));
             Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
-            Assert.Contains("action-log audit failed", failure.Message);
-            Assert.Contains("final-state hash mismatch", failure.Message);
+            Assert.Equal("match recovery action-log audit failed: " + Assert.Single(audit), failure.Message);
             failures.Add(failure.Message);
             Assert.Equal(attempt, store.Loads); Assert.Null(await registry.FindAsync(initial.RoomId, default));
             Assert.Equal(before, JsonSerializer.Serialize(journal.Entries, Json));
