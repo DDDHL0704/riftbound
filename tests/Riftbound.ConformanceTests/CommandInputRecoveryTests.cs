@@ -260,6 +260,70 @@ public sealed class CommandInputRecoveryTests
         }
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OriginalAcceptedIntentSurvivesTheDocumentedJsonbNumberOutputForm(bool jsonbOutputForm)
+    {
+        var run = await Run.Create("binding-jsonb-numeric-input-" + jsonbOutputForm);
+        var player = Assert.IsType<string>(ResolutionResult.OpeningMulliganPlayerId(run.State));
+        var input = new MulliganCommand([run.State.PlayerZones[player].Hand[0]]);
+        var node = JsonSerializer.SerializeToNode(input, Web)!.AsObject();
+        node["promptId"] = run.Session.PromptFor(player).PromptId;
+        node["snapshotTick"] = run.State.Tick;
+        var envelope = node.ToJsonString(Web);
+        var raw = JsonDocument.Parse(envelope[..^1] + ",\"clientNote\":{\"reading\":1.230e-5}}").RootElement.Clone();
+        const string intent = "jsonb-numeric-original-input";
+        var accepted = await run.Session.SubmitAsync(player, intent, input, raw, default);
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        var count = run.Entries.Count;
+        var journalBefore = JsonSerializer.Serialize(run.Entries, Web);
+        var stateHash = MatchStateHasher.Hash(run.State);
+        var warm = await run.Session.SubmitAsync(player, intent, input, raw, default);
+        Assert.True(warm.Accepted, warm.ErrorMessage);
+        Assert.Equal(count, run.Entries.Count);
+
+        using var command = new NpgsqlCommand();
+        typeof(PostgresMatchJournal).GetMethod("AddCommandPayload", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [command, run.Entries[^1]]);
+        var payload = Assert.IsType<string>(command.Parameters["payload"].Value);
+        Assert.Contains("1.230e-5", payload, StringComparison.Ordinal);
+        // PostgreSQL 16 documents this exact jsonb output form. This is an explicit
+        // stored-form fixture using the real codec, not execution against SQL.
+        // https://www.postgresql.org/docs/16/datatype-json.html#JSON-INPUT-OUTPUT
+        var stored = jsonbOutputForm ? payload.Replace("1.230e-5", "0.00001230", StringComparison.Ordinal) : payload;
+        var restoredRaw = Assert.IsType<JsonElement>(typeof(PostgresMatchRecoveryStore)
+            .GetMethod("ReadRawCommand", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [stored]));
+        Assert.Equal(raw.GetProperty("clientNote").GetProperty("reading").GetDecimal(),
+            restoredRaw.GetProperty("clientNote").GetProperty("reading").GetDecimal());
+        var decoded = JsonSerializer.Deserialize<RecoveredCommand>(stored, Web)!;
+        Assert.Equal(restoredRaw.GetRawText(), decoded.RawCommand!.Value.GetRawText());
+        var original = Frame(run);
+        var persisted = original with { Commands = original.Commands.Select(recorded =>
+            recorded.ClientIntentId == intent ? decoded : recorded).ToArray() };
+        var errors = MatchRecoveryValidator.Validate(persisted.RoomId, persisted.LastEventSequence,
+            persisted.Commands, persisted.Events, persisted.PlayerViews, persisted.AuthoritativeState,
+            persisted.CurrentTick, persisted.SpectatorReplayFrame);
+        Assert.Empty(errors);
+        var audit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
+        Assert.Empty(audit);
+        var store = new RawEnvelopeFrameStore(persisted);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, store);
+        var cold = await registry.GetOrCreateAsync(run.State.RoomId, default);
+        var duplicate = await cold.SubmitAsync(player, intent, input, raw, default);
+        run.Save("documented-jsonb-number-output", new { jsonbOutputForm, raw, payload, stored, restoredRaw,
+            original, persisted, errors, audit, duplicate,
+            originalJournalUnchanged = journalBefore == JsonSerializer.Serialize(run.Entries, Web),
+            noDatabaseExecutionClaimed = true });
+        Assert.Equal(1, store.Loads);
+        Assert.Equal(count, run.Entries.Count);
+        Assert.Equal(journalBefore, JsonSerializer.Serialize(run.Entries, Web));
+        Assert.Equal(stateHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Empty(duplicate.Events);
+        Assert.True(duplicate.Accepted,
+            "The unchanged original wire must retain its accepted intent across the documented jsonb number output form: " + duplicate.ErrorCode);
+    }
+
     private static MatchRecoveryFrame Frame(Run run)
     {
         var last = run.Entries[^1];
