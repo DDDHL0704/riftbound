@@ -208,21 +208,26 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
     [InlineData(RuneTrait.Blue)] [InlineData(RuneTrait.Red)]
     public async Task GenericPowerReductionAndWardCanBePaidWithEitherRemainingTrait(string remainingTrait)
     {
-        var initial = Position() with { CardObjects = new Dictionary<string, CardObjectState>(Position().CardObjects) {
-            ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "OGN·013/298", "P2") },
-            RunePools = new Dictionary<string, RunePool> { ["P1"] = new(40, 0, new Dictionary<string, int> { [remainingTrait] = 1 }), ["P2"] = new(20, 20) } };
+        var initial = Add(Position(), "WARDED", "OGN·013/298", "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        for (var i = 0; i < 9; i++) initial = AddBase(initial, "PAY-RUNE-" + i, remainingTrait == RuneTrait.Blue ? "UNL-R03" : "UNL-R01", "P1");
         var game = new Driver(initial);
         try
         {
+            await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", []));
+            Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
+            await game.Act("P2", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P1"].Mana);
+            for (var i = 0; i < 9; i++) await game.Act("P1", new TapRuneCommand("PAY-RUNE-" + i));
+            await game.Act("P1", new RecycleRuneCommand("PAY-RUNE-0"));
             await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
-            Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["ENEMY"].Tags);
+            Assert.Equal(2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].TotalPower);
             var before = MatchStateHasher.Hash(game.State);
-            var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, Smoke()));
+            var command = Smoke() with { TargetObjectIds = ["WARDED"] };
+            var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
             Assert.Equal(before, MatchStateHasher.Hash(game.State));
-            await game.Act("P1", Smoke()); Assert.True(quote.CanPay, quote.Message);
+            await game.Act("P1", command); Assert.True(quote.CanPay, quote.Message);
             Assert.Equal(1, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
-            Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+            Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Top(); Assert.Equal(1, Might(game.State, "WARDED", "P2")); await game.Replay(); Restore(initial, game);
         }
         finally { await Save("ward-legal-allocation-" + remainingTrait, initial, game); }
     }
