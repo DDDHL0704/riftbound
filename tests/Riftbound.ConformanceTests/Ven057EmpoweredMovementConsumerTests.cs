@@ -66,7 +66,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             await EnterReady(game, empowered, origin); Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
             var draws = Draws(game, "P1"); var hand = game.State.PlayerZones["P1"].Hand.Count; var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             var destination = origin == "BASE" ? "BATTLEFIELD:BF" : "BASE";
-            await game.Act("P1", new MoveUnitCommand("UNIT", origin, destination, []));
+            await game.Act("P1", new MoveUnitCommand("UNIT", origin == "BASE" ? "BASE" : "BATTLEFIELD", destination, []));
             Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.Equal(1, game.State.CardObjects["UNIT"].MovementCountThisTurn);
             Assert.Equal(draws, Draws(game, "P1")); Assert.Equal(empowered ? 1 : 0, SourceEffects(game, "UNIT"));
             if (empowered)
