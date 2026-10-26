@@ -128,9 +128,14 @@ public sealed class VenEmpowerCanonicalOpeningTests
         catch { await game.Save("opening-" + templateId + "-" + actor); throw; }
     }
 
-    private sealed class CanonicalGame(MatchState initial) : IMatchJournal
+    private sealed class CanonicalGame : IMatchJournal
     {
-        internal MatchState State { get; private set; } = initial;
+        private readonly MatchState initial;
+        internal MatchState State { get; private set; }
+
+        internal CanonicalGame(MatchState initial)
+        { this.initial = initial; State = initial; }
+
         private IMatchSession Session { get; set; } = null!;
         private readonly List<MatchJournalEntry> entries = [];
         private readonly HashSet<string> publicObjects = [];
