@@ -14,7 +14,7 @@
 
 ## 四线与共享接点
 
-共同初始基线 `4aabf78bd8da3c9ddad3e13e8de23f1e430f2b56`。所有工作树位于 `/Users/dinghaolin/MyProjects/.worktrees/`，所有 Git/源码操作显式使用所属 workdir；MyProjects 本身不是仓库。
+共同初始基线 `4aabf78bd8da3c9ddad3e13e8de23f1e430f2b56`。所有工作树位于 `/Volumes/ExternalSSD/MyProjects/.worktrees/`，所有 Git/源码操作显式使用所属 workdir；MyProjects 本身不是仓库。
 
 | 线/聊天 | 工作树 / 分支 | 当前主要包与所有权 |
 |---|---|---|
