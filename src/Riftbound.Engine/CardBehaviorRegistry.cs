@@ -498,6 +498,8 @@ public static class CardBehaviorRegistry
             MaxTargetPower: 3, MovesTargetsToChosenLocation: true, FlowCost: new(4, 1, [RuneTrait.Purple])),
         new("VEN·032", "霜衣狼母", 3, "VEN_032_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
+        new("VEN·050", "凶暴的岩熊", 4, "VEN_050_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·072", "深沉咆哮", 2, "VEN_072_CONDITIONAL_UNIT_POWER", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2, CanPlayDuringSpellDuel: true,
             PowerModifierAmountIfTargetEmpowered: 4),
