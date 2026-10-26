@@ -27,6 +27,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = RecordHandDiscardObservers(result);
+            result = QueueEmpoweredBanish(result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);

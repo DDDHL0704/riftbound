@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1082,
+  "total": 1083,
   "cards": [
     {
       "id": 31005,
@@ -45140,6 +45140,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37807,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·110",
+      "cardName": "梅尔",
+      "subTitle": "镜转乾坤",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "梅尔",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Pandart Studio",
+      "cardEffect": "{{强化}} — 弃置一张法术牌（支付此费用：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "flavorText": "“米达尔达家族素来有勇有谋，能征善战。”",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/baa6babfa04349d9be71a9ee3900f929.png",
+      "backImage": "",
+      "listSort": 1879,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46435,6 +46483,39 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; resource Empower and conditional spell mana/power discount consumer under shared-cost review. Registration is not support or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·110",
+      "sourceId": 37807,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "梅尔",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T14:48:23.322333+00:00",
+      "sourceRecordSha256": "2a0f83a56d5fdcf4e3253da4c7e6fdfa2dd907a5565ae667a3a5e622c737851c",
+      "sourceResponseSha256": "354273fca2ebcd544a7a91303fdbd87e8f469ef9cf3266d4e3e8420dcfdb5b2f",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·110/166 SC",
+      "frontImageSha256": "6354219eb32a8135ad5d4c82d92391bdcb53782cfb51ae324ce00b3488ea7f6c",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "sourceConflict": {
+        "field": "region",
+        "api": "恕瑞玛",
+        "printedFace": "诺克萨斯",
+        "status": "UNRESOLVED"
+      },
+      "reason": "Exact standard CN raw printing retained for typed spell-discard and empowered-banish consumer repro. Printed/API region conflict remains unresolved; no whole-card certification or alternate-printing inheritance."
     }
   ]
 }
