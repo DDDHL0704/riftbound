@@ -89,6 +89,73 @@ public sealed class RuleChoiceResourceProducerTests
         }
     }
 
+    [Theory]
+    [InlineData(P4ActivatedAbilityCatalog.DragonSoulSageCardNo, false, "", 8, 1, 0, false)]
+    [InlineData(P4ActivatedAbilityCatalog.HoneyfruitCardNo, false, "", 7, 2, 0, false)]
+    [InlineData(P4ActivatedAbilityCatalog.HoneyfruitCardNo, true, P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix + "RESOURCE", 8, 2, 0, false)]
+    [InlineData(P4ActivatedAbilityCatalog.GoldTokenUnlCardNo, false, "", 7, 2, 0, true)]
+    [InlineData(P4ActivatedAbilityCatalog.LuxCardNo, false, "", 7, 1, 2, false)]
+    [InlineData(P4ActivatedAbilityCatalog.AncientSteleCardNo, false, P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "2", 5, 3, 0, false)]
+    public async Task NestedResourceChildrenCaptureTheirCostsWithoutTheOuterReplacement(string cardNo,
+        bool levelSix, string costs, int manaAfter, int powerAfter, int spellOnlyAfter, bool removed)
+    {
+        // Existing scoped midgame fixtures isolate resource-child costs from a
+        // pending destruction replacement; this is not ordinary-room acceptance.
+        var initial = ReplacementResourceTests.AddResource(OfficialSettReplacementTests.Position(power: 1), cardNo);
+        if (cardNo == P4ActivatedAbilityCatalog.LuxCardNo)
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["RESOURCE"] = OfficialGarenConquestBattlefieldCountTests.Printed("RESOURCE", cardNo, "P2") } };
+        if (levelSix)
+            initial = initial with { PlayerExperience = new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 6 } };
+        var opened = await OfficialSettReplacementTests.Open(initial);
+        var generated = await ReplacementResourceTests.Resource(opened.State, costs: costs);
+        var pending = Assert.IsType<RuleChoiceContinuation>(generated.State.PendingRuleChoice);
+        var original = JsonSerializer.Serialize(generated.State, Json);
+        var step = Assert.Single(Replay(pending, true));
+        Assert.Equal("P2", step.GetProperty("playerId").GetString());
+        Assert.StartsWith("RESOURCE:RESOURCE:", step.GetProperty("choiceId").GetString());
+        var before = step.GetProperty("before").Deserialize<MatchState>(Json)!;
+        var after = step.GetProperty("after").Deserialize<MatchState>(Json)!;
+        Assert.Equal(7, before.RunePools["P2"].Mana);
+        Assert.Equal(1, before.RunePools["P2"].TotalPower);
+        Assert.Equal(0, before.RunePools["P2"].SpellOnlyMana);
+        Assert.Equal(manaAfter, after.RunePools["P2"].Mana);
+        Assert.Equal(powerAfter, after.RunePools["P2"].TotalPower);
+        Assert.Equal(spellOnlyAfter, after.RunePools["P2"].SpellOnlyMana);
+        Assert.Equal(JsonSerializer.Serialize(before.RunePools["P1"], Json), JsonSerializer.Serialize(after.RunePools["P1"], Json));
+        Assert.False(before.CardObjects["RESOURCE"].IsExhausted);
+        Assert.Contains("RESOURCE", before.PlayerZones["P2"].Base);
+        if (removed)
+        {
+            Assert.False(after.CardObjects.ContainsKey("RESOURCE"));
+            Assert.False(after.ObjectLocations.ContainsKey("RESOURCE"));
+            Assert.DoesNotContain("RESOURCE", after.PlayerZones["P2"].Base);
+            Assert.DoesNotContain("RESOURCE", after.PlayerZones["P2"].Graveyard);
+        }
+        else
+        {
+            Assert.True(after.CardObjects["RESOURCE"].IsExhausted);
+            Assert.Contains("RESOURCE", after.PlayerZones["P2"].Base);
+        }
+        Assert.Equal(JsonSerializer.Serialize(before.CardObjects["D"], Json), JsonSerializer.Serialize(after.CardObjects["D"], Json));
+        Assert.Equal(JsonSerializer.Serialize(before.ObjectLocations["D"], Json), JsonSerializer.Serialize(after.ObjectLocations["D"], Json));
+        Assert.Equal(before.PlayerZones["P2"].Graveyard, after.PlayerZones["P2"].Graveyard);
+        var events = step.GetProperty("events").EnumerateArray().ToArray();
+        Assert.Single(events, value => value.GetProperty("kind").GetString() == "ABILITY_ACTIVATED");
+        Assert.DoesNotContain(events, value => value.GetProperty("kind").GetString() is "COST_PAID" or "DAMAGE_APPLIED" or "UNIT_RECALLED_TO_BASE");
+        if (removed) Assert.Single(events, value => value.GetProperty("kind").GetString() == "TOKEN_CEASED_TO_EXIST");
+        Assert.Equal(original, JsonSerializer.Serialize(generated.State, Json));
+        var output = Environment.GetEnvironmentVariable("RIFTBOUND_RAW_ENVELOPE_EVIDENCE");
+        if (output is not null)
+        {
+            var folder = Path.Combine(output, "producer-skill-" + cardNo.Replace('/', '-') + "-" + levelSix); Directory.CreateDirectory(folder);
+            await File.WriteAllTextAsync(Path.Combine(folder, "proof.json"), JsonSerializer.Serialize(new {
+                cardNo, levelSix, costs, initial, generated.State, step,
+                scope = "Scoped resource-child costs, restrictions, deletion and event boundaries only; no consumer/surrender/ordinary-room/SQL/API/L3 claim.",
+                ruleInputs = RuleInputIdentity.Current }, Json));
+        }
+    }
+
     private static JsonElement[] Replay(RuleChoiceContinuation pending, bool expected)
     {
         var method = typeof(CoreRuleEngine).GetMethod("TryReplayRuleChoiceResources",
