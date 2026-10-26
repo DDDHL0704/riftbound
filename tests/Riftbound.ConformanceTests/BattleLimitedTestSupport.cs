@@ -17,7 +17,7 @@ internal static class BattleLimitedTestSupport
         var state = result.State;
         var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
             e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
-            e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+            e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs, ErrorCode = e.ErrorCode }).ToArray();
         var events = entries.SelectMany(e => e.Events.Select((v, i) =>
             new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
         var sequence = entries[^1].CompletedEventSequence;
