@@ -80,7 +80,7 @@ public sealed class CounterHoldContinuationTests
         if (scenario == "counter") Assert.Equal(["SPELL1","SPELL2"], result.State.PlayerZones["P2"].Graveyard);
         else if (scenario == "ornn") { Assert.Contains("E2", result.State.PlayerZones["P1"].Hand); Assert.Equal(MatchPhases.Main, result.State.Phase); }
         else Assert.Contains("U", result.State.PlayerZones["P1"].Base);
-        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev,i) => new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(state,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));

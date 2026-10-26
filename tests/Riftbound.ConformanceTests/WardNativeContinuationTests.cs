@@ -27,7 +27,7 @@ public sealed class WardNativeContinuationTests
         Assert.Equal(new RunePool(0,0),result.State.RunePools["P1"]);OfficialInsightAndSpellLockTests.Restore(result.State);
         for(var i=0;i<2;i++) {var pass=new PassPriorityCommand();result=await session.SubmitAsync(result.State.PriorityPlayerId!,"pass"+i,pass,JsonSerializer.SerializeToElement(pass,json),default);Assert.True(result.Accepted,result.ErrorMessage);OfficialInsightAndSpellLockTests.Restore(result.State);}
         Assert.Equal(2,result.State.CardObjects["T"].Damage);Assert.Empty(result.State.StackItems);
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export("native-replay.json",replay);

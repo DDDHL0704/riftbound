@@ -541,7 +541,7 @@ public sealed class LuxResourceSkillTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -558,7 +558,7 @@ public sealed class LuxResourceSkillTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -574,7 +574,7 @@ public sealed class LuxResourceSkillTests
         IReadOnlyList<string> optionalCosts)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(SpellObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(SpellObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(BulletTimeCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal([SelectedBattlefieldFixture.Field], rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(x => x.GetString()!).ToArray());
         Assert.Equal(

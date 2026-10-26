@@ -85,7 +85,9 @@ public sealed class SelectedBattlefieldAreaDamageTests
         Put("SPELL", card, "P1", "HAND");
         if (annie) Put("ANNIE", "OGS·001/024", "P1", "BASE");
         var caseId = (kind + "-" + card + "-" + gate + "-" + annie + "-" + field).Replace('·', '-').Replace('/', '-');
-        var initial = new MatchState("SELECTED-AOE-" + caseId, 0, 5, "P1",
+        // A stale snapshot must remain a valid nonnegative tick to reach the freshness/replay checks.
+        var initialTick = kind == "invalid-stale-tick" ? 1 : 0;
+        var initial = new MatchState("SELECTED-AOE-" + caseId, initialTick, 5, "P1",
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1",
             phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
@@ -189,7 +191,7 @@ public sealed class SelectedBattlefieldAreaDamageTests
         {
             var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
                 e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
-                e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+                e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
             var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1,
                 e.CompletedTick, i, ev))).ToArray();
             Assert.Equal(commands.Length, states.Count);
@@ -235,6 +237,7 @@ public sealed class SelectedBattlefieldAreaDamageTests
                 Assert.Equal(MatchStateHasher.HashValue(beforePrompts), MatchStateHasher.HashValue(new[] { session.PromptFor("P1"), session.PromptFor("P2") }));
                 Assert.Equal(MatchStateHasher.HashValue(beforeViews), MatchStateHasher.HashValue(new[] { session.SnapshotFor("P1"), session.SnapshotFor("P2") }));
             }
+            if (invalid == "stale-tick") Assert.Equal(ErrorCodes.PromptExpired, result.ErrorCode);
             Assert.True(result.Accepted == expectedAccepted, result.ErrorMessage ?? "Unexpected accepted invalid command");
         }
 

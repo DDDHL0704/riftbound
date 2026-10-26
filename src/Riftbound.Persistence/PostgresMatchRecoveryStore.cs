@@ -150,6 +150,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
                 reader.GetBoolean(7),
                 reader.IsDBNull(8) ? null : reader.GetString(8))
             {
+                TypedCommand = ReadTypedCommand(reader.GetString(9)),
                 RuleInputs = reader.IsDBNull(10) ? null : ReadRuleInputs(reader.GetString(10))
             });
         }
@@ -303,6 +304,15 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         }
 
         return prompts;
+    }
+
+    private static TypedCommandInput? ReadTypedCommand(string payload)
+    {
+        using var document = JsonDocument.Parse(payload);
+        if (!document.RootElement.TryGetProperty("typedCommand", out var value) || value.ValueKind == JsonValueKind.Null)
+            return null;
+        return value.Deserialize<TypedCommandInput>(JsonOptions)
+            ?? throw new JsonException("Unable to deserialize typed command input.");
     }
 
     private static JsonElement? ReadRawCommand(string payload)
