@@ -26244,6 +26244,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
+                            if (statusEffectId == "STUNNED" && !CanExecuteStun(targetState)) continue;
                             var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
                             targetState = targetState with
                             {
@@ -28074,6 +28075,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    // DOC-01 CN424.1.a.1: an already stunned unit remains a legal selected
+    // target, but cannot be stunned again or supply another stun trigger.
+    private static bool CanExecuteStun(CardObjectState target)
+        => !target.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal);
+
     private static StackResolutionResult ResolveShadowStunAbilityStackItem(
         MatchState state,
         StackItemState stackItem)
@@ -28117,7 +28123,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "TARGET_NO_LONGER_LEGAL"
                 }));
         }
-        else
+        else if (CanExecuteStun(targetState))
         {
             var nextEffects = targetState.UntilEndOfTurnEffects
                 .Concat(["STUNNED"])
