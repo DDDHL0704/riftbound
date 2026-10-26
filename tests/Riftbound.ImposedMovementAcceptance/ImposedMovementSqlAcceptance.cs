@@ -127,8 +127,10 @@ internal static partial class ImposedMovementSqlAcceptance
             && p.Request.Preview!.RunePools[actor] is { SpellOnlyMana: 2, Mana: 66, TotalPower: 0 }
             && p.Request.Preview.ObjectLocations["QA-RUNE"].Zone == "BASE"
             && !p.Request.Preview.CardObjects["QA-STELE"].IsExhausted
-            && state.RunePools[actor] == new RunePool(66, 0) && !state.CardObjects["QA-LUX"].IsExhausted,
-            "Keep uncommitted original board, exact resource transcript and genuine preview.");
+            && state.RunePools[actor] == new RunePool(66, 0, spellOnlyMana: 2) && state.CardObjects["QA-LUX"].IsExhausted
+            && !state.CardObjects["QA-STELE"].IsExhausted
+            && p.Origin.RunePools[actor] == new RunePool(66, 0) && !p.Origin.CardObjects["QA-LUX"].IsExhausted,
+            "Keep the confirmed Lux gain, original movement checkpoint, exact transcript and uncommitted conversion.");
         if (kind.StartsWith("effect", StringComparison.Ordinal)) Check(state.PendingRuleChoice!.Origin.PriorityPlayerId == peer,
             "The final PASS submitter is not the movement executor/payer.");
     }

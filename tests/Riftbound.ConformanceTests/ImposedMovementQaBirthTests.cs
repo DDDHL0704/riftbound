@@ -39,6 +39,10 @@ public sealed class ImposedMovementQaBirthTests
         Assert.Equal("IMPOSED_MOVEMENT_POWER_PAYMENT", State().PendingRuleChoice!.Request.Kind);
         await Decide("PAY", false);
         await Decide(State().PendingRuleChoice!.Request.Options.Single(o => o.Id.StartsWith("RESOURCE:QA-LUX:", StringComparison.Ordinal)).Id);
+        // CN430.2: the confirmed resource child settles before the still-open
+        // movement payment; its original action checkpoint stays unchanged.
+        Assert.Equal(new RunePool(66, 0, spellOnlyMana: 2), State().RunePools["P1"]);
+        Assert.True(State().CardObjects["QA-LUX"].IsExhausted);
         Assert.DoesNotContain(State().PendingRuleChoice!.Request.Options, o => o.Id == "PAY");
         await Decide(State().PendingRuleChoice!.Request.Options.Single(o => o.Id.StartsWith("RESOURCE:QA-STELE:", StringComparison.Ordinal)).Id);
         Assert.Equal("RESOURCE_CONVERSION_AMOUNT", State().PendingRuleChoice!.Request.Kind);
@@ -52,7 +56,7 @@ public sealed class ImposedMovementQaBirthTests
         Assert.Equal("IMPOSED_MOVEMENT_POWER_PAYMENT", State().PendingRuleChoice!.Request.Kind);
         Assert.Equal(65, State().PendingRuleChoice!.Request.Preview!.RunePools["P1"].TotalPower);
         Assert.Equal(1, State().PendingRuleChoice!.Request.Preview!.RunePools["P1"].Mana);
-        Assert.Equal(new RunePool(66, 0), State().RunePools["P1"]);
+        Assert.Equal(new RunePool(1, 65, spellOnlyMana: 2), State().RunePools["P1"]);
         var pay = kind.EndsWith("-pay", StringComparison.Ordinal); await Decide(pay ? "PAY" : "DECLINE");
         Assert.Null(State().PendingRuleChoice); Assert.Equal(pay ? 64 : 65, State().RunePools["P1"].TotalPower);
         Assert.Equal(2, State().RunePools["P1"].SpellOnlyMana); Assert.Equal(1, State().RunePools["P1"].Mana);
@@ -126,7 +130,8 @@ public sealed class ImposedMovementQaBirthTests
         {
             var last = journal.Entries[^1];
             var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
+                { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
             var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, last.CompletedEventSequence,

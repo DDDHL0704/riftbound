@@ -170,7 +170,7 @@ public sealed class RunePaymentCapacityTests
             SourceStealEnemyEquipmentAdditionalPowerTrait = RuneTrait.Green, SourceStealEnemyEquipmentOptionalCostPrefix = "AKSHAN_STEAL_EQUIPMENT:" };
         var resources = new Dictionary<string, int> { [RuneTrait.Red] = 1, [RuneTrait.Green] = 1 };
         var method = PromptBuilder.GetMethod(branch == "ready" ? "CanPaySourceReadyOptionalCost" : "CanPromptSourceStealEnemyEquipmentOptionalCost", BindingFlags.Static | BindingFlags.NonPublic)!;
-        object?[] arguments = branch == "ready" ? [state.RunePools["P1"], resources, behavior] : [state, "P1", behavior, state.RunePools["P1"], resources, "CARD"];
+        object?[] arguments = branch == "ready" ? [state, "P1", state.RunePools["P1"], resources, behavior] : [state, "P1", behavior, state.RunePools["P1"], resources, "CARD"];
         Assert.Equal(expected, (bool)method.Invoke(null, arguments)!);
     }
 
