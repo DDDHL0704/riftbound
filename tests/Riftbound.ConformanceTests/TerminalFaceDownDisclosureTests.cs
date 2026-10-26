@@ -82,7 +82,8 @@ public sealed class TerminalFaceDownDisclosureTests
         var initial = StandbySourceRulesTests.Position("OGN·057/298");
         var cards = new Dictionary<string, CardObjectState>(initial.CardObjects);
         var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations);
-        foreach (var id in initial.PlayerZones["P1"].MainDeck) { cards.Remove(id); locations.Remove(id); }
+        foreach (var id in initial.PlayerZones["P1"].MainDeck.Concat(initial.PlayerZones["P1"].RuneDeck))
+        { cards.Remove(id); locations.Remove(id); }
         cards["TERMINAL-DRAW"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-DRAW", "OGN·047/298", "P1");
         cards["TERMINAL-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-RUNE", "SFD·R03", "P1");
         locations["TERMINAL-DRAW"] = new("P1", "HAND"); locations["TERMINAL-RUNE"] = new("P1", "RUNE_DECK");
@@ -100,6 +101,7 @@ public sealed class TerminalFaceDownDisclosureTests
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                 Hand = initial.PlayerZones["P1"].Hand.Append("TERMINAL-DRAW").ToArray(), MainDeck = [], RuneDeck = ["TERMINAL-RUNE"],
                 Graveyard = initial.PlayerZones["P1"].Graveyard.Concat(refill).ToArray() } } };
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(initial));
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var session = new MatchSession(initial, engine, journal);
         var state = initial;
