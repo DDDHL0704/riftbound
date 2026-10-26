@@ -162,7 +162,7 @@ public sealed class TerminalFaceDownDisclosureTests
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(duplicate.State));
         Assert.Equal(MatchStateHasher.HashValue(ended.Snapshots), MatchStateHasher.HashValue(duplicate.Snapshots));
         var late = await Assert.ThrowsAsync<MatchSessionException>(() => restored.SubmitAsync("P1", "restored-terminal-late",
-            new PassPriorityCommand(), JsonSerializer.SerializeToElement(new PassPriorityCommand(), Json), default));
+            new PassPriorityCommand(), JsonSerializer.SerializeToElement(new PassPriorityCommand(), Json), default).AsTask());
         Assert.Equal(ErrorCodes.MatchFinished, late.Code);
         Assert.Equal(prefix, JsonSerializer.Serialize(journal.Entries, Json));
     }
