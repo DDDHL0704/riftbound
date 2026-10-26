@@ -28,9 +28,9 @@ public sealed class EmpoweredUnitAuraTests
     public async Task EachActuallyAttachedTextContributesWhileItsEmpoweredHostRemainsActive(int copies)
     {
         await Run("instances-" + copies, copies, async game => {
-            await Enter(game, copies); Assert.Equal(4, Might(game.State, "P1", "ALLY"));
+            await Enter(game, copies); Assert.Equal(4, Might(game.State, "P1", "ALLY")); Assert.Equal(5, Might(game.State, "P1", "UNIT"));
             await Activate(game); Assert.Equal(4 + 2 * (copies + 1), Might(game.State, "P1", "ALLY"));
-            Assert.Equal(5 + copies + 2 * (copies + 1), Might(game.State, "P1", "UNIT"));
+            Assert.Equal(5 + 2 * (copies + 1), Might(game.State, "P1", "UNIT"));
             Assert.Equal(4, Might(game.State, "P2", "ENEMY")); Assert.Equal(5, game.State.CardObjects["UNIT"].Power);
             var effects = game.State.ContinuousEffects.Where(e => e.EffectKind == Aura && e.TargetObjectId == "ALLY").ToArray();
             Assert.Equal(copies + 1, effects.Length); Assert.Equal(copies + 1, effects.Select(e => e.EffectId).Distinct().Count());
@@ -85,12 +85,46 @@ public sealed class EmpoweredUnitAuraTests
                     await game.Act(actor, new DeclareBattleCommand("OTHER", battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
                 }
             }
-            Assert.True(sawPool); Assert.True(sawThreshold); Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
+            Assert.False(sawPool); Assert.False(sawThreshold); // One source and one target use automatic assignment.
+            Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
             Assert.Equal(6, game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "ALLY")
                 && e.Event.Payload.ContainsKey("combatRole")).Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
             Assert.Contains("ALLY", game.State.PlayerZones["P1"].Battlefields); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
             Assert.Equal(score + 1, game.State.PlayerScores["P1"]);
         }, initial => LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"));
+    }
+
+    [Fact]
+    public async Task ExplicitBattleAssignmentUsesTheCurrentAuraForPoolsAndLethalThresholds()
+    {
+        await Run("manual-battle-component", 0, async game => {
+            // Explicit battle component: the source/ally are already empowered in the initial board.
+            await game.Act("P2", new DeclareBattleCommand("BF", ["ENEMY", "ENEMY2"], ["ALLY", "BUDDY"], ["COMBAT_ASSIGNMENT"]));
+            await game.Top(); // Preserve the normal two-player battle response window before damage assignment.
+            var enemyPrompt = ResolutionResult.BuildPrompts(game.State)["P2"];
+            Assert.Equal(PromptTypes.AssignCombatDamage, enemyPrompt.View!.Type);
+            var metadata = JsonSerializer.SerializeToElement(enemyPrompt.View.Metadata, Json);
+            Assert.Equal(6, metadata.GetProperty("lethalDamageThreshold").GetProperty("ALLY").GetInt32());
+            await game.Act("P2", new AssignCombatDamageCommand("battle:BF", "BF", CombatTestDriver.Assignments(enemyPrompt)));
+            var ownPrompt = ResolutionResult.BuildPrompts(game.State)["P1"];
+            Assert.Equal(PromptTypes.AssignCombatDamage, ownPrompt.View!.Type);
+            metadata = JsonSerializer.SerializeToElement(ownPrompt.View.Metadata, Json);
+            Assert.Equal(6, metadata.GetProperty("assignableDamagePool").GetProperty("ALLY").GetInt32());
+            await game.Act("P1", new AssignCombatDamageCommand("battle:BF", "BF", CombatTestDriver.Assignments(ownPrompt)));
+            Assert.Equal(6, game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "ALLY")
+                && e.Event.Payload.ContainsKey("combatRole")).Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
+            Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
+        }, initial => {
+            initial = Put(Put(initial, "BUDDY", "OGN·219/298", "P1", "BASE"), "ENEMY2", "OGN·219/298", "P2", "BASE");
+            foreach (var (id, actor) in new[] { ("ALLY", "P1"), ("BUDDY", "P1"), ("ENEMY", "P2"), ("ENEMY2", "P2") })
+                initial = LocalDestructionRecallTests.At(initial, id, actor, "BATTLEFIELD", "BF");
+            var zones = initial.PlayerZones.ToDictionary(); zones["P1"] = zones["P1"] with {
+                Hand = zones["P1"].Hand.Where(id => id != "UNIT").ToArray(), Base = [..zones["P1"].Base, "UNIT"] };
+            return initial with { PlayerZones = zones, ActivePlayerId = "P2", TurnPlayerId = "P2",
+                UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BF")],
+                CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["UNIT"] = initial.CardObjects["UNIT"] with { IsEmpowered = true } },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "BASE") } };
+        });
     }
 
     public static IEnumerable<object[]> ProjectionMutations()
