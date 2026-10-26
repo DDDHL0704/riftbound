@@ -278,6 +278,48 @@ public sealed class Ven110EmpoweredBanishConsumerTests
         finally { await game.Save("ven110-" + actor); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AWildClawReflexiveCanEmpowerMelWithoutPayingHerPrintedHandSpellCost(bool create)
+    {
+        var initial = Add(Add(VenUnitEntryBasicTests.Position(No), "PARENT", "VEN·089"), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER");
+        initial = initial with {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "MAIN_DECK") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
+                Hand = initial.PlayerZones["P1"].Hand.Where(id => id != "UNIT").ToArray(), MainDeck = ["UNIT", ..initial.PlayerZones["P1"].MainDeck] } } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("PARENT", "VEN·089", [])); await game.Top();
+            var selection = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal("DECK_PLAY_SELECTION", selection.ChoiceWindow); Assert.Contains("UNIT", selection.LegalObjectIds);
+            await game.Act("P1", new ChooseCardsCommand(selection.ChoiceId, selection.ChoiceWindow, ["UNIT"]));
+            var decision = game.State.PendingRuleChoice!; Assert.Equal("DECK_REFLEXIVE_CREATE", decision.Request.Kind);
+            await game.Act("P1", new PayCostCommand(decision.Request.Id, "RULE_REPLACEMENT", [create ? "CREATE" : "DECLINE"]));
+            Assert.Equal(5, game.State.PendingEffectPlay!.ManaReduction); Assert.Empty(game.State.PlayerZones["P1"].Hand);
+            var mana = game.State.RunePools["P1"].Mana; await game.Act("P1", new PlayCardCommand("UNIT", No, []));
+            Assert.Equal(mana, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Empty(game.State.PlayerZones["P1"].Hand);
+            if (create)
+            {
+                var reflexive = Assert.Single(game.State.StackItems); Assert.NotNull(reflexive.DeckPlayReflexive);
+                Assert.Null(reflexive.EmpowerActivation); Restore(initial, game); await game.Top();
+            }
+            Assert.Equal(create, game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind is "CARD_DISCARDED" or "HAND_CARDS_DISCARDED");
+            if (create)
+            {
+                var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+                Assert.Equal("UNIT", choice.SourceObjectId); Assert.Equal(new[] { "SMALL" }, choice.LegalObjectIds);
+                await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["SMALL"])); await game.Top();
+                Assert.Contains("SMALL", game.State.PlayerZones["P2"].Banished);
+            }
+            else { Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); Assert.DoesNotContain("SMALL", game.State.PlayerZones["P2"].Banished); }
+            await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("external-wild-claw-empower-" + create, initial, game); }
+    }
+
     private static ActivateAbilityCommand Activate(string source = "UNIT") => new(source, "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]);
     private static MatchState Position(string spell = "VEN·049") => Add(VenUnitEntryBasicTests.Position(No), "FODDER", spell);
     private static MatchState Add(MatchState state, string id, string no, string owner = "P1", string zone = "HAND", string? field = null) => state with {
