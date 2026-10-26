@@ -257,7 +257,8 @@ public sealed class ResourceCostReplacementCapacityTests
             await driver.Top();
             await driver.Act("P1", new RecycleRuneCommand("SETUP-RUNE"));
             Assert.Equal("A", driver.State.CardObjects["ANGEL"].AttachedToObjectId);
-            Assert.NotNull(driver.State.CardObjects["ANGEL"].AttachedRuleText);
+            Assert.Equal(driver.State.ObjectLocations["A"], driver.State.ObjectLocations["ANGEL"]);
+            Assert.Contains("ANGEL", driver.State.PlayerZones["P1"].Base);
         }
         var before = driver.State; var hash = MatchStateHasher.Hash(before);
         Assert.Equal(int.MaxValue - capacity, before.RunePools["P1"].TotalPower);
