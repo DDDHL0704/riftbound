@@ -403,6 +403,75 @@ public sealed class CommandInputRecoveryTests
         Assert.Equal(count, run.Entries.Count);
     }
 
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    public async Task OriginalInputRetainsItsReceiptAcrossDocumentedJsonbNestedDuplicateKeyStorage(
+        bool rawPresent, bool jsonbOutputForm)
+    {
+        var run = await Run.Create($"binding-jsonb-nested-duplicates-{rawPresent}-{jsonbOutputForm}");
+        Assert.Equal(12, run.Entries.Sum(entry => entry.Events.Count));
+        var actor = Assert.IsType<string>(ResolutionResult.OpeningMulliganPlayerId(run.State));
+        const string duplicateObject = "{\"trace\":1,\"trace\":2}";
+        using var argument = JsonDocument.Parse(duplicateObject);
+        GameCommand input = rawPresent ? new MulliganCommand([run.State.PlayerZones[actor].Hand[0]])
+            : new UnsupportedCommand("NESTED_DUPLICATE_UNKNOWN", argument.RootElement.Clone());
+        JsonElement? raw = null;
+        if (rawPresent)
+        {
+            var node = JsonSerializer.SerializeToNode(input, input.GetType(), Web)!.AsObject();
+            node["promptId"] = run.Session.PromptFor(actor).PromptId;
+            node["snapshotTick"] = run.State.Tick;
+            var text = node.ToJsonString(Web);
+            using var wire = JsonDocument.Parse(text[..^1] + ",\"clientNote\":" + duplicateObject + "}");
+            raw = wire.RootElement.Clone();
+        }
+        const string intent = "original-nested-duplicate-input";
+        var original = await run.Session.SubmitAsync(actor, intent, input, raw, default);
+        Assert.Equal(rawPresent, original.Accepted);
+        if (!rawPresent) Assert.Equal(ErrorCodes.UnsupportedCommand, original.ErrorCode);
+        var journalBefore = JsonSerializer.Serialize(run.Entries, Web);
+        var stateHash = MatchStateHasher.Hash(run.State);
+        var warm = await run.Session.SubmitAsync(actor, intent, input, raw, default);
+        Assert.Equal(original.Accepted, warm.Accepted);
+        Assert.Equal(original.ErrorCode, warm.ErrorCode);
+
+        using var command = new NpgsqlCommand();
+        typeof(PostgresMatchJournal).GetMethod("AddCommandPayload", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [command, run.Entries[^1]]);
+        var payload = Assert.IsType<string>(command.Parameters["payload"].Value);
+        Assert.Contains(duplicateObject, payload, StringComparison.Ordinal);
+        // PostgreSQL documents that jsonb keeps only the last duplicate object key.
+        // This exact stored-form fixture uses the real writer/reader without a database run.
+        // https://www.postgresql.org/docs/16/datatype-json.html
+        var stored = jsonbOutputForm ? payload.Replace(duplicateObject, "{\"trace\":2}", StringComparison.Ordinal) : payload;
+        var decoded = JsonSerializer.Deserialize<RecoveredCommand>(stored, Web)!;
+        var readRaw = typeof(PostgresMatchRecoveryStore).GetMethod("ReadRawCommand", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [stored]);
+        var readTyped = Assert.IsType<TypedCommandInput>(typeof(PostgresMatchRecoveryStore)
+            .GetMethod("ReadTypedCommand", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [stored]));
+        Assert.Equal(rawPresent, readRaw is JsonElement);
+        Assert.Equal(MatchStateHasher.HashValue(readTyped.Value), MatchStateHasher.HashValue(decoded.TypedCommand!.Value));
+        var frame = Frame(run);
+        var persisted = frame with { Commands = frame.Commands.Select(recorded =>
+            recorded.ClientIntentId == intent ? decoded : recorded).ToArray() };
+        AssertRecovered(persisted);
+        var audit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
+        Assert.Empty(audit);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, new RawEnvelopeFrameStore(persisted));
+        var cold = await registry.GetOrCreateAsync(run.State.RoomId, default);
+        var duplicate = await cold.SubmitAsync(actor, intent, input, raw, default);
+        run.Save("documented-jsonb-nested-duplicate-output", new { rawPresent, jsonbOutputForm, raw, input,
+            payload, stored, frame, persisted, audit, original, warm, duplicate, noDatabaseExecutionClaimed = true });
+        Assert.Empty(duplicate.Events);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(duplicate.State));
+        Assert.Equal(journalBefore, JsonSerializer.Serialize(run.Entries, Web));
+        Assert.Equal(original.Accepted, duplicate.Accepted);
+        Assert.Equal(original.ErrorCode, duplicate.ErrorCode);
+    }
+
     private static MatchRecoveryFrame Frame(Run run)
     {
         var last = run.Entries[^1];
