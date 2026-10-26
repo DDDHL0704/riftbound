@@ -89,6 +89,71 @@ public sealed class RuleChoiceResourceCommitTests
         }
     }
 
+    [Theory]
+    [InlineData("RED")]
+    [InlineData("BLUE")]
+    public async Task ResourceStepLedgerReplaysActualChildMutationsAndRejectsChangedChoices(string color)
+    {
+        var journal = new Journal(); IMatchSession session = new MatchSession("resource-step-ledger-" + color, new CoreRuleEngine(), journal);
+        await session.EnsurePlayerAsync("P1", default); await session.EnsurePlayerAsync("P2", default);
+        const string scenario = "typed-power-payment-mixed-recycle";
+        var seeded = await session.SeedScenarioAsync("P1", "original-ledger-qa", scenario,
+            JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = scenario }), default);
+        Assert.True(seeded.Accepted, seeded.ErrorMessage);
+        await Act("P1", new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", ["N54-SELECTED-FIELD"]));
+        await Act(State().PriorityPlayerId!, new PassPriorityCommand());
+        await Act(State().PriorityPlayerId!, new PassPriorityCommand());
+        var request = State().PendingRuleChoice!.Request;
+        var rune = color == "RED" ? "P1-RUNE-RED-PARTIAL-PAYMENT-001" : "P1-RUNE-BLUE-EXTRA-PAYMENT-001";
+        await Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["RECYCLE_RUNE:" + rune]));
+        var pending = Assert.IsType<RuleChoiceContinuation>(State().PendingRuleChoice);
+        var original = JsonSerializer.Serialize(journal.Entries, Json);
+        var ledger = Replay(pending, true);
+        var step = Assert.Single(ledger.EnumerateArray().ToArray());
+        Assert.Equal("P1", step.GetProperty("playerId").GetString());
+        Assert.Equal("RECYCLE_RUNE:" + rune, step.GetProperty("choiceId").GetString());
+        var before = step.GetProperty("before").Deserialize<MatchState>(Json)!;
+        var after = step.GetProperty("after").Deserialize<MatchState>(Json)!;
+        Assert.Equal(1, before.RunePools["P1"].TotalPower);
+        Assert.Equal(2, after.RunePools["P1"].TotalPower);
+        Assert.Contains(rune, before.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(rune, after.PlayerZones["P1"].Base);
+        Assert.Contains(rune, after.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", after.ObjectLocations[rune].Zone);
+        Assert.Single(step.GetProperty("events").EnumerateArray().ToArray(), value => value.GetProperty("kind").GetString() == "RUNE_RECYCLED");
+        Assert.Equal(ledger.GetRawText(), Replay(pending, true).GetRawText());
+        _ = Replay(pending with { Request = pending.Request with { Reason = pending.Request.Reason + " forged" } }, false);
+        _ = Replay(pending with { Answers = pending.Answers.Select(answer => answer with { OptionId = "RECYCLE_RUNE:FOREIGN" }).ToArray() }, false);
+        Assert.Equal(original, JsonSerializer.Serialize(journal.Entries, Json));
+        var output = Environment.GetEnvironmentVariable("RIFTBOUND_RAW_ENVELOPE_EVIDENCE");
+        if (output is not null)
+        {
+            var folder = Path.Combine(output, "resource-step-ledger-" + color); Directory.CreateDirectory(folder);
+            await File.WriteAllTextAsync(Path.Combine(folder, "proof.json"), JsonSerializer.Serialize(new {
+                color, ledger, pending, originalJournal = journal.Entries,
+                scope = "Producer ledger only; consumer commit/surrender still requires the owning integration. No SQL/API/full claim.",
+                ruleInputs = RuleInputIdentity.Current }, Json));
+        }
+
+        JsonElement Replay(RuleChoiceContinuation continuation, bool expected)
+        {
+            var method = typeof(CoreRuleEngine).GetMethod("TryReplayRuleChoiceResources",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+            object?[] args = [continuation, null];
+            Assert.Equal(expected, Assert.IsType<bool>(method.Invoke(null, args)));
+            Assert.NotNull(args[1]); return JsonSerializer.SerializeToElement(args[1], args[1]!.GetType(), Json);
+        }
+        MatchState State() => journal.Entries[^1].AuthoritativeState;
+        async Task Act(string actor, GameCommand command)
+        {
+            var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
+            node["promptId"] = session.PromptFor(actor).PromptId; node["snapshotTick"] = State().Tick;
+            var result = await session.SubmitAsync(actor, "ledger-prefix-" + journal.Entries.Count,
+                command, JsonSerializer.SerializeToElement(node), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+        }
+    }
+
     private static IReadOnlyList<string> Validate(MatchRecoveryFrame frame)
         => MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
             frame.PlayerViews, frame.AuthoritativeState, frame.CurrentTick, frame.SpectatorReplayFrame);

@@ -313,9 +313,8 @@ public sealed partial class CoreRuleEngine
         var unitState = cards[option.Target];
         if (option.Payment.StartsWith("RUNE:", StringComparison.Ordinal))
         {
-            var paid = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, new(), player,
-                [option.Payment[5..]], events, RuleChoiceWindow);
-            foreach (var pair in paid) pools[pair.Key] = pair.Value;
+            var context = ReplacementResourceContext(RuleChoices.Value!.Origin, zones, cards, pools, player);
+            ApplyRuleChoiceRecycleRuneResource(context, zones, cards, pools, player, option.Payment[5..], events, RuleChoiceWindow);
         }
         var current = pools.GetValueOrDefault(player) ?? RunePool.Empty;
         // Selecting a colored pool preserves the player's other colors; recycling
