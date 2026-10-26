@@ -406,7 +406,7 @@ public sealed class CardCatalogBaselineTests
         Assert.True(P6TokenFactoryCatalog.IsBrushBattlefieldToken(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo));
         Assert.False(P6TokenFactoryCatalog.IsBrushBattlefieldToken(P6TokenFactoryCatalog.BaronNestTokenCardNo));
 
-        var repositoryRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        var repositoryRoot = RepositoryRoot();
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(
             repositoryRoot,
             "src",
@@ -8850,12 +8850,7 @@ public sealed class CardCatalogBaselineTests
     public void ArmamentPlayTrackingDoesNotUseCoreCardNumberAllowList()
     {
         var coreRuleEnginePath = Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "..",
+            RepositoryRoot(),
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
