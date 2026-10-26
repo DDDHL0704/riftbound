@@ -100,6 +100,7 @@ public sealed class EmpoweredUnitAuraTests
         await Run("manual-battle-component", 0, async game => {
             // Explicit battle component: the source/ally are already empowered in the initial board.
             await game.Act("P2", new DeclareBattleCommand("BF", ["ENEMY", "ENEMY2"], ["ALLY", "BUDDY"], ["COMBAT_ASSIGNMENT"]));
+            await game.Top(); // Preserve the normal two-player battle response window before damage assignment.
             var enemyPrompt = ResolutionResult.BuildPrompts(game.State)["P2"];
             Assert.Equal(PromptTypes.AssignCombatDamage, enemyPrompt.View!.Type);
             var metadata = JsonSerializer.SerializeToElement(enemyPrompt.View.Metadata, Json);
