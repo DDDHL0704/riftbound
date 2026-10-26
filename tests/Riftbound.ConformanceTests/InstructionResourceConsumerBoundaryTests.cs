@@ -116,7 +116,7 @@ public sealed class InstructionResourceConsumerBoundaryTests
     private static MatchState Position(string cardNo, bool levelSix)
     {
         var card = OfficialGarenConquestBattlefieldCountTests.Printed("CARD", "OGN·268/298", "P1");
-        var field = OfficialGarenConquestBattlefieldCountTests.Printed("FIELD", "OGN·280/298", "P2");
+        var field = OfficialGarenConquestBattlefieldCountTests.Printed("FIELD", "OGN·280/298", "P2") with { ControllerId = "P2" };
         var target = OfficialGarenConquestBattlefieldCountTests.Printed("TARGET", "OGN·142/298", "P2");
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(target.CardNo!, out var behavior));
         target = target with { Tags = target.Tags.Concat(behavior.SourceUnitTags
