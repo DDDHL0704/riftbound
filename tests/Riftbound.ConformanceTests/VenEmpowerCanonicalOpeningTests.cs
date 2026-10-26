@@ -114,7 +114,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
         finally { await game.Save("ven072-" + actor); }
     }
 
-    private static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions)
+    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
@@ -140,7 +140,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
         catch { await game.Save("opening-" + templateId + "-" + actor); throw; }
     }
 
-    private sealed class CanonicalGame : IMatchJournal
+    internal sealed class CanonicalGame : IMatchJournal
     {
         private readonly MatchState initial;
         internal MatchState State { get; private set; }
