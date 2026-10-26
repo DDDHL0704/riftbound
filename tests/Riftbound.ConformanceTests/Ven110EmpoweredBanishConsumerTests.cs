@@ -92,7 +92,7 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [InlineData("SMALL")] [InlineData("LAST-BREATH")]
     public async Task BecomingEmpoweredOffersOnlySmallEnemyBattlefieldUnitsAndBanishesAfterBothPlayersCanRespond(string target)
     {
-        var initial = Add(Add(Add(Add(Position(), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "BF"),
+        var initial = Add(Add(Add(Add(Position(), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER"),
             "LAST-BREATH", "OGN·096/298", "P2", "BATTLEFIELD", "OTHER"), "BASE-SMALL", "OGN·175/298", "P2", "BASE"),
             "FRIENDLY-SMALL", "OGN·175/298", "P1", "BATTLEFIELD", "BF");
         initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"); var game = new Driver(initial);
