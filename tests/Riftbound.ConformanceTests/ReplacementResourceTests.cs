@@ -40,22 +40,32 @@ public sealed class ReplacementResourceTests
     public async Task GoldProducesOnceAndCanPayOrRemainAfterDeclining(string no, bool accept)
     {
         var opened = await Open(AddResource(Position(power:0), no));
+        Assert.Equal(0, opened.State.RunePools["P2"].Power);
+        Assert.Contains("RESOURCE", opened.State.PlayerZones["P2"].Base);
         var generated = await Resource(opened.State); Restore(generated.State);
         Assert.Single(generated.State.PendingRuleChoice!.Answers);
         Assert.Contains("1 符能", generated.State.PendingRuleChoice.Request.Reason);
-        Assert.Equal(0, generated.State.RunePools["P2"].Power); // checkpoint board is frozen
-        Assert.Contains("RESOURCE", generated.State.PlayerZones["P2"].Base);
+        // CN430.2: the completed child is authoritative while the outer choice waits.
+        Assert.Equal(1, generated.State.RunePools["P2"].Power);
+        Assert.DoesNotContain("RESOURCE", generated.State.PlayerZones["P2"].Base);
+        Assert.False(generated.State.CardObjects.ContainsKey("RESOURCE"));
+        Assert.False(generated.State.ObjectLocations.ContainsKey("RESOURCE"));
+        Assert.Single(generated.Events, e=>e.Kind=="TOKEN_CEASED_TO_EXIST");
+        Assert.Single(generated.Events, e=>e.Kind=="POWER_GAINED");
+        Assert.Single(generated.Events, e=>e.Kind=="ABILITY_ACTIVATED");
         Assert.DoesNotContain(generated.State.PendingRuleChoice.Request.Options, o=>o.Id.StartsWith("RESOURCE:"));
         var restored = OfficialInsightAndSpellLockTests.Restore(generated.State);
         var done = await Choose(restored, accept ? "D" : "DECLINE"); Restore(done.State);
         Assert.Equal(accept, done.State.PlayerZones["P2"].Base.Contains("D"));
         Assert.DoesNotContain("RESOURCE", done.State.PlayerZones["P2"].Base);
         Assert.DoesNotContain("RESOURCE", done.State.CardObjects.Keys);
-        Assert.Single(done.Events,e=>e.Kind=="TOKEN_CEASED_TO_EXIST");
+        var operationEvents = generated.Events.Concat(done.Events).ToArray();
+        Assert.Single(operationEvents,e=>e.Kind=="TOKEN_CEASED_TO_EXIST");
         Assert.Equal(accept ? 0 : 1, done.State.RunePools["P2"].Power);
         Assert.Equal(7, done.State.RunePools["P2"].Mana);
-        Assert.Single(done.Events, e=>e.Kind=="POWER_GAINED");
-        Assert.Single(done.Events, e=>e.Kind=="ABILITY_ACTIVATED");
+        Assert.Single(operationEvents, e=>e.Kind=="POWER_GAINED");
+        Assert.Single(operationEvents, e=>e.Kind=="ABILITY_ACTIVATED");
+        Assert.DoesNotContain(done.Events, e=>e.Kind is "TOKEN_CEASED_TO_EXIST" or "POWER_GAINED" or "ABILITY_ACTIVATED");
         Assert.Equal(generated.State.Tick+1, done.State.Tick);
         if (!accept) Assert.Contains("DRAW", (await Top(done.State)).State.PlayerZones["P2"].Hand);
     }
@@ -71,11 +81,16 @@ public sealed class ReplacementResourceTests
         Assert.Equal(bonus ? 2 : 1, opened.State.PendingRuleChoice!.Request.Options.Count(o=>o.Id.StartsWith("RESOURCE:")));
         var generated = await Resource(opened.State, costs: bonus ? P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix+"RESOURCE" : "");
         Restore(generated.State);
+        Assert.True(generated.State.CardObjects["RESOURCE"].IsExhausted);
+        Assert.Equal(bonus ? 8 : 7, generated.State.RunePools["P2"].Mana);
+        Assert.Equal(1, generated.State.RunePools["P2"].Power);
+        Assert.Single(generated.Events, e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
         var done = await Choose(generated.State); Restore(done.State);
         Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
         Assert.Equal(bonus ? 8 : 7, done.State.RunePools["P2"].Mana);
         Assert.Equal(0, done.State.RunePools["P2"].Power);
-        Assert.Single(done.Events, e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
+        Assert.Single(generated.Events.Concat(done.Events), e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
+        Assert.DoesNotContain(done.Events, e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
     }
 
     [Fact]
@@ -97,12 +112,17 @@ public sealed class ReplacementResourceTests
         var opened = await Open(s);
         Assert.DoesNotContain(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id.StartsWith("RESOURCE:STELE:"));
         var mana = await Resource(opened.State,"CHANNEL"); Restore(mana.State);
+        Assert.Equal(1,mana.State.RunePools["P2"].Mana);
+        Assert.Single(mana.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
         var power = await Resource(OfficialInsightAndSpellLockTests.Restore(mana.State),"STELE",P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix+"1");
         Restore(power.State); Assert.Equal(2,power.State.PendingRuleChoice!.Answers.Count);
+        Assert.Equal(0,power.State.RunePools["P2"].Mana); Assert.Equal(1,power.State.RunePools["P2"].TotalPower);
+        Assert.Single(power.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
         var done = await Choose(OfficialInsightAndSpellLockTests.Restore(power.State)); Restore(done.State);
         Assert.Equal(0,done.State.RunePools["P2"].Mana); Assert.Equal(0,done.State.RunePools["P2"].TotalPower);
         Assert.True(done.State.CardObjects["CHANNEL"].IsExhausted); Assert.True(done.State.CardObjects["STELE"].IsExhausted);
-        Assert.Equal(2,done.Events.Count(e=>e.Kind=="RESOURCE_SKILL_RESOLVED"));
+        Assert.Equal(2,mana.Events.Concat(power.Events).Concat(done.Events).Count(e=>e.Kind=="RESOURCE_SKILL_RESOLVED"));
+        Assert.DoesNotContain(done.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
     }
 
     [Theory]
@@ -136,7 +156,9 @@ public sealed class ReplacementResourceTests
             var generated = await Resource(opened.State);
             var done = await Choose(generated.State);
             Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
-            Assert.Contains(done.Events, e => e.Kind == "RESOURCE_SKILL_RESOLVED");
+            Assert.Contains(generated.Events.Concat(done.Events), e => e.Kind == "RESOURCE_SKILL_RESOLVED");
+            Assert.Single(generated.Events, e => e.Kind == "RESOURCE_SKILL_RESOLVED");
+            Assert.DoesNotContain(done.Events, e => e.Kind == "RESOURCE_SKILL_RESOLVED");
             Restore(done.State);
             return;
         }
@@ -152,17 +174,20 @@ public sealed class ReplacementResourceTests
         Assert.False(result.Accepted); Assert.Equal(MatchStateHasher.Hash(opened.State),MatchStateHasher.Hash(result.State));
         if (reason == "restricted")
         {
+            Assert.Equal(0, opened.State.RunePools["P2"].SpellOnlyMana);
             var generated = await Resource(opened.State); Restore(generated.State);
             Assert.Single(generated.State.PendingRuleChoice!.Answers);
-            // This existing destruction continuation keeps its board frozen;
-            // the acquisition commits with the final replacement decision.
-            Assert.Equal(0, generated.State.RunePools["P2"].SpellOnlyMana);
+            // Acquisition commits immediately; its restriction still prevents paying power.
+            Assert.Equal(2, generated.State.RunePools["P2"].SpellOnlyMana);
             Assert.Equal(1, generated.State.RunePools["P2"].Power);
+            Assert.True(generated.State.CardObjects["RESOURCE"].IsExhausted);
+            Assert.Single(generated.Events, e => e.Kind == "MANA_GAINED");
             var done = await Choose(generated.State); Restore(done.State);
             Assert.Equal(0, done.State.RunePools["P2"].Power);
             Assert.Equal(2, done.State.RunePools["P2"].SpellOnlyMana);
             Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
-            Assert.Single(done.Events, e => e.Kind == "MANA_GAINED");
+            Assert.Single(generated.Events.Concat(done.Events), e => e.Kind == "MANA_GAINED");
+            Assert.DoesNotContain(done.Events, e => e.Kind == "MANA_GAINED");
         }
     }
 
@@ -193,8 +218,11 @@ public sealed class ReplacementResourceTests
         var done = await Choose(generated.State,"DECLINE"); Restore(done.State);
         Assert.Contains("D",done.State.PlayerZones["P2"].Graveyard);
         Assert.Equal(1,done.State.RunePools["P2"].Power);
-        Assert.Single(done.Events,e=>e.Kind=="ABILITY_ACTIVATED");
-        Assert.Single(done.Events,e=>e.Kind=="POWER_GAINED");
+        Assert.Single(generated.Events.Concat(done.Events),e=>e.Kind=="ABILITY_ACTIVATED");
+        Assert.Single(generated.Events.Concat(done.Events),e=>e.Kind=="POWER_GAINED");
+        Assert.Single(generated.Events,e=>e.Kind=="ABILITY_ACTIVATED");
+        Assert.Single(generated.Events,e=>e.Kind=="POWER_GAINED");
+        Assert.DoesNotContain(done.Events,e=>e.Kind is "ABILITY_ACTIVATED" or "POWER_GAINED");
         Assert.Single(done.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="D");
     }
 
@@ -210,7 +238,10 @@ public sealed class ReplacementResourceTests
         Assert.Equal(amount,done.State.RunePools["P2"].Mana);
         Assert.Equal(3-amount,done.State.RunePools["P2"].Power);
         Assert.Contains("D",done.State.PlayerZones["P2"].Graveyard);
-        Assert.Single(done.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
+        var operationEvents = ReferenceEquals(done,generated) ? generated.Events : generated.Events.Concat(done.Events).ToArray();
+        Assert.Single(operationEvents,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
+        Assert.Single(generated.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
+        if (!ReferenceEquals(done,generated)) Assert.DoesNotContain(done.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
     }
 
     [Fact]
@@ -219,12 +250,19 @@ public sealed class ReplacementResourceTests
         var s = AddResource(AddResource(Position(power:0,mana:0),P4ActivatedAbilityCatalog.DragonSoulSageCardNo,"SAGE"),P4ActivatedAbilityCatalog.AncientSteleCardNo,"STELE");
         var opened = await Open(s,"OGN·213/298","D");
         var generated = await Resource(opened.State,"SAGE");
+        Assert.True(generated.State.CardObjects["SAGE"].IsExhausted);
+        Assert.Equal(1,generated.State.RunePools["P2"].Mana);
+        Assert.Single(generated.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
         var converted = await Resource(generated.State,"STELE",P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix+"1");
+        Assert.True(converted.State.CardObjects["STELE"].IsExhausted);
+        Assert.Equal(0,converted.State.RunePools["P2"].Mana); Assert.Equal(1,converted.State.RunePools["P2"].TotalPower);
+        Assert.Single(converted.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
         var done = await Choose(converted.State); Restore(done.State);
         Assert.True(done.State.CardObjects["SAGE"].IsExhausted);
         Assert.Equal(0,done.State.RunePools["P2"].TotalPower);
         Assert.Contains("D",done.State.PlayerZones["P2"].Base);
-        Assert.Equal(2,done.Events.Count(e=>e.Kind=="RESOURCE_SKILL_RESOLVED"));
+        Assert.Equal(2,generated.Events.Concat(converted.Events).Concat(done.Events).Count(e=>e.Kind=="RESOURCE_SKILL_RESOLVED"));
+        Assert.DoesNotContain(done.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
     }
 
     [Theory]
@@ -242,9 +280,11 @@ public sealed class ReplacementResourceTests
         var done=await Choose(generated.State);
         Assert.True(OfficialInsightAndSpellLockTests.Errors(done.State).Count==0,string.Join("; ",OfficialInsightAndSpellLockTests.Errors(done.State))); Restore(done.State);
         Assert.Contains("P2",done.State.DestroyedUnitOwnerIdsThisTurn);
-        Assert.Single(done.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
+        Assert.Single(generated.Events.Concat(done.Events),e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
+        Assert.Single(generated.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
+        Assert.DoesNotContain(done.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
         if (endsMatch) { Assert.Equal(MatchStatuses.Finished,done.State.Status); Assert.Empty(done.State.TriggerQueue); }
         else Assert.Contains(done.State.StackItems,t=>t.SourceObjectId=="VIKTOR");
-        if (!endsMatch) Assert.Single(done.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR");
+        if (!endsMatch) Assert.Single(generated.Events.Concat(done.Events),e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR");
     }
 }

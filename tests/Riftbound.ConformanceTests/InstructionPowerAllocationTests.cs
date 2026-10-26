@@ -91,7 +91,10 @@ public sealed class InstructionPowerAllocationTests
         var origin = MatchStateHasher.Hash(run.State.PendingRuleChoice!.Origin);
         var checkpoint = MatchStateHasher.HashValue(run.State.RunePools);
         var working = MatchStateHasher.Hash(run.State.PendingRuleChoice.Request.Preview!);
-        Assert.Contains("RUNE", run.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("RUNE", run.State.PlayerZones["P1"].Base);
+        Assert.Contains("RUNE", run.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(new RunePool(0, 1, Colors(1, 1)), run.State.RunePools["P1"]);
+        Assert.Single(run.Events(), entry => entry.Event.Kind == "RUNE_RECYCLED");
         Assert.Contains("RUNE", run.State.PendingRuleChoice.Request.Preview!.PlayerZones["P1"].RuneDeck);
         await run.Choice(Allocate);
         await run.Cold();
@@ -114,9 +117,12 @@ public sealed class InstructionPowerAllocationTests
         Assert.Equal(checkpoint, MatchStateHasher.HashValue(run.State.RunePools));
         Assert.Equal(working, MatchStateHasher.Hash(run.State.PendingRuleChoice.Request.Preview!));
         Assert.Contains(run.State.PendingRuleChoice.Request.Options, option => option.Id == Allocate);
-        Assert.DoesNotContain(run.Events(), entry => entry.Event.Kind is "RUNE_RECYCLED" or "DAMAGE_APPLIED");
+        Assert.Single(run.Events(), entry => entry.Event.Kind == "RUNE_RECYCLED");
+        Assert.DoesNotContain(run.Events(), entry => entry.Event.Kind == "DAMAGE_APPLIED");
         await run.Cold();
+        var paymentStart = run.Entries.Count;
         await run.Choice("SPEND_POWER:2");
+        Assert.DoesNotContain(run.Entries.Skip(paymentStart).SelectMany(entry => entry.Events), ev => ev.Kind == "RUNE_RECYCLED");
         Assert.Equal(new RunePool(0, 0, Colors(0, 1)), run.State.RunePools["P1"]);
         Assert.DoesNotContain("RUNE", run.State.PlayerZones["P1"].Base);
         Assert.Contains("RUNE", run.State.PlayerZones["P1"].RuneDeck);
