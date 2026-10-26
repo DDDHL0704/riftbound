@@ -55,6 +55,8 @@ public sealed partial class CoreRuleEngine
             }
             var spentTraits = selected == "PAY:ANY" ? new Dictionary<string, int>()
                 : new Dictionary<string, int> { [selected[10..]] = 1 };
+            var paymentCapture = BeginRuleChoiceResourceStep(context, player, selected);
+            var paymentEventStart = events.Count;
             pool = pools[player];
             var power = PayPowerCost(pool, selected == "PAY:ANY" ? 1 : 0, spentTraits);
             pools[player] = pool with { Mana = pool.Mana - 1, Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
@@ -62,6 +64,8 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = player, ["sourceObjectId"] = token.ObjectId, ["parentSourceObjectId"] = parentSource,
                 ["mana"] = 1, ["power"] = 1, ["powerByTrait"] = spentTraits,
                 ["optionalCosts"] = new[] { HasteOptionalCostNames.HasteReady }, ["reason"] = "TOKEN_HASTE_PAYMENT" }));
+            CompleteRuleChoiceResourceStep(paymentCapture, context with { RunePools = pools },
+                events.Skip(paymentEventStart).ToArray());
             return true;
         }
     }

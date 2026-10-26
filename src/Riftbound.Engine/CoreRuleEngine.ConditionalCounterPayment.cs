@@ -52,11 +52,17 @@ public sealed partial class CoreRuleEngine
                 ApplyRuleChoiceRecycleRuneResource(context, zones, cards, pools, player, selected[13..], events, RuleChoiceWindow);
                 continue;
             }
+            // CN203.1/204.3: this instruction's payment is complete before
+            // another independent execution can request resources or payment.
+            var paymentCapture = BeginRuleChoiceResourceStep(context, player, selected);
+            var paymentEventStart = events.Count;
             pools[player] = pool with { Mana = pool.Mana - manaCost };
             events.Add(new("COST_PAID", $"支付 {manaCost} 法力，保留法术", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = manaCost, ["power"] = 0,
                 ["sourceObjectId"] = counter.SourceObjectId, ["targetStackItemId"] = targetId,
                 ["reason"] = "COUNTER_TARGET_MANA_PAYMENT" }));
+            CompleteRuleChoiceResourceStep(paymentCapture, context with { RunePools = pools },
+                events.Skip(paymentEventStart).ToArray());
             return true;
         }
     }

@@ -151,10 +151,15 @@ public sealed class RuleChoiceRuneCapacityTests
         Assert.DoesNotContain(request.Options, o => o.Id.StartsWith("TAP_RUNE:", StringComparison.Ordinal));
         var original = request.Preview!.RunePools[run.Player];
         var checkpoint = MatchStateHasher.HashValue(run.State.RunePools);
-        await run.Accept(new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_MANA:2"]));
+        var firstPayment = await run.Submit(new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_MANA:2"]));
+        Assert.True(firstPayment.Accepted, firstPayment.ErrorMessage);
+        Assert.Single(firstPayment.Events, e => e.Kind == "COST_PAID"
+            && Equals(e.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT"));
         request = run.State.PendingRuleChoice!.Request;
         Assert.Equal(original.Mana - 2, request.Preview!.RunePools[run.Player].Mana);
-        Assert.Equal(checkpoint, MatchStateHasher.HashValue(run.State.RunePools));
+        Assert.NotEqual(checkpoint, MatchStateHasher.HashValue(run.State.RunePools));
+        Assert.Equal(original.Mana - 2, run.State.RunePools[run.Player].Mana);
+        Assert.Equal(original.SpellOnlyMana, run.State.RunePools[run.Player].SpellOnlyMana);
         await run.Cold();
         await run.Accept(new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["TAP_RUNE:CAP-RUNE"]));
         request = run.State.PendingRuleChoice!.Request;
@@ -176,8 +181,61 @@ public sealed class RuleChoiceRuneCapacityTests
         Assert.True(run.State.CardObjects["SPARE-RUNE"].IsExhausted);
         Assert.False(run.State.CardObjects["EXTRA-RUNE"].IsExhausted);
         Assert.Equal(2, run.Events().Count(e => e.Event.Kind == "RUNE_TAPPED"));
+        Assert.Equal(paySecond ? 2 : 1, run.Events().Count(e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT")));
         await run.Cold();
         await run.Replay();
+    }
+
+    [Theory]
+    [InlineData("mana", false)] [InlineData("mana", true)]
+    [InlineData("restricted", false)] [InlineData("restricted", true)]
+    public async Task DiagnosticEarlierCounterPaymentThenRuneGainUsesTheSameRepresentablePool(string balance, bool paySecond)
+    {
+        // Isolate the original four sequential consumers from the separate
+        // initial full-menu guard. This exact test overlay is also executed
+        // against the preserved2ace production binaries for the before control.
+        var run = await Open("counter", balance, 0, echo: true);
+        var original = run.State.PendingRuleChoice!.Request.Preview!.RunePools[run.Player];
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice.Request.Id, "RULE_REPLACEMENT", ["SPEND_MANA:2"]));
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["TAP_RUNE:CAP-RUNE"]));
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["TAP_RUNE:SPARE-RUNE"]));
+        Assert.True(run.State.RunePools[run.Player].HasSupportedAmounts);
+        Assert.Equal(int.MaxValue, (long)run.State.RunePools[run.Player].Mana + run.State.RunePools[run.Player].SpellOnlyMana);
+        await run.Cold();
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT",
+            [paySecond ? "SPEND_MANA:2" : "DECLINE"]));
+        Assert.Equal(original.Mana - (paySecond ? 2 : 0), run.State.RunePools[run.Player].Mana);
+        Assert.Equal(original.SpellOnlyMana, run.State.RunePools[run.Player].SpellOnlyMana);
+        Assert.Equal(2, run.Events().Count(e => e.Event.Kind == "RUNE_TAPPED"));
+        Assert.Equal(paySecond ? 2 : 1, run.Events().Count(e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT")));
+        await run.Cold(); await run.Replay();
+    }
+
+    [Theory]
+    [InlineData("counter", false)] [InlineData("counter", true)]
+    [InlineData("token", false)] [InlineData("token", true)]
+    public async Task AnEarlierCompletedPaymentSurvivesTheNextChoiceColdRetryAndConcession(string kind, bool concede)
+    {
+        var run = await Open(kind, "finite", 0, echo: true);
+        var before = run.State.RunePools[run.Player];
+        var choice = kind == "counter" ? "SPEND_MANA:2" : "PAY:ANY";
+        var reason = kind == "counter" ? "COUNTER_TARGET_MANA_PAYMENT" : "TOKEN_HASTE_PAYMENT";
+        var paid = await run.Submit(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", [choice]));
+        Assert.True(paid.Accepted, paid.ErrorMessage); Assert.NotNull(run.State.PendingRuleChoice);
+        var expected = before with { Mana = before.Mana - (kind == "counter" ? 2 : 1),
+            Power = before.Power - (kind == "token" ? 1 : 0) };
+        Assert.Equal(expected, run.State.RunePools[run.Player]);
+        Assert.Single(paid.Events, e => e.Kind == "COST_PAID" && Equals(e.Payload.GetValueOrDefault("reason"), reason));
+        await run.Cold(); await run.RepeatLast(); Assert.Equal(expected, run.State.RunePools[run.Player]);
+        if (concede) await run.Accept(new SurrenderCommand());
+        else await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["DECLINE"]));
+        Assert.Null(run.State.PendingRuleChoice); Assert.Equal(expected, run.State.RunePools[run.Player]);
+        Assert.Single(run.Events(), e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("reason"), reason));
+        await run.Cold(); await run.Replay();
+        Evidence("finite-payment-" + kind + "-" + concede,
+            new { run.Initial, run.State, commands = run.Commands(), events = run.Events() });
     }
 
     private static async Task<Run> Open(string kind, string balance, int capacity, bool echo = false)
@@ -187,6 +245,7 @@ public sealed class RuleChoiceRuneCapacityTests
             ? OfficialCounterRepeatTests.Position("SFD·136/221") with { Tick = 0, UntilEndOfTurnEffects = [] }
             : GrantedTokenHasteTests.Position("SFD·029/221");
         var pool = balance switch {
+            "finite" => new RunePool(10, kind == "token" ? 2 : 0),
             "mana" => new RunePool(int.MaxValue - capacity, kind == "token" ? 1 : 0),
             "restricted" => new RunePool(kind == "token" ? 4 : 2, kind == "token" ? 1 : 0,
                 spellOnlyMana: int.MaxValue - capacity - (kind == "token" ? 4 : 2)),
@@ -206,7 +265,7 @@ public sealed class RuleChoiceRuneCapacityTests
         var run = new Run(initial, player);
         await run.Accept(kind == "counter" ? new PlayCardCommand("C", "SFD·136/221", ["S1"],
             OptionalCosts: echo ? ["ECHO"] : null, RepeatChoices: echo ? [new("", ["S2"])] : null)
-            : new PlayCardCommand("TOKEN-SPELL", "SFD·031/221", []), "P1");
+            : new PlayCardCommand("TOKEN-SPELL", "SFD·031/221", [], OptionalCosts: echo ? ["ECHO"] : null), "P1");
         if (kind == "token" && balance is "mana" or "restricted")
         {
             await run.Accept(new TapRuneCommand("FILL-1"));
@@ -285,6 +344,16 @@ public sealed class RuleChoiceRuneCapacityTests
             var result = await Submit(command);
             Assert.False(result.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode); Assert.Empty(result.Events);
             Assert.Equal(hash, MatchStateHasher.Hash(result.State));
+        }
+        public async Task RepeatLast()
+        {
+            var last = entries[^1]; var count = entries.Count; var hash = MatchStateHasher.Hash(State);
+            var duplicate = await session.SubmitAsync(last.PlayerId, last.ClientIntentId,
+                GameCommandJsonMapper.Map(last.RawCommand!.Value), last.RawCommand, default);
+            Assert.Equal(last.Accepted, duplicate.Accepted); Assert.Empty(duplicate.Events);
+            Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            Assert.Equal(hash, MatchStateHasher.Hash(State));
+            Evidence("duplicate-" + evidenceId + "-" + intents, new { last.PlayerId, last.ClientIntentId, duplicate });
         }
         public Task Cold()
         {
