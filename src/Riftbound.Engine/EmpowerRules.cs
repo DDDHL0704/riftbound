@@ -181,6 +181,8 @@ public sealed partial class CoreRuleEngine
         var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],
             EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
         if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
+        var banish = CaptureEmpoweredBanish(state, cards, cards[source.ObjectId]);
+        if (banish.Length > 0) payload[EmpoweredBanishCaptureKey] = banish;
         return NoopStackResolutionResult(state) with { CardObjects = cards,
             Events = [new("OBJECT_EMPOWERED", source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态", payload)] };
     }
