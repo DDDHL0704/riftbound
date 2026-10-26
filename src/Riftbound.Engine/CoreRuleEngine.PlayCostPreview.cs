@@ -24,7 +24,8 @@ public sealed partial class CoreRuleEngine
                 "当前选择无法打出，请检查目标、位置和支付资源。");
 
         var pool = plan.AvailablePool;
-        var missingMana = Math.Max(0, plan.TotalManaCost - pool.Mana);
+        var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose);
+        var missingMana = Math.Max(0, plan.TotalManaCost - availableMana);
         var missingPower = PaymentCostRules.PowerDeficit(pool, plan.AnyPowerCost, plan.PowerCostByTrait);
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, plan.AnyPowerCost, plan.PowerCostByTrait) : default;
@@ -35,7 +36,16 @@ public sealed partial class CoreRuleEngine
         }
         if (EffectPlayIgnoresAllCosts(state, playerId))
             Adjust("效果忽略一切费用", -plan.Behavior.ManaCost, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
-        else if (state.PendingEffectPlay is { } effect && effect.IgnoreBaseMana) Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+        else if (plan.Behavior.StandbyPlayFrom is not null)
+            Adjust("待命忽略基础费用", -plan.Behavior.ManaCost, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
+        else
+        {
+            if (state.PendingEffectPlay is { IgnoreBaseMana: true } effect && effect.PlayerId == playerId)
+                Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+            if (plan.Behavior.IgnorePrintedPowerCost)
+                Adjust("效果忽略基础符能", 0, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
+        }
+        Adjust("效果替代基础费用", 0, SourceReplayPowerCost(state, playerId));
         if (plan.Behavior.AppliedFlowCost is { } flow)
             Adjust("流转替代费用", flow.Mana - plan.Behavior.ManaCost,
                 flow.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
@@ -53,9 +63,12 @@ public sealed partial class CoreRuleEngine
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,
-            pool.Mana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
-            accepted ? pool.Mana - plan.TotalManaCost - plan.LuxSpellOnlyRemainingMana : null,
-            accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments);
+            availableMana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
+            accepted ? availableMana - plan.TotalManaCost : null,
+            accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments) {
+                AvailableSpellOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0,
+                RemainingSpellOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell
+                    ? Math.Max(0, pool.SpellOnlyMana - plan.TotalManaCost) : 0 };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);

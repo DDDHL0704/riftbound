@@ -7535,6 +7535,8 @@ public static partial class MatchRecoveryValidator
 
         var payloadLabel = $"snapshot for {view.PlayerId} player {snapshotPlayerId} rune pool";
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "mana", payloadLabel, "mana", errors);
+        if (TryReadObjectValue(runePoolPayload, "spellOnlyMana", out _))
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "spellOnlyMana", payloadLabel, "spell-only mana", errors);
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "power", payloadLabel, "power", errors);
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             runePoolPayload,
@@ -9290,6 +9292,10 @@ public static partial class MatchRecoveryValidator
                 $"spectator replay frame snapshot player {playerId} rune pool mana does not match authoritative rune pool mana; {FormatExpectedActualForRecovery(expectedRunePool.Mana, FormatReadableIntValue(hasMana ? mana : null, runePoolPayload, "mana"))}");
         }
 
+        var hasRestricted = TryReadObjectInt(runePoolPayload, "spellOnlyMana", out var restricted);
+        if (hasRestricted ? restricted != expectedRunePool.SpellOnlyMana : expectedRunePool.SpellOnlyMana != 0)
+            errors.Add($"spectator replay frame snapshot player {playerId} spell-only mana does not match authoritative rune pool");
+
         var hasPower = TryReadObjectInt(runePoolPayload, "power", out var power);
         if (!hasPower || power != expectedRunePool.TotalPower)
         {
@@ -9319,6 +9325,8 @@ public static partial class MatchRecoveryValidator
     {
         var payloadLabel = $"spectator replay frame snapshot player {playerId} rune pool";
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "mana", payloadLabel, "mana", errors);
+        if (TryReadObjectValue(runePoolPayload, "spellOnlyMana", out _))
+            ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "spellOnlyMana", payloadLabel, "spell-only mana", errors);
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(runePoolPayload, "power", payloadLabel, "power", errors);
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             runePoolPayload,
@@ -23127,6 +23135,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
+            ValidateResourcePoolViews(view, authoritativeState, errors);
             if (view.Snapshot.Stack is null)
             {
                 errors.Add($"snapshot for {view.PlayerId} requires a stack collection");
@@ -24611,6 +24620,11 @@ public static partial class MatchRecoveryValidator
                 errors.Add($"authoritative state rune pool for {playerLabel} is required");
                 continue;
             }
+
+            if (!runePool.HasSupportedAmounts)
+                errors.Add($"authoritative state rune pool for {playerLabel} contains unsupported resource amounts");
+            if (runePool.SpellOnlyMana < 0)
+                errors.Add($"authoritative state rune pool for {playerLabel} spell-only mana cannot be negative");
 
             if (runePool.Mana < 0)
             {

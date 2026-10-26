@@ -101,7 +101,7 @@ public static class P4ActivatedAbilityCatalog
     public const string LuxResourceAbilityId = "LUX_REACTION_EXHAUST_GAIN_2_SPELL_ONLY_MANA";
     public const string LuxResourceAbilityEffectKind = "LUX_REACTION_RESOURCE_SKILL_GAIN_2_SPELL_ONLY_MANA";
     public const int LuxGeneratedMana = 2;
-    public const string LuxSpellOnlyResourceRestriction = "PLAY_SPELLS_ONLY_LUX_TEMPORARY_MANA_4D_03CR";
+    public const string LuxSpellOnlyResourceRestriction = "PLAY_SPELLS_ONLY";
     public const string LuxSpellOnlyResourceActionPrefix = "LUX_SPELL_ONLY_RESOURCE:";
 
     public const string RenataGlascCardNo = "SFD·088/221";
@@ -363,9 +363,9 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03CR opens Lux's base-or-battlefield spell-only reaction payment resource representative with inline play-card cleanup.",
+            "CN166-168/430: reaction resource mana retains its spell-play restriction until normal rune-pool clearing.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
+            PaymentOnlyResource: false,
             ReactionSpeed: true,
             GeneratedMana: LuxGeneratedMana,
             ResourceRestriction: LuxSpellOnlyResourceRestriction),
@@ -637,9 +637,14 @@ public static class P4ActivatedAbilityCatalog
     public static IReadOnlyList<string> SourceCardNosForAbility(P4ActivatedAbilityDefinition definition)
     {
         var sourceCardNo = OfficialCardSourceIdentityGroups.NormalizeCardNo(definition.SourceCardNo);
-        return SourceCardNosByRepresentativeCardNo.Value.TryGetValue(sourceCardNo, out var sourceCardNos)
+        // Both exact current CN prints were source-checked. Their punctuation
+        // and reminder text differ, so whole-text identity cannot map this skill.
+        if (definition.AbilityId == LuxResourceAbilityId && sourceCardNo == LuxCardNo)
+            return [LuxCardNo, "VEN·SP6"];
+        var sources = SourceCardNosByRepresentativeCardNo.Value.TryGetValue(sourceCardNo, out var sourceCardNos)
             ? sourceCardNos
             : [sourceCardNo];
+        return sources;
     }
 
     public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId, long generation = 0, string? instanceId = null)

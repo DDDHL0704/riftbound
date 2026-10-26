@@ -79,7 +79,7 @@ public sealed class SelectedBattlefieldDamageRecoveryTests
         await run.Act("P1", new PlayCardCommand("SPELL", "OGN·268/298", ["A"]));
         var spell = Assert.Single(run.State.StackItems);
         Assert.Equal(0, spell.DamageAmount);
-        await run.Resolve(spell.StackItemId);
+        await run.Resolve(spell.StackItemId, 0);
         Assert.Equal(gate ? 2 : 1, run.State.CardObjects["P2-A1"].Damage);
         Assert.Equal(gate ? 2 : 1, run.State.CardObjects["P2-A2"].Damage);
         Assert.Equal(0, run.State.CardObjects["P2-B"].Damage);
@@ -112,8 +112,7 @@ public sealed class SelectedBattlefieldDamageRecoveryTests
         _ => [field]
     };
 
-    private static PlayCardCommand Play(string card) => new("SPELL", card, Targets(card, "A"),
-        OptionalCosts: card == "OGN·268/298" ? ["SPEND_POWER:3"] : null);
+    private static PlayCardCommand Play(string card) => new("SPELL", card, Targets(card, "A"));
 
     private static async Task<Driver> Open(string card, bool gate)
     {
@@ -167,12 +166,14 @@ public sealed class SelectedBattlefieldDamageRecoveryTests
             session = restored;
         }
 
-        internal async Task Resolve(string id)
+        internal async Task Resolve(string id, int instructionPower = 3)
         {
             for (var i = 0; State.StackItems.Any(s => s.StackItemId == id); i++)
             {
                 Assert.InRange(i, 0, 4);
-                await Act(State.PriorityPlayerId!, new PassPriorityCommand());
+                if (State.PendingRuleChoice is { Request.Kind: "INSTRUCTION_POWER_PAYMENT" } payment)
+                    await Act(payment.Request.PlayerId, new PayCostCommand(payment.Request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:" + instructionPower]));
+                else await Act(State.PriorityPlayerId!, new PassPriorityCommand());
             }
         }
         internal MatchRecoveryFrame Frame(MatchState? replacement = null)

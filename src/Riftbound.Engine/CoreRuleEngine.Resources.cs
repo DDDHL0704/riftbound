@@ -137,7 +137,7 @@ public sealed partial class CoreRuleEngine
                 // [A] as a cost accepts power of any trait (CN 135.2.e.5.a).
                 if (pool.TotalPower < amount) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
                 var paid = PayPowerCost(pool, amount, new Dictionary<string, int>());
-                pool = new(pool.Mana, paid.AnyPower, paid.PowerByTrait);
+                pool = pool with { Power = paid.AnyPower, PowerByTrait = paid.PowerByTrait };
                 mana = amount;
             }
         }
@@ -147,7 +147,9 @@ public sealed partial class CoreRuleEngine
         var generatedTraits = pool.PowerByTrait.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         foreach (var (trait, amount) in traits) generatedTraits[trait] = generatedTraits.GetValueOrDefault(trait) + amount;
         var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        pools[intent.PlayerId] = new(pool.Mana + mana, pool.Power + power, generatedTraits);
+        pools[intent.PlayerId] = pool with { Mana = pool.Mana + mana, Power = pool.Power + power, PowerByTrait = generatedTraits };
+        if (!pools[intent.PlayerId].HasSupportedAmounts)
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         cards[command.SourceObjectId] = source with { IsExhausted = true };
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, RunePools = pools };
