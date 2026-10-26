@@ -11,3 +11,4 @@
 - 现有OptionalCosts线级首尾空白仍INVALID_PAYLOAD且不写journal，新selector预览也拒绝；保留旧内部其他费用trim行为。温重试可重返原响应事件但无新写入/扣款，冷重试无新事件；既有冷拒绝码还原为UNSUPPORTED_COMMAND仍单独OPEN。
 - 原件根`var/qa/payment-prs-20261024/play-power-spend-118/`，fixed-source-runtime-proof-v9.json SHA `cd6f2766a12222da5faed98cf64ffbfa38a8a3ff38a64f1b7cb4b3512122c707`。实际加载SHA/MVID/RIF均保留；native Info为7604+WIP，3042个编译输入精确等于c860源码，无身份或历史改写。
 - 实际新L2规则CI、main集成及其他费用窗口仍待；未新增SQL/API/网络/进程重启/完整对局矩阵，L3归根夜间固定main。净整卡认证增量0，完整Goal保持active。
+- 2026-10-26 同步最新发布源4b9972e7和父PR136 `9f4fec8c9e886aaf0921ca18d8c81c46953b835f`（含#173 main d1e1a9b1及SP6目录校准）。保留同一五个生产文件的原出牌费用分配增量，S5 `behavior.DamageAmount` 路径不回退；新测试的恢复投影逐字段复制真实TypedCommand，不补造raw。原72+529/601固定源结果仍归原c860，不改标当前组合源；当前本地验证与合并输入L2仍待，18个精确L3方法按当前清单保留夜间执行。统一磁盘清理期间暂不新增本机构建目录，源码和远端CI继续。
