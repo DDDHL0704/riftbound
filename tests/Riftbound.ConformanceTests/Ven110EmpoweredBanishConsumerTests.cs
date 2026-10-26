@@ -132,7 +132,153 @@ public sealed class Ven110EmpoweredBanishConsumerTests
         finally { await Save("empowered-banish-" + target, initial, game); }
     }
 
-    private static ActivateAbilityCommand Activate() => new("UNIT", "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]);
+    [Fact]
+    public async Task ReturningTheSourceBeforeEmpowerResolvesKeepsTheDiscardPaidWithoutEmpoweringTheNewGeneration()
+    {
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate());
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            Restore(initial, game); await game.Top();
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("return-before-empower", initial, game); }
+    }
+
+    [Fact]
+    public async Task AnEarnedBanishOutlivesItsSourceReturningWithoutRefundingTheDiscard()
+    {
+        var initial = Add(Add(Position(), "RETURN", "OGN·104/298"), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["SMALL"]));
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+            Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Single(game.State.StackItems); Restore(initial, game); await game.Top();
+            Assert.Contains("SMALL", game.State.PlayerZones["P2"].Banished); Assert.DoesNotContain("SMALL", game.State.PlayerZones["P2"].Graveyard);
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("earned-banish-source-return", initial, game); }
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnActuallyCopiedEmpowerOnlyEarnsBanishIfItsTextRemainsWhenTheHostBecomesEmpowered(bool detachBeforeEmpower)
+    {
+        var initial = Add(Add(Add(Add(ShadySpectaclesTests.Position(No), "FODDER", "SFD·122/221"), "DETACH", "SFD·011/221"),
+            "COPY-FIELD", "OGN·278/298", "P2", "BATTLEFIELD", "COPY-FIELD"), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "COPY-FIELD");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
+            var copy = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", copy.Request.Kind);
+            await game.Act("P1", new PayCostCommand(copy.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+            Assert.Equal(No, game.State.CardObjects["HOST"].CardNo); Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            var candidate = Assert.Single(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
+            var row = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]),
+                r => (string?)r["sourceObjectId"] == "HOST" && (string?)r["abilityId"] == "EMPOWER:0:0");
+            var instance = Assert.IsType<string>(row["abilityInstanceId"]);
+            await game.Act("P1", Activate("HOST") with { AbilityInstanceId = instance });
+            Assert.Equal("GEAR", Assert.Single(game.State.StackItems).EmpowerActivation!.Origin!.Equipment.ObjectId);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+            if (detachBeforeEmpower)
+            {
+                await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top();
+                Assert.Null(game.State.CardObjects["HOST"].AttachmentUnitCopies); Assert.NotEqual(No, game.State.CardObjects["HOST"].CardNo);
+            }
+            Restore(initial, game); await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+            if (detachBeforeEmpower)
+            { Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); Assert.DoesNotContain("SMALL", game.State.PlayerZones["P2"].Banished); }
+            else
+            {
+                var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+                Assert.Equal("HOST", choice.SourceObjectId); Assert.Equal(new[] { "SMALL" }, choice.LegalObjectIds);
+                await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["SMALL"])); Restore(initial, game);
+                await game.Top(); Assert.Contains("SMALL", game.State.PlayerZones["P2"].Banished);
+            }
+            await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("real-copy-text-at-empower-" + detachBeforeEmpower, initial, game); }
+    }
+
+    [Fact]
+    public async Task AnAlreadyEmpoweredSourceRejectsAnotherActualSpellPaymentWithoutDiscardingIt()
+    {
+        var initial = Add(Position(), "SPARE", "SFD·122/221"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            var command = Activate() with { OptionalCosts = ["DISCARD_HAND_CARD:SPARE"] };
+            var node = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
+            node["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; node["snapshotTick"] = game.State.Tick;
+            await game.ActRetained(new("P1", "repeat-ven110-payment", JsonSerializer.SerializeToElement(node, Json)), false);
+            Assert.Contains("SPARE", game.State.PlayerZones["P1"].Hand); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+            Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Empty(game.State.StackItems); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("already-empowered-rejects-second-payment", initial, game); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task CanonicalOpeningPaysANaturallyDrawnSpellAndColdRecoversTheIndependentEmpoweredBanish(string actor)
+    {
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "vex-spells", "UNL-R05",
+            [No, No, No, "SFD·122/221", "SFD·122/221", "SFD·122/221", "OGN·175/298", "OGN·175/298", "OGN·175/298"]);
+        var opponent = actor == "P1" ? "P2" : "P1";
+        try
+        {
+            for (var turn = 0; turn < 80; turn++)
+            {
+                if (game.State.TurnPlayerId == opponent && game.Runes(actor).Length >= 5 && game.Runes(opponent).Length >= 5
+                    && game.Hand(actor, No).Any() && game.Hand(actor, "SFD·122/221").Any() && game.Hand(opponent, "OGN·175/298").Any()) break;
+                await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            }
+            Assert.Equal(opponent, game.State.TurnPlayerId); var target = game.Hand(opponent, "OGN·175/298").First();
+            await game.Tap(opponent); await game.Act(opponent, new PlayCardCommand(target, "OGN·175/298", []));
+            await game.Act(opponent, new EndTurnCommand()); await game.Act(actor, new EndTurnCommand());
+            var field = Assert.Single(game.State.PlayerZones[opponent].Battlefields, id => game.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
+            await game.Act(opponent, new MoveUnitCommand(target, "BASE", "BATTLEFIELD:" + field, []));
+            for (var action = 0; action < 12 && game.State.TimingState != TimingStates.NeutralOpen; action++)
+            {
+                if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+                else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
+                else Assert.Fail("The actual uncontested move did not expose a normal response step.");
+            }
+            Assert.Equal(TimingStates.NeutralOpen, game.State.TimingState); Assert.Equal(3, game.Might(opponent, target));
+            await game.Act(opponent, new EndTurnCommand()); await game.Tap(actor);
+            var unit = game.Hand(actor, No).First(); var spell = game.Hand(actor, "SFD·122/221").First();
+            var beforeMana = game.State.RunePools[actor].Mana; await game.Act(actor, new PlayCardCommand(unit, No, []));
+            Assert.Equal(beforeMana - 5, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            var before = game.State; await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:" + spell]));
+            Assert.Contains(spell, game.State.PlayerZones[actor].Graveyard); Assert.False(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+            var refund = game.State with {
+                CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) { [spell] = before.CardObjects[spell] },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(game.State.ObjectLocations) { [spell] = before.ObjectLocations[spell] },
+                PlayerZones = new Dictionary<string, PlayerZones>(game.State.PlayerZones) { [actor] = game.State.PlayerZones[actor] with {
+                    Hand = before.PlayerZones[actor].Hand, Graveyard = before.PlayerZones[actor].Graveyard } } };
+            await game.RejectCoordinatedForgery("refunded-required-hand-spell", refund);
+            await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice); Assert.Contains(target, choice.LegalObjectIds);
+            await game.Act(actor, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target])); await game.ColdCheckpoint();
+            Assert.DoesNotContain(target, game.State.PlayerZones[opponent].Banished); await game.Top();
+            Assert.Contains(target, game.State.PlayerZones[opponent].Banished); Assert.DoesNotContain(target, game.State.PlayerZones[opponent].Graveyard);
+            Assert.Equal(beforeMana - 5, game.State.RunePools[actor].Mana); Assert.True(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven110-" + actor); }
+    }
+
+    private static ActivateAbilityCommand Activate(string source = "UNIT") => new(source, "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]);
     private static MatchState Position(string spell = "VEN·049") => Add(VenUnitEntryBasicTests.Position(No), "FODDER", spell);
     private static MatchState Add(MatchState state, string id, string no, string owner = "P1", string zone = "HAND", string? field = null) => state with {
         CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner) },
