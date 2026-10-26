@@ -11,14 +11,14 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CompleteRuleChoiceResourceEffects(MatchState context, ResolutionResult result)
     {
-        if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath"))) return result;
+        if (!result.Events.Any(e => e.Payload.ContainsKey("capturedUnitDeath") || e.Kind == CapturedHandDiscardEvent)) return result;
         var frame = RuleChoices.Value!; var completionTick = frame.CompletionTick;
         try
         {
             // Resource deaths settle at their own confirmed answer, including
             // when the containing command is replayed by a later answer.
             frame.CompletionTick = frame.AnswerTick;
-            var completed = RecordDeathObservers(context, result);
+            var completed = RecordHandDiscardObservers(RecordDeathObservers(context, result));
             completed = StampNewTriggerQueueTimes(context, completed with {
                 State = completed.State with { Tick = frame.AnswerTick } });
             frame.ResourceDeathLedger = completed.State.DeathLedger;
