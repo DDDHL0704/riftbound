@@ -176,10 +176,12 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     public async Task AnActuallyCopiedEmpowerOnlyEarnsBanishIfItsTextRemainsWhenTheHostBecomesEmpowered(bool detachBeforeEmpower)
     {
         var initial = Add(Add(Add(ShadySpectaclesTests.Position(No), "FODDER", "SFD·122/221"), "DETACH", "SFD·011/221"),
-            "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER");
+            "SMALL", "OGN·096/298", "P2", "BATTLEFIELD", "OTHER");
         var game = new Driver(initial);
         try
         {
+            var targetView = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(game.State)["P2"], Json);
+            Assert.Equal(2, targetView.GetProperty("players").GetProperty("P2").GetProperty("objects").GetProperty("SMALL").GetProperty("effectivePower").GetInt32());
             await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
             var copy = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", copy.Request.Kind);
             await game.Act("P1", new PayCostCommand(copy.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
