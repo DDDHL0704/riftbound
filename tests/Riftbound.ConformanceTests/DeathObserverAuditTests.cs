@@ -62,6 +62,8 @@ public sealed class DeathObserverAuditTests
         Assert.Equal(new[]{"D","RESOURCE"},done.State.TriggerQueue.Where(t=>t.SourceObjectId=="VIKTOR")
             .Select(t=>t.DeathObserver!.Destroyed.ObjectId).Order(StringComparer.Ordinal));
         Assert.Equal(2,generated.Events.Concat(done.Events).Count(e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR"));
+        Assert.Equal(new long?[]{generated.State.Tick,generated.State.Tick,done.State.Tick,done.State.Tick},
+            done.State.TriggerQueue.Select(t=>t.EnqueuedAtTick));
         var errors=OfficialInsightAndSpellLockTests.Errors(done.State);
         Assert.True(errors.Count==0,string.Join("; ",errors)); Restore(done.State);
     }
