@@ -829,8 +829,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal(["P1", "P2"], StringList(nextSpellDuel.Payload["participantControllerIds"]));
         Assert.Equal(["P1-OTHER-BATTLEFIELD-UNIT", "P2-OTHER-BATTLEFIELD-UNIT"], StringList(nextSpellDuel.Payload["participantObjectIds"]));
 
-        Assert.True(battleClosedIndex < controlIndex);
-        Assert.True(controlIndex < nextContestIndex);
+        Assert.True(controlIndex < battleClosedIndex);
+        Assert.True(battleClosedIndex < nextContestIndex);
         Assert.True(nextContestIndex < nextSpellDuelIndex);
     }
 

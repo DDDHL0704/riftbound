@@ -12,9 +12,15 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorCn16Catalog = "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d";
     private const string PriorBoneErratumCatalog = "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29";
     private const string PriorVoidErratumCatalog = "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397";
+    private const string PriorVenFlowCatalog = "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83";
+    private const string Prior1074Catalog = "8895025aa5cfd18025936f4c87b9a8d16d49341ff4d40f0c7b0fa1bca3a2cd66";
+    private const string Prior1076Catalog = "5823aaf65ba61aa54706647fb89a4c653fc7a4ecd81cd09c921b3fedebaa1604";
+    private const string PriorSp6OnlyCatalog = "eedd99268d0e6f5faa7ffbfeed570ef29a409ca34980e0627400b296c59d6988";
+    private const string PriorPaymentPreparationCatalog = "7b565edb12e8f9d0859dd0b6dbdf2ff789c5f2fcc777eeae6c3376bbb3bb2f5a";
+    private const string PriorCombatPreparationCatalog = "9124a2230da873a127240687f4a5c8c27b978ceb6e81fe447e59e6b321de64b9";
 
     [Fact]
-    public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
+    public async Task ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
     {
         var path = Path.Combine(Path.GetDirectoryName(OfficialCardCatalog.DefaultCatalogPath())!, "rule-input-scope.json");
         using var document = JsonDocument.Parse(File.ReadAllText(path)); var scope = document.RootElement;
@@ -36,9 +42,19 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Retain all prior 1054 exact rows, add eighteen rune reprints and VEN051/VEN105,
-        // and apply only the reviewed exact SFD003 erratum. These totals do not certify cards.
-        Assert.Equal("8895025aa5cfd18025936f4c87b9a8d16d49341ff4d40f0c7b0fa1bca3a2cd66", RuleInputIdentity.Current.CatalogSha256);
+        // Retain all 1077 complete catalog rows, including CN37921 / VEN SP6,
+        // together with the independently checked Guardian Angel replacement profile.
+        // Registration and input identity do not certify all card semantics.
+        Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All, a => a.ReplacesHostDestruction).CardNo);
+        var guardian = Assert.IsType<OfficialArmamentDefinition>(OfficialArmamentCatalog.Find("SFD·051/221"));
+        Assert.Equal(1, guardian.BaseMightBonus);
+        Assert.False(guardian.CopiesHostPrintedRulesText);
+        Assert.False(guardian.CopiesChosenFriendlyUnit);
+        Assert.Equal("db1bd394788127ba21b219ec475800fcb996f8098305081bcbe96019aaab0ede", RuleInputIdentity.Current.CatalogSha256);
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        Assert.Equal(1077, catalog.Cards.Count);
+        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181" })
+            Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
     }
 
     [Fact]
@@ -62,7 +78,11 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
+            PriorVenFlowCatalog, Prior1074Catalog, Prior1076Catalog, PriorSp6OnlyCatalog,
+            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog,
+            "6b15cda26c2f69587c9c14331a5fa30d48fd607188b237be47bb3351db734524",
+            "88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc" })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);

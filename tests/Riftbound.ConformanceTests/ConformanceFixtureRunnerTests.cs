@@ -4602,13 +4602,26 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 2), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(0, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         Assert.Empty(result.State.StackItems);
+        // CN204.3.a: unavailable quantities are rejected at the actual instruction,
+        // rather than preventing the spell's otherwise affordable declaration.
+        var played = await new CoreRuleEngine().ResolveAsync(state,
+            new("bullet-time-declare-before-instruction", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field]), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(played.State);
+        var unavailable = await InstructionPowerPaymentTimingTests.Pay(payment, "SPEND_POWER:3");
+        Assert.False(unavailable.Accepted);
+        Assert.Empty(unavailable.Events);
+        Assert.Equal(MatchStateHasher.Hash(payment), MatchStateHasher.Hash(unavailable.State));
+        Assert.Equal(2, unavailable.State.RunePools["P1"].TotalPower);
+        Assert.Equal(0, unavailable.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
     }
 
     [Fact]
@@ -4646,22 +4659,22 @@ public sealed class ConformanceFixtureRunnerTests
         };
         state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-red-power", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: ["SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: ["SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(0, result.State.RunePools["P1"].Power);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(2, costEvent.Payload["power"]);
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
@@ -4669,7 +4682,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void P7PlayCardPromptOffersSpendPowerAmountsByAvailableTraitPower()
+    public async Task P7PlayCardPromptOffersSpendPowerAmountsByAvailableTraitPower()
     {
         var state = PunishmentState(mana: 1) with
         {
@@ -4718,12 +4731,21 @@ public sealed class ConformanceFixtureRunnerTests
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
 
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
-        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:3", StringComparison.Ordinal));
-        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:3", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
+        var played = await new CoreRuleEngine().ResolveAsync(state,
+            new("p7-trait-amount-current-play", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field]), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(played.State);
+        // Retain the historical method and original amount/trait boundaries;
+        // CN204.3.a exposes these choices at the resolving instruction.
+        var amounts = payment.PendingRuleChoice!.Request.Options;
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:3", StringComparison.Ordinal));
+        Assert.DoesNotContain(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:3", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -4771,12 +4793,21 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(3, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
         Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
+        var opened = await InstructionPaymentOriginalP7Assertions.Open(state,
+            new("p7-missing-trait-current-timing", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field], OptionalCosts: ["SPEND_POWER:red:2"]));
+        Assert.DoesNotContain(opened.Window.PendingRuleChoice!.Request.Options, o => o.Id == "SPEND_POWER:red:2");
+        var rejected = await InstructionPowerPaymentTimingTests.Pay(opened.Window, "SPEND_POWER:red:2");
+        Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(opened.Window), MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(3, rejected.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal(0, rejected.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
     }
 
     [Fact]
@@ -4844,22 +4875,21 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["optionalCostChoices"]);
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["paymentResourceChoices"]);
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
@@ -4868,13 +4898,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(1, Assert.Single(result.State.StackItems).DamageAmount);
-        var recycledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal(1, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var recycledEvent = Assert.Single(observed.Declaration.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("PLAY_CARD", recycledEvent.Payload["paymentWindow"]);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -4947,21 +4978,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, dirtyPaymentResourceAction, StringComparison.Ordinal));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-legacy-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal([dirtyRuneObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-LEGACY", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
-        Assert.Equal(1, Assert.Single(result.State.StackItems).DamageAmount);
-        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var costEvent = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
     }
@@ -5038,7 +5069,7 @@ public sealed class ConformanceFixtureRunnerTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
@@ -5052,25 +5083,26 @@ public sealed class ConformanceFixtureRunnerTests
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(2, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-partial-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5170,26 +5202,37 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
         Assert.Equal([redRuneObjectId, blueRuneObjectId], rejected.State.PlayerZones["P1"].Base);
         Assert.Equal(1, rejected.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
         Assert.Empty(rejected.Events);
+        var opened = await InstructionPaymentOriginalP7Assertions.Open(state,
+            new("p7-mismatched-trait-current-timing", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field],
+                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:red:2"]));
+        Assert.DoesNotContain(opened.Window.PendingRuleChoice!.Request.Options, o => o.Id == "SPEND_POWER:red:2");
+        var unpaid = await InstructionPowerPaymentTimingTests.Pay(opened.Window, "SPEND_POWER:red:2");
+        Assert.False(unpaid.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, unpaid.ErrorCode); Assert.Empty(unpaid.Events);
+        Assert.Equal(MatchStateHasher.Hash(opened.Window), MatchStateHasher.Hash(unpaid.State));
+        Assert.Equal(1, unpaid.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, unpaid.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Contains(blueRuneObjectId, unpaid.State.PlayerZones["P1"].RuneDeck);
 
-        var accepted = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-matching-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var accepted = observed.Final;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.DoesNotContain(redRuneObjectId, accepted.State.PlayerZones["P1"].Base);
         Assert.Contains(blueRuneObjectId, accepted.State.PlayerZones["P1"].Base);
-        Assert.Equal(2, Assert.Single(accepted.State.StackItems).DamageAmount);
-        var costEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(2, accepted.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var costEvent = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal([redPaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
     }
 
@@ -5276,7 +5319,7 @@ public sealed class ConformanceFixtureRunnerTests
                 sourceRequirement["optionalCostChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Contains("SPEND_POWER:2", optionalCostChoices);
+        Assert.DoesNotContain(optionalCostChoices, id => id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(redPaymentResourceAction, optionalCostChoices);
         Assert.Contains(bluePaymentResourceAction, optionalCostChoices);
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePower"]));
@@ -5286,15 +5329,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Blue]);
 
-        var accepted = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-generic-mixed-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:2"]),
-            CancellationToken.None);
+                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:2"]));
+        var accepted = observed.Final;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Contains(redRuneObjectId, accepted.State.PlayerZones["P1"].Base);
@@ -5302,11 +5345,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-RUNE-BOTTOM-001", blueRuneObjectId], accepted.State.PlayerZones["P1"].RuneDeck);
         Assert.False(accepted.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
         Assert.False(accepted.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Blue));
-        Assert.Equal(2, Assert.Single(accepted.State.StackItems).DamageAmount);
+        Assert.Equal(2, accepted.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([bluePaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([blueRuneObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([bluePaymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([blueRuneObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5391,28 +5435,29 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-double-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
-        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)));
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        Assert.Equal(2, observed.Declaration.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)));
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal(
             [firstPaymentResourceAction, secondPaymentResourceAction],
-            Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+            Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5502,15 +5547,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[secondPaymentResourceAction]["trait"]));
         Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[secondPaymentResourceAction]["power"]));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-over-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         // Retain the historical method identity and original failure. CN 164.2.b,
         // 166-167, 357.1.a and 430 allow acquiring more power than the actual cost.
@@ -5520,11 +5565,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var paid = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(2, paid.Payload["totalPowerCost"]);
-        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], observed.Declaration.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
             .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])));
     }
 
@@ -37607,17 +37653,22 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79BattlefieldDefenderSteadfastTwoChoosesDefender()
     {
         var state = BattlefieldDefenderSteadfastState();
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-battlefield-defender-steadfast", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "P2-BATTLEFIELD-FORTIFIED-POSITION",
-                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
-                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"],
-                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"]),
-            CancellationToken.None);
+        var result = await OfficialInsightAndSpellLockTests.Act(state, "P1",
+            new MoveUnitCommand("P1-BATTLEFIELD-FORTIFIED-ATTACKER", "BASE", "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION", []));
+        result = await StandbyDefendTeemoTests.ConfirmAndResolveDefend(result, "P2-BATTLEFIELD-FORTIFIED-DEFENDER");
+        var defendingView = JsonSerializer.SerializeToElement(result.Snapshots["P2"], new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.Equal(4, defendingView.GetProperty("players").GetProperty("P2").GetProperty("objects")
+            .GetProperty("P2-BATTLEFIELD-FORTIFIED-DEFENDER").GetProperty("effectivePower").GetInt32());
+        var events = result.Events.ToList();
+        for (var pass = 0; result.State.FocusPlayerId is not null; pass++) {
+            Assert.InRange(pass, 0, 3);
+            result = await OfficialInsightAndSpellLockTests.Act(result.State, result.State.FocusPlayerId, new PassFocusCommand());
+            events.AddRange(result.Events);
+        }
+        result = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new DeclareBattleCommand(
+            "P2-BATTLEFIELD-FORTIFIED-POSITION", ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+            ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        events.AddRange(result.Events); result = result with { Events = events };
 
         Assert.True(result.Accepted);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
@@ -37637,9 +37688,22 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
+        var attackerDamageEvent = Assert.Single(result.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("combatRole"), "ATTACKER"));
+        Assert.Equal("P1-BATTLEFIELD-FORTIFIED-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-FORTIFIED-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
         Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal(["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", "GRAVEYARD");
+        // Defending Might is 2 + Steadfast2 = 4, so the attacker's original 3 damage is nonlethal.
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains("P2-BATTLEFIELD-FORTIFIED-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+            result.State.ObjectLocations["P2-BATTLEFIELD-FORTIFIED-DEFENDER"]);
+        Assert.Equal(2, result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].Power);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].Damage);
+        Assert.DoesNotContain(result.State.CardObjects["P2-BATTLEFIELD-FORTIFIED-DEFENDER"].UntilEndOfTurnEffects,
+            e => e.StartsWith("COMBAT_KEYWORD:坚守2:", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -57934,6 +57998,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-premodel", "P1", "DECLARE_BATTLE"),
@@ -58002,13 +58068,43 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
+            },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conquestEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conquestEvent.Kind);
+                Assert.Equal("P1", conquestEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conquestEvent.Payload["battlefieldId"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
             });
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
@@ -58016,6 +58112,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -58054,6 +58152,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -58078,7 +58177,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
         var noResultEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
-        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", noResultEvent.Payload["reason"]);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", noResultEvent.Payload["reason"]);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
         var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
@@ -58091,7 +58190,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", recalledEvent.Payload["reason"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].Damage);
@@ -58100,9 +58199,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
         Assert.Empty(result.State.StackItems);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P2", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal("NO_RESULT", battleResolution.Kind);
-        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", battleResolution.Reason);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", battleResolution.Reason);
         Assert.Contains("DAMAGE_REMOVED", battleResolution.RelatedEventKinds);
         Assert.Contains("UNIT_RECALLED_TO_BASE", battleResolution.RelatedEventKinds);
         var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
@@ -58453,6 +58554,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-hunt-conquest-experience", "P1", "DECLARE_BATTLE"),
@@ -58510,24 +58613,6 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("GRAVEYARD", destroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
             },
-            conqueredEvent =>
-            {
-                Assert.Equal("BATTLEFIELD_CONQUERED", conqueredEvent.Kind);
-                Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
-                Assert.Equal("BATTLEFIELD:P1-MAIN", conqueredEvent.Payload["battlefieldId"]);
-                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", conqueredEvent.Payload["sourceObjectId"]);
-                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(conqueredEvent.Payload["defeatedObjectIds"]));
-                Assert.Equal(3, conqueredEvent.Payload["huntAmount"]);
-            },
-            experienceEvent =>
-            {
-                Assert.Equal("EXPERIENCE_GAINED", experienceEvent.Kind);
-                Assert.Equal("P1", experienceEvent.Payload["playerId"]);
-                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", experienceEvent.Payload["sourceObjectId"]);
-                Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
-                Assert.Equal(3, experienceEvent.Payload["amount"]);
-                Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
-            },
             damageRemovedEvent =>
             {
                 Assert.Equal("DAMAGE_REMOVED", damageRemovedEvent.Kind);
@@ -58539,6 +58624,48 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
+            },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conqueredEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conqueredEvent.Kind);
+                Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conqueredEvent.Payload["battlefieldId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", conqueredEvent.Payload["sourceObjectId"]);
+                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(conqueredEvent.Payload["defeatedObjectIds"]));
+                Assert.Equal(3, conqueredEvent.Payload["huntAmount"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
+            experienceEvent =>
+            {
+                Assert.Equal("EXPERIENCE_GAINED", experienceEvent.Kind);
+                Assert.Equal("P1", experienceEvent.Payload["playerId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", experienceEvent.Payload["sourceObjectId"]);
+                Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
+                Assert.Equal(3, experienceEvent.Payload["amount"]);
+                Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -58546,7 +58673,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(3, result.State.PlayerExperience["P1"]);
         Assert.Equal(0, result.State.PlayerExperience["P2"]);
-        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
@@ -58554,6 +58681,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -58645,6 +58774,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-bulwark-back-row", "P1", "DECLARE_BATTLE"),
@@ -58655,10 +58786,16 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-MUTANT-KITTEN", 3),
+                new("P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-LEBLANC", 7)],
+            [new("P2-BATTLEFIELD-MUTANT-KITTEN", "P1-BATTLEFIELD-VOLIBEAR", 3),
+                new("P2-BATTLEFIELD-LEBLANC", "P1-BATTLEFIELD-VOLIBEAR", 4)]);
+
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         Assert.Collection(
-            result.Events,
+            result.Events.Where(e => e.Kind is not ("BATTLE_DAMAGE_ASSIGNMENT_OPENED"
+                or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED" or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED")),
             battleEvent =>
             {
                 Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
@@ -58749,6 +58886,36 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(7, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
+            cleanupEvent =>
+            {
+                Assert.Equal("BATTLE_CLEANUP_COMPLETED", cleanupEvent.Kind);
+                var cleanup = Assert.IsType<BattleResultContinuation>(cleanupEvent.Payload["continuation"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", cleanup.BattlefieldId);
+                Assert.Equal("CLEANUP_TRIGGERS", cleanup.Stage);
+                Assert.Null(cleanup.WinnerPlayerId); Assert.False(cleanup.AttackerRecalledByBattleCleanup);
+            },
+            resultEvent =>
+            {
+                Assert.Equal("BATTLE_RESULT_DETERMINED", resultEvent.Kind);
+                Assert.Equal("P1", Assert.IsType<BattleResultContinuation>(resultEvent.Payload["continuation"]).WinnerPlayerId);
+            },
+            controlEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONTROL_RESOLVED", controlEvent.Kind);
+                Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+                Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+            },
+            conquestEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conquestEvent.Kind);
+                Assert.Equal("P1", conquestEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conquestEvent.Payload["battlefieldId"]);
+            },
+            scoreEvent =>
+            {
+                Assert.Equal("SCORE_GAINED", scoreEvent.Kind);
+                Assert.Equal("P1", scoreEvent.Payload["playerId"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -58760,9 +58927,13 @@ public sealed class ConformanceFixtureRunnerTests
                     ["P1-BATTLEFIELD-VOLIBEAR"],
                     Assert.IsType<string[]>(closedEvent.Payload["clearedObjectIds"]));
             });
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["BATTLE_DAMAGE_ASSIGNMENT_OPENED", "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "BATTLE_DAMAGE_STEP_STARTED", "COMBAT_DAMAGE_ASSIGNED"], result.Events
+            .Where(e => e.Kind is "BATTLE_DAMAGE_ASSIGNMENT_OPENED" or "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED"
+                or "BATTLE_DAMAGE_STEP_STARTED" or "COMBAT_DAMAGE_ASSIGNED").Select(e => e.Kind));
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
@@ -58771,6 +58942,8 @@ public sealed class ConformanceFixtureRunnerTests
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-LEBLANC", "GRAVEYARD");
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-MUTANT-KITTEN", "GRAVEYARD");
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -58901,6 +59074,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-036/219")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -58911,6 +59085,9 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER", 5), new("P1-BATTLEFIELD-YI", "P2-BATTLEFIELD-DEFENDER", 2)],
+            [new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-GAREN", 5), new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-YI", 1)]);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -58941,8 +59118,8 @@ public sealed class ConformanceFixtureRunnerTests
             && Equals(gameEvent.Payload["damage"], 1));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.State.Tick);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -58951,6 +59128,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
         Assert.Equal("CLOSED", battleResolution.Kind);
@@ -59018,6 +59197,8 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        state = P4PhysicalBattlefieldState(state);
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-declare-battle-second-hunter", "P1", "DECLARE_BATTLE"),
@@ -59027,6 +59208,10 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-VANGUARD", "P2-BATTLEFIELD-DEFENDER", 1),
+                new("P1-BATTLEFIELD-HUNTER", "P2-BATTLEFIELD-DEFENDER", 2)],
+            [new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-VANGUARD", 1)]);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -59044,7 +59229,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, experienceEvent.Payload["totalExperience"]);
 
         Assert.Equal(2, result.State.PlayerExperience["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-VANGUARD"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -59052,6 +59237,8 @@ public sealed class ConformanceFixtureRunnerTests
         CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P2-BATTLEFIELD-DEFENDER", "GRAVEYARD");
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-HUNTER"].IsAttacking);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -59095,6 +59282,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-036/219")
             }
         };
+        state = P4PhysicalBattlefieldState(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -59105,6 +59293,11 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+
+        result = await P4FinishBattleAssignments(result, [new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-BULWARK", 4), new("P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER", 2),
+                new("P1-BATTLEFIELD-YI", "P2-BATTLEFIELD-DEFENDER", 3)],
+            [new("P2-BATTLEFIELD-BULWARK", "P1-BATTLEFIELD-GAREN", 4), new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-GAREN", 2),
+                new("P2-BATTLEFIELD-DEFENDER", "P1-BATTLEFIELD-YI", 1)]);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -59163,8 +59356,8 @@ public sealed class ConformanceFixtureRunnerTests
             && Equals(gameEvent.Payload["damage"], 1));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Equal(1, result.State.Tick);
-        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.State.Tick);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
@@ -59174,6 +59367,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains("BATTLEFIELD:P1-MAIN", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1", result.State.CardObjects["BATTLEFIELD:P1-MAIN"].ControllerId);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
         Assert.Equal("CLOSED", battleResolution.Kind);
@@ -60620,7 +60815,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
@@ -60642,9 +60837,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
@@ -60669,7 +60864,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
         Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
-        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields.Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
@@ -61717,6 +61912,43 @@ public sealed class ConformanceFixtureRunnerTests
         }
     }
 
+    private static async Task<ResolutionResult> P4FinishBattleAssignments(ResolutionResult result,
+        IReadOnlyList<CombatDamageAssignmentDto> attackers, IReadOnlyList<CombatDamageAssignmentDto> defenders)
+    {
+        var events = result.Events.ToList();
+        foreach (var (player, assignments) in new[] { ("P1", attackers), ("P2", defenders) })
+        {
+            var battle = result.State.BattleState;
+            result = await new CoreRuleEngine().ResolveAsync(result.State,
+                new($"p4-assign-{player}", player, CommandTypes.AssignCombatDamage),
+                new AssignCombatDamageCommand(battle.BattleId!, battle.BattlefieldObjectId!, assignments), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            events.AddRange(result.Events);
+        }
+        return result with { Events = events };
+    }
+
+    // Current midgame initial data, prepared before the tested command/journal.
+    private static MatchState P4PhysicalBattlefieldState(MatchState state)
+    {
+        const string field = "BATTLEFIELD:P1-MAIN";
+        var cards = state.CardObjects.ToDictionary();
+        var zones = state.PlayerZones.ToDictionary();
+        var locations = new Dictionary<string, ObjectLocationState> { [field] = new("P1", "BATTLEFIELD", field) };
+        cards[field] = new(field, cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+            ownerId: "P1", controllerId: "P2");
+        foreach (var (player, playerZones) in state.PlayerZones)
+            foreach (var id in playerZones.Battlefields)
+            {
+                Assert.Contains(CardObjectTags.UnitCard, cards[id].Tags);
+                cards[id] = cards[id] with { OwnerId = player, ControllerId = player };
+                locations[id] = new(player, "BATTLEFIELD", field);
+            }
+        zones["P1"] = zones["P1"] with { Battlefields = [field, ..zones["P1"].Battlefields] };
+        return state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
+            UntilEndOfTurnEffects = [..state.UntilEndOfTurnEffects, BattlefieldTaskMarkers.SpellDuelCompleted(field)] };
+    }
+
     private static MatchState PunishmentState(int mana)
     {
         return new MatchState(
@@ -62419,6 +62651,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-SHIRANA-MONASTERY")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62466,6 +62705,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-HUNTING-GROUNDS")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new("P1", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62507,6 +62753,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SCRAPYARD")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62526,7 +62779,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62549,6 +62802,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ZAUN-SUMP")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62569,7 +62829,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·298/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62596,6 +62856,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THUNDER-RUNE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62616,7 +62883,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·287/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62744,13 +63011,17 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"]
+                    Base = ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
                     Battlefields = ["P2-BATTLEFIELD-FORTIFIED-POSITION", "P2-BATTLEFIELD-FORTIFIED-DEFENDER"]
                 }
             },
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new("P1", "BASE"),
+                ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION") },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
@@ -62822,6 +63093,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-LEGEND-HALL")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62841,7 +63119,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·210/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62871,6 +63149,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOUNT-TARGON")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62892,7 +63177,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·289/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -62931,6 +63216,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THRONE-OF-POWER")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -62961,7 +63253,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·217/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-OTHER-001"] = new(
                     "P1-BATTLEFIELD-OTHER-001",
                     cardNo: "OGN·280/298",
@@ -63033,7 +63325,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63095,7 +63387,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-WEAK-ATTACKER"] = new(
                     "P1-BATTLEFIELD-WEAK-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63133,6 +63425,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63151,7 +63450,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·220/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63174,6 +63473,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: mana) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-EMPEROR-SHRINE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63192,7 +63498,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -63215,6 +63521,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOONVEIL-ALTAR")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -63234,7 +63547,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -66642,6 +66955,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-CANDLELIT-SANCTUM")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -66666,7 +66986,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "OGN·291/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
                     cardNo: "SFD·125/221",

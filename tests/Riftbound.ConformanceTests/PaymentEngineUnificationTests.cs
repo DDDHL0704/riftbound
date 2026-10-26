@@ -160,7 +160,7 @@ public sealed class PaymentEngineUnificationTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
         Assert.Equal([redRuneObjectId, blueRuneObjectId], result.State.PlayerZones["P1"].Base);
@@ -168,6 +168,41 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
         Assert.DoesNotContain(RuneTrait.Blue, result.State.RunePools["P1"].PowerByTrait.Keys);
         Assert.Empty(result.State.StackItems);
+        var declared = await new CoreRuleEngine().ResolveAsync(state,
+            new("instruction-before-resource-rollback", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field]), default);
+        Assert.True(declared.Accepted, declared.ErrorMessage);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(declared.State);
+        var generated = await InstructionPowerPaymentTimingTests.Pay(payment, bluePaymentResourceAction);
+        Assert.True(generated.Accepted, generated.ErrorMessage);
+        var preview = generated.State.PendingRuleChoice!.Request.Preview!;
+        Assert.Equal(1, preview.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, preview.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal(1, generated.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, generated.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal([redRuneObjectId], generated.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", blueRuneObjectId], generated.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", generated.State.ObjectLocations[blueRuneObjectId].Zone);
+        Assert.Contains(blueRuneObjectId, generated.State.PendingRuleChoice.Origin.PlayerZones["P1"].Base);
+        Assert.Single(generated.Events, e => e.Kind == "RUNE_RECYCLED");
+        Assert.DoesNotContain(generated.Events, e => e.Kind == "COST_PAID"
+            && Equals(e.Payload.GetValueOrDefault("paymentWindow"), "INSTRUCTION_POWER_PAYMENT"));
+        var wrongTrait = await InstructionPowerPaymentTimingTests.Pay(generated.State, "SPEND_POWER:red:2");
+        Assert.False(wrongTrait.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, wrongTrait.ErrorCode);
+        Assert.Empty(wrongTrait.Events);
+        Assert.Equal(MatchStateHasher.Hash(generated.State), MatchStateHasher.Hash(wrongTrait.State));
+        Assert.DoesNotContain(blueRuneObjectId, wrongTrait.State.PlayerZones["P1"].Base);
+        Assert.Contains(blueRuneObjectId, wrongTrait.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, wrongTrait.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var completed = await InstructionPowerPaymentTimingTests.Pay(wrongTrait.State, "SPEND_POWER:0");
+        Assert.True(completed.Accepted, completed.ErrorMessage);
+        Assert.Null(completed.State.PendingRuleChoice);
+        Assert.Equal(1, completed.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, completed.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Contains(blueRuneObjectId, completed.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(completed.Events, e => e.Kind == "RUNE_RECYCLED");
+        Assert.Single(generated.Events.Concat(wrongTrait.Events).Concat(completed.Events), e => e.Kind == "RUNE_RECYCLED");
     }
 
     [Fact]
@@ -190,23 +225,31 @@ public sealed class PaymentEngineUnificationTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [SelectedBattlefieldFixture.Field],
-                OptionalCosts: ["SPEND_POWER:red:2"]),
+                [SelectedBattlefieldFixture.Field]),
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        var playCost = Assert.Single(result.Events, e => e.Kind == "COST_PAID");
+        Assert.Equal("PLAY_CARD", playCost.Payload["paymentWindow"]);
+        Assert.Equal(1, playCost.Payload["baseManaCost"]);
+        Assert.Equal(1, playCost.Payload["totalManaCost"]);
+        Assert.Equal(0, playCost.Payload["totalPowerCost"]);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(result.State);
+        result = await InstructionPowerPaymentTimingTests.Pay(payment, "SPEND_POWER:red:2");
+        Assert.True(result.Accepted, result.ErrorMessage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.StartsWith("PLAY_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
-        Assert.Equal("PLAY_CARD", costEvent.Payload["paymentWindow"]);
+        Assert.StartsWith("INSTRUCTION_POWER_PAYMENT:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
+        Assert.Equal("INSTRUCTION_POWER_PAYMENT", costEvent.Payload["paymentWindow"]);
         Assert.Equal("P1", costEvent.Payload["playerId"]);
         Assert.Equal("P1-SPELL-BULLET-TIME", costEvent.Payload["sourceObjectId"]);
         Assert.Equal("BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT", costEvent.Payload["reason"]);
-        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
-        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(0, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
         Assert.Equal(0, costEvent.Payload["genericPower"]);
         Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costEvent.Payload["experienceCost"]);
-        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[RuneTrait.Red]);

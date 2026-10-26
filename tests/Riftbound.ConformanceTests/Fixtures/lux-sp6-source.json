@@ -1,0 +1,58 @@
+{
+  "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-26T01:11:21.707104+00:00",
+  "language": "zh-CN",
+  "region": "CN",
+  "sourceRecordSha256": "e64f3e7ab9b7055e32f6f40416491e88b70eda8fdacc0a5285d13cdf4e1fb8a2",
+  "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "rawApiCard": {
+    "id": 37921,
+    "cardCategoryList": [
+      "hero_unit"
+    ],
+    "cardCategoryNameList": [
+      "英雄单位"
+    ],
+    "cardNo": "VEN·SP6",
+    "cardName": "拉克丝",
+    "subTitle": "冕卫之光",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "yellow"
+    ],
+    "hero": "拉克丝",
+    "region": "德玛西亚",
+    "tag": "",
+    "artist": "Wild Rift Splash Team",
+    "cardEffect": "{{横置}}：{{反应}} — {{获得}}{{2}}。此法力仅能用于打出法术。",
+    "flavorText": "",
+    "energy": 4,
+    "returnEnergy": null,
+    "power": 2,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_legend",
+    "rarityName": "异画",
+    "extendRarity": "legacy_etching",
+    "extendRarityName": "异画",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/cb5e58f9c9ea482c942fab399cbf95e1.png",
+    "backImage": "",
+    "listSort": 1765,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  }
+}

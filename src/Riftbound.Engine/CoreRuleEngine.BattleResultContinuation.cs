@@ -13,16 +13,24 @@ public sealed record BattleResultContinuation(string BattlefieldId, string Attac
     IReadOnlyList<string> AttackerObjectIds, IReadOnlyList<string> DefenderObjectIds,
     IReadOnlyList<string> SurvivingAttackerObjectIds, IReadOnlyList<string> SurvivingDefenderObjectIds,
     IReadOnlyList<string> DestroyedObjectIds, IReadOnlyList<string> RelatedEventKinds,
-    IReadOnlyList<ObjectBinding> PublicObjectBindings, int AssignedOverkillDamage, string Stage);
+    IReadOnlyList<ObjectBinding> PublicObjectBindings, int AssignedOverkillDamage, string Stage)
+{
+    [JsonRequired]
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public bool AttackerRecalledByBattleCleanup { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
-    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result)
+    internal const string CleanupRecallNoResultReason = "BATTLE_CLEANUP_ATTACKER_RECALL";
+
+    private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
+            result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
@@ -43,7 +51,7 @@ public sealed partial class CoreRuleEngine
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected);
+            collected = RecordBattleDuelRoles(state, collected, roleEventOffset);
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
             collected = StampNewTriggerQueueTimes(state, collected);
@@ -58,24 +66,60 @@ public sealed partial class CoreRuleEngine
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";
 
-    // CN 468.3-468.7: result skills finish before control, and control skills
-    // finish before the battle closes. Both damage and skipped-damage paths
-    // enter this same continuation when a result has pending observers.
+    // CN468.1-468.2: finish battle cleanup and its earned FEPR before deciding
+    // an outcome. Empty queues advance in Complete without a response window.
     private static bool TryBeginBattleResultContinuation(MatchState resultState,
-        string battlefield, string attacker, string? defender, string? winner,
+        string battlefield, string attacker, string? defender,
         IReadOnlyList<string> attackers, IReadOnlyList<string> defenders,
         int overkill, List<GameEvent> events, out MatchState pending)
     {
-        // A synchronous replacement can suspend the parent across commands.
-        // Its result is born at the accepted completion, not the original attempt.
         resultState = resultState with { Tick = RuleChoices.Value?.CompletionTick ?? resultState.Tick };
         pending = resultState;
-        // Death instructions have already captured their ordinary skills, but
-        // their observer collector runs after this battle instruction completes.
-        // Do not establish control or close a no-winner battle ahead of them.
-        var hasCapturedDeaths = events.Any(e => e.Payload.GetValueOrDefault("capturedUnitDeath")
-            is CapturedUnitDeath { DravenBattleDeathScore: not null });
-        if (winner is null && !hasCapturedDeaths) return false;
+        if (defender is null || attackers.Count == 0 || defenders.Count == 0) return false;
+        var zones = NormalizeZonesForSeats(resultState);
+        var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
+        var cleanupStart = events.Count;
+        ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
+        // A response can remove an earlier role unit before the actual damage participants are declared.
+        var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
+            ? declaration.PublicObjectBindings?.Where(b => attackers.Contains(b.ObjectId) || defenders.Contains(b.ObjectId)).ToArray()
+            : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
+        var continuation = new BattleResultContinuation(battlefield, attacker, defender, null, resultState.Tick,
+            attackers.ToArray(), defenders.ToArray(), SurvivingBattleUnitObjectIds(zones, cards, attackers),
+            SurvivingBattleUnitObjectIds(zones, cards, defenders),
+            events.Where(e => e.Kind == "UNIT_DESTROYED").Select(e => EventPayloadString(e, "targetObjectId")!)
+                .Where(id => attackers.Concat(defenders).Contains(id)).Distinct(StringComparer.Ordinal).ToArray(),
+            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE")
+                .Select(e => e.Kind).Distinct(StringComparer.Ordinal).ToArray(), bindings ?? [], overkill, "CLEANUP_TRIGGERS")
+        {
+            AttackerRecalledByBattleCleanup = events.Skip(cleanupStart).Any(e => e.Kind == "UNIT_RECALLED_TO_BASE"
+                && EventPayloadString(e, "reason") == "BATTLE_CLEANUP_ATTACKER_RECALL")
+        };
+        events.Add(new("BATTLE_CLEANUP_COMPLETED", "先处理战斗伤害与清理触发，再判定结果",
+            new Dictionary<string, object?> { ["continuation"] = continuation }));
+        pending = resultState with { PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(resultState.ObjectLocations, zones), PendingBattleResult = continuation,
+            TimingState = TimingStates.NeutralClosed, FocusPlayerId = null, PriorityPlayerId = null,
+            PassedFocusPlayerIds = [], PassedPriorityPlayerIds = [] };
+        return true;
+    }
+
+    private static MatchState DetermineBattleResultAfterCleanup(MatchState resultState,
+        BattleResultContinuation cleanup, List<GameEvent> events)
+    {
+        resultState = resultState with { Tick = RuleChoices.Value?.CompletionTick ?? resultState.Tick };
+        var battlefield = cleanup.BattlefieldId;
+        var attacker = cleanup.AttackingPlayerId;
+        var defender = cleanup.DefendingPlayerId!;
+        var liveAttackers = LiveParty(attacker);
+        var liveDefenders = LiveParty(defender);
+        var attackers = cleanup.AttackerObjectIds.Where(id => !liveDefenders.Contains(id))
+            .Concat(liveAttackers).Distinct(StringComparer.Ordinal).ToArray();
+        var defenders = cleanup.DefenderObjectIds.Where(id => !liveAttackers.Contains(id))
+            .Concat(liveDefenders).Distinct(StringComparer.Ordinal).ToArray();
+        var winner = !cleanup.AttackerRecalledByBattleCleanup && TryResolveBattleWinnerPlayerId(
+            resultState.PlayerZones, resultState.CardObjects, liveAttackers, liveDefenders, defender, attacker, out var determined)
+                ? determined : null;
         var role = winner == attacker ? "ATTACKER" : "DEFENDER";
         var queued = new List<TriggerQueueItemState>();
         if (winner is not null) queued.AddRange(CaptureUnitBattleWinDrawObservations(resultState, battlefield, winner,
@@ -97,22 +141,18 @@ public sealed partial class CoreRuleEngine
             : CaptureDravenBattleWinScoreObservations(resultState, battlefield, winner,
                 attackers, defenders, resultState.Tick);
         queued.AddRange(scoreObservations.Select(x => x.Trigger with { DravenBattleWinScore = x.Context }));
-        if (queued.Count == 0 && !hasCapturedDeaths) return false;
-
         var zones = NormalizeZonesForSeats(resultState);
         var cards = resultState.CardObjects.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
-        ApplyBattleCleanup(zones, cards, battlefield, attackers, defenders, events);
-        if (winner is null)
-            events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attacker, defender));
-        var bindings = TryReadBattleResponseDeclarationContext(resultState, battlefield, out var declaration)
-            ? declaration.PublicObjectBindings : CaptureBattlePublicBindings(resultState, attackers.Concat(defenders));
+        var bindings = cleanup.PublicObjectBindings.Concat(CaptureBattlePublicBindings(resultState,
+            liveAttackers.Concat(liveDefenders))).DistinctBy(binding => (binding.ObjectId, binding.Generation)).ToArray();
         var continuation = new BattleResultContinuation(battlefield, attacker, defender, winner, resultState.Tick,
-            attackers.ToArray(), defenders.ToArray(), SurvivingBattleUnitObjectIds(zones, cards, attackers),
-            SurvivingBattleUnitObjectIds(zones, cards, defenders),
-            events.Where(e => e.Kind == "UNIT_DESTROYED").Select(e => EventPayloadString(e, "targetObjectId")!)
-                .Where(id => attackers.Concat(defenders).Contains(id)).Distinct(StringComparer.Ordinal).ToArray(),
-            events.Where(e => e.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE" or "BATTLE_NO_RESULT")
-                .Select(e => e.Kind).Distinct(StringComparer.Ordinal).ToArray(), bindings ?? [], overkill, "RESULT_TRIGGERS");
+            attackers, defenders, liveAttackers, liveDefenders,
+            cleanup.DestroyedObjectIds, cleanup.RelatedEventKinds.Concat(events.Where(e => e.Kind is "DAMAGE_APPLIED"
+                or "UNIT_DESTROYED" or "DAMAGE_REMOVED" or "UNIT_RECALLED_TO_BASE" or "BATTLE_NO_RESULT")
+                .Select(e => e.Kind)).Concat(winner is null ? ["BATTLE_NO_RESULT"] : [])
+                .Distinct(StringComparer.Ordinal).ToArray(), bindings, cleanup.AssignedOverkillDamage, "RESULT_TRIGGERS")
+        { AttackerRecalledByBattleCleanup = cleanup.AttackerRecalledByBattleCleanup };
+        if (winner is null) events.Add(BuildBattleNoResultEvent(continuation));
         events.Add(new("BATTLE_RESULT_DETERMINED", "判定战斗结果，先处理结果触发技能",
             new Dictionary<string, object?> { ["continuation"] = continuation }));
         events.AddRange(queued.Select(trigger =>
@@ -121,7 +161,7 @@ public sealed partial class CoreRuleEngine
             return ev with { Payload = new Dictionary<string, object?>(ev.Payload)
             { ["battleWinContext"] = (object?)trigger.UnitBattleWinDraw ?? (object?)trigger.LegendBattleWinDraw ?? (object?)trigger.KhazixBattleWin ?? trigger.DravenBattleWinScore } };
         }));
-        pending = resultState with
+        return resultState with
         {
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(resultState.ObjectLocations, zones),
             PendingBattleResult = continuation, TriggerQueue = resultState.TriggerQueue.Concat(queued).ToArray(),
@@ -130,8 +170,28 @@ public sealed partial class CoreRuleEngine
             TimingState = TimingStates.NeutralClosed, FocusPlayerId = null, PriorityPlayerId = null,
             PassedFocusPlayerIds = [], PassedPriorityPlayerIds = []
         };
-        return true;
+
+        string[] LiveParty(string player) => resultState.ObjectLocations.Where(entry => entry.Value.Zone == "BATTLEFIELD"
+            && entry.Value.BattlefieldObjectId == battlefield
+            && resultState.CardObjects.TryGetValue(entry.Key, out var card) && IsFaceUpNonStandbyUnit(card)
+            && resultState.PlayerZones.TryGetValue(entry.Value.PlayerId, out var ownerZones)
+            && ownerZones.Battlefields.Contains(entry.Key)
+            && EffectiveFieldControllerId(resultState.PlayerZones, entry.Key, card) == player)
+            .Select(entry => entry.Key).Order(StringComparer.Ordinal).ToArray();
     }
+
+    private static string BattleResultReason(BattleResultContinuation c) => c.WinnerPlayerId is not null ? "BATTLE_CLOSED"
+        : c.AttackerRecalledByBattleCleanup ? CleanupRecallNoResultReason
+        : c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
+            ? "ALL_PARTICIPANTS_DESTROYED" : "BOTH_SIDES_RETAIN_UNITS";
+
+    private static GameEvent BuildBattleNoResultEvent(BattleResultContinuation c)
+        => new("BATTLE_NO_RESULT", "战斗没有胜者", new Dictionary<string, object?> {
+            ["battlefieldId"] = c.BattlefieldId, ["attackingPlayerId"] = c.AttackingPlayerId,
+            ["defendingPlayerId"] = c.DefendingPlayerId, ["attackerObjectIds"] = c.AttackerObjectIds.ToArray(),
+            ["defenderObjectIds"] = c.DefenderObjectIds.ToArray(),
+            ["survivingAttackerObjectIds"] = c.SurvivingAttackerObjectIds.ToArray(),
+            ["survivingDefenderObjectIds"] = c.SurvivingDefenderObjectIds.ToArray(), ["reason"] = BattleResultReason(c) });
 
     private static bool BattleSettlementHasPendingItems(MatchState state) => state.StackItems.Count > 0
         || state.TriggerQueue.Any(IsImmediateTrigger) || state.PendingPayment is not null
@@ -144,6 +204,8 @@ public sealed partial class CoreRuleEngine
         if (state.Status != MatchStatuses.InProgress) return result;
         if (BattleSettlementHasPendingItems(state)) return result;
         var events = result.Events.ToList();
+        if (continuation.Stage == "CLEANUP_TRIGGERS")
+            return Rebuild(DetermineBattleResultAfterCleanup(state, continuation, events), events);
         if (continuation.Stage == "RESULT_TRIGGERS")
         {
             state = state with { PendingBattleResult = continuation with { Stage = "CONTROL_TRIGGERS" },
@@ -163,9 +225,7 @@ public sealed partial class CoreRuleEngine
         CloseResolvedBattle(zones, cards, state.ObjectLocations, continuation.BattlefieldId, continuation.AttackerObjectIds,
             continuation.DefenderObjectIds, events);
         var resultKind = continuation.WinnerPlayerId is null ? "NO_RESULT" : "CLOSED";
-        var resultReason = continuation.WinnerPlayerId is not null ? "BATTLE_CLOSED"
-            : continuation.SurvivingAttackerObjectIds.Count == 0 && continuation.SurvivingDefenderObjectIds.Count == 0
-                ? "ALL_PARTICIPANTS_DESTROYED" : "BOTH_SIDES_RETAIN_UNITS";
+        var resultReason = BattleResultReason(continuation);
         var history = new BattleResolutionState(
             $"battle-result:{state.Tick}:{resultKind}:{continuation.BattlefieldId}:{continuation.AttackerObjectIds.FirstOrDefault() ?? continuation.AttackingPlayerId}",
             state.Tick, resultKind, resultReason, continuation.BattlefieldId, continuation.AttackingPlayerId,
@@ -184,11 +244,12 @@ public sealed partial class CoreRuleEngine
             PriorityPlayerId = null, FocusPlayerId = null, PassedFocusPlayerIds = [], PassedPriorityPlayerIds = []
         };
         // CN 463: opposing occupants after battle end create a new pending
-        // battle. The completed battle's skip marker must not suppress it.
+        // battle. The completed battle's markers must not suppress its new duel.
         if (state.BattlefieldStates.TryGetValue(continuation.BattlefieldId, out var battlefield)
             && battlefield.OccupantControllerIds.Distinct(StringComparer.Ordinal).Count() > 1)
             state = state with { UntilEndOfTurnEffects = state.UntilEndOfTurnEffects
-                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)).ToArray() };
+                .Where(effect => effect != BattlefieldTaskMarkers.BattleSkipped(continuation.BattlefieldId)
+                    && effect != BattlefieldTaskMarkers.SpellDuelCompleted(continuation.BattlefieldId)).ToArray() };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(state, continuation.AttackingPlayerId, result.State);
         events.AddRange(advance.Events);
         return Rebuild(advance.State, events);

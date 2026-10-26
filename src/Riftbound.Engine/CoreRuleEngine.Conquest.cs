@@ -37,6 +37,20 @@ public sealed partial class CoreRuleEngine
             sourceObjectId, "CONQUEST");
         if (huntAmount > 0)
         {
+            var conquestIndex = events.FindLastIndex(gameEvent => gameEvent.Kind == "BATTLEFIELD_CONQUERED"
+                && EventPayloadString(gameEvent, "playerId") == playerId
+                && EventPayloadString(gameEvent, "battlefieldId") == battlefieldId);
+            if (conquestIndex >= 0)
+                events[conquestIndex] = events[conquestIndex] with
+                {
+                    Payload = new Dictionary<string, object?>(events[conquestIndex].Payload)
+                    {
+                        ["huntAmount"] = huntAmount,
+                        ["huntSourceObjectIds"] = huntConquerSources.Select(source => source.ObjectId).ToArray(),
+                        ["huntAmountsBySource"] = huntConquerSources.ToDictionary(
+                            source => source.ObjectId, source => source.HuntAmount, StringComparer.Ordinal)
+                    }
+                };
             var huntSource = huntConquerSources[0];
             playerExperience = GainExperience(
                 NormalizeExperienceForSeats(state),

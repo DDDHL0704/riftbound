@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-bullet-time-power-damage-enemy-battlefield",
-  "description": "Bullet Time spends chosen power and deals that much damage to every enemy battlefield unit in the current single-battlefield model.",
+  "description": "Bullet Time declares its battlefield at play, then chooses and pays power during resolution before applying the original local damage.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -23,6 +23,11 @@
       "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
       "locator": "CN current exact OGN268 OGN250 UNL072",
       "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived."
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "CN 204.3.a / 740.4.a.1; SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "note": "2026-10-24 S5 correction: original metadata above is historical. Preserve all original damage/resource/zone assertions; migrate only the premature optional fee into an actual resolution PAY_COST. Original source and failed run retained in var/qa/payment-instruction-power-20261024/original-source and affected-originals-v1."
     }
   ],
   "roomId": "p2-preflight-bullet-time-room",
@@ -257,9 +262,7 @@
         "targetObjectIds": [
           "N54-SELECTED-FIELD"
         ],
-        "optionalCosts": [
-          "SPEND_POWER:3"
-        ]
+        "optionalCosts": []
       }
     },
     {
@@ -275,17 +278,31 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-bullet-time-resolution-power",
+      "cmd": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "SPEND_POWER:3"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
+      "RULE_CHOICE_REQUESTED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "COST_PAID",
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED"
     ],
@@ -298,11 +315,9 @@
         "payload": {
           "playerId": "P1",
           "mana": 1,
-          "power": 3,
+          "power": 0,
           "baseMana": 1,
-          "optionalCosts": [
-            "SPEND_POWER:3"
-          ]
+          "optionalCosts": []
         }
       },
       {
@@ -321,10 +336,25 @@
         "kind": "PRIORITY_PASSED"
       },
       {
+        "kind": "RULE_CHOICE_REQUESTED"
+      },
+      {
         "kind": "PRIORITY_PASSED"
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 3,
+          "paymentWindow": "INSTRUCTION_POWER_PAYMENT",
+          "paymentChoiceIds": [
+            "SPEND_POWER:3"
+          ]
+        }
       },
       {
         "kind": "DAMAGE_APPLIED",

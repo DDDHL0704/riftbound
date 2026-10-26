@@ -1,12 +1,15 @@
-# 当前项目状态 · 2026-10-24
+# 当前项目状态 · 2026-10-26
 
-**日常合入走 L2；完整后端验收尚未闭合。** 用户已授权四线在所属方法内自行实现、提 PR，最新 PR 合并输入的 `L2 required` 通过即可合 main，不要求每个 PR 人工批准。只有跨线同时修改同一方法才由①协调；普通 helper、完整包和逐表达式不再额外审批。
+**后端规则优先；日常合入走 L2，完整后端验收仍 OPEN。**
 
-- **L2：** [backend-l2.yml](../.github/workflows/backend-l2.yml) 在 PR/main/manual 执行定向与相邻域断言、机制规则套件及原两条完整对局冒烟。汇总核对固定 SHA、测试程序集和实际 TRX；失败、跳过或缺产物不能绿，不依赖 SQL/网络汇总。
-- **L3：** [native-desktop.yml](../.github/workflows/native-desktop.yml) 每天 02:00（上海）固定一次 main 起始完整 SHA，保留完整矩阵、真实 PostgreSQL/SignalR、进程重启和原日志回放。夜间失败由对应模块独立修复，阻止完整验收声明及相关改动，不冻结无关规则包。
-- **当前交付：** CI/策略分支从 `8ac0afba…` 单独起步，未带入 `cc2bbe79…` 集成积压或三线未合并规则源码。当前 PR/运行结果以 GitHub 为准；本页不累计历史交付表。
-- **历史候选：** A7=`da80739b…` / [run 40055102708](https://github.com/DDDHL0704/riftbound/actions/runs/40055102708) 保留原运行；04:15 UTC 收件时已核验 SQL 1/3 各 19 项，其余完整结果待收。A2–A6 原失败与修复线索保留，不作为所有日常合入的先决条件；B1/source queue 仅作迁移清单。
-- **职责：** ① CI/验收脚本/环境及实际方法冲突；②战斗/触发/胜负；③费用/资源/合法性；④卡牌消费者/注册。只发送可交付包、真实冲突或阻塞，不发 ACK。
-- **完成边界：** 当前适用来源、全部规则语义及 L3 仍有缺口；本次净整卡认证增量 0。客户端、可见双端、安装包和 Windows 实机留后续阶段 OPEN。旧两窗 Goal 保持 paused，固定证据/数据库保留。
+本轮清积压目标为开放 PR 从22降至≤10；到门槛前冻结新增功能PR，先修现有红测、依赖与真实冲突。①保持无Goal，连续完成有限清积压并串行发布main。五个新聊天已接管，[活跃映射及实际分支](BACKEND_RULES_GOAL_2026-10-23.md#四线与共享接点)为唯一入口，旧窗只读。
 
-[工作流](RULE_TEST_WORKFLOW.md) · [目标与分工](BACKEND_RULES_GOAL_2026-10-23.md) · [治理](PROJECT_GOVERNANCE.md) · [来源历史入口](audit/current-manifest.json)
+- **L2：** 每个PR/main执行定向与相邻断言、机制规则及原两条完整对局冒烟。最新实际base/head/synthetic的 `L2 required` 必须完整成功、零skip；缺产物、错SHA、失败不能绿。strict up-to-date、Actions15368、管理员约束、人工批准0保持。
+- **L3：** 每天02:00上海时间固定一次main完整SHA，保留完整规则、真实PostgreSQL/SignalR、进程重启和原日志回放。夜间红阻止完整验收及相关改动，不冻结无关L2绿包。
+- **本批候选：** [PR165](https://github.com/DDDHL0704/riftbound/pull/165)以main `99c0cb6c…` 为基线，普通merge保留最后12个完整原head。修复已确认资源在投降时回退的P7缺陷：真实child差量及事件独立提交，保留外层未确认指令、严格恢复与原历史。实际head/synthetic及最新完整L2见[PR检查](https://github.com/DDDHL0704/riftbound/pull/165/checks)；只有逐项验明原head为main祖先并核对真实PR状态后才计交付。
+- **原验证：** 旧87a的[L2 40281144019](https://github.com/DDDHL0704/riftbound/actions/runs/40281144019)及[harness 40281144121](https://github.com/DDDHL0704/riftbound/actions/runs/40281144121)均自然成功、未取消/重跑，但其P7反例仍成立，绿灯不复用于修复候选。原红、修复收据和大日志留ignored var/qa或CI，Git只保留源码、测试和短记录。
+- **当前红例修复：** 原3a14的[完整L2 40294321840](https://github.com/DDDHL0704/riftbound/actions/runs/40294321840)自然失败，定向与规则套件重复同4例、零skip。保留原失败；校准已确认资源的即时权威状态/事件断言，修复父指令重放时新触发使用旧Tick且排在已确认资源触发之前的问题，保留独立恢复校验。最终修复组合须取得新完整L2。
+- **职责：** ①CI/验收工具/治理及实际同方法交集；②战斗/触发/胜负及P7消费恢复；③费用/资源产生端；④现有卡牌消费者。普通helper不额外审批，只发完整交付、真实冲突或阻塞，不发ACK。
+- **完成边界：** 适用来源、全部规则语义及固定输入L3仍有缺口，净整卡认证增量0。客户端、可见双端、安装包和Windows实机留后续阶段OPEN；旧Goal不记完成，冻结源/bin及数据库保留。
+
+[工作流](RULE_TEST_WORKFLOW.md) · [目标与分工](BACKEND_RULES_GOAL_2026-10-23.md) · [治理](PROJECT_GOVERNANCE.md) · [来源历史入口](audit/current-manifest.json)。[历史A7](https://github.com/DDDHL0704/riftbound/actions/runs/40055102708)及A2–A6原失败/修复线索保留，B1/source queue仅作迁移清单。

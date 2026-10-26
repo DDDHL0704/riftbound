@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1074,
+  "total": 1077,
   "cards": [
     {
       "id": 31005,
@@ -44756,6 +44756,150 @@
       "status": 1,
       "subTitle": "",
       "tag": ""
+    },
+    {
+      "artist": "Caravan Studio",
+      "backImage": "",
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardColorList": [
+        "green"
+      ],
+      "cardEffect": "{{强化12}}。你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+3。",
+      "cardGroupLimit": null,
+      "cardName": "霜衣狼母",
+      "cardNo": "VEN·032",
+      "cardQaList": null,
+      "craftLevel": 0,
+      "energy": 3,
+      "errata": "",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "extendType": null,
+      "extendTypeName": "",
+      "flavorText": "很少有人敢向护崽的霜衣狼母靠近一步。能活着靠近两步的，更是一个也没有。",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/11d50cf986d946dea73040f997b98aa5.png",
+      "hero": "",
+      "id": 37720,
+      "isPreview": false,
+      "listSort": 1966,
+      "otherDesc": 0,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "region": "弗雷尔卓德",
+      "returnEnergy": null,
+      "status": 1,
+      "subTitle": "",
+      "tag": "犬形"
+    },
+    {
+      "id": 37766,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·072",
+      "cardName": "深沉咆哮",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n给予一名单位在本回合内{{S}}+2。如果该单位{{已强化}}，则改为给予其在本回合内{{S}}+4。",
+      "flavorText": "“荒漠屠夫”的雅号，可不是靠耐心挣来的。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/ea5f0d626f454b6f8a0a0ac4cd3ad845.png",
+      "backImage": "",
+      "listSort": 1920,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37921,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·SP6",
+      "cardName": "拉克丝",
+      "subTitle": "冕卫之光",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "拉克丝",
+      "region": "德玛西亚",
+      "tag": "",
+      "artist": "Wild Rift Splash Team",
+      "cardEffect": "{{横置}}：{{反应}} — {{获得}}{{2}}。此法力仅能用于打出法术。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/cb5e58f9c9ea482c942fab399cbf95e1.png",
+      "backImage": "",
+      "listSort": 1765,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -45525,6 +45669,398 @@
       "printedFaceIdentity": "VEN·105/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-105/166",
       "reason": "Small-unit chosen movement and Flow consumer using existing mechanisms; repeat destination preserves AnyUnit controller bases; whole-card certification remains separate."
+    },
+    {
+      "cardNo": "VEN·032",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T06:21:43.474445+00:00",
+      "sourceId": 37720,
+      "sourceRecordSha256": "cce147fbc2f6b2a9ccdd5334de85a52cb089a1b4a15a3c41acf20404d8f8deaf",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·032/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-032/166",
+      "reason": "Exact self-Empower consumer reusing main rune-count discount and permanent self-might; source and whole-card certification remain separate."
+    },
+    {
+      "cardNo": "VEN·072",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-24T06:43:21.764661+00:00",
+      "sourceId": 37766,
+      "sourceRecordSha256": "ff3bae50e852aaca39993eafbb28217852087ce8cb9d883a412d77c93d62ca76",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·072/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-072/166",
+      "reason": "Exact CN conditional Might consumer; semantic implementation and backend gates remain separate from registration."
+    },
+    {
+      "cardNo": "VEN·SP6",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T17:47:04.835911+00:00",
+      "sourceId": 37921,
+      "sourceRecordSha256": "e64f3e7ab9b7055e32f6f40416491e88b70eda8fdacc0a5285d13cdf4e1fb8a2",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·SP6/006 SC",
+      "reason": "Exact CN Lux printing source prerequisite for line3 restricted-mana S6. Preserves OGS014 and historical rows; registration does not certify restricted-mana behavior."
+    },
+    {
+      "cardNo": "VEN·R01",
+      "sourceId": 37910,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "715da066bf8d32c194d55ebea9cb845d0be370781c587a02bc23e1d8e8abd0d1",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R01a",
+      "sourceId": 37927,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "93ac3b8974de490f152f27b64cfee534c9698d28138a4b4a6f504b3779fb4ce1",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R01b",
+      "sourceId": 37961,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "979aeb97183eede45c4402071d078f2257228741b3608f27057212add00d42c5",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
+    },
+    {
+      "cardNo": "VEN·R02",
+      "sourceId": 37911,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "e03ad9d56747ac46779eb3ff0ffee9143fea64e6523f347ed232175788f45cad",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R02a",
+      "sourceId": 37928,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "b2dc627680fa0377acf8decd2381417381e556e6e1418b1c2774f5425f3ff16a",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R02b",
+      "sourceId": 37962,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "68e1e64e31dc5b89e52abc3e9923a9d672b2778e8b15786830b6ecb8be243cfb",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
+    },
+    {
+      "cardNo": "VEN·R03",
+      "sourceId": 37912,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "db52f6b8d7315b0043f1d1274b3d8df0e763fffa5695622f31b6fd58fb7f1fa6",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R03a",
+      "sourceId": 37929,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "c7462ddc05b74f57fcc7c4d7106081bcb56c787862a916ae47802a67866fcdbc",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R03b",
+      "sourceId": 37963,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "f6c3cd077fd7fbc7952334e0d990cd889a577c5a9cad37dd638ffdbeb46d4ca9",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
+    },
+    {
+      "cardNo": "VEN·R04",
+      "sourceId": 37913,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "9cac45f4cf51841590f279733378709d6bfa01764026e2a2a6381082467c7e15",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R04a",
+      "sourceId": 37930,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "de41df8ca955789269b69bff1455686b74ad57ea51ce1013b6d288dfcaa52484",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R04b",
+      "sourceId": 37964,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "3c8aa788ff008536cb5ba20f939a5971c5c8ce8654daaf15a75829069cd2b9d6",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
+    },
+    {
+      "cardNo": "VEN·R05",
+      "sourceId": 37914,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "0c677f7c38f2612544cae43cb74299b314ab28af73bc5afa88a91244c4e757a9",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R05a",
+      "sourceId": 37931,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "3f59348b0eadfa42ef74b87283b085df416a6f52c377e454a975a2b60e282e49",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R05b",
+      "sourceId": 37965,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "0510f4cac396481da839ab013b48c5328eac2558a64174116efa10658495cd3a",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
+    },
+    {
+      "cardNo": "VEN·R06",
+      "sourceId": 37915,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "d3fea063aeaec6de85fc6767aa4482dd15a5898816122f4f0f8cfd2eef5ad2fc",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R06a",
+      "sourceId": 37932,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "f5f9164b344a40800f5ad2a736ce68358fbbf03c9ad18d211ad6f067ce1c530d",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·R06b",
+      "sourceId": 37966,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 500,
+        "searchContent": "VEN",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-26T01:15:49.011613+00:00",
+      "sourceRecordSha256": "13cbb29fc48acf17bd2be7ab912dcd299226e789d2a1bbeeb05f5ffd0bd57d31",
+      "sourceResponseSha256": "051267dda775c08064010b7dd1a722789961de85a6ddd4c046c524cb1a14b0c6",
+      "sourceAudit": "docs/parallel/N22_VEN_BASIC_RUNE_PRINTINGS_2026-10-24.md",
+      "scope": "Exact basic-rune printing source identity only; original N22 applicability conclusions and existing runtime behavior are unchanged; registration is not whole-card certification; promo release and effective dates remain UNKNOWN",
+      "applicability": "UNKNOWN"
     }
   ]
 }

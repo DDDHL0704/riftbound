@@ -9,7 +9,7 @@ public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] int ManaCost = 0);
 public sealed record RuleChoiceAnswer(string RequestHash, string OptionId);
 // Deterministic command checkpoint for synchronous decisions.
-// Until all synchronous replacement decisions are known, the original action is uncommitted.
+// The outer action is uncommitted; completed resource children settle independently.
 public sealed record RuleChoiceContinuation(MatchState Origin, PlayerIntent Intent, JsonElement Command,
     IReadOnlyList<RuleChoiceAnswer> Answers, RuleChoiceRequest Request);
 
@@ -21,7 +21,9 @@ public sealed partial class CoreRuleEngine
     private sealed class RuleChoiceFrame(MatchState origin, IReadOnlyList<RuleChoiceAnswer> answers)
     {
         public MatchState Origin { get; } = origin;
-        public long CompletionTick { get; init; } = origin.Tick + 1;
+        public long CompletionTick { get; set; } = origin.Tick + 1;
+        public long AnswerTick => Origin.Tick + cursor + 1;
+        public TurnDeathLedger? ResourceDeathLedger { get; set; }
         public HashSet<string> DestructionCandidates { get; set; } = new(StringComparer.Ordinal);
         public HashSet<string> CurrentDestructions { get; set; } = [];
         public HashSet<string> AppliedDestructionReplacements { get; set; } = new(StringComparer.Ordinal);
@@ -54,6 +56,8 @@ public sealed partial class CoreRuleEngine
         if (!RuleInputIdentity.IsCurrentState(state))
             return RejectWithCorePrompts(state, "对局规则输入身份与当前规则、目录或实现不匹配。", ErrorCodes.RecoveryInconsistent);
         var pending = state.PendingRuleChoice;
+        if (!TryGetCommittedRuleChoiceResources(state, out var committedResources))
+            return RejectWithCorePrompts(state, "结算选择与已提交资源记录不一致。", ErrorCodes.RecoveryInconsistent);
         if (pending is not null && command is SurrenderCommand)
             return await ResolveCoreAsync(state with { PendingRuleChoice = null }, intent, command, cancellationToken);
         var origin = pending?.Origin ?? state; var originalIntent = pending?.Intent ?? intent;
@@ -73,16 +77,31 @@ public sealed partial class CoreRuleEngine
             if (pending is null) return result;
             if (!result.Accepted) return RejectWithCorePrompts(state, result.ErrorMessage!, result.ErrorCode!);
             var next = result.State with { Tick = state.Tick + 1, PendingRuleChoice = null };
-            return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+            return result with { State = next, Events = UncommittedRuleChoiceEvents(result.Events, committedResources),
+                Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
         }
         catch (RuleChoiceRequired required) {
-            var raw = pending?.Command ?? JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            var next = origin with { Tick = state.Tick + 1, PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request) };
-            return new(true, null, next, [new("RULE_CHOICE_REQUESTED", required.Request.Reason,
-                new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })],
+            var raw = pending?.Command ?? CaptureRuleChoiceCommand(command);
+            var resources = GetCompletedRuleChoiceResources(frame);
+            var next = CommitRuleChoiceResources(origin, resources) with {
+                Tick = state.Tick + 1, PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request) };
+            var events = UncommittedRuleChoiceEvents(resources.SelectMany(step => step.Events).ToArray(), committedResources)
+                .Append(new GameEvent("RULE_CHOICE_REQUESTED", required.Request.Reason,
+                    new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })).ToArray();
+            return new(true, null, next, events,
                 ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
         }
         finally { RuleChoices.Value = previous; }
+    }
+
+    private static JsonElement CaptureRuleChoiceCommand(GameCommand command)
+    {
+        // Continuations replay through the wire mapper. Capture that same form
+        // so equivalent typed nulls and wire defaults produce one checkpoint.
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var serialized = JsonSerializer.SerializeToElement(command, command.GetType(), json);
+        var replayed = GameCommandJsonMapper.Map(serialized);
+        return JsonSerializer.SerializeToElement(replayed, replayed.GetType(), json);
     }
 
     // Intermediate effects are displayed through the normal per-viewer privacy
@@ -108,18 +127,34 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ValidRuleChoice(MatchState state)
+        => TryGetCommittedRuleChoiceResources(state, out _);
+
+    private static bool TryGetCommittedRuleChoiceResources(MatchState state, out IReadOnlyList<RuleChoiceResourceStep> resources)
     {
+        resources = [];
         if (state.PendingRuleChoice is not { } p) return true;
         if (p.Origin is null || p.Origin.PendingRuleChoice is not null || p.Answers is null || p.Request is null
             || p.Intent is null || p.Request.Options is null || p.Request.Options.Any(o => o is null) || p.Answers.Any(a => a is null)
-            || state.Tick <= p.Origin.Tick || !state.Seats.ContainsKey(p.Intent.PlayerId)
-            || MatchStateHasher.Hash(state with { Tick = p.Origin.Tick, PendingRuleChoice = null }) != MatchStateHasher.Hash(p.Origin)) return false;
-        var previous = RuleChoices.Value; RuleChoices.Value = new(p.Origin, p.Answers);
+            || p.Command.ValueKind != JsonValueKind.Object
+            || state.Tick <= p.Origin.Tick || !state.Seats.ContainsKey(p.Intent.PlayerId)) return false;
+        var reproduced = ReproduceRuleChoice(p);
+        if (reproduced is not { } current
+            || MatchStateHasher.HashValue(current.Request) != MatchStateHasher.HashValue(p.Request)) return false;
+        resources = GetCompletedRuleChoiceResources(current.Frame);
+        var expected = CommitRuleChoiceResources(p.Origin, resources);
+        return MatchStateHasher.Hash(state with { Tick = p.Origin.Tick, PendingRuleChoice = null }) == MatchStateHasher.Hash(expected);
+    }
+
+    private static (RuleChoiceRequest Request, RuleChoiceFrame Frame)? ReproduceRuleChoice(RuleChoiceContinuation pending)
+    {
+        var frame = new RuleChoiceFrame(pending.Origin, pending.Answers);
+        var previous = RuleChoices.Value; RuleChoices.Value = frame;
         try {
-            _ = new CoreRuleEngine().ResolveCoreAsync(p.Origin, p.Intent, GameCommandJsonMapper.Map(p.Command), default).GetAwaiter().GetResult();
-            return false;
-        } catch (RuleChoiceRequired required) { return MatchStateHasher.HashValue(required.Request) == MatchStateHasher.HashValue(p.Request); }
-        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException) { return false; }
+            _ = new CoreRuleEngine().ResolveCoreAsync(pending.Origin, pending.Intent,
+                GameCommandJsonMapper.Map(pending.Command), default).GetAwaiter().GetResult();
+            return null;
+        } catch (RuleChoiceRequired required) { return (required.Request, frame); }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or JsonException or KeyNotFoundException) { return null; }
         finally { RuleChoices.Value = previous; }
     }
 }

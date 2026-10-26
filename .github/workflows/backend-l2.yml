@@ -37,17 +37,7 @@ jobs:
           python3 -m unittest discover -s scripts/tests -p test_project_governance.py -v
           python3 -m unittest discover -s scripts/tests -p test_current_audit.py -v
       - name: Make retained audit commit available without rewriting evidence
-        run: |
-          python3 - <<'PYBASELINE'
-          import json, re, subprocess
-          from pathlib import Path
-          path = Path('docs/audit/legacy-source-baseline.json')
-          if path.exists():
-              commit = json.loads(path.read_text())['commit']
-              assert re.fullmatch(r'[0-9a-f]{40}', commit)
-              if subprocess.run(['git', 'cat-file', '-e', commit+'^{commit}'], stderr=subprocess.DEVNULL).returncode:
-                  subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', commit], check=True, timeout=120)
-          PYBASELINE
+        run: python3 scripts/ensure-retained-ci-commit.py
       - name: Source-index and governance integrity
         run: python3 scripts/audit/check-project-governance.py --output var/qa/l2-quality/governance.json
       - name: Check committed formatting

@@ -43,17 +43,12 @@ public sealed partial class CoreRuleEngine
             }
             if (selected.StartsWith("TAP_RUNE:", StringComparison.Ordinal))
             {
-                var result = ResolveTapRune(context, new("conditional-counter-resource", player, CommandTypes.TapRune), new(selected[9..]));
-                if (!result.Accepted) throw new InvalidOperationException("Invalid conditional counter rune resource: " + result.ErrorMessage);
-                foreach (var pair in result.State.CardObjects) cards[pair.Key] = pair.Value;
-                foreach (var pair in result.State.RunePools) pools[pair.Key] = pair.Value;
-                events.AddRange(result.Events);
+                ApplyRuleChoiceTapRuneResource(context, zones, cards, pools, player, selected[9..], events);
                 continue;
             }
             if (selected.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal))
             {
-                var paid = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, new(), player, [selected[13..]], events, RuleChoiceWindow);
-                foreach (var pair in paid) pools[pair.Key] = pair.Value;
+                ApplyRuleChoiceRecycleRuneResource(context, zones, cards, pools, player, selected[13..], events, RuleChoiceWindow);
                 continue;
             }
             pools[player] = pool with { Mana = pool.Mana - manaCost };

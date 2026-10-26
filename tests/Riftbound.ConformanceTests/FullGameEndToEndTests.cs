@@ -3571,10 +3571,8 @@ public sealed partial class FullGameEndToEndTests
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
-        Assert.True(
-            string.Equals(current.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal),
-            $"{DescribeState(current.State)}\nBattlefields={JsonSerializer.Serialize(current.State.BattlefieldStates)}");
-        Assert.Contains(CommandTypes.DeclareBattle, current.Prompts["P1"].EnabledActions());
+        Assert.Equal(MatchPhases.Main, current.State.Phase);
+        Assert.Contains(CommandTypes.MoveUnit, current.Prompts["P1"].EnabledActions());
 
         var triggered = await SubmitBattlefieldDefendGrantSteadfastDeclareBattleAsync(
             session,
@@ -3588,9 +3586,18 @@ public sealed partial class FullGameEndToEndTests
             triggered,
             "b0-fortified-position-score");
 
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_C11_LEGACY_CONSUMER_EVIDENCE") is { Length: > 0 } output)
+        {
+            Directory.CreateDirectory(output);
+            File.WriteAllText(Path.Combine(output, "actual-consumer-journal.json"), JsonSerializer.Serialize(
+                new { initial = initialState, final = result.State, entries = journal.Entries },
+                new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
+        }
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => entry.CommandType == CommandTypes.MoveUnit);
+        Assert.Contains(journal.Entries, entry => entry.CommandType == CommandTypes.ChooseCards);
         AssertScoreVictory(result);
     }
 
@@ -9395,12 +9402,8 @@ public sealed partial class FullGameEndToEndTests
             result.State,
             "P2",
             FortifiedPositionBattlefieldDefendGrantSteadfastCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Fortified Position assertion could not locate the attacking Watchful Sentinel.");
+        var attackerObjectId = Assert.Single(beforeBattle.State.PlayerZones["P1"].Base,
+            id => beforeBattle.State.CardObjects[id].CardNo == WatchfulSentinelCardNo);
         var defenderObjectId = FindBattlefieldUnitByCardNo(
             beforeBattle.State,
             "P2",
@@ -9421,7 +9424,10 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, defenderObjectId, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, attackerObjectId, StringComparison.Ordinal));
         Assert.True(declaredIndex >= 0);
-        Assert.True(triggerIndex > declaredIndex);
+        var roleIndex = Array.FindIndex(resultEvents, gameEvent => gameEvent.Kind == "BATTLE_ROLES_ESTABLISHED");
+        Assert.True(roleIndex >= 0);
+        Assert.True(triggerIndex > roleIndex);
+        Assert.True(declaredIndex > triggerIndex);
         Assert.True(defenderDamageIndex > triggerIndex);
 
         var triggerEvent = resultEvents[triggerIndex];
@@ -19538,73 +19544,69 @@ public sealed partial class FullGameEndToEndTests
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldDefendGrantSteadfastDeclareBattleAsync(
-        MatchSession session,
-        ResolutionResult current,
-        string attackingPlayerId,
-        string intentId)
+        MatchSession session, ResolutionResult current, string attackingPlayerId, string intentId)
     {
-        Assert.Equal(attackingPlayerId, current.State.ActivePlayerId);
         var defendingPlayerId = OpponentOf(current.State, attackingPlayerId);
-        var candidate = EnabledCandidate(current.Prompts[attackingPlayerId], CommandTypes.DeclareBattle)
-            ?? throw new InvalidOperationException($"B0 Fortified Position driver could not find DECLARE_BATTLE for {attackingPlayerId}.");
-        var battlefieldId = BattlefieldObjectIdForCardNo(
-            current.State,
-            defendingPlayerId,
+        var battlefieldId = BattlefieldObjectIdForCardNo(current.State, defendingPlayerId,
             FortifiedPositionBattlefieldDefendGrantSteadfastCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            current.State,
-            attackingPlayerId,
-            WatchfulSentinelCardNo,
-            battlefieldId,
-            readyOnly: false)
-            ?? throw new InvalidOperationException("B0 Fortified Position driver could not find a ready Watchful Sentinel attacker.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            current.State,
-            defendingPlayerId,
-            WildclawBeastmasterCardNo,
-            battlefieldId,
-            readyOnly: false)
-            ?? throw new InvalidOperationException("B0 Fortified Position driver could not find a ready Wildclaw Beastmaster defender.");
-
-        var legalSourceIds = candidate.Sources?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
-            ?? [];
-        var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
-            ?? [];
-        var legalDestinationIds = candidate.Destinations?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
-            ?? [];
-        Assert.Contains(attackerObjectId, legalSourceIds);
-        Assert.Contains(defenderObjectId, legalTargetIds);
-        Assert.Contains(battlefieldId, legalDestinationIds);
-
-        var command = new DeclareBattleCommand(
-            battlefieldId,
-            [attackerObjectId],
-            [defenderObjectId],
-            OptionalCosts: ["COMBAT_ASSIGNMENT"],
-            BattlefieldTargetObjectIds: [defenderObjectId]);
-        var declared = await session.SubmitAsync(
-            attackingPlayerId,
-            intentId,
-            command,
-            JsonSerializer.SerializeToElement(new
-            {
-                cmdType = CommandTypes.DeclareBattle,
-                battlefieldId,
-                attackerObjectIds = new[] { attackerObjectId },
-                defenderObjectIds = new[] { defenderObjectId },
-                optionalCosts = new[] { "COMBAT_ASSIGNMENT" },
-                battlefieldTargetObjectIds = new[] { defenderObjectId }
-            }),
-            CancellationToken.None);
-        AssertAccepted(declared);
-        AssertNoHiddenZoneLeak(declared);
-
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
-        result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
-        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        var attackerObjectId = Assert.Single(current.State.PlayerZones[attackingPlayerId].Base,
+            id => current.State.CardObjects[id].CardNo == WatchfulSentinelCardNo);
+        var defenderObjectId = FindBattlefieldUnitByCardNo(current.State, defendingPlayerId,
+            WildclawBeastmasterCardNo, battlefieldId, readyOnly: false)!;
+        var result = current;
+        var observed = new List<GameEvent>();
+        var step = 0;
+        async ValueTask Submit(string player, GameCommand command)
+        {
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            var raw = JsonSerializer.SerializeToNode(command, command.GetType(), options)!.AsObject();
+            raw["promptId"] = result.Prompts[player].PromptId;
+            raw["snapshotTick"] = result.State.Tick;
+            result = await session.SubmitAsync(player, $"{intentId}-{step++}", command,
+                JsonSerializer.SerializeToElement(raw, options), CancellationToken.None);
+            AssertAccepted(result);
+            AssertNoHiddenZoneLeak(result);
+            observed.AddRange(result.Events);
+        }
+        // Actual movement earns the role and starts the skill before combat.
+        await Submit(attackingPlayerId, new MoveUnitCommand(attackerObjectId, "BASE", $"BATTLEFIELD:{battlefieldId}", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal(defendingPlayerId, choice.PlayerId);
+        Assert.Contains(defenderObjectId, choice.LegalObjectIds);
+        await Submit(defendingPlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [defenderObjectId]));
+        for (var index = 0; result.State.StackItems.Count > 0; index++)
+        {
+            Assert.InRange(index, 0, 7);
+            await Submit(result.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        Assert.Contains(result.State.ContinuousEffects, effect => effect.TargetObjectId == defenderObjectId
+            && effect.Duration == "UNTIL_END_OF_BATTLE" && effect.EffectKind == "BATTLE_STEADFAST_DEFEND");
+        for (var index = 0; result.State.FocusPlayerId is not null; index++)
+        {
+            Assert.InRange(index, 0, 3);
+            await Submit(result.State.FocusPlayerId, new PassFocusCommand());
+        }
+        Assert.Contains(CommandTypes.DeclareBattle, result.Prompts[attackingPlayerId].EnabledActions());
+        await Submit(attackingPlayerId, new DeclareBattleCommand(battlefieldId, [attackerObjectId], [defenderObjectId],
+            OptionalCosts: ["COMBAT_ASSIGNMENT"], BattlefieldTargetObjectIds: []));
+        for (var index = 0; PlayerWithEnabledCandidate(result, CommandTypes.AssignCombatDamage) is { } assigning; index++)
+        {
+            Assert.InRange(index, 0, 3);
+            var view = result.Prompts[assigning].View!;
+            var metadata = view.Metadata!;
+            await Submit(assigning, new AssignCombatDamageCommand((string)metadata["battleId"]!, battlefieldId,
+                CombatTestDriver.Assignments(result.Prompts[assigning])));
+        }
+        for (var index = 0; result.State.PendingBattleResult is not null; index++)
+        {
+            Assert.InRange(index, 0, 11);
+            await Submit(result.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        // This is an observation for cross-command ordering assertions; the
+        // journal retains each original command's own event sequence unchanged.
+        return result with { Events = observed.ToArray() };
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldDefendRevealSpellDeclareBattleAsync(
@@ -25287,6 +25289,7 @@ public sealed partial class FullGameEndToEndTests
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);
             OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(snapshot, result.State);
+            BattleLimitedPrivacyAssertions.Check(snapshot, result.State, viewerId);
             CheckHistoricalTurnUnitPlayBoons(snapshot, result.State);
             DestructionFamilyPrivacyAssertions.Check(snapshot, result.State);
             if (snapshot["stack"] is JsonArray stack)
@@ -26237,6 +26240,8 @@ public sealed partial class FullGameEndToEndTests
             ControllerId = "P2"
         };
 
+        // This new midgame initial position stages P1 attacking P2's established control.
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         return midgameState with
         {
             PlayerZones = playerZones,
@@ -31410,7 +31415,7 @@ public sealed partial class FullGameEndToEndTests
         playerZones["P1"] = p1Zones with
         {
             Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, attackerObjectId, StringComparison.Ordinal)).ToArray(),
-            Battlefields = p1Zones.Battlefields.Concat([attackerObjectId]).ToArray()
+            Base = p1Zones.Base.Concat([attackerObjectId]).ToArray()
         };
         playerZones["P2"] = p2Zones with
         {
@@ -31419,7 +31424,7 @@ public sealed partial class FullGameEndToEndTests
         };
 
         var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        objectLocations[attackerObjectId] = new ObjectLocationState("P1", "BATTLEFIELD", battlefieldId);
+        objectLocations[attackerObjectId] = new ObjectLocationState("P1", "BASE");
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -31459,7 +31464,6 @@ public sealed partial class FullGameEndToEndTests
                     effectId,
                     BattlefieldTaskMarkers.BattleSkipped(battlefieldId),
                     StringComparison.Ordinal))
-                .Concat([BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldId)])
                 .Distinct(StringComparer.Ordinal)
                 .ToArray()
         };

@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "开战需要声明进攻/防守对象并处理战斗伤害；P4.382 只覆盖粗粒度单战场、单攻击者、单防守者、强攻/坚守数值修正和致命伤害清理，仍不处理壁垒/后排承伤顺序、多攻防对象或得分。"
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "Current CN core 190.3-190.4, 468.1-468.7, 471.1; SHA256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11; physical pages 28-29,94-95",
+      "note": "Scoped current correction: real battlefield and explicit unit locations after completed duel; cleanup precedes result/control/conquest and battle closes last. Original seed, commands, damage, Hunt, survival and historical evidence remain; no whole-card certification."
     }
   ],
   "roomId": "p4-declare-battle-single-combatants-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304382,
     "turnNumber": 382,
@@ -29,29 +37,51 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 0,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P1-BATTLEFIELD-GAREN"],
+        "battlefields": [
+          "BATTLEFIELD:P1-MAIN",
+          "P1-BATTLEFIELD-GAREN"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
         "championZone": []
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "battlefields": [
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -65,7 +95,14 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "坚守2",
+          "强攻2",
+          "精锐"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BATTLEFIELD-MUTANT-KITTEN": {
         "cardNo": "UNL-036/219",
@@ -73,9 +110,44 @@
         "isAttacking": false,
         "isDefending": false,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "坚守2",
+          "壁垒",
+          "猫科"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "BATTLEFIELD:P1-MAIN": {
+        "cardNo": "OGN·275/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P2"
       }
-    }
+    },
+    "objectLocations": {
+      "BATTLEFIELD:P1-MAIN": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P1-BATTLEFIELD-GAREN": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BATTLEFIELD:P1-MAIN"
+      }
+    },
+    "untilEndOfTurnEffects": [
+      "BATTLEFIELD_SPELL_DUEL_COMPLETED:BATTLEFIELD:P1-MAIN"
+    ]
   },
   "commands": [
     {
@@ -84,9 +156,15 @@
       "cmd": {
         "cmdType": "DECLARE_BATTLE",
         "battlefieldId": "BATTLEFIELD:P1-MAIN",
-        "attackerObjectIds": ["P1-BATTLEFIELD-GAREN"],
-        "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
-        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        "attackerObjectIds": [
+          "P1-BATTLEFIELD-GAREN"
+        ],
+        "defenderObjectIds": [
+          "P2-BATTLEFIELD-MUTANT-KITTEN"
+        ],
+        "optionalCosts": [
+          "COMBAT_ASSIGNMENT"
+        ]
       }
     }
   ],
@@ -98,6 +176,11 @@
       "DAMAGE_APPLIED",
       "UNIT_DESTROYED",
       "DAMAGE_REMOVED",
+      "BATTLE_CLEANUP_COMPLETED",
+      "BATTLE_RESULT_DETERMINED",
+      "BATTLEFIELD_CONTROL_RESOLVED",
+      "BATTLEFIELD_CONQUERED",
+      "SCORE_GAINED",
       "BATTLE_CLOSED"
     ],
     "events": [
@@ -108,9 +191,15 @@
         "payload": {
           "playerId": "P1",
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "attackerObjectIds": ["P1-BATTLEFIELD-GAREN"],
-          "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
-          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+          "attackerObjectIds": [
+            "P1-BATTLEFIELD-GAREN"
+          ],
+          "defenderObjectIds": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ],
+          "optionalCosts": [
+            "COMBAT_ASSIGNMENT"
+          ]
         }
       },
       {
@@ -164,7 +253,9 @@
         "sequence": 5,
         "payload": {
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
-          "objectIds": ["P1-BATTLEFIELD-GAREN"],
+          "objectIds": [
+            "P1-BATTLEFIELD-GAREN"
+          ],
           "count": 1,
           "previousDamageByObject": {
             "P1-BATTLEFIELD-GAREN": 3
@@ -174,14 +265,59 @@
         }
       },
       {
-        "kind": "BATTLE_CLOSED",
+        "kind": "BATTLE_CLEANUP_COMPLETED",
         "tick": 1,
         "sequence": 6
+      },
+      {
+        "kind": "BATTLE_RESULT_DETERMINED",
+        "tick": 1,
+        "sequence": 7
+      },
+      {
+        "kind": "BATTLEFIELD_CONTROL_RESOLVED",
+        "payload": {
+          "playerId": "P1",
+          "previousControllerId": "P2",
+          "controllerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 8
+      },
+      {
+        "kind": "BATTLEFIELD_CONQUERED",
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "sourceObjectId": "P1-BATTLEFIELD-GAREN",
+          "defeatedObjectIds": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ]
+        },
+        "tick": 1,
+        "sequence": 9
+      },
+      {
+        "kind": "SCORE_GAINED",
+        "payload": {
+          "playerId": "P1"
+        },
+        "tick": 1,
+        "sequence": 10
+      },
+      {
+        "kind": "BATTLE_CLOSED",
+        "tick": 1,
+        "sequence": 11
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 382,
@@ -190,21 +326,32 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-BATTLEFIELD-GAREN"],
+          "battlefields": [
+            "BATTLEFIELD:P1-MAIN",
+            "P1-BATTLEFIELD-GAREN"
+          ],
           "graveyard": []
         },
         "P2": {
           "hand": [],
           "base": [],
           "battlefields": [],
-          "graveyard": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+          "graveyard": [
+            "P2-BATTLEFIELD-MUTANT-KITTEN"
+          ]
         }
       },
       "cardObjects": {
@@ -215,10 +362,27 @@
           "isAttacking": false,
           "isDefending": false,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "坚守2",
+            "强攻2",
+            "精锐"
+          ]
+        },
+        "BATTLEFIELD:P1-MAIN": {
+          "cardNo": "OGN·275/298",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "tags": [
+            "CARD_TYPE:BATTLEFIELD"
+          ]
         }
       },
-      "stackItems": []
+      "stackItems": [],
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      }
     }
   }
 }

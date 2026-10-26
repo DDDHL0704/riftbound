@@ -141,5 +141,5 @@ public sealed record TypedCommandInput(
         return command is null ? null : Capture(command);
     }
 
-    internal string Fingerprint => "typed:" + Kind + ":" + MatchStateHasher.HashValue(Value);
+    internal string Fingerprint => "typed:" + Kind + ":" + CommandInputFingerprint.Hash(Value);
 }

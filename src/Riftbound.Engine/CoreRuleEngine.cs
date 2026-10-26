@@ -158,16 +158,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            if (result.Accepted && result.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
+                return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
             var completed = CollectResolutionEffects(state, result);
             // Each stage's newly produced events are collected once before the
             // next stage can run. A resulting chain/choice suspends settlement.
-            for (var stage = 0; stage < 2; stage++)
+            for (var stage = 0; stage < 3; stage++)
             {
                 var advanced = AdvanceBattleResultContinuation(completed with { Events = [] });
                 if (ReferenceEquals(advanced.State, completed.State)) break;
-                var addition = CollectResolutionEffects(completed.State, advanced);
+                var addition = CollectResolutionEffects(completed.State, advanced, completed.Events.Count);
                 completed = addition with { Events = completed.Events.Concat(addition.Events).ToArray() };
             }
+            if (completed.Accepted && completed.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
+                return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
             return ValueTask.FromResult(completed);
         }
 
@@ -3556,11 +3560,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             plan.LuxSpellOnlyResourceSourceObjectIds,
             paymentEvents,
-            paymentWindow,
-            paymentId,
-            command.CardNo,
-            command.SourceObjectId);
+            paymentId);
 
+        var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
@@ -3574,16 +3576,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (plan.LuxSpellOnlyRemainingMana > 0)
-        {
-            var postPaymentPool = runePools.TryGetValue(intent.PlayerId, out var poolAfterPayment)
-                ? poolAfterPayment
-                : RunePool.Empty;
-            runePools[intent.PlayerId] = postPaymentPool with
-            {
-                Mana = Math.Max(0, postPaymentPool.Mana - plan.LuxSpellOnlyRemainingMana)
-            };
-        }
 
         var playerExperience = paymentCommit.PlayerExperience;
         objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
@@ -3595,9 +3587,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost
-                : behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.DiscardedOptionalCostTargetObjectIds.Count > 0
-                    ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
+            behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.DiscardedOptionalCostTargetObjectIds.Count > 0
+                ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
@@ -3711,11 +3702,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldObjectId"] = behavior.StandbyPlayFrom.Battlefield.ObjectId } };
         }
         events.AddRange(paymentEvents);
-        events.AddRange(BuildLuxSpellOnlyResourcePaymentEvents(
-            paymentPlan,
-            intent.PlayerId,
-            plan.LuxSpellOnlyResourceSourceObjectIds,
-            plan.LuxSpellOnlyConsumedMana));
         events.Add(
             new GameEvent(
                 "COST_PAID",
@@ -3728,6 +3714,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
+                    ["spellOnlyManaSpent"] = spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana,
+                    ["ordinaryManaSpent"] = plan.TotalManaCost - (spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana),
                     ["power"] = plan.TotalPowerCost,
                     ["powerByTrait"] = plan.PowerCostByTrait,
                     ["experience"] = plan.TotalExperienceCost,
@@ -5372,6 +5360,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return ResolveMalzaharResourceSkill(state, intent, command, ability);
         }
+
+        if (P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId))
+            return ResolveLuxRestrictedMana(state, intent, command);
 
         if (IsImmediatePoolResourceAbility(ability.AbilityId))
         {
@@ -10269,6 +10260,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Mana = currentPool.Mana + BasicRuneTapManaGain
         };
+        if (!nextPool.HasSupportedAmounts)
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未横置符文。", ErrorCodes.UnsupportedCardBehavior);
         runePools[intent.PlayerId] = nextPool;
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones);
 
@@ -10390,6 +10383,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             PowerByTrait = powerByTrait
         };
+        if (!nextPool.HasSupportedAmounts)
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未回收符文。", ErrorCodes.UnsupportedCardBehavior);
         runePools[intent.PlayerId] = nextPool;
 
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -10622,58 +10617,36 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var shortfall = totalManaCost - currentPool.Mana;
-        if (shortfall <= 0)
-        {
-            rejection = "PLAY_CARD 包含不必要的拉克丝法术资源。";
-            return false;
-        }
-
-        var requiredSourceCount = (shortfall + P4ActivatedAbilityCatalog.LuxGeneratedMana - 1)
-            / P4ActivatedAbilityCatalog.LuxGeneratedMana;
-        if (sourceObjectIds.Count > requiredSourceCount)
-        {
-            rejection = "PLAY_CARD 包含不必要的拉克丝法术资源。";
-            return false;
-        }
-
-        generatedMana = sourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana;
-        if (currentPool.Mana + generatedMana < totalManaCost)
-        {
-            rejection = "拉克丝法术资源不足以支付当前法术。";
-            return false;
-        }
-
-        consumedMana = Math.Min(generatedMana, shortfall);
+        generatedMana = checked(sourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana);
+        var restrictedSpent = Math.Min(currentPool.SpellOnlyMana + generatedMana, totalManaCost);
+        consumedMana = Math.Max(0, restrictedSpent - currentPool.SpellOnlyMana);
         remainingMana = generatedMana - consumedMana;
-        return consumedMana > 0;
+        return true;
     }
 
-    private static bool CanUseLuxSpellOnlyResourceSource(MatchState state, string playerId, string sourceObjectId)
+    internal static bool CanUseLuxSpellOnlyResourceSource(MatchState state, string playerId, string sourceObjectId)
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || (!zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
                 && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
             || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || sourceState.ObjectId != sourceObjectId
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
                 P4ActivatedAbilityCatalog.LuxResourceAbilityId,
                 sourceState.CardNo)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown
             || sourceState.IsExhausted
-            || sourceState.IsFaceDown
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
+            || sourceState.ControllerId != playerId
+            || !AttachedRuleTextRules.ActivatedInstances(state, sourceState,
+                P4ActivatedAbilityCatalog.GetAll().Single(a => a.AbilityId == P4ActivatedAbilityCatalog.LuxResourceAbilityId)).Any())
         {
             return false;
         }
 
-        if (!state.ObjectLocations.TryGetValue(sourceObjectId, out var location))
-        {
-            return true;
-        }
-
-        return string.Equals(location.Zone, "BASE", StringComparison.Ordinal)
-            || string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal);
+        return state.ObjectLocations.TryGetValue(sourceObjectId, out var location) && location.PlayerId == playerId
+            && (location.Zone == "BASE" && zones.Base.Contains(sourceObjectId)
+                || location.Zone == MoveUnitBattlefieldZone && zones.Battlefields.Contains(sourceObjectId));
     }
 
     private static bool TryParseRecycleRunePaymentOptionalCost(
@@ -10882,154 +10855,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         IReadOnlyList<string> sourceObjectIds,
         List<GameEvent> events,
-        string paymentWindow,
-        string paymentId,
-        string playedCardNo,
-        string playedSourceObjectId)
+        string paymentId)
     {
-        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (sourceObjectIds.Count == 0)
-        {
-            return runePools;
-        }
-
-        var currentPool = runePools.TryGetValue(playerId, out var existingPool) ? existingPool : RunePool.Empty;
-        foreach (var sourceObjectId in sourceObjectIds)
-        {
-            if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState))
-            {
-                continue;
-            }
-
-            cardObjects[sourceObjectId] = sourceState with { IsExhausted = true };
-            currentPool = currentPool with { Mana = currentPool.Mana + P4ActivatedAbilityCatalog.LuxGeneratedMana };
-            runePools[playerId] = currentPool;
-            var temporaryResourceId = LuxSpellOnlyTemporaryPaymentResourceId(paymentId, sourceObjectId);
-
-            events.Add(new GameEvent(
-                "ABILITY_ACTIVATED",
-                $"{playerId} 横置拉克丝获得法术费用法力",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["cardNo"] = P4ActivatedAbilityCatalog.LuxCardNo,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
-                    ["effectKind"] = P4ActivatedAbilityCatalog.LuxResourceAbilityEffectKind,
-                    ["paymentWindow"] = paymentWindow,
-                    ["paymentId"] = paymentId,
-                    ["playedCardNo"] = playedCardNo,
-                    ["playedSourceObjectId"] = playedSourceObjectId,
-                    ["resourceSkill"] = true,
-                    ["paymentOnly"] = true,
-                    ["spellOnly"] = true,
-                    ["reactionSpeed"] = true,
-                    ["generatedMana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
-                    ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
-                    ["temporaryPaymentResourceId"] = temporaryResourceId,
-                    ["resourceLifecycle"] = "inline-spell-payment-resource",
-                    ["stackPolicy"] = "no-ordinary-stack-item",
-                    ["generatedResourceCannotBeTargetedAsResponse"] = true
-                }));
-            events.Add(new GameEvent(
-                "UNIT_EXHAUSTED",
-                $"{playerId} 横置拉克丝作为法术资源费用",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["cardNo"] = sourceState.CardNo,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
-                    ["paymentWindow"] = paymentWindow,
-                    ["paymentId"] = paymentId,
-                    ["resourceSkill"] = true,
-                    ["paymentOnly"] = true
-                }));
-            events.Add(new GameEvent(
-                "MANA_GAINED",
-                $"{playerId} 通过拉克丝资源技能获得 {P4ActivatedAbilityCatalog.LuxGeneratedMana} 点法术费用法力",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
-                    ["paymentWindow"] = paymentWindow,
-                    ["paymentId"] = paymentId,
-                    ["resourceSkill"] = true,
-                    ["paymentOnly"] = true,
-                    ["spellOnly"] = true,
-                    ["generatedMana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
-                    ["mana"] = P4ActivatedAbilityCatalog.LuxGeneratedMana,
-                    ["manaAfter"] = currentPool.Mana,
-                    ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
-                    ["restrictionLifecycle"] = "inline-spell-payment-resource",
-                    ["temporaryPaymentResourceId"] = temporaryResourceId
-                }));
-        }
-
-        return runePools;
-    }
-
-    private static IReadOnlyList<GameEvent> BuildLuxSpellOnlyResourcePaymentEvents(
-        PaymentCostRules.PaymentPlan paymentPlan,
-        string playerId,
-        IReadOnlyList<string> sourceObjectIds,
-        int consumedMana)
-    {
-        var events = new List<GameEvent>();
-        var remainingConsumedMana = consumedMana;
-        foreach (var sourceObjectId in sourceObjectIds)
-        {
-            var sourceConsumedMana = Math.Min(P4ActivatedAbilityCatalog.LuxGeneratedMana, remainingConsumedMana);
-            remainingConsumedMana -= sourceConsumedMana;
-            var remainingManaBeforeCleanup = P4ActivatedAbilityCatalog.LuxGeneratedMana - sourceConsumedMana;
-            var temporaryResourceId = LuxSpellOnlyTemporaryPaymentResourceId(paymentPlan.PaymentId, sourceObjectId);
-
-            if (sourceConsumedMana > 0)
-            {
-                events.Add(new GameEvent(
-                    "TEMPORARY_PAYMENT_RESOURCE_SPENT",
-                    $"{playerId} 消费拉克丝临时法力支付法术费用",
-                    new Dictionary<string, object?>
-                    {
-                        ["paymentId"] = paymentPlan.PaymentId,
-                        ["paymentWindow"] = paymentPlan.PaymentWindow,
-                        ["playerId"] = playerId,
-                        ["temporaryPaymentResourceId"] = temporaryResourceId,
-                        ["sourceObjectId"] = sourceObjectId,
-                        ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
-                        ["consumedMana"] = sourceConsumedMana,
-                        ["remainingMana"] = remainingManaBeforeCleanup,
-                        ["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind },
-                        ["resourceRestriction"] = P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction,
-                        ["paymentOnly"] = true,
-                        ["spellOnly"] = true
-                    }));
-            }
-
-            events.Add(new GameEvent(
-                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
-                $"{playerId} 的拉克丝临时法力支付窗口结束并清理",
-                new Dictionary<string, object?>
-                {
-                    ["paymentId"] = paymentPlan.PaymentId,
-                    ["paymentWindow"] = paymentPlan.PaymentWindow,
-                    ["playerId"] = playerId,
-                    ["temporaryPaymentResourceId"] = temporaryResourceId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.LuxResourceAbilityId,
-                    ["remainingManaBeforeCleanup"] = remainingManaBeforeCleanup,
-                    ["paymentOnly"] = true,
-                    ["spellOnly"] = true
-                }));
-        }
-
-        return events;
-    }
-
-    private static string LuxSpellOnlyTemporaryPaymentResourceId(string paymentId, string sourceObjectId)
-    {
-        return $"LUX:{paymentId}:{sourceObjectId}";
+        var pools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var source in sourceObjectIds)
+            GainLuxSpellOnlyMana(pools, cardObjects, playerId, source, events, paymentId);
+        return pools;
     }
 
     private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
@@ -12183,22 +12014,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? command.BattlefieldTargetObjectIds
             : [];
         const bool hasUnitDefendTriggerTargetChoice = false;
-        if (!TryResolveBattlefieldDefenderSteadfastChoice(
-                state,
-                playerZones,
-                defendingPlayerId ?? string.Empty,
-                battlefieldId,
-                defenderBattlefieldTargetObjectIds,
-                defenderObjectIds,
-                hasUnitDefendTriggerTargetChoice,
-                out var battlefieldSteadfastObjectId,
-                out var battlefieldSteadfastObjectSourceId,
-                out var battlefieldSteadfastCardNo,
-                out var battlefieldSteadfastGrantedKeyword,
-                out var battlefieldSteadfastKeywordBonus,
-                out var battlefieldSteadfastRejection))
+        var hasDefenderBattlefieldMoveTargets = TryGetBattlefieldCardObject(
+                playerZones, state.CardObjects, battlefieldId, out _, out var defenderBattlefieldState)
+            && !string.IsNullOrWhiteSpace(defendingPlayerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(defenderBattlefieldState, defendingPlayerId)
+            && BattlefieldTriggerSpecRules.TryGetTrigger(
+                defenderBattlefieldState.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
+                out var defenderBattlefieldMoveTrigger)
+            && BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(defenderBattlefieldMoveTrigger);
+        if (NormalizeTargetObjectIds(defenderBattlefieldTargetObjectIds ?? []).Count > 0
+            && !hasDefenderBattlefieldMoveTargets
+            && !hasUnitDefendTriggerTargetChoice)
         {
-            return battlefieldSteadfastRejection;
+            return RejectWithCorePrompts(
+                state,
+                "只有需要选择战场效果目标时才能提交战场目标。",
+                ErrorCodes.InvalidTarget);
         }
         if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
                 state,
@@ -12215,7 +12047,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return battlefieldDefenderMoveRejection;
         }
-        var battlefieldEffectTargetObjectIds = new[] { battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId }
+        var battlefieldEffectTargetObjectIds = new[] { null, battlefieldDefenderMoveObjectId }
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId!)
             .ToArray();
@@ -12432,24 +12264,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rngCursor);
         rngCursor = battlefieldRevealSpellTrigger.RngCursor;
         combatEvents.AddRange(battlefieldRevealSpellTrigger.Events);
-        if (!string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId))
-        {
-            combatEvents.Add(new GameEvent(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{defendingPlayerId} 防守战场并强化单位",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = defendingPlayerId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["battlefieldObjectId"] = battlefieldSteadfastObjectSourceId,
-                    ["battlefieldCardNo"] = battlefieldSteadfastCardNo,
-                    ["trigger"] = TriggerKinds.BattlefieldDefendGrantSteadfast,
-                    ["targetObjectId"] = battlefieldSteadfastObjectId,
-                    ["keyword"] = battlefieldSteadfastGrantedKeyword,
-                    ["keywordBonus"] = battlefieldSteadfastKeywordBonus
-                }));
-        }
-
         var hasMultipleAttackers = attackerObjectIds.Count > 1;
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
         var defenderAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, defenderObjectIds, defenderStates);
@@ -12479,8 +12293,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     0,
                     defendingPlayerId,
                     battlefieldId,
-                    battlefieldSteadfastObjectId,
-                    battlefieldSteadfastKeywordBonus,
+                    null,
+                    0,
                     readyEnemyUnitCount,
                     out var assaultBonus,
                     out var attackerStaticPowerBonus);
@@ -12499,8 +12313,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         defendingUnitCount,
                         null,
                         battlefieldId,
-                        battlefieldSteadfastObjectId,
-                        battlefieldSteadfastKeywordBonus,
+                        null,
+                        0,
                         0,
                         out _,
                         out _,
@@ -12556,8 +12370,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     defendingUnitCount,
                     null,
                     battlefieldId,
-                    battlefieldSteadfastObjectId,
-                    battlefieldSteadfastKeywordBonus,
+                    null,
+                    0,
                     0,
                     out var steadfastBonus,
                     out var defenderStaticPowerBonus);
@@ -12581,8 +12395,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         0,
                         defendingPlayerId,
                         battlefieldId,
-                        battlefieldSteadfastObjectId,
-                        battlefieldSteadfastKeywordBonus,
+                        null,
+                        0,
                         readyEnemyUnitCount,
                         out _,
                         out _,
@@ -12673,20 +12487,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 combatEvents);
         }
 
-        var resultWinner = TryResolveBattleWinnerPlayerId(playerZones, cardObjects, attackerObjectIds,
-            defenderObjectIds, defendingPlayerId, intent.PlayerId, out var capturedWinner) ? capturedWinner : null;
         var resultState = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones), RunePools = runePools,
             TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
         if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
-            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+            attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
         {
             combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
                     ["attackerObjectIds"] = attackerObjectIds.ToArray(), ["defenderObjectIds"] = defenderObjectIds.ToArray(),
                     ["optionalCosts"] = optionalCosts.ToArray(), ["battlefieldTargetObjectIds"] = new[] {
-                        battlefieldSteadfastObjectId, battlefieldDefenderMoveObjectId, icevaleArcherAttackTargetObjectId }
+                        null, battlefieldDefenderMoveObjectId, icevaleArcherAttackTargetObjectId }
                         .Where(id => !string.IsNullOrWhiteSpace(id)).ToArray() }));
             return new(true, null, pendingResult, combatEvents, ResolutionResult.BuildSnapshots(pendingResult), BuildCorePrompts(pendingResult));
         }
@@ -12899,7 +12711,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["battlefieldTargetObjectIds"] = new[]
                         {
-                            battlefieldSteadfastObjectId,
+                            null,
                             battlefieldDefenderMoveObjectId,
                             icevaleArcherAttackTargetObjectId
                         }
@@ -16186,101 +15998,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryResolveBattlefieldDefenderSteadfastChoice(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string defendingPlayerId,
-        string battlefieldId,
-        IReadOnlyList<string>? battlefieldTargetObjectIds,
-        IReadOnlyList<string> defenderObjectIds,
-        bool allowUnitDefendTriggerTargets,
-        out string? targetObjectId,
-        out string battlefieldObjectId,
-        out string? battlefieldCardNo,
-        out string? grantedKeyword,
-        out int keywordBonus,
-        out ResolutionResult rejection)
-    {
-        targetObjectId = null;
-        battlefieldObjectId = string.Empty;
-        battlefieldCardNo = null;
-        grantedKeyword = null;
-        keywordBonus = 0;
-        rejection = default!;
-
-        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        var hasBattlefieldObject = TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState);
-        var sourceControlledByDefender = hasBattlefieldObject
-            && !string.IsNullOrWhiteSpace(defendingPlayerId)
-            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId);
-        TriggerSpec? steadfastTrigger = null;
-        if (sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger,
-                out var candidateSteadfastTrigger)
-            && BattlefieldTriggerSpecRules.IsBattlefieldDefendGrantSteadfastTrigger(candidateSteadfastTrigger))
-        {
-            steadfastTrigger = candidateSteadfastTrigger;
-        }
-        var isSteadfastBattlefield = steadfastTrigger is not null;
-        var isMoveToBaseBattlefield = sourceControlledByDefender
-            && BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger,
-                out var moveToBaseTrigger)
-            && BattlefieldTriggerSpecRules.IsBattlefieldDefendMoveFriendlyUnitToBaseTrigger(moveToBaseTrigger);
-        if (!isSteadfastBattlefield)
-        {
-            if (requestedTargetObjectIds.Count > 0
-                && !isMoveToBaseBattlefield
-                && !allowUnitDefendTriggerTargets)
-            {
-                rejection = RejectWithCorePrompts(
-                    state,
-                    "只有需要选择战场效果目标时才能提交战场目标。",
-                    ErrorCodes.InvalidTarget);
-                return false;
-            }
-
-            return true;
-        }
-
-        battlefieldCardNo = battlefieldState.CardNo;
-        grantedKeyword = steadfastTrigger!.GrantedKeyword;
-        keywordBonus = steadfastTrigger.KeywordBonus.GetValueOrDefault();
-        var requestedDefenderTargetObjectIds = requestedTargetObjectIds
-            .Where(requestedTargetObjectId => defenderObjectIds.Contains(requestedTargetObjectId, StringComparer.Ordinal))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var selectedTargetObjectId = requestedDefenderTargetObjectIds.Length == 0 && defenderObjectIds.Count == 1
-            ? defenderObjectIds[0]
-            : requestedDefenderTargetObjectIds.Length == 1
-                ? requestedDefenderTargetObjectIds[0]
-                : string.Empty;
-        if (requestedTargetObjectIds.Count != requestedDefenderTargetObjectIds.Length
-            && !allowUnitDefendTriggerTargets)
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "该战场效果需要且只能选择 1 个防守单位。",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(selectedTargetObjectId))
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "该战场效果需要且只能选择 1 个防守单位。",
-                ErrorCodes.InvalidTarget);
-            return false;
-        }
-
-        targetObjectId = selectedTargetObjectId;
-        return true;
-    }
-
     private static bool TryResolveIcevaleArcherAttackPaymentChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -18600,6 +18317,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (behavior.DamageAmountFromOptionalPowerCost
+            && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
+        {
+            rejection = Reject(state, "此指令的符能数量须在结算时选择和支付。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         var optionalCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalCostReductionChoice).ToArray();
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsOptionalCostReductionChoice(cost)).ToArray();
         var printedPowerChoices = normalizedCommandOptionalCosts
@@ -18880,6 +18603,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
         var optionalCostPowerReduction = powerBeforeSacrificeReduction - totalPowerCostByTrait.Values.Sum();
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
+        if (!CanGainSpellOnlyMana(paymentAdjustedPool, (long)luxSpellOnlyResourceSourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana))
+        {
+            rejection = Reject(state, "资源数量超出服务端支持范围，未获取资源或支付费用。", ErrorCodes.UnsupportedCardBehavior);
+            return false;
+        }
         if (!TryValidateLuxSpellOnlyResourceActions(
                 state,
                 intent.PlayerId,
@@ -18933,11 +18661,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 luxSpellOnlyGeneratedMana,
                 luxSpellOnlyConsumedMana,
                 luxSpellOnlyRemainingMana,
-                optionalReductions));
+                optionalReductions),
+            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other);
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
         {
-            Mana = paymentAdjustedPool.Mana + luxSpellOnlyGeneratedMana
+            SpellOnlyMana = paymentAdjustedPool.SpellOnlyMana + luxSpellOnlyGeneratedMana
         };
 
         paymentAdjustedPool = authorizationRunePools.TryGetValue(intent.PlayerId, out var temporaryAdjustedPool)
@@ -18989,7 +18718,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentExperience);
         if (!paymentAuthorization.Accepted)
         {
-            var errorMessage = paymentAdjustedPool.Mana < totalManaCost
+            var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose) < totalManaCost
                 ? $"Not enough mana to play {behavior.DisplayName}."
                 : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
                     ? $"Not enough power to play {behavior.DisplayName}."
@@ -19826,10 +19555,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal)
             && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId, nextControllerId))
         {
-            var sourceObjectId = occupantObjectIds.FirstOrDefault(objectId =>
-                    cardObjects.TryGetValue(objectId, out var cardObject)
+            IEnumerable<string> sourceCandidates = occupantObjectIds;
+            if (concludingBattle && state.PendingBattleResult is { } battle
+                && battle.BattlefieldId == battlefieldObjectId && battle.WinnerPlayerId == nextControllerId)
+            {
+                var declared = battle.AttackingPlayerId == nextControllerId ? battle.AttackerObjectIds : battle.DefenderObjectIds;
+                sourceCandidates = declared.Where(id => battle.PublicObjectBindings.Any(binding => binding.ObjectId == id
+                    && cardObjects.TryGetValue(id, out var current) && current.ObjectGeneration == binding.Generation))
+                    .Concat(occupantObjectIds);
+            }
+            var conqueringUnitObjectIds = sourceCandidates.Where(objectId =>
+                    occupantObjectIds.Contains(objectId, StringComparer.Ordinal)
+                    && cardObjects.TryGetValue(objectId, out var cardObject)
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
-                ?? nextControllerId;
+                .Distinct(StringComparer.Ordinal).ToArray();
+            var sourceObjectId = (concludingBattle ? conqueringUnitObjectIds.FirstOrDefault(objectId =>
+                    CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags) > 0) : null)
+                ?? conqueringUnitObjectIds.FirstOrDefault() ?? nextControllerId;
             events.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{nextControllerId} 征服战场",
@@ -19839,7 +19581,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldObjectId,
                     ["battlefieldObjectId"] = battlefieldObjectId,
                     ["sourceObjectId"] = sourceObjectId,
-                    ["defeatedObjectIds"] = Array.Empty<string>(),
+                    ["defeatedObjectIds"] = concludingBattle && state.PendingBattleResult is { } result
+                        && result.BattlefieldId == battlefieldObjectId
+                            ? result.AttackingPlayerId == nextControllerId ? result.DefenderObjectIds : result.AttackerObjectIds
+                            : Array.Empty<string>(),
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamage,
                     ["reason"] = concludingBattle ? "BATTLE_CONTROL_AFTER_RESPONSES" : "NON_BATTLE_SPELL_DUEL_CONTROL"
                 }));
             var scoreState = state with
@@ -19874,7 +19620,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state with { PlayerScores = playerScores, UntilEndOfTurnEffects = untilEndOfTurnEffects,
                     WinnerPlayerId = winnerPlayerId, ObjectLocations = objectLocations },
                 playerZones, cardObjects, nextControllerId, battlefieldObjectId, sourceObjectId,
-                occupantObjectIds, assignedOverkillDamage, state.Tick, events);
+                conqueringUnitObjectIds, assignedOverkillDamage, state.Tick, events);
             objectLocations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
             playerScores = state.PlayerScores;
             untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
@@ -22617,24 +22363,30 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(
-            normalizedOptionalCosts,
-            behavior,
-            out var hasteExtraManaCost,
-            out var hasteExtraPowerCost,
-            out var hasteExtraPowerTrait))
+        // Haste is one independent optional additional cost (CN 356.2/805.1).
+        // An outside-hand grant does not replace the unit's printed options.
+        var hasteCosts = normalizedOptionalCosts.Where(CardPermissionKeywordRules.IsHasteReadyCostChoice).ToArray();
+        if (hasteCosts.Length > 0)
         {
-            extraManaCost = hasteExtraManaCost;
+            if (!CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(hasteCosts, behavior,
+                    out var hasteExtraManaCost, out var hasteExtraPowerCost, out var hasteExtraPowerTrait)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !CardPermissionKeywordRules.IsHasteReadyCostChoice(cost)).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts, behavior, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            extraManaCost += hasteExtraManaCost;
             if (string.IsNullOrWhiteSpace(hasteExtraPowerTrait))
             {
-                extraPowerCost = hasteExtraPowerCost;
+                extraPowerCost += hasteExtraPowerCost;
             }
             else
             {
-                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                extraPowerCostByTrait = PrintedPowerCostRules.Combine(extraPowerCostByTrait, new Dictionary<string, int>(StringComparer.Ordinal)
                 {
                     [hasteExtraPowerTrait] = hasteExtraPowerCost
-                };
+                });
             }
 
             return true;
@@ -22688,25 +22440,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             extraManaCost = targetEffectExtraManaCost;
             extraPowerCostByTrait = targetEffectExtraPowerCostByTrait;
-            return true;
-        }
-
-        if (normalizedOptionalCosts.Count == 1
-            && behavior.DamageAmountFromOptionalPowerCost
-            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait))
-        {
-            if (string.IsNullOrWhiteSpace(powerTrait))
-            {
-                extraPowerCost = powerCost;
-            }
-            else
-            {
-                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [powerTrait] = powerCost
-                };
-            }
-
             return true;
         }
 
@@ -25402,7 +25135,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.SelectedBattlefieldEffect is not null)
         {
             var locations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, behavior, stackItem, events,
+            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, runePools, behavior, stackItem, events,
                 damageTriggeredDestroyTargetObjectIds, preventDamageFromThisStackItem);
             resolvedObjectLocations = ReconcileObjectLocations(locations, playerZones);
         }
@@ -31138,6 +30871,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior.PowerModifierControlledUnitTags);
         }
 
+        if (behavior.PowerModifierAmountIfTargetEmpowered is { } empoweredAmount
+            && cardObjects.TryGetValue(targetObjectId, out var empoweredTarget) && empoweredTarget.IsEmpowered)
+            return empoweredAmount;
+
         return targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
             ? behavior.SecondaryPowerModifierAmount
             : behavior.PowerModifierAmount;
@@ -32453,6 +32190,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
             cardObjects[targetObjectId] = controlledTargetState;
+            RecallAttachedGroupToBase(playerZones, cardObjects, targetObjectId, controllerId);
             previousControllerId = playerId;
             return true;
         }
