@@ -45,7 +45,15 @@ public sealed class BattleSettlementSurrenderTests
         var endedPrompt = ResolutionResult.BuildPrompts(final)[player];
         var late = JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.PassPriority,
             promptId = endedPrompt.PromptId, snapshotTick = final.Tick }, Json);
-        await run.ActRetained(new(player, "late-priority-after-surrender", late), false);
+        var beforeCommands = JsonSerializer.Serialize(run.Commands(), Json); var beforeEvents = JsonSerializer.Serialize(run.Events(), Json);
+        var beforeState = MatchStateHasher.Hash(final);
+        var error = await Assert.ThrowsAsync<MatchSessionException>(() =>
+            run.ActRetained(new(player, "late-priority-after-surrender", late), false));
+        Assert.Equal(ErrorCodes.MatchFinished, error.Code);
+        Assert.Equal(beforeState, MatchStateHasher.Hash(run.State));
+        Assert.Equal(beforeCommands, JsonSerializer.Serialize(run.Commands(), Json)); Assert.Equal(beforeEvents, JsonSerializer.Serialize(run.Events(), Json));
+        Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(final), Json), JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(run.State), Json));
+        Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildPrompts(final), Json), JsonSerializer.Serialize(ResolutionResult.BuildPrompts(run.State), Json));
         var commands = run.Commands(); var events = run.Events(); var sequence = commands[^1].CompletedEventSequence;
         var snapshots = ResolutionResult.BuildSnapshots(final); var prompts = ResolutionResult.BuildPrompts(final);
         var views = final.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, final.Tick, sequence,
