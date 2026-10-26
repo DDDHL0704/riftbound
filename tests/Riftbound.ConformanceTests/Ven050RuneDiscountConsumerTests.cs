@@ -118,13 +118,18 @@ public sealed class Ven050RuneDiscountConsumerTests
     public async Task AnActualEnemySpellPaysExactlyOneWardOnlyAfterEmpower(bool empowered, int power, bool accepted)
     {
         var initial = Add(Position(), "NEGATIVE", "UNL-066/219", "P2", "HAND");
-        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = new(20, power) } };
+        for (var i = 0; i < 6; i++) initial = Add(initial, "WARD-MANA-" + i, "UNL-R03", "P2", "BASE");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = RunePool.Empty } };
         var game = await Play(initial); if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
-        await game.Act("P1", new EndTurnCommand()); var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);
-        if (!accepted) await Reject(game, "P2", command);
+        await game.Act("P1", new EndTurnCommand());
+        foreach (var id in game.State.PlayerZones["P2"].Base.ToArray()) await game.Act("P2", new TapRuneCommand(id));
+        if (power == 1) await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
+        Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
+        var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);
+        if (!accepted) { await Reject(game, "P2", command); Assert.Equal(7, game.State.RunePools["P2"].Mana); }
         else
         {
-            await game.Act("P2", command); Assert.Equal(13, game.State.RunePools["P2"].Mana);
+            await game.Act("P2", command); Assert.Equal(0, game.State.RunePools["P2"].Mana);
             Assert.Equal(power - (empowered ? 1 : 0), game.State.RunePools["P2"].TotalPower);
             Assert.Equal(empowered ? 1 : 0, game.Events().Last(e => e.Event.Kind == "COST_PAID").Event.Payload["spellshieldTaxPower"]);
             await game.Top(); Assert.Equal(-6, game.State.CardObjects["UNIT"].Power); Assert.Equal(0, Might(game.State));
@@ -139,9 +144,12 @@ public sealed class Ven050RuneDiscountConsumerTests
     public async Task AnActualEnemyAbilityPaysWardBeforeItsExhaustCost(bool empowered, int power, bool accepted)
     {
         var initial = Add(Position(), "ORB", OrbOfRegretTests.Card, "P2", "BASE");
-        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = new(20, power) } };
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = RunePool.Empty } };
         var game = await Play(initial); if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
-        await game.Act("P1", new EndTurnCommand()); var command = new ActivateAbilityCommand("ORB", OrbOfRegretTests.Ability, ["UNIT"]);
+        await game.Act("P1", new EndTurnCommand());
+        if (power == 1) await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
+        Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
+        var command = new ActivateAbilityCommand("ORB", OrbOfRegretTests.Ability, ["UNIT"]);
         if (!accepted) { await Reject(game, "P2", command); Assert.False(game.State.CardObjects["ORB"].IsExhausted); }
         else
         {
