@@ -50,11 +50,13 @@ public sealed class Ven007RequiredDiscardConsumerTests
         {
             await game.Act("P1", new PlayCardCommand("UNIT", No, []));
             Assert.Equal(18, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            var paymentGeneration = game.State.CardObjects["FODDER"].ObjectGeneration;
             await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]));
             Assert.DoesNotContain("FODDER", game.State.PlayerZones["P1"].Hand); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal("GRAVEYARD", game.State.ObjectLocations["FODDER"].Zone);
             Assert.Equal(18, game.State.RunePools["P1"].Mana); Assert.Equal(20, game.State.RunePools["P1"].TotalPower);
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
+            Assert.Equal(new ObjectBinding("FODDER", paymentGeneration), game.State.StackItems.Single().EmpowerActivation!.DiscardedHandCard);
             JsonRestore(initial, game);
             await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(2, game.State.CardObjects["UNIT"].Power);
             Assert.Equal(3, Might(game.State)); Assert.Empty(game.State.CardObjects["UNIT"].UntilEndOfTurnPowerModifiers);
@@ -183,6 +185,50 @@ public sealed class Ven007RequiredDiscardConsumerTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActualCopiedFacePaysOnceWithItsExplicitOriginAndKeepsThePaidWitnessAfterDetach(bool detach)
+    {
+        var initial = Add(Add(ShadySpectaclesTests.Position(No), "FODDER", "VEN·049"), "DETACH", "SFD·011/221");
+        var game = new Driver(initial);
+        try
+        {
+            var basis = ObjectMight(game.State, "HOST"); var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
+            var choice = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", choice.Request.Kind);
+            await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+            Assert.Equal(No, game.State.CardObjects["HOST"].CardNo); Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+            var candidate = Assert.Single(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
+            var rows = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
+            var row = Assert.Single(rows, r => (string?)r["sourceObjectId"] == "HOST" && (string?)r["abilityId"] == "EMPOWER:0:0");
+            var instance = Assert.IsType<string>(row["abilityInstanceId"]);
+            var activate = new ActivateAbilityCommand("HOST", "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]);
+            await Reject(game, activate); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Hand);
+            var paidGeneration = game.State.CardObjects["FODDER"].ObjectGeneration;
+            await game.Act("P1", activate with { AbilityInstanceId = instance });
+            var captured = Assert.Single(game.State.StackItems).EmpowerActivation!;
+            Assert.Equal("HOST", captured.Source.ObjectId); Assert.Equal(generation, captured.Source.Generation);
+            Assert.Equal("GEAR", captured.Origin!.Equipment.ObjectId);
+            Assert.Equal(new ObjectBinding("FODDER", paidGeneration), captured.DiscardedHandCard);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); JsonRestore(initial, game);
+            if (detach)
+            {
+                await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top();
+                Assert.Null(game.State.CardObjects["HOST"].AttachmentUnitCopies);
+                Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+                Assert.Equal(captured, Assert.Single(game.State.StackItems).EmpowerActivation);
+                JsonRestore(initial, game);
+            }
+            await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            Assert.Equal(detach ? basis : 3, ObjectMight(game.State, "HOST"));
+            Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration);
+            Assert.Equal(1, game.State.PlayerZones["P1"].Graveyard.Count(id => id == "FODDER"));
+            Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DISCARDED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "FODDER"));
+            await game.Replay(); JsonRestore(initial, game);
+        }
+        finally { await Save("copied-cost-origin-" + detach, initial, game); }
+    }
+
+    [Theory]
     [InlineData("P1")] [InlineData("P2")]
     public async Task CanonicalOpeningDiscardsANaturallyDrawnCardAndRejectsACoherentRefundInProductionColdRecovery(string actor)
     {
@@ -198,6 +244,10 @@ public sealed class Ven007RequiredDiscardConsumerTests
             Assert.Equal(mana - 2, game.State.RunePools[actor].Mana); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
             await game.ColdCheckpoint(); await game.RejectCoordinatedForgery("refunded-required-discard", Refund(game.State, before, actor, payment));
+            var item = Assert.Single(game.State.StackItems); var other = game.State.PlayerZones[actor].Hand.First();
+            var invented = game.State with { StackItems = [item with { EmpowerActivation = item.EmpowerActivation! with {
+                DiscardedHandCard = new(other, game.State.CardObjects[other].ObjectGeneration) } }] };
+            await game.RejectCoordinatedForgery("invented-paid-hand-card-binding", invented);
             await game.Top(); Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(2, game.State.CardObjects[unit].Power); Assert.Equal(3, game.Might(actor, unit));
             await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.Equal(3, game.Might(actor, unit)); Assert.True(game.State.CardObjects[unit].IsEmpowered);
@@ -241,6 +291,8 @@ public sealed class Ven007RequiredDiscardConsumerTests
     }
     private static int Might(MatchState state) => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)["P1"], Json)
         .GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("UNIT").GetProperty("effectivePower").GetInt32();
+    private static int ObjectMight(MatchState state, string id) => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)["P1"], Json)
+        .GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
     private static async Task Save(string label, MatchState initial, Driver game)
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN007_EVIDENCE") is not { Length: > 0 } output) return;
