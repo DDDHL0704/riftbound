@@ -47,40 +47,76 @@ public sealed class DravenDeathAndWinOrderTests
         Assert.Contains("WINS", state.PlayerZones["P1"].Battlefields);
         Assert.Empty(state.TriggerQueue);
         Assert.All(state.StackItems, i => Assert.Equal("P1", i.ControllerId));
-        Assert.Equal("DIES", state.StackItems[0].SourceObjectId);
-        Assert.NotNull(state.StackItems[0].DravenBattleDeathScore);
-        Assert.Equal("WINS", state.StackItems[1].SourceObjectId);
-        Assert.NotNull(state.StackItems[1].DravenBattleWinScore);
+        var death = Assert.Single(state.StackItems);
+        Assert.Equal("DIES", death.SourceObjectId); Assert.NotNull(death.DravenBattleDeathScore);
+        Assert.Null(death.DravenBattleWinScore);
+        Assert.Equal("CLEANUP_TRIGGERS", state.PendingBattleResult!.Stage);
+        Assert.DoesNotContain(journal.Entries.SelectMany(e => e.Events), e => e.Kind is
+            "BATTLE_RESULT_DETERMINED" or "BATTLEFIELD_CONQUERED" or "BATTLE_CLOSED");
         Assert.DoesNotContain(CommandTypes.OrderTriggers, session.PromptFor("P1").EnabledActions());
+        await Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [death.StackItemId]), false);
         var choice = state.PendingCardChoice!;
         await Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2"]));
+        // CN 468.2 completes death/cleanup skills before the result task can create WINS's skill.
+        for (var i = 0; state.Status == MatchStatuses.InProgress && state.StackItems.Any(s => s.DravenBattleDeathScore is not null); i++)
+        { Assert.InRange(i, 0, 8); await Act(state.PriorityPlayerId!, new PassPriorityCommand()); }
+        if (score == 0)
+        {
+            var win = Assert.Single(state.StackItems);
+            Assert.Equal("WINS", win.SourceObjectId); Assert.NotNull(win.DravenBattleWinScore);
+            Assert.Null(win.DravenBattleDeathScore);
+            Assert.Equal("RESULT_TRIGGERS", state.PendingBattleResult!.Stage);
+            Assert.Empty(state.TriggerQueue);
+            Assert.DoesNotContain(CommandTypes.OrderTriggers, session.PromptFor("P1").EnabledActions());
+        }
         for (var i = 0; state.Status == MatchStatuses.InProgress && state.StackItems.Count > 0; i++)
         { Assert.InRange(i, 0, 8); await Act(state.PriorityPlayerId!, new PassPriorityCommand()); }
         var events = journal.Entries.SelectMany(e => e.Events).ToArray();
         var skillScores = events.Where(e => e.Kind == "SCORE_GAINED"
             && e.Payload.GetValueOrDefault("reason") is string reason && reason.StartsWith("CAPTURED_DRAVEN_", StringComparison.Ordinal)).ToArray();
         Assert.Equal(score == 7 ? 1 : 2, skillScores.Length);
-        Assert.Equal("P1", skillScores[0].Payload["playerId"]);
-        Assert.Equal("WINS", skillScores[0].Payload["sourceObjectId"]);
+        Assert.Equal("P2", skillScores[0].Payload["playerId"]);
+        Assert.Equal("DIES", skillScores[0].Payload["sourceObjectId"]);
         if (score == 7)
         {
-            Assert.Equal("P1", state.WinnerPlayerId); Assert.Equal(8, state.PlayerScores["P1"]); Assert.Equal(7, state.PlayerScores["P2"]);
-            Assert.DoesNotContain(events, e => e.Kind is "BATTLEFIELD_CONQUERED" or "BATTLE_CLOSED");
+            Assert.Equal("P2", state.WinnerPlayerId); Assert.Equal(7, state.PlayerScores["P1"]); Assert.Equal(8, state.PlayerScores["P2"]);
+            Assert.DoesNotContain(events, e => e.Kind is "BATTLE_RESULT_DETERMINED" or "BATTLEFIELD_CONQUERED" or "BATTLE_CLOSED");
         }
         else
         {
-            Assert.Equal("P2", skillScores[1].Payload["playerId"]); Assert.Equal("DIES", skillScores[1].Payload["sourceObjectId"]);
+            Assert.Equal("P1", skillScores[1].Payload["playerId"]); Assert.Equal("WINS", skillScores[1].Payload["sourceObjectId"]);
             Assert.Equal(2, state.PlayerScores["P1"]); Assert.Equal(1, state.PlayerScores["P2"]);
             Assert.Null(state.WinnerPlayerId); Assert.Single(events, e => e.Kind == "BATTLE_CLOSED");
+            var result = Assert.Single(events, e => e.Kind == "BATTLE_RESULT_DETERMINED");
+            Assert.True(Array.IndexOf(events, skillScores[0]) < Array.IndexOf(events, result));
+            Assert.True(Array.IndexOf(events, result) < Array.IndexOf(events, skillScores[1]));
         }
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
         var recordedEvents = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         for (var i = 0; i < commands.Length; i++)
         {
+            var prefix = commands.Take(i + 1).ToArray();
+            var sequence = commands[i].CompletedEventSequence;
+            var prefixEvents = recordedEvents.Where(e => e.Sequence <= sequence).ToArray();
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands.Take(i + 1).ToArray(), states[i],
-                new CoreRuleEngine(), default, recordedEvents.Where(e => e.Sequence <= commands[i].CompletedEventSequence).ToArray());
+                new CoreRuleEngine(), default, prefixEvents);
             Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+            var at = states[i]; var snapshots = ResolutionResult.BuildSnapshots(at); var prompts = ResolutionResult.BuildPrompts(at);
+            var views = at.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, at.Tick, sequence,
+                snapshots[p], at.Tick, sequence, prompts[p]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(at.RoomId, at.Tick, sequence, [], at);
+            Assert.Empty(MatchRecoveryValidator.Validate(at.RoomId, sequence, prefix, prefixEvents, views, at, at.Tick, spectator));
+            // This explicit midgame frame validates the real prefix, not a full legal opening.
+            var frame = new MatchRecoveryFrame(at.RoomId, at.Tick, sequence, prefix, prefixEvents, views, [], at, initial, spectator)
+                { OpeningSeed = initial.Seed };
+            var cold = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, json), json)!;
+            var restored = MatchSession.Restore(cold, new CoreRuleEngine(), NoopMatchJournal.Instance);
+            foreach (var player in at.Seats.Keys)
+            {
+                Assert.Equal(MatchStateHasher.HashValue(snapshots[player]), MatchStateHasher.HashValue(restored.SnapshotFor(player)));
+                Assert.Equal(MatchStateHasher.HashValue(prompts[player]), MatchStateHasher.HashValue(restored.PromptFor(player)));
+            }
         }
         var output = Environment.GetEnvironmentVariable("RIFTBOUND_DRAVEN_DEATH_WIN_ORDER_EVIDENCE");
         if (!string.IsNullOrWhiteSpace(output))
@@ -91,13 +127,23 @@ public sealed class DravenDeathAndWinOrderTests
                 events = recordedEvents, originalPrefixReplayCount = commands.Length }, json);
         }
 
-        async Task Act(string actor, GameCommand command)
+        async Task Act(string actor, GameCommand command, bool accepted = true)
         {
+            var before = JsonSerializer.Serialize(state, json);
+            var beforeSnapshot = JsonSerializer.Serialize(session.SnapshotFor(actor), json);
+            var beforePrompt = JsonSerializer.Serialize(session.PromptFor(actor), json);
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
             raw["promptId"] = session.PromptFor(actor).PromptId; raw["snapshotTick"] = state.Tick;
             var wire = JsonSerializer.SerializeToElement(raw, json);
             var result = await session.SubmitAsync(actor, "same-controller-" + journal.Entries.Count, GameCommandJsonMapper.Map(wire), wire, default);
-            Assert.True(result.Accepted, result.ErrorMessage); state = result.State; states.Add(state);
+            Assert.Equal(accepted, result.Accepted);
+            if (!accepted)
+            {
+                Assert.Equal(before, JsonSerializer.Serialize(result.State, json)); Assert.Empty(result.Events);
+                Assert.Equal(beforeSnapshot, JsonSerializer.Serialize(session.SnapshotFor(actor), json));
+                Assert.Equal(beforePrompt, JsonSerializer.Serialize(session.PromptFor(actor), json));
+            }
+            state = result.State; states.Add(state);
         }
     }
 
