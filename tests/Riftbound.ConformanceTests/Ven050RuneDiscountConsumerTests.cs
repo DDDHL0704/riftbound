@@ -292,6 +292,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         { cards[id] = Printed(id, no, owner); locations[id] = new(owner, zone, field); }
         Put("UNIT", No, "P1", "HAND"); Put("ENEMY", "OGN·096/298", "P2", "BATTLEFIELD", "OTHER");
         Put("GEAR", "SFD·022/221", "P1", "BASE"); Put("BF", "OGN·278/298", "P1", "BATTLEFIELD", "BF"); Put("OTHER", "OGN·278/298", "P2", "BATTLEFIELD", "OTHER");
+        cards["BF"] = cards["BF"] with { ControllerId = "P1" }; cards["OTHER"] = cards["OTHER"] with { ControllerId = "P2" };
         var zones = new Dictionary<string, PlayerZones>();
         foreach (var p in new[] { "P1", "P2" })
         {
