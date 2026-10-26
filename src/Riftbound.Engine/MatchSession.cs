@@ -10238,7 +10238,9 @@ internal static class ActionPromptBuilder
 
     private static bool IsTapRuneSource(MatchState state, string playerId, string objectId)
     {
-        return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
+        return state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
+            && (long)pool.Mana + pool.SpellOnlyMana < int.MaxValue
+            && IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
@@ -10249,7 +10251,9 @@ internal static class ActionPromptBuilder
 
     private static bool IsRecycleRuneSource(MatchState state, string playerId, string objectId)
     {
-        return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
+        return state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
+            && pool.TotalPower < int.MaxValue
+            && IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
@@ -10335,8 +10339,9 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
-            if (P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId)
-                && !CoreRuleEngine.CanGainSpellOnlyMana(state.RunePools.GetValueOrDefault(playerId, RunePool.Empty), P4ActivatedAbilityCatalog.LuxGeneratedMana)) continue;
+            if (ability.IsResourceSkill && ability.AbilityId != P4ActivatedAbilityCatalog.MalzaharResourceAbilityId
+                && ResourceQuantityRules.ConversionPrefix(ability.AbilityId) is null
+                && !CoreRuleEngine.ResourceAbilityAmountsSupported(state, playerId, ability, [])) continue;
             if (!CanPromptActivateAbilityInCurrentWindow(state, playerId, ability))
             {
                 continue;
@@ -10487,7 +10492,9 @@ internal static class ActionPromptBuilder
     {
         if (!P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId)
             || !state.PlayerExperience.TryGetValue(playerId, out var experience)
-            || experience < P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience)
+            || experience < P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience
+            || !CoreRuleEngine.ResourceAbilityAmountsSupported(state, playerId, ability,
+                [P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix + sourceObjectId]))
         {
             return [];
         }
@@ -11740,7 +11747,8 @@ internal static class ActionPromptBuilder
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
             && (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
+                || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
+            && CoreRuleEngine.CanStartMalzaharResourceCost(state, playerId, sourceObjectId, objectId);
     }
 
     private static bool IsPromptDestroyFriendlyUnitActivatedAbilityTarget(

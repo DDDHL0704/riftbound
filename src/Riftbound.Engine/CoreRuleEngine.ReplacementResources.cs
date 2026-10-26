@@ -48,7 +48,7 @@ public sealed partial class CoreRuleEngine
             }
             void Add(string[] costs, string label)
             {
-                if (!ReplacementResourceAmountsSupported(state, player, ability, costs)) return;
+                if (!ResourceAbilityAmountsSupported(state, player, ability, costs)) return;
                 var name = CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var card) ? card.DisplayName
                     : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) ? "金币" : state.CardObjects[id].CardNo;
                 var key = $"RESOURCE:{id}:{ability.AbilityId}:{string.Join(',',costs)}";
@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
         return actions;
     }
 
-    private static bool ReplacementResourceAmountsSupported(MatchState state, string player,
+    internal static bool ResourceAbilityAmountsSupported(MatchState state, string player,
         P4ActivatedAbilityDefinition ability, string[] costs)
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
