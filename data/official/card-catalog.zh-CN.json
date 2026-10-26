@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1084,
+  "total": 1085,
   "cards": [
     {
       "id": 31005,
@@ -45236,6 +45236,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37748,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·057",
+      "cardName": "秘密线人",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Grafit Studio",
+      "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我移动时，抽一张牌。",
+      "flavorText": "一人所知，是为秘密；两人所知，是为交易。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/6b9efb9db2fa4146b38301f6d66eddaa.png",
+      "backImage": "",
+      "listSort": 1938,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46591,6 +46639,33 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing retained for real resource-Empower and current friendly-empowered-unit Might aura consumer. Whole face and API agree; registration and source inventory are not complete applicability or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·057",
+      "sourceId": 37748,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "秘密线人",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T17:27:36.567595+00:00",
+      "sourceRecordSha256": "e4d8724224e2f6f5172ea7cbea1f8952b3e645dddd3e1e743051689da5e8cc2b",
+      "sourceResponseSha256": "4cd5f946539bf15033f66060f8b444c100988ae5b92889dd80585948cddc6339",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·057/166 SC",
+      "frontImageSha256": "a857fee283ad2b1f58d369733d7da87254a64675b035c84eae29866f28a0bf59",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing for real resource-Empower and gated movement draw consumers. Existing movement/instance capture should be reused; source/status and trigger lifetime require actual execution. Registration is not applicability or whole-card certification."
     }
   ]
 }
