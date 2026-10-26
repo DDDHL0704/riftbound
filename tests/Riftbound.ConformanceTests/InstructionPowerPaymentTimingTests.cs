@@ -110,9 +110,13 @@ public sealed class InstructionPowerPaymentTimingTests
         Assert.Contains(request.Options, o => o.Id == "SPEND_POWER:1");
         Assert.Equal(1, request.Preview!.RunePools["P1"].TotalPower);
         Assert.Equal(0, request.Preview.CardObjects["TARGET"].Damage);
-        Assert.Equal(0, driver.State.RunePools["P1"].TotalPower);
-        Assert.Contains("RUNE", driver.State.PlayerZones["P1"].Base);
+        Assert.Equal(1, driver.State.RunePools["P1"].TotalPower);
+        Assert.DoesNotContain("RUNE", driver.State.PlayerZones["P1"].Base);
+        Assert.Contains("RUNE", driver.State.PlayerZones["P1"].RuneDeck);
+        Assert.Single(driver.Events(), e => e.Event.Kind == "RUNE_RECYCLED");
+        var paymentStart = driver.Events().Length;
         await Decide(driver, spend ? "SPEND_POWER:1" : "SPEND_POWER:0");
+        Assert.DoesNotContain(driver.Events().Skip(paymentStart), e => e.Event.Kind == "RUNE_RECYCLED");
         Assert.Equal(spend ? 0 : 1, driver.State.RunePools["P1"].TotalPower);
         Assert.Equal(spend ? 1 : 0, driver.State.CardObjects["TARGET"].Damage);
         Assert.Contains("RUNE", driver.State.PlayerZones["P1"].RuneDeck);
@@ -135,7 +139,12 @@ public sealed class InstructionPowerPaymentTimingTests
         var visiblePool = driver.State.PendingRuleChoice!.Request.Preview!.RunePools["P1"];
         Assert.Equal(card == P4ActivatedAbilityCatalog.DragonSoulSageCardNo ? 1 : 0, visiblePool.Mana);
         Assert.True(visiblePool.TotalPower >= amount);
+        Assert.Equal(card == P4ActivatedAbilityCatalog.DragonSoulSageCardNo ? 1 : 0, driver.State.RunePools["P1"].Mana);
+        Assert.Equal(amount, driver.State.RunePools["P1"].TotalPower);
+        Assert.Single(driver.Events(), e => e.Event.Kind == "ABILITY_ACTIVATED");
+        var paymentStart = driver.Events().Length;
         await Decide(driver, "SPEND_POWER:" + amount);
+        Assert.DoesNotContain(driver.Events().Skip(paymentStart), e => e.Event.Kind == "ABILITY_ACTIVATED");
         Assert.Equal(amount, driver.State.CardObjects["TARGET"].Damage);
         Assert.Single(driver.Events(), e => e.Event.Kind == "ABILITY_ACTIVATED");
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
