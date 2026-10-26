@@ -60,7 +60,7 @@ internal static class TypedCardJournalProjectionAssertions
         Assert.Equal(nameof(PlayCardCommand), input.Kind);
         Assert.Equal("SPELL", input.Value.GetProperty("sourceObjectId").GetString());
         Assert.Equal(cast.CardNo, input.Value.GetProperty("cardNo").GetString());
-        Assert.Equal(cast.TargetObjectIds, input.Value.GetProperty("targetObjectIds").EnumerateArray().Select(x => x.GetString()).ToArray());
+        Assert.Equal(cast.TargetObjectIds, input.Value.GetProperty("targetObjectIds").EnumerateArray().Select(x => Assert.IsType<string>(x.GetString())).ToArray());
         for (var i = 0; state.StackItems.Count > 0 && i < 16; i++)
             await Act(Assert.IsType<string>(state.PriorityPlayerId), new PassPriorityCommand());
         Assert.Empty(state.StackItems); Assert.Empty(state.TriggerQueue); Assert.Equal(TimingStates.NeutralOpen, state.TimingState);
