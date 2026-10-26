@@ -12926,11 +12926,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
         var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
-        var damagedParticipantObjectIds = survivingAttackerObjectIds
-            .Concat(survivingDefenderObjectIds)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+        var damagedParticipantObjectIds = cardObjects.Values
+            .Where(cardObject => IsFaceUpNonStandbyUnit(cardObject)
+                && IsObjectOnField(playerZones, cardObject.ObjectId)
                 && cardObject.Damage > 0)
-            .Distinct(StringComparer.Ordinal)
+            .Select(cardObject => cardObject.ObjectId)
+            .Order(StringComparer.Ordinal)
             .ToArray();
         if (damagedParticipantObjectIds.Length > 0)
         {
@@ -26243,6 +26244,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
+                            if (statusEffectId == "STUNNED" && !CanExecuteStun(targetState)) continue;
                             var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
                             targetState = targetState with
                             {
@@ -26288,6 +26290,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     var powerModifierAmount = ShouldApplyPowerModifierToTarget(behavior, targetIndex)
                         ? ResolvePowerModifierAmount(
+                            state with { PlayerZones = playerZones, CardObjects = cardObjects },
                             behavior,
                             targetIndex,
                             playerZones,
@@ -27912,7 +27915,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
         {
-            var appliedPowerDelta = sourceState.Power;
+            var appliedPowerDelta = ResolveCurrentFieldUnitPower(state, sourceState);
             var nextSourceState = ApplyDirectUntilEndPowerModifier(
                 sourceState,
                 stackItem.SourceObjectId,
@@ -28072,6 +28075,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
+    // DOC-01 CN424.1.a.1: an already stunned unit remains a legal selected
+    // target, but cannot be stunned again or supply another stun trigger.
+    private static bool CanExecuteStun(CardObjectState target)
+        => !target.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal);
+
     private static StackResolutionResult ResolveShadowStunAbilityStackItem(
         MatchState state,
         StackItemState stackItem)
@@ -28115,7 +28123,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "TARGET_NO_LONGER_LEGAL"
                 }));
         }
-        else
+        else if (CanExecuteStun(targetState))
         {
             var nextEffects = targetState.UntilEndOfTurnEffects
                 .Concat(["STUNNED"])
@@ -31093,6 +31101,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static int ResolvePowerModifierAmount(
+        MatchState state,
         CardBehaviorDefinition behavior,
         int targetIndex,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -31103,7 +31112,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.UsesTargetCurrentPowerAsPowerModifier
             && cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
-            return targetState.Power;
+            return ResolveCurrentFieldUnitPower(state, targetState);
         }
 
         if (behavior.UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier)
