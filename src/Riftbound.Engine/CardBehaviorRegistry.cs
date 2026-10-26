@@ -466,7 +466,7 @@ public static class CardBehaviorRegistry
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·059", "电能震荡", 3, "VEN_059_EMPOWERED_OBJECT_COST_DAMAGE", 4, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
-            CostReductionConditionKind: "CONTROLLER_CONTROLS_EMPOWERED_OBJECT", CostReductionMana: 2),
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerControlsEmpoweredObject, CostReductionMana: 2),
         new("VEN·049", "深水打捞", 2, "DEEP_SALVAGE_DRAW_ONE", 0, 0,
             DrawCount: 1, FlowCost: new(2, 0, [])),
         new("VEN·093", "均衡渡命人", 4, "VEN_093_EMPOWER_PLAY_UNIT", 0, 0,
