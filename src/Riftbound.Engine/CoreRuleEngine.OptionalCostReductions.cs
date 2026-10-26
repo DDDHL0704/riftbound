@@ -68,8 +68,28 @@ public sealed partial class CoreRuleEngine
     {
         var echoes = EchoCostRules.Selected(state, player, behavior, costs);
         if (echoes.Count == 0)
+        {
+            // Single-option prompt probes and compound submissions must use
+            // the same identities; each fee has its own reduction and floor.
+            var hasteCosts = costs.Where(CardPermissionKeywordRules.IsHasteReadyCostChoice).ToArray();
+            if (HasReducibleNonHasteOptionalResourceAdditionalCost(behavior)
+                && CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(hasteCosts, behavior,
+                    out var hasteMana, out var hastePower, out var hasteTrait))
+            {
+                IReadOnlyDictionary<string, int> hasteTyped = string.IsNullOrWhiteSpace(hasteTrait)
+                    ? new Dictionary<string, int>() : new Dictionary<string, int> { [hasteTrait] = hastePower };
+                var hasteGeneric = string.IsNullOrWhiteSpace(hasteTrait) ? hastePower : 0;
+                var remainder = typed.Where(p => p.Value > hasteTyped.GetValueOrDefault(p.Key))
+                    .ToDictionary(p => p.Key, p => p.Value - hasteTyped.GetValueOrDefault(p.Key), StringComparer.Ordinal);
+                var components = new List<OptionalCostComponent> {
+                    new(HasteOptionalCostNames.HasteReady, hasteMana, hasteGeneric, hasteTyped) };
+                if (mana - hasteMana + generic - hasteGeneric + remainder.Values.Sum() > 0)
+                    components.Add(new("ADDITIONAL", mana - hasteMana, generic - hasteGeneric, remainder));
+                return components;
+            }
             return mana + generic + typed.Values.Sum() > 0
                 ? [new("ADDITIONAL", mana, generic, typed, CanReduce: HasReducibleOptionalResourceAdditionalCost(behavior))] : [];
+        }
         return echoes.Select(echo => {
             var printed = echo.PrintedCardNo is { } card ? PrintedPowerCostRules.ForCard(card) : null;
             return new OptionalCostComponent(echo.Id, echo.Mana,
@@ -83,7 +103,10 @@ public sealed partial class CoreRuleEngine
     // play cost. Only these actual optional-additional branches are reducible.
     private static bool HasReducibleOptionalResourceAdditionalCost(CardBehaviorDefinition behavior)
         => behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0
-            || behavior.SourceReadyAdditionalPowerCost > 0 || behavior.SourceBoonAdditionalManaCost > 0
+            || HasReducibleNonHasteOptionalResourceAdditionalCost(behavior);
+
+    private static bool HasReducibleNonHasteOptionalResourceAdditionalCost(CardBehaviorDefinition behavior)
+        => behavior.SourceReadyAdditionalPowerCost > 0 || behavior.SourceBoonAdditionalManaCost > 0
             || behavior.SourceDrawAdditionalPowerCost > 0 || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
             || behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0 || HasTargetEffectAdditionalCost(behavior);
 
@@ -199,7 +222,8 @@ public sealed partial class CoreRuleEngine
                 SelectedSacrificeCostReduction(state, player, behavior, costs).Power);
             if (!PaymentCostRules.CanPayPowerCost(availablePool, totalGeneric, totalTyped)) continue;
             reductionChoices = choices.Select(choice => new ActionPromptChoiceDto(choice.Id,
-                choice.Source.Name + "：" + (choice.ComponentId.StartsWith("ECHO", StringComparison.Ordinal) ? "回响" : "可选额外费用")
+                choice.Source.Name + "：" + (choice.ComponentId.StartsWith("ECHO", StringComparison.Ordinal) ? "回响"
+                    : choice.ComponentId == HasteOptionalCostNames.HasteReady ? "急速" : "可选额外费用")
                     + (choice.Mode == "MANA" ? "减少 1 法力" : "减少 1 "
                         + (choice.Trait.Length == 0 ? "任意" : RuneTraitLabel(choice.Trait)) + "符能")
                     + (choice.PrintedAllocation is null ? "" : "（回响原符能："
