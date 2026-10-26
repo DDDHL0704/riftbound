@@ -1,14 +1,20 @@
 using Riftbound.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
 public sealed record MovedUnitFact(string ObjectId, long Generation, string ControllerId, string MovingPlayerId,
     ObjectLocationState Origin, ObjectLocationState Destination);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record MovementObserverContext(string CardNo, string Kind, long SourceGeneration, MovedUnitFact Unit,
     IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null, int? MovementOrdinal = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public MovementDiscardInlineContext? DiscardInline { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? RuleTextInstanceId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RuleTextInstanceBinding? Origin { get; init; }
 }
 public sealed record MovementDiscardInlineContext(ObjectBinding DiscardedCard, string CardNo, int Types,
     int BranchType, long CreatedAtTick);
@@ -34,7 +40,11 @@ public sealed partial class CoreRuleEngine
                 : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
             || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
             || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
-            || !ValidMovedUnitFact(c.Unit)) return false;
+            || !ValidMovedUnitFact(c.Unit)
+            || (c.Origin is null ? c.RuleTextInstanceId is not null
+                : c.Origin.Unit is not { } bound || bound.ObjectId != source || bound.Generation != c.SourceGeneration
+                    || c.Origin.CardNo != c.CardNo || c.Origin.Equipment is not { Generation: >= 0 } equipment
+                    || c.Origin.Revision <= 0 || c.RuleTextInstanceId != $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}")) return false;
         var unit = c.Unit;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
             && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
@@ -60,6 +70,18 @@ public sealed partial class CoreRuleEngine
                 && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out _);
     }
 
+    internal static bool ValidMovementObserver(MatchState state, MovementObserverContext c, string effect,
+        string controller, string source, string? cardNo = null)
+        => ValidMovementObserver(c, effect, controller, source, cardNo)
+            && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
+
+    internal static bool ValidMovementInstanceId(MovementObserverContext c, string? id, bool stack = false)
+        => id is not null && id.StartsWith(stack ? "ordered-copied-movement-" : "copied-movement-", StringComparison.Ordinal) == (c.Origin is not null)
+            && (c.RuleTextInstanceId is null || id.EndsWith(":" + c.RuleTextInstanceId, StringComparison.Ordinal));
+
+    internal static MovementObserverContext? PublicMovementObserver(MovementObserverContext? c)
+        => c is null || c.Origin is null ? c : c with { RuleTextInstanceId = null, Origin = null };
+
     internal static bool ValidMovementDiscardChoice(MatchState state)
     {
         var p = state.PendingHandChoice;
@@ -72,7 +94,9 @@ public sealed partial class CoreRuleEngine
         var drawnFirst = c.Kind == TriggerKinds.UnitMovedDrawDiscardTypes;
         return (drawnFirst || c.Kind == TriggerKinds.UnitMovedDiscardDraw) && c.DiscardInline is null
             && p.EffectKind == c.Kind && p.ChoiceWindow == c.Kind && p.Reason == c.Kind
-            && ValidMovementObserver(c, MovementObserverEffect, p.PlayerId, p.SourceObjectId)
+            && ValidMovementObserver(state, c, MovementObserverEffect, p.PlayerId, p.SourceObjectId)
+            && p.ChoiceId is { } choiceId && ValidMovementInstanceId(c, choiceId.StartsWith("CHOICE-", StringComparison.Ordinal)
+                ? choiceId["CHOICE-".Length..] : choiceId, stack: true)
             && state.Seats.ContainsKey(c.Unit.MovingPlayerId) && state.PlayerZones.TryGetValue(p.PlayerId, out var zones)
             && spec is not null && p.DrawCount == (drawnFirst ? 0 : spec.DrawCount)
             && p.RequiredCount == Math.Min(spec.DiscardCount!.Value, zones.Hand.Count)
@@ -119,17 +143,23 @@ public sealed partial class CoreRuleEngine
     private static GameEvent CaptureMovementBatchObservers(MatchState before, IDictionary<string,CardObjectState> cards, IReadOnlyList<MovedUnitFact> units)
     {
         var observers = new List<CapturedMovementObserver>();
+        void Add(string source, string controller, RuleTextInstance instance, MovementObserverContext context)
+            => observers.Add(new(source, controller, context with {
+                RuleTextInstanceId = instance.Origin is null ? null : instance.Id, Origin = instance.Origin }));
         foreach (var fact in units)
         {
             var unit = before.CardObjects[fact.ObjectId];
             var ordinal = checked(cards[fact.ObjectId].MovementCountThisTurn + 1);
-            if (MovementScoreDefinition(unit.CardNo) is { } score && ordinal == score.Ordinal)
-                observers.Add(new(unit.ObjectId,fact.ControllerId,new(unit.CardNo!,MovementScoreKind,unit.ObjectGeneration,fact,MovementOrdinal:ordinal)));
-            foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(unit.CardNo)
-                .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
-                observers.Add(new(unit.ObjectId, fact.ControllerId, new(unit.CardNo!, spec.Kind, unit.ObjectGeneration, fact)));
-            if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, unit.CardNo))
-                observers.Add(new(unit.ObjectId, fact.ControllerId, new(unit.CardNo!, MovementResourceKind, unit.ObjectGeneration, fact)));
+            foreach (var instance in AttachedRuleTextRules.Instances(before, unit))
+            {
+                if (MovementScoreDefinition(instance.CardNo) is { } score && ordinal == score.Ordinal)
+                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementScoreKind, unit.ObjectGeneration, fact, MovementOrdinal: ordinal));
+                foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo)
+                    .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
+                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact));
+                if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, instance.CardNo))
+                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementResourceKind, unit.ObjectGeneration, fact));
+            }
             if (BattlefieldLocalRules.AtUnit(before, unit.ObjectId) is { } battlefield
                 && BattlefieldTriggerSpecRules.TryGetTrigger(battlefield.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out var bar))
             {
@@ -141,7 +171,9 @@ public sealed partial class CoreRuleEngine
         {
             if (source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.IsFaceDown
                 || FindFieldObjectLocation(before.PlayerZones, source.ObjectId) is not { } field) continue;
-            var specs = UnitMovedTriggerSpecRules.MovementTriggers(source.CardNo).Where(UnitMovedTriggerSpecRules.IsOpponentMovementDrawTrigger).ToArray();
+            var specs = AttachedRuleTextRules.Instances(before, source).SelectMany(instance =>
+                UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo).Where(UnitMovedTriggerSpecRules.IsOpponentMovementDrawTrigger)
+                    .Select(spec => (Instance: instance, Spec: spec))).ToArray();
             if (specs.Length == 0) continue;
             var after = units.FirstOrDefault(f => f.ObjectId == source.ObjectId)?.Destination
                 ?? before.ObjectLocations.GetValueOrDefault(source.ObjectId) ?? new(field.PlayerId, field.Zone);
@@ -150,8 +182,8 @@ public sealed partial class CoreRuleEngine
                 && f.Destination.Zone == "BATTLEFIELD" && !string.IsNullOrWhiteSpace(f.Destination.BattlefieldObjectId)
                 && (after.Zone != "BATTLEFIELD" || after.BattlefieldObjectId != f.Destination.BattlefieldObjectId))
                 .GroupBy(f => (f.MovingPlayerId, f.Destination.BattlefieldObjectId)))
-                foreach (var spec in specs)
-                    observers.Add(new(source.ObjectId, field.PlayerId, new(source.CardNo!, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after)));
+                foreach (var (instance, spec) in specs)
+                    Add(source.ObjectId, field.PlayerId, instance, new(instance.CardNo, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after));
         }
         foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() });
@@ -169,7 +201,8 @@ public sealed partial class CoreRuleEngine
             foreach (var observer in (CapturedMovementObserver[])ev.Payload["observers"]!)
             {
                 var resource = observer.Context.Kind == MovementResourceKind;
-                var trigger = new TriggerQueueItemState($"movement-{result.State.Tick}-{index}-{observer.SourceId}-{observer.Context.Kind}-{observer.Context.Unit.ObjectId}",
+                var suffix = observer.Context.RuleTextInstanceId is { } instance ? ":" + instance : "";
+                var trigger = new TriggerQueueItemState($"{(suffix.Length == 0 ? "" : "copied-")}movement-{result.State.Tick}-{index}-{observer.SourceId}-{observer.Context.Kind}-{observer.Context.Unit.ObjectId}{suffix}",
                     observer.ControllerId, observer.SourceId,
                     resource ? P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind : MovementObserverEffect,
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
@@ -183,7 +216,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveMovementObserver(MatchState state, StackItemState item)
     {
         var context = item.MovementObserver!;
-        if (!ValidMovementObserver(context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
+        if (!ValidMovementObserver(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured movement observer.");
         if (context.DiscardInline is not null) return ResolveMovementDiscardInline(state, item);
         if (context.Kind == MovementScoreKind) return ResolveMovementScore(state,item);
