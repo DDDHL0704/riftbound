@@ -76,11 +76,58 @@ public sealed class TerminalFaceDownDisclosureTests
         Assert.Equal(MatchStateHasher.HashValue(hidden.State.PlayerZones), MatchStateHasher.HashValue(finished.PlayerZones));
     }
 
+    [Fact]
+    public async Task ARealBurnoutVictoryAlsoShowsTheStandbyCardAndReplaysItsOriginalCommands()
+    {
+        var initial = StandbySourceRulesTests.Position("OGN·057/298");
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects);
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations);
+        foreach (var id in initial.PlayerZones["P1"].MainDeck) { cards.Remove(id); locations.Remove(id); }
+        cards["TERMINAL-DRAW"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-DRAW", "OGN·047/298", "P1");
+        cards["TERMINAL-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("TERMINAL-RUNE", "OGN·089/298", "P1");
+        locations["TERMINAL-DRAW"] = new("P1", "HAND"); locations["TERMINAL-RUNE"] = new("P1", "RUNE_DECK");
+        initial = initial with { CardObjects = cards, ObjectLocations = locations,
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(20, 3) },
+            PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = 0, ["P2"] = 7 },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
+                Hand = initial.PlayerZones["P1"].Hand.Append("TERMINAL-DRAW").ToArray(), MainDeck = [], RuneDeck = ["TERMINAL-RUNE"] } } };
+        var journal = new Journal(); var engine = new CoreRuleEngine();
+        var session = new MatchSession(initial, engine, journal);
+        var state = initial;
+        async Task<ResolutionResult> Act(GameCommand command)
+        {
+            var result = await session.SubmitAsync("P1", "terminal-burnout-" + journal.Entries.Count, command,
+                JsonSerializer.SerializeToElement(command, command.GetType(), Json), default);
+            Assert.True(result.Accepted, result.ErrorMessage); state = result.State; return result;
+        }
+        var hidden = await Act(new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        Assert.False(Objects(hidden.Snapshots["P2"], "P1").TryGetProperty("SHADOW", out _));
+        var physicalCard = MatchStateHasher.HashValue(hidden.State.CardObjects["SHADOW"]);
+        await Act(new PlayCardCommand("TERMINAL-DRAW", "OGN·047/298", []));
+        ResolutionResult? ended = null;
+        for (var step = 0; state.Status != MatchStatuses.Finished && step < 8; step++)
+        {
+            var result = await session.SubmitAsync(state.PriorityPlayerId!, "terminal-burnout-" + journal.Entries.Count,
+                new PassPriorityCommand(), JsonSerializer.SerializeToElement(new PassPriorityCommand(), Json), default);
+            Assert.True(result.Accepted, result.ErrorMessage); state = result.State; ended = result;
+        }
+        Assert.NotNull(ended); Assert.Equal(MatchStatuses.Finished, state.Status);
+        Assert.Equal(8, state.PlayerScores["P2"]); Assert.Equal("P2", state.WinnerPlayerId);
+        Assert.Single(Events(journal), e => e.Event.Kind == "BURNOUT_APPLIED");
+        Assert.Single(Events(journal), e => e.Event.Kind == "MATCH_WON");
+        Assert.Equal(physicalCard, MatchStateHasher.HashValue(state.CardObjects["SHADOW"]));
+        AssertPublicFaceDownCardAndHiddenZones(state, ended.Snapshots);
+        FullGameEndToEndTests.AssertNoHiddenZoneLeak(ended);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(journal), state, engine, default, Events(journal));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     private static void AssertPublicFaceDownCardAndHiddenZones(MatchState state, IReadOnlyDictionary<string, SnapshotDto> snapshots)
     {
         foreach (var (viewer, snapshot) in snapshots.Append(new("__spectator__", ResolutionResult.BuildSpectatorSnapshot(state))))
         {
-            var card = Objects(snapshot, "P1").GetProperty("SHADOW");
+            Assert.True(Objects(snapshot, "P1").TryGetProperty("SHADOW", out var card),
+                $"CN422.4 requires the finished view for {viewer} to show SHADOW.");
             Assert.Equal("OGN·057/298", card.GetProperty("cardNo").GetString());
             Assert.True(card.GetProperty("isFaceDown").GetBoolean());
             foreach (var (owner, zones) in state.PlayerZones)
