@@ -86,12 +86,7 @@ internal static class InstructionPowerPaymentSqlAcceptance
                     "The real instruction receipt must bind the chosen quantity.");
             }
             var digest = await Digest(source, room);
-            if (stage == "after-restart")
-            {
-                using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(folder, "sql-before-restart.json")));
-                Check(before.RootElement.GetProperty("sevenTableDigest").GetString() == digest,
-                    "The actual API restart, authenticated reconnect and old resource duplicate do not alter any original table.");
-            }
+            await PaymentReconnectEvidence.VerifyCheckpoint(source, room, folder, stage);
             await Save(folder, "sql-" + stage + ".json", new {
                 status = "INSTRUCTION_PAYMENT_SQL_ORIGINAL_REPLAY_PASS", stage, room,
                 commands = frame.Commands.Count, events = frame.Events.Count, sevenTableDigest = digest,

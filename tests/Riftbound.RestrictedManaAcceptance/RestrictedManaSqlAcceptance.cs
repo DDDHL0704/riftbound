@@ -134,11 +134,7 @@ internal static partial class RestrictedManaSqlAcceptance
                     "Commit each genuine Lux gain once, without instruction damage or restricted instruction spending.");
             }
             var digest = await Digest(source, room);
-            if (stage == "after-restart")
-            {
-                using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(folder, "sql-before-restart.json")));
-                Check(before.RootElement.GetProperty("sevenTableDigest").GetString() == digest, "Actual reconnect and old-intent replay must not change the seven tables.");
-            }
+            await PaymentReconnectEvidence.VerifyCheckpoint(source, room, folder, stage);
             await Save(folder, "sql-" + stage + ".json", new { status = "RESTRICTED_MANA_SQL_ORIGINAL_REPLAY_PASS", stage, room,
                 commands = frame.Commands.Count, events = frame.Events.Count, sevenTableDigest = digest, fullOriginalReplay = true,
                 stateHash = MatchStateHasher.Hash(state), frame.PlayerViews, frame.SpectatorReplayFrame });

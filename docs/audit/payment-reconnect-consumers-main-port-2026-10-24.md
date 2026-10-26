@@ -1,0 +1,13 @@
+# S3–S6 重连消费者与 S4 篡改负控移植 · 2026-10-24
+- Refs #105、#110；基线 #157 / `36c2c513efdc9bbd05535d62ca12b6ce6ad1cc9a`，实现 `4b2235e2985e81e6f072c80eaed2b2198d5c8623`，两正控 `3f9ec5a0a1ba8ad12c5f787f10cf87bbe6dc57e6`。
+- 精确移植 027433b5/a15c4322 重连消费者与 9e2a0d06/ba04f3dc S4 独立入口/原普通出生/两层篡改拒绝；不整合旧长分支。
+- S3/S4/S5/S6 消费真实 Joined 新令牌；两身份确实 Joined、非预期 Error 失败；SQL 只放行精确认证列/身份/时间区间，duplicate/只读恢复另取七表完整不变基线。
+- S4 保留单行结构负控；五行协调后形状须过、原日志最终状态 hash 须拒绝；先落证，再断言，finally 精确还原；原命令/事件/RuleInputs 不改。
+- 同一原生 DLL：56 重连守卫（原54+2正控）+4 S4 原普通出生守卫=60/60；相邻费用/资源/支付窗口/错误码恢复249/249；不重计早期58例。
+- 五入口 Native(net8)/Postgres/S4/S5/S6 在 4b2235e29 编译通过；其后仅加 Conformance 两方法，五入口所有源输入未变；编译不算 SQL/联网/重启通过。
+- 原568个 Conformance C# 文件及完整对局源码与基线逐字节相同；原54守卫原文保留；S4仅补实际 ErrorCode 投影；未删原方法/Theory/断言。
+- 生产/API/DTO/客户端/规则目录/CI脚本差异为空；共享助手与 #138 相同；未新增规则来源变动或整卡认证。
+- 原件：本线 `var/qa/payment-prs-20261024/reconnect-consumers-105/`；`fixed-source-runtime-proof-v6.json` SHA256 `323fd93c362cc92f2b8a964dc137355d96b56be2ff736a44a7e7fe4d4884cece`；TRX/加载路径/SHA/MVID/RIF、源码保留和五入口日志均同目录。
+- 网络阶段还需同一独立 loopback `riftbound_acceptance` 的 `ConnectionStrings__Riftbound`；需①接入固定候选 Actions，不改生产认证。
+- L2：定向已过，实际 rules-suite CI/main 合并待①；L3：固定候选真实 PG/双玩家/API重启/完整原日志仍待夜间，两个 issue 继续 OPEN，净整卡认证增量0。
+- 原失败 ZIP/历史 Mac PG 与红测按 #105/#110 原记录保留；本轮不将历史执行改标为当前候选通过。
