@@ -36,6 +36,23 @@ class WorkflowCandidateTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(self.harness_matches(path))
 
+    def test_payment_driver_entrypoints_start_the_harness(self):
+        for project in ('PaymentResourceSurplus', 'InstructionPayment'):
+            for filename in ('Program.cs', f'Riftbound.{project}Acceptance.csproj'):
+                with self.subTest(project=project, filename=filename):
+                    self.assertTrue(self.harness_matches(f'tests/Riftbound.{project}Acceptance/{filename}'))
+
+    def test_harness_runs_s3_and_p7_on_its_exact_merge_input(self):
+        text = (ROOT / '.github/workflows/backend-harness.yml').read_text()
+        self.assertIn('scripts/run-process-restart-ci.py', text)
+        payment = text[text.index('- name: S3 and P7 SQL,'):]
+        self.assertIn('scripts/run-payment-reconnect-ci.py --expected "${{ github.sha }}"', payment)
+        self.assertIn('--case payment-resource-surplus --case instruction-power-payment', payment)
+        self.assertIn('name: payment-harness-results', payment)
+        self.assertIn('path: var/qa/ci-payment-harness/', payment)
+        self.assertIn('retention-days: 90', payment)
+        self.assertNotIn('continue-on-error', text)
+
     def test_nightly_pins_main_once_and_all_children_use_that_exact_sha(self):
         text = (ROOT / ".github/workflows/native-desktop.yml").read_text()
         jobs = dict(re.findall(r"^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)", text, re.M | re.S))

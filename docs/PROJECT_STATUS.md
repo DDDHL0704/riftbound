@@ -2,14 +2,13 @@
 
 **后端规则优先；日常合入走 L2，完整后端验收仍 OPEN。**
 
-本轮清积压目标为开放 PR 从22降至≤10；到门槛前冻结新增功能PR，先修现有红测、依赖与真实冲突。①保持无Goal，连续完成有限清积压并串行发布main。五个新聊天已接管，[活跃映射及实际分支](BACKEND_RULES_GOAL_2026-10-23.md#四线与共享接点)为唯一入口，旧窗只读。
+本轮有限清积压已完成：[PR165](https://github.com/DDDHL0704/riftbound/pull/165)普通合入 main `645a045e435dbb4521eca5e5318c10ffcee36511`，12个原完整head及各公开head均为main祖先，12个PR实际merged，开放PR已核验22→10。本轮“到≤10前冻结新增功能PR”的条件已达成；后续按所有权、最新L2和串行main继续。①保持无Goal，接续既定S3/P7验收接线有限任务。
 
-- **L2：** 每个PR/main执行定向与相邻断言、机制规则及原两条完整对局冒烟。最新实际base/head/synthetic的 `L2 required` 必须完整成功、零skip；缺产物、错SHA、失败不能绿。strict up-to-date、Actions15368、管理员约束、人工批准0保持。
-- **L3：** 每天02:00上海时间固定一次main完整SHA，保留完整规则、真实PostgreSQL/SignalR、进程重启和原日志回放。夜间红阻止完整验收及相关改动，不冻结无关L2绿包。
-- **本批候选：** [PR165](https://github.com/DDDHL0704/riftbound/pull/165)以main `99c0cb6c…` 为基线，普通merge保留最后12个完整原head。修复已确认资源在投降时回退的P7缺陷：真实child差量及事件独立提交，保留外层未确认指令、严格恢复与原历史。实际head/synthetic及最新完整L2见[PR检查](https://github.com/DDDHL0704/riftbound/pull/165/checks)；只有逐项验明原head为main祖先并核对真实PR状态后才计交付。
-- **原验证：** 旧87a的[L2 40281144019](https://github.com/DDDHL0704/riftbound/actions/runs/40281144019)及[harness 40281144121](https://github.com/DDDHL0704/riftbound/actions/runs/40281144121)均自然成功、未取消/重跑，但其P7反例仍成立，绿灯不复用于修复候选。原红、修复收据和大日志留ignored var/qa或CI，Git只保留源码、测试和短记录。
-- **当前红例修复：** 原3a14的[完整L2 40294321840](https://github.com/DDDHL0704/riftbound/actions/runs/40294321840)自然失败，定向与规则套件重复同4例、零skip。保留原失败；校准已确认资源的即时权威状态/事件断言，修复父指令重放时新触发使用旧Tick且排在已确认资源触发之前的问题，保留独立恢复校验。最终修复组合须取得新完整L2。
-- **职责：** ①CI/验收工具/治理及实际同方法交集；②战斗/触发/胜负及P7消费恢复；③费用/资源产生端；④现有卡牌消费者。普通helper不额外审批，只发完整交付、真实冲突或阻塞，不发ACK。
-- **完成边界：** 适用来源、全部规则语义及固定输入L3仍有缺口，净整卡认证增量0。客户端、可见双端、安装包和Windows实机留后续阶段OPEN；旧Goal不记完成，冻结源/bin及数据库保留。
+- **L2：** PR165实际合并输入 `fca4c4a4…` 的[完整L2 40317815151](https://github.com/DDDHL0704/riftbound/actions/runs/40317815151)自然成功：规则8,086方法/15,313例，定向7,142/13,301，零fail/skip，原用例全保留。main、head及synthetic树一致。strict up-to-date、Actions15368、管理员约束、人工批准0保持；[main自身L2 40337538756](https://github.com/DDDHL0704/riftbound/actions/runs/40337538756)另行自然执行，不复用PR终态。
+- **已修复：** P7确认资源独立提交并保留原Origin/Intent/Command/Answers；投降/冷恢复不退款，父指令不重复发布资源事件。资源触发保持原确认tick，新父触发使用实际完成tick并稳定排序，独立恢复校验保留。原3a14四例红及其[失败run40294321840](https://github.com/DDDHL0704/riftbound/actions/runs/40294321840)、旧87a绿灯与原反例均保留，未重跑/取消；大原件留ignored var/qa或CI。
+- **当前接线：** 复用[PR164](https://github.com/DDDHL0704/riftbound/pull/164)及明确依赖#153/#157/#158/#161/#163，保留TypedCommand与原错误码。固定SHA nightly执行既有S3–S6支付驱动；工具harness实际执行S3/P7的SQL→prepare→双玩家play/verify→真实停启API→recover/verify→P7 finish/final→tamper。原69项SQL清单、四片、17项selected-field调用、完整规则/原生及通用重启均保留。接线候选尚待实际CI验证，不把旧generic harness成功当S3/P7或完整L3通过。
+- **L3：** 每天02:00上海时间只固定一次main完整SHA，保留完整规则、真实PostgreSQL/SignalR、进程重启和原日志回放；失败阻止完整验收及相关改动，不冻结无关L2绿包。L2不依赖L3。
+- **职责：** ①CI/验收工具/治理及实际同方法交集；②战斗/触发/胜负与恢复；③费用/资源/合法性；④卡牌消费者/注册。普通helper不额外审批，只发完整交付、真实冲突或阻塞，不发ACK。包分支见[映射](BACKEND_RULES_GOAL_2026-10-23.md#四线与共享接点)，实际checkout在操作前以本树Git核对。
+- **完成边界：** 适用来源、全部规则语义及固定输入L3仍有缺口，净整卡认证增量0。新私有费用/卡牌/战斗包未默认交付main。客户端、可见双端、安装包和Windows实机留后续阶段OPEN；旧Goal不记完成，冻结源/bin及数据库保留。
 
 [工作流](RULE_TEST_WORKFLOW.md) · [目标与分工](BACKEND_RULES_GOAL_2026-10-23.md) · [治理](PROJECT_GOVERNANCE.md) · [来源历史入口](audit/current-manifest.json)。[历史A7](https://github.com/DDDHL0704/riftbound/actions/runs/40055102708)及A2–A6原失败/修复线索保留，B1/source queue仅作迁移清单。

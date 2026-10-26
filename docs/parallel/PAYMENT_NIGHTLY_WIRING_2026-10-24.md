@@ -9,3 +9,5 @@ SQL/API/网络 selector 显式继承同一专用 loopback PostgreSQL；全部构
 `payment-reconnect-results` 保存原始日志、SQL/网络输出、实际 PID、runtime 身份和最终收据，配置保留90天；实际到期仍按治理要求核验。编排沿用历史 A7 的真实生命周期及认证证据检查，适配当前四个独立 CLI；原八例矩阵仍是独立范围，不能由四条费用阶段替代认证。
 
 本地146项 Python 工具检查及治理检查通过，格式检查通过；源码入口已核对。未运行真实 SQL、SignalR、API 重启或新全量验收，也未派发新 L3。首次实际运行留给父依赖合 main 后的固定 main nightly；本 PR 不授予当前 L3、整卡、客户端或完整后端认证。
+
+2026-10-26接续：PR165已实际完成12head/main祖先与PR状态核验。本候选复用当前#157的ErrorCode+TypedCommand、#163的严格重连消费者和S3入口，并合入f741的P7即时资源SQL断言。工具harness新增实际S3/P7流程与独立产物，nightly保留既有S3–S6全部驱动；原通用重启、69项清单/四片及17项selected-field调用不减。当前只完成接线源码，实际固定候选的SQL/SignalR/进程重启结果须独立取得，不复用generic harness或其他SHA的绿灯。
