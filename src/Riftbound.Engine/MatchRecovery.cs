@@ -10381,10 +10381,11 @@ public static partial class MatchRecoveryValidator
 
         ValidateSpectatorSnapshotPlayerObjectLocation(playerId, objectId, objectPayload, authoritativeState, errors);
 
-        if (!expectedFaceDown)
+        var publiclyShownFaceDown = IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, objectId);
+        if (!expectedFaceDown || publiclyShownFaceDown)
         {
             ValidateSpectatorSnapshotVisiblePlayerObjectScalars(playerId, objectId, objectPayload, cardObject, authoritativeState, errors);
-            if (hasValidFaceDownFlag
+            if (!publiclyShownFaceDown && hasValidFaceDownFlag
                 && isFaceDown
                 && SpectatorFaceDownObjectExposesPrivateMetadata(objectPayload))
             {
@@ -12093,7 +12094,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool IsHiddenBattlefieldStandbyForSpectator(MatchState authoritativeState, string objectId)
     {
-        if (!authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+        if (IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, objectId)
+            || !authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
             || !cardObject.IsFaceDown
             || !authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
             || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
@@ -12108,6 +12110,14 @@ public static partial class MatchRecoveryValidator
                 "__spectator__",
                 StringComparison.Ordinal);
     }
+
+    // Independent recovery expectation for CN129.4/422.4: physical face-down
+    // orientation remains, but only current field cards are public at game end.
+    private static bool IsTerminalFaceDownFieldObjectPublicForRecovery(MatchState state, string objectId)
+        => state.Status == MatchStatuses.Finished
+            && state.CardObjects.TryGetValue(objectId, out var card) && card.IsFaceDown
+            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
 
     private static string EffectiveFieldControllerIdForRecovery(
         MatchState authoritativeState,
@@ -12925,6 +12935,7 @@ public static partial class MatchRecoveryValidator
     {
         return string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(task.ObjectId)
+            && !IsTerminalFaceDownFieldObjectPublicForRecovery(authoritativeState, task.ObjectId)
             && authoritativeState.CardObjects.TryGetValue(task.ObjectId, out var cardObject)
             && cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
@@ -23311,7 +23322,8 @@ public static partial class MatchRecoveryValidator
             {
                 if (!state.CardObjects.TryGetValue(id, out var card)) continue;
                 var present = TryReadObjectValue(payload, "isEmpowered", out _);
-                var visible = !card.IsFaceDown || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
+                var visible = !card.IsFaceDown || IsTerminalFaceDownFieldObjectPublicForRecovery(state, id)
+                    || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
                 if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
                     || !present && visible && card.IsEmpowered)
                     errors.Add($"{label} empowered status differs from authoritative visible object");
@@ -33866,7 +33878,8 @@ public static partial class MatchRecoveryValidator
             }
         }
 
-        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+        return !IsTerminalFaceDownFieldObjectPublicForRecovery(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && state.ObjectLocations.TryGetValue(objectId, out var location)

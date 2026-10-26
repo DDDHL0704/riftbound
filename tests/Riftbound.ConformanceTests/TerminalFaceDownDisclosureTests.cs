@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -136,6 +137,61 @@ public sealed class TerminalFaceDownDisclosureTests
         await AssertRestoredTerminalSession(initial, ended, journal, new PassPriorityCommand());
     }
 
+    [Theory]
+    [InlineData("shown-card-number")]
+    [InlineData("missing-card-number")]
+    [InlineData("shown-power")]
+    [InlineData("shown-face-down")]
+    [InlineData("missing-shown-object")]
+    [InlineData("hidden-hand")]
+    [InlineData("hidden-main-deck")]
+    [InlineData("hidden-rune-deck")]
+    [InlineData("unfinished-standby")]
+    public async Task RecoveryStillRejectsForgedShownCardsAndUnrelatedHiddenIdentities(string mutation)
+    {
+        // Explicit projection/security positions; the three actual terminal
+        // command paths above separately verify session restore and replay.
+        var initial = StandbySourceRulesTests.Position("OGN·057/298");
+        var hidden = await new CoreRuleEngine().ResolveAsync(initial, new("terminal-guard-hide", "P1", CommandTypes.HideCard),
+            new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]), default);
+        Assert.True(hidden.Accepted, hidden.ErrorMessage);
+        var state = mutation == "unfinished-standby" ? hidden.State
+            : hidden.State with { Status = MatchStatuses.Finished, WinnerPlayerId = "P2" };
+        var before = MatchStateHasher.Hash(state);
+        var frame = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        var baseline = MatchRecoveryValidator.ValidateComponentStateAndViews(state, spectatorReplayFrame: frame);
+        Assert.True(baseline.Count == 0, string.Join("\n", baseline));
+        var node = JsonSerializer.SerializeToNode(frame.SpectatorSnapshot, Json)!;
+        var owner = mutation == "hidden-hand" ? "P2" : "P1";
+        var objects = node["players"]![owner]!["objects"]!.AsObject();
+        var expected = "object SHADOW ";
+        switch (mutation)
+        {
+            case "shown-card-number": objects["SHADOW"]!["cardNo"] = "FORGED";
+                expected += "card number does not match authoritative object card number"; break;
+            case "missing-card-number": objects["SHADOW"]!.AsObject().Remove("cardNo");
+                expected += "card number is required"; break;
+            case "shown-power": objects["SHADOW"]!["power"] = state.CardObjects["SHADOW"].Power + 1;
+                expected += "power does not match authoritative object power"; break;
+            case "shown-face-down": objects["SHADOW"]!["isFaceDown"] = false;
+                expected += "face-down flag does not match authoritative spectator redaction"; break;
+            case "missing-shown-object": objects.Remove("SHADOW"); expected = "is missing visible object SHADOW"; break;
+            case "unfinished-standby":
+                objects["SHADOW"] = JsonSerializer.SerializeToNode(Objects(hidden.Snapshots["P1"], "P1").GetProperty("SHADOW"), Json);
+                expected += "is not visible in authoritative spectator view"; break;
+            default:
+                var zones = state.PlayerZones[owner];
+                var id = (mutation == "hidden-hand" ? zones.Hand : mutation == "hidden-main-deck" ? zones.MainDeck : zones.RuneDeck).First();
+                objects[id] = new JsonObject { ["objectId"] = id, ["isFaceDown"] = false, ["cardNo"] = state.CardObjects[id].CardNo };
+                expected = $"object {id} is not visible in authoritative spectator view"; break;
+        }
+        var forged = frame with { SpectatorSnapshot = node.Deserialize<SnapshotDto>(Json)! };
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(state, spectatorReplayFrame: forged);
+        Assert.Contains(errors, error => error.Contains(expected, StringComparison.Ordinal));
+        Assert.Equal(before, MatchStateHasher.Hash(state));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, spectatorReplayFrame: frame));
+    }
+
     private static async Task AssertRestoredTerminalSession(MatchState initial, ResolutionResult ended, Journal journal, GameCommand finalCommand)
     {
         var state = ended.State; var commands = Commands(journal); var events = Events(journal);
@@ -144,7 +200,7 @@ public sealed class TerminalFaceDownDisclosureTests
             ended.Snapshots[p], state.Tick, sequence, prompts[p]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
         var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);
-        Assert.Empty(errors);
+        Assert.True(errors.Count == 0, string.Join("\n", errors));
         var frame = new MatchRecoveryFrame(state.RoomId, state.Tick, sequence, commands, events, views, errors, state, initial, spectator)
             { OpeningSeed = initial.Seed };
         var cold = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
