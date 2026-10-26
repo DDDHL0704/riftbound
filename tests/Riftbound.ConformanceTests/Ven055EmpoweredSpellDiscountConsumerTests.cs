@@ -226,6 +226,59 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
     }
 
     [Fact]
+    public async Task TwoActualSourcesRemoveBothEchoPowerPipsAndKeepThePaidRepeat()
+    {
+        var initial = Add(Position("SFD·080/221"), "SECOND", No); var game = new Driver(initial);
+        try
+        {
+            foreach (var id in new[] { "UNIT", "SECOND" })
+            { await game.Act("P1", new PlayCardCommand(id, No, [])); await game.Act("P1", Activate(id)); await game.Top(); }
+            await game.Act("P1", new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"],
+                OptionalCosts: ["ECHO", "SPELL_POWER_REDUCTION:blue:2"]));
+            Assert.Equal(25, game.State.RunePools["P1"].Mana); Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount); Restore(initial, game);
+            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("two-real-auras-two-power", initial, game); }
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AQuotedVectorSurvivesOneOfTwoSourcesLeavingOnlyWhenTheRemainingAmountIsEnough(bool twoPips)
+    {
+        var spell = twoPips ? "SFD·080/221" : "OGN·093/298";
+        var initial = Add(Add(Position(spell), "SECOND", No), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        try
+        {
+            foreach (var id in new[] { "UNIT", "SECOND" })
+            { await game.Act("P1", new PlayCardCommand(id, No, [])); await game.Act("P1", Activate(id)); await game.Top(); }
+            var command = new PlayCardCommand("SPELL", spell, ["ENEMY"], OptionalCosts: twoPips ? ["ECHO"] : []);
+            var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+            var encoded = JsonSerializer.SerializeToElement(quote.Cost, Json);
+            var selected = Assert.Single(encoded.GetProperty("spellPowerReductionChoices").EnumerateArray()).GetProperty("id").GetString()!;
+            Assert.Equal(twoPips ? "SPELL_POWER_REDUCTION:blue:2" : "SPELL_POWER_REDUCTION:blue:1", selected);
+            Assert.Equal(0, quote.Cost!.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.True(game.State.CardObjects["SECOND"].IsEmpowered);
+            if (twoPips)
+            {
+                await Reject(game.State, "P1", command with { OptionalCosts = ["ECHO", selected] });
+                var fresh = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+                var freshId = Assert.Single(JsonSerializer.SerializeToElement(fresh.Cost, Json).GetProperty("spellPowerReductionChoices").EnumerateArray()).GetProperty("id").GetString()!;
+                Assert.Equal("SPELL_POWER_REDUCTION:blue:1", freshId);
+                await game.Act("P1", command with { OptionalCosts = ["ECHO", freshId] });
+            }
+            else await game.Act("P1", command with { OptionalCosts = [selected] });
+            Assert.Equal(24, game.State.RunePools["P1"].Mana); Assert.Equal(twoPips ? 3 : 4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Restore(initial, game); await game.Top();
+            if (twoPips) Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage);
+            else Assert.Equal(1, Might(game.State, "ENEMY", "P2"));
+            await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("current-aggregate-not-source-identity-" + twoPips, initial, game); }
+    }
+
+    [Fact]
     public async Task AnotherCardsReductionCanReachZeroAfterThisAurasOwnOneManaFloor()
     {
         var initial = Position("VEN·059") with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(7, 0), ["P2"] = new(20, 20) } };
