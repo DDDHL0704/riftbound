@@ -18100,7 +18100,23 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Contains("DISCARDED_HAND_CARD_THIS_TURN:P1", p2Pass.State.UntilEndOfTurnEffects);
         Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
-        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => gameEvent.Kind == "TRIGGER_RESOLVED"
+            && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), triggerSourceObjectId));
+        Assert.True(p2Pass.State.CardObjects[triggerSourceObjectId].IsExhausted);
+        Assert.Equal(5, p2Pass.State.CardObjects[triggerSourceObjectId].Power);
+        var pendingTrigger = Assert.Single(p2Pass.State.StackItems);
+        Assert.Equal(triggerSourceObjectId, pendingTrigger.SourceObjectId);
+        Assert.Equal(2, pendingTrigger.HandDiscardObserver!.DiscardedCards.Count);
+        // CN 383.3 / 423.1.b: the ordinary trigger gets its own response window.
+        var triggerFirstPass = await engine.ResolveAsync(p2Pass.State,
+            new PlayerIntent("intent-p7-9-jinx-trigger-first-pass", p2Pass.State.PriorityPlayerId!, "PASS_PRIORITY"),
+            new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(triggerFirstPass.Accepted, triggerFirstPass.ErrorMessage);
+        var triggerResolved = await engine.ResolveAsync(triggerFirstPass.State,
+            new PlayerIntent("intent-p7-9-jinx-trigger-second-pass", triggerFirstPass.State.PriorityPlayerId!, "PASS_PRIORITY"),
+            new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(triggerResolved.Accepted, triggerResolved.ErrorMessage);
+        var triggerEvent = Assert.Single(triggerResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "JINX_DISCARDED_HAND_CARDS_READY_POWER_1", StringComparison.Ordinal));
         Assert.Equal("P1", triggerEvent.Payload["playerId"]);
@@ -18108,26 +18124,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["discardedObjectIds"]));
         Assert.Equal(2, triggerEvent.Payload["discardedCount"]);
 
-        var readyEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var readyEvent = Assert.Single(triggerResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, triggerSourceObjectId, StringComparison.Ordinal));
         Assert.True((bool)readyEvent.Payload["wasExhausted"]!);
         Assert.False((bool)readyEvent.Payload["isExhausted"]!);
 
-        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var powerEvent = Assert.Single(triggerResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, triggerSourceObjectId, StringComparison.Ordinal));
         Assert.Equal(1, powerEvent.Payload["powerDelta"]);
         Assert.Equal(6, powerEvent.Payload["resultingPower"]);
-        Assert.False(p2Pass.State.CardObjects[triggerSourceObjectId].IsExhausted);
-        Assert.Equal(6, p2Pass.State.CardObjects[triggerSourceObjectId].Power);
-        Assert.Equal(1, p2Pass.State.CardObjects[triggerSourceObjectId].UntilEndOfTurnPowerModifier);
-        Assert.True(p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].IsExhausted);
-        Assert.Equal(5, p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].Power);
-        Assert.True(p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].IsExhausted);
-        Assert.Equal(5, p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].Power);
-        Assert.True(p2Pass.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].IsExhausted);
-        Assert.Equal(5, p2Pass.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].Power);
+        Assert.False(triggerResolved.State.CardObjects[triggerSourceObjectId].IsExhausted);
+        Assert.Equal(6, triggerResolved.State.CardObjects[triggerSourceObjectId].Power);
+        Assert.Equal(1, triggerResolved.State.CardObjects[triggerSourceObjectId].UntilEndOfTurnPowerModifier);
+        Assert.True(triggerResolved.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].IsExhausted);
+        Assert.Equal(5, triggerResolved.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].Power);
+        Assert.True(triggerResolved.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].IsExhausted);
+        Assert.Equal(5, triggerResolved.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].Power);
+        Assert.True(triggerResolved.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].IsExhausted);
+        Assert.Equal(5, triggerResolved.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].Power);
     }
 
     [Theory]

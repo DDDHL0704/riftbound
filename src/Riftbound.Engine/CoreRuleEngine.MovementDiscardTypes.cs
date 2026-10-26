@@ -16,7 +16,9 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMovementDiscardState(MatchState state)
     {
         if (state.TriggerQueue.Any(t => t.TriggeredByEventKind == "CARD_DISCARDED"
-            && (t.EffectKind != MovementDiscardInlineEffect || t.MovementObserver?.DiscardInline is null))) return false;
+            && (t.EffectKind != MovementDiscardInlineEffect || t.MovementObserver?.DiscardInline is null)
+            && !(t.HandDiscardObserver is { } captured && ValidHandDiscardObserver(state, captured,
+                t.EffectKind, t.SourceObjectId, t.ControllerId, t.SourceCardNo)))) return false;
         if (state.TriggerQueue.Any(t => t.EffectKind == MovementDiscardInlineEffect
             && (t.MovementObserver?.DiscardInline is null || t.SourceCardNo != t.MovementObserver.CardNo))) return false;
         if (state.PendingCardChoice is { } pending && state.StackItems.Any(item => item.StackItemId == pending.ResolvingStackItemId
