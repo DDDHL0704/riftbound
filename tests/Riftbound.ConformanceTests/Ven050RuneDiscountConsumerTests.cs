@@ -76,6 +76,59 @@ public sealed class Ven050RuneDiscountConsumerTests
     }
 
     [Theory]
+    [InlineData(5)] [InlineData(12)]
+    public async Task ActualRuneRecyclingAfterActivationCannotRepriceTheAlreadyPaidEmpower(int runes)
+    {
+        var initial = Position(runes); var game = await Play(initial);
+        await game.Act("P1", Activate());
+        var captured = Assert.Single(game.State.StackItems).EmpowerActivation!;
+        Assert.Equal(runes, captured.ControlledRunes); Assert.Equal(12 - runes, captured.PaidMana);
+        var mana = game.State.RunePools["P1"].Mana;
+        await game.Act("P1", new RecycleRuneCommand("RUNE-0"));
+        Assert.Contains("RUNE-0", game.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+        Assert.Equal(captured, Assert.Single(game.State.StackItems).EmpowerActivation);
+        JsonRestore(initial, game); await game.Top(); CheckSelf(game.State);
+        Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+        Assert.Single(game.Events(), e => e.Event.Kind == "OBJECT_EMPOWERED");
+        await Finish("rune-changed-after-payment-" + runes, initial, game);
+    }
+
+    [Fact]
+    public async Task ActualControlTransferKeepsEmpowerAndChargesTheFormerOwnerWard()
+    {
+        var initial = Add(Add(Position(12), "TAKE", "SFD·202/221", "P2", "HAND"), "HOWL", "VEN·072", "P1", "HAND");
+        var game = await Play(initial, "BATTLEFIELD:BF");
+        await game.Act("P1", Activate()); await game.Top(); CheckSelf(game.State);
+        var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
+        var before = game.State.RunePools["P2"];
+        await game.Act("P2", new PlayCardCommand("TAKE", "SFD·202/221", ["UNIT"]));
+        Assert.Equal(before.TotalPower - 2, game.State.RunePools["P2"].TotalPower);
+        await game.Top();
+        Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId);
+        Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
+        Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
+        Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+        Assert.Contains("法盾", game.State.CardObjects["UNIT"].Tags);
+        Assert.Contains("坚守3", game.State.CardObjects["UNIT"].Tags);
+        await game.Act("P2", new EndTurnCommand());
+        await game.Act("P1", new TapRuneCommand("RUNE-0"));
+        await game.Act("P1", new TapRuneCommand("RUNE-1"));
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await Reject(game, "P1", new PlayCardCommand("HOWL", "VEN·072", ["UNIT"]));
+        await game.Act("P1", new RecycleRuneCommand("RUNE-2"));
+        await game.Act("P1", new PlayCardCommand("HOWL", "VEN·072", ["UNIT"]));
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await game.Top();
+        Assert.Equal(4, Assert.Single(game.State.CardObjects["UNIT"].UntilEndOfTurnPowerModifiers).RequestedPowerDelta);
+        Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+        await Finish("control-changed-current-enemy-ward", initial, game);
+    }
+
+    [Theory]
     [InlineData(false, false, 4)] [InlineData(false, true, 7)]
     [InlineData(true, false, 4)] [InlineData(true, true, 4)]
     public async Task ActualMovementAndCombatApplySteadfastOnlyToAnEmpoweredDefender(bool attacking, bool empowered, int expected)
