@@ -331,7 +331,7 @@ public sealed class CharmMoveToBaseGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -351,7 +351,7 @@ public sealed class CharmMoveToBaseGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -364,7 +364,7 @@ public sealed class CharmMoveToBaseGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -379,7 +379,7 @@ public sealed class CharmMoveToBaseGuardTests
         ActionPromptDto prompt)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(CharmObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(CharmObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(CharmCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal(
             [CharmTargetObjectId],

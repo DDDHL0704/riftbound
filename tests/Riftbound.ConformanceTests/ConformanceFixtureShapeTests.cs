@@ -162,7 +162,7 @@ public sealed class ConformanceFixtureShapeTests
         session.EnsurePlayer("P1");
 
         var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
-            await session.SeedScenarioAsync("P1", "seed-one-player", "basic-play", RawCommand("DEV_SEED_SCENARIO"), CancellationToken.None));
+            await session.SeedScenarioAsync("P1", "seed-one-player", "basic-play", JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = "basic-play" }), CancellationToken.None));
 
         Assert.Equal(ErrorCodes.PlayerNotInRoom, error.Code);
         Assert.Equal("开发测试场景需要两名玩家都已加入房间。", error.Message);

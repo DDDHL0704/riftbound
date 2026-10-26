@@ -25688,7 +25688,7 @@ public sealed partial class FullGameEndToEndTests
             entry.StartedEventSequence,
             entry.CompletedEventSequence,
             entry.Accepted,
-            entry.ErrorMessage);
+            entry.ErrorMessage) { TypedCommand = entry.TypedCommand };
     }
 
     private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)
