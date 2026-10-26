@@ -101,6 +101,219 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         finally { await Save("no-power-pool-" + initialMana, initial, game); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActualSourceReturnChangesFutureCostsButCannotRefundAnAlreadyPaidSpell(bool afterPayment)
+    {
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            if (afterPayment) await game.Act("P1", Smoke());
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            if (!afterPayment) await game.Act("P1", Smoke());
+            Assert.Equal(afterPayment ? 31 : 30, game.State.RunePools["P1"].Mana);
+            Assert.Equal(afterPayment ? 4 : 3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Restore(initial, game); await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2"));
+            Assert.Equal(afterPayment ? 31 : 30, game.State.RunePools["P1"].Mana); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("source-return-payment-" + afterPayment, initial, game); }
+    }
+
+    [Fact]
+    public async Task TwoActualAurasRespectTheirOwnFloorAndDoNotReduceUnitOrEmpowerCosts()
+    {
+        var initial = Add(Position(), "SECOND", No); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("SECOND", No, [])); Assert.Equal(29, game.State.RunePools["P1"].Mana);
+            await game.Act("P1", Activate("SECOND")); Assert.Equal(26, game.State.RunePools["P1"].Mana); await game.Top();
+            Assert.All(new[] { "UNIT", "SECOND" }, id => Assert.True(game.State.CardObjects[id].IsEmpowered));
+            await game.Act("P1", Smoke()); Assert.Equal(25, game.State.RunePools["P1"].Mana);
+            Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]); await game.Top();
+            Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("two-auras-unit-ability-exclusion", initial, game); }
+    }
+
+    [Fact]
+    public async Task AnotherCardsReductionCanReachZeroAfterThisAurasOwnOneManaFloor()
+    {
+        var initial = Position("VEN·059") with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(7, 0), ["P2"] = new(20, 20) } };
+        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Act("P1", new PlayCardCommand("SPELL", "VEN·059", ["ENEMY"]));
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            Restore(initial, game); await game.Top(); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("own-floor-then-ven059-zero", initial, game); }
+    }
+
+    [Theory]
+    [InlineData("BASE", 2)] [InlineData("BATTLEFIELD:BF", 1)]
+    public async Task EagerApprenticeKeepsItsDifferentBattlefieldOnlyManaOnlyRestriction(string destination, int mana)
+    {
+        var initial = Add(VenUnitEntryBasicTests.Position("OGN·084/298"), "SPELL", "OGN·093/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", "OGN·084/298", [], Destination: destination));
+            var before = game.State.RunePools["P1"]; await game.Act("P1", Smoke());
+            Assert.Equal(before.Mana - mana, game.State.RunePools["P1"].Mana);
+            Assert.Equal(before.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
+            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("old-apprentice-scope-" + destination.Replace(':', '-'), initial, game); }
+    }
+
+    [Fact]
+    public async Task AnEmpoweredSpellAuraCannotReduceThePrintedEquipmentManaOrRedPower()
+    {
+        var initial = Add(Position(), "SWORD", "SFD·022/221") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 4, [RuneTrait.Red] = 1 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("SWORD", "SFD·022/221", ["UNIT"]));
+            Assert.Equal(31, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
+            Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            if (game.State.StackItems.Count > 0) await game.Top();
+            Assert.Equal("UNIT", game.State.CardObjects["SWORD"].AttachedToObjectId); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("equipment-is-not-spell", initial, game); }
+    }
+
+    [Fact]
+    public async Task TheAuraReducesTheTotalEchoCostWithoutRemovingThePaidEchoOrBothBlueSymbols()
+    {
+        var initial = Position("SFD·080/221"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"], OptionalCosts: ["ECHO"]));
+            Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount); Restore(initial, game);
+            await game.Top(); Assert.Equal(2, game.State.CardObjects["ENEMY"].Damage); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("echo-total-mana-power", initial, game); }
+    }
+
+    [Theory]
+    [InlineData(RuneTrait.Blue)] [InlineData(RuneTrait.Red)]
+    public async Task GenericPowerReductionAndWardCanBePaidWithEitherRemainingTrait(string remainingTrait)
+    {
+        var initial = Position() with { CardObjects = new Dictionary<string, CardObjectState>(Position().CardObjects) {
+            ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "OGN·013/298", "P2") },
+            RunePools = new Dictionary<string, RunePool> { ["P1"] = new(40, 0, new Dictionary<string, int> { [remainingTrait] = 1 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["ENEMY"].Tags);
+            var before = MatchStateHasher.Hash(game.State);
+            var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, Smoke()));
+            Assert.Equal(before, MatchStateHasher.Hash(game.State));
+            await game.Act("P1", Smoke()); Assert.True(quote.CanPay, quote.Message);
+            Assert.Equal(1, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+            Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("ward-legal-allocation-" + remainingTrait, initial, game); }
+    }
+
+    [Theory]
+    [InlineData("keep")] [InlineData("before")] [InlineData("after")]
+    public async Task AnActuallyCopiedEmpowerSourceGrantsTheAuraOnlyWhileItsCopiedTextRemains(string detach)
+    {
+        var initial = Add(Add(ShadySpectaclesTests.Position(No), "SPELL", "OGN·093/298"), "DETACH", "SFD·011/221"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
+            var choice = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", choice.Request.Kind);
+            await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+            Assert.Equal(No, game.State.CardObjects["HOST"].CardNo); Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            var candidate = Assert.Single(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
+            var rows = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
+            var row = Assert.Single(rows, r => (string?)r["sourceObjectId"] == "HOST" && (string?)r["abilityId"] == "EMPOWER:0:0");
+            var instance = Assert.IsType<string>(row["abilityInstanceId"]); await Reject(game.State, "P1", Activate("HOST"));
+            await game.Act("P1", Activate("HOST") with { AbilityInstanceId = instance });
+            Assert.Equal("GEAR", Assert.Single(game.State.StackItems).EmpowerActivation!.Origin!.Equipment.ObjectId);
+            await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered); Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            if (detach == "before") { await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top(); }
+            var pool = game.State.RunePools["P1"];
+            await game.Act("P1", Smoke() with { TargetObjectIds = ["COPY-SOURCE"] });
+            Assert.Equal(pool.Mana - (detach == "before" ? 2 : 1), game.State.RunePools["P1"].Mana);
+            Assert.Equal(pool.TotalPower - (detach == "before" ? 1 : 0), game.State.RunePools["P1"].TotalPower);
+            if (detach == "after") { await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top(); }
+            Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            if (detach != "keep") Assert.Null(game.State.CardObjects["HOST"].AttachmentUnitCopies);
+            Restore(initial, game); await game.Top(); Assert.Equal(1, Might(game.State, "COPY-SOURCE")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("actual-copy-discount-" + detach, initial, game); }
+    }
+
+    [Fact]
+    public async Task ActualControlTransferGivesTheAuraToTheNewControllerAndChargesTheFormerOwnerFullCost()
+    {
+        var initial = Add(Add(Position(), "TAKE", "OGN·203/298", "P2"), "P2-SMOKE", "OGN·093/298", "P2");
+        for (var i = 0; i < 9; i++) initial = AddBase(initial, "PURPLE-" + i, "UNL-R05", "P2");
+        for (var i = 0; i < 2; i++) initial = AddBase(initial, "BLUE-" + i, "UNL-R03", "P1");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: "BATTLEFIELD:BF")); await game.Act("P1", Activate()); await game.Top();
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            await game.Act("P1", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P2"].Mana);
+            for (var i = 0; i < 9; i++) await game.Act("P2", new TapRuneCommand("PURPLE-" + i));
+            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("PURPLE-" + i));
+            await game.Act("P2", new PlayCardCommand("TAKE", "OGN·203/298", ["UNIT"])); await game.Top();
+            Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
+            Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Equal(1, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
+            await game.Act("P2", new PlayCardCommand("P2-SMOKE", "OGN·093/298", ["UNIT"]));
+            Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower); await game.Top();
+            Assert.Equal(1, VisibleMight(game.State, "UNIT", "P2")); Restore(initial, game);
+            await game.Act("P2", new EndTurnCommand()); Assert.Equal(4, VisibleMight(game.State, "UNIT", "P1"));
+            await game.Act("P1", new TapRuneCommand("BLUE-0")); await game.Act("P1", new TapRuneCommand("BLUE-1"));
+            await game.Act("P1", new RecycleRuneCommand("BLUE-0")); await game.Act("P1", Smoke() with { TargetObjectIds = ["UNIT"] });
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Top(); Assert.Equal(1, VisibleMight(game.State, "UNIT", "P1")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("actual-current-controller-not-owner", initial, game); }
+    }
+
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task CanonicalOpeningPaysOneManaWithNoPowerAndRejectsCoherentAuraAndPaymentForgeries(string actor)
+    {
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "lillia-lowcurve", "UNL-R03", [No, No, No, "OGN·093/298", "OGN·093/298", "OGN·093/298"]);
+        try
+        {
+            await game.WaitFor(actor, 8, No, "OGN·093/298");
+            foreach (var rune in game.Runes(actor).Take(8)) await game.Act(actor, new TapRuneCommand(rune));
+            Assert.Equal(8, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            var unit = game.Hand(actor, No).First(); await game.Act(actor, new PlayCardCommand(unit, No, []));
+            await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana);
+            await game.ColdCheckpoint(); await game.Top(); Assert.Equal(1, game.State.RunePools[actor].Mana); Assert.Equal(4, game.Might(actor, unit));
+            var spell = game.Hand(actor, "OGN·093/298").First(); await game.Act(actor, new PlayCardCommand(spell, "OGN·093/298", [unit]));
+            Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower); await game.ColdCheckpoint();
+            await game.RejectCoordinatedForgery("refunded-spell-aura-mana", game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+                [actor] = game.State.RunePools[actor] with { Mana = 1 } } });
+            await game.RejectCoordinatedForgery("erased-resolved-aura-source-empower", game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                [unit] = game.State.CardObjects[unit] with { IsEmpowered = false } } });
+            await game.Top(); Assert.Equal(1, game.Might(actor, unit)); Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.Might(actor, unit)); await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven055-" + actor); }
+    }
+
     private static ActivateAbilityCommand Activate(string id = "UNIT") => new(id, "EMPOWER:0:0", []);
     private static PlayCardCommand Smoke() => new("SPELL", "OGN·093/298", ["ENEMY"]);
     private static MatchState Position(string spell = "OGN·093/298") => Add(VenUnitEntryBasicTests.Position(No), "SPELL", spell) with {
@@ -111,6 +324,21 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } };
     private static int Might(MatchState state, string id, string owner = "P1") => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[owner], Json)
         .GetProperty("players").GetProperty(owner).GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
+    private static int VisibleMight(MatchState state, string id, string viewer) => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[viewer], Json)
+        .GetProperty("players").EnumerateObject().SelectMany(p => p.Value.GetProperty("objects").EnumerateObject()).Single(p => p.Name == id).Value.GetProperty("effectivePower").GetInt32();
+    private static MatchState AddBase(MatchState state, string id, string no, string owner) => state with {
+        CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner) },
+        ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(owner, "BASE") },
+        PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] } } };
+    private static async Task Reject(MatchState state, string actor, GameCommand command)
+    {
+        var hash = MatchStateHasher.Hash(state); var views = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(state));
+        var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(state));
+        var rejected = await new CoreRuleEngine().ResolveAsync(state, new("invalid-ven055", actor, command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events); Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(views, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(rejected.State)));
+        Assert.Equal(prompts, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(rejected.State)));
+    }
     private static void Restore(MatchState initial, Driver game)
     {
         var state = game.State; var sequence = game.Commands().Last().CompletedEventSequence;
