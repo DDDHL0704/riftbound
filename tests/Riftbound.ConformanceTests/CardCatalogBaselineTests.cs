@@ -29,7 +29,7 @@ public sealed class CardCatalogBaselineTests
         var summary = FunctionalUnitBuilder.Summarize(units);
 
         Assert.Equal(1074, summary.OfficialEntries);
-        Assert.Equal(853, summary.FunctionalUnits);
+        Assert.Equal(855, summary.FunctionalUnits);
         Assert.Equal(115, summary.DuplicateGroups);
         Assert.Equal(334, summary.DuplicateEntries);
         Assert.Equal(219, summary.SavedLogicImplementations);
@@ -54,7 +54,7 @@ public sealed class CardCatalogBaselineTests
         var second = FunctionalUnitReporter.Build(FunctionalUnitBuilder.Build(catalog.Cards));
 
         Assert.Equal(1074, first.OfficialEntries);
-        Assert.Equal(853, first.FunctionalUnits);
+        Assert.Equal(855, first.FunctionalUnits);
         Assert.True(first.IdsAreUnique);
         Assert.All(first.Units, unit =>
         {
@@ -289,7 +289,7 @@ public sealed class CardCatalogBaselineTests
             .ToArray();
 
         Assert.Equal(1074, implementedSpecs.Length);
-        Assert.Equal(853, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(855, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
         Assert.Empty(manualDeferredSpecs);
         Assert.Empty(blockedSpecs);
         Assert.Equal(
@@ -608,8 +608,8 @@ public sealed class CardCatalogBaselineTests
 
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
-        Assert.Equal(853, coverage.FunctionalUnits);
-        Assert.Equal(853, coverage.ImplementedUnits);
+        Assert.Equal(855, coverage.FunctionalUnits);
+        Assert.Equal(855, coverage.ImplementedUnits);
         Assert.Equal(0, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.Equal(115, coverage.DuplicateGroups);
@@ -685,10 +685,10 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 50, 50, 0, 0, 44, 44, 0);
-        AssertFamily(report, BehaviorTemplateIds.Move, 125, 125, 0, 0, 104, 104, 0);
+        AssertFamily(report, BehaviorTemplateIds.Move, 126, 126, 0, 0, 105, 105, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 28, 28, 0, 0, 24, 24, 0);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 30, 30, 0, 0, 26, 26, 0);
         AssertFamily(report, BehaviorTemplateIds.TempMight, 271, 271, 0, 0, 219, 219, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
@@ -1283,8 +1283,8 @@ public sealed class CardCatalogBaselineTests
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
         Assert.Equal(1074, specs.Count);
-        Assert.Equal(853, coverage.FunctionalUnits);
-        Assert.Equal(853, coverage.ImplementedUnits);
+        Assert.Equal(855, coverage.FunctionalUnits);
+        Assert.Equal(855, coverage.ImplementedUnits);
         Assert.Equal(0, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.DoesNotContain(specs, spec => string.Equals(
