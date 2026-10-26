@@ -11,3 +11,5 @@
 - 原件根`var/qa/payment-prs-20261024/rejected-error-code/`，fixed-source-runtime-proof-v6.json SHA `0ca0abc2249ff4df6ca004c69798e39bce558f857fd41a362a2fd64bf3cd6c04`；implemented-contract-v5.json、projection-audit-v2与test-source-retention-v3.json可逐项复查。
 - native Info保留c9+WIP，3044个编译输入精确等于378源码；实际加载路径/SHA/MVID/RIF均保存。v3新夹具误把服务器保留ROOM_SEAT intent当客户端重复，原31P3F保留，修正为真实SubmitDeck控制，不放松保留intent守卫。
 - 本轮无真实SQL/API/网络/进程重启或完整对局矩阵；codec不冒充DB。实际新L2规则CI、main集成及夜间固定main的L3仍待，净整卡认证增量0，完整Goal active。
+- 2026-10-26 组合当前153 `4d069ab7b251934dbcf2e5ff7545736fcc1ad3df`（父136/9f4及#173 main/d1e）。167文件的邻接冲突逐项保留真实ErrorCode与TypedCommand；170处测试冲突的两侧实际来源计数均保留，生产五个客户端日志点及ROOM_SEAT共六处记录实际结果。组合后的六个生产文件，忽略已存在TypedCommand表达式后，ErrorCode新增/删除行逐项等于原157发布增量。解析不猜码，回放保留两种元数据守卫。
+- 同时发现当前实际Postgres writer的payload未包含entry.TypedCommand；reader虽读取该成员，原无raw请求的typed身份没有对应写入。仅在实际AddCommandPayload中追加该字段，与ErrorCode同时保留，无新列/DDL或历史回填。新增真实Core普通房间的接受/拒绝×有/无raw四行codec/完整原日志/registry/冷重试测试，原全部34行不变。保留修复前提交 `c0e5d7edddc3bcd4b666648da8298ca8b43d804d` 及源证明 `typed-writer-pre-fix-source-v9.json`；统一磁盘清理期间只完成源码，实际前后运行和新输入L2待执行，原2278结果仍归378固定源，不重标当前组合。
