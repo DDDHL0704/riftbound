@@ -2326,6 +2326,21 @@ public sealed record MatchState
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
                     TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId],
                     SourceOrder: (int)Math.Min(int.MaxValue, long.Parse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)]))));
+            var empoweredAuras = CoreRuleEngine.EmpoweredUnitAuraContributions(state, cardObject);
+            if (empoweredAuras.Count > 0) {
+                var before = CoreRuleEngine.CurrentPowerBeforeConditionalAuras(state, cardObject) - empoweredAuras.Sum(aura => aura.Delta);
+                foreach (var aura in empoweredAuras) {
+                    var dependencies = aura.Instance.Origin is { } copied ? new[] { aura.SourceId, copied.Equipment.ObjectId } : new[] { aura.SourceId };
+                    effects.Add(new ContinuousEffectState($"EMPOWERED_UNIT_AURA:{aura.SourceId}:{aura.Instance.Id}:{aura.Index}:{objectId}",
+                        "OBJECT", ContinuousEffectLayers.StaticAura, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", objectId, aura.SourceId,
+                        aura.Delta, before, before + aura.Delta, CoreRuleEngine.EmpoweredUnitAuraEffect, aura.Instance.CardNo,
+                        "CoreRuleEngine.EmpoweredUnitAuraContributions", true, LayerEngineFoundationResiduals(),
+                        Condition: "SOURCE_AND_FRIENDLY_TARGET_EMPOWERED", Lifecycle: "RECOMPUTED_FROM_CURRENT_EMPOWERED_TEXT_AND_CONTROLLER",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                    before += aura.Delta;
+                }
+            }
             foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
             {
                 var dependencies = aura.Instance.Origin is { } copied
