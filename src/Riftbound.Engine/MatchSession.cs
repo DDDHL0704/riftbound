@@ -10296,7 +10296,7 @@ internal static class ActionPromptBuilder
                 if (ability.Cost.Exhaust && cardObject.IsExhausted) continue;
                 var cost = ability.Cost;
                 var requiredDiscard = EmpowerRules.RequiresHandDiscard(cost);
-                var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId)
+                var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId, cost)
                     .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", ObjectIds: [id])).ToArray() : [];
                 if (requiredDiscard && additionalCosts.Length == 0) continue;
                 var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
@@ -10305,7 +10305,7 @@ internal static class ActionPromptBuilder
                 if (cost.Power > 0) costLabels.Add($"{cost.Power}任意符能");
                 costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
                 if (cost.Exhaust) costLabels.Add("横置");
-                if (requiredDiscard) costLabels.Add("弃置一张手牌");
+                if (requiredDiscard) costLabels.Add(cost.AdditionalCost);
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
                 var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);

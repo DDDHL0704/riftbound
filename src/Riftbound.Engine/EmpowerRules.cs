@@ -17,7 +17,7 @@ internal static class EmpowerRules
 {
     internal const string Effect = "EMPOWER_ACTIVATION";
     internal static bool RequiresHandDiscard(EmpowerCostSpec cost)
-        => !cost.SupportedResources && cost.AdditionalCost == "弃置一张手牌" && !cost.Exhaust
+        => !cost.SupportedResources && (cost.AdditionalCost is "弃置一张手牌" or "弃置一张法术牌") && !cost.Exhaust
             && cost.Mana == 0 && cost.Power == 0 && cost.TypedPower.Count == 0;
     internal static bool SupportedCost(EmpowerCostSpec cost) => cost.SupportedResources || RequiresHandDiscard(cost);
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
@@ -80,21 +80,22 @@ internal static class EmpowerRules
 
 public sealed partial class CoreRuleEngine
 {
-    internal static IReadOnlyList<string> EmpowerHandDiscardCostChoices(MatchState state, string actor, string source)
-        => !state.PlayerZones.TryGetValue(actor, out var zones) ? [] : zones.Hand
+    internal static IReadOnlyList<string> EmpowerHandDiscardCostChoices(MatchState state, string actor, string source, EmpowerCostSpec cost)
+        => !EmpowerRules.RequiresHandDiscard(cost) || !state.PlayerZones.TryGetValue(actor, out var zones) ? [] : zones.Hand
             .Where(id => id != source && IsFriendlyHandCard(state, actor, id)
                 && state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown && !IsTokenObject(card)
                 && !card.Tags.Contains(CardObjectTags.RuneCard)
-                && card.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.SpellCard or CardObjectTags.EquipmentCard))
+                && card.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.SpellCard or CardObjectTags.EquipmentCard)
+                && (cost.AdditionalCost != "弃置一张法术牌" || card.Tags.Contains(CardObjectTags.SpellCard)))
             .Distinct(StringComparer.Ordinal).ToArray();
 
     internal static bool TrySelectEmpowerHandDiscardCost(MatchState state, string actor, string source,
-        IReadOnlyList<string> choices, out ObjectBinding? discarded)
+        EmpowerCostSpec cost, IReadOnlyList<string> choices, out ObjectBinding? discarded)
     {
         discarded = null;
         if (choices.Count != 1 || !TryParseDiscardHandCardOptionalCost(choices[0], out var id)
             || choices[0] != DiscardHandCardOptionalCostPrefix + id
-            || !EmpowerHandDiscardCostChoices(state, actor, source).Contains(id, StringComparer.Ordinal)) return false;
+            || !EmpowerHandDiscardCostChoices(state, actor, source, cost).Contains(id, StringComparer.Ordinal)) return false;
         discarded = new(id, state.CardObjects[id].ObjectGeneration); return true;
     }
 
@@ -114,8 +115,8 @@ public sealed partial class CoreRuleEngine
         if (EmpowerRules.RequiresHandDiscard(ability.Cost))
         {
             if (requestedCosts.Count != (command.OptionalCosts?.Count ?? 0)
-                || !TrySelectEmpowerHandDiscardCost(state, intent.PlayerId, source.ObjectId, extra, out discarded))
-                return RejectWithCorePrompts(state, "请恰好选择一张合法手牌支付强化费用。", ErrorCodes.InvalidTarget);
+                || !TrySelectEmpowerHandDiscardCost(state, intent.PlayerId, source.ObjectId, ability.Cost, extra, out discarded))
+                return RejectWithCorePrompts(state, "请恰好选择一张符合强化费用要求的手牌。", ErrorCodes.InvalidTarget);
         }
         else if (extra.Count != 0)
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
