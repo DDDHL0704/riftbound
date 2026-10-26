@@ -18545,10 +18545,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
-        var selectedPower = powerOptions.Where(option => spellPowerReductionChoices.Length == 0
+        // A repeat probe validates a target declaration, not the final combined
+        // price. Both reduction and wallet choices belong to the complete plan.
+        var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
-            // A repeat probe has not combined all target taxes. Only the full
-            // price authorizes the independent choice of wallet resources.
             .Where(option => powerSpend is null || !validateRepeats
                 || PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, option.GenericPower, option.TypedPower))
             .OrderBy(option => PaymentCostRules.PowerDeficit(paymentAdjustedPool, option.GenericPower, option.TypedPower)).FirstOrDefault();

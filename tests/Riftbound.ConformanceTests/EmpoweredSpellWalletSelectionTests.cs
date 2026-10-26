@@ -73,6 +73,28 @@ public sealed class EmpoweredSpellWalletSelectionTests
         finally { await Save("incompatible-wallet-" + trait, initial, game); }
     }
 
+    [Theory]
+    [InlineData("SPELL_POWER_REDUCTION:any:1")]
+    [InlineData("SPELL_POWER_REDUCTION:blue:2")]
+    public async Task RepeatProbesCannotAuthorizeADiscountThatTheCompletePriceDoesNotAllow(string discount)
+    {
+        var initial = Position(); var game = new Driver(initial);
+        try
+        {
+            await Empower(game);
+            var state = game.State; var hash = MatchStateHasher.Hash(state);
+            var command = new PlayCardCommand("SPELL", Spell, [], OptionalCosts: ["PRINTED_POWER:red:1",
+                "ECHO:GRANTED:1", discount, "POWER_SPEND:red:1"]);
+            var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
+            Assert.False(quote.CanPay); Assert.Equal(hash, MatchStateHasher.Hash(state));
+            var rejected = await new CoreRuleEngine().ResolveAsync(state, new("bad-repeat-discount", "P1", command.CmdType), command, default);
+            Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode); Assert.Empty(rejected.Events);
+            Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+            await game.Replay();
+        }
+        finally { await Save("invalid-repeat-discount-" + discount.Replace(':', '-'), initial, game); }
+    }
+
     private static async Task Empower(Driver game)
     {
         await game.Act("P1", new PlayCardCommand("UNIT", Aura, []));
