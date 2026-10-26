@@ -335,6 +335,128 @@ public sealed class Ven057EmpoweredMovementConsumerTests
         finally { await Save("copied-empower-original-" + empowerOriginal + "-detach-before-" + detachBeforeResolution, initial, game); }
     }
 
+    [Theory]
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task AnActualCopiedMoveChecksTheHostsEmpowermentRatherThanTheOriginals(bool empowerOriginal, bool empowerHost)
+    {
+        var initial = ShadySpectaclesTests.Position(No) with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1, [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            if (empowerOriginal) { await game.Act("P1", new ActivateAbilityCommand("COPY-SOURCE", "EMPOWER:0:0", [])); await game.Top(); }
+            await CopyActually(game); Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
+            if (empowerHost) { await game.Act("P1", CopiedEmpower(game)); await game.Top(); }
+            Assert.Equal(empowerOriginal, game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            Assert.Equal(empowerHost, game.State.CardObjects["HOST"].IsEmpowered);
+            var draws = Draws(game, "P1"); var hand = game.State.PlayerZones["P1"].Hand.Count;
+            var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+            await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+            Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn);
+            Assert.Equal(draws, Draws(game, "P1")); Assert.Equal(0, SourceEffects(game, "COPY-SOURCE"));
+            Assert.Equal(empowerHost ? 1 : 0, SourceEffects(game, "HOST"));
+            if (empowerHost)
+            {
+                var skill = Assert.Single(game.State.StackItems, item => item.SourceObjectId == "HOST");
+                Assert.Equal(No, skill.CardNo); Assert.NotNull(skill.MovementObserver);
+                var context = JsonSerializer.SerializeToElement(skill.MovementObserver, Json);
+                Assert.Equal("GEAR", context.GetProperty("origin").GetProperty("equipment").GetProperty("objectId").GetString());
+                await game.Top(); Assert.Equal(draws + 1, Draws(game, "P1")); Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count);
+            }
+            await FinishWindow(game); Assert.Equal(draws + (empowerHost ? 1 : 0), Draws(game, "P1"));
+            Assert.Equal(empowerOriginal, game.State.CardObjects["COPY-SOURCE"].IsEmpowered); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-copied-move-original-" + empowerOriginal + "-host-" + empowerHost, initial, game); }
+    }
+
+    [Fact]
+    public async Task AnActuallyEarnedCopiedMoveDrawSurvivesTheCopyBeingRemovedBeforeResolution()
+    {
+        var initial = Add(ShadySpectaclesTests.Position(No), "DETACH", "SFD·011/221") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1, [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        try
+        {
+            var physicalFace = game.State.CardObjects["HOST"].CardNo; await CopyActually(game);
+            await game.Act("P1", CopiedEmpower(game)); await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+            var draws = Draws(game, "P1"); var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+            await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+            var earned = Assert.Single(game.State.StackItems, item => item.SourceObjectId == "HOST"); Assert.NotNull(earned.MovementObserver);
+            Assert.Equal(draws, Draws(game, "P1"));
+            if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            var hand = game.State.PlayerZones["P1"].Hand.Count;
+            await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR"])); await game.Top();
+            Assert.Equal(physicalFace, game.State.CardObjects["HOST"].CardNo); Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+            Assert.True(game.State.CardObjects["HOST"].IsEmpowered); Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration);
+            Assert.Equal(draws + 1, Draws(game, "P1")); // SFD011's own draw, before the independently earned skill.
+            Assert.Equal(earned.StackItemId, Assert.Single(game.State.StackItems, item => item.SourceObjectId == "HOST").StackItemId);
+            await game.Top(); Assert.Equal(draws + 2, Draws(game, "P1")); Assert.Equal(hand + 1, game.State.PlayerZones["P1"].Hand.Count);
+            Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn); Assert.False(game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            await FinishWindow(game); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("earned-copied-move-then-actual-detach", initial, game); }
+    }
+
+    [Theory]
+    [InlineData(1)] [InlineData(2)]
+    public async Task OneActualEmpoweredMoveEarnsOneIndependentDrawForEveryPrintedAndAttachedTextInstance(int copies)
+    {
+        var initial = Add(EmpowerTests.Position(No), "READY", "UNL-009/219") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(60, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1, [RuneTrait.Green] = 2 }), ["P2"] = new(20, 20) } };
+        if (copies == 2) initial = AttachedRuleTextTests.AddSong(initial, "SONG2");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("HOST", No, []));
+            for (var i = 0; i < copies; i++)
+            {
+                var gear = i == 0 ? "GEAR" : "SONG2";
+                await game.Act("P1", new AssembleEquipmentCommand(gear, "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
+                Assert.Equal("HOST", game.State.CardObjects[gear].AttachedToObjectId);
+            }
+            await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", [])); await game.Top();
+            await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["HOST"])); await game.Top();
+            Assert.True(game.State.CardObjects["HOST"].IsEmpowered); Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+            Assert.Equal(4, Might(game.State, "HOST")); Assert.Equal(0, Draws(game, "P1"));
+            var hand = game.State.PlayerZones["P1"].Hand.Count; var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+            await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+            Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn);
+            Assert.Equal(copies + 1, SourceEffects(game, "HOST")); Assert.Equal(0, Draws(game, "P1"));
+            if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(game.State.TriggerQueue.Select(item => item.TriggerId).ToArray()));
+            var skills = game.State.StackItems.Where(item => item.SourceObjectId == "HOST").ToArray(); Assert.Equal(copies + 1, skills.Length);
+            Assert.Equal(copies + 1, skills.Select(item => item.StackItemId).Distinct(StringComparer.Ordinal).Count());
+            Assert.All(skills, item => { Assert.Equal(No, item.CardNo); Assert.NotNull(item.MovementObserver); });
+            var origins = skills.Select(item => JsonSerializer.SerializeToElement(item.MovementObserver, Json))
+                .Where(context => context.TryGetProperty("origin", out var origin) && origin.ValueKind == JsonValueKind.Object).ToArray();
+            Assert.Equal(copies, origins.Length);
+            Assert.Equal(copies, origins.Select(context => context.GetProperty("origin").GetProperty("equipment").GetProperty("objectId").GetString()).Distinct(StringComparer.Ordinal).Count());
+            for (var i = 0; i <= copies; i++)
+            {
+                await game.Top(); Assert.Equal(i + 1, Draws(game, "P1")); Assert.Equal(hand + i + 1, game.State.PlayerZones["P1"].Hand.Count);
+                Assert.Equal(copies - i, SourceEffects(game, "HOST")); Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn);
+            }
+            await FinishWindow(game); Assert.Equal(copies + 1, Draws(game, "P1"));
+            Assert.Single(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal)); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-empowered-movement-text-instances-" + copies, initial, game); }
+    }
+
+    private static async Task CopyActually(Driver game)
+    {
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_YELLOW"])); await game.Top();
+        var choice = game.State.PendingRuleChoice!; Assert.Equal("ATTACHMENT_COPY_SELECTION", choice.Request.Kind);
+        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal(No, game.State.CardObjects["HOST"].CardNo); Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
+    }
+    private static ActivateAbilityCommand CopiedEmpower(Driver game)
+    {
+        var row = ResolutionResult.BuildPrompts(game.State)["P1"].Candidates!.Where(candidate => candidate.Action == CommandTypes.ActivateAbility)
+            .SelectMany(candidate => Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]))
+            .Single(requirement => (string?)requirement["sourceObjectId"] == "HOST" && (string?)requirement["abilityId"] == "EMPOWER:0:0");
+        return new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []) with { AbilityInstanceId = Assert.IsType<string>(row["abilityInstanceId"]) };
+    }
+
     private static ActivateAbilityCommand Activate() => new("UNIT", "EMPOWER:0:0", []);
     private static MatchState Position() => VenUnitEntryBasicTests.Position(No) with { RunePools = new Dictionary<string, RunePool> {
         ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
