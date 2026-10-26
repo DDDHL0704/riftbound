@@ -50,7 +50,7 @@ public sealed partial class MatchSession
             var intentId = RoomSeatIntentId(player.Seat);
             var entry = new MatchJournalEntry(RoomId, player.PlayerId, intentId, RoomSeatCommandType, raw,
                 state.Tick, nextState.Tick, lastEventSequence, lastEventSequence + 1, true, null,
-                nextState, events, result.Snapshots, result.Prompts, DateTimeOffset.UtcNow) { OpeningSeed = openingSeed };
+                nextState, events, result.Snapshots, result.Prompts, DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode };
             await playerStore.CommitRoomSeatAsync(entry, ReconnectTokenHasher.Hash(player.ReconnectToken),
                 journal, cancellationToken).ConfigureAwait(false);
 

@@ -28,7 +28,8 @@ public sealed partial class CoreRuleEngine
         var missingMana = Math.Max(0, plan.TotalManaCost - availableMana);
         var missingPower = PaymentCostRules.PowerDeficit(pool, plan.AnyPowerCost, plan.PowerCostByTrait);
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
-        var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, plan.AnyPowerCost, plan.PowerCostByTrait) : default;
+        var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
+        var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
         var adjustments = new List<PlayCostAdjustmentDto>();
         void Adjust(string label, int mana, int power = 0)
         {

@@ -93,7 +93,7 @@ public sealed class ShadySpectaclesNativeTests
             Assert.Equal("OGN·096/298", current.CardObjects["HOST"].CardNo); Assert.Contains("HOST", current.PlayerZones["P1"].Hand);
         }
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors)); Assert.Single(commands, command => !command.Accepted);

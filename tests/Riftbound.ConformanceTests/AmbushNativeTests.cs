@@ -64,7 +64,7 @@ public sealed class AmbushNativeTests
         }
         Assert.Empty(done.State.StackItems); Assert.True(done.State.CardObjects["AMBUSH"].IsExhausted);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, done.State, engine, default, events); Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Export("replay.json", new { actor, nativeRequest, nativeCommands = native, accepted = 3, staleRejected = 1, replay, finalHash = MatchStateHasher.Hash(done.State) });

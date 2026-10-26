@@ -16164,6 +16164,7 @@ internal static class ActionPromptBuilder
             ["effectPlayReason"] = behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
+            ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,
             ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
             ["dragonUnitCostReductionMana"] = manaCost.UnitReduction,
@@ -17125,7 +17126,7 @@ public sealed partial class MatchSession : IMatchSession
                 [],
                 ResolutionResult.BuildSnapshots(restoredState),
                 ResolutionResult.BuildPrompts(restoredState),
-                command.Accepted ? null : ErrorCodes.UnsupportedCommand);
+                command.ErrorCode);
             intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
                 command.CommandType,
                 InputFingerprint(command.RawCommand, command.TypedCommand ?? TypedCommandInput.Parameterless(command.CommandType)),
@@ -17401,7 +17402,7 @@ public sealed partial class MatchSession : IMatchSession
                     events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
             lastEventSequence = completedEventSequence;
 
@@ -17561,7 +17562,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17643,7 +17644,7 @@ public sealed partial class MatchSession : IMatchSession
                         promptRejection.Events,
                         promptRejection.Snapshots,
                         promptRejection.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = promptRejection.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
@@ -17771,7 +17772,7 @@ public sealed partial class MatchSession : IMatchSession
                         events,
                         result.Snapshots,
                         result.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
             }
@@ -17887,7 +17888,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
