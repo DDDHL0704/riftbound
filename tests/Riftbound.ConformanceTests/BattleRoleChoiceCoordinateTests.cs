@@ -198,9 +198,11 @@ public sealed class BattleRoleChoiceCoordinateTests
             var duplicate = await Session.SubmitAsync(player, id, command, raw, default);
             Assert.True(duplicate.Accepted); Assert.Equal(count, entries.Count);
             if (MatchStateHasher.Hash(result.State) != MatchStateHasher.Hash(duplicate.State)
-                && Environment.GetEnvironmentVariable("RIFTBOUND_IMPOSED_MOVEMENT_EVIDENCE") is { Length: > 0 } folder)
+                && Environment.GetEnvironmentVariable("RIFTBOUND_IMPOSED_MOVEMENT_EVIDENCE") is { Length: > 0 } folder) {
+                Directory.CreateDirectory(folder);
                 File.WriteAllText(Path.Combine(folder, "duplicate-state-mismatch-" + id + ".json"),
                     JsonSerializer.Serialize(new { raw, original = result.State, restored = duplicate.State, frame = Frame() }, Web));
+            }
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
         }
         internal MatchRecoveryFrame Frame(MatchState? state = null)
