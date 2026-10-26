@@ -457,14 +457,17 @@ public sealed class CommandInputRecoveryTests
         var frame = Frame(run);
         var persisted = frame with { Commands = frame.Commands.Select(recorded =>
             recorded.ClientIntentId == intent ? decoded : recorded).ToArray() };
-        AssertRecovered(persisted);
+        var errors = MatchRecoveryValidator.Validate(persisted.RoomId, persisted.LastEventSequence,
+            persisted.Commands, persisted.Events, persisted.PlayerViews, persisted.AuthoritativeState,
+            persisted.CurrentTick, persisted.SpectatorReplayFrame);
+        Assert.Empty(errors);
         var audit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
         Assert.Empty(audit);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, new RawEnvelopeFrameStore(persisted));
         var cold = await registry.GetOrCreateAsync(run.State.RoomId, default);
         var duplicate = await cold.SubmitAsync(actor, intent, input, raw, default);
         run.Save("documented-jsonb-nested-duplicate-output", new { rawPresent, jsonbOutputForm, raw, input,
-            payload, stored, frame, persisted, audit, original, warm, duplicate, noDatabaseExecutionClaimed = true });
+            payload, stored, frame, persisted, errors, audit, original, warm, duplicate, noDatabaseExecutionClaimed = true });
         Assert.Empty(duplicate.Events);
         Assert.Equal(stateHash, MatchStateHasher.Hash(duplicate.State));
         Assert.Equal(journalBefore, JsonSerializer.Serialize(run.Entries, Web));
