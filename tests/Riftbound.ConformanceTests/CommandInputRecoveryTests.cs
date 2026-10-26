@@ -450,10 +450,20 @@ public sealed class CommandInputRecoveryTests
         var decoded = JsonSerializer.Deserialize<RecoveredCommand>(stored, Web)!;
         var readRaw = typeof(PostgresMatchRecoveryStore).GetMethod("ReadRawCommand", BindingFlags.NonPublic | BindingFlags.Static)!
             .Invoke(null, [stored]);
-        var readTyped = Assert.IsType<TypedCommandInput>(typeof(PostgresMatchRecoveryStore)
-            .GetMethod("ReadTypedCommand", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [stored]));
+        var readTyped = typeof(PostgresMatchRecoveryStore)
+            .GetMethod("ReadTypedCommand", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [stored]);
         Assert.Equal(rawPresent, readRaw is JsonElement);
-        Assert.Equal(MatchStateHasher.HashValue(readTyped.Value), MatchStateHasher.HashValue(decoded.TypedCommand!.Value));
+        if (rawPresent)
+        {
+            Assert.Null(readTyped);
+            Assert.Null(decoded.TypedCommand);
+            Assert.Equal(Assert.IsType<JsonElement>(readRaw).GetRawText(), decoded.RawCommand!.Value.GetRawText());
+        }
+        else
+        {
+            Assert.Equal(MatchStateHasher.HashValue(Assert.IsType<TypedCommandInput>(readTyped).Value),
+                MatchStateHasher.HashValue(decoded.TypedCommand!.Value));
+        }
         var frame = Frame(run);
         var persisted = frame with { Commands = frame.Commands.Select(recorded =>
             recorded.ClientIntentId == intent ? decoded : recorded).ToArray() };
