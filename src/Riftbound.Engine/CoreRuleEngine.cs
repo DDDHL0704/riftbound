@@ -3233,7 +3233,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (trigger.PermanentPlayStackItemId is { } pending)
             return state.StackItems.Single(i => i.StackItemId == pending);
-        var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.HandDiscardObserver?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3246,7 +3246,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5299,7 +5299,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["controllerId"] = trigger.ControllerId,
             ["sourceObjectId"] = trigger.SourceObjectId,
             ["effectKind"] = trigger.EffectKind,
-            ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
+            ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
@@ -5325,7 +5325,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["controllerId"] = trigger.ControllerId,
                 ["sourceObjectId"] = trigger.SourceObjectId,
                 ["effectKind"] = trigger.EffectKind,
-                ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind
+                ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind
             });
     }
 
@@ -10109,99 +10109,34 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> discardedObjectIds,
         List<GameEvent> events)
     {
-        if (discardedObjectIds.Count == 0)
+        if (discardedObjectIds.Count == 0) return;
+        var frame = RuleChoices.Value!;
+        var observers = new List<HandDiscardObserverContext>();
+        foreach (var source in cardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            return;
-        }
-
-        var triggerSourceObjectIds = playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                && HandDiscardTriggerSpecRules.TryGetTrigger(
-                    sourceState.CardNo,
-                    HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger,
-                    out _)
-                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !sourceState.IsFaceDown
-                && IsObjectOnField(playerZones, sourceObjectId)
-                && string.Equals(
-                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
-                    playerId,
-                    StringComparison.Ordinal))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
-            .ToArray();
-
-        foreach (var sourceObjectId in triggerSourceObjectIds)
-        {
-            var sourceState = cardObjects[sourceObjectId];
-            if (!HandDiscardTriggerSpecRules.TryGetTrigger(
-                    sourceState.CardNo,
-                    HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger,
-                    out var triggerSpec))
+            if (source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard)
+                || !IsObjectOnField(playerZones, source.ObjectId)
+                || EffectiveFieldControllerId(playerZones, source.ObjectId, source) != playerId) continue;
+            var generation = source.ObjectGeneration;
+            if (frame.Origin.CardObjects.TryGetValue(source.ObjectId, out var previous)
+                && !IsObjectOnField(frame.Origin.PlayerZones, source.ObjectId))
+                generation = Math.Max(generation, checked(previous.ObjectGeneration + 1));
+            foreach (var instance in AttachedRuleTextRules.Instances(playerZones, cardObjects, source))
             {
-                continue;
-            }
-
-            var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
-            var triggerBehavior = new CardBehaviorDefinition(
-                sourceState.CardNo ?? string.Empty,
-                "弃牌触发",
-                0,
-                triggerSpec.Kind,
-                0,
-                0,
-                PowerModifierAmount: powerDelta);
-            var triggerStackItem = new StackItemState(
-                $"{sourceObjectId}:discarded-hand-cards",
-                playerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                sourceState.CardNo);
-            events.Add(new GameEvent(
-                "TRIGGER_RESOLVED",
-                $"{playerId} 的弃牌触发已结算",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["effectKind"] = triggerSpec.Kind,
-                    ["triggeredByEventKind"] = triggeredByEventKind,
-                    ["discardSourceObjectId"] = discardSourceObjectId,
-                    ["discardedObjectIds"] = discardedObjectIds.ToArray(),
-                    ["discardedCount"] = discardedObjectIds.Count
-                }));
-
-            var nextSourceState = sourceState;
-            if (triggerSpec.ReadiesSource.GetValueOrDefault())
-            {
-                nextSourceState = ApplyReadyState(
-                    nextSourceState,
-                    triggerBehavior,
-                    triggerStackItem,
-                    sourceObjectId,
-                    out var readyEvent);
-                cardObjects[sourceObjectId] = nextSourceState;
-                if (readyEvent is not null)
-                {
-                    events.Add(readyEvent);
-                }
-            }
-
-            if (powerDelta != 0)
-            {
-                nextSourceState = ApplyPowerModifier(
-                    null,
-                    nextSourceState,
-                    triggerBehavior,
-                    triggerStackItem,
-                    sourceObjectId,
-                    powerDelta,
-                    out var powerEvent);
-                cardObjects[sourceObjectId] = nextSourceState;
-                events.Add(powerEvent);
+                if (!HandDiscardTriggerSpecRules.TryGetTrigger(instance.CardNo,
+                    HandDiscardTriggerSpecRules.IsHandCardsDiscardedReadySourcePowerTrigger, out var spec)) continue;
+                var binding = new ObjectBinding(source.ObjectId, generation);
+                var origin = instance.Origin is { } captured ? captured with { Unit = binding } : null;
+                var instanceId = origin is null ? $"PRINTED:{source.ObjectId}:{generation}" : instance.Id;
+                observers.Add(new(instance.CardNo, spec.Kind, binding, playerId, instanceId,
+                    source.CopyFaceTransitions?.Count ?? 0, 0, triggeredByEventKind, discardSourceObjectId,
+                    discardedObjectIds.Select(id => new ObjectBinding(id, cardObjects[id].ObjectGeneration)).ToArray(),
+                    origin, source.TokenFactoryCardNo));
             }
         }
+        if (observers.Count > 0)
+            events.Add(new(CapturedHandDiscardEvent, "捕获弃牌时的技能来源", new Dictionary<string, object?> {
+                ["batch"] = new CapturedHandDiscardBatch($"discard-{frame.Origin.Tick}-{frame.DiscardSequence++}", observers) }));
     }
 
     private static ResolutionResult ResolveTapRune(
@@ -19945,7 +19880,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = trigger.SourceObjectId,
                 ["controllerId"] = trigger.ControllerId,
                 ["effectKind"] = trigger.EffectKind,
-            ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
+            ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
                 ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
                 ["resourceSkill"] = true,
                 ["movementTriggered"] = true,
@@ -22955,6 +22890,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => ControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
                     ? behavior.CostReductionMana
                     : 0,
+            CardCostReductionConditionKinds.ControllerControlsEmpoweredObject
+                => ControllerControlsEmpoweredObject(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.PlayedOutsideOwnHand
@@ -23672,6 +23609,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Any(objectId => CardObjectHasTag(state.CardObjects, objectId, requiredTag));
     }
 
+    private static bool ControllerControlsEmpoweredObject(MatchState state, string playerId)
+        => PublicStaticAuraSourceObjectIds(state.PlayerZones).Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsEmpowered && !cardObject.IsFaceDown
+            && string.Equals(EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject),
+                playerId, StringComparison.Ordinal));
+
     private static bool CardObjectHasTag(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId,
@@ -24062,6 +24006,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && (choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices || choiceBehavior.GainsControlOfTargetStackSpell))
             return ResolveSpellControl(state, stackItem, choiceBehavior);
         if (stackItem.AttachmentObserver is not null) return ResolveAttachmentObserver(state, stackItem);
+        if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);

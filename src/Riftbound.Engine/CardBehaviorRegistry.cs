@@ -400,6 +400,7 @@ public static class CardCostReductionConditionKinds
     public const string ControllerHighestUnitPower = "CONTROLLER_HIGHEST_UNIT_POWER";
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
+    public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
 }

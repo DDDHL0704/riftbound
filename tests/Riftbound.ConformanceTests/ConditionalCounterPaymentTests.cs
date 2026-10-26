@@ -111,18 +111,33 @@ public sealed class ConditionalCounterPaymentTests
                 { ["RUNE"] = new("P2", "BASE") } };
         var driver = await Open(initial);
         Assert.DoesNotContain(driver.State.PendingRuleChoice!.Request.Options, o => o.Id == "SPEND_MANA:2");
+        var beforeResourceEvents = driver.Events().Length;
         await Decide(driver, "TAP_RUNE:RUNE");
         var request = driver.State.PendingRuleChoice!.Request;
         Assert.Equal("P2", request.PlayerId);
         Assert.Equal(2, request.Preview!.RunePools["P2"].Mana);
         Assert.True(request.Preview.CardObjects["RUNE"].IsExhausted);
-        Assert.Equal(1, driver.State.RunePools["P2"].Mana);
-        Assert.False(driver.State.CardObjects["RUNE"].IsExhausted);
+        Assert.Equal(2, driver.State.RunePools["P2"].Mana);
+        Assert.True(driver.State.CardObjects["RUNE"].IsExhausted);
+        Assert.Equal(1, driver.State.PendingRuleChoice.Origin.RunePools["P2"].Mana);
+        Assert.False(driver.State.PendingRuleChoice.Origin.CardObjects["RUNE"].IsExhausted);
+        var confirmationEvents = driver.Events().Skip(beforeResourceEvents).ToArray();
+        var tapped = Assert.Single(confirmationEvents, e => e.Event.Kind == "RUNE_TAPPED");
+        var resourceCommand = driver.Commands()[^1];
+        Assert.Equal(resourceCommand.CompletedTick, tapped.Tick);
+        Assert.InRange(tapped.Sequence, resourceCommand.StartedEventSequence + 1, resourceCommand.CompletedEventSequence);
+        Assert.DoesNotContain(confirmationEvents, e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT"));
+        Assert.DoesNotContain(confirmationEvents, e => e.Event.Kind == "STACK_ITEM_COUNTERED");
+        var beforeDecisionEvents = driver.Events().Length;
         await Decide(driver, pay ? "SPEND_MANA:2" : "DECLINE");
         Assert.True(driver.State.CardObjects["RUNE"].IsExhausted);
         Assert.Equal(pay ? 0 : 2, driver.State.RunePools["P2"].Mana);
         Assert.Equal(pay, driver.State.StackItems.Any(s => s.StackItemId == "S1"));
         Assert.Single(driver.Events(), e => e.Event.Kind == "RUNE_TAPPED");
+        Assert.DoesNotContain(driver.Events().Skip(beforeDecisionEvents), e => e.Event.Kind == "RUNE_TAPPED");
+        Assert.Equal(pay ? 1 : 0, driver.Events().Count(e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("reason"), "COUNTER_TARGET_MANA_PAYMENT")));
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 

@@ -30,11 +30,16 @@ public sealed partial class CoreRuleEngine
         var prior = before.TriggerQueue.Select(t => t.TriggerId).ToHashSet(StringComparer.Ordinal);
         var added = result.State.TriggerQueue.Where(t => t.EnqueuedAtTick is null && !prior.Contains(t.TriggerId))
             .Select(t => t.TriggerId).ToHashSet(StringComparer.Ordinal);
-        if (added.Count == 0) return result;
-        var tick = result.State.Tick;
+        // Replaying a suspended parent still evaluates its original state;
+        // newly earned skills belong to this accepted completion, while
+        // confirmed resource children keep their earlier recorded ticks.
+        var tick = RuleChoices.Value?.CompletionTick ?? result.State.Tick;
+        var queue = result.State.TriggerQueue.Select(t => added.Contains(t.TriggerId)
+                ? t with { EnqueuedAtTick = tick } : t)
+            .OrderBy(t => t.EnqueuedAtTick).ToArray();
+        if (added.Count == 0 && result.State.TriggerQueue.SequenceEqual(queue)) return result;
         var state = result.State with {
-            TriggerQueue = result.State.TriggerQueue.Select(t => added.Contains(t.TriggerId)
-                ? t with { EnqueuedAtTick = tick } : t).ToArray()
+            TriggerQueue = queue
         };
         var events = result.Events.Select(e => e.Kind == "TRIGGER_QUEUED"
             && e.Payload.GetValueOrDefault("triggerId") is string id && added.Contains(id)
