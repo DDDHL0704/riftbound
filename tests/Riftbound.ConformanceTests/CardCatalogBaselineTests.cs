@@ -690,8 +690,8 @@ public sealed class CardCatalogBaselineTests
         // VEN110 adds a classified banish template; these text counts do not certify its pending observer.
         AssertFamily(report, BehaviorTemplateIds.Banish, 31, 31, 0, 0, 27, 27, 0);
         // The text classifier includes VEN050's Steadfast reminder and VEN070/VEN007 permanent empowered bonuses.
-        // Actual defender-only and permanent self effects are asserted separately.
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 276, 276, 0, 0, 224, 224, 0);
+        // It also classifies VEN130's conditional passive aura; permanent and current passive semantics are asserted separately.
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 277, 277, 0, 0, 225, 225, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
         Assert.All(report.Families, family =>
