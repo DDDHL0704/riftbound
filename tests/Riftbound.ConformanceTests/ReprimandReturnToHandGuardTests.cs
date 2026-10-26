@@ -386,7 +386,7 @@ public sealed class ReprimandReturnToHandGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -406,7 +406,7 @@ public sealed class ReprimandReturnToHandGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -419,7 +419,7 @@ public sealed class ReprimandReturnToHandGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -434,7 +434,7 @@ public sealed class ReprimandReturnToHandGuardTests
         ActionPromptDto prompt)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(ReprimandObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(ReprimandObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(ReprimandCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal(
             [ReprimandTargetObjectId],

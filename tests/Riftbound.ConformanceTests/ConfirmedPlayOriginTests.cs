@@ -237,7 +237,7 @@ public sealed class ConfirmedPlayOriginTests
         await ActNormal("P1", new PlayCardCommand(source!, StayAway, [unit!], OptionalCosts: []));
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId, entry.CommandType, entry.RawCommand,
             entry.StartedTick, entry.CompletedTick, entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage)
-            { RuleInputs = entry.RuleInputs }).ToArray();
+            { TypedCommand = entry.TypedCommand, RuleInputs = entry.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(entry => entry.Events.Select((ev, index) => new RecoveredEvent(entry.StartedEventSequence + index + 1, entry.CompletedTick, index, ev))).ToArray();
         var sequence = journal.Entries[^1].CompletedEventSequence;
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);

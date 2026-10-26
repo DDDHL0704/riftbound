@@ -78,7 +78,7 @@ public sealed class MorganaNativeTests
         Assert.Empty(done.State.StackItems); Assert.Null(done.State.PendingPayment);
         Assert.Equal(branch == "ward-decline" ? 2 : 4, done.State.CardObjects["HOST"].Damage);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, done.State, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors)); Assert.Equal(steps.Length + 1, commands.Count(c => c.Accepted)); Assert.Single(commands, c => !c.Accepted);

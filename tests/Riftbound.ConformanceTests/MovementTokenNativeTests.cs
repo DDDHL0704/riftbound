@@ -49,7 +49,7 @@ public sealed class MovementTokenNativeTests
         Assert.Empty(result.State.StackItems);
         var tokens = MovementTokenTests.Tokens(result.State); Assert.Equal(MovementTokenTests.Count(card) + (branch == "accept" ? 2 : 0), tokens.Length);
         Assert.All(tokens, t => { Assert.True(t.IsExhausted); Assert.Contains(MovementTokenTests.Sprite(card) ? "仙灵" : "随从", t.Tags); Assert.Equal("P2", t.ControllerId); Assert.Equal(MovementTokenTests.Sprite(card) ? "BF" : "BF2", result.State.ObjectLocations[t.ObjectId].BattlefieldObjectId); });
-        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
+        var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev,i) => new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors)); Export("replay.json",new { nativeCommandUsed=native.HasValue,replay,commands=commands.Length });
