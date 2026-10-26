@@ -175,8 +175,8 @@ public sealed class Ven110EmpoweredBanishConsumerTests
     [InlineData(false)] [InlineData(true)]
     public async Task AnActuallyCopiedEmpowerOnlyEarnsBanishIfItsTextRemainsWhenTheHostBecomesEmpowered(bool detachBeforeEmpower)
     {
-        var initial = Add(Add(Add(Add(ShadySpectaclesTests.Position(No), "FODDER", "SFD·122/221"), "DETACH", "SFD·011/221"),
-            "COPY-FIELD", "OGN·278/298", "P2", "BATTLEFIELD", "COPY-FIELD"), "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "COPY-FIELD");
+        var initial = Add(Add(Add(ShadySpectaclesTests.Position(No), "FODDER", "SFD·122/221"), "DETACH", "SFD·011/221"),
+            "SMALL", "OGN·175/298", "P2", "BATTLEFIELD", "OTHER");
         var game = new Driver(initial);
         try
         {
