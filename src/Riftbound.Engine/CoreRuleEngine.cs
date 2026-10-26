@@ -12926,11 +12926,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
         var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
-        var damagedParticipantObjectIds = survivingAttackerObjectIds
-            .Concat(survivingDefenderObjectIds)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+        var damagedParticipantObjectIds = cardObjects.Values
+            .Where(cardObject => IsFaceUpNonStandbyUnit(cardObject)
+                && IsObjectOnField(playerZones, cardObject.ObjectId)
                 && cardObject.Damage > 0)
-            .Distinct(StringComparer.Ordinal)
+            .Select(cardObject => cardObject.ObjectId)
+            .Order(StringComparer.Ordinal)
             .ToArray();
         if (damagedParticipantObjectIds.Length > 0)
         {
