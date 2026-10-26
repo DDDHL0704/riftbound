@@ -22955,6 +22955,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => ControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
                     ? behavior.CostReductionMana
                     : 0,
+            CardCostReductionConditionKinds.ControllerControlsEmpoweredObject
+                => ControllerControlsEmpoweredObject(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.PlayedOutsideOwnHand
@@ -23671,6 +23673,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Concat(zones.Battlefields)
             .Any(objectId => CardObjectHasTag(state.CardObjects, objectId, requiredTag));
     }
+
+    private static bool ControllerControlsEmpoweredObject(MatchState state, string playerId)
+        => PublicStaticAuraSourceObjectIds(state.PlayerZones).Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsEmpowered && !cardObject.IsFaceDown
+            && string.Equals(EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject),
+                playerId, StringComparison.Ordinal));
 
     private static bool CardObjectHasTag(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
