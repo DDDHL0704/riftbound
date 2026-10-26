@@ -26,7 +26,10 @@ public sealed class ResourceCostReplacementCapacityTests
             var resource = driver.State.PendingRuleChoice.Request.Options.Single(o => o.Id.StartsWith("RESOURCE:CONVERTER:", StringComparison.Ordinal)
                 && o.Id.EndsWith(P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "2", StringComparison.Ordinal));
             await Decide(driver, resource.Id);
-            Assert.Equal(initial.RunePools["P1"], driver.State.RunePools["P1"]);
+            Assert.Equal(new RunePool(int.MaxValue, int.MaxValue - 2), driver.State.RunePools["P1"]);
+            Assert.Equal(initial.RunePools["P1"], driver.State.PendingRuleChoice!.Origin.RunePools["P1"]);
+            Assert.True(driver.State.CardObjects["CONVERTER"].IsExhausted);
+            Assert.Single(driver.Events(), e => e.Event.Kind == "RESOURCE_SKILL_RESOLVED");
             // This existing destruction window exposes its working balance in
             // the reason, without a full Preview board. The origin stays frozen.
             Assert.Contains("2147483647 法力", driver.State.PendingRuleChoice!.Request.Reason);
@@ -201,7 +204,11 @@ public sealed class ResourceCostReplacementCapacityTests
             var choice = driver.State.PendingRuleChoice!.Request.Options.Single(option => option.Id.StartsWith("RESOURCE:CONVERTER:", StringComparison.Ordinal)
                 && option.Id.EndsWith(P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix + "1", StringComparison.Ordinal));
             await Decide(driver, choice.Id);
-            Assert.Equal(initial.RunePools["P1"], driver.State.RunePools["P1"]);
+            Assert.Equal(new RunePool(int.MaxValue, typed ? 0 : int.MaxValue - 1,
+                typed ? new Dictionary<string, int> { [RuneTrait.Red] = int.MaxValue - 1 } : null), driver.State.RunePools["P1"]);
+            Assert.Equal(initial.RunePools["P1"], driver.State.PendingRuleChoice!.Origin.RunePools["P1"]);
+            Assert.True(driver.State.CardObjects["CONVERTER"].IsExhausted);
+            Assert.Single(driver.Events(), e => e.Event.Kind == "RESOURCE_SKILL_RESOLVED");
         }
         await Decide(driver, typed ? "SETT:A:LEGEND:TRAIT:red" : "SETT:A:LEGEND:ANY");
         var pool = driver.State.RunePools["P1"];

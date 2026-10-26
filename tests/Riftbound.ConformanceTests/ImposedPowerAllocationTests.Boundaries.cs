@@ -90,9 +90,14 @@ public sealed partial class ImposedPowerAllocationTests
         Assert.Equal(origin, MatchStateHasher.Hash(run.State.PendingRuleChoice!.Origin));
         Assert.Equal(authoritative, ViewHash(run.State.RunePools));
         Assert.Equal(preview, MatchStateHasher.Hash(run.State.PendingRuleChoice.Request.Preview!));
-        Assert.Contains("RED", run.State.PlayerZones["P1"].Base);
+        // CN430.2: cancel only the allocation. Its earlier rune acquisition
+        // has already settled; the immutable origin still has the old rune.
+        Assert.DoesNotContain("RED", run.State.PlayerZones["P1"].Base);
+        Assert.Contains("RED", run.State.PlayerZones["P1"].RuneDeck);
+        Assert.Contains("RED", run.State.PendingRuleChoice.Origin.PlayerZones["P1"].Base);
         Assert.Contains("RED", run.State.PendingRuleChoice.Request.Preview!.PlayerZones["P1"].RuneDeck);
-        Assert.DoesNotContain(run.Entries.SelectMany(entry => entry.Events), ev => ev.Kind == "RUNE_RECYCLED" || IsImposedCost(ev));
+        Assert.Single(run.Entries.SelectMany(entry => entry.Events), ev => ev.Kind == "RUNE_RECYCLED");
+        Assert.DoesNotContain(run.Entries.SelectMany(entry => entry.Events), IsImposedCost);
         await run.Cold("after-cancel");
         if (finish == "manual")
         {
