@@ -63,7 +63,7 @@ public sealed class EmpoweredObjectCostReductionTests
         => AssertCost(Position("BATTLEFIELD", "CARD_TYPE:BATTLEFIELD", controller: ""), 3, 0);
 
     [Fact]
-    public void MultipleEmpoweredObjectsApplyOneReductionAndCannotEraseAdditionalMana()
+    public void MultipleEmpoweredObjectsApplyOnlyOneReductionToTheTotal()
     {
         var state = Position("BASE", CardObjectTags.EquipmentCard);
         state = state with {
@@ -85,14 +85,14 @@ public sealed class EmpoweredObjectCostReductionTests
         Assert.True(pending.Accepted, pending.ErrorMessage);
         Assert.False(pending.State.CardObjects["HOST"].IsEmpowered);
         AssertCost(pending.State, 3, 0);
-        var empowered = (await EmpowerTests.Top(pending.State)).State;
+        var empowered = (await OfficialSpellCompletionTests.Top(pending.State)).State;
         Assert.True(empowered.CardObjects["HOST"].IsEmpowered);
         AssertCost(empowered, 1, 2);
         var ready = AttackDamageDistributionTests.Spell(empowered, "RETURN", "OGN·104/298", "P1");
-        var cast = await EmpowerTests.Act(ready, "P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"]));
+        var cast = await OfficialSpellCompletionTests.Act(ready, "P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"]));
         Assert.True(cast.Accepted, cast.ErrorMessage);
         AssertCost(cast.State, 1, 2);
-        var returned = (await EmpowerTests.Top(cast.State)).State;
+        var returned = (await OfficialSpellCompletionTests.Top(cast.State)).State;
         Assert.Contains("HOST", returned.PlayerZones["P1"].Hand);
         Assert.False(returned.CardObjects["HOST"].IsEmpowered);
         AssertCost(returned, 3, 0);
