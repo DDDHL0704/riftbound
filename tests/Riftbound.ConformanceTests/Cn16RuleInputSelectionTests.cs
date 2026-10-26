@@ -36,8 +36,9 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Prior 1040 exact rows and all fourteen complete owned-package additions are retained.
-        Assert.Equal("88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc", RuleInputIdentity.Current.CatalogSha256);
+        // Retain all prior 1054 exact rows, add eighteen rune reprints and VEN051/VEN105,
+        // and apply only the reviewed exact SFD003 erratum. These totals do not certify cards.
+        Assert.Equal("8895025aa5cfd18025936f4c87b9a8d16d49341ff4d40f0c7b0fa1bca3a2cd66", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]

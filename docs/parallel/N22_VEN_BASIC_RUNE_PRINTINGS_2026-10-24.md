@@ -1,0 +1,15 @@
+# N22 VEN basic-rune printing consumers
+- Scope: exact CN VEN·R01–R06, R01a–R06a and R01b–R06b, 18 physical printings of six existing basic-rune functional units.
+- Source: official card API current rune query, exact records and all 18 full faces read; source receipt SHA `150c21669bade45967c7cc338ed04972d8891e96e522f67a30b526bdb5e5deba`.
+- Authority: DOC01 CN 124.1, 161.2, 164.2 and 417.1; default two rune resource abilities are implicit in the six basic-rune types, not missing card-effect text.
+- Runtime change: append the 18 original API records only; reuse existing rune-category/COLOR/resource/zone/permission flows; no Engine, Contracts, API or persistence source changes.
+- PR source base `8ac0afba21574c94e7ce8a03ed83704524fee8e7`: old 1040 records unchanged, total 1058, rune rows 48→66, functional groups remain 839.
+- Metadata expectations change only entry/duplicate-entry totals (+18), saved logic (+18) and rune rows (+18); no existing test methods, Theory rows or game assertions removed.
+- New five-method/61-case focused tests bind canonical raw source hashes, exact factory identity, matching/off-trait deck legality and six existing functional groups.
+- Six canonical resource flows cover normal SEATING/decks/ready/mulligan/turn channeling, three printings per trait and both seats, seed 424242; no QA scenario.
+- Behavior assertions cover exact mana/typed-power gains, exhausted/wrong-owner/wrong-zone/missing/mixed-batch rejection, input-order deck-bottom recycling without shuffle and generation 1→2→3 reentry.
+- Each actual command retains structural recovery, JSON cold production-registry admission with original action/event audit, hidden unrevealed identifiers and unchanged duplicate history/state.
+- Evidence: `var/qa/ven-rune-printing-consumers-20261024/main-scoped-v1/`; focus 61/61, 348 commands (240 accepted/108 rejected), 1368 events; receipt SHA `b53788c4d804a3b913c19c075837cd96776efd59b6a5a7d4bdd471fe6255e774`. Rule-suite CI pending; older inputs/L3 separate.
+- Six b printings visibly carry PROMO and have empty product fields; dates/applicability remain UNKNOWN. Official universe 1740/14293 retained; whole-card certification delta 0, backend NOT READY.
+
+目录增量同时同步Ahri历史审计的当前总量1058与非历史印次数49；原1009历史记录逐字段比较及精确勘误映射保持。此前61例证据继续绑定原冻结输入；补充审计另存 `var/qa/cards-direct-pr-migration-20261024/historical-inventory-addons-v1/pr123/`，最新PR仍须实际L2通过。

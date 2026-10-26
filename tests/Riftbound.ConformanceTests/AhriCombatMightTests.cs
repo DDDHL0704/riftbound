@@ -239,10 +239,13 @@ public sealed class AhriCombatMightTests
         Assert.NotNull(root);
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1054, current.Cards.Count);
+        Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1074, current.Cards.Count);
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
+            // DOC-12 p3 / CN33075: only this printing gains the explicit turn duration.
+            ["SFD·003/221"] = ("{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）",
+                "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"),
             // DOC-16-P012-B006/B007: exact current and old Void Gate text.
             ["OGN·296/298"] = ("以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
                 "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。"),
@@ -292,7 +295,7 @@ public sealed class AhriCombatMightTests
             }
             else Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(actual));
         }
-        Assert.Equal(45, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
+        Assert.Equal(65, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
         var added = Assert.Single(current.Cards, c => c.CardNo == "VEN·SP3");
         Assert.Equal("VEN·SP3", added.CardNo); Assert.Equal(37918, added.Id); Assert.Equal(3, added.Power);
         Assert.Equal(3, added.Energy); Assert.Equal(1, added.ReturnEnergy);
