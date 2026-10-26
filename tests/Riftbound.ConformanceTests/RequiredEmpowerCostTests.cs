@@ -15,8 +15,9 @@ public sealed class RequiredEmpowerCostTests
         var cost = Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张手牌")).Alternatives);
         Assert.False(cost.SupportedResources); Assert.Equal("弃置一张手牌", cost.AdditionalCost);
         Assert.True(Supported(cost)); Assert.Equal(0, cost.Mana); Assert.Equal(0, cost.Power); Assert.Empty(cost.TypedPower);
-        foreach (var text in new[] { "{{强化}}", "{{强化}} — 弃置两张手牌", "{{强化}} — 弃置一张法术牌", "{{强化}} — 摧毁一名友方单位" })
+        foreach (var text in new[] { "{{强化}}", "{{强化}} — 弃置两张手牌", "{{强化}} — 摧毁一名友方单位" })
             Assert.False(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse(text)).Alternatives)));
+        Assert.True(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张法术牌")).Alternatives)));
         Assert.True(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化2红色}}")).Alternatives)));
     }
 
@@ -25,10 +26,11 @@ public sealed class RequiredEmpowerCostTests
     {
         var state = Position(); var before = MatchStateHasher.Hash(state);
         var method = Method("EmpowerHandDiscardCostChoices");
-        var choices = Assert.IsAssignableFrom<IReadOnlyList<string>>(method.Invoke(null, [state, "P1", "SOURCE"]));
+        var cost = Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张手牌")).Alternatives);
+        var choices = Assert.IsAssignableFrom<IReadOnlyList<string>>(method.Invoke(null, [state, "P1", "SOURCE", cost]));
         Assert.Equal(new[] { "UNIT", "SPELL", "EQUIPMENT" }, choices);
         Assert.Equal(before, MatchStateHasher.Hash(state));
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(method.Invoke(null, [state, "P2", "SOURCE"])));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(method.Invoke(null, [state, "P2", "SOURCE", cost])));
     }
 
     [Theory]
@@ -83,13 +85,14 @@ public sealed class RequiredEmpowerCostTests
         => Assert.IsType<bool>(typeof(CoreRuleEngine).Assembly.GetType("Riftbound.Engine.EmpowerRules")!
             .GetMethod("SupportedCost", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [cost]));
     private static MethodInfo Method(string name) => typeof(CoreRuleEngine).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!;
-    private static (bool Accepted, ObjectBinding? Paid) Select(MatchState state, IReadOnlyList<string> choices)
+    internal static (bool Accepted, ObjectBinding? Paid) Select(MatchState state, IReadOnlyList<string> choices, EmpowerCostSpec? cost = null)
     {
-        object?[] args = [state, "P1", "SOURCE", choices, null];
+        cost ??= Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张手牌")).Alternatives);
+        object?[] args = [state, "P1", "SOURCE", cost, choices, null];
         var accepted = Assert.IsType<bool>(Method("TrySelectEmpowerHandDiscardCost").Invoke(null, args));
-        return (accepted, (ObjectBinding?)args[4]);
+        return (accepted, (ObjectBinding?)args[5]);
     }
-    private static MatchState Position()
+    internal static MatchState Position()
     {
         CardObjectState Card(string id, string tag, string actor = "P1") => new(id, tags: [tag], ownerId: actor, controllerId: actor);
         var cards = new Dictionary<string, CardObjectState> {

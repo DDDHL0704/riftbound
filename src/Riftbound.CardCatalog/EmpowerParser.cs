@@ -8,6 +8,7 @@ public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alter
     int ManaReductionAtMostRunes = 0, int? RuneLimit = null, bool ReduceManaPerRune = false);
 public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords);
 public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
+public sealed record EmpoweredSpellCostReductionSpec(int Mana, int GenericPower, int MinimumMana);
 
 public static class EmpowerParser
 {
@@ -85,6 +86,12 @@ public static class EmpowerParser
         }
         return result;
     }
+
+    public static IReadOnlyList<EmpoweredSpellCostReductionSpec> SpellCostReductions(string text)
+        => Regex.Matches(text,
+                @"(?m)^\s*\{\{已强化>\}\}\s*你的法术费用减少\{\{(?<mana>[0-9]+)\}\}和\{\{A\}\}，不得低于\{\{(?<floor>[0-9]+)\}\}。\s*$")
+            .Select(match => new EmpoweredSpellCostReductionSpec(
+                int.Parse(match.Groups["mana"].Value), 1, int.Parse(match.Groups["floor"].Value))).ToArray();
 
     private static int Integer(string value) => int.TryParse(value, out var n) ? n : value switch {
         "零" => 0, "一" => 1, "二" => 2, "三" => 3, "四" => 4, "五" => 5, "六" => 6, "七" => 7, "八" => 8, "九" => 9,
