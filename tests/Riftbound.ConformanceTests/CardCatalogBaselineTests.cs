@@ -654,7 +654,8 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Stun
             ]);
 
-        AssertFamily(report, BehaviorTemplateIds.Draw, 142, 142, 0, 0, 122, 122, 0);
+        // VEN057 adds classified draw/move/trigger text; these counts do not certify its gated movement consumer.
+        AssertFamily(report, BehaviorTemplateIds.Draw, 143, 143, 0, 0, 123, 123, 0);
         AssertFamily(report, BehaviorTemplateIds.Damage, 155, 155, 0, 0, 136, 136, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 128, 128, 0, 0, 119, 119, 0);
         AssertFamily(report, BehaviorTemplateIds.Stun, 35, 35, 0, 0, 31, 31, 0);
@@ -685,7 +686,7 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 50, 50, 0, 0, 44, 44, 0);
-        AssertFamily(report, BehaviorTemplateIds.Move, 127, 127, 0, 0, 106, 106, 0);
+        AssertFamily(report, BehaviorTemplateIds.Move, 128, 128, 0, 0, 107, 107, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 66, 66, 0, 0, 54, 54, 0);
         // VEN110 adds a classified banish template; these text counts do not certify its pending observer.
         AssertFamily(report, BehaviorTemplateIds.Banish, 31, 31, 0, 0, 27, 27, 0);
@@ -973,12 +974,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 555,
-            specImplementedEntries: 555,
+            entries: 556,
+            specImplementedEntries: 556,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 445,
-            specImplementedFunctionalUnits: 445,
+            functionalUnits: 446,
+            specImplementedFunctionalUnits: 446,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,
