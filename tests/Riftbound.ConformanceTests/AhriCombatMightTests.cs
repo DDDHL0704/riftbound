@@ -295,7 +295,7 @@ public sealed class AhriCombatMightTests
             }
             else Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(actual));
         }
-        Assert.Equal(71, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
+        Assert.Equal(72, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
         var added = Assert.Single(current.Cards, c => c.CardNo == "VEN·SP3");
         Assert.Equal("VEN·SP3", added.CardNo); Assert.Equal(37918, added.Id); Assert.Equal(3, added.Power);
         Assert.Equal(3, added.Energy); Assert.Equal(1, added.ReturnEnergy);
