@@ -63,8 +63,12 @@ public sealed partial class CoreRuleEngine
 
     internal static bool CanInspectFaceDown(MatchState state, string objectId, string viewer)
     {
-        if (!state.Seats.ContainsKey(viewer) || !state.CardObjects.TryGetValue(objectId, out var card) || !card.IsFaceDown
-            || !IsObjectOnField(state.PlayerZones, objectId) || string.IsNullOrWhiteSpace(card.ControllerId)) return false;
+        if (!state.CardObjects.TryGetValue(objectId, out var card) || !card.IsFaceDown
+            || !IsObjectOnField(state.PlayerZones, objectId)) return false;
+        // CN129.4/422.4: show face-down field cards when the game ends.
+        // This grants visibility without turning them face up or moving them.
+        if (state.Status == MatchStatuses.Finished) return true;
+        if (!state.Seats.ContainsKey(viewer) || string.IsNullOrWhiteSpace(card.ControllerId)) return false;
         var controller = card.ControllerId;
         return controller == viewer || state.FaceDownLookPermissions.Any(p => p.TurnNumber == state.TurnNumber
             && p.ViewerId == viewer && p.SubjectId == controller);
