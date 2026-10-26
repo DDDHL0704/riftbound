@@ -104,7 +104,7 @@ public sealed class OfficialDravenBattleWinScoreTests
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick,
             entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage)
-            { TypedCommand = entry.TypedCommand, RuleInputs = entry.RuleInputs }).ToArray();
+            { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand, RuleInputs = entry.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(entry => entry.Events.Select((ev, i) =>
             new RecoveredEvent(entry.StartedEventSequence + i + 1, entry.CompletedTick, i, ev))).ToArray();
         for (var i = 0; i < commands.Length; i++)

@@ -3563,8 +3563,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentId);
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
+        var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience);
         if (!paymentCommit.Accepted)
@@ -18251,7 +18252,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+        {
+            rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (behavior.DamageAmountFromOptionalPowerCost
             && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
         {
@@ -18541,11 +18547,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
         var selectedPower = powerOptions.Where(option => spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
+            // A repeat probe has not combined all target taxes. Only the full
+            // price authorizes the independent choice of wallet resources.
+            .Where(option => powerSpend is null || !validateRepeats
+                || PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, option.GenericPower, option.TypedPower))
             .OrderBy(option => PaymentCostRules.PowerDeficit(paymentAdjustedPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
-            rejection = Reject(state, spellPowerReductionChoices.Length == 0
-                ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
+                : spellPowerReductionChoices.Length == 0 ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
             return false;
         }
         var totalGenericPowerCost = selectedPower.GenericPower;
@@ -18662,7 +18672,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction,
-                SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices };
+                SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
+                PowerSpend = powerSpend };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -34850,6 +34861,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public int EmpoweredSpellCostReductionMana { get; init; }
         public int EmpoweredSpellCostReductionPower { get; init; }
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
+        public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(

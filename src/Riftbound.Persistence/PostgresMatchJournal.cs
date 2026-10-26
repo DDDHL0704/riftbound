@@ -197,6 +197,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchRo
             entry.CompletedEventSequence,
             entry.Accepted,
             entry.ErrorMessage,
+            entry.ErrorCode,
             entry.RulesetVersion,
             entry.FaqVersion,
             entry.RuleInputs,

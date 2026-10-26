@@ -14402,12 +14402,15 @@ internal static class ActionPromptBuilder
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
-            CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, echoPool,
-                echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
+            var echoGeneric = (long)echo.GenericPower + CoreRuleEngine.SourceReplayPowerCost(state, playerId);
+            var canPayEcho = echoGeneric <= int.MaxValue
+                && CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, echoPool, (int)echoGeneric,
+                    echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]))
+                && PaymentCostRules.CanPayPowerCost(echoPool, generic, typed);
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], echoPool, out var reductionChoices, reductionGroups);
             if (!reduced && (AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
-                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed))) continue;
+                || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
             parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
@@ -14801,8 +14804,11 @@ internal static class ActionPromptBuilder
         };
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
+        var extraGeneric = (long)CoreRuleEngine.SourceReplayPowerCost(state, playerId)
+            + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
+        if (extraGeneric > int.MaxValue) return false;
         CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, available,
-            string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
+            (int)extraGeneric, extraTyped, out var generic, out var typed);
         return PaymentCostRules.CanPayPowerCost(available, generic, typed);
     }
 
@@ -15029,7 +15035,8 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
+        return CoreRuleEngine.SourceReplayPowerCost(state, playerId) > 0
+            || PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) > 0
             || PromptMaximumWardPower(state, playerId, behavior) > 0
             || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
@@ -16200,6 +16207,7 @@ internal static class ActionPromptBuilder
             ["effectPlayReason"] = behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
+            ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,
             ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
             ["dragonUnitCostReductionMana"] = manaCost.UnitReduction,
@@ -17164,7 +17172,7 @@ public sealed partial class MatchSession : IMatchSession
                 [],
                 ResolutionResult.BuildSnapshots(restoredState),
                 ResolutionResult.BuildPrompts(restoredState),
-                command.Accepted ? null : ErrorCodes.UnsupportedCommand);
+                command.ErrorCode);
             intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
                 command.CommandType,
                 InputFingerprint(command.RawCommand, command.TypedCommand ?? TypedCommandInput.Parameterless(command.CommandType)),
@@ -17440,7 +17448,7 @@ public sealed partial class MatchSession : IMatchSession
                     events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
             lastEventSequence = completedEventSequence;
 
@@ -17600,7 +17608,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17682,7 +17690,7 @@ public sealed partial class MatchSession : IMatchSession
                         promptRejection.Events,
                         promptRejection.Snapshots,
                         promptRejection.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = promptRejection.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
@@ -17810,7 +17818,7 @@ public sealed partial class MatchSession : IMatchSession
                         events,
                         result.Snapshots,
                         result.Prompts,
-                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
             }
@@ -17926,7 +17934,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, TypedCommand = rawCommand is null ? typedInput : null },
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed, ErrorCode = result.ErrorCode, TypedCommand = rawCommand is null ? typedInput : null },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)

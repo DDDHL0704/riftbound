@@ -260,7 +260,7 @@ public sealed class OptionalBattlefieldTargetsIngressTests
         state.Tick, setup.Journal.Entries[^1].CompletedEventSequence,
         setup.Journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand?.Clone(),
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-            { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray(),
+            { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray(),
         setup.Journal.Entries.SelectMany(e => e.Events.Select((ev, i) =>
             new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray(),
         new Dictionary<string, RecoveredPlayerView>(), [], state, setup.Initial) { OpeningSeed = setup.Initial.Seed };
