@@ -272,11 +272,29 @@ public sealed class ReplacementResourceTests
     {
         var s=AddResource(Position(power:0),P4ActivatedAbilityCatalog.GoldTokenUnlCardNo);
         s=s with { CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,Tags=[..s.CardObjects["RESOURCE"].Tags,CardObjectTags.UnitCard] },
+            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,Tags=s.CardObjects["RESOURCE"].Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() },
             ["VIKTOR"]=new("VIKTOR",power:4,cardNo:"ARC-006/006",ownerId:"P2",controllerId:"P2",tags:[CardObjectTags.UnitCard]) },
             PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones) { ["P2"]=s.PlayerZones["P2"] with { Base=s.PlayerZones["P2"].Base.Append("VIKTOR").ToArray() } },
             ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations) { ["VIKTOR"]=new("P2","BASE") } };
+        // Canonicalize the synthetic input before any accepted command; an
+        // in-flight Origin must survive the same JSON constructor round-trip.
+        var originalInput=System.Text.Json.JsonSerializer.Deserialize<MatchState>(System.Text.Json.JsonSerializer.Serialize(s))!;
+        Assert.Equal(MatchStateHasher.Hash(s),MatchStateHasher.Hash(originalInput));
+        Assert.Equal(s.CardObjects["RESOURCE"].Tags,originalInput.CardObjects["RESOURCE"].Tags);
         var generated=await Resource((endsMatch ? await Open(s,"OGN·213/298","D") : await Open(s)).State);
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_RAW_ENVELOPE_EVIDENCE") is { } output)
+        {
+            var folder=Path.Combine(output,"animated-gold-confirmation-"+endsMatch); Directory.CreateDirectory(folder);
+            await File.WriteAllTextAsync(Path.Combine(folder,"proof.json"),System.Text.Json.JsonSerializer.Serialize(new {
+                endsMatch, initial=s, confirmation=generated,
+                scope="Scoped existing animated-token fixture: resource death must finish before its enclosing replacement. No ordinary-room/SQL/API/L3 claim." }));
+        }
+        Restore(generated.State);
+        Assert.Equal(s.TurnNumber,generated.State.DeathLedger.TurnNumber);
+        Assert.Equal(1,generated.State.DeathLedger.Counts.GetValueOrDefault("P2"));
+        Assert.Contains("P2",generated.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains(generated.State.TriggerQueue,t=>t.SourceObjectId=="VIKTOR");
+        Assert.DoesNotContain(generated.Events,e=>e.Payload.ContainsKey("capturedUnitDeath"));
         var done=await Choose(generated.State);
         Assert.True(OfficialInsightAndSpellLockTests.Errors(done.State).Count==0,string.Join("; ",OfficialInsightAndSpellLockTests.Errors(done.State))); Restore(done.State);
         Assert.Contains("P2",done.State.DestroyedUnitOwnerIdsThisTurn);

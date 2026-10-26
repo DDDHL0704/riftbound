@@ -64,7 +64,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         var state=result.State;
-        var counts=(before.DeathLedger.TurnNumber==state.TurnNumber ? before.DeathLedger.Counts : new Dictionary<string,int>())
+        var ledger = RuleChoices.Value?.ResourceDeathLedger ?? before.DeathLedger;
+        var counts=(ledger.TurnNumber==state.TurnNumber ? ledger.Counts : new Dictionary<string,int>())
             .ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var events=new List<GameEvent>(); var queue=state.TriggerQueue.ToList(); var seen=new HashSet<string>();
         var deaths = result.Events.Select(e => e.Payload.GetValueOrDefault("capturedUnitDeath"))
