@@ -16119,6 +16119,14 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
+                || !effectId.StartsWith($"EMPOWERED_UNIT_AURA:{sourceObjectId}:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal))
+                errors.Add($"{effectLabel} empowered unit aura identity is invalid");
+            return;
+        }
+
         if (effectKind == StaticAuraKinds.SameLocationEnemyFilteredPower) {
             if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
                 || !effectId.StartsWith($"CONDITIONAL_POWER_AURA:{sourceObjectId}:", StringComparison.Ordinal)
@@ -16516,6 +16524,15 @@ public static partial class MatchRecoveryValidator
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.BoonAmplifiersFor", "Boon amplifier source path", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "CURRENT_FRIENDLY_UNIT_HAS_BOON", "Boon amplifier condition", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", "Boon amplifier lifecycle", errors);
+            return;
+        }
+
+        if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD" || CoreRuleEngine.EmpoweredUnitAuras(sourceCardNo).Count == 0)
+                errors.Add($"{effectLabel} empowered unit aura requires a matching official source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.EmpoweredUnitAuraContributions", "empowered aura source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "SOURCE_AND_FRIENDLY_TARGET_EMPOWERED", "empowered aura condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "RECOMPUTED_FROM_CURRENT_EMPOWERED_TEXT_AND_CONTROLLER", "empowered aura lifecycle", errors);
             return;
         }
 
@@ -17764,7 +17781,7 @@ public static partial class MatchRecoveryValidator
         // A graveyard-count aura is not a fixed delta per field participant.
         // ValidateDynamicPowerAuraViews checks its exact amount
         // against the current authoritative effect, including zero.
-        if (effectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect) return;
+        if (effectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect) return;
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
@@ -23332,7 +23349,7 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -23341,7 +23358,7 @@ public static partial class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -23362,7 +23379,7 @@ public static partial class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
+                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
                         ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
