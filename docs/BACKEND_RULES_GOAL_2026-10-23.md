@@ -21,7 +21,7 @@
 | ① 符文战场后端：集成与后端验收 · 01a1772d-e3ca-7470-b278-003e2df32b3e | riftbound-integration-20261023 / codex/backlog-combat-final-publish-20261026 | 治理、CI/验收工具、真实同方法冲突；无 Goal，持续有限清积压并串行发布 main |
 | ② 符文战场后端：战斗、触发与胜负规则 · 01a1772e-03e7-7c73-8a42-96bb0daeff56 | riftbound-combat-20261023 / codex/combat-resource-surrender-progress-20261026 | 战斗/触发/胜负及恢复；当前 P7 ResolveAsync / ValidRuleChoice 消费与严格恢复归② |
 | ③ 符文战场后端：费用、资源与行动合法性 · 01a1772e-198e-7363-8d9a-186bf01620c8 | riftbound-payment-20261023 / codex/payment-resource-commit-boundary-20261026 | 费用/资源/行动合法性；当前56f资源产生端独立步骤/事件接口归③，与②提交依赖集成 |
-| ④ 符文战场后端：卡牌效果与机制族接入 · 01a1772e-29da-7fd0-b871-b2608ca1084c | riftbound-cards-20261023 / codex/backend-cards-ven050-20261026 | 卡牌消费者/注册及语义；VEN050新增功能PR冻结，优先现有组合的消费者、冲突与相邻证据 |
+| ④ 符文战场后端：卡牌效果与机制族接入 · 01a1772e-29da-7fd0-b871-b2608ca1084c | riftbound-cards-20261023 / codex/cards-p7-resource-consumers-20261026 | 卡牌消费者/注册及语义；当前P7共享资源消费者反例，VEN050草稿保留且新增功能PR冻结 |
 
 共享文件按实际方法归属：②战斗/触发/胜负及对应恢复；③费用/资源/行动合法性及支付恢复；④卡牌消费者/注册与对应语义。各线可自行实现所属方法、提PR、最新L2绿后合main；当前有限清积压期间由①串行发布组合。只有两线并发修改同一方法才向①协调先后/归属；一般接口依赖给出提交关系，不设全包准入或普通helper/逐表达式审批。不可整体导入未验证长分支或旧混合覆盖层。
 
