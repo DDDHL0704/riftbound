@@ -12,6 +12,7 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorCn16Catalog = "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d";
     private const string PriorBoneErratumCatalog = "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29";
     private const string PriorVoidErratumCatalog = "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397";
+    private const string PriorVenFlowCatalog = "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83";
 
     [Fact]
     public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
@@ -36,8 +37,8 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Prior 1037 rows retained; exact CN37688 / 37740 / 37775 added. Authority and scope are unchanged.
-        Assert.Equal("3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83", RuleInputIdentity.Current.CatalogSha256);
+        // Prior 1040 rows retained; exact CN37921 / VEN SP6 added. Authority and scope are unchanged.
+        Assert.Equal("eedd99268d0e6f5faa7ffbfeed570ef29a409ca34980e0627400b296c59d6988", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
@@ -61,7 +62,7 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog, PriorVenFlowCatalog })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);
