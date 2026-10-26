@@ -123,7 +123,7 @@ public sealed class Ven110EmpoweredBanishConsumerTests
             Assert.DoesNotContain(target, game.State.PlayerZones["P2"].Banished); Restore(initial, game);
             await game.Act(firstPriority, new PassPriorityCommand()); Assert.NotEqual(firstPriority, game.State.PriorityPlayerId);
             Assert.DoesNotContain(target, game.State.PlayerZones["P2"].Banished);
-            await game.Top(); Assert.Contains(target, game.State.PlayerZones["P2"].Banished);
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); Assert.Contains(target, game.State.PlayerZones["P2"].Banished);
             Assert.DoesNotContain(target, game.State.PlayerZones["P2"].Graveyard); Assert.Equal("BANISHED", game.State.ObjectLocations[target].Zone);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_DESTROYED");
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "CARD_DRAWN");
