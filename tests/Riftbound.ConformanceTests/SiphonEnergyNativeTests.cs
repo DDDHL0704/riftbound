@@ -12,7 +12,7 @@ public sealed class SiphonEnergyNativeTests
     [InlineData("enemy-only")]
     public async Task ProductionSelectedBattlefieldCommandsPayResolveAndReplay(string branch)
     {
-        var initial = await SiphonEnergyTests.Board();
+        var initial = SiphonEnergyTests.BeforeBattle();
         if (branch == "aura-floor") {
             initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["D"] = initial.CardObjects["D"] with { Power = 1 } } };
@@ -22,6 +22,17 @@ public sealed class SiphonEnergyNativeTests
         initial = OfficialInsightAndSpellLockTests.Restore(initial);
         string[] targets = [branch == "enemy-only" ? "BF2" : "BF"];
         var engine = new CoreRuleEngine(); var journal = new Journal(); var session = new MatchSession(initial, engine, journal);
+        async Task<ResolutionResult> Submit(string actor, string intent, GameCommand input, JsonElement wire)
+        {
+            var result = await session.SubmitAsync(actor, intent, input, wire, default);
+            session = await BattleLimitedTestSupport.RecoverJournal(initial, result, journal.Entries, journal, engine);
+            return result;
+        }
+        var moveRaw = JsonSerializer.SerializeToElement(new { cmdType = "MOVE_UNIT", sourceObjectId = "A",
+            origin = "BASE", destination = "BATTLEFIELD:BF", optionalCosts = Array.Empty<string>() });
+        var moved = await Submit("P1", "establish-battle", GameCommandJsonMapper.Map(moveRaw), moveRaw);
+        Assert.True(moved.Accepted, moved.ErrorMessage);
+        var state = moved.State;
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_SIPHON_EVIDENCE");
         var dir = root is null ? null : Path.Combine(root, branch);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
@@ -30,34 +41,34 @@ public sealed class SiphonEnergyNativeTests
             File.WriteAllText(Path.Combine(dir, name), JsonSerializer.Serialize(value, value.GetType(), json));
         }
         var prompt = session.PromptFor("P1"); Export("prompt.json", prompt);
-        Export("snapshot.json", ResolutionResult.BuildSnapshots(initial)["P1"]);
+        Export("snapshot.json", ResolutionResult.BuildSnapshots(state)["P1"]);
         var expected = SiphonEnergyTests.Command(targets);
-        var request = new PlayCostPreviewRequestDto("quote", prompt.PromptId!, initial.Tick, expected);
+        var request = new PlayCostPreviewRequestDto("quote", prompt.PromptId!, state.Tick, expected);
         var native = dir is not null && File.Exists(Path.Combine(dir, "command.json"));
         if (native) request = JsonSerializer.Deserialize<PlayCostPreviewRequestDto>(File.ReadAllText(Path.Combine(dir!, "preview.json")), json)!;
-        var quote = engine.PreviewPlayCard(initial, "P1", request);
+        var quote = engine.PreviewPlayCard(state, "P1", request);
         Assert.True(quote.IsValid, quote.Message); Assert.True(quote.CanPay, quote.Message); Export("quote.json", quote);
         var raw = JsonSerializer.SerializeToElement(new { cmdType = "PLAY_CARD", sourceObjectId = "AOE",
-            cardNo = SiphonEnergyTests.Spell, targetObjectIds = targets, promptId = prompt.PromptId, snapshotTick = initial.Tick });
+            cardNo = SiphonEnergyTests.Spell, targetObjectIds = targets, promptId = prompt.PromptId, snapshotTick = state.Tick });
         if (native) {
             using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir!, "command.json")));
             raw = document.RootElement.Clone();
             Assert.Equal(prompt.PromptId, raw.GetProperty("promptId").GetString());
-            Assert.Equal(initial.Tick, raw.GetProperty("snapshotTick").GetInt64());
+            Assert.Equal(state.Tick, raw.GetProperty("snapshotTick").GetInt64());
         }
         var command = Assert.IsType<PlayCardCommand>(GameCommandJsonMapper.Map(raw));
         Assert.Equal(expected.SourceObjectId, command.SourceObjectId); Assert.Equal(expected.CardNo, command.CardNo);
         Assert.Equal(targets, command.TargetObjectIds); Assert.Equal(targets, request.Command.TargetObjectIds);
-        var result = await session.SubmitAsync("P1", "native-siphon", command, raw, default);
+        var result = await Submit("P1", "native-siphon", command, raw);
         Assert.True(result.Accepted, result.ErrorMessage);
         var duplicate = await session.SubmitAsync("P1", "native-siphon", command, raw, default);
         Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
-        var stale = await session.SubmitAsync("P1", "stale-siphon", command, raw, default);
+        var stale = await Submit("P1", "stale-siphon", command, raw);
         Assert.False(stale.Accepted); Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(stale.State));
         for (var i = 0; i < 2; i++) {
             var pass = new PassPriorityCommand();
-            result = await session.SubmitAsync(result.State.PriorityPlayerId!, "pass-" + i, pass,
-                JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }), default);
+            result = await Submit(result.State.PriorityPlayerId!, "pass-" + i, pass,
+                JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.True(result.Accepted, result.ErrorMessage);
         }
         Assert.Equal(branch == "aura-floor" ? 0 : 4, result.State.CardObjects["D"].Power);
@@ -71,12 +82,13 @@ public sealed class SiphonEnergyNativeTests
         OfficialGraveyardRecastTests.Restore(result.State); ArmamentMightTests.PublicRecovery(result.State);
         Export("result-snapshot.json", result.Snapshots["P1"]);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
-            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1,
             e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, result.State, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Export("replay.json", new { native, replay, commands = commands.Length,
+            actualCommands = commands, actualEvents = events, initial, final = result.State,
             chosenTargets = targets, finalHash = MatchStateHasher.Hash(result.State) });
     }
 

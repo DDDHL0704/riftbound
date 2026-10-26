@@ -30,7 +30,7 @@ public sealed partial class CoreRuleEngine
     private static bool HasFieldTrigger(string? cardNo, string kind) => FieldTriggerFamilies.Value[kind == "SECOND_DRAW" ? "UNL-074/219" : "SFD·128/221"]
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
-        => effect == FieldTriggerEffect && context.SourceGeneration >= 0
+        => IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
             && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or "RECYCLE_BOON"
                 ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
                     && (context.SourceTokenFactoryCardNo is null
@@ -94,7 +94,8 @@ public sealed partial class CoreRuleEngine
     private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
-            && (item.FieldContext!.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
+            && (item.FieldContext!.Kind == BattleLimitedMarkers.SteadfastDefend ? true
+                : item.FieldContext.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
                 : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
@@ -115,7 +116,7 @@ public sealed partial class CoreRuleEngine
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i));
         if (item is null) return result;
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
@@ -154,6 +155,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
+                    : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? "选择一名单位，在本次战斗期间获得坚守2；确认目标和法盾费用后开放响应"
                     : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
         }
@@ -279,6 +281,8 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
+        if (item.FieldContext is { } battleLimited && BattleLimitedMarkers.Kind(battleLimited.Kind))
+            return ResolveBattleLimitedRoleSkill(state, item);
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);
         if (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" }) return ResolveAttackDeckPlay(state, item);
         if (item.FieldContext is { Kind: "STANDBY_DEFEND" }) return ResolveStandbyDefendTrigger(state, item);

@@ -12,6 +12,7 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorCn16Catalog = "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d";
     private const string PriorBoneErratumCatalog = "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29";
     private const string PriorVoidErratumCatalog = "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397";
+    private const string PriorGuardianProfileCatalog = "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83";
 
     [Fact]
     public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
@@ -36,8 +37,19 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Prior 1040 exact rows and all fourteen complete owned-package additions are retained.
-        Assert.Equal("88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc", RuleInputIdentity.Current.CatalogSha256);
+        // Preserve the prior1040 complete rows and all fourteen complete additions,
+        // together with the independently checked Guardian Angel replacement profile.
+        Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All, a => a.ReplacesHostDestruction).CardNo);
+        var guardian = Assert.IsType<OfficialArmamentDefinition>(OfficialArmamentCatalog.Find("SFD·051/221"));
+        Assert.Equal(1, guardian.BaseMightBonus);
+        Assert.False(guardian.CopiesHostPrintedRulesText);
+        Assert.False(guardian.CopiesChosenFriendlyUnit);
+        Assert.Equal("9124a2230da873a127240687f4a5c8c27b978ceb6e81fe447e59e6b321de64b9", RuleInputIdentity.Current.CatalogSha256);
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        Assert.Equal(1054, catalog.Cards.Count);
+        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181" })
+            Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
+
     }
 
     [Fact]
@@ -61,7 +73,10 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
+            PriorGuardianProfileCatalog,
+            "6b15cda26c2f69587c9c14331a5fa30d48fd607188b237be47bb3351db734524",
+            "88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc" })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);

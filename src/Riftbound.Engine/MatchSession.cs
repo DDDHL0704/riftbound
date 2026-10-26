@@ -2332,7 +2332,7 @@ public sealed record MatchState
                 effects.Add(sourceBattleStatePowerEffect);
             }
 
-            if (cardObject.UntilEndOfTurnPowerModifier != 0)
+            if (cardObject.UntilEndOfTurnPowerModifier != 0 || cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
             {
                 if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
                 {
@@ -2396,16 +2396,23 @@ public sealed record MatchState
 
             foreach (var effectId in cardObject.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
             {
+                if (BattleLimitedMarkers.PrivateMarker(effectId)) continue;
+                var battleGrant = cardObject.UntilEndOfTurnEffects.Select(text =>
+                    BattleLimitedMarkers.TryGrant(text, out var grant) ? grant : null)
+                    .SingleOrDefault(grant => grant?.KeywordEffectId == effectId);
                 effects.Add(new ContinuousEffectState(
                     $"OBJECT:{objectId}:{effectId}",
                     "OBJECT",
                     ContinuousEffectLayers.RuleText,
-                    "UNTIL_END_OF_TURN",
+                    battleGrant is null ? "UNTIL_END_OF_TURN" : BattleLimitedMarkers.Duration,
                     objectId,
-                    null,
+                    battleGrant?.SourceObjectId,
                     0,
                     ResolveBasePower(cardObject),
-                    cardObject.Power));
+                    cardObject.Power,
+                    battleGrant?.Context.Kind ?? "",
+                    battleGrant?.Context.CardNo,
+                    battleGrant is null ? "" : BattleLimitedMarkers.SourcePath));
             }
         }
 
@@ -2433,7 +2440,8 @@ public sealed record MatchState
 
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
-        return effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+        return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
@@ -6677,7 +6685,7 @@ public sealed record ResolutionResult(
             ["isAttacking"] = cardObject.IsAttacking,
             ["isDefending"] = cardObject.IsDefending,
             ["tags"] = cardObject.Tags,
-            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects,
+            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects.Where(effect => !BattleLimitedMarkers.PrivateMarker(effect)).ToArray(),
             ["manaCost"] = cardObject.ManaCost,
             ["attachedToObjectId"] = cardObject.AttachedToObjectId,
             ["cardNo"] = cardObject.CardNo,
@@ -13940,6 +13948,7 @@ internal static class ActionPromptBuilder
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             || !IsPromptBattlefieldCardObject(battlefieldState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
+            || battlefieldState.CardNo == "OGN·279/298"
             || !BattlefieldTriggerSpecRules.TryGetTrigger(
                 battlefieldState.CardNo,
                 BattlefieldTriggerSpecRules.IsDeclareBattlePromptDefenderUnitTargetBattlefieldTrigger,
@@ -22151,7 +22160,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildBattleMultiParticipantScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303076,
@@ -22164,7 +22173,7 @@ public sealed partial class MatchSession : IMatchSession
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 [seed.P1] = Zones(
-                    battlefields: ["P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
+                    battlefields: ["BATTLEFIELD:P1-MAIN", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -22174,6 +22183,8 @@ public sealed partial class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BATTLEFIELD:P1-MAIN"] = new("BATTLEFIELD:P1-MAIN", cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P1, controllerId: seed.P2),
                 ["P1-BATTLE-MULTI-PARTICIPANT-GAREN"] = new(
                     "P1-BATTLE-MULTI-PARTICIPANT-GAREN",
                     cardNo: "OGS·007/024",
@@ -22203,6 +22214,14 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with {
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["BATTLEFIELD:P1-MAIN"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P1-BATTLE-MULTI-PARTICIPANT-GAREN"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P1-BATTLE-MULTI-PARTICIPANT-YI"] = new(seed.P1, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK"] = new(seed.P2, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN"),
+                ["P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "BATTLEFIELD:P1-MAIN") },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BATTLEFIELD:P1-MAIN")] };
     }
 
     private static MatchState BuildBattleNoResultScenario(MatchState current, DevScenarioSeed seed)
@@ -22619,7 +22638,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-SHIRANA-MONASTERY")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-SHIRANA-MONASTERY")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerWarhawkScenario(MatchState current, DevScenarioSeed seed)
@@ -22671,7 +22699,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P2-BATTLEFIELD-HUNTING-GROUNDS")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-HUNTING-GROUNDS")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldWinningScoreScenario(MatchState current, DevScenarioSeed seed)
@@ -23193,7 +23230,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·291/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -23220,7 +23257,16 @@ public sealed partial class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-CANDLE-003",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-CANDLELIT-SANCTUM")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-CANDLELIT-SANCTUM")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldMovePowerScenario(MatchState current, DevScenarioSeed seed)
@@ -24389,7 +24435,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·212/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24404,7 +24450,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SCRAPYARD")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-SCRAPYARD")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerDiscardDrawScenario(MatchState current, DevScenarioSeed seed)
@@ -24442,7 +24497,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·298/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24461,7 +24516,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-ZAUN-SUMP")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-ZAUN-SUMP")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerRecycleRuneScenario(MatchState current, DevScenarioSeed seed)
@@ -24499,7 +24563,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·287/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24519,7 +24583,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THUNDER-RUNE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-THUNDER-RUNE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldDefendRevealSpellScenario(MatchState current, DevScenarioSeed seed)
@@ -24737,7 +24810,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldDefenderSteadfastScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303033,
@@ -24752,7 +24825,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P1] = Zones(
                     mainDeck: ["P1-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
-                    battlefields: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+                    baseZone: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -24785,6 +24858,10 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(seed.P1, "BASE"),
+            ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION"),
+            ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FORTIFIED-POSITION") } };
     }
 
     private static MatchState BuildBattlefieldDefendMoveToBaseScenario(MatchState current, DevScenarioSeed seed)
@@ -24925,7 +25002,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·210/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -24947,7 +25024,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-LEGEND-HALL")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-LEGEND-HALL")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerReadyRunesEndScenario(MatchState current, DevScenarioSeed seed)
@@ -24985,7 +25071,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "OGN·289/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25012,7 +25098,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.RuneCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOUNT-TARGON")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-MOUNT-TARGON")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerDrawOtherScenario(MatchState current, DevScenarioSeed seed)
@@ -25060,7 +25155,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·217/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-OTHER-001"] = new(
                     "P1-BATTLEFIELD-OTHER-001",
                     cardNo: "OGN·280/298",
@@ -25099,7 +25194,16 @@ public sealed partial class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-DRAW-OTHER-003",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-THRONE-OF-POWER")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-THRONE-OF-POWER")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerPowerfulDrawScenario(MatchState current, DevScenarioSeed seed)
@@ -25136,7 +25240,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·218/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25202,7 +25306,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·207/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25217,7 +25321,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-EMPEROR-SHRINE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-EMPEROR-SHRINE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerGoldScenario(MatchState current, DevScenarioSeed seed)
@@ -25254,7 +25367,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·220/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25269,7 +25382,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-TREASURE-PILE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-TREASURE-PILE")
+            }
+        };
     }
 
     private static MatchState BuildBattlefieldConquerReadyEquipmentScenario(MatchState current, DevScenarioSeed seed)
@@ -25307,7 +25429,7 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "SFD·221/221",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
-                    controllerId: seed.P1),
+                    controllerId: seed.P2),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
                     cardNo: "SFD·125/221",
@@ -25336,7 +25458,16 @@ public sealed partial class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
-            });
+            }) with
+        {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-MOONVEIL-ALTAR")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-MOONVEIL-ALTAR")
+            }
+        };
     }
 
     private static MatchState BuildBattleScoreScenario(MatchState current, DevScenarioSeed seed)
