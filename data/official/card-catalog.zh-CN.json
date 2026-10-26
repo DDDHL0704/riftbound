@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1083,
+  "total": 1084,
   "cards": [
     {
       "id": 31005,
@@ -45188,6 +45188,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37830,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·130",
+      "cardName": "奥洛克将军",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "崔法利",
+      "artist": "Slawomir Maniak",
+      "cardEffect": "{{强化3黄色}}（支付{{3}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的{{已强化}}单位获得{{S}}+2（包括我在内）。",
+      "flavorText": "“听我号令。”",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/1f8b4e8106cd450193094ea8792095ed.png",
+      "backImage": "",
+      "listSort": 1856,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46516,6 +46564,33 @@
         "status": "UNRESOLVED"
       },
       "reason": "Exact standard CN raw printing retained for typed spell-discard and empowered-banish consumer repro. Printed/API region conflict remains unresolved; no whole-card certification or alternate-printing inheritance."
+    },
+    {
+      "cardNo": "VEN·130",
+      "sourceId": 37830,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "奥洛克将军",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T16:22:27.182866+00:00",
+      "sourceRecordSha256": "a18e13844d4fe797b3fcbd83dc6eb5798de8185a506077f6583cb2ec5003b1d9",
+      "sourceResponseSha256": "7a441b09675cd338be559c0658f650feeffd36e718ec0257391b698de4c98339",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·130/166 SC",
+      "frontImageSha256": "c38a685d80e0f1ed8b46fee20f24cb715c772ff71fbf2d65cf237b3c1c9ac1b5",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing retained for real resource-Empower and current friendly-empowered-unit Might aura consumer. Whole face and API agree; registration and source inventory are not complete applicability or whole-card certification."
     }
   ]
 }
