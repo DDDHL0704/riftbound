@@ -97,7 +97,11 @@ public sealed class ImposedMovementResourceCommitTests
             initial, journal.Entries, frame, actualRecoveryErrors = errors,
             scope = "Actual accepted commands from an explicit finite position; no ordinary opening or external services." });
         Assert.Empty(errors);
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        // This explicit turn-three position is not an empty-room birth.
+        Assert.NotEmpty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, state,
+            new CoreRuleEngine(), default, events);
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         var roles = Assert.Single(events, e => e.Event.Kind == "BATTLE_ROLES_ESTABLISHED");
         Assert.Equal(state.Tick, roles.Tick);
         Assert.Equal("FIELD2", state.ObjectLocations["A"].BattlefieldObjectId);
