@@ -10283,7 +10283,7 @@ internal static class ActionPromptBuilder
                 var cost = ability.Cost;
                 var requiredDiscard = EmpowerRules.RequiresHandDiscard(cost);
                 var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId)
-                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", [id])).ToArray() : [];
+                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", ObjectIds: [id])).ToArray() : [];
                 if (requiredDiscard && additionalCosts.Length == 0) continue;
                 var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
                 var costLabels = new List<string>();
