@@ -258,6 +258,45 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
         finally { await game.Save("ven130-" + actor); }
     }
 
+    [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task AnActualTakeoverAndRecallMoveTheAuraToItsCurrentControllerWithoutChangingItsOwner(string thief)
+    {
+        var originalController = thief == "P1" ? "P2" : "P1";
+        var initial = Add(Add(Add(Add(Position(), "TAKEN", No, originalController), "TAKE", "OGN·203/298", thief),
+            "OLD-FRIEND", "VEN·070", originalController, "BASE"), "NEW-FRIEND", "VEN·070", thief, "BASE");
+        initial = initial with { TurnPlayerId = originalController, ActivePlayerId = originalController,
+            RunePools = new Dictionary<string, RunePool> { [originalController] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }), [thief] = new(0, 0) },
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["OLD-FRIEND"] = initial.CardObjects["OLD-FRIEND"] with { IsEmpowered = true },
+                ["NEW-FRIEND"] = initial.CardObjects["NEW-FRIEND"] with { IsEmpowered = true } } };
+        initial = Add(initial, "RETURN", "OGN·104/298", thief);
+        for (var i = 0; i < 9; i++) initial = Add(initial, "CONTROL-RUNE-" + i, "UNL-R05", thief, "BASE");
+        var game = new Driver(initial);
+        try
+        {
+            var field = originalController == "P1" ? "BF" : "OTHER";
+            await game.Act(originalController, new PlayCardCommand("TAKEN", No, [], Destination: "BATTLEFIELD:" + field));
+            await game.Act(originalController, new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top();
+            Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief));
+            await game.Act(originalController, new EndTurnCommand()); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
+            for (var i = 0; i < 9; i++) await game.Act(thief, new TapRuneCommand("CONTROL-RUNE-" + i));
+            for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            Assert.Equal(9, game.State.RunePools[thief].Mana); Assert.Equal(3, game.State.RunePools[thief].PowerByTrait[RuneTrait.Purple]);
+            await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
+            Assert.Equal(thief, game.State.CardObjects["TAKEN"].ControllerId); Assert.Equal(originalController, game.State.CardObjects["TAKEN"].OwnerId);
+            Assert.Equal("BASE", game.State.ObjectLocations["TAKEN"].Zone); Assert.Contains("TAKEN", game.State.PlayerZones[thief].Base);
+            Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(1, game.State.RunePools[thief].Mana); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
+            Assert.Equal(8, Might(game.State, "NEW-FRIEND", thief)); Assert.Equal(6, Might(game.State, "OLD-FRIEND", originalController));
+            await game.Act(thief, new PlayCardCommand("RETURN", "OGN·104/298", ["TAKEN"])); await game.Top();
+            Assert.Contains("TAKEN", game.State.PlayerZones[originalController].Hand); Assert.False(game.State.CardObjects["TAKEN"].IsEmpowered);
+            Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief)); Assert.Equal(6, Might(game.State, "OLD-FRIEND", originalController));
+            Assert.Equal(0, game.State.RunePools[thief].Mana);
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_MOVED"); await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-takeover-" + thief, initial, game); }
+    }
+
     private static ActivateAbilityCommand Activate() => new("UNIT", "EMPOWER:0:0", []);
     private static MatchState Position() => VenUnitEntryBasicTests.Position(No) with { RunePools = new Dictionary<string, RunePool> {
         ["P1"] = new(40, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 2, [RuneTrait.Orange] = 2, [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
