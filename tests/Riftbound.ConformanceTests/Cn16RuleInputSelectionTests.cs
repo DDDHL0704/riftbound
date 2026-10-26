@@ -13,6 +13,9 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorBoneErratumCatalog = "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29";
     private const string PriorVoidErratumCatalog = "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397";
     private const string PriorVenFlowCatalog = "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83";
+    private const string Prior1074Catalog = "8895025aa5cfd18025936f4c87b9a8d16d49341ff4d40f0c7b0fa1bca3a2cd66";
+    private const string Prior1076Catalog = "5823aaf65ba61aa54706647fb89a4c653fc7a4ecd81cd09c921b3fedebaa1604";
+    private const string PriorSp6OnlyCatalog = "eedd99268d0e6f5faa7ffbfeed570ef29a409ca34980e0627400b296c59d6988";
 
     [Fact]
     public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
@@ -37,9 +40,9 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Retain all prior 1054 exact rows, add eighteen rune reprints and VEN051/VEN105,
-        // and apply only the reviewed exact SFD003 erratum. These totals do not certify cards.
-        Assert.Equal("8895025aa5cfd18025936f4c87b9a8d16d49341ff4d40f0c7b0fa1bca3a2cd66", RuleInputIdentity.Current.CatalogSha256);
+        // Retain the exact 1076-row card batch and append only the reviewed CN37921 / VEN SP6.
+        // Printing and functional-unit totals remain registration evidence, not card certification.
+        Assert.Equal("7b565edb12e8f9d0859dd0b6dbdf2ff789c5f2fcc777eeae6c3376bbb3bb2f5a", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
@@ -63,7 +66,7 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog, PriorVenFlowCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog, PriorVenFlowCatalog, Prior1074Catalog, Prior1076Catalog, PriorSp6OnlyCatalog })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);
