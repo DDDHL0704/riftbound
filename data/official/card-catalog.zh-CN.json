@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1080,
+  "total": 1081,
   "cards": [
     {
       "id": 31005,
@@ -45044,6 +45044,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37750,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·059",
+      "cardName": "电能震荡",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n如果你控制着{{已强化}}的物体，则此牌的费用减少{{2}}。\n对战场上的一名单位造成4点伤害，",
+      "flavorText": "“感受雷霆吧！”\n——杰斯",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/0f072f395b364fa8a1c30568cf322792.png",
+      "backImage": "",
+      "listSort": 1936,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46285,6 +46333,33 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; required discard cost and conditional Might consumer under shared-payment review. Registration alone does not make the required cost supported or certify the whole card."
+    },
+    {
+      "cardNo": "VEN·059",
+      "sourceId": 37750,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "电能震荡",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T12:12:17.456864+00:00",
+      "sourceRecordSha256": "039d42071b92aabd86bb57f60ac12caf5574a18f99d9f1a51a5278d00b2c60d1",
+      "sourceResponseSha256": "03ed53f0521bcdb3f42f423411ca299ecae7d5370007976c7dc9f490b1542196",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·059/166 SC",
+      "frontImageSha256": "03745a21881dff6ffae546faa49b7720456576854f1e8261473a83740ab45542",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing; shared battlefield damage and Swift consumer, empowered-object cost predicate under payment review. No whole-card certification or alternate-printing inheritance."
     }
   ]
 }
