@@ -59,6 +59,7 @@ public sealed partial class CoreRuleEngine
         Adjust("单位静态减费", -plan.DragonUnitCostReductionMana);
         Adjust("下次法术减费", -plan.NextSpellCostReductionMana);
         Adjust("战场法术减费", -plan.BattlefieldSpellCostReductionMana);
+        Adjust("已强化法术减费", -plan.EmpoweredSpellCostReductionMana, -plan.EmpoweredSpellCostReductionPower);
         Adjust("战场增费", plan.BattlefieldHeldUnitCostIncreaseMana);
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
@@ -68,7 +69,8 @@ public sealed partial class CoreRuleEngine
             accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments) {
                 AvailableSpellOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0,
                 RemainingSpellOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell
-                    ? Math.Max(0, pool.SpellOnlyMana - plan.TotalManaCost) : 0 };
+                    ? Math.Max(0, pool.SpellOnlyMana - plan.TotalManaCost) : 0,
+                SpellPowerReductionChoices = plan.SpellPowerReductionChoices };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);

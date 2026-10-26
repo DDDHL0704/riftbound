@@ -4,7 +4,8 @@ public sealed partial class CoreRuleEngine
 {
     internal sealed record PlayManaCost(
         int Total, int CardReduction, int OptionalReduction, int EchoReduction, int EquipmentReduction,
-        int UnitReduction, int NextSpellReduction, int BattlefieldSpellReduction, int Increase);
+        int UnitReduction, int NextSpellReduction, int BattlefieldSpellReduction, int Increase,
+        int EmpoweredSpellReduction = 0);
 
     // CN 356: component reductions apply to that component, then total reductions apply
     // to base + additional costs + increases. A floor belongs only to its own reducer.
@@ -31,6 +32,8 @@ public sealed partial class CoreRuleEngine
         {
             reductions.AddRange(StaticSpellCostReductionSourceBehaviors(state, playerId)
                 .Select(source => ("spell", source.StaticSpellCostReductionMana, source.StaticSpellCostReductionMinimumManaCost)));
+            reductions.AddRange(EmpoweredSpellCostReducers(state, playerId, behavior)
+                .Select(source => ("empoweredSpell", source.Mana, source.MinimumMana)));
             reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId).Sum(effect => effect.Mana), 0));
         }
         reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));
@@ -50,7 +53,7 @@ public sealed partial class CoreRuleEngine
         }
         return new(total, applied.GetValueOrDefault("card"), applied.GetValueOrDefault("optional"), echoReduction,
             applied.GetValueOrDefault("equipment"), applied.GetValueOrDefault("unit"), applied.GetValueOrDefault("next"),
-            applied.GetValueOrDefault("spell"), increase);
+            applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"));
     }
 
     // A prompt's lower bound may assume affordable optional reductions. The quote uses
