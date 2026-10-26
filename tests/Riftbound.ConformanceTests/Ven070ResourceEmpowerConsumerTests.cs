@@ -17,6 +17,23 @@ public sealed class Ven070ResourceEmpowerConsumerTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     [Fact]
+    public async Task TheExactNewPrintingAddsOneCatalogGroupWithoutChangingAnyExistingGroupOrMember()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var priorCards = catalog.Cards.Where(card => card.CardNo != No).ToArray();
+        Assert.Equal(1078, priorCards.Length); Assert.Equal(1079, catalog.Cards.Count);
+        var priorUnits = FunctionalUnitBuilder.Build(priorCards); var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        Assert.Equal(859, priorUnits.Count); Assert.Equal(860, units.Count);
+        foreach (var prior in priorUnits)
+        {
+            var current = Assert.Single(units, unit => unit.Id == prior.Id);
+            Assert.Equal(JsonSerializer.Serialize(prior), JsonSerializer.Serialize(current));
+        }
+        var added = Assert.Single(units, unit => unit.Cards.Any(card => card.CardNo == No));
+        Assert.Equal(No, Assert.Single(added.Cards).CardNo);
+    }
+
+    [Fact]
     public async Task ExactCnPrintingSeparatesPrintedCostsFromItsConditionalSelfEffects()
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadDefaultAsync()).Cards, c => c.CardNo == No);

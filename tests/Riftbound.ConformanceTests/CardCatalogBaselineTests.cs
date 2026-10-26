@@ -29,7 +29,7 @@ public sealed class CardCatalogBaselineTests
         var summary = FunctionalUnitBuilder.Summarize(units);
 
         Assert.Equal(1079, summary.OfficialEntries);
-        Assert.Equal(859, summary.FunctionalUnits);
+        Assert.Equal(860, summary.FunctionalUnits);
         Assert.Equal(115, summary.DuplicateGroups);
         Assert.Equal(334, summary.DuplicateEntries);
         Assert.Equal(219, summary.SavedLogicImplementations);
@@ -54,7 +54,7 @@ public sealed class CardCatalogBaselineTests
         var second = FunctionalUnitReporter.Build(FunctionalUnitBuilder.Build(catalog.Cards));
 
         Assert.Equal(1079, first.OfficialEntries);
-        Assert.Equal(859, first.FunctionalUnits);
+        Assert.Equal(860, first.FunctionalUnits);
         Assert.True(first.IdsAreUnique);
         Assert.All(first.Units, unit =>
         {
@@ -289,7 +289,7 @@ public sealed class CardCatalogBaselineTests
             .ToArray();
 
         Assert.Equal(1079, implementedSpecs.Length);
-        Assert.Equal(859, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(860, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
         Assert.Empty(manualDeferredSpecs);
         Assert.Empty(blockedSpecs);
         Assert.Equal(
@@ -608,8 +608,8 @@ public sealed class CardCatalogBaselineTests
 
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
-        Assert.Equal(859, coverage.FunctionalUnits);
-        Assert.Equal(859, coverage.ImplementedUnits);
+        Assert.Equal(860, coverage.FunctionalUnits);
+        Assert.Equal(860, coverage.ImplementedUnits);
         Assert.Equal(0, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.Equal(115, coverage.DuplicateGroups);
@@ -1284,8 +1284,8 @@ public sealed class CardCatalogBaselineTests
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
         Assert.Equal(1079, specs.Count);
-        Assert.Equal(859, coverage.FunctionalUnits);
-        Assert.Equal(859, coverage.ImplementedUnits);
+        Assert.Equal(860, coverage.FunctionalUnits);
+        Assert.Equal(860, coverage.ImplementedUnits);
         Assert.Equal(0, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.DoesNotContain(specs, spec => string.Equals(
