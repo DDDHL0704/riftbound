@@ -31,25 +31,25 @@ public sealed class BattleRoleChoiceCoordinateTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task LaterPaidEffectAcquisitionKeepsTheAcceptedBattleIdentity(bool gold)
+    public async Task ACompletedResourceChoiceKeepsAnAlreadyAcceptedBattleIdentity(bool gold)
     {
-        var run = new Run(FinitePosition(gold, true));
+        var initial = FinitePosition(gold, true);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["SPELL"] = OfficialGarenConquestBattlefieldCountTests.Printed("SPELL", "OGN·268/298", "P1") } };
+        var run = new Run(initial);
         await run.Act("P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:FIELD2"));
         var previous = Markers(run.State);
         AssertRoles(run.Frame(), "BATTLE_ROLES_ESTABLISHED", 2);
-        await run.Act("P1", new PlayCardCommand("SPELL", "UNL-054/219", ["D", "D2"], Destination: "BATTLEFIELD:FIELD2"));
+        await run.Act("P1", new PlayCardCommand("SPELL", "OGN·268/298", ["FIELD2"]));
         await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
         await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
-        await ResourceAndPay(run, gold);
-        foreach (var marker in previous) Assert.Contains(marker, Markers(run.State));
-        var acquired = Assert.Single(run.Frame().Events, e => e.Event.Kind == "BATTLE_ROLE_ACQUIRED");
-        var fresh = Markers(run.State).Except(previous).Select(text => JsonNode.Parse(text[RolePrefix.Length..])!).ToArray();
-        Assert.Equal(2, fresh.Length);
-        Assert.All(fresh, role => {
-            Assert.Equal(acquired.Tick, role["acquiredAtTick"]!.GetValue<long>());
-            Assert.Equal(acquired.Order, role["roleEventOrder"]!.GetValue<int>());
-        });
-        Assert.Equal(new[] { "D", "D2" }, fresh.Select(role => role["sourceObjectId"]!.GetValue<string>()).Order());
+        var request = run.State.PendingRuleChoice!.Request;
+        await run.Decide(gold ? request.Options.Single(o => o.Id.StartsWith("RESOURCE:GOLD:", StringComparison.Ordinal)).Id : "RECYCLE_RUNE:RUNE");
+        await run.Decide("SPEND_POWER:CHOOSE_AMOUNT");
+        while (run.State.PendingRuleChoice is { Request: var quantity })
+            await run.Decide(quantity.Options.Single(o => o.Id.Split(':')[^2] == "0").Id);
+        Assert.Equal(previous, Markers(run.State));
+        Assert.DoesNotContain(run.Frame().Events, e => e.Event.Kind == "BATTLE_ROLE_ACQUIRED");
         run.Export("existing-battle-" + gold);
     }
 
