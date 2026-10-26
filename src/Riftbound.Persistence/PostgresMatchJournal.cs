@@ -190,6 +190,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchRo
             entry.ClientIntentId,
             entry.CommandType,
             entry.RawCommand,
+            entry.TypedCommand,
             entry.StartedTick,
             entry.CompletedTick,
             entry.StartedEventSequence,

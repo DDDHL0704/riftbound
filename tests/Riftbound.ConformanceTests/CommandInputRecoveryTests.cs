@@ -1,7 +1,10 @@
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Npgsql;
 using Riftbound.Contracts;
 using Riftbound.Engine;
+using Riftbound.Persistence;
 using Xunit;
 using Run = Riftbound.ConformanceTests.RawEnvelopeTestRun;
 
@@ -172,6 +175,89 @@ public sealed class CommandInputRecoveryTests
         var corrected = await run.Session.SubmitAsync(player, "correctable-type", new MulliganCommand([]), null, default);
         Assert.True(corrected.Accepted, corrected.ErrorMessage);
         AssertRecovered(await run.Recovery("corrected-type"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ActualPostgresWriterPreservesAbsentTypedAndCanonicalRawInputs(bool rawPresent)
+    {
+        var run = await Run.Create("binding-postgres-payload-" + rawPresent);
+        var player = Assert.IsType<string>(ResolutionResult.OpeningMulliganPlayerId(run.State));
+        var first = run.State.PlayerZones[player].Hand[0];
+        var input = new MulliganCommand([first]);
+        var node = JsonSerializer.SerializeToNode(input, Web)!.AsObject();
+        node["promptId"] = run.Session.PromptFor(player).PromptId;
+        node["snapshotTick"] = run.State.Tick;
+        JsonElement? raw = rawPresent ? JsonSerializer.SerializeToElement(node) : null;
+        const string intent = "persisted-mulligan";
+        var accepted = await run.Session.SubmitAsync(player, intent, input, raw, default);
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        var entry = run.Entries[^1];
+        Assert.Equal(rawPresent, entry.RawCommand is not null);
+        Assert.Equal(!rawPresent, entry.TypedCommand is not null);
+        if (!rawPresent)
+        {
+            Assert.Equal(nameof(MulliganCommand), entry.TypedCommand!.Kind);
+            Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(input, Web),
+                JsonNode.Parse(entry.TypedCommand.Value.GetRawText())));
+        }
+        var original = Frame(run);
+        var count = run.Entries.Count;
+        var journalBefore = JsonSerializer.Serialize(run.Entries, Web);
+        var stateHash = MatchStateHasher.Hash(run.State);
+
+        using var command = new NpgsqlCommand();
+        typeof(PostgresMatchJournal).GetMethod("AddCommandPayload", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [command, entry]);
+        var payload = Assert.IsType<string>(command.Parameters["payload"].Value);
+        run.Save("actual-postgres-payload", new { rawPresent, entry, payload, noDatabaseExecutionClaimed = true });
+        using var document = JsonDocument.Parse(payload);
+        var hasTyped = document.RootElement.TryGetProperty("typedCommand", out var typed);
+        if (!rawPresent)
+        {
+            Assert.True(hasTyped, "The actual journal writer must preserve real typed input when rawCommand is absent.");
+            Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(entry.TypedCommand, Web),
+                JsonNode.Parse(typed.GetRawText())));
+        }
+        else if (hasTyped) Assert.Equal(JsonValueKind.Null, typed.ValueKind);
+
+        var payloads = new List<(string Label, string Json)> { ("actual", payload) };
+        if (rawPresent)
+        {
+            var absent = JsonNode.Parse(payload)!.AsObject();
+            absent.Remove("typedCommand");
+            payloads.Add(("canonical-typed-absent", absent.ToJsonString()));
+            var explicitNull = JsonNode.Parse(payload)!.AsObject();
+            explicitNull["typedCommand"] = null;
+            payloads.Add(("canonical-typed-null", explicitNull.ToJsonString()));
+        }
+        foreach (var stored in payloads)
+        {
+            var readTyped = typeof(PostgresMatchRecoveryStore).GetMethod("ReadTypedCommand", BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, [stored.Json]);
+            Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(entry.TypedCommand, Web),
+                JsonSerializer.SerializeToNode(readTyped, Web)));
+            var decoded = JsonSerializer.Deserialize<RecoveredCommand>(stored.Json, Web)!;
+            var persisted = original with { Commands = original.Commands.Select(recorded =>
+                recorded.ClientIntentId == intent ? decoded : recorded).ToArray() };
+            Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(original.Commands, Web),
+                JsonSerializer.SerializeToNode(persisted.Commands, Web)));
+            var replay = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
+            Assert.Empty(replay);
+            var store = new RawEnvelopeFrameStore(persisted);
+            var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, store);
+            var cold = await registry.GetOrCreateAsync(run.State.RoomId, default);
+            var duplicate = await cold.SubmitAsync(player, intent, new MulliganCommand([first]), raw, default);
+            Assert.True(duplicate.Accepted, duplicate.ErrorMessage);
+            Assert.Empty(duplicate.Events);
+            Assert.Equal(1, store.Loads);
+            Assert.Equal(count, run.Entries.Count);
+            Assert.Equal(stateHash, MatchStateHasher.Hash(duplicate.State));
+            Assert.Equal(journalBefore, JsonSerializer.Serialize(run.Entries, Web));
+            run.Save("actual-postgres-recovery-" + stored.Label, new { rawPresent, stored.Json, persisted, replayErrors = replay,
+                duplicate, journalBytesUnchanged = true, noDatabaseExecutionClaimed = true });
+        }
     }
 
     private static MatchRecoveryFrame Frame(Run run)
