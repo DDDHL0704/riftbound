@@ -98,15 +98,22 @@ public sealed class Ven050RuneDiscountConsumerTests
     [Fact]
     public async Task ActualControlTransferKeepsEmpowerAndChargesTheFormerOwnerWard()
     {
-        var initial = Add(Add(Position(12), "TAKE", "SFD·202/221", "P2", "HAND"), "HOWL", "VEN·072", "P1", "HAND");
+        var initial = Add(Add(Position(12), "TAKE", "OGN·203/298", "P2", "HAND"), "HOWL", "VEN·072", "P1", "HAND");
+        for (var i = 0; i < 8; i++) initial = Add(initial, "TAKE-RUNE-" + i, "UNL-R05", "P2", "BASE");
         var game = await Play(initial, "BATTLEFIELD:BF");
         await game.Act("P1", Activate()); await game.Top(); CheckSelf(game.State);
         var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
         await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
+        for (var i = 0; i < 8; i++) await game.Act("P2", new TapRuneCommand("TAKE-RUNE-" + i));
+        for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-" + i));
         await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
         var before = game.State.RunePools["P2"];
-        await game.Act("P2", new PlayCardCommand("TAKE", "SFD·202/221", ["UNIT"]));
-        Assert.Equal(before.TotalPower - 2, game.State.RunePools["P2"].TotalPower);
+        Assert.Equal(8, before.Mana); Assert.Equal(4, before.TotalPower);
+        await game.Act("P2", new PlayCardCommand("TAKE", "OGN·203/298", ["UNIT"]));
+        Assert.Equal(before.Mana - 8, game.State.RunePools["P2"].Mana);
+        Assert.Equal(before.TotalPower - 4, game.State.RunePools["P2"].TotalPower);
+        Assert.Equal(1, game.Events().Last(e => e.Event.Kind == "COST_PAID").Event.Payload["spellshieldTaxPower"]);
         await game.Top();
         Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId);
         Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
@@ -115,6 +122,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         Assert.Contains("法盾", game.State.CardObjects["UNIT"].Tags);
         Assert.Contains("坚守3", game.State.CardObjects["UNIT"].Tags);
         await game.Act("P2", new EndTurnCommand());
+        Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
         await game.Act("P1", new TapRuneCommand("RUNE-0"));
         await game.Act("P1", new TapRuneCommand("RUNE-1"));
         Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
