@@ -72,6 +72,7 @@ public sealed partial class CoreRuleEngine
             ? ResolveGoldTokenResourceSkill(context, intent, action.Command, action.Ability)
             : ResolveImmediateResourceSkill(context, intent, action.Command, action.Ability);
         if (!result.Accepted) throw new InvalidOperationException("Invalid generated resource choice: " + result.ErrorMessage);
+        result = FinalizeTokenDepartures(context, result);
         Replace(zones, result.State.PlayerZones); Replace(cards, result.State.CardObjects); Replace(pools, result.State.RunePools);
         events.AddRange(result.Events);
         var frame = RuleChoices.Value!;
