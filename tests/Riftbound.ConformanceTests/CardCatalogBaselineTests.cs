@@ -981,12 +981,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
-            entries: 31,
-            specImplementedEntries: 31,
+            entries: 32,
+            specImplementedEntries: 32,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 27,
-            specImplementedFunctionalUnits: 27,
+            functionalUnits: 28,
+            specImplementedFunctionalUnits: 28,
             pendingFunctionalUnits: 0);
         Assert.All(lifecycleRows, row =>
         {
