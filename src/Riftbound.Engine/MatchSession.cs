@@ -7195,7 +7195,8 @@ internal static class ActionPromptBuilder
         bool RenataGoldExtraManaAvailable = false,
         int BonusMana = 0,
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null,
-        string? AbilityInstanceId = null, string? CopyEquipmentObjectId = null);
+        string? AbilityInstanceId = null, string? CopyEquipmentObjectId = null,
+        IReadOnlyList<ActionPromptChoiceDto>? AdditionalCostChoices = null, int RequiredAdditionalCostChoiceCount = 0);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -10280,23 +10281,29 @@ internal static class ActionPromptBuilder
             {
                 if (ability.Cost.Exhaust && cardObject.IsExhausted) continue;
                 var cost = ability.Cost;
+                var requiredDiscard = EmpowerRules.RequiresHandDiscard(cost);
+                var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId)
+                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", [id])).ToArray() : [];
+                if (requiredDiscard && additionalCosts.Length == 0) continue;
                 var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
                 var costLabels = new List<string>();
                 if (mana > 0) costLabels.Add($"{mana}法力");
                 if (cost.Power > 0) costLabels.Add($"{cost.Power}任意符能");
                 costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
                 if (cost.Exhaust) costLabels.Add("横置");
+                if (requiredDiscard) costLabels.Add("弃置一张手牌");
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
                 var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
                 var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, choices);
                 requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
                     mana, cost.Power, 0, cost.TypedPower, 0, 0, "无目标",
-                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), [], choices, byChoice,
+                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), additionalCosts, choices, byChoice,
                     pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
                     pool.TotalPower + byTrait.Values.Sum(), PlayCardAvailablePowerByTrait(pool, byTrait), [],
                     cost.Exhaust, false, true, null, AbilityInstanceId: ability.InstanceId,
-                    CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId));
+                    CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId,
+                    AdditionalCostChoices: requiredDiscard ? additionalCosts : null, RequiredAdditionalCostChoiceCount: requiredDiscard ? 1 : 0));
             }
         }
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
@@ -15823,6 +15830,11 @@ internal static class ActionPromptBuilder
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
 
+        if (requirement.RequiredAdditionalCostChoiceCount > 0)
+        {
+            view["additionalCostChoices"] = requirement.AdditionalCostChoices;
+            view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
+        }
         if (requirement.AbilityInstanceId is not null)
         {
             view["abilityInstanceId"] = requirement.AbilityInstanceId;
