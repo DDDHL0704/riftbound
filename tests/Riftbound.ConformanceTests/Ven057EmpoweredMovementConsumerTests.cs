@@ -315,7 +315,8 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             }
             var paidMana = game.State.RunePools["P1"].Mana;
             await game.Top(); Assert.True(game.State.CardObjects["HOST"].IsEmpowered); Assert.Equal(paidMana, game.State.RunePools["P1"].Mana);
-            Assert.Equal(empowerOriginal, game.State.CardObjects["COPY-SOURCE"].IsEmpowered); Assert.Equal(0, Draws(game, "P1"));
+            Assert.Equal(empowerOriginal, game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
+            Assert.Equal(detachBeforeResolution ? 1 : 0, Draws(game, "P1")); // SFD011 itself draws one on resolution.
             if (!detachBeforeResolution)
             {
                 Assert.Equal(4, Might(game.State, "HOST"));
@@ -324,9 +325,10 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             Assert.Equal(originalFace, game.State.CardObjects["HOST"].CardNo); Assert.Equal(originalMight, Might(game.State, "HOST"));
             Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
             Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration); Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+            Assert.Equal(1, Draws(game, "P1")); var drawsBeforeMove = Draws(game, "P1");
             await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
             Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn); Assert.Equal(0, SourceEffects(game, "HOST"));
-            Assert.Equal(0, SourceEffects(game, "COPY-SOURCE")); await FinishWindow(game); Assert.Equal(0, Draws(game, "P1"));
+            Assert.Equal(0, SourceEffects(game, "COPY-SOURCE")); await FinishWindow(game); Assert.Equal(drawsBeforeMove, Draws(game, "P1"));
             Assert.Single(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal));
             await game.Replay(); Restore(game.State);
         }
