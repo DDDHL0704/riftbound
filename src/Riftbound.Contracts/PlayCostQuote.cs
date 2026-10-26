@@ -24,7 +24,13 @@ public sealed record PlayCostBreakdownDto(
     int? RemainingMana,
     int? RemainingRainbowPower,
     IReadOnlyDictionary<string, int>? RemainingPowerByTrait,
-    IReadOnlyList<PlayCostAdjustmentDto> Adjustments);
+    IReadOnlyList<PlayCostAdjustmentDto> Adjustments)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int AvailableSpellOnlyMana { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? RemainingSpellOnlyMana { get; init; }
+}
 
 // A quote is informational. Submission always rebuilds and authorizes its plan.
 public sealed record PlayCostQuoteDto(

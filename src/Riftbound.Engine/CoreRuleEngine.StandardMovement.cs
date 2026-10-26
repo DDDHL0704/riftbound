@@ -57,7 +57,7 @@ public sealed partial class CoreRuleEngine
         if (powerCost > 0)
         {
             var paid = PayPowerCost(pool, powerCost, noColoredCost);
-            pools[intent.PlayerId] = new RunePool(pool.Mana, paid.AnyPower, paid.PowerByTrait);
+            pools[intent.PlayerId] = pool with { Power = paid.AnyPower, PowerByTrait = paid.PowerByTrait };
             events.Add(new("COST_PAID", "支付同时移动的额外符能费用", new Dictionary<string, object?>
             {
                 ["playerId"] = intent.PlayerId, ["reason"] = "MAGESEEKER_PATROL_MOVE_TAX_STATIC",
