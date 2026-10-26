@@ -1289,10 +1289,11 @@ public static class TriggerParser
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
         var movedDraw = Regex.Match(segment,
-            @"^(?:每当|当)我移动时，抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
+            @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:每当|当)我移动时，抽(?<count>[0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
         if (movedDraw.Success)
             return new TriggerSpec(TriggerKinds.UnitMovedDraw, TriggerTimings.UnitMoved, segment,
-                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: ParseChineseNumber(movedDraw.Groups[1].Value));
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: ParseChineseNumber(movedDraw.Groups["count"].Value),
+                RequiresSourceEmpowered: movedDraw.Groups["empowered"].Success ? true : null);
         var movedExperience = Regex.Match(segment,
             @"^(?:每当|当)我移动(至战场)?时，获得([0-9一两二三四五六七八九十]+)经验。?$", RegexOptions.CultureInvariant);
         if (movedExperience.Success)

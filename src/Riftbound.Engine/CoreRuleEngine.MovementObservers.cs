@@ -15,6 +15,8 @@ public sealed record MovementObserverContext(string CardNo, string Kind, long So
     public string? RuleTextInstanceId { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? SourceWasEmpowered { get; init; }
 }
 public sealed record MovementDiscardInlineContext(ObjectBinding DiscardedCard, string CardNo, int Types,
     int BranchType, long CreatedAtTick);
@@ -39,7 +41,7 @@ public sealed partial class CoreRuleEngine
             || (effect == MovementObserverEffect ? c.DiscardInline is not null
                 : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
             || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
-            || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
+            || c.SourceGeneration < 0 || c.SourceWasEmpowered == false || cardNo is not null && cardNo != c.CardNo
             || !ValidMovedUnitFact(c.Unit)
             || (c.Origin is null ? c.RuleTextInstanceId is not null
                 : c.Origin.Unit is not { } bound || bound.ObjectId != source || bound.Generation != c.SourceGeneration
@@ -47,11 +49,11 @@ public sealed partial class CoreRuleEngine
                     || c.Origin.Revision <= 0 || c.RuleTextInstanceId != $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}")) return false;
         var unit = c.Unit;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
-            && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
+            && c.SourceWasEmpowered is null && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
         if (c.MovementOrdinal is not null) return false;
         if (c.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
         {
-            if (c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
+            if (c.SourceWasEmpowered is not null || c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
                 || location.PlayerId != controller || location.Zone is not ("BASE" or "BATTLEFIELD")
                 || location.Zone == "BATTLEFIELD" && string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
                 || unit.Destination.Zone != "BATTLEFIELD" || string.IsNullOrWhiteSpace(unit.Destination.BattlefieldObjectId)
@@ -65,10 +67,14 @@ public sealed partial class CoreRuleEngine
         if (c.MovementBatch is not null || c.SourceLocation is not null) return false;
         return c.Kind != TriggerKinds.BattlefieldUnitMovedAwayPowerModifier
             ? source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
-                && UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).Any(t => t.Kind == c.Kind && UnitMovedTriggerSpecRules.MatchesMovement(t, unit))
-            : unit.Origin.Zone == "BATTLEFIELD" && source == unit.Origin.BattlefieldObjectId
+                && UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).Any(t => t.Kind == c.Kind
+                    && UnitMovedTriggerSpecRules.MatchesMovement(t, unit) && MovementEmpowermentMatches(t, c))
+            : c.SourceWasEmpowered is null && unit.Origin.Zone == "BATTLEFIELD" && source == unit.Origin.BattlefieldObjectId
                 && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out _);
     }
+
+    private static bool MovementEmpowermentMatches(TriggerSpec spec, MovementObserverContext captured)
+        => spec.RequiresSourceEmpowered == true ? captured.SourceWasEmpowered == true : captured.SourceWasEmpowered is null;
 
     internal static bool ValidMovementObserver(MatchState state, MovementObserverContext c, string effect,
         string controller, string source, string? cardNo = null)
@@ -155,8 +161,10 @@ public sealed partial class CoreRuleEngine
                 if (MovementScoreDefinition(instance.CardNo) is { } score && ordinal == score.Ordinal)
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementScoreKind, unit.ObjectGeneration, fact, MovementOrdinal: ordinal));
                 foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo)
-                    .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
-                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact));
+                    .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)
+                        && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)))
+                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact) {
+                        SourceWasEmpowered = spec.RequiresSourceEmpowered == true ? true : null });
                 if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, instance.CardNo))
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementResourceKind, unit.ObjectGeneration, fact));
             }
@@ -224,7 +232,8 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitMoved) { MovementObserver = context }) };
-        var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind);
+        var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind
+            && UnitMovedTriggerSpecRules.MatchesMovement(t, context.Unit) && MovementEmpowermentMatches(t, context));
         if (context.Kind == TriggerKinds.UnitMovedDrawDiscardTypes)
             return ResolveMovementDrawDiscardTypes(state, item, events[0]);
         if (context.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower)
