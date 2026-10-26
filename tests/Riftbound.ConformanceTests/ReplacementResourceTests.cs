@@ -272,10 +272,15 @@ public sealed class ReplacementResourceTests
     {
         var s=AddResource(Position(power:0),P4ActivatedAbilityCatalog.GoldTokenUnlCardNo);
         s=s with { CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,Tags=[..s.CardObjects["RESOURCE"].Tags,CardObjectTags.UnitCard] },
+            ["RESOURCE"]=s.CardObjects["RESOURCE"] with { Power=5,Tags=s.CardObjects["RESOURCE"].Tags.Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() },
             ["VIKTOR"]=new("VIKTOR",power:4,cardNo:"ARC-006/006",ownerId:"P2",controllerId:"P2",tags:[CardObjectTags.UnitCard]) },
             PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones) { ["P2"]=s.PlayerZones["P2"] with { Base=s.PlayerZones["P2"].Base.Append("VIKTOR").ToArray() } },
             ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations) { ["VIKTOR"]=new("P2","BASE") } };
+        // Canonicalize the synthetic input before any accepted command; an
+        // in-flight Origin must survive the same JSON constructor round-trip.
+        var originalInput=System.Text.Json.JsonSerializer.Deserialize<MatchState>(System.Text.Json.JsonSerializer.Serialize(s))!;
+        Assert.Equal(MatchStateHasher.Hash(s),MatchStateHasher.Hash(originalInput));
+        Assert.Equal(s.CardObjects["RESOURCE"].Tags,originalInput.CardObjects["RESOURCE"].Tags);
         var generated=await Resource((endsMatch ? await Open(s,"OGN·213/298","D") : await Open(s)).State);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_RAW_ENVELOPE_EVIDENCE") is { } output)
         {
