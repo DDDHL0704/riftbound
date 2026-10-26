@@ -1034,7 +1034,6 @@ public static partial class MatchRecoveryValidator
         "DAMAGE_APPLIED",
         "CARD_DISCARDED",
         "CARDS_RECYCLED",
-        "CARDS_DISCARDED",
         "RUNE_RECYCLED",
         "TURN_END_STEP_STARTED",
         "UNIT_BECAME_POWERFUL",
@@ -1060,6 +1059,10 @@ public static partial class MatchRecoveryValidator
         "UNIT_READY",
         "OBJECT_EMPOWERED"
     ];
+
+    // Preserve the established enum diagnostic for existing recovery clients.
+    // New event kinds are accepted and reported as an explicit extension.
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -6633,7 +6636,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool IsKnownTriggerQueueTriggeredEventKind(string value)
     {
-        return KnownTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal);
+        return KnownTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal)
+            || AdditionalTriggerQueueTriggeredEventKinds.Contains(value, StringComparer.Ordinal);
     }
 
     private static bool IsKnownRuleQueueCoverageKey(string value)
@@ -19545,7 +19549,7 @@ public static partial class MatchRecoveryValidator
         }
 
         errors.Add(
-            $"{payloadLabel} triggered event kind {triggeredEventKind} is invalid; {FormatExpectedActualForRecovery(KnownTriggerQueueTriggeredEventKinds, triggeredEventKind)}");
+            $"{payloadLabel} triggered event kind {triggeredEventKind} is invalid; {FormatExpectedActualForRecovery(KnownTriggerQueueTriggeredEventKinds, triggeredEventKind)}; additional supported trigger event kinds [{string.Join(", ", AdditionalTriggerQueueTriggeredEventKinds)}]");
     }
 
     private static void ValidateTriggerQueueTriggeredEventKindMustBe(
