@@ -8,32 +8,39 @@ namespace Riftbound.ConformanceTests;
 public sealed class TerminalDisclosureRecoveryGuardTests
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private const string StandbyId = "P1-FACEDOWN-OGN-TEEMO-PURPLE";
+    private const string StandbyCardNo = "OGN·197/298";
 
     [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
     public async Task CoordinatedFinishedStateCannotExposeAnUnfinishedStandbyThroughTheRegistry(string forgedWinner)
     {
-        // Explicit midgame input, normalized before any accepted command.
-        // This is a recovery/privacy boundary, not an ordinary opening proof.
-        var initial = Cold(StandbySourceRulesTests.Position("OGN·057/298"));
-        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(Cold(initial)));
-        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(initial));
-        var journal = new Journal(); var session = new MatchSession(initial, new CoreRuleEngine(), journal);
-        var command = new HideCardCommand("SHADOW", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]);
+        // Actual ROOM_SEAT records and the existing accepted DEV scenario,
+        // including its engine HIDE_CARD preparation, retain a valid birth.
+        // This is not certification of an ordinary deck/opening sequence.
+        var room = "terminal-disclosure-registry-" + forgedWinner;
+        var journal = new Journal(); var session = new MatchSession(room, new CoreRuleEngine(), journal);
+        await session.EnsurePlayerAsync("P1", default); await session.EnsurePlayerAsync("P2", default);
+        var seeded = await session.SeedScenarioAsync("P1", "original-scenario", "standby-reaction", null, default);
+        Assert.True(seeded.Accepted, seeded.ErrorMessage);
+        Assert.True(seeded.State.CardObjects[StandbyId].IsFaceDown);
+        var initial = MatchState.Create(room) with { Seed = journal.Entries[0].OpeningSeed };
+        var command = new PassPriorityCommand();
         var raw = JsonSerializer.SerializeToElement(command, Json);
-        var hidden = await session.SubmitAsync("P1", "original-hide", command, raw, default);
+        var hidden = await session.SubmitAsync("P1", "original-pass", command, raw, default);
         Assert.True(hidden.Accepted, hidden.ErrorMessage);
         Assert.Equal(MatchStatuses.InProgress, hidden.State.Status); Assert.Null(hidden.State.WinnerPlayerId);
-        Assert.False(Objects(hidden.Snapshots["P2"]).TryGetProperty("SHADOW", out _));
+        Assert.False(Objects(hidden.Snapshots["P2"]).TryGetProperty(StandbyId, out _));
         var original = Cold(Frame(initial, hidden.State, journal));
-        Assert.False(Objects(original.SpectatorReplayFrame!.SpectatorSnapshot).TryGetProperty("SHADOW", out _));
-        Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default));
+        Assert.False(Objects(original.SpectatorReplayFrame!.SpectatorSnapshot).TryGetProperty(StandbyId, out _));
+        var originalAudit = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default);
+        Assert.True(originalAudit.Count == 0, string.Join("\n", originalAudit));
 
         var forgedState = hidden.State with { Status = MatchStatuses.Finished, WinnerPlayerId = forgedWinner };
         var forged = Cold(Frame(initial, forgedState, journal));
-        Assert.Equal("OGN·057/298", Objects(forged.PlayerViews["P2"].Snapshot).GetProperty("SHADOW").GetProperty("cardNo").GetString());
-        Assert.Equal("OGN·057/298", Objects(forged.SpectatorReplayFrame!.SpectatorSnapshot).GetProperty("SHADOW").GetProperty("cardNo").GetString());
+        Assert.Equal(StandbyCardNo, Objects(forged.PlayerViews["P2"].Snapshot).GetProperty(StandbyId).GetProperty("cardNo").GetString());
+        Assert.Equal(StandbyCardNo, Objects(forged.SpectatorReplayFrame!.SpectatorSnapshot).GetProperty(StandbyId).GetProperty("cardNo").GetString());
         Assert.Equal(JsonSerializer.Serialize(original.Commands, Json), JsonSerializer.Serialize(forged.Commands, Json));
         Assert.Equal(JsonSerializer.Serialize(original.Events, Json), JsonSerializer.Serialize(forged.Events, Json));
         Assert.NotEqual(MatchStateHasher.Hash(original.AuthoritativeState!), MatchStateHasher.Hash(forged.AuthoritativeState!));
@@ -61,8 +68,8 @@ public sealed class TerminalDisclosureRecoveryGuardTests
         Assert.Same(restored, await registry.GetOrCreateAsync(initial.RoomId, default)); Assert.Equal(3, store.Loads);
         foreach (var player in initial.Seats.Keys)
             Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[player].Snapshot), MatchStateHasher.HashValue(restored.SnapshotFor(player)));
-        Assert.False(Objects(restored.SnapshotFor("P2")).TryGetProperty("SHADOW", out _));
-        var duplicate = await restored.SubmitAsync("P1", "original-hide", command, raw, default);
+        Assert.False(Objects(restored.SnapshotFor("P2")).TryGetProperty(StandbyId, out _));
+        var duplicate = await restored.SubmitAsync("P1", "original-pass", command, raw, default);
         Assert.True(duplicate.Accepted, duplicate.ErrorMessage); Assert.Empty(duplicate.Events);
         Assert.Equal(MatchStateHasher.Hash(hidden.State), MatchStateHasher.Hash(duplicate.State));
         Assert.Equal(before, JsonSerializer.Serialize(journal.Entries, Json));
