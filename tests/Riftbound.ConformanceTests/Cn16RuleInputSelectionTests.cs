@@ -15,7 +15,7 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorGuardianProfileCatalog = "3fcf1613507883ce401c5258c7171fa0eb089d09d519af47ae0e50ecca073d83";
 
     [Fact]
-    public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
+    public async Task ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
     {
         var path = Path.Combine(Path.GetDirectoryName(OfficialCardCatalog.DefaultCatalogPath())!, "rule-input-scope.json");
         using var document = JsonDocument.Parse(File.ReadAllText(path)); var scope = document.RootElement;
@@ -45,7 +45,7 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
         Assert.Equal("9124a2230da873a127240687f4a5c8c27b978ceb6e81fe447e59e6b321de64b9", RuleInputIdentity.Current.CatalogSha256);
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1054, catalog.Cards.Count);
         foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
