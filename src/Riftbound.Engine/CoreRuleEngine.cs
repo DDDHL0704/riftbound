@@ -31138,6 +31138,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior.PowerModifierControlledUnitTags);
         }
 
+        if (behavior.PowerModifierAmountIfTargetEmpowered is { } empoweredAmount
+            && cardObjects.TryGetValue(targetObjectId, out var empoweredTarget) && empoweredTarget.IsEmpowered)
+            return empoweredAmount;
+
         return targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
             ? behavior.SecondaryPowerModifierAmount
             : behavior.PowerModifierAmount;

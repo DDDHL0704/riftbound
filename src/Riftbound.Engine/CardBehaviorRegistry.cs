@@ -292,7 +292,8 @@ public sealed record CardBehaviorDefinition(
     FlowCostSpec? AppliedFlowCost = null,
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
-    int ExtraDamagePerSameNameInControllerGraveyard = 0)
+    int ExtraDamagePerSameNameInControllerGraveyard = 0,
+    int? PowerModifierAmountIfTargetEmpowered = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -497,6 +498,9 @@ public static class CardBehaviorRegistry
             MaxTargetPower: 3, MovesTargetsToChosenLocation: true, FlowCost: new(4, 1, [RuneTrait.Purple])),
         new("VEN·032", "霜衣狼母", 3, "VEN_032_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
+        new("VEN·072", "深沉咆哮", 2, "VEN_072_CONDITIONAL_UNIT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2, CanPlayDuringSpellDuel: true,
+            PowerModifierAmountIfTargetEmpowered: 4),
         new("VEN·081", "狂袭", 4, "ONSLAUGHT_UNIT_POWER_PLUS_SIX", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 6, FlowCost: new(4, 0, [])),
         new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
