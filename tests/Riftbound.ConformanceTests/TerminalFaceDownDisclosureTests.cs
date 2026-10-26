@@ -52,6 +52,7 @@ public sealed class TerminalFaceDownDisclosureTests
         AssertPublicFaceDownCardAndHiddenZones(restoredState, ResolutionResult.BuildSnapshots(restoredState));
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(journal), ended.State, engine, default, Events(journal));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        await AssertRestoredTerminalSession(initial, ended, journal, new SurrenderCommand());
         var before = MatchStateHasher.Hash(ended.State);
         var rejected = await engine.ResolveAsync(ended.State, new("post-end", "P1", CommandTypes.PassPriority), new PassPriorityCommand(), default);
         Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
@@ -132,6 +133,38 @@ public sealed class TerminalFaceDownDisclosureTests
         FullGameEndToEndTests.AssertNoHiddenZoneLeak(ended);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(journal), state, engine, default, Events(journal));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        await AssertRestoredTerminalSession(initial, ended, journal, new PassPriorityCommand());
+    }
+
+    private static async Task AssertRestoredTerminalSession(MatchState initial, ResolutionResult ended, Journal journal, GameCommand finalCommand)
+    {
+        var state = ended.State; var commands = Commands(journal); var events = Events(journal);
+        var sequence = commands[^1].CompletedEventSequence; var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence,
+            ended.Snapshots[p], state.Tick, sequence, prompts[p]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);
+        Assert.Empty(errors);
+        var frame = new MatchRecoveryFrame(state.RoomId, state.Tick, sequence, commands, events, views, errors, state, initial, spectator)
+            { OpeningSeed = initial.Seed };
+        var cold = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+        var restored = MatchSession.Restore(cold, new CoreRuleEngine(), journal);
+        var snapshots = state.Seats.Keys.ToDictionary(p => p, restored.SnapshotFor);
+        AssertPublicFaceDownCardAndHiddenZones(state, snapshots);
+        foreach (var player in state.Seats.Keys)
+        {
+            Assert.Equal(MatchStateHasher.HashValue(ended.Snapshots[player]), MatchStateHasher.HashValue(snapshots[player]));
+            Assert.Equal(MatchStateHasher.HashValue(prompts[player]), MatchStateHasher.HashValue(restored.PromptFor(player)));
+        }
+        var prefix = JsonSerializer.Serialize(journal.Entries, Json); var last = journal.Entries[^1];
+        var duplicate = await restored.SubmitAsync(last.PlayerId, last.ClientIntentId, finalCommand, last.RawCommand, default);
+        Assert.True(duplicate.Accepted, duplicate.ErrorMessage); Assert.Empty(duplicate.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(duplicate.State));
+        Assert.Equal(MatchStateHasher.HashValue(ended.Snapshots), MatchStateHasher.HashValue(duplicate.Snapshots));
+        var late = await Assert.ThrowsAsync<MatchSessionException>(() => restored.SubmitAsync("P1", "restored-terminal-late",
+            new PassPriorityCommand(), JsonSerializer.SerializeToElement(new PassPriorityCommand(), Json), default));
+        Assert.Equal(ErrorCodes.MatchFinished, late.Code);
+        Assert.Equal(prefix, JsonSerializer.Serialize(journal.Entries, Json));
     }
 
     private static void AssertPublicFaceDownCardAndHiddenZones(MatchState state, IReadOnlyDictionary<string, SnapshotDto> snapshots)
