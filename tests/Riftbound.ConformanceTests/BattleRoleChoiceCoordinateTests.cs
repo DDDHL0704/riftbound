@@ -45,9 +45,8 @@ public sealed class BattleRoleChoiceCoordinateTests
         await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
         var request = run.State.PendingRuleChoice!.Request;
         await run.Decide(gold ? request.Options.Single(o => o.Id.StartsWith("RESOURCE:GOLD:", StringComparison.Ordinal)).Id : "RECYCLE_RUNE:RUNE");
-        await run.Decide("SPEND_POWER:CHOOSE_AMOUNT");
-        while (run.State.PendingRuleChoice is { Request: var quantity })
-            await run.Decide(quantity.Options.Single(o => o.Id.Split(':')[^2] == "0").Id);
+        await run.Decide("SPEND_POWER:0");
+        Assert.Null(run.State.PendingRuleChoice);
         Assert.Equal(previous, Markers(run.State));
         Assert.DoesNotContain(run.Frame().Events, e => e.Event.Kind == "BATTLE_ROLE_ACQUIRED");
         run.Export("existing-battle-" + gold);
@@ -113,6 +112,29 @@ public sealed class BattleRoleChoiceCoordinateTests
         await run.Act("P1", new SurrenderCommand());
         Assert.Equal(earned, Markers(run.State));
         run.Export("original-qa-birth-final");
+    }
+
+    [Fact]
+    public async Task RetainedRoleCoordinatesBindAFollowingBattlefieldSkillGrant()
+    {
+        var initial = FinitePosition(true, false);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["FIELD2"] = OfficialGarenConquestBattlefieldCountTests.Printed("FIELD2", "OGN·279/298", "P2") with { ControllerId = "P2" } } };
+        var run = new Run(initial);
+        await PaidMove(run, true);
+        AssertRoles(run.Frame(), "BATTLE_ROLES_ESTABLISHED", 4);
+        var choice = Assert.IsType<PendingCardChoiceState>(run.State.PendingCardChoice);
+        Assert.Contains("PATROL", choice.LegalObjectIds);
+        await run.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["PATROL"]));
+        await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        var grantText = Assert.Single(run.State.CardObjects["PATROL"].UntilEndOfTurnEffects,
+            text => text.StartsWith("BATTLE_LIMITED_GRANT:", StringComparison.Ordinal));
+        var grant = JsonNode.Parse(grantText["BATTLE_LIMITED_GRANT:".Length..])!;
+        var scopeText = Assert.Single(Markers(run.State), text => text.StartsWith(ScopePrefix));
+        Assert.True(JsonNode.DeepEquals(JsonNode.Parse(scopeText[ScopePrefix.Length..]), grant["scope"]));
+        Assert.Contains(run.State.CardObjects["PATROL"].UntilEndOfTurnEffects, text => text.StartsWith("COMBAT_KEYWORD:坚守2:"));
+        run.Export("paid-battlefield-skill-grant");
     }
 
     private static MatchState FinitePosition(bool gold, bool effect)
