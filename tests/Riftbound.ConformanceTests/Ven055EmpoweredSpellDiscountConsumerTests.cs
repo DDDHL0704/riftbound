@@ -173,6 +173,41 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         finally { await Save("source-return-payment-" + afterPayment, initial, game); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnExplicitQuotedPowerReductionIsRecheckedAfterTheSourceReturns(bool sourceReturns)
+    {
+        var initial = Add(Position(), "RETURN", "OGN·104/298"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            var hash = MatchStateHasher.Hash(game.State);
+            var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, Smoke()));
+            Assert.Equal(hash, MatchStateHasher.Hash(game.State));
+            var encoded = JsonSerializer.SerializeToElement(quote.Cost, Json);
+            Assert.True(encoded.TryGetProperty("spellPowerReductionChoices", out var choices));
+            var selected = Assert.Single(choices.EnumerateArray()).GetProperty("id").GetString()!;
+            Assert.Equal("SPELL_POWER_REDUCTION:blue:1", selected);
+            await Reject(game.State, "P1", Smoke() with { OptionalCosts = ["SPELL_POWER_REDUCTION:blue:2"] });
+            if (sourceReturns)
+            {
+                await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+                Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+                await Reject(game.State, "P1", Smoke() with { OptionalCosts = [selected] });
+                await game.Act("P1", Smoke()); Assert.Equal(30, game.State.RunePools["P1"].Mana);
+                Assert.Equal(3, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            }
+            else
+            {
+                await game.Act("P1", Smoke() with { OptionalCosts = [selected] });
+                Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(4, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            }
+            Assert.Equal(1, quote.Cost!.Mana); Restore(initial, game);
+            await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY", "P2")); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("explicit-choice-current-source-" + sourceReturns, initial, game); }
+    }
+
     [Fact]
     public async Task TwoActualAurasRespectTheirOwnFloorAndDoNotReduceUnitOrEmpowerCosts()
     {
