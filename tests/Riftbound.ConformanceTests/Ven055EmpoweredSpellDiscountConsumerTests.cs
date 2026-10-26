@@ -112,6 +112,23 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
         finally { await Save("no-power-pool-" + initialMana, initial, game); }
     }
 
+    [Fact]
+    public async Task GenericPowerReductionAlsoRemovesARedSpellsPowerAndIsNotLimitedToTheSourcesBlueTrait()
+    {
+        var initial = Position("UNL-007/219") with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(40, 0), ["P2"] = new(20, 20) } };
+        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER"); var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            await game.Act("P1", new PlayCardCommand("SPELL", "UNL-007/219", ["ENEMY"]));
+            Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); Restore(initial, game);
+            await game.Top(); Assert.Equal(3, game.State.CardObjects["ENEMY"].Damage);
+            Assert.DoesNotContain("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("generic-reduction-removes-red-power", initial, game); }
+    }
+
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task ActualSourceReturnChangesFutureCostsButCannotRefundAnAlreadyPaidSpell(bool afterPayment)
