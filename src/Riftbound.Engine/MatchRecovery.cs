@@ -17,6 +17,9 @@ public sealed record RecoveredCommand(
     bool Accepted,
     string? ErrorMessage)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public TypedCommandInput? TypedCommand { get; init; }
+
     [System.Text.Json.Serialization.JsonRequired]
     public RuleInputIdentity? RuleInputs { get; init; } = RuleInputIdentity.Current;
 }
@@ -742,6 +745,10 @@ public static class MatchActionLogReplayer
         RecoveredCommand recovered,
         CancellationToken cancellationToken)
     {
+        if (recovered.TypedCommand is { } input
+            && (recovered.RawCommand is not null || !input.MatchesRecordedType(recovered.CommandType)))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid typed command input");
+
         if (recovered.Accepted && recovered.CommandType == MatchSession.RoomSeatCommandType)
             return await session.ReplayRoomSeatAsync(recovered, cancellationToken).ConfigureAwait(false);
 
@@ -750,14 +757,19 @@ public static class MatchActionLogReplayer
             return await session.SeedScenarioAsync(
                     recovered.PlayerId,
                     recovered.ClientIntentId,
-                    recovered.CommandType[DevSeedScenarioPrefix.Length..],
-                    RawCommandFor(recovered),
+                    recovered.TypedCommand is { } scenarioInput
+                        ? scenarioInput.TryScenario(out var scenario) ? scenario
+                            : throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid typed scenario input")
+                        : recovered.CommandType[DevSeedScenarioPrefix.Length..],
+                    recovered.RawCommand,
                     cancellationToken)
                 .ConfigureAwait(false);
         }
 
-        var rawCommand = RawCommandFor(recovered);
-        var command = GameCommandJsonMapper.Map(rawCommand);
+        var rawCommand = recovered.RawCommand;
+        var command = rawCommand is { } raw ? GameCommandJsonMapper.Map(raw)
+            : (recovered.TypedCommand ?? TypedCommandInput.Parameterless(recovered.CommandType))?.Restore()
+                ?? throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "command execution input is missing");
         return command switch
         {
             ReadyCommand => await session.ReadyAsync(
@@ -781,17 +793,6 @@ public static class MatchActionLogReplayer
                     cancellationToken)
                 .ConfigureAwait(false)
         };
-    }
-
-    private static JsonElement RawCommandFor(RecoveredCommand recovered)
-    {
-        if (recovered.RawCommand is { } rawCommand)
-        {
-            return rawCommand.Clone();
-        }
-
-        using var document = JsonDocument.Parse($$"""{"cmdType":"{{recovered.CommandType}}"}""");
-        return document.RootElement.Clone();
     }
 
     private static bool TryReadRawCommandType(JsonElement? rawCommand, out string commandType)
@@ -1284,11 +1285,17 @@ public static partial class MatchRecoveryValidator
                 errors);
 
             if (command.RawCommand is null
-                && CommandRequiresRawPayload(normalizedCommandType))
+                && command.TypedCommand is null
+                && (CommandRequiresRawPayload(normalizedCommandType)
+                    || TypedCommandInput.Parameterless(normalizedCommandType) is null))
             {
                 errors.Add(
                     $"command {normalizedClientIntentId} raw command is required for {normalizedCommandType}");
             }
+
+            if (command.TypedCommand is { } typedInput
+                && (command.RawCommand is not null || !typedInput.MatchesRecordedType(normalizedCommandType)))
+                errors.Add($"command {normalizedClientIntentId} typed command input is invalid or conflicts with raw input");
 
             if (normalizedPlayerId.Length > 0
                 && knownRecoveredPlayerIds.Count > 0
@@ -1532,6 +1539,16 @@ public static partial class MatchRecoveryValidator
         }
 
         return normalizedValue;
+    }
+
+    internal static bool HasCanonicalRawPayload(string commandType, JsonElement raw)
+    {
+        // Validation context only; this row is never recorded or replayed.
+        var context = new RecoveredCommand("", "input", commandType, raw, 0, 0, 0, 0, false, null);
+        var errors = new List<string>();
+        ValidateRawCommandShape(context, errors);
+        ValidateRawCommandPayloadShape(context, commandType, errors);
+        return errors.Count == 0;
     }
 
     private static void ValidateRawCommandShape(RecoveredCommand command, List<string> errors)

@@ -12,6 +12,19 @@ public sealed class Ven010GraveyardNameConsumerTests
     private const string Text = "{{迅捷}}（可在你的回合或法术对决中打出。）\n对战场上的一名单位造成2点伤害。你的废牌堆中每有一张此牌的同名卡牌，此牌便造成1点额外伤害。";
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
+    [Theory]
+    [InlineData(0)] [InlineData(2)]
+    public async Task ActualTypedCastKeepsItsGraveyardDamageArgumentsAcrossJournalProjection(int copies)
+    {
+        var initial = Position(copies); var run = new Driver(initial);
+        await TypedCardJournalProjectionAssertions.Run("ven010-" + copies, initial, run, run.Commands, run.Events, Cast(), (state, events) =>
+        {
+            Assert.Equal(38, state.RunePools["P1"].Mana);
+            var damage = Assert.Single(events, e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "SPELL"));
+            Assert.Equal(2 + copies, damage.Event.Payload["damage"]);
+        });
+    }
+
     [Fact]
     public async Task ExactCn010SourceAndItsOrdinarySwiftDamageRouteAreRegistered()
     {
@@ -279,7 +292,7 @@ public sealed class Ven010GraveyardNameConsumerTests
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
         internal async Task Act(string player, GameCommand command)
         {

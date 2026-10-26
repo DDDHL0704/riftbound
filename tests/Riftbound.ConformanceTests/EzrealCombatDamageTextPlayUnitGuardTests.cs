@@ -419,7 +419,7 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -439,7 +439,7 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -452,7 +452,7 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -470,12 +470,12 @@ public sealed class EzrealCombatDamageTextPlayUnitGuardTests
         if (assertPropertyOrder)
         {
             Assert.Equal(
-                ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
+                ["cmdType", "sourceObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
                 rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
         }
 
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(EzrealObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(EzrealObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(EzrealPrimaryCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
         Assert.Empty(rawCommand.GetProperty("optionalCosts").EnumerateArray());

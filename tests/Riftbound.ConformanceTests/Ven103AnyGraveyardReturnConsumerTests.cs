@@ -12,6 +12,21 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActualTypedCastKeepsTheSelectedGraveyardOwnersAcrossJournalProjection(bool mixed)
+    {
+        var initial = Position(); var run = new Driver(initial); string[] targets = mixed ? ["OWN", "THEIRS"] : ["OWN"];
+        await TypedCardJournalProjectionAssertions.Run("ven103-" + mixed, initial, run, run.Commands, run.Events,
+            new PlayCardCommand("SPELL", No, targets), (state, _) =>
+            {
+                Assert.Equal(17, state.RunePools["P1"].Mana);
+                Assert.Contains("OWN", state.PlayerZones["P1"].Hand);
+                Assert.Equal(mixed, state.PlayerZones["P2"].Hand.Contains("THEIRS"));
+                Assert.Equal(!mixed, state.PlayerZones["P2"].Graveyard.Contains("THEIRS"));
+            });
+    }
+
+    [Theory]
     [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)] [InlineData(4)] [InlineData(5)] [InlineData(6)]
     public async Task ARealCastReturnsZeroOwnEnemyOrMixedGraveyardUnitsToTheirOwners(int selection)
     {
@@ -495,7 +510,7 @@ public sealed class Ven103AnyGraveyardReturnConsumerTests
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
         internal async Task Act(string player, GameCommand command)
         {

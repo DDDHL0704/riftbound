@@ -12,6 +12,20 @@ public sealed class Ven008OptionalDiscardConsumerTests
     private const string Text = "{{迅捷}}（可在你的回合或法术对决中打出。）\n你可以选择弃置一张手牌，作为打出此牌的额外费用。\n对战场上的一名单位造成3点伤害。如果你支付了该额外费用，则改为对其造成5点伤害。";
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActualTypedCastKeepsItsOriginalOptionalDiscardAcrossJournalProjection(bool discard)
+    {
+        var initial = Position(); var run = new Driver(initial);
+        await TypedCardJournalProjectionAssertions.Run("ven008-" + discard, initial, run, run.Commands, run.Events, Cast(discard), (state, events) =>
+        {
+            Assert.Equal(37, state.RunePools["P1"].Mana);
+            Assert.Equal(discard, state.PlayerZones["P1"].Graveyard.Contains("FODDER"));
+            var damage = Assert.Single(events, e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "SPELL"));
+            Assert.Equal(discard ? 5 : 3, damage.Event.Payload["damage"]);
+        });
+    }
+
     [Fact]
     public async Task ExactCn008SourceAndItsOrdinarySwiftDamageRouteAreRegistered()
     {
@@ -349,7 +363,7 @@ public sealed class Ven008OptionalDiscardConsumerTests
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
         internal async Task Act(string player, GameCommand command)
         {

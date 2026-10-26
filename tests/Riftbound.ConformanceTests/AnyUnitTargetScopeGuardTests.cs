@@ -352,7 +352,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -372,7 +372,7 @@ public sealed class AnyUnitTargetScopeGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -385,7 +385,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -400,7 +400,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         ActionPromptDto prompt)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal("P1-UNIT-FIRST-MATE", rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal("P1-UNIT-FIRST-MATE", rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal("OGN·132/298", rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal(
             ["P1-BASE-UNIT"],

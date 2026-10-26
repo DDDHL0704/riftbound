@@ -369,7 +369,7 @@ public sealed class ZenithBladeStunGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -389,7 +389,7 @@ public sealed class ZenithBladeStunGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -402,7 +402,7 @@ public sealed class ZenithBladeStunGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -420,7 +420,7 @@ public sealed class ZenithBladeStunGuardTests
         var expectedPropertyNames = new[]
         {
             "cmdType",
-            "cardObjectId",
+            "sourceObjectId",
             "cardNo",
             "targetObjectIds",
             "optionalCosts",
@@ -440,7 +440,7 @@ public sealed class ZenithBladeStunGuardTests
         }
 
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(ZenithBladeObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(ZenithBladeObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(ZenithBladeCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Equal(
             [ZenithBladeTargetObjectId],
