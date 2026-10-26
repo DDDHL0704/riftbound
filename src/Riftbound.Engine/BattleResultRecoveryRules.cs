@@ -17,7 +17,7 @@ internal static class BattleResultRecoveryRules
     internal static bool ValidContinuation(MatchState state)
     {
         if (state.PendingBattleResult is not { } c) return true;
-        if (c.Stage is not ("RESULT_TRIGGERS" or "CONTROL_TRIGGERS") || c.ResultTick <= 0 || c.ResultTick > state.Tick
+        if (c.Stage is not ("CLEANUP_TRIGGERS" or "RESULT_TRIGGERS" or "CONTROL_TRIGGERS") || c.ResultTick <= 0 || c.ResultTick > state.Tick
             || c.AssignedOverkillDamage < 0 || string.IsNullOrWhiteSpace(c.BattlefieldId)
             || !state.Seats.ContainsKey(c.AttackingPlayerId) || c.DefendingPlayerId is null
             || !state.Seats.ContainsKey(c.DefendingPlayerId) || c.AttackingPlayerId == c.DefendingPlayerId
@@ -30,12 +30,13 @@ internal static class BattleResultRecoveryRules
             && c.SurvivingAttackerObjectIds.All(c.AttackerObjectIds.Contains)
             && c.SurvivingDefenderObjectIds.All(c.DefenderObjectIds.Contains)
             && c.DestroyedObjectIds.All(all.Contains)
-            && (c.WinnerPlayerId is null
-                ? c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
+            && (c.Stage == "CLEANUP_TRIGGERS" ? c.WinnerPlayerId is null : c.WinnerPlayerId is null
+                ? c.AttackerRecalledByBattleCleanup || c.SurvivingAttackerObjectIds.Count == 0 && c.SurvivingDefenderObjectIds.Count == 0
                     || c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count > 0
                 : c.WinnerPlayerId == c.AttackingPlayerId
                 ? c.SurvivingAttackerObjectIds.Count > 0 && c.SurvivingDefenderObjectIds.Count == 0
                 : c.SurvivingDefenderObjectIds.Count > 0 && c.SurvivingAttackerObjectIds.Count == 0)
+            && (!c.AttackerRecalledByBattleCleanup || c.WinnerPlayerId is null)
             && c.PublicObjectBindings.All(b => b is not null && b.Generation >= 0 && all.Contains(b.ObjectId));
     }
 
@@ -80,13 +81,14 @@ internal static class BattleResultRecoveryRules
     internal static IReadOnlyList<string> ValidateOriginalTriggers(MatchRecoveryFrame frame)
     {
         if (frame.AuthoritativeState is not { } state) return [];
-        var errors = new List<string>();
+        var errors = ValidateClosedCleanupRecalls(state, frame.Commands, frame.Events).ToList();
         if (!ValidContinuation(state)) return ["invalid captured battle result continuation"];
         if (state.PendingBattleResult is { } continuation)
         {
+            var cleanup = continuation.Stage == "CLEANUP_TRIGGERS";
             var origins = frame.Events.Where(e => e.Tick == continuation.ResultTick
-                && e.Event.Kind == "BATTLE_RESULT_DETERMINED"
-                && Same(e.Event.Payload.GetValueOrDefault("continuation"), continuation with { Stage = "RESULT_TRIGGERS" })).ToArray();
+                && e.Event.Kind == (cleanup ? "BATTLE_CLEANUP_COMPLETED" : "BATTLE_RESULT_DETERMINED")
+                && Same(e.Event.Payload.GetValueOrDefault("continuation"), continuation with { Stage = cleanup ? "CLEANUP_TRIGGERS" : "RESULT_TRIGGERS" })).ToArray();
             if (origins.Length != 1 || !HasOriginalCommand(origins.SingleOrDefault()))
                 errors.Add("battle result continuation differs from its original accepted result event");
         }
@@ -118,8 +120,60 @@ internal static class BattleResultRecoveryRules
         }
     }
 
+    internal static IReadOnlyList<string> ValidateClosedCleanupRecalls(MatchState state,
+        IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events)
+    {
+        var errors = new List<string>();
+        foreach (var h in state.BattleResolutions ?? [])
+        {
+            if (h?.Reason != CoreRuleEngine.CleanupRecallNoResultReason) continue;
+            var closes = events.Where(e => e.Event.Kind == "BATTLE_CLOSED" && e.Tick == h.Tick
+                && Text(e.Event, "battlefieldId") == h.BattlefieldId).ToArray();
+            var close = closes.Length == 1 ? closes[0] : null;
+            var origin = close is null ? default : Latest("BATTLE_RESULT_DETERMINED", close.Sequence, h.BattlefieldId);
+            var cleanup = origin.Event is null ? default : Latest("BATTLE_CLEANUP_COMPLETED", origin.Event.Sequence, h.BattlefieldId);
+            var c = origin.Context; var start = cleanup.Context;
+            var previousClose = cleanup.Event is null ? 0 : events.Where(e => e.Event.Kind == "BATTLE_CLOSED"
+                && e.Sequence < cleanup.Event.Sequence && Text(e.Event, "battlefieldId") == h.BattlefieldId)
+                .Select(e => e.Sequence).DefaultIfEmpty(0).Max();
+            var recalled = start is not null && start.AttackerObjectIds is not null && cleanup.Event is not null
+                && events.Any(e => e.Sequence > previousClose && e.Sequence < cleanup.Event.Sequence
+                    && e.Event.Kind == "UNIT_RECALLED_TO_BASE" && Text(e.Event, "battlefieldId") == h.BattlefieldId
+                    && Text(e.Event, "reason") == CoreRuleEngine.CleanupRecallNoResultReason
+                    && start.AttackerObjectIds.Contains(Text(e.Event, "targetObjectId") ?? "") && Accepted(e));
+            if (h.Kind != "NO_RESULT" || h.WinnerPlayerId is not null || !Accepted(close) || !Accepted(origin.Event)
+                || !Accepted(cleanup.Event) || !recalled || start is null || !start.AttackerRecalledByBattleCleanup
+                || start.Stage != "CLEANUP_TRIGGERS" || start.AttackingPlayerId != h.AttackingPlayerId
+                || start.DefendingPlayerId != h.DefendingPlayerId || c is null || !c.AttackerRecalledByBattleCleanup
+                || c.Stage != "RESULT_TRIGGERS" || c.WinnerPlayerId is not null || c.ResultTick != origin.Event!.Tick
+                || c.ResultTick > h.Tick || c.AttackingPlayerId != h.AttackingPlayerId || c.DefendingPlayerId != h.DefendingPlayerId
+                || !Same(c.AttackerObjectIds, h.AttackerObjectIds) || !Same(c.DefenderObjectIds, h.DefenderObjectIds)
+                || !Same(c.SurvivingAttackerObjectIds, h.SurvivingAttackerObjectIds)
+                || !Same(c.SurvivingDefenderObjectIds, h.SurvivingDefenderObjectIds)
+                || !Same(c.DestroyedObjectIds, h.DestroyedObjectIds) || !Same(c.PublicObjectBindings, h.PublicObjectBindings))
+                errors.Add("closed cleanup-recall history differs from its original accepted result");
+        }
+        return errors;
+
+        bool Accepted(RecoveredEvent? e) => e is not null && commands.Count(c => c.Accepted
+            && c.CompletedTick == e.Tick && c.StartedEventSequence < e.Sequence && e.Sequence <= c.CompletedEventSequence) == 1;
+        (RecoveredEvent? Event, BattleResultContinuation? Context) Latest(string kind, long before, string field)
+            => events.Where(e => e.Event.Kind == kind && e.Sequence < before)
+                .Select(e => (Event: (RecoveredEvent?)e, Context: Read(e)))
+                .Where(x => x.Context?.BattlefieldId == field).OrderByDescending(x => x.Event!.Sequence).FirstOrDefault();
+        BattleResultContinuation? Read(RecoveredEvent e)
+        {
+            try {
+                var value = e.Event.Payload.GetValueOrDefault("continuation");
+                return value as BattleResultContinuation ?? JsonSerializer.SerializeToElement(value, Json).Deserialize<BattleResultContinuation>(Json);
+            }
+            catch (Exception error) when (error is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
+            { return null; }
+        }
+    }
+
     private static bool Same(object? a, object? b) => a is not null && b is not null
         && JsonNode.DeepEquals(JsonSerializer.SerializeToNode(a, a.GetType(), Json), JsonSerializer.SerializeToNode(b, b.GetType(), Json));
-    private static string? Text(GameEvent e, string key) => e.Payload.GetValueOrDefault(key) switch
+    private static string? Text(GameEvent e, string key) => e.Payload?.GetValueOrDefault(key) switch
     { string value => value, JsonElement { ValueKind: JsonValueKind.String } value => value.GetString(), _ => null };
 }

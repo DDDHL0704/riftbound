@@ -172,7 +172,7 @@ public sealed class OfficialInsightAndSpellLockTests
     }
     internal static async Task<ResolutionResult> ResolveTop(MatchState state)
     {var first=await Act(state,state.PriorityPlayerId!,new PassPriorityCommand());return await Act(first.State,first.State.PriorityPlayerId!,new PassPriorityCommand());}
-    internal static IReadOnlyList<string> Errors(MatchState state)=>MatchRecoveryValidator.Validate(state.RoomId,0,[],[],new Dictionary<string,RecoveredPlayerView>(),state,state.Tick);
+    internal static IReadOnlyList<string> Errors(MatchState state)=>MatchRecoveryValidator.ValidateComponentStateAndViews(state);
     internal static MatchState Restore(MatchState state)
     {var restored=JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state))!;Assert.Equal(MatchStateHasher.Hash(state),MatchStateHasher.Hash(restored));Assert.Empty(Errors(restored));return restored;}
 }

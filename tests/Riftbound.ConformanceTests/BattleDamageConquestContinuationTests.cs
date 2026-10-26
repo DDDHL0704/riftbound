@@ -63,6 +63,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
         var cards = initial.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         cards[BulwarkDefenderObjectId] = cards[BulwarkDefenderObjectId] with { Power = 1 };
+        cards[BattlefieldObjectId] = cards[BattlefieldObjectId] with { ControllerId = "P2" };
         initial = initial with { CardObjects = cards };
         var attackers = reverseDeclaration ? new[] { SecondAttackerObjectId, AttackerObjectId }
             : new[] { AttackerObjectId, SecondAttackerObjectId };
@@ -93,6 +94,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var initial = SingleDefenderWireState(true) with { Tick = 0,
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
         var cards = initial.CardObjects.ToDictionary(e => e.Key, e => e.Value);
+        cards[BattlefieldObjectId] = cards[BattlefieldObjectId] with { ControllerId = "P2" };
         var vayne = vayneFirst ? AttackerObjectId : SecondAttackerObjectId;
         var other = vayneFirst ? SecondAttackerObjectId : AttackerObjectId;
         cards[vayne] = cards[vayne] with { CardNo = "OGN·035/298", Power = 2, Tags = [CardObjectTags.UnitCard, "强攻3"] };

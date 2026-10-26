@@ -57,7 +57,7 @@ public sealed class RuneRecycleDestinationTests
         if (runeCount == 2) { cards["RUNE2"] = cards["RUNE"] with { ObjectId = "RUNE2" }; locations["RUNE2"] = new("P1", "BASE"); }
         cards["BOTTOM"] = new("BOTTOM", cardNo: "UNL-R01", tags: [CardObjectTags.RuneCard, "COLOR:blue"], ownerId: "P1", controllerId: "P1");
         locations["BOTTOM"] = new("P1", "RUNE_DECK");
-        cards["THUNDER"] = new("THUNDER", cardNo: "OGN·287/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P1");
+        cards["THUNDER"] = new("THUNDER", cardNo: "OGN·287/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P2");
         locations["THUNDER"] = new("P1", "BATTLEFIELD");
         cards["ATTACKER"] = new("ATTACKER", cardNo: "SFD·125/221", power: 3, tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1");
         locations["ATTACKER"] = new("P1", "BATTLEFIELD", BattlefieldObjectId: "THUNDER");

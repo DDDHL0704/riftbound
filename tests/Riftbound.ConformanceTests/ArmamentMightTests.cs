@@ -38,7 +38,7 @@ public sealed class ArmamentMightTests
         var snapshots=ResolutionResult.BuildSnapshots(s);var prompts=ResolutionResult.BuildPrompts(s);
         var views=s.Seats.Keys.ToDictionary(id=>id,id=>new RecoveredPlayerView(id,s.Tick,0,snapshots[id],s.Tick,0,prompts[id]));
         var spectator=MatchReplayRedactor.BuildSpectatorFrame(s.RoomId,s.Tick,0,[],s);
-        var errors=MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator);
+        var errors=MatchRecoveryValidator.ValidateComponentStateAndViews(s,views,spectator);
         Assert.True(errors.Count==0,string.Join("; ",errors));
     }
     [Fact]
@@ -60,7 +60,7 @@ public sealed class ArmamentMightTests
             var effects=Assert.IsAssignableFrom<IEnumerable<Dictionary<string,object?>>>(snapshot.Timing["continuousEffects"]);
             var aura=effects.Single(e=>Equals(e.GetValueOrDefault("effectKind"),StaticAuraKinds.SourceGraveyardCountPower));var original=aura[key];
             aura[key]=key is "powerDelta" or "effectivePower"?99:"FORGED";
-            Assert.NotEmpty(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator));aura[key]=original;
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(s,views,spectator));aura[key]=original;
         }
     }
     [Theory]
@@ -183,7 +183,7 @@ public sealed class ArmamentMightTests
         foreach(var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var aura=Assert.Single(Assert.IsAssignableFrom<IEnumerable<Dictionary<string,object?>>>(snapshot.Timing["continuousEffects"]));var original=aura[key];
             aura[key]=key is "powerDelta" or "effectivePower"?99:"FORGED";
-            Assert.NotEmpty(MatchRecoveryValidator.Validate(s.RoomId,0,[],[],views,s,s.Tick,spectator));aura[key]=original;
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(s,views,spectator));aura[key]=original;
         }
     }
 }

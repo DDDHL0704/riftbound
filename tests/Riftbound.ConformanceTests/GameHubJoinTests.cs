@@ -9015,7 +9015,28 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-participant", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = EventsFor(battleClients).ToList();
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        foreach (var (player, assignments) in new (string, CombatDamageAssignmentDto[])[] {
+            ("P1", [new("P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", 4),
+                new("P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", 2),
+                new("P1-BATTLE-MULTI-PARTICIPANT-YI", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", 3)]),
+            ("P2", [new("P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", 4),
+                new("P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", "P1-BATTLE-MULTI-PARTICIPANT-GAREN", 2),
+                new("P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", "P1-BATTLE-MULTI-PARTICIPANT-YI", 1)]) }) {
+            var assignmentPrompt = session.PromptFor(player);
+            Assert.Contains(CommandTypes.AssignCombatDamage, assignmentPrompt.Actions);
+            var assignmentMetadata = JsonSerializer.SerializeToElement(assignmentPrompt.View!.Metadata);
+            battleClients = new RecordingHubClients();
+            await CreateHub(battleClients, new RecordingGroupManager(), player == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: player)
+                .SubmitIntent(roomId, player, "p7-9-multi-assign-" + player, JsonSerializer.SerializeToElement(new {
+                    cmdType = "ASSIGN_COMBAT_DAMAGE", battleId = assignmentMetadata.GetProperty("battleId").GetString(),
+                    battlefieldId = "BATTLEFIELD:P1-MAIN", assignments,
+                    promptId = assignmentPrompt.PromptId, snapshotTick = assignmentPrompt.SnapshotTick },
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            Assert.Empty(battleClients.CallerClient.Errors); battleEvents.AddRange(EventsFor(battleClients));
+        }
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-GAREN", StringComparison.Ordinal)
@@ -9035,7 +9056,9 @@ public sealed partial class GameHubJoinTests
         var battleSnapshot = SnapshotFor(battleClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
-        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Contains("BATTLEFIELD:P1-MAIN", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"])
+            .Where(id => id != "BATTLEFIELD:P1-MAIN").ToArray());
         Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-GAREN"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
         var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
@@ -9654,9 +9677,47 @@ public sealed partial class GameHubJoinTests
             .SeedScenario(roomId, "P1", "battlefield-defender-steadfast", "seed-p7-9-battlefield-defender-steadfast");
 
         var p1Prompt = PromptFor(seedClients, "P1");
-        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
-        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-POSITION", StringComparison.Ordinal));
-        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", StringComparison.Ordinal));
+        var moveCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.MoveUnit);
+        Assert.Contains(moveCandidate.Destinations ?? [], choice => choice.Id == "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION");
+        Assert.Contains(moveCandidate.Sources ?? [], choice => choice.Id == "P1-BATTLEFIELD-FORTIFIED-ATTACKER");
+        var movedClients = new RecordingHubClients();
+        await CreateHub(movedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
+            .SubmitIntent(roomId, "P1", "fortified-role", JsonSerializer.SerializeToElement(new {
+                cmdType = "MOVE_UNIT", sourceObjectId = "P1-BATTLEFIELD-FORTIFIED-ATTACKER", origin = "BASE",
+                destination = "BATTLEFIELD:P2-BATTLEFIELD-FORTIFIED-POSITION", optionalCosts = Array.Empty<string>(),
+                promptId = p1Prompt.PromptId, snapshotTick = p1Prompt.SnapshotTick }));
+        Assert.Empty(movedClients.CallerClient.Errors);
+        var preparationEvents = EventsFor(movedClients).ToList();
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        var choicePrompt = session.PromptFor("P2");
+        var choice = Assert.Single(choicePrompt.Candidates ?? [], c => c.Action == CommandTypes.ChooseCards);
+        Assert.Equal(1, choice.Metadata!["requiredCount"]);
+        Assert.Contains("P2-BATTLEFIELD-FORTIFIED-DEFENDER", Assert.IsAssignableFrom<IReadOnlyList<string>>(choice.Metadata["legalObjectIds"]));
+        var selectedClients = new RecordingHubClients();
+        await CreateHub(selectedClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
+            .SubmitIntent(roomId, "P2", "fortified-choice", JsonSerializer.SerializeToElement(new {
+                cmdType = "CHOOSE_CARDS", choiceId = choice.Metadata["choiceId"], choiceWindow = choice.Metadata["choiceWindow"],
+                chosenObjectIds = new[] { "P2-BATTLEFIELD-FORTIFIED-DEFENDER" },
+                promptId = choicePrompt.PromptId, snapshotTick = choicePrompt.SnapshotTick }));
+        Assert.Empty(selectedClients.CallerClient.Errors);
+        preparationEvents.AddRange(EventsFor(selectedClients));
+        Assert.DoesNotContain(preparationEvents, e => e.Kind is "BATTLEFIELD_TRIGGER_RESOLVED" or "DAMAGE_APPLIED");
+        for (var step = 0; !session.PromptFor("P1").Actions.Contains(CommandTypes.DeclareBattle); step++) {
+            Assert.InRange(step, 0, 7);
+            var passPrompt = new[] { session.PromptFor("P1"), session.PromptFor("P2") }.Single(p => p.Actionable
+                && (p.Actions.Contains(CommandTypes.PassPriority) || p.Actions.Contains(CommandTypes.PassFocus)));
+            var passClients = new RecordingHubClients();
+            await CreateHub(passClients, new RecordingGroupManager(), passPrompt.PlayerId == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: passPrompt.PlayerId)
+                .SubmitIntent(roomId, passPrompt.PlayerId, "fortified-pass-" + step, JsonSerializer.SerializeToElement(new {
+                    cmdType = passPrompt.Actions.Contains(CommandTypes.PassPriority) ? "PASS_PRIORITY" : "PASS_FOCUS",
+                    promptId = passPrompt.PromptId, snapshotTick = passPrompt.SnapshotTick }));
+            Assert.Empty(passClients.CallerClient.Errors);
+            preparationEvents.AddRange(EventsFor(passClients));
+        }
+        var battleCandidate = Assert.Single(session.PromptFor("P1").Candidates ?? [], c => c.Action == CommandTypes.DeclareBattle);
+        Assert.Contains(battleCandidate.Destinations ?? [], c => c.Id == "P2-BATTLEFIELD-FORTIFIED-POSITION");
+        Assert.Contains(battleCandidate.Targets ?? [], c => c.Id == "P2-BATTLEFIELD-FORTIFIED-DEFENDER");
 
         var invalidTargetClients = new RecordingHubClients();
         var invalidTargetBattle = JsonDocument.Parse("""
@@ -9675,7 +9736,7 @@ public sealed partial class GameHubJoinTests
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
         var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
         Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
-        Assert.Equal("该战场效果需要且只能选择 1 个防守单位。", invalidTargetPayload.Message);
+        Assert.Equal("只有需要选择战场效果目标时才能提交战场目标。", invalidTargetPayload.Message);
         Assert.DoesNotContain("Fortified Position", invalidTargetPayload.Message, StringComparison.Ordinal);
         Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
 
@@ -9686,7 +9747,6 @@ public sealed partial class GameHubJoinTests
               "battlefieldId": "P2-BATTLEFIELD-FORTIFIED-POSITION",
               "attackerObjectIds": ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
               "defenderObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
-              "battlefieldTargetObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
@@ -9694,7 +9754,7 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = preparationEvents.Concat(EventsFor(battleClients)).ToArray();
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO", StringComparison.Ordinal)
