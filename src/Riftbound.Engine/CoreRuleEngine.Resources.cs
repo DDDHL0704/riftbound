@@ -21,9 +21,11 @@ public sealed partial class CoreRuleEngine
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityEffectKind, cards[sourceId].CardNo, [targetId]);
         var options = DestructionOptions(state, zones, cards, pools, targetId, player, cause, null,
             state.ObjectLocations, false, out var optionalAvailable, new HashSet<string>(StringComparer.Ordinal));
-        // A gear replacement may cause a nested destruction and decision. This
-        // read-only check cannot prove that route impossible, so retain it.
-        if (options.Any(o => o.Kind is "GEAR" or "ATTACHED_GEAR")) return true;
+        // DestructionOptions exposes paid replacements only for units. A pure
+        // equipment's nested recall/banish choices cannot release power; keep
+        // mixed unit/equipment destruction routes conservative.
+        if (options.Any(o => (o.Kind is "GEAR" or "ATTACHED_GEAR")
+            && cards[o.Source].Tags.Contains(CardObjectTags.UnitCard))) return true;
 
         // Choosing a replacement is not itself free capacity. Sett can spend
         // one existing power; a recycled-rune payment has no net power debit.
