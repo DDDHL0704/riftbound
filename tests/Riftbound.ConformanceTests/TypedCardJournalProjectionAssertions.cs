@@ -70,8 +70,11 @@ internal static class TypedCardJournalProjectionAssertions
         missingRows[0] = missingRows[0] with { TypedCommand = null };
         var missing = terminal with { Commands = missingRows };
         var missingErrors = Validate(missing); Assert.NotEmpty(missingErrors);
-        var restore = Assert.Throws<MatchSessionException>(() => MatchSession.Restore(missing, new CoreRuleEngine(), tap));
+        var store = new RawEnvelopeFrameStore(missing);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), tap, store);
+        var restore = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(state.RoomId, default));
         Assert.Equal(ErrorCodes.RecoveryInconsistent, restore.Code);
+        Assert.Equal(1, store.Loads);
         var missingReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, missingRows, state,
             new CoreRuleEngine(), default, terminal.Events);
         Assert.False(missingReplay.IsMatch); Assert.NotEmpty(missingReplay.Errors);
