@@ -467,6 +467,8 @@ public static class CardBehaviorRegistry
             DrawCount: 1, FlowCost: new(2, 0, [])),
         new("VEN·093", "均衡渡命人", 4, "VEN_093_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·007", "拳拳魄罗", 2, "VEN_007_REQUIRED_DISCARD_EMPOWER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "魄罗"),
         new("VEN·122", "烈阳之鹰", 3, "VEN_122_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "鸟类"),
         new("VEN·008", "无情打击", 3, "VEN_008_OPTIONAL_DISCARD_DAMAGE", 3, 1,

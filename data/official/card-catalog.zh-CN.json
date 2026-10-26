@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1079,
+  "total": 1080,
   "cards": [
     {
       "id": 31005,
@@ -44996,6 +44996,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37692,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·007",
+      "cardName": "拳拳魄罗",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "魄罗",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化}} — 弃置一张手牌（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1。",
+      "flavorText": "绒毛软，拳头硬。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/080b3d87da34440baf324704e3504979.png",
+      "backImage": "",
+      "listSort": 1994,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46210,6 +46258,33 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; resource Empower, conditional Might and Roam reuse existing shared flow. No whole-card certification or alternate-printing inheritance."
+    },
+    {
+      "cardNo": "VEN·007",
+      "sourceId": 37692,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "拳拳魄罗",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T10:07:27.261821+00:00",
+      "sourceRecordSha256": "2b18cc3713e86bcadba9e752aa8d9a6e44c168c9b80f3056570369930037d650",
+      "sourceResponseSha256": "df2f83b30de87a6b57334bf5384854c1003d31923c389e0b3e8f8f96f62ad312",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·007/166 SC",
+      "frontImageSha256": "74cde59b7a8e65efd2451c3de04cb26d03d1ec03ef74325ed6ed0a3526ea3bf9",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing; required discard cost and conditional Might consumer under shared-payment review. Registration alone does not make the required cost supported or certify the whole card."
     }
   ]
 }
