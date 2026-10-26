@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1078,
+  "total": 1079,
   "cards": [
     {
       "id": 31005,
@@ -44948,6 +44948,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37764,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·070",
+      "cardName": "残暴猎手",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "她带回的战利品，往往……很难辨认。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/dd46f8de81604175ba4946064058db15.png",
+      "backImage": "",
+      "listSort": 1922,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46135,6 +46183,33 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; rune discount, conditional Ward and Steadfast reuse shared Empower flow. No whole-card certification or promo inheritance."
+    },
+    {
+      "cardNo": "VEN·070",
+      "sourceId": 37764,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "残暴猎手",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T09:48:08+00:00",
+      "sourceRecordSha256": "45babf793cb76ae4ed3487b1719b2e426ccc84c6c4f2d4e30d19458a095aa801",
+      "sourceResponseSha256": "558398ca637a14cd72c298b26c7d64d6505b50e2a1479d073e085f16cd88a936",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·070/166 SC",
+      "frontImageSha256": "7fc7d7c07018c041f56ddd6b76c3ad6a91af4b13069fb68d90c4e5e661084b86",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing; resource Empower, conditional Might and Roam reuse existing shared flow. No whole-card certification or alternate-printing inheritance."
     }
   ]
 }

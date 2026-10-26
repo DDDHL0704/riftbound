@@ -500,6 +500,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
         new("VEN·050", "凶暴的岩熊", 4, "VEN_050_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·070", "残暴猎手", 3, "VEN_070_EMPOWER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·072", "深沉咆哮", 2, "VEN_072_CONDITIONAL_UNIT_POWER", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2, CanPlayDuringSpellDuel: true,
             PowerModifierAmountIfTargetEmpowered: 4),

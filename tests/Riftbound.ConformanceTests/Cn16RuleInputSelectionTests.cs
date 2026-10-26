@@ -21,6 +21,8 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorGuardianCatalog = "db1bd394788127ba21b219ec475800fcb996f8098305081bcbe96019aaab0ede";
     private const string PriorVen050PreparationCatalog = "bac9b77371291d710a0b9aa9b210ba9c551c5a4e1a7bf7ce54951ea929dfe3e7";
 
+    private const string PriorVen050GuardianCatalog = "5a92a98ebbadf009f87d6b232bec316a7b7453c3bf6f50bf659c0a483462efb3";
+
     [Fact]
     public async Task ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
     {
@@ -44,18 +46,18 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Retain all 1077 complete rows and the checked Guardian Angel profile;
-        // append only the reviewed CN37741 / VEN050 printing.
+        // Retain all 1078 complete rows and the checked Guardian Angel profile;
+        // append only the reviewed CN37764 / VEN070 printing.
         // Registration and input identity do not certify all card semantics.
         Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All, a => a.ReplacesHostDestruction).CardNo);
         var guardian = Assert.IsType<OfficialArmamentDefinition>(OfficialArmamentCatalog.Find("SFD·051/221"));
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
-        Assert.Equal("5a92a98ebbadf009f87d6b232bec316a7b7453c3bf6f50bf659c0a483462efb3", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("883984762a440fca9f803ac247b1c89245df175f09140061dd6023f20c41d88f", RuleInputIdentity.Current.CatalogSha256);
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1078, catalog.Cards.Count);
-        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050" })
+        Assert.Equal(1079, catalog.Cards.Count);
+        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
     }
 
@@ -82,7 +84,7 @@ public sealed class Cn16RuleInputSelectionTests
         foreach (var catalog in new[] {
             "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
             PriorVenFlowCatalog, Prior1074Catalog, Prior1076Catalog, PriorSp6OnlyCatalog,
-            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog,
+            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog, PriorVen050GuardianCatalog,
             "6b15cda26c2f69587c9c14331a5fa30d48fd607188b237be47bb3351db734524",
             "88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc" })
         {

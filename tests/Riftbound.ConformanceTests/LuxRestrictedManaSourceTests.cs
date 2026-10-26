@@ -35,7 +35,7 @@ public sealed class LuxRestrictedManaSourceTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var priorCards = catalog.Cards.Where(card => card.CardNo != "VEN·SP6").ToArray();
         Assert.Equal(1077, priorCards.Length);
-        Assert.Equal(1078, catalog.Cards.Count);
+        Assert.Equal(1079, catalog.Cards.Count);
         var priorUnits = FunctionalUnitBuilder.Build(priorCards);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         Assert.Equal(858, priorUnits.Count);
