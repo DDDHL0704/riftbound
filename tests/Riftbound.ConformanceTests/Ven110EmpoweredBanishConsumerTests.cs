@@ -322,6 +322,55 @@ public sealed class Ven110EmpoweredBanishConsumerTests
         finally { await Save("external-wild-claw-empower-" + create, initial, game); }
     }
 
+    [Theory]
+    [InlineData("PAY")] [InlineData("DECLINE")] [InlineData("RECOVER")]
+    public async Task AnActuallyPlayedWardTargetUsesRecycledPowerWithoutRefundingTheEmpowerSpell(string branch)
+    {
+        var initial = Add(Position(), "WARDED", "OGN·013/298", "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        for (var i = 0; i < 6; i++) initial = Add(initial, "WARD-RUNE-" + i, "UNL-R03", "P1", "BASE");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", [], Destination: "BATTLEFIELD:OTHER"));
+            Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
+            Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["WARDED"].Zone);
+            await game.Act("P2", new EndTurnCommand());
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            for (var i = 0; i < 6; i++) await game.Act("P1", new TapRuneCommand("WARD-RUNE-" + i));
+            Assert.Equal(6, game.State.RunePools["P1"].Mana);
+            if (branch != "RECOVER") await game.Act("P1", new RecycleRuneCommand("WARD-RUNE-0"));
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal(new[] { "WARDED" }, choice.LegalObjectIds);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["WARDED"]));
+            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+            Assert.Equal("TRIGGER_TARGET_COST", payment.PaymentWindow); Assert.Equal(1, payment.PowerCost); Assert.Null(game.State.PriorityPlayerId);
+            Assert.Equal(1, game.State.RunePools["P1"].Mana); Restore(initial, game);
+            if (branch == "RECOVER")
+            {
+                Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+                var raw = JsonSerializer.SerializeToNode(new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]), Json)!.AsObject();
+                raw["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; raw["snapshotTick"] = game.State.Tick;
+                await game.ActRetained(new("P1", "ven110-unfunded-ward", JsonSerializer.SerializeToElement(raw, Json)), false);
+                Assert.Equal(payment.PaymentId, game.State.PendingPayment!.PaymentId);
+                await game.Act("P1", new RecycleRuneCommand("WARD-RUNE-0"));
+                Assert.Equal(1, game.State.RunePools["P1"].TotalPower); Restore(initial, game);
+            }
+            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [branch == "DECLINE" ? "DECLINE" : "PAY"]));
+            Assert.Equal(branch == "DECLINE" ? 1 : 0, game.State.RunePools["P1"].TotalPower);
+            Assert.Null(game.State.PendingPayment);
+            if (branch == "DECLINE")
+            { Assert.Empty(game.State.StackItems); Assert.DoesNotContain("WARDED", game.State.PlayerZones["P2"].Banished); }
+            else
+            { Assert.DoesNotContain("WARDED", game.State.PlayerZones["P2"].Banished); await game.Top(); Assert.Contains("WARDED", game.State.PlayerZones["P2"].Banished); }
+            Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard); Assert.DoesNotContain("FODDER", game.State.PlayerZones["P1"].Hand);
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_DESTROYED"); await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("physical-ward-payment-" + branch, initial, game); }
+    }
+
     private static ActivateAbilityCommand Activate(string source = "UNIT") => new(source, "EMPOWER:0:0", [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]);
     private static MatchState Position(string spell = "VEN·049") => Add(VenUnitEntryBasicTests.Position(No), "FODDER", spell);
     private static MatchState Add(MatchState state, string id, string no, string owner = "P1", string zone = "HAND", string? field = null) => state with {
