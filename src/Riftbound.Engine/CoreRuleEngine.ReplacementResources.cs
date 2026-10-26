@@ -64,6 +64,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools, string player,
         ReplacementResourceAction action, List<GameEvent> events)
     {
+        context = RuleChoiceResourceContext(context);
         var capture = BeginRuleChoiceResourceStep(context, player, action.Choice.Id);
         var intent = new PlayerIntent("replacement-resource", player, CommandTypes.ActivateAbility);
         var result = P4ActivatedAbilityCatalog.IsLuxResourceAbility(action.Ability.AbilityId)
@@ -73,6 +74,7 @@ public sealed partial class CoreRuleEngine
             : ResolveImmediateResourceSkill(context, intent, action.Command, action.Ability);
         if (!result.Accepted) throw new InvalidOperationException("Invalid generated resource choice: " + result.ErrorMessage);
         result = FinalizeTokenDepartures(context, result);
+        result = CompleteRuleChoiceResourceEffects(context, result);
         Replace(zones, result.State.PlayerZones); Replace(cards, result.State.CardObjects); Replace(pools, result.State.RunePools);
         events.AddRange(result.Events);
         var frame = RuleChoices.Value!;

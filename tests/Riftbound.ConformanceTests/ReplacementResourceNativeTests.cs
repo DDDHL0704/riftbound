@@ -38,9 +38,12 @@ public sealed class ReplacementResourceNativeTests
             var result=await session.SubmitAsync("P2",branch,command,raw,default); Assert.True(result.Accepted,result.ErrorMessage);
             OfficialGraveyardRecastTests.Restore(result.State); state=result.State;
             if(step==1) { Assert.NotNull(state.PendingRuleChoice); Assert.Single(state.PendingRuleChoice.Answers);
+                Assert.Single(result.Events,e=>e.Kind=="ABILITY_ACTIVATED");
+                Assert.Equal(1,state.RunePools["P2"].TotalPower);
                 var restoredSession=new MatchSession(OfficialInsightAndSpellLockTests.Restore(state),engine,NoopMatchJournal.Instance);
                 Assert.Equal(MatchStateHasher.HashValue(session.PromptFor("P2")),MatchStateHasher.HashValue(restoredSession.PromptFor("P2"))); }
-            else { Assert.Null(state.PendingRuleChoice); Assert.Single(result.Events,e=>e.Kind=="ABILITY_ACTIVATED");
+            else { Assert.Null(state.PendingRuleChoice); Assert.Single(journal.Entries.SelectMany(e=>e.Events),e=>e.Kind=="ABILITY_ACTIVATED");
+                Assert.DoesNotContain(result.Events,e=>e.Kind=="ABILITY_ACTIVATED");
                 Assert.Equal(accept,state.PlayerZones["P2"].Base.Contains("D2")); Assert.Equal(accept?0:1,state.RunePools["P2"].TotalPower); }
             var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
             var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
