@@ -5,7 +5,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
-public sealed record EmpoweredTransitionContext(ObjectBinding Source, string ControllerId, long CapturedTick, long FaceRevision)
+public sealed record EmpoweredTransitionContext(ObjectBinding Source, string ControllerId, long CapturedTick, long FaceRevision, string RuleTextInstanceId)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CeasedEmpoweredSource? CeasedSource { get; init; }
@@ -35,7 +35,7 @@ public sealed partial class CoreRuleEngine
                 new(instance.CardNo, EmpoweredBanishKind, source.ObjectGeneration) {
                     Origin = instance.Origin, SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
                     EmpoweredTransition = new(new(source.ObjectId, source.ObjectGeneration), controller, 0,
-                        source.CopyFaceTransitions?.Count ?? 0) })).ToArray();
+                        source.CopyFaceTransitions?.Count ?? 0, instance.Id) })).ToArray();
     }
 
     private static ResolutionResult QueueEmpoweredBanish(ResolutionResult result)
@@ -70,8 +70,10 @@ public sealed partial class CoreRuleEngine
             && !string.IsNullOrWhiteSpace(birth.ControllerId)
             && context.BattlefieldId is null && context.ReturnFocusPlayerId is null && context.SourceLocation is null
             && context.RecycledBoon is null && context.AffectedUnit is null && !context.AffectedUnitCeasedToExist
-            && (context.Origin is null || context.Origin.Unit == source && context.Origin.CardNo == context.CardNo
-                && context.Origin.CapturedTick <= birth.CapturedTick && context.Origin.FaceRevision <= birth.FaceRevision)
+            && (context.Origin is null ? birth.RuleTextInstanceId == $"PRINTED:{source.ObjectId}:{source.Generation}"
+                : context.Origin.Unit == source && context.Origin.CardNo == context.CardNo && context.Origin.Equipment is not null
+                    && context.Origin.CapturedTick <= birth.CapturedTick && context.Origin.FaceRevision <= birth.FaceRevision
+                    && birth.RuleTextInstanceId == $"ATTACHED:{context.Origin.Equipment.ObjectId}:{context.Origin.Equipment.Generation}:{context.Origin.Revision}")
             && (context.SourceTokenFactoryCardNo is null
                 ? !context.SourceCeasedToExist && birth.CeasedSource is null
                 : P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)

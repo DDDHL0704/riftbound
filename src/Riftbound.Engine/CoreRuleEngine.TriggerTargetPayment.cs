@@ -16,7 +16,9 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
+                || item.FieldContext is { } field && (field.Kind == EmpoweredBanishKind
+                    ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
+                    : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
                 || item.PermanentPlayTargetsPending && ValidPermanentPlayTargetStack(state, item))
             && (item.CreatedTokenReady is not null || item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
