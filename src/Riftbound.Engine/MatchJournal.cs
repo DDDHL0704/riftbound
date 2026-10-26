@@ -37,6 +37,9 @@ public sealed record MatchJournalEntry(
     string RulesAuditStatus = RulesetDefaults.AuditStatus,
     IReadOnlyList<RuleEvidenceRef>? RulesEvidence = null)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public TypedCommandInput? TypedCommand { get; init; }
+
     [System.Text.Json.Serialization.JsonRequired]
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.Never)]
     public string? ErrorCode { get; init; }

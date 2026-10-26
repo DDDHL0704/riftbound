@@ -57,7 +57,7 @@ public sealed class MatrixOpeningResourceDriverTests
             field => field.ControllerId == player));
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick, entry.StartedEventSequence,
-            entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode, RuleInputs = entry.RuleInputs }).ToArray();
+            entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand, RuleInputs = entry.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(entry => entry.Events.Select((value, index) =>
             new RecoveredEvent(entry.StartedEventSequence + index + 1, entry.CompletedTick, index, value))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, result.State,

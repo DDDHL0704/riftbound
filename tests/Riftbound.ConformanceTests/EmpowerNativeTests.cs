@@ -84,7 +84,7 @@ public sealed class EmpowerNativeTests
         Assert.False(current.CardObjects["HOST"].IsEmpowered); Assert.Empty(current.StackItems.Single().TargetObjectIds);
         current = OfficialInsightAndSpellLockTests.Restore(current);
         var previousCommands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
-            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
+            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var previousEvents = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1,
             e.CompletedTick, i, ev))).ToArray();
         var sequence = journal.Entries[^1].CompletedEventSequence;
@@ -104,7 +104,7 @@ public sealed class EmpowerNativeTests
         await Submit("pass-2", current.PriorityPlayerId!, new PassPriorityCommand());
         Assert.True(current.CardObjects["HOST"].IsEmpowered); Assert.Empty(current.StackItems);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1,
             e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current, engine, default, events);

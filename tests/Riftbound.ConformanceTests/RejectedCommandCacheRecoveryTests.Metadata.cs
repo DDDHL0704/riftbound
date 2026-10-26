@@ -96,6 +96,69 @@ public sealed partial class RejectedCommandCacheRecoveryTests
     }
 
     [Theory]
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task ActualPostgresCodecPreservesErrorAndTypedInputThroughRegistryRecovery(bool rejected, bool rawPresent)
+    {
+        var run = await Run.Create("dual-codec-" + rejected + "-" + rawPresent);
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "lillia-lowcurve").Decklist;
+        var input = rejected ? new SubmitDeckCommand("UNKNOWN", "UNKNOWN", [], [], [])
+            : new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields);
+        JsonElement? raw = rawPresent ? run.Wire(input) : null;
+        const string intent = "actual-dual-codec-deck";
+        var result = await run.Session.SubmitDeckAsync("P1", intent, input, raw, default);
+        Assert.Equal(!rejected, result.Accepted);
+        Assert.Equal(rejected ? ErrorCodes.InvalidDeck : null, result.ErrorCode);
+        var original = run.Frame();
+        var journalBefore = JsonSerializer.Serialize(run.JournalEntries, Web);
+        var count = run.JournalEntries.Count;
+        var entry = run.JournalEntries[^1];
+        Assert.Equal(rawPresent, entry.RawCommand is not null);
+        Assert.Equal(!rawPresent, entry.TypedCommand is not null);
+
+        RecoveredCommand Codec(MatchJournalEntry recorded)
+        {
+            using var command = new NpgsqlCommand();
+            typeof(PostgresMatchJournal).GetMethod("AddCommandPayload", BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, [command, recorded]);
+            var payload = Assert.IsType<string>(command.Parameters["payload"].Value);
+            run.Save("actual-dual-metadata-payload", new { rejected, rawPresent, recorded, payload, noDatabaseExecutionClaimed = true });
+            using var document = JsonDocument.Parse(payload);
+            Assert.True(document.RootElement.TryGetProperty("typedCommand", out _),
+                "The actual journal writer must persist the nullable typed input alongside the raw command and error code.");
+            Assert.True(document.RootElement.TryGetProperty("errorCode", out _));
+            var decoded = JsonSerializer.Deserialize<RecoveredCommand>(payload, Web)!;
+            var readCode = typeof(PostgresMatchRecoveryStore).GetMethod("ReadCommandErrorCode", BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, [payload]);
+            var readTyped = typeof(PostgresMatchRecoveryStore).GetMethod("ReadTypedCommand", BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, [payload]);
+            Assert.Equal(recorded.ErrorCode, readCode);
+            Assert.Equal(JsonSerializer.Serialize(recorded.TypedCommand, Web), JsonSerializer.Serialize(readTyped, Web));
+            Assert.Equal(recorded.ErrorCode, decoded.ErrorCode);
+            Assert.Equal(JsonSerializer.Serialize(recorded.TypedCommand, Web), JsonSerializer.Serialize(decoded.TypedCommand, Web));
+            Assert.Equal(recorded.RawCommand?.GetRawText(), decoded.RawCommand?.GetRawText());
+            return decoded;
+        }
+
+        var persisted = original with { Commands = run.JournalEntries.Select(Codec).ToArray() };
+        Assert.Equal(JsonSerializer.Serialize(original.Commands, Web), JsonSerializer.Serialize(persisted.Commands, Web));
+        var replay = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(persisted, new CoreRuleEngine(), default);
+        Assert.Empty(replay);
+        var cold = await run.Registry(persisted);
+        var duplicate = await cold.SubmitDeckAsync("P1", intent, input, raw, default);
+        Assert.Equal(result.Accepted, duplicate.Accepted);
+        Assert.Equal(result.ErrorCode, duplicate.ErrorCode);
+        Assert.Equal(result.ErrorMessage, duplicate.ErrorMessage);
+        Assert.Empty(duplicate.Events);
+        Assert.Equal(count, run.JournalEntries.Count);
+        Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
+        Assert.Equal(journalBefore, JsonSerializer.Serialize(run.JournalEntries, Web));
+        run.Save("actual-dual-metadata-recovery", new { rejected, rawPresent, original, persisted, replayErrors = replay, duplicate,
+            journalBytesUnchanged = true, noDatabaseExecutionClaimed = true });
+    }
+
+    [Theory]
     [InlineData("FORGED_CODE")] [InlineData(null)] [InlineData("prompt_expired")]
     public async Task ChangingOnlyTheRejectedCodeCannotPassIndependentReplayOrTheActualRegistry(string? forgedCode)
     {

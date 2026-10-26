@@ -356,7 +356,7 @@ public sealed class SfurSongGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -376,7 +376,7 @@ public sealed class SfurSongGuardTests
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cmdType = CommandTypes.PlayCard
         });
     }
@@ -389,7 +389,7 @@ public sealed class SfurSongGuardTests
         return JsonSerializer.SerializeToElement(new
         {
             cmdType = CommandTypes.PlayCard,
-            cardObjectId = command.SourceObjectId,
+            sourceObjectId = command.SourceObjectId,
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
@@ -404,7 +404,7 @@ public sealed class SfurSongGuardTests
         ActionPromptDto prompt)
     {
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
-        Assert.Equal(SfurSongObjectId, rawCommand.GetProperty("cardObjectId").GetString());
+        Assert.Equal(SfurSongObjectId, rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal(SfurSongCardNo, rawCommand.GetProperty("cardNo").GetString());
         Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
         Assert.Empty(rawCommand.GetProperty("optionalCosts").EnumerateArray());

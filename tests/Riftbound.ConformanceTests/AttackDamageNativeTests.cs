@@ -68,7 +68,7 @@ public sealed class AttackDamageNativeTests
         Assert.DoesNotContain(journal.Entries.Where(e => e.CommandType == CommandTypes.AssignEffectDamage).SelectMany(e => e.Events), e => e.Kind == "PRIORITY_PASSED");
         if (native > 0) Assert.Equal(journal.Entries.Count, native);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));

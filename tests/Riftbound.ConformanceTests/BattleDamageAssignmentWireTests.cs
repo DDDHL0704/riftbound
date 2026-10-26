@@ -201,7 +201,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             ["battleId"] = $"battle:{BattlefieldObjectId}", ["battlefieldId"] = BattlefieldObjectId,
             ["assignments"] = new CombatDamageAssignmentDto[] { new(BulwarkDefenderObjectId, AttackerObjectId, 2), new(BackRowDefenderObjectId, AttackerObjectId, 1) } }, "P2", "wire-defender");
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
         return (initial, journal.Entries[^1].AuthoritativeState, commands, events);
 

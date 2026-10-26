@@ -8,7 +8,10 @@ on:
       - 'scripts/*ci*.py'
       - 'scripts/tests/test_*ci*.py'
       - 'scripts/tests/test_l3_workflow.py'
-      - 'tests/Riftbound.NativeNetworkSmoke/**'
+      # Shared restart driver, entrypoint, and build definition.
+      - 'tests/Riftbound.NativeNetworkSmoke/ProcessRestartAcceptance.cs'
+      - 'tests/Riftbound.NativeNetworkSmoke/Program.cs'
+      - 'tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj'
       - 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs'
   workflow_dispatch:
 

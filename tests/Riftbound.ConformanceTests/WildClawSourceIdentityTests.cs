@@ -38,7 +38,7 @@ public sealed class WildClawSourceIdentityTests
         await Top(); Assert.False(current.State.CardObjects["P1_FIRST"].IsEmpowered);
         Assert.Equal(0, journal.Entries[0].StartedTick); Assert.Equal("DEV_SEED_SCENARIO:wild-claw-reentry", journal.Entries[0].CommandType);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((value, index) => new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, value))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current.State, new CoreRuleEngine(), default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));

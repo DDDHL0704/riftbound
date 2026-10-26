@@ -309,7 +309,7 @@ public sealed class OptionalAdditionalCostReductionTests
 
         var commands = journal.Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick,
-            entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode }).ToArray();
+            entry.StartedEventSequence, entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(entry => entry.Events.Select((ev, index) => new RecoveredEvent(
             entry.StartedEventSequence + index + 1, entry.CompletedTick, index, ev))).ToArray();
         var recordedCommand = Assert.IsType<JsonElement>(commands[0].RawCommand);

@@ -169,7 +169,7 @@ public sealed class StandbyNativeTests
         Export("replay.json", new { nativeCommands = native, accepted = steps.Count, coldRestores = restores, staleRejected = 1, dedupAfterColdRestore = true, replay });
     }
 
-    private static RecoveredCommand[] Commands(Journal j) => j.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
+    private static RecoveredCommand[] Commands(Journal j) => j.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
     private static RecoveredEvent[] Events(Journal j) => j.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
     private sealed class Journal : IMatchJournal
     {

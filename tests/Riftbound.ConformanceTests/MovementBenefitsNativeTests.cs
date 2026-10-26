@@ -43,7 +43,7 @@ public sealed class MovementBenefitsNativeTests
         Assert.Empty(result.State.StackItems);Assert.Equal(cardNo=="SFD·137/221"?5:3,result.State.CardObjects["D"].Power);
         if(cardNo=="SFD·048/221") Assert.Contains("DRAW-TOP",result.State.PlayerZones["P2"].Hand);
         if(cardNo.StartsWith("UNL")) Assert.Equal(cardNo=="UNL-115/219"?1:2,result.State.PlayerExperience["P2"]);
-        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode }).ToArray();
+        var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events=journal.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
         var replay=await MatchActionLogReplayer.VerifyFinalStateAsync(initial,commands,result.State,engine,default,events);
         Assert.True(replay.IsMatch,string.Join("; ",replay.Errors));Export("replay.json",new{native,replay,commands=commands.Length});

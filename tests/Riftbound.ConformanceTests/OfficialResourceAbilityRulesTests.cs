@@ -231,7 +231,7 @@ public sealed class OfficialResourceAbilityRulesTests
         var state = State("UNL·T05", TimingStates.NeutralClosed);
         var session = new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance);
         var command = new ActivateAbilityCommand("SOURCE", Ability("UNL·T05").AbilityId, []);
-        var raw = JsonSerializer.SerializeToElement(command);
+        var raw = JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var first = await session.SubmitAsync("P1", "gold-1", command, raw, default);
         var duplicate = await session.SubmitAsync("P1", "gold-1", command, raw, default);
         Assert.True(first.Accepted, first.ErrorMessage);

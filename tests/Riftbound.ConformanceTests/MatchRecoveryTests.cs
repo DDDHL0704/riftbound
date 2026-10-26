@@ -176308,7 +176308,7 @@ public sealed class MatchRecoveryTests
             entry.StartedEventSequence,
             entry.CompletedEventSequence,
             entry.Accepted,
-            entry.ErrorMessage) { ErrorCode = entry.ErrorCode };
+            entry.ErrorMessage) { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand };
     }
 
     private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)

@@ -37,7 +37,7 @@ public sealed class LightningRushSourceIdentityTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         // Retain the exact N47 historical comparison after later independent additions.
-        string[] laterAdditions = ["VEN·003", "VEN·049", "VEN·081"];
+        string[] laterAdditions = ["VEN·003", "VEN·049", "VEN·081", "VEN·SP6"];
         var n47Cards = catalog.Cards.Where(c => !laterAdditions.Contains(c.CardNo)).ToArray();
         var oldCards = n47Cards.Where(c => c.CardNo != LightningRushDeckDrawFlowTests.LightningRush).ToArray();
         Assert.Equal(1036, oldCards.Length); Assert.Equal(1037, n47Cards.Length);

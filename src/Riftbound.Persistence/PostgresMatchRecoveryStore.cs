@@ -153,6 +153,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
                 reader.IsDBNull(8) ? null : reader.GetString(8))
             {
                 ErrorCode = errorCode,
+                TypedCommand = ReadTypedCommand(reader.GetString(9)),
                 RuleInputs = reader.IsDBNull(10) ? null : ReadRuleInputs(reader.GetString(10))
             });
         }
@@ -317,6 +318,15 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
                 "recorded command error code is missing or has an invalid JSON type");
         return code.ValueKind == JsonValueKind.Null ? null : code.GetString();
+    }
+
+    private static TypedCommandInput? ReadTypedCommand(string payload)
+    {
+        using var document = JsonDocument.Parse(payload);
+        if (!document.RootElement.TryGetProperty("typedCommand", out var value) || value.ValueKind == JsonValueKind.Null)
+            return null;
+        return value.Deserialize<TypedCommandInput>(JsonOptions)
+            ?? throw new JsonException("Unable to deserialize typed command input.");
     }
 
     private static JsonElement? ReadRawCommand(string payload)

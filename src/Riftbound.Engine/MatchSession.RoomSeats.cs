@@ -60,7 +60,7 @@ public sealed partial class MatchSession
                 reconnectTokens.Add(player.PlayerId, player.ReconnectToken);
                 state = nextState;
                 lastEventSequence++;
-                intentCache[$"{player.PlayerId}:{intentId}"] = new CachedResolution(RoomSeatCommandType, RawCommandFingerprint(raw), result);
+                intentCache[$"{player.PlayerId}:{intentId}"] = new CachedResolution(RoomSeatCommandType, InputFingerprint(raw, null), result);
             }
             return (player, result);
         }
