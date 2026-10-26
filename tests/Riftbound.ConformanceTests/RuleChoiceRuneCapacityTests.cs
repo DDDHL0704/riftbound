@@ -238,6 +238,34 @@ public sealed class RuleChoiceRuneCapacityTests
             new { run.Initial, run.State, commands = run.Commands(), events = run.Events() });
     }
 
+    [Theory]
+    [InlineData("counter", "mana")]
+    [InlineData("token", "mana")]
+    [InlineData("token", "power")]
+    public async Task TheNextChoiceCannotForgeARefundOfAnEarlierCompletedPayment(string kind, string currency)
+    {
+        var run = await Open(kind, "finite", 0, echo: true);
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT",
+            [kind == "counter" ? "SPEND_MANA:2" : "PAY:ANY"]));
+        var state = run.State; var pool = state.RunePools[run.Player];
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
+        var refunded = currency == "mana" ? pool with { Mana = pool.Mana + (kind == "counter" ? 2 : 1) }
+            : pool with { Power = pool.Power + 1 };
+        var forged = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { [run.Player] = refunded } };
+        Assert.True(refunded.HasSupportedAmounts); Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged));
+        var command = new PayCostCommand(forged.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["DECLINE"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(forged,
+            new("forged-paid-cost-refund", run.Player, command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.RecoveryInconsistent, rejected.ErrorCode); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(forged), MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(pool, run.State.RunePools[run.Player]);
+        await run.Cold();
+        await run.Accept(new PayCostCommand(run.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["DECLINE"]));
+        Assert.Equal(pool, run.State.RunePools[run.Player]); await run.Replay();
+        Evidence("forged-payment-refund-" + kind + "-" + currency, new { state, forged, command, rejected,
+            final = run.State, commands = run.Commands(), events = run.Events() });
+    }
+
     private static async Task<Run> Open(string kind, string balance, int capacity, bool echo = false)
     {
         var player = kind == "counter" ? "P2" : "P1";
