@@ -373,6 +373,52 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
     }
 
     [Theory]
+    [InlineData(true)] [InlineData(false)]
+    public async Task AnExplicitEchoReductionMayRemoveWardPowerFromOnlyOneOfTwoDifferentTargets(bool wardFirst)
+    {
+        var initial = Add(Position("SFD·080/221"), "WARDED", "OGN·013/298", "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        for (var i = 0; i < 9; i++) initial = AddBase(initial, "ECHO-RUNE-" + i, "UNL-R03", "P1");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", []));
+            Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
+            await game.Act("P2", new EndTurnCommand());
+            for (var i = 0; i < 9; i++) await game.Act("P1", new TapRuneCommand("ECHO-RUNE-" + i));
+            foreach (var i in new[] { 0, 1 }) await game.Act("P1", new RecycleRuneCommand("ECHO-RUNE-" + i));
+            await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
+            Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Equal(2, game.State.RunePools["P1"].Mana); Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+            var first = wardFirst ? "WARDED" : "ENEMY"; var second = wardFirst ? "ENEMY" : "WARDED";
+            var command = new PlayCardCommand("SPELL", "SFD·080/221", [first], OptionalCosts: ["ECHO"],
+                RepeatChoices: [new SpellRepeatChoice("", [second])]);
+            var before = MatchStateHasher.Hash(game.State); var engine = new CoreRuleEngine();
+            var quote = engine.PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+            Assert.True(quote.CanPay, quote.Message); Assert.Equal(1, quote.Cost!.Mana);
+            Assert.Equal(2, quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum());
+            Assert.Contains(JsonSerializer.SerializeToElement(quote.Cost, Json).GetProperty("spellPowerReductionChoices").EnumerateArray(),
+                choice => choice.GetProperty("id").GetString() == "SPELL_POWER_REDUCTION:any:1");
+            command = command with { OptionalCosts = ["ECHO", "SPELL_POWER_REDUCTION:any:1"] };
+            var explicitQuote = engine.PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+            Assert.Equal(before, MatchStateHasher.Hash(game.State));
+            if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN055_EVIDENCE") is { Length: > 0 } output)
+            {
+                Directory.CreateDirectory(output);
+                await File.WriteAllTextAsync(Path.Combine(output, "echo-distinct-ward-" + wardFirst + "-quotes.json"),
+                    JsonSerializer.Serialize(new { before, quote, explicitQuote, command }, Json));
+            }
+            await game.Act("P1", command); Assert.True(explicitQuote.CanPay, explicitQuote.Message);
+            Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            var item = Assert.Single(game.State.StackItems); Assert.Equal(2, item.EffectRepeatCount);
+            Assert.Equal(new[] { first, second }, item.RepeatExecutions!.SelectMany(execution => execution.TargetObjectIds));
+            Restore(initial, game); await game.Top();
+            Assert.Equal(1, game.State.CardObjects["WARDED"].Damage); Assert.Equal(1, game.State.CardObjects["ENEMY"].Damage);
+            await game.Replay(); Restore(initial, game);
+        }
+        finally { await Save("echo-distinct-ward-" + wardFirst, initial, game); }
+    }
+
+    [Theory]
     [InlineData("keep")] [InlineData("before")] [InlineData("after")]
     public async Task AnActuallyCopiedEmpowerSourceGrantsTheAuraOnlyWhileItsCopiedTextRemains(string detach)
     {
