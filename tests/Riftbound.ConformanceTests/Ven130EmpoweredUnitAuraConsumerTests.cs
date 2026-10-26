@@ -270,7 +270,8 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
                 ["OLD-FRIEND"] = initial.CardObjects["OLD-FRIEND"] with { IsEmpowered = true },
                 ["NEW-FRIEND"] = initial.CardObjects["NEW-FRIEND"] with { IsEmpowered = true } } };
-        for (var i = 0; i < 8; i++) initial = Add(initial, "CONTROL-RUNE-" + i, "UNL-R05", thief, "BASE");
+        initial = Add(initial, "RETURN", "OGN·104/298", thief);
+        for (var i = 0; i < 9; i++) initial = Add(initial, "CONTROL-RUNE-" + i, "UNL-R05", thief, "BASE");
         var game = new Driver(initial);
         try
         {
@@ -279,14 +280,18 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
             await game.Act(originalController, new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top();
             Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief));
             await game.Act(originalController, new EndTurnCommand()); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
-            for (var i = 0; i < 8; i++) await game.Act(thief, new TapRuneCommand("CONTROL-RUNE-" + i));
+            for (var i = 0; i < 9; i++) await game.Act(thief, new TapRuneCommand("CONTROL-RUNE-" + i));
             for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
-            Assert.Equal(8, game.State.RunePools[thief].Mana); Assert.Equal(3, game.State.RunePools[thief].PowerByTrait[RuneTrait.Purple]);
+            Assert.Equal(9, game.State.RunePools[thief].Mana); Assert.Equal(3, game.State.RunePools[thief].PowerByTrait[RuneTrait.Purple]);
             await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();
             Assert.Equal(thief, game.State.CardObjects["TAKEN"].ControllerId); Assert.Equal(originalController, game.State.CardObjects["TAKEN"].OwnerId);
             Assert.Equal("BASE", game.State.ObjectLocations["TAKEN"].Zone); Assert.Contains("TAKEN", game.State.PlayerZones[thief].Base);
-            Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(0, game.State.RunePools[thief].Mana); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
+            Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(1, game.State.RunePools[thief].Mana); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
             Assert.Equal(8, Might(game.State, "NEW-FRIEND", thief)); Assert.Equal(6, Might(game.State, "OLD-FRIEND", originalController));
+            await game.Act(thief, new PlayCardCommand("RETURN", "OGN·104/298", ["TAKEN"])); await game.Top();
+            Assert.Contains("TAKEN", game.State.PlayerZones[originalController].Hand); Assert.False(game.State.CardObjects["TAKEN"].IsEmpowered);
+            Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief)); Assert.Equal(6, Might(game.State, "OLD-FRIEND", originalController));
+            Assert.Equal(0, game.State.RunePools[thief].Mana);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_MOVED"); await game.Replay(); Restore(game.State);
         }
         finally { await Save("actual-takeover-" + thief, initial, game); }
