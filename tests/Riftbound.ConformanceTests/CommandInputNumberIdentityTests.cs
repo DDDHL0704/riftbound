@@ -19,6 +19,10 @@ public sealed class CommandInputNumberIdentityTests
     [InlineData("1e-999999999999999999999", "10e-1000000000000000000000")]
     [InlineData("[1e3,-0]", "[1000,0.000]")]
     [InlineData("{\"b\":1e1,\"a\":2}", "{\"a\":2.0,\"b\":10}")]
+    [InlineData("{\"a\":1,\"a\":2}", "{\"a\":2}")]
+    [InlineData("{\"a\":1,\"a\":2,\"b\":3}", "{\"b\":3,\"a\":2}")]
+    [InlineData("{\"a\":1,\"\\u0061\":2}", "{\"a\":2}")]
+    [InlineData("[{\"a\":{\"b\":1,\"b\":2}}]", "[{\"a\":{\"b\":2}}]")]
     public void EquivalentJsonValuesHaveOneInputIdentityWithoutExpandingLargeExponents(string first, string second)
         => Assert.Equal(Fingerprint(first), Fingerprint(second));
 
@@ -29,6 +33,8 @@ public sealed class CommandInputNumberIdentityTests
     [InlineData("0", "\"0\"")]
     [InlineData("[1,2]", "[2,1]")]
     [InlineData("{\"a\":1}", "{\"a\":2}")]
+    [InlineData("{\"a\":1,\"a\":2}", "{\"a\":2,\"a\":1}")]
+    [InlineData("{\"a\":1,\"a\":2}", "{\"a\":3}")]
     public void DifferentValuesTypesAndArrayOrderCannotAlias(string first, string second)
         => Assert.NotEqual(Fingerprint(first), Fingerprint(second));
 
@@ -39,6 +45,15 @@ public sealed class CommandInputNumberIdentityTests
         var decimalForm = Wire("0.00001230");
         Assert.NotEqual(MatchStateHasher.HashValue(exponent), MatchStateHasher.HashValue(decimalForm));
         Assert.Equal(Fingerprint("1.230e-5"), Fingerprint("0.00001230"));
+    }
+
+    [Fact]
+    public void StateAndHistoryHashingRetainsAllOriginalDuplicateObjectEntries()
+    {
+        const string original = "{\"a\":1,\"a\":2}";
+        const string stored = "{\"a\":2}";
+        Assert.NotEqual(MatchStateHasher.HashValue(Wire(original)), MatchStateHasher.HashValue(Wire(stored)));
+        Assert.Equal(Fingerprint(original), Fingerprint(stored));
     }
 
     private static JsonElement Wire(string value) => JsonDocument.Parse(

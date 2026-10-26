@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Riftbound.Engine;
 
-// Input identity follows JSON numeric values across jsonb storage. State and
+// Input identity follows JSON object/numeric values across jsonb storage. State and
 // event hashing retain their existing representation and never use this path.
 internal static class CommandInputFingerprint
 {
@@ -22,7 +22,11 @@ internal static class CommandInputFingerprint
         {
             case JsonValueKind.Object:
                 writer.WriteStartObject();
-                foreach (var property in value.EnumerateObject().OrderBy(p => p.Name, StringComparer.Ordinal))
+                // JSON lookup and jsonb use the last value of a repeated object key.
+                // Keep this value semantics local to input identity, including nested metadata.
+                foreach (var property in value.EnumerateObject()
+                    .GroupBy(p => p.Name, StringComparer.Ordinal).Select(group => group.Last())
+                    .OrderBy(p => p.Name, StringComparer.Ordinal))
                 {
                     writer.WritePropertyName(property.Name);
                     Write(writer, property.Value);

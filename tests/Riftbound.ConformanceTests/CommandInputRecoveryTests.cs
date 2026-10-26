@@ -437,6 +437,19 @@ public sealed class CommandInputRecoveryTests
         var warm = await run.Session.SubmitAsync(actor, intent, input, raw, default);
         Assert.Equal(original.Accepted, warm.Accepted);
         Assert.Equal(original.ErrorCode, warm.ErrorCode);
+        using var changedArgument = JsonDocument.Parse("{\"trace\":3}");
+        GameCommand changedInput = rawPresent ? input
+            : new UnsupportedCommand("NESTED_DUPLICATE_UNKNOWN", changedArgument.RootElement.Clone());
+        JsonElement? changedRaw = null;
+        if (rawPresent)
+        {
+            using var changedWire = JsonDocument.Parse(raw!.Value.GetRawText()
+                .Replace(duplicateObject, "{\"trace\":3}", StringComparison.Ordinal));
+            changedRaw = changedWire.RootElement.Clone();
+        }
+        var warmConflict = await run.Session.SubmitAsync(actor, intent, changedInput, changedRaw, default);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, warmConflict.ErrorCode);
+        Assert.Empty(warmConflict.Events);
 
         using var command = new NpgsqlCommand();
         typeof(PostgresMatchJournal).GetMethod("AddCommandPayload", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -476,8 +489,13 @@ public sealed class CommandInputRecoveryTests
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, new RawEnvelopeFrameStore(persisted));
         var cold = await registry.GetOrCreateAsync(run.State.RoomId, default);
         var duplicate = await cold.SubmitAsync(actor, intent, input, raw, default);
+        var coldConflict = await cold.SubmitAsync(actor, intent, changedInput, changedRaw, default);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, coldConflict.ErrorCode);
+        Assert.Empty(coldConflict.Events);
+        Assert.Equal(stateHash, MatchStateHasher.Hash(coldConflict.State));
         run.Save("documented-jsonb-nested-duplicate-output", new { rawPresent, jsonbOutputForm, raw, input,
-            payload, stored, frame, persisted, errors, audit, original, warm, duplicate, noDatabaseExecutionClaimed = true });
+            payload, stored, frame, persisted, errors, audit, original, warm, warmConflict, duplicate, coldConflict,
+            noDatabaseExecutionClaimed = true });
         Assert.Empty(duplicate.Events);
         Assert.Equal(stateHash, MatchStateHasher.Hash(duplicate.State));
         Assert.Equal(journalBefore, JsonSerializer.Serialize(run.Entries, Web));
