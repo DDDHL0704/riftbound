@@ -74,7 +74,9 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         while (run.State.TurnPlayerId != actor)
         { await run.Submit(run.State.TurnPlayerId, new EndTurnCommand()); await Drain(run); }
         Assert.False(run.State.CardObjects[source].IsExhausted);
-        var field = run.State.PlayerZones[actor].Battlefields.First(run.State.BattlefieldStates.ContainsKey);
+        // Select only the public battlefield without a power aura. P2's own
+        // randomly selected barracks otherwise grants another +1 here.
+        var field = run.State.BattlefieldStates.Keys.Single(id => run.State.CardObjects[id].CardNo == "OGN·278/298");
         await run.Submit(actor, new MoveUnitCommand(source, "BASE", "BATTLEFIELD:" + field));
         await Drain(run); await Tap(run, actor);
         Assert.Equal(TimingStates.NeutralOpen, run.State.TimingState);
@@ -83,6 +85,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.Equal(5, run.State.CardObjects[source].Power);
         var spell = run.State.PlayerZones[actor].Hand.First(id => run.State.CardObjects[id].CardNo == Spell);
         var discarded = run.State.PlayerZones[actor].Hand.First(id => id != spell);
+        Assert.Equal(5, EffectivePower(run.State, actor, source));
         var before = run.State; var start = run.Frame().Events.Last().Sequence;
         var command = new PlayCardCommand(spell, Spell, [source], OptionalCosts: ["DISCARD_HAND_CARD:" + discarded]);
         await run.Cold(); await Save(run, actor, format, "before-cost");
@@ -92,6 +95,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.DoesNotContain(discarded, run.State.PlayerZones[actor].Hand);
         Assert.Contains(discarded, run.State.PlayerZones[actor].Graveyard);
         Assert.True(run.State.CardObjects[source].IsExhausted); Assert.Equal(5, run.State.CardObjects[source].Power);
+        Assert.Equal(5, EffectivePower(run.State, actor, source));
         Assert.Equal(0, run.State.CardObjects[source].Damage);
         var ability = Assert.Single(run.State.StackItems, i => i.HandDiscardObserver is not null);
         Assert.Equal(source, ability.SourceObjectId); Assert.Equal(actor, ability.ControllerId);
@@ -127,11 +131,13 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.Equal(responseMana + 1, run.State.RunePools[opponent].Mana);
         Assert.Equal(opponent, run.State.PriorityPlayerId);
         Assert.True(run.State.CardObjects[source].IsExhausted); Assert.Equal(5, run.State.CardObjects[source].Power);
+        Assert.Equal(5, EffectivePower(run.State, actor, source));
         Assert.Equal(0, run.State.CardObjects[source].Damage);
         await run.Cold();
         await run.Submit(opponent, new PassPriorityCommand());
         Assert.False(run.State.CardObjects[source].IsExhausted);
         Assert.Equal(6, run.State.CardObjects[source].Power); Assert.Equal(0, run.State.CardObjects[source].Damage);
+        Assert.Equal(6, EffectivePower(run.State, actor, source));
         Assert.Equal(1, Assert.Single(run.State.CardObjects[source].UntilEndOfTurnPowerModifiers).RequestedPowerDelta);
         Assert.Single(run.State.StackItems, i => i.SourceObjectId == spell);
         await run.Cold(); await Save(run, actor, format, "skill-resolved");
@@ -139,6 +145,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         await run.Submit(run.State.PriorityPlayerId!, new PassPriorityCommand());
         Assert.Empty(run.State.StackItems); Assert.Contains(source, run.State.PlayerZones[actor].Battlefields);
         Assert.Equal(6, run.State.CardObjects[source].Power); Assert.Equal(5, run.State.CardObjects[source].Damage);
+        Assert.Equal(6, EffectivePower(run.State, actor, source));
         Assert.Contains(spell, run.State.PlayerZones[actor].Graveyard);
         var events = run.Frame().Events.Where(e => e.Sequence > start).ToArray();
         Assert.Single(events, e => e.Event.Kind == "CARD_DISCARDED");
@@ -152,6 +159,7 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         await run.Cold(); await Save(run, actor, format, "spell-resolved");
         await Drain(run); await run.Submit(actor, new EndTurnCommand()); await Drain(run);
         Assert.Equal(5, run.State.CardObjects[source].Power); Assert.Equal(0, run.State.CardObjects[source].Damage);
+        Assert.Equal(5, EffectivePower(run.State, actor, source));
         Assert.Empty(run.State.CardObjects[source].UntilEndOfTurnPowerModifiers);
         Assert.Contains(source, run.State.PlayerZones[actor].Battlefields);
         await run.Cold(); await Save(run, actor, format, "next-turn");
@@ -159,12 +167,16 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         Assert.DoesNotContain(final.Commands, c => c.CommandType.StartsWith("DEV_", StringComparison.Ordinal));
         Assert.True(run.OriginalNextMatches >= 5);
         output.WriteLine("HAND_DISCARD_ORDINARY_OPENING " + JsonSerializer.Serialize(new { actor, format = format.ToString(),
-            originalSeed = run.Initial.Seed, source, spell, discarded, commands = final.Commands.Count,
+            originalSeed = run.Initial.Seed, source, spell, discarded, fieldCardNo = run.State.CardObjects[field].CardNo,
+            expectedEffectivePower = new[] { 5, 6, 6, 5 }, commands = final.Commands.Count,
             events = final.Events.Count, run.ColdCount, run.OriginalNextMatches,
             originalFullReplayMatched = true, realRegistryLoaded = true, registryDuplicateAppends = 0, registryOriginalNextMatches = 1, wholeCardCertification = false,
             regionTournamentEligibilityCertified = false }));
     }
 
+    private static int EffectivePower(MatchState state, string actor, string source)
+        => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[actor], Json)
+            .GetProperty("players").GetProperty(actor).GetProperty("objects").GetProperty(source).GetProperty("effectivePower").GetInt32();
     private static IReadOnlyList<string> Runes(MatchState s, string player)
         => s.PlayerZones[player].Base.Where(id => s.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
     private static async Task Tap(Opening run, string actor)
