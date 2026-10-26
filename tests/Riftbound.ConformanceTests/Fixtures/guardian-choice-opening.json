@@ -1,0 +1,1662 @@
+{
+  "description": "Legal SEATING seed 424242 recipe captured through public session commands. Replay regenerates prompt identities and all current runtime journal/state/events; no authoritative state or accepted output is imported. Two physically played/assembled SFD051 Guardians on OGN210 are attacked by OGN142.",
+  "seed": 424242,
+  "host": "P1-MAIN-OGN-210-298-06",
+  "gear": "P1-MAIN-SFD-051-221-01",
+  "gear2": "P1-MAIN-SFD-051-221-02",
+  "attacker": "P2-MAIN-OGN-142-298-02",
+  "battlefield": "P1-BATTLEFIELD-OGN-275-298-01",
+  "openingIntents": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-submit-p1",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "legendCardNo": "OGN·261/298",
+        "championCardNo": "OGN·238/298",
+        "mainDeck": [
+          "OGN·238/298",
+          "SFD·051/221",
+          "SFD·051/221",
+          "SFD·051/221",
+          "OGN·210/298",
+          "OGN·210/298",
+          "OGN·210/298",
+          "OGN·044/298",
+          "OGN·044/298",
+          "OGN·044/298",
+          "OGN·052/298",
+          "OGN·052/298",
+          "OGN·052/298",
+          "OGN·216/298",
+          "OGN·216/298",
+          "OGN·216/298",
+          "OGN·217/298",
+          "OGN·217/298",
+          "OGN·217/298",
+          "SFD·036/221",
+          "SFD·036/221",
+          "SFD·036/221",
+          "SFD·041/221",
+          "SFD·041/221",
+          "SFD·041/221",
+          "SFD·155/221",
+          "SFD·155/221",
+          "SFD·155/221",
+          "SFD·159/221",
+          "SFD·159/221",
+          "SFD·159/221",
+          "SFD·167/221",
+          "SFD·167/221",
+          "SFD·167/221",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-040/219"
+        ],
+        "runeDeck": [
+          "OGN·042/298",
+          "OGN·042a/298",
+          "OGN·042b/298",
+          "OGN·214/298",
+          "OGN·214a/298",
+          "OGN·214b/298",
+          "SFD·R02",
+          "SFD·R02a",
+          "SFD·R02b",
+          "SFD·R06",
+          "SFD·R06a",
+          "SFD·R06b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·276/298",
+          "OGN·277/298"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-submit-p2",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "legendCardNo": "UNL-191/219",
+        "championCardNo": "UNL-113/219",
+        "mainDeck": [
+          "UNL-113/219",
+          "OGN·142/298",
+          "OGN·142/298",
+          "OGN·142/298",
+          "UNL-111/219",
+          "UNL-111/219",
+          "UNL-111/219",
+          "OGN·044/298",
+          "OGN·044/298",
+          "OGN·044/298",
+          "OGN·052/298",
+          "OGN·052/298",
+          "OGN·052/298",
+          "OGN·139/298",
+          "OGN·139/298",
+          "OGN·139/298",
+          "SFD·036/221",
+          "SFD·036/221",
+          "SFD·036/221",
+          "SFD·041/221",
+          "SFD·041/221",
+          "SFD·041/221",
+          "SFD·098/221",
+          "SFD·098/221",
+          "SFD·098/221",
+          "SFD·099/221",
+          "SFD·099/221",
+          "SFD·099/221",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-053/219",
+          "UNL-053/219",
+          "UNL-053/219",
+          "UNL-092/219",
+          "UNL-092/219",
+          "UNL-092/219"
+        ],
+        "runeDeck": [
+          "OGN·042/298",
+          "OGN·042a/298",
+          "OGN·042b/298",
+          "OGN·126/298",
+          "OGN·126a/298",
+          "OGN·126b/298",
+          "SFD·R02",
+          "SFD·R02a",
+          "SFD·R02b",
+          "SFD·R04",
+          "SFD·R04a",
+          "SFD·R04b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·276/298",
+          "OGN·277/298"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-ready-p1",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-ready-p2",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-real-1",
+      "rawCommand": {
+        "handObjectIds": [
+          "P2-MAIN-UNL-040-219-32",
+          "P2-MAIN-UNL-111-219-04"
+        ],
+        "cmdType": "MULLIGAN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-2",
+      "rawCommand": {
+        "handObjectIds": [
+          "P1-MAIN-OGN-044-298-08",
+          "P1-MAIN-SFD-041-221-24"
+        ],
+        "cmdType": "MULLIGAN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-0-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-0-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-0",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-1-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-1-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-1-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-3",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-OGN-210-298-06",
+        "cardNo": "OGN·210/298",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-1",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-2-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-2-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-2-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-2-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-2",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-3-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-3-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-3-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-3-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-3-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-4",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-SFD-051-221-01",
+        "cardNo": "SFD·051/221",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-5",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R02-07",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-6",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-SFD-051-221-01",
+        "targetObjectId": "P1-MAIN-OGN-210-298-06",
+        "optionalCosts": [
+          "ASSEMBLE_GREEN"
+        ],
+        "cmdType": "ASSEMBLE_EQUIPMENT"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-assemble-pass-priority-0",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-assemble-pass-priority-1",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-3",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-4-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-4",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-5-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-5",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-6-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-6",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06b-12"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-7-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-7",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-8-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-real-7",
+      "rawCommand": {
+        "sourceObjectId": "P2-MAIN-OGN-142-298-02",
+        "cardNo": "OGN·142/298",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-8",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06b-12"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06a-11"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-9-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-9",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126-298-04"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-10-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04a-11"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-10",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06b-12"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06a-11"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-11-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-11",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126-298-04"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-12-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04a-11"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-12",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06b-12"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06a-11"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-13-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-13",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126-298-04"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-14-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04a-11"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-end-14",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-214a-298-05"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06-10"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06b-12"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R06a-11"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-tap-15-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-8",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-SFD-051-221-02",
+        "cardNo": "SFD·051/221",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-9",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-10",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-SFD-051-221-02",
+        "targetObjectId": "P1-MAIN-OGN-210-298-06",
+        "optionalCosts": [
+          "ASSEMBLE_GREEN"
+        ],
+        "cmdType": "ASSEMBLE_EQUIPMENT"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-assemble2-pass-priority-0",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-assemble2-pass-priority-1",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-real-11",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-OGN-210-298-06",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-275-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-own-field-0",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-own-field-1",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-end-15",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042-298-01"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126a-298-05"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-2",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04-10"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-3",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02b-09"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-4",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04b-12"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-5",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042a-298-02"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-6",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-042b-298-03"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-7",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126b-298-06"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-8",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02a-08"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-9",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R02-07"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-10",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-OGN-126-298-04"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-tap-16-11",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P2-RUNE-SFD-R04a-11"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-real-12",
+      "rawCommand": {
+        "sourceObjectId": "P2-MAIN-OGN-142-298-02",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-275-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-contest-0",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "guardian-contest-1",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "guardian-real-13",
+      "rawCommand": {
+        "battlefieldId": "P1-BATTLEFIELD-OGN-275-298-01",
+        "attackerObjectIds": [
+          "P2-MAIN-OGN-142-298-02"
+        ],
+        "defenderObjectIds": [
+          "P1-MAIN-OGN-210-298-06"
+        ],
+        "optionalCosts": [
+          "COMBAT_ASSIGNMENT"
+        ],
+        "cmdType": "DECLARE_BATTLE"
+      }
+    }
+  ]
+}

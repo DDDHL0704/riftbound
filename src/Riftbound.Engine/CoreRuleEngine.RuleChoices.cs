@@ -76,13 +76,23 @@ public sealed partial class CoreRuleEngine
             return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
         }
         catch (RuleChoiceRequired required) {
-            var raw = pending?.Command ?? JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            var raw = pending?.Command ?? CaptureRuleChoiceCommand(command);
             var next = origin with { Tick = state.Tick + 1, PendingRuleChoice = new(origin, originalIntent, raw, answers, required.Request) };
             return new(true, null, next, [new("RULE_CHOICE_REQUESTED", required.Request.Reason,
                 new Dictionary<string,object?> { ["playerId"] = required.Request.PlayerId, ["choiceId"] = required.Request.Id })],
                 ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
         }
         finally { RuleChoices.Value = previous; }
+    }
+
+    private static JsonElement CaptureRuleChoiceCommand(GameCommand command)
+    {
+        // Continuations replay through the wire mapper. Capture that same form
+        // so equivalent typed nulls and wire defaults produce one checkpoint.
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var serialized = JsonSerializer.SerializeToElement(command, command.GetType(), json);
+        var replayed = GameCommandJsonMapper.Map(serialized);
+        return JsonSerializer.SerializeToElement(replayed, replayed.GetType(), json);
     }
 
     // Intermediate effects are displayed through the normal per-viewer privacy
