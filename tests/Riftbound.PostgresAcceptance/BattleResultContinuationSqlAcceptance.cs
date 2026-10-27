@@ -55,6 +55,8 @@ internal static class BattleResultContinuationSqlAcceptance
             }
             else
             {
+                var oldBattleScope = lateDefender
+                    ? state.UntilEndOfTurnEffects.Single(e => e.StartsWith("BATTLE_LIMITED_SCOPE:", StringComparison.Ordinal)) : null;
                 if (lateDefender)
                 {
                     await Submit("alice", new PassPriorityCommand());
@@ -79,9 +81,21 @@ internal static class BattleResultContinuationSqlAcceptance
                 { Check(i < 8, "Finite result continuation must finish."); await Submit(state.PriorityPlayerId!, new PassPriorityCommand()); }
                 if (lateDefender)
                 {
-                    Check(!state.CardObjects["LATE"].IsDefending && !state.CardObjects["SOURCE"].IsAttacking
+                    var closed = journal.Entries.SelectMany(e => e.Events).Single(e => e.Kind == "BATTLE_CLOSED");
+                    var cleared = JsonSerializer.SerializeToElement(closed.Payload, Json).GetProperty("clearedObjectIds")
+                        .EnumerateArray().Select(e => e.GetString()).ToArray();
+                    var nextScope = state.UntilEndOfTurnEffects.Single(e => e.StartsWith("BATTLE_LIMITED_SCOPE:", StringComparison.Ordinal));
+                    using var nextScopeData = JsonDocument.Parse(nextScope["BATTLE_LIMITED_SCOPE:".Length..]);
+                    Check(cleared.Contains("SOURCE") && cleared.Contains("LATE")
+                        && !state.UntilEndOfTurnEffects.Contains(oldBattleScope!) && nextScope != oldBattleScope
+                        && nextScopeData.RootElement.GetProperty("startedAtTick").GetInt64() == state.Tick,
+                        "The old battle clears both roles and its scope before the new battle establishes independent roles.");
+                    Check(state.CardObjects["LATE"].IsDefending && state.CardObjects["SOURCE"].IsAttacking
                         && state.PlayerScores["alice"] == 0 && state.CardObjects["FIELD"].ControllerId == "bob"
-                        && state.PendingTaskQueue.HasTasks, "Ending the old battle clears every current role and exposes the next pending battle.");
+                        && state.PendingTaskQueue.HasTasks && state.TimingState == TimingStates.SpellDuelOpen,
+                        "The next pending battle starts its own legal showdown before a second combat declaration.");
+                    for (var i = 0; state.FocusPlayerId is not null; i++)
+                    { Check(i < 4, "The second showdown focus must close."); await Submit(state.FocusPlayerId, new PassFocusCommand()); }
                     await Submit("alice", new DeclareBattleCommand("FIELD", ["SOURCE"], ["LATE"], ["COMBAT_ASSIGNMENT"]));
                     for (var i = 0; state.PriorityPlayerId is not null; i++)
                     { Check(i < 8, "The second battle response window and result must finish."); await Submit(state.PriorityPlayerId, new PassPriorityCommand()); }

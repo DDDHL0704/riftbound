@@ -118,6 +118,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         }
         else
         {
+            Assert.Equal("CONTROL_TRIGGERS", driver.State.PendingBattleResult!.Stage);
+            Assert.DoesNotContain(settled.Events, e => e.Kind == "BATTLE_CLOSED");
             var payment = Assert.IsType<PendingPaymentState>(driver.State.PendingPayment);
             Assert.Equal(vayne, Assert.Single(settled.Events, e => e.Kind == "PAYMENT_WINDOW_OPENED").Payload["sourceObjectId"]);
             Assert.Equal(1, payment.ManaCost);
@@ -129,6 +131,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
             Assert.Contains(vayne, decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         }
+        Assert.False(driver.State.BattleState.IsActive);
+        Assert.Null(driver.State.PendingBattleResult);
+        Assert.Single(driver.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), driver.State,
             new CoreRuleEngine(), default, JournalRoundTrip(driver.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
