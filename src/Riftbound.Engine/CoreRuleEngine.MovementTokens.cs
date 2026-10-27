@@ -12,7 +12,7 @@ public sealed partial class CoreRuleEngine
     {
         instruction = null!;
         if (item.MovementObserver is not { Kind: TriggerKinds.UnitMovedCreateUnitToken } context
-            || !ValidMovementObserver(context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+            || !ValidMovementObserver(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
             || !UnitMovedTriggerSpecRules.TryGetTrigger(context.CardNo, UnitMovedTriggerSpecRules.IsMovementUnitTokenTrigger, out var spec)) return false;
         ObjectLocationState? location;
         if (spec.CreatedTokenDestination == TriggerTokenDestinations.MovementOrigin)
