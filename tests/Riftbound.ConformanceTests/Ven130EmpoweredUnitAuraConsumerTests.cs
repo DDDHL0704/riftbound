@@ -17,9 +17,9 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
     public async Task TheExactPrintingAddsOneFunctionalGroupWithoutChangingExistingMembers()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var oldCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
-        Assert.Equal(1084, oldCards.Length); Assert.Equal(1085, catalog.Cards.Count);
+        Assert.Equal(1085, oldCards.Length); Assert.Equal(1086, catalog.Cards.Count);
         var prior = FunctionalUnitBuilder.Build(oldCards); var current = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(865, prior.Count); Assert.Equal(866, current.Count);
+        Assert.Equal(866, prior.Count); Assert.Equal(867, current.Count);
         foreach (var unit in prior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(current, c => c.Id == unit.Id)));
         Assert.Equal(No, Assert.Single(Assert.Single(current, c => c.Cards.Any(card => card.CardNo == No)).Cards).CardNo);
     }
