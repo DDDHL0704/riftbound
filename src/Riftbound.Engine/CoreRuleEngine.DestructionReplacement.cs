@@ -182,6 +182,25 @@ public sealed partial class CoreRuleEngine
             && !string.IsNullOrWhiteSpace(x.BattlefieldObjectId) && x.BattlefieldObjectId == y.BattlefieldObjectId;
     }
 
+    private static string? ResolveDestroyedSourceBattlefieldObjectId(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string sourceObjectId,
+        string? fallbackBattlefieldObjectId = null)
+    {
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            && !string.Equals(location.BattlefieldObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return location.BattlefieldObjectId;
+        }
+
+        return string.IsNullOrWhiteSpace(fallbackBattlefieldObjectId)
+            ? null
+            : fallbackBattlefieldObjectId;
+    }
+
     private static IReadOnlyList<DestructionOption> DestructionOptions(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools,
         string target, string player, StackItemState? cause, string? battlefieldId,
