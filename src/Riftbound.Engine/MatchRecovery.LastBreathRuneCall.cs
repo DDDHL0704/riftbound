@@ -11,17 +11,18 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateLastBreathRuneCallState(MatchState state, List<string> errors)
     {
-        bool NeedsCapturedCondition(string? cardNo, string kind)
-            => UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(cardNo).Any(t => t.Kind == kind && t.RequiresSourceEmpowered is not null);
+        bool NeedsCapturedBirth(string? cardNo, string kind)
+            => kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathCallRunesThenDraw
+                || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(cardNo).Any(t => t.Kind == kind && t.RequiresSourceEmpowered is not null);
         foreach (var item in state.StackItems)
             if (item.LastBreathRuneCall is not null ? !CoreRuleEngine.ValidLastBreathRuneCallStack(state, item)
-                : NeedsCapturedCondition(item.CardNo, item.EffectKind)
-                    || NeedsCapturedCondition(string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo, item.EffectKind))
+                : NeedsCapturedBirth(item.CardNo, item.EffectKind)
+                    || NeedsCapturedBirth(string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo, item.EffectKind))
                 errors.Add("invalid captured last-breath rune call stack");
         foreach (var item in state.TriggerQueue)
             if (item.LastBreathRuneCall is not null ? !CoreRuleEngine.ValidLastBreathRuneCallTrigger(state, item)
-                : NeedsCapturedCondition(item.SourceCardNo, item.EffectKind)
-                    || NeedsCapturedCondition(string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo, item.EffectKind))
+                : NeedsCapturedBirth(item.SourceCardNo, item.EffectKind)
+                    || NeedsCapturedBirth(string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo, item.EffectKind))
                 errors.Add("invalid captured last-breath rune call trigger");
         var contexts = state.StackItems.Select(i => i.LastBreathRuneCall)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathRuneCall)).OfType<LastBreathRuneCallContext>().ToArray();

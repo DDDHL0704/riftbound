@@ -23957,7 +23957,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveHonestBrokerLastBreathStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal))
+        if (stackItem.EffectKind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathCallRunesThenDraw)
         {
             return ResolveUnitLastBreathCallRuneStackItem(state, stackItem);
         }
@@ -26929,16 +26929,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "UNIT_DESTROYED"))
         };
         int count;
+        var drawCount = 0;
         if (stackItem.LastBreathRuneCall is { } captured)
         {
             if (!ValidLastBreathRuneCallStack(state, stackItem) || !TryGetLastBreathRuneCallSpec(captured, out var spec))
                 throw new InvalidOperationException("Invalid captured last-breath rune call.");
             count = spec.RuneCallCount!.Value;
+            if (spec.Kind == TriggerKinds.UnitLastBreathCallRunesThenDraw) drawCount = spec.DrawCount!.Value;
         }
         else
         {
-            if (UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(stackItem.CardNo).Any(t => t.RequiresSourceEmpowered is not null))
-                throw new InvalidOperationException("A conditional last-breath rune call needs its captured source state.");
+            if (stackItem.EffectKind == TriggerKinds.UnitLastBreathCallRunesThenDraw
+                || UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(stackItem.CardNo).Any(t => t.RequiresSourceEmpowered is not null))
+                throw new InvalidOperationException("This last-breath rune call needs its captured source state.");
             count = UnitLastBreathCallRuneCount(cardObjects, stackItem.SourceObjectId);
         }
         var runeCallResult = CallRunes(
@@ -26955,8 +26958,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                 ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                ["reason"] = TriggerKinds.UnitLastBreathCallRuneOne
+                ["reason"] = stackItem.EffectKind
             }));
+
+        if (drawCount > 0)
+        {
+            var draw = ApplyDrawToPlayer(state, playerZones, state.PlayerScores, stackItem.ControllerId,
+                drawCount, state.RngCursor, events, deferNormalVictory: true);
+            return new StackResolutionResult(playerZones, cardObjects, draw.PlayerScores,
+                NormalizeExperienceForSeats(state), state.RunePools, state.UntilEndOfTurnEffects,
+                draw.WinnerPlayerId, events, [], null, [], null, [], draw.RngCursor);
+        }
 
         return new StackResolutionResult(
             playerZones,
