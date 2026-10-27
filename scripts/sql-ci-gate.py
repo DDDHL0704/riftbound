@@ -38,6 +38,7 @@ def verify(commit, manifest_path, folder, jobs):
     receipts = sorted(folder.rglob('partition-receipt.json'))
     require(len(receipts) == count, 'Missing or extra SQL partition receipt.')
     seen, completed, results, authority_catalog = set(), [], [], set()
+    runtime_inputs = set()
     for path in receipts:
         data = json.loads(path.read_text())
         index = data.get('partitionIndex')
@@ -71,17 +72,21 @@ def verify(commit, manifest_path, folder, jobs):
         require({row.get('file') for row in assemblies} == {'Riftbound.PostgresAcceptance.dll', 'Riftbound.Engine.dll',
                 'Riftbound.Contracts.dll', 'Riftbound.CardCatalog.dll', 'Riftbound.Persistence.dll'} and len(assemblies) == 5
                 and all(re.fullmatch(r'[0-9a-f]{64}', row.get('sha256', ''))
-                        and re.fullmatch(r'[0-9a-f-]{36}', row.get('mvid', '')) for row in assemblies), 'Actual SQL runtime identities are required.')
+                        and re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', row.get('mvid', ''))
+                        for row in assemblies), 'Actual SQL runtime identities are required.')
         identity = data.get('actualRuleInputs', {})
         require(identity.get('schemaVersion') == 1 and identity.get('region') == 'CN' and identity.get('language') == 'zh-CN'
                 and all(re.fullmatch(r'[0-9a-f]{64}', identity.get(key, '')) for key in
                         ['authoritySha256', 'catalogSha256', 'implementationSha256', 'identitySha256']), 'Actual bound rule inputs are required.')
         authority_catalog.add((identity['authoritySha256'], identity['catalogSha256']))
+        runtime_inputs.add((identity['implementationSha256'], identity['identitySha256'],
+                            tuple(sorted((row['file'], row['sha256'], row['mvid']) for row in assemblies))))
         completed.extend(expected)
         results.append({'partitionIndex': index, 'cases': expected, 'receiptSha256': digest(path),
                         'runtimeAssemblies': assemblies, 'actualRuleInputs': identity})
     require(seen == set(range(count)) and collections.Counter(completed) == collections.Counter(cases)
             and len(authority_catalog) == 1, 'The full SQL set or authority/catalog inputs do not match.')
+    require(len(runtime_inputs) == 1, 'SQL runtime assemblies or bound rule inputs differ between partitions.')
     return {'status': 'FIXED_COMMIT_ALL_SQL_PARTITIONS_AND_NATIVE_NETWORK_PASS', 'fixedCommit': commit,
             'manifestSha256': digest(manifest_path), 'caseCount': len(cases), 'orderedDefaultCases': cases,
             'partitionCount': count, 'partitions': sorted(results, key=lambda row: row['partitionIndex']),

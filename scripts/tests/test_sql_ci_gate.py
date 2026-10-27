@@ -151,6 +151,37 @@ class SqlCiGateTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.verify()
 
+    def test_partitions_cannot_mix_runtime_or_bound_rule_inputs(self):
+        self.verify()
+        raw = self.paths[0].read_bytes()
+        changes = [
+            ('assembly-hash', lambda x: x['runtimeAssemblies'][0].update(sha256='4' * 64)),
+            ('assembly-mvid', lambda x: x['runtimeAssemblies'][0].update(mvid='11111111-1111-1111-1111-111111111111')),
+            ('implementation', lambda x: x['actualRuleInputs'].update(implementationSha256='4' * 64)),
+            ('bound-identity', lambda x: x['actualRuleInputs'].update(identitySha256='4' * 64)),
+        ]
+        for name, change in changes:
+            with self.subTest(changed=name):
+                self.paths[0].write_bytes(raw)
+                self.mutate(change)
+                with self.assertRaisesRegex(ValueError, 'runtime|rule inputs'):
+                    self.verify()
+
+    def test_runtime_assembly_order_does_not_change_identity(self):
+        self.mutate(lambda x: x['runtimeAssemblies'].reverse())
+        result = self.verify()
+        self.assertEqual(69, result['caseCount'])
+        self.assertFalse(result['nativeVisibleOrWholeRuleCertification'])
+
+    def test_runtime_mvid_requires_guid_format(self):
+        raw = self.paths[0].read_bytes()
+        for mvid in ['-' * 36, 'a' * 36]:
+            with self.subTest(mvid=mvid):
+                self.paths[0].write_bytes(raw)
+                self.mutate(lambda x: x['runtimeAssemblies'][0].update(mvid=mvid))
+                with self.assertRaisesRegex(ValueError, 'runtime identities'):
+                    self.verify()
+
     def test_manifest_matches_every_actual_default_call_and_keeps_order(self):
         source = (ROOT / 'tests/Riftbound.PostgresAcceptance/Program.cs').read_text()
         calls = re.findall(r'await partition.RunAsync\("([^\"]+)"', source)
