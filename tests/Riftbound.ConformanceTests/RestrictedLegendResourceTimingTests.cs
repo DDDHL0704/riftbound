@@ -33,6 +33,12 @@ public sealed class RestrictedLegendResourceTimingTests
             Assert.Null(game.State.PriorityPlayerId); Assert.Equal("P1", game.State.FocusPlayerId);
             // Neither spell-only nor equipment-only power is unrestricted power.
             Assert.Equal(0, game.State.RunePools["P1"].Power);
+            var pool = game.State.RunePools["P1"];
+            Assert.Equal(0, pool.TotalPower); Assert.Equal(1, pool.TotalStoredPower);
+            Assert.Equal(ability == LegendActionAbilityCatalog.KaisaLegendAbilityId ? 1 : 0, pool.SpellOnlyPower);
+            Assert.Equal(ability == LegendActionAbilityCatalog.OrnnLegendAbilityId ? 1 : 0, pool.EquipmentOnlyPower);
+            Assert.Equal(pool, core.State.RunePools["P1"]);
+            Assert.Equal(initial.ActivePlayerId, game.State.ActivePlayerId);
             Assert.Single(core.Events, e => e.Kind == "POWER_GAINED");
             await game.Replay();
         }

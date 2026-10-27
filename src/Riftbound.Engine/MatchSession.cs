@@ -7307,11 +7307,10 @@ internal static class ActionPromptBuilder
         int ManaGainAmount = 0,
         int PowerGainAmount = 0,
         string TimingKind = LegendActionTimingKinds.MainOpen,
-        bool RequiresPendingSpellStackItem = false,
-        bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
-        string RequiredControlledBattlefieldStaticAbilityKind = "");
+        string RequiredControlledBattlefieldStaticAbilityKind = "",
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -7344,6 +7343,7 @@ internal static class ActionPromptBuilder
     {
         public const string MainOpen = "MAIN_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }
 
@@ -10858,8 +10858,8 @@ internal static class ActionPromptBuilder
                 false,
                 "GAIN_POWER",
                 PowerGainAmount: 1,
-                TimingKind: LegendActionTimingKinds.PriorityWindow,
-                RequiresPendingSpellStackItem: true),
+                TimingKind: LegendActionTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.PlaySpell),
             new(
                 OrnnLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(OrnnLegendAbilityId),
@@ -10871,8 +10871,8 @@ internal static class ActionPromptBuilder
                 false,
                 "GAIN_POWER",
                 PowerGainAmount: 1,
-                TimingKind: LegendActionTimingKinds.PriorityWindow,
-                RequiresPendingEquipmentStackItem: true),
+                TimingKind: LegendActionTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
             new(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -11159,6 +11159,9 @@ internal static class ActionPromptBuilder
         string playerId,
         LegendActionAbilityDefinition ability)
     {
+        if (ability.TimingKind == LegendActionTimingKinds.ResourceAction)
+            return ResourceActionWindow.CanAct(state, playerId);
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
             return false;
@@ -11200,27 +11203,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        if (ability.RequiresPendingSpellStackItem
-            && !LegendActionPendingStackSourceHasTag(state, CardObjectTags.SpellCard))
-        {
-            return false;
-        }
-
-        if (ability.RequiresPendingEquipmentStackItem
-            && !LegendActionPendingStackSourceHasTag(state, CardObjectTags.EquipmentCard))
-        {
-            return false;
-        }
-
         return !ability.RequiresEzrealEnemyTargetsThisTurn
             || LegendActionEzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, playerId) >= EzrealEnemyTargetThreshold;
-    }
-
-    private static bool LegendActionPendingStackSourceHasTag(MatchState state, string tag)
-    {
-        return state.StackItems.Any(stackItem =>
-            state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && sourceState.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
     private static int LegendActionEzrealEnemyTargetsThisTurnCount(IReadOnlyList<string> effectIds, string playerId)
@@ -11346,6 +11330,7 @@ internal static class ActionPromptBuilder
         {
             LegendActionTimingKinds.MainOpen => "主阶段开环",
             LegendActionTimingKinds.PriorityWindow => "优先权窗口",
+            LegendActionTimingKinds.ResourceAction => "反应资源行动窗口",
             LegendActionTimingKinds.SpellDuelFocus => "法术对决焦点",
             _ => timingKind
         };

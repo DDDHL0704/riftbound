@@ -7545,24 +7545,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        if (ability.RequiresPendingSpellStackItem
-            && !PendingStackSourceHasTag(state, CardObjectTags.SpellCard))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{ability.DisplayName} requires a pending spell stack item.",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (ability.RequiresPendingEquipmentStackItem
-            && !PendingStackSourceHasTag(state, CardObjectTags.EquipmentCard))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{ability.DisplayName} requires a pending equipment stack item.",
-                ErrorCodes.InvalidTarget);
-        }
-
         if (ability.RequiresEzrealEnemyTargetsThisTurn
             && EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, intent.PlayerId) < EzrealEnemyTargetThreshold)
         {
@@ -7858,6 +7840,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     runePools,
                     intent.PlayerId,
                     ability.PowerGainAmount,
+                    ability.GrantedPowerPurpose,
                     command.SourceObjectId,
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
@@ -7908,7 +7891,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextState = state with
         {
             Tick = state.Tick + 1,
-            ActivePlayerId = intent.PlayerId,
+            ActivePlayerId = ability.TimingKind == LegendAbilityTimingKinds.ResourceAction ? state.ActivePlayerId : intent.PlayerId,
             RunePools = runePools,
             PlayerZones = playerZones,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
@@ -7934,6 +7917,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         LegendAbilityDefinition ability)
     {
+        if (ability.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+            return ResourceActionWindow.CanAct(state, playerId);
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
             return false;
@@ -7994,13 +7980,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         battlefieldObjectId = found?.ObjectId ?? string.Empty;
         battlefieldState = found ?? new CardObjectState();
         return found is not null;
-    }
-
-    private static bool PendingStackSourceHasTag(MatchState state, string tag)
-    {
-        return state.StackItems.Any(stackItem =>
-            state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && sourceState.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
     private static bool TryGetLegendAbility(
@@ -8163,8 +8142,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainPower,
                 PowerGainAmount: KaisaLegendPowerGain,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
-                RequiresPendingSpellStackItem: true),
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.PlaySpell),
             OrnnLegendAbilityId => new LegendAbilityDefinition(
                 OrnnLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(OrnnLegendAbilityId),
@@ -8176,8 +8155,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainPower,
                 PowerGainAmount: OrnnLegendPowerGain,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
-                RequiresPendingEquipmentStackItem: true),
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
             EzrealLegendAbilityId => new LegendAbilityDefinition(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -8674,6 +8653,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, RunePool> currentRunePools,
         string playerId,
         int powerAmount,
+        PowerPaymentPurpose purpose,
         string sourceObjectId,
         string sourceCardNo,
         IReadOnlyList<string> sourceCardNos,
@@ -8682,9 +8662,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = currentPool with
+        var nextPool = purpose switch
         {
-            Power = currentPool.Power + powerAmount
+            PowerPaymentPurpose.PlaySpell => currentPool with { SpellOnlyPower = currentPool.SpellOnlyPower + powerAmount },
+            PowerPaymentPurpose.Equipment => currentPool with { EquipmentOnlyPower = currentPool.EquipmentOnlyPower + powerAmount },
+            _ => currentPool with { Power = currentPool.Power + powerAmount }
         };
         runePools[playerId] = nextPool;
         events.Add(new GameEvent(
@@ -8703,7 +8685,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["generatedResource"] = true,
                 ["amount"] = powerAmount,
                 ["power"] = powerAmount,
-                ["powerAfter"] = nextPool.Power
+                ["powerAfter"] = nextPool.Power,
+                ["powerPurpose"] = purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
+                ["spellOnlyPowerAfter"] = nextPool.SpellOnlyPower,
+                ["equipmentOnlyPowerAfter"] = nextPool.EquipmentOnlyPower
             }));
         return runePools;
     }
@@ -34780,11 +34765,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int ManaGainAmount = 0,
         int PowerGainAmount = 0,
         string TimingKind = LegendAbilityTimingKinds.MainOpen,
-        bool RequiresPendingSpellStackItem = false,
-        bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
-        string RequiredControlledBattlefieldStaticAbilityKind = "");
+        string RequiredControlledBattlefieldStaticAbilityKind = "",
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
 
     private static class LegendAbilityEffectKinds
     {
@@ -34808,6 +34792,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public const string MainOpen = "MAIN_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }
 
