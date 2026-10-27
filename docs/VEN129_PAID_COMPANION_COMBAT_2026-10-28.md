@@ -55,3 +55,5 @@ CN37829／VEN·129「神圣守护者」本批补足正常印次、真实符文�
 PR205 原 head b3d67c8a／synthetic c4d6dbc0 的 [L2 40508218421](https://github.com/DDDHL0704/riftbound/actions/runs/40508218421) 已自然成功。四原 ZIP 均核平台 digest 并保留，原定向 6481 方法／12165 例、规则 8517／16667，原 plan 方法与实际 TRX 完全一致、零跳过；见 `pr205-original-l2-audit-v14.json` SHA256 `5f69a1e6bfc336be4e20c2ef3cff8477bf0c7963be1e61503355d222483cba13`。旧包报告相同测试 DLL SHA，但未包含 DLL 字节／Info／MVID，不补造该证据。该运行属于旧分开执行的工作流，不能改称当前六片单次执行或认证当前 No129／已前移 main。
 
 本线继续用同一主 PR205 交付完整后继，重新执行最新 head／base／synthetic 的 `L2 required`。固定 main L3、来源适用性、整卡与全后端仍 **OPEN**；旧在途／终态运行和原始失败不取消、不改绑，Goal 继续。
+
+发布前的祖先检查阻止了一次错误前提：PR 的 base 字段不代表分支已包含 main。随后普通合入 `aa529812826a53e408d4ae85a50b7f2f296da62f` 为 `3c8f1db5f23704ddf3648222095a051fbee8c68b`；增量仅继承①完整 CI 安全参数行分片与对应文档／工具，src／data／Conformance tests 字节未变。继承工具的二十条单测另通过；见 `ordinary-main-intake-v16.json` SHA256 `cf8ef7377501aa4f2bdde66c0631d3d78539327f4d4b8db7e042e3310e1fd05b`。原 082 的十一行／二十三行及旧 c4d L2 仍留在各自实际输入，不能改标为新组合执行。
