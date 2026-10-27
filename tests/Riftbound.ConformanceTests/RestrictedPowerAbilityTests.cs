@@ -92,7 +92,8 @@ public sealed class RestrictedPowerAbilityTests
             const string opponentId = "P2-ORIGINAL-LEGEND";
             cards.Remove("LEGEND"); cards[opponentId] = opponentLegend with { ObjectId = opponentId };
             var locations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations);
-            locations[opponentId] = locations["LEGEND"]; locations.Remove("LEGEND");
+            locations[opponentId] = locations.GetValueOrDefault("LEGEND", new ObjectLocationState("P2", "LEGEND"));
+            locations.Remove("LEGEND");
             state = state with { CardObjects = cards, ObjectLocations = locations,
                 PlayerZones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value with {
                     LegendZone = p.Value.LegendZone.Select(id => id == "LEGEND" ? opponentId : id).ToArray() }) };
