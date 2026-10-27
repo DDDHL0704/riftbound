@@ -7,7 +7,8 @@ namespace Riftbound.Engine;
 public sealed record EmpowerActivationContext(ObjectBinding Source, string CardNo, int Keyword, int Alternative,
     int PaidMana, int ControlledRunes, long AcquiredTick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DiscardedHandCard = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DiscardedHandCard = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DestructionCostUnit = null);
 internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative)
 {
     internal string? InstanceId => Instance.Origin is null ? null : $"{Instance.Id}:{Id}";
@@ -19,7 +20,11 @@ internal static class EmpowerRules
     internal static bool RequiresHandDiscard(EmpowerCostSpec cost)
         => !cost.SupportedResources && (cost.AdditionalCost is "弃置一张手牌" or "弃置一张法术牌") && !cost.Exhaust
             && cost.Mana == 0 && cost.Power == 0 && cost.TypedPower.Count == 0;
-    internal static bool SupportedCost(EmpowerCostSpec cost) => cost.SupportedResources || RequiresHandDiscard(cost);
+    internal static bool RequiresFriendlyUnitDestruction(EmpowerCostSpec cost)
+        => !cost.SupportedResources && cost.AdditionalCost == "摧毁一名友方单位" && !cost.Exhaust
+            && cost.Mana == 0 && cost.Power == 0 && cost.TypedPower.Count == 0;
+    internal static bool SupportedCost(EmpowerCostSpec cost)
+        => cost.SupportedResources || RequiresHandDiscard(cost) || RequiresFriendlyUnitDestruction(cost);
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
     private static readonly Lazy<IReadOnlyDictionary<string, (IReadOnlyList<EmpowerSpec> Specs, EmpoweredSelfSpec Self, IReadOnlyList<EmpoweredSpellSpec> Spells, IReadOnlyList<EmpoweredSpellCostReductionSpec> CostReductions)>> Profiles = new(() =>
@@ -71,6 +76,12 @@ internal static class EmpowerRules
                 && CopyFaceTimeline.FaceAt(live, c.FaceRevision, c.AcquiredTick) != c.CardNo) return false;
         var spec = specs[c.Keyword]; var cost = spec.Alternatives[c.Alternative];
         if (!SupportedCost(cost) || c.PaidMana != Mana(spec, cost, c.ControlledRunes)) return false;
+        if (RequiresFriendlyUnitDestruction(cost))
+            return c.DiscardedHandCard is null && c.DestructionCostUnit is { Generation: >= 0 } destroyed
+                && !string.IsNullOrWhiteSpace(destroyed.ObjectId)
+                && state.CardObjects.TryGetValue(destroyed.ObjectId, out var paidUnit)
+                && destroyed.Generation <= paidUnit.ObjectGeneration;
+        if (c.DestructionCostUnit is not null) return false;
         if (!RequiresHandDiscard(cost)) return c.DiscardedHandCard is null;
         return c.DiscardedHandCard is { Generation: >= 0 } discarded
             && !string.IsNullOrWhiteSpace(discarded.ObjectId) && discarded.ObjectId != c.Source.ObjectId
@@ -81,6 +92,22 @@ internal static class EmpowerRules
 
 public sealed partial class CoreRuleEngine
 {
+    internal static IReadOnlyList<string> EmpowerFriendlyUnitDestructionCostChoices(MatchState state, string actor, EmpowerCostSpec cost)
+        => !EmpowerRules.RequiresFriendlyUnitDestruction(cost) || !state.PlayerZones.TryGetValue(actor, out var zones) ? []
+            : zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal)
+                .Where(id => CanDestroyFriendlyUnitAsAdditionalCost(state, actor, id)
+                    && !state.CardObjects[id].IsFaceDown).Order(StringComparer.Ordinal).ToArray();
+
+    internal static bool TrySelectEmpowerFriendlyUnitDestructionCost(MatchState state, string actor,
+        EmpowerCostSpec cost, IReadOnlyList<string> choices, out ObjectBinding? destroyed)
+    {
+        destroyed = null;
+        if (choices.Count != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(choices[0], out var id)
+            || choices[0] != DestroyFriendlyUnitAdditionalCostPrefix + id
+            || !EmpowerFriendlyUnitDestructionCostChoices(state, actor, cost).Contains(id, StringComparer.Ordinal)) return false;
+        destroyed = new(id, state.CardObjects[id].ObjectGeneration); return true;
+    }
+
     internal static IReadOnlyList<string> EmpowerHandDiscardCostChoices(MatchState state, string actor, string source, EmpowerCostSpec cost)
         => !EmpowerRules.RequiresHandDiscard(cost) || !state.PlayerZones.TryGetValue(actor, out var zones) ? [] : zones.Hand
             .Where(id => id != source && IsFriendlyHandCard(state, actor, id)
@@ -112,12 +139,18 @@ public sealed partial class CoreRuleEngine
         if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, requestedCosts,
             out var extra, out var resources, out var recycled))
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
-        ObjectBinding? discarded = null;
+        ObjectBinding? discarded = null, destroyed = null;
         if (EmpowerRules.RequiresHandDiscard(ability.Cost))
         {
             if (requestedCosts.Count != (command.OptionalCosts?.Count ?? 0)
                 || !TrySelectEmpowerHandDiscardCost(state, intent.PlayerId, source.ObjectId, ability.Cost, extra, out discarded))
                 return RejectWithCorePrompts(state, "请恰好选择一张符合强化费用要求的手牌。", ErrorCodes.InvalidTarget);
+        }
+        else if (EmpowerRules.RequiresFriendlyUnitDestruction(ability.Cost))
+        {
+            if (requestedCosts.Count != (command.OptionalCosts?.Count ?? 0)
+                || !TrySelectEmpowerFriendlyUnitDestructionCost(state, intent.PlayerId, ability.Cost, extra, out destroyed))
+                return RejectWithCorePrompts(state, "请恰好选择一名友方公开单位作为强化费用。", ErrorCodes.InvalidTarget);
         }
         else if (extra.Count != 0)
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
@@ -147,20 +180,40 @@ public sealed partial class CoreRuleEngine
         if (cost.Exhaust) cards[source.ObjectId] = cards[source.ObjectId] with { IsExhausted = true };
         var context = new EmpowerActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Spec.Index, ability.Alternative, mana, runes, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0,
-            ability.Instance.Origin, discarded);
+            ability.Instance.Origin, discarded, destroyed);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EMPOWER", intent.PlayerId, source.ObjectId,
             EmpowerRules.Effect, ability.Instance.CardNo, [], 0, 0, []) { EmpowerActivation = context };
+        var committedPools = payment.RunePools;
+        IReadOnlyList<string> destroyedOwners = [];
+        IReadOnlyList<TriggerQueueItemState> costTriggers = [];
+        if (destroyed is not null)
+        {
+            // CN203.2: replacement of the destruction action still pays this cost.
+            // Use the shared field pipeline for replacements, attached cards and death observers.
+            var removal = ResolveFieldDestructions(state with { PlayerExperience = payment.PlayerExperience }, zones, cards,
+                item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), committedPools,
+                objectLocations: locations, explicitDestroyObjectIds: new HashSet<string> { destroyed.ObjectId },
+                explicitDestroyReason: "REQUIRED_COST");
+            if (removal.Events.Count == 0)
+                return RejectWithCorePrompts(state, "无法支付所选摧毁费用。", ErrorCodes.InvalidTarget);
+            events.AddRange(removal.Events); destroyedOwners = removal.DestroyedUnitOwnerIds;
+            costTriggers = removal.TriggerQueue; committedPools = removal.RunePools;
+            locations = ReconcileObjectLocations(locations, zones);
+        }
         var paidDetails = new Dictionary<string, object?> { ["sourceObjectId"] = source.ObjectId, ["abilityId"] = ability.Id };
         if (discarded is not null) paidDetails["discardedHandCardObjectIds"] = new[] { discarded.ObjectId };
-        events.Add(new("COST_PAID", "支付强化费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, paidDetails)));
+        if (destroyed is not null) paidDetails["destroyedAdditionalCostTargetObjectIds"] = new[] { destroyed.ObjectId };
+        events.Add(new("COST_PAID", "支付强化费用", PaymentCostRules.BuildCostPaidPayload(plan, committedPools, payment.PlayerExperience, paidDetails)));
         events.Add(new("ABILITY_ACTIVATED", "激活强化技能", new Dictionary<string, object?> { ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.Id, ["abilityInstanceId"] = command.AbilityInstanceId, ["effectKind"] = EmpowerRules.Effect,
             ["targetObjectIds"] = Array.Empty<string>() }));
         events.Add(new("STACK_ITEM_ADDED", "强化技能进入结算链", new Dictionary<string, object?> {
             ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = source.ObjectId, ["effectKind"] = EmpowerRules.Effect }));
         var next = state with { Tick = state.Tick + 1, CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
-            RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience, UntilEndOfTurnEffects = effects,
+            RunePools = committedPools, PlayerExperience = payment.PlayerExperience, UntilEndOfTurnEffects = effects,
             StackItems = [..state.StackItems, item],
+            TriggerQueue = [..state.TriggerQueue, ..costTriggers],
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyedOwners),
             TimingState = TimingStates.NeutralClosed, ActivePlayerId = intent.PlayerId, PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [] };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
