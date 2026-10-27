@@ -692,8 +692,8 @@ public sealed class CardCatalogBaselineTests
         // VEN110 adds a classified banish template; these text counts do not certify its pending observer.
         AssertFamily(report, BehaviorTemplateIds.Banish, 31, 31, 0, 0, 27, 27, 0);
         // The text classifier includes VEN050's Steadfast reminder and VEN070/VEN007 permanent empowered bonuses.
-        // It also classifies VEN130's conditional passive aura; permanent and current passive semantics are asserted separately.
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 277, 277, 0, 0, 225, 225, 0);
+        // It also classifies VEN130's conditional passive aura and VEN078's conditional self bonus; permanent/passive semantics are asserted separately.
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 278, 278, 0, 0, 226, 226, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
         Assert.All(report.Families, family =>
@@ -949,16 +949,16 @@ public sealed class CardCatalogBaselineTests
         AssertLifecycleKeywordCoverage(
             lifecycleRows,
             CardLifecycleKeywordNames.LastBreath,
-            entries: 26,
-            specImplementedEntries: 26,
-            functionalUnits: 26,
-            specImplementedFunctionalUnits: 26,
+            entries: 27,
+            specImplementedEntries: 27,
+            functionalUnits: 27,
+            specImplementedFunctionalUnits: 27,
             profileImplementedEntries: 0,
             profileDelegatedEntries: 0,
-            profileDeferredEntries: 26,
+            profileDeferredEntries: 27,
             profileImplementedFunctionalUnits: 0,
             profileDelegatedFunctionalUnits: 0,
-            profileDeferredFunctionalUnits: 26);
+            profileDeferredFunctionalUnits: 27);
         AssertLifecycleKeywordCoverage(
             lifecycleRows,
             CardLifecycleKeywordNames.Predict,
@@ -975,12 +975,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 557,
-            specImplementedEntries: 557,
+            entries: 558,
+            specImplementedEntries: 558,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 447,
-            specImplementedFunctionalUnits: 447,
+            functionalUnits: 448,
+            specImplementedFunctionalUnits: 448,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,
