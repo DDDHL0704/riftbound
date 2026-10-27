@@ -140,7 +140,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
         finally { await Save(copiedNo, copies, initial, game); }
     }
 
-    private static string CostChoice(MatchState state, string source, string victim)
+    internal static string CostChoice(MatchState state, string source, string victim)
     {
         var candidate = Assert.Single(ResolutionResult.BuildPrompts(state)["P1"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
         var row = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]),
@@ -148,7 +148,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
         return Assert.Single(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(row["additionalCostChoices"]),
             c => c.ObjectIds is not null && c.ObjectIds.SequenceEqual([victim])).Id;
     }
-    private static MatchState Position(string copiedNo, int copies)
+    internal static MatchState Position(string copiedNo, int copies)
     {
         var state = VenUnitEntryBasicTests.Position("VEN·124"); var cards = state.CardObjects.ToDictionary(); var locations = state.ObjectLocations.ToDictionary(); var zones = state.PlayerZones.ToDictionary();
         cards["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", copiedNo, "P1");
