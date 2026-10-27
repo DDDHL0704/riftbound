@@ -21,7 +21,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
         var initial = Position(copiedNo, copies); var game = new Driver(initial);
         try
         {
-            Assert.Empty(game.State.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.MinionTokenFamily)));
+            Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
             for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
             Assert.Equal(12, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
@@ -42,7 +42,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
             Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(factory!, out var definition)); Assert.Equal("随从", definition.TokenFamilyName);
             await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-1"));
             await game.Act("P1", new AssembleEquipmentCommand("GEAR", tokenId, ["ASSEMBLE_YELLOW"])); await game.Top();
-            var selection = Assert.IsType<PendingRuleChoiceState>(game.State.PendingRuleChoice);
+            var selection = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
             Assert.Equal("ATTACHMENT_COPY_SELECTION", selection.Request.Kind);
             await game.Act("P1", new PayCostCommand(selection.Request.Id, "RULE_REPLACEMENT", ["COPY:ALLY"]));
             Assert.Equal(copiedNo, game.State.CardObjects[tokenId].CardNo); Assert.Equal(factory, game.State.CardObjects[tokenId].TokenFactoryCardNo);
