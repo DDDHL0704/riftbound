@@ -22146,7 +22146,7 @@ public static partial class MatchRecoveryValidator
             choicePayload,
             "sourceObjectId",
             "spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object",
-            authoritativeChoice.MovementObserver is null ? authoritativeChoice.SourceObjectId
+            authoritativeChoice.MovementObserver is null && authoritativeChoice.LastBreathDraw is null ? authoritativeChoice.SourceObjectId
                 : ResolutionResult.VisibleObjectIdForViewer(authoritativeState, authoritativeChoice.SourceObjectId, string.Empty),
             errors);
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
@@ -22386,6 +22386,8 @@ public static partial class MatchRecoveryValidator
         Func<string, bool> isKnownChoiceState,
         List<string> errors)
     {
+        if (TryReadObjectValue(choicePayload, "lastBreathDraw", out _))
+            errors.Add("public hand choice exposes a private last-breath draw birth receipt");
         ValidateSnapshotPayloadRequiredStringValue(
             choicePayload,
             "choiceId",
@@ -27413,7 +27415,8 @@ public static partial class MatchRecoveryValidator
 
         if (authoritativeState.PendingHandChoice is not null)
         {
-            if (authoritativeState.PendingHandChoice.MovementObserver is null || !CoreRuleEngine.ValidMovementDiscardChoice(authoritativeState))
+            if (!(authoritativeState.PendingHandChoice.MovementObserver is not null && CoreRuleEngine.ValidMovementDiscardChoice(authoritativeState))
+                && !CoreRuleEngine.ValidLastBreathDiscardChoice(authoritativeState))
                 ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                     $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
                     authoritativeState.PendingHandChoice.SourceObjectId,

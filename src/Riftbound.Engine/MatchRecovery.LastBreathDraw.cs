@@ -11,14 +11,24 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateLastBreathDrawState(MatchState state, List<string> errors)
     {
+        bool MissingDiscardBirth(string id, string kind)
+            => kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathDiscardDraw
+                && (id.StartsWith("TRIGGER-death-", StringComparison.Ordinal)
+                    || id.StartsWith("ordered-TRIGGER-death-", StringComparison.Ordinal));
         foreach (var item in state.StackItems)
-            if (item.LastBreathDraw is not null && !CoreRuleEngine.ValidLastBreathDrawStack(state, item))
+            if (item.LastBreathDraw is not null ? !CoreRuleEngine.ValidLastBreathDrawStack(state, item)
+                : MissingDiscardBirth(item.StackItemId, item.EffectKind))
                 errors.Add("invalid captured last-breath draw stack");
         foreach (var item in state.TriggerQueue)
-            if (item.LastBreathDraw is not null && !CoreRuleEngine.ValidLastBreathDrawTrigger(state, item))
+            if (item.LastBreathDraw is not null ? !CoreRuleEngine.ValidLastBreathDrawTrigger(state, item)
+                : MissingDiscardBirth(item.TriggerId, item.EffectKind))
                 errors.Add("invalid captured last-breath draw trigger");
+        if (state.PendingHandChoice is { } choice && CoreRuleEngine.NeedsCapturedLastBreathDiscardChoice(choice)
+            && !CoreRuleEngine.ValidLastBreathDiscardChoice(state))
+            errors.Add("invalid captured last-breath discard-draw continuation");
         var contexts = state.StackItems.Select(i => i.LastBreathDraw)
-            .Concat(state.TriggerQueue.Select(i => i.LastBreathDraw)).OfType<LastBreathDrawContext>().ToArray();
+            .Concat(state.TriggerQueue.Select(i => i.LastBreathDraw))
+            .Append(state.PendingHandChoice?.LastBreathDraw).OfType<LastBreathDrawContext>().ToArray();
         if (contexts.Select(c => (c.DeathId, c.InstanceId, c.TriggerIndex)).Distinct().Count() != contexts.Length)
             errors.Add("duplicate captured last-breath draw instance");
     }

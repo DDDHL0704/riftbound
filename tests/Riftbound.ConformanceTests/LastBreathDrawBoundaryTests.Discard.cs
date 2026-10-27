@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Riftbound.Contracts;
+using Riftbound.Engine;
 using Xunit;
 using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
@@ -41,10 +43,23 @@ public sealed partial class LastBreathDrawBoundaryTests
                 var hand = game.State.PlayerZones["P1"].Hand.ToArray();
                 var deck = game.State.PlayerZones["P1"].MainDeck.ToArray(); prefix = game.Events().Length;
                 Assert.Equal(3, hand.Length); Assert.Equal("P1", game.State.StackItems[^1].ControllerId);
-                await game.Top(); var choice = Assert.IsType<Riftbound.Engine.PendingHandChoiceState>(game.State.PendingHandChoice);
+                await game.Top(); var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
                 Assert.Equal("P1", choice.PlayerId); Assert.Equal(2, choice.RequiredCount); Assert.Equal(2, choice.DrawCount);
                 Assert.Equal(hand, choice.LegalObjectIds); Assert.Equal(hand, game.State.PlayerZones["P1"].Hand);
                 Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind is "CARD_DISCARDED" or "CARD_DRAWN");
+                if (i == 0)
+                {
+                    AssertAgentChoiceBindings(game);
+                    foreach (var player in new[] { "P2", "P1" })
+                    {
+                        var invalid = new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                            player == "P2" ? hand.Take(2).ToArray() : []);
+                        var raw = JsonSerializer.SerializeToNode(invalid, Json)!.AsObject();
+                        raw["promptId"] = game.PromptFor(player).PromptId; raw["snapshotTick"] = game.State.Tick;
+                        await game.ActRetained(new(player, "agent-choice-reject-" + player,
+                            JsonSerializer.SerializeToElement(raw, Json)), expectedAccepted: false);
+                    }
+                }
                 var discarded = hand.Take(2).ToArray();
                 await game.Act("P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, discarded));
                 Assert.Null(game.State.PendingHandChoice);
@@ -59,5 +74,29 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.Empty(game.State.TriggerQueue); await game.Replay();
         }
         finally { await Save("actual-paid-agent-discard-draw-" + copies, initial, game); }
+    }
+
+    private static void AssertAgentChoiceBindings(Driver game)
+    {
+        var state = game.State; var choice = state.PendingHandChoice!;
+        var birth = Assert.IsType<LastBreathDrawContext>(choice.LastBreathDraw);
+        foreach (var invalid in new[] {
+            choice with { LastBreathDraw = null }, choice with { DrawCount = 1 },
+            choice with { LastBreathDraw = birth with { ControllerId = "P2" } },
+            choice with { LastBreathDraw = birth with { Source = birth.Source with { Generation = state.CardObjects["UNIT"].ObjectGeneration } } }
+        })
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with { PendingHandChoice = invalid }),
+                error => error.Contains("captured last-breath", StringComparison.Ordinal));
+        var commands = game.Commands(); var events = game.Events(); var sequence = commands[^1].CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+        var payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(snapshots["P2"].Timing["pendingHandChoice"], Json), Json)!;
+        Assert.False(payload.ContainsKey("lastBreathDraw")); Assert.False(payload.ContainsKey("legalObjectIds"));
+        payload["lastBreathDraw"] = birth;
+        views["P2"] = views["P2"] with { Snapshot = snapshots["P2"] with {
+            Timing = new Dictionary<string, object?>(snapshots["P2"].Timing) { ["pendingHandChoice"] = payload } } };
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator),
+            error => error.Contains("private last-breath draw birth receipt", StringComparison.Ordinal));
     }
 }

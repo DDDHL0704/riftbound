@@ -218,7 +218,7 @@ internal static class UnitDestroyedTriggerSpecRules
 
     public static bool IsSelfDrawTrigger(TriggerSpec trigger)
         => IsLastBreathDrawOneTrigger(trigger) || IsLastBreathDrawIfAloneTrigger(trigger)
-            || IsLastBreathDrawIfNotAloneTrigger(trigger);
+            || IsLastBreathDrawIfNotAloneTrigger(trigger) || IsLastBreathDiscardDrawTrigger(trigger);
 
     public static IReadOnlyList<TriggerSpec> SelfDrawTriggers(string? cardNo)
         => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)

@@ -99,11 +99,34 @@ public sealed partial class CoreRuleEngine
         => new(LastBreathDrawTriggerId(context), context.ControllerId, context.Source.ObjectId,
             context.Kind, TriggerTimings.UnitDestroyed) { SourceCardNo = context.CardNo, LastBreathDraw = context };
 
+    internal static bool NeedsCapturedLastBreathDiscardChoice(PendingHandChoiceState choice)
+        => choice.LastBreathDraw is not null
+            || choice.ChoiceId.StartsWith("CHOICE-ordered-TRIGGER-death-", StringComparison.Ordinal);
+
+    internal static bool ValidLastBreathDiscardChoice(MatchState state)
+    {
+        if (state.PendingHandChoice is not { LastBreathDraw: { } context } choice
+            || !ValidLastBreathDraw(state, context) || !TryGetLastBreathDrawSpec(context, out var spec)
+            || !UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(spec)) return false;
+        return choice.ChoiceId == "CHOICE-ordered-" + LastBreathDrawTriggerId(context)
+            && choice.ChoiceWindow == UndercoverAgentHandChoiceWindow
+            && choice.PlayerId == context.ControllerId && choice.SourceObjectId == context.Source.ObjectId
+            && choice.EffectKind == context.Kind && choice.Reason == context.Kind
+            && choice.RequiredCount == spec.DiscardCount && choice.MaxCount == spec.DiscardCount
+            && choice.DrawCount == spec.DrawCount
+            && state.PlayerZones.TryGetValue(choice.PlayerId, out var zones)
+            && choice.LegalObjectIds.SequenceEqual(zones.Hand.Where(id =>
+                IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, choice.PlayerId, id)));
+    }
+
     private static StackResolutionResult ResolveCapturedLastBreathDraw(MatchState state, StackItemState item)
     {
         if (item.LastBreathDraw is not { } context || !ValidLastBreathDrawStack(state, item)
             || !TryGetLastBreathDrawSpec(context, out var spec))
             throw new InvalidOperationException("Invalid captured last-breath draw.");
+        if (UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(spec))
+            return ResolveDiscardDrawStackItem(state, item, spec.DiscardCount!.Value, spec.DrawCount!.Value,
+                spec.Kind, UndercoverAgentHandChoiceWindow, TriggerTimings.UnitDestroyed);
         var count = state.Phase == MatchPhases.TurnStart && state.TurnPlayerId == item.ControllerId
             && spec.OwnBeginningDrawCount is { } own ? own : spec.DrawCount!.Value;
         return ResolveLastBreathDrawStackItem(state, item, count);

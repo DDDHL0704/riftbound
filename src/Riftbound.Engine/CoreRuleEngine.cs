@@ -2997,6 +2997,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PromptExpired);
         }
 
+        if (NeedsCapturedLastBreathDiscardChoice(pendingChoice) && !ValidLastBreathDiscardChoice(state))
+            return RejectWithCorePrompts(state, "绝念弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
+
         var submittedObjectIds = chosenObjectIds
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId.Trim())
@@ -4926,28 +4929,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destroyedState.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
                 out triggerSpec))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveUndercoverAgentLastBreathPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
-                out var triggerSpec))
         {
             return null;
         }
@@ -25966,20 +25947,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var undercoverAgentPlayerId = ResolveUndercoverAgentLastBreathPlayerId(
-                                targetState,
-                                removalResult);
-                            if (undercoverAgentPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    undercoverAgentPlayerId,
-                                    TriggerKinds.UnitLastBreathDiscardDraw);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
                             var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
                                 targetState,
                                 removalResult);
@@ -27121,6 +27088,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveUndercoverAgentLastBreathStackItem(MatchState state, StackItemState stackItem)
     {
+        if (stackItem.LastBreathDraw is not null) return ResolveCapturedLastBreathDraw(state, stackItem);
         var triggerSpec = TryGetLastBreathDiscardDrawTrigger(stackItem, out var matchedTrigger)
             && UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(matchedTrigger) ? matchedTrigger : null;
         return ResolveDiscardDrawStackItem(state, stackItem,
@@ -27164,7 +27132,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: effectKind,
             sourceObjectId: stackItem.SourceObjectId,
             effectKind: effectKind,
-            drawCount: drawCount) { MovementObserver = stackItem.MovementObserver };
+            drawCount: drawCount) { MovementObserver = stackItem.MovementObserver, LastBreathDraw = stackItem.LastBreathDraw };
 
         if (discardCount > 0 && handObjectIds.Length >= discardCount)
         {
@@ -32996,20 +32964,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     sourceBattlefieldAoePlayerId,
                     sourceBattlefieldObjectIdBeforeRemoval,
                     sourceBattlefieldAoeTriggerSpec.Kind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            var undercoverAgentPlayerId = ResolveUndercoverAgentLastBreathPlayerId(
-                destroyedState,
-                removalResult);
-            if (undercoverAgentPlayerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    undercoverAgentPlayerId,
-                    TriggerKinds.UnitLastBreathDiscardDraw);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }

@@ -1134,6 +1134,9 @@ public sealed record PendingHandChoiceState
 
     public MovementObserverContext? MovementObserver { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LastBreathDrawContext? LastBreathDraw { get; init; }
+
     private static string Normalize(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -4554,7 +4557,7 @@ public sealed record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver };
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -5805,7 +5808,7 @@ public sealed record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.MovementObserver is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null ? choice.SourceObjectId
                 : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
