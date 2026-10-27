@@ -114,14 +114,15 @@ public sealed class VenEmpowerCanonicalOpeningTests
         finally { await game.Save("ven072-" + actor); }
     }
 
-    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null)
+    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null, IReadOnlyList<string>? battlefields = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
         var main = original.MainDeck.ToList();
         for (var i = 0; i < additions.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
         main.InsertRange(0, additions);
-        var deck = original with { MainDeck = main, RuneDeck = runeDeck?.ToArray() ?? Enumerable.Repeat(rune, 12).ToArray() };
+        var deck = original with { MainDeck = main, RuneDeck = runeDeck?.ToArray() ?? Enumerable.Repeat(rune, 12).ToArray(),
+            Battlefields = battlefields?.ToArray() ?? original.Battlefields };
         Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
         var initial = MatchReplayInitialStateBuilder.FromSeats("VEN-CANONICAL-" + templateId + "-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
