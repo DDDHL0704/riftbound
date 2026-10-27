@@ -95,6 +95,71 @@ public sealed class EmpoweredSpellWalletSelectionTests
         finally { await Save("invalid-repeat-discount-" + discount.Replace(':', '-'), initial, game); }
     }
 
+    [Theory]
+    [InlineData("blue")]
+    [InlineData("red")]
+    [InlineData("none")]
+    public async Task GrantedEchoUsesTheReducedPriceAndOnlyOneReachableRuneCapacity(string trait)
+    {
+        // MAX is an explicit implementation representation boundary. The real
+        // VEN055 play/Empower and later spell intents still execute normally.
+        var capacity = trait == "none" ? 0 : 1;
+        var initial = Position();
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Green] = int.MaxValue - capacity }) } };
+        initial = ImposedMovementContinuationTests.AddBase(initial, "CAP-RED", "OGN·007/298");
+        initial = ImposedMovementContinuationTests.AddBase(initial, "CAP-BLUE", "OGN·089/298");
+        var game = new Driver(initial);
+        try
+        {
+            await Empower(game);
+            var before = game.State; var hash = MatchStateHasher.Hash(before);
+            var prompt = ResolutionResult.BuildPrompts(before)["P1"];
+            var candidate = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.PlayCard);
+            var metadata = JsonSerializer.SerializeToElement(candidate.Metadata, Json);
+            var requirement = metadata.GetProperty("sourceRequirements").EnumerateArray()
+                .Single(r => r.GetProperty("sourceObjectId").GetString() == "SPELL");
+            var echo = requirement.GetProperty("optionalCostChoices").EnumerateArray()
+                .Any(c => c.GetProperty("id").GetString() == "ECHO:GRANTED:1");
+            Assert.Equal(capacity == 1, echo);
+            var costs = new List<string> { "PRINTED_POWER:red:1", "ECHO:GRANTED:1" };
+            if (capacity == 1)
+            {
+                Assert.Equal(1, requirement.GetProperty("paymentResourcePowerCapacity").GetInt32());
+                Assert.False(requirement.TryGetProperty("availablePowerByTraitWithPaymentResources", out _));
+                costs.Add("RECYCLE_RUNE:CAP-" + trait.ToUpperInvariant());
+                costs.Add("SPELL_POWER_REDUCTION:" + (trait == "blue" ? "red" : "blue") + ":1");
+                costs.Add("POWER_SPEND:" + trait + ":1");
+            }
+            var command = new PlayCardCommand("SPELL", Spell, [], OptionalCosts: costs);
+            var quote = new CoreRuleEngine().PreviewPlayCard(before, "P1", PlayCostPreviewTests.Request(before, command));
+            Assert.Equal(hash, MatchStateHasher.Hash(before));
+            if (capacity == 0)
+            {
+                Assert.False(quote.CanPay);
+                var rejected = await new CoreRuleEngine().ResolveAsync(before, new("full-pool-echo", "P1", command.CmdType), command, default);
+                Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+                Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+            }
+            else
+            {
+                Assert.True(quote.IsValid && quote.CanPay, quote.Message);
+                Assert.Equal(0, quote.Cost!.GenericPower);
+                Assert.Equal(new Dictionary<string, int> { [trait] = 1 }, quote.Cost.PowerByTrait);
+                await game.Act("P1", command);
+                Assert.Equal(2, Assert.Single(game.State.StackItems).EffectRepeatCount);
+                Assert.Equal(int.MaxValue - 1, game.State.RunePools["P1"].TotalPower);
+                Assert.Equal(int.MaxValue - 1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Green]);
+                Assert.Equal("RUNE_DECK", game.State.ObjectLocations["CAP-" + trait.ToUpperInvariant()].Zone);
+                Assert.Equal("BASE", game.State.ObjectLocations["CAP-" + (trait == "blue" ? "RED" : "BLUE")].Zone);
+                Assert.Single(game.Events().Where(e => e.Tick > before.Tick), e => e.Event.Kind == "RUNE_RECYCLED");
+                await game.Top();
+            }
+            await game.Replay();
+        }
+        finally { await Save("capacity-reduced-echo-" + trait, initial, game); }
+    }
+
     private static async Task Empower(Driver game)
     {
         await game.Act("P1", new PlayCardCommand("UNIT", Aura, []));

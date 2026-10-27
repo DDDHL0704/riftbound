@@ -76,6 +76,13 @@ public sealed partial class CoreRuleEngine
         return selected is not null;
     }
 
+    internal static bool CanReachPlayPowerCost(MatchState state, string player, CardBehaviorDefinition behavior,
+        RunePaymentReachability reachability, int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
+        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0)
+        => SpellPlayPowerOptions(state, player, behavior, null, extraGeneric, extraTyped,
+                additionalPrinted, sacrificeReduction)
+            .Any(option => reachability.CanPay(option.GenericPower, option.TypedPower));
+
     private static IReadOnlyList<ActionPromptChoiceDto> SpellPowerChoices(IReadOnlyList<SpellPowerReductionOption> options)
         => options.Where(a => a.ChoiceId.Length > 0).DistinctBy(a => a.ChoiceId)
             .Select(a => new ActionPromptChoiceDto(a.ChoiceId, "减去 " + SpellPowerReductionLabel(a.ChoiceId),

@@ -55,7 +55,7 @@ public sealed partial class CoreRuleEngine
                 : item;
             if (spec.MoveOptionalEnemy && item.TargetObjectIds.Count > 1
                 && !string.IsNullOrWhiteSpace(item.TargetObjectIds[1]))
-                MoveFieldUnitsToChosenLocation(current, zones, cards, locations, item,
+                MoveFieldUnitsToChosenLocation(current, zones, cards, locations, pools, item,
                     [item.TargetObjectIds[1]], "BATTLEFIELD:" + field, events);
 
             // CN 355.5.a: the chosen battlefield/unit are targets; the local group
