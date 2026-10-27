@@ -78,16 +78,32 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
     }
 
     [Fact]
-    public async Task ActualControlRecallAndDestructionGiveNativeAndCopiedSkillsToTheDeathController()
+    public Task ActualControlRecallAndDestructionGiveNativeAndCopiedSkillsToTheDeathController()
+        => RunControlRecallAndDestruction(returnToPrivateHand: false);
+
+    [Fact]
+    public Task ActualTransferredSourceCanReturnToItsOwnersPrivateHandWhileTheNewControllerKeepsAllThreeSkills()
+        => RunControlRecallAndDestruction(returnToPrivateHand: true);
+
+    private static async Task RunControlRecallAndDestruction(bool returnToPrivateHand)
     {
         var initial = Field(Seed(true), "UNIT", "P1");
         initial = Add(Add(Add(initial, "SONG-A", "SFD·059/221", "P1", "BASE"), "SONG-B", "SFD·059/221", "P1", "BASE"), "CONTROL", "OGN·203/298", "P2", "HAND");
         // Two real paid equip operations; the printed source and songs are controlled initial field material.
         for (var i = 0; i < 8; i++) initial = Add(initial, "CONTROL-RUNE-" + i, i < 3 ? "UNL-R05" : "UNL-R06", "P2", "BASE");
+        if (returnToPrivateHand)
+        {
+            initial = Add(Add(Add(initial, "DRAW", "OGN·048/298", "P1", "HAND"), "DRAW-RUNE-1", "UNL-R06", "P1", "BASE"), "DRAW-RUNE-2", "UNL-R06", "P1", "BASE");
+            var moved = initial.PlayerZones["P1"].MainDeck.Concat(initial.PlayerZones["P1"].Graveyard).ToArray();
+            initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
+                ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
+        }
         var game = new Driver(initial);
         try
         {
-            await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-0")); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-1"));
+            foreach (var id in Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+            await game.Act("P1", new RecycleRuneCommand("P1-RUNE-0")); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-1"));
             foreach (var gear in new[] { "SONG-A", "SONG-B" }) { await game.Act("P1", new AssembleEquipmentCommand(gear, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top(); }
             Assert.All(new[] { "SONG-A", "SONG-B" }, id => Assert.NotNull(game.State.CardObjects[id].AttachedRuleText));
             await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
@@ -103,11 +119,32 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             var earned = Creations(game.State); Assert.Equal(3, earned.Length);
             Assert.All(earned, c => { Assert.Equal("P2", c.ControllerId); Assert.True(c.SourceWasEmpowered); Assert.Equal(generation, c.Source.Generation); });
             Assert.Equal(3, earned.Select(c => c.InstanceId).Distinct().Count());
+            if (returnToPrivateHand)
+            {
+                await game.Act("P2", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+                if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                await game.Act("P1", new TapRuneCommand("DRAW-RUNE-1")); await game.Act("P1", new TapRuneCommand("DRAW-RUNE-2"));
+                await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", [])); await game.Top();
+                Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+                Assert.Equal("P1", game.State.CardObjects["UNIT"].ControllerId);
+                Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation + 1);
+                Assert.Equal(3, Creations(game.State).Length); Assert.All(Creations(game.State), c => Assert.Equal("P2", c.ControllerId));
+                foreach (var view in new[] { ResolutionResult.BuildSnapshots(game.State)["P2"], ResolutionResult.BuildSpectatorSnapshot(game.State) })
+                {
+                    var stack = JsonSerializer.SerializeToElement(view, Json).GetProperty("stack").EnumerateArray().ToArray();
+                    Assert.Equal(3, stack.Length);
+                    Assert.All(stack, item => {
+                        Assert.Equal("HIDDEN", item.GetProperty("sourceObjectId").GetString());
+                        Assert.Equal(TriggerKinds.UnitLastBreathCreateMinions, item.GetProperty("effectKind").GetString());
+                        Assert.False(item.TryGetProperty("lastBreathUnitCreation", out _));
+                    });
+                }
+            }
             await FinishCreations(game); Assert.Equal(6, Minions(game.State).Length);
             Assert.All(Minions(game.State), c => { Assert.Equal("P2", c.OwnerId); Assert.Equal("P2", c.ControllerId); Assert.Contains(c.ObjectId, game.State.PlayerZones["P2"].Base); });
             await game.Replay();
         }
-        finally { await Save("actual-control-recall-copied-death-controller", initial, game); }
+        finally { await Save(returnToPrivateHand ? "actual-control-recall-copied-death-controller-private-hand" : "actual-control-recall-copied-death-controller", initial, game); }
     }
 
     private static MatchState Seed(bool empowered)
