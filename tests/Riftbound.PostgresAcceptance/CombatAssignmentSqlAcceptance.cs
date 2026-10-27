@@ -44,6 +44,7 @@ internal static class CombatAssignmentSqlAcceptance
             cards["D1"] = cards["D1"] with { Power = vayneDies ? 5 : 1 };
         if (vayne)
             cards["A2"] = cards["A2"] with { CardNo = "OGN·035/298", Tags = [CardObjectTags.UnitCard, "强攻3"] };
+        if (conquestContinuation) cards["F"] = cards["F"] with { ControllerId = "P2" };
         if (natural) cards["F"] = cards["F"] with { OwnerId = "P2", ControllerId = "P2" };
         var initial = new MatchState(room, 0, 4, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1", phase: MatchPhases.Main,
