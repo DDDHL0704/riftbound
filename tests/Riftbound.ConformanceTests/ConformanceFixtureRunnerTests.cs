@@ -35109,21 +35109,18 @@ public sealed class ConformanceFixtureRunnerTests
 
         // Resource production need not match the already-paid stack object.
         // Preserve that old fixture as a positive bank, then retain the original
-        // InvalidTarget/no-cost assertions against a genuinely foreign source.
+        // InvalidTarget/no-cost assertions against the opponent's stack source.
         var allowed = await new CoreRuleEngine().ResolveAsync(state,
             new("kaisa-nonmatching-stack-resource-control", "P1", CommandTypes.LegendAct),
             new LegendActCommand("P1-LEGEND-KAISA-REPRINT", LegendActionAbilityCatalog.KaisaLegendAbilityId, [], []), default);
         Assert.True(allowed.Accepted, allowed.ErrorMessage);
         Assert.Equal(RunePool.Empty with { SpellOnlyPower = 1 }, allowed.State.RunePools["P1"]);
         Assert.Equal(state.PriorityPlayerId, allowed.State.PriorityPlayerId);
-        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["P1-LEGEND-KAISA-REPRINT"] = state.CardObjects["P1-LEGEND-KAISA-REPRINT"] with { CardNo = "SFD·189/221" } } };
-
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-kaisa-legend-act-rejected", "P1", "LEGEND_ACT"),
             new LegendActCommand(
-                "P1-LEGEND-KAISA-REPRINT",
+                "P2-PENDING-SOURCE",
                 "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL",
                 [],
                 []),
