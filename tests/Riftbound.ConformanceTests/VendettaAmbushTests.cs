@@ -68,7 +68,8 @@ public sealed class VendettaAmbushTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var stats = FunctionalUnitBuilder.Summarize(FunctionalUnitBuilder.Build(catalog.Cards));
         Console.WriteLine("VEN_CATALOG_STATISTICS " + System.Text.Json.JsonSerializer.Serialize(stats));
-        Assert.Equal(1086, catalog.Cards.Count);
+        Assert.Equal(1086, catalog.Cards.Count(card => card.CardNo != "VEN·128"));
+        Assert.Equal(1087, catalog.Cards.Count);
     }
 
     [Theory]

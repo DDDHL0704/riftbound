@@ -16,12 +16,20 @@ public sealed class Ven059EmpoweredCostConsumerTests
     [Fact]
     public async Task ExactNewPrintingPreservesAllPriorFunctionalGroupsAndMembers()
     {
-        var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var priorCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
-        Assert.Equal(1085, priorCards.Length); Assert.Equal(1086, catalog.Cards.Count);
-        var prior = FunctionalUnitBuilder.Build(priorCards); var current = FunctionalUnitBuilder.Build(catalog.Cards);
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var controlCards = catalog.Cards.Where(c => c.CardNo != "VEN·128").ToArray();
+        var priorCards = controlCards.Where(c => c.CardNo != No).ToArray();
+        Assert.Equal(1085, priorCards.Length); Assert.Equal(1086, controlCards.Length);
+        var prior = FunctionalUnitBuilder.Build(priorCards); var current = FunctionalUnitBuilder.Build(controlCards);
         Assert.Equal(866, prior.Count); Assert.Equal(867, current.Count);
         foreach (var unit in prior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(current, c => c.Id == unit.Id)));
         Assert.Equal(No, Assert.Single(Assert.Single(current, c => c.Cards.Any(card => card.CardNo == No)).Cards).CardNo);
+        var cumulativePriorCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
+        Assert.Equal(1086, cumulativePriorCards.Length); Assert.Equal(1087, catalog.Cards.Count);
+        var cumulativePrior = FunctionalUnitBuilder.Build(cumulativePriorCards); var cumulative = FunctionalUnitBuilder.Build(catalog.Cards);
+        Assert.Equal(867, cumulativePrior.Count); Assert.Equal(868, cumulative.Count);
+        foreach (var unit in cumulativePrior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
+        foreach (var unit in current) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
     }
 
     [Fact]
