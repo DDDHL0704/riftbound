@@ -108,10 +108,14 @@ public sealed class DianaDuelManaOpeningTests
             raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State().Tick;
             var wire = JsonSerializer.SerializeToElement(raw, Json); command = GameCommandJsonMapper.Map(wire);
             var intent = "diana-canonical-" + journal.Entries.Count;
-            var result = await session.SubmitAsync(player, intent, command, wire, default);
+            async ValueTask<ResolutionResult> Send() => command switch {
+                SubmitDeckCommand submitted => await session.SubmitDeckAsync(player, intent, submitted, wire, default),
+                ReadyCommand => await session.ReadyAsync(player, intent, wire, default),
+                _ => await session.SubmitAsync(player, intent, command, wire, default) };
+            var result = await Send();
             Assert.True(result.Accepted, result.ErrorMessage); FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             var count = journal.Entries.Count; var hash = MatchStateHasher.Hash(result.State);
-            var duplicate = await session.SubmitAsync(player, intent, command, wire, default);
+            var duplicate = await Send();
             Assert.True(duplicate.Accepted); Assert.Equal(count, journal.Entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
             await Cold();
         }

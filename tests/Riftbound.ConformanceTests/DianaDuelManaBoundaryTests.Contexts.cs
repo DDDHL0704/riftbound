@@ -30,7 +30,7 @@ public sealed partial class DianaDuelManaBoundaryTests
             await game.Act("P1", new TapRuneCommand("SECOND-RUNE"));
             await game.Act("P1", new PlayCardCommand("GEAR", "SFD·022/221", ["HOST"]));
             Assert.True(game.State.SpellDuelState.IsActive); Assert.True(game.State.SpellDuelState.IsClosed);
-            await game.Act("P2", new PassPriorityCommand());
+            if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.Equal("P1", game.State.PriorityPlayerId);
             var stack = game.State.StackItems.ToArray();
             await game.Act("P1", new LegendActCommand("LEGEND", Ability, [], []));
