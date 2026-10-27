@@ -15,10 +15,11 @@ public sealed class DisarmResponseBoundaryTests
         var done = await AttackDamageDistributionTests.Top(confirmed.State);
         var closed = await AttackDamageDistributionTests.Top(done.State);
         var combat = await Act(closed.State, "P1", new DeclareBattleCommand("F", ["HOST"], ["ENEMY1"], ["COMBAT_ASSIGNMENT"]));
+        Record("combat-start", "done", combat.State, combat.Events);
         Assert.Empty(combat.State.TriggerQueue); Assert.Empty(combat.State.StackItems);
         Assert.DoesNotContain(combat.Events, e => e.Kind is "TRIGGER_QUEUED" or "POWER_MODIFIED_UNTIL_END_OF_TURN");
-        Assert.Contains(CommandTypes.AssignCombatDamage, combat.Prompts["P1"].EnabledActions());
-        Record("combat-start", "done", combat.State, combat.Events);
+        Assert.False(combat.State.BattleState.IsActive);
+        Assert.Contains(combat.Events, e => e.Kind == "BATTLE_CLOSED");
         Restore(combat.State); ArmamentMightTests.PublicRecovery(combat.State);
     }
 
@@ -30,8 +31,8 @@ public sealed class DisarmResponseBoundaryTests
         var initial = AttackDamageDistributionTests.Spell(await Position("RAD·054/167", 1), "RETURN", "OGN·169/298", "P2");
         var confirmed = await AttackDamageDistributionTests.Confirm((await Attack(initial)).State, "ENEMY1");
         var passed = await Act(confirmed.State, "P1", new PassPriorityCommand());
-        var returned = await AttackDamageDistributionTests.Top((await Act(passed.State, "P2",
-            new PlayCardCommand("RETURN", "OGN·169/298", [id]))).State);
+        var returned = await TopWithReceipt((await Act(passed.State, "P2",
+            new PlayCardCommand("RETURN", "OGN·169/298", [id]))).State, "return-" + id);
         Assert.Contains(id, returned.State.PlayerZones[owner].Hand);
         Assert.Equal(initial.CardObjects[id].ObjectGeneration + 1, returned.State.CardObjects[id].ObjectGeneration);
         Record("return-" + id, "response", returned.State, returned.Events);

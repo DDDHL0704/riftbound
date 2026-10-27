@@ -60,6 +60,17 @@ public sealed class DisarmTriggerTests
         return attack;
     }
 
+    internal static async Task<ResolutionResult> TopWithReceipt(MatchState state, string row)
+    {
+        var first = await Act(state, state.PriorityPlayerId!, new PassPriorityCommand());
+        Record(row, "response-first-pass", first.State, first.Events);
+        Restore(first.State); ArmamentMightTests.PublicRecovery(first.State);
+        var second = await Act(first.State, first.State.PriorityPlayerId!, new PassPriorityCommand());
+        Record(row, "response-second-pass", second.State, second.Events);
+        Restore(second.State); ArmamentMightTests.PublicRecovery(second.State);
+        return second;
+    }
+
     [Theory]
     [InlineData("RAD·054/167", 1)]
     [InlineData("RAD·050/167", 2)]

@@ -67,8 +67,8 @@ public sealed class DisarmSourceGrantTests
         var initial = AttackDamageDistributionTests.Spell(AddPatrol(await Position("RAD·055/167", 0), "PATROL2"),
             "SOUL", "SFD·163/221", "P1");
         var confirmed = await AttackDamageDistributionTests.Confirm((await Attack(initial)).State, "ENEMY1");
-        var removed = await AttackDamageDistributionTests.Top((await Act(confirmed.State, "P1",
-            new PlayCardCommand("SOUL", "SFD·163/221", ["PATROL2", "HOST"]))).State);
+        var removed = await TopWithReceipt((await Act(confirmed.State, "P1",
+            new PlayCardCommand("SOUL", "SFD·163/221", ["PATROL2", "HOST"]))).State, "grant-departure");
         Assert.Contains("PATROL2", removed.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(2, Assert.Single(removed.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Amount));
         Record("grant-departure", "response", removed.State, removed.Events);
