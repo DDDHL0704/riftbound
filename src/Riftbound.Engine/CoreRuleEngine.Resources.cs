@@ -194,7 +194,7 @@ public sealed partial class CoreRuleEngine
                     "RESOURCE_CONVERSION", intent.PlayerId, genericPowerCost: amount, totalPowerCost: amount,
                     sourceObjectId: command.SourceObjectId, abilityId: ability.AbilityId,
                     powerPurpose: PowerPurposeForActivatedAbility(ability));
-                var paid = PaymentCostRules.TryCommitPayment(plan, state.RunePools);
+                var paid = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state: state);
                 if (!paid.Accepted) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
                 pool = paid.RunePools[intent.PlayerId];
                 mana = amount;

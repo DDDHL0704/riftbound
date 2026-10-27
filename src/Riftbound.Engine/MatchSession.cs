@@ -82,7 +82,8 @@ public sealed record RunePool
         IReadOnlyDictionary<string, int>? powerByTrait = null,
         int spellOnlyMana = 0,
         int spellOnlyPower = 0,
-        int equipmentOnlyPower = 0)
+        int equipmentOnlyPower = 0,
+        int duelOnlyMana = 0)
     {
         // Preserve malformed input for recovery validation instead of washing
         // negative or unrepresentable resource amounts into a legal pool.
@@ -92,6 +93,7 @@ public sealed record RunePool
         SpellOnlyMana = spellOnlyMana;
         SpellOnlyPower = spellOnlyPower;
         EquipmentOnlyPower = equipmentOnlyPower;
+        DuelOnlyMana = duelOnlyMana;
     }
 
     public static RunePool Empty { get; } = new(0, 0);
@@ -102,6 +104,10 @@ public sealed record RunePool
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int SpellOnlyMana { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public int DuelOnlyMana { get; init; }
 
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int Power { get; init; }
@@ -130,9 +136,13 @@ public sealed record RunePool
             ? (int)((long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower) : -1;
 
     [JsonIgnore]
-    public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && Power >= 0
+    public int TotalStoredMana => (long)Mana + SpellOnlyMana + DuelOnlyMana is >= 0 and <= int.MaxValue
+        ? (int)((long)Mana + SpellOnlyMana + DuelOnlyMana) : -1;
+
+    [JsonIgnore]
+    public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && DuelOnlyMana >= 0 && Power >= 0
         && SpellOnlyPower >= 0 && EquipmentOnlyPower >= 0
-        && (long)Mana + SpellOnlyMana <= int.MaxValue
+        && (long)Mana + SpellOnlyMana + DuelOnlyMana <= int.MaxValue
         && PowerByTrait.Values.All(value => value >= 0)
         && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower <= int.MaxValue;
 
@@ -146,6 +156,7 @@ public sealed record RunePool
         return other is not null
             && Mana == other.Mana
             && SpellOnlyMana == other.SpellOnlyMana
+            && DuelOnlyMana == other.DuelOnlyMana
             && Power == other.Power
             && SpellOnlyPower == other.SpellOnlyPower
             && EquipmentOnlyPower == other.EquipmentOnlyPower
@@ -160,6 +171,7 @@ public sealed record RunePool
         var hash = new HashCode();
         hash.Add(Mana);
         hash.Add(SpellOnlyMana);
+        hash.Add(DuelOnlyMana);
         hash.Add(Power);
         hash.Add(SpellOnlyPower);
         hash.Add(EquipmentOnlyPower);
@@ -6312,6 +6324,7 @@ public sealed record ResolutionResult(
         var view = new Dictionary<string, object?> { ["mana"] = pool.Mana, ["power"] = pool.TotalPower,
             ["untypedPower"] = pool.Power, ["powerByTrait"] = pool.PowerByTrait };
         if (pool.SpellOnlyMana != 0) view["spellOnlyMana"] = pool.SpellOnlyMana;
+        if (pool.DuelOnlyMana != 0) view["duelOnlyMana"] = pool.DuelOnlyMana;
         if (pool.SpellOnlyPower != 0) view["spellOnlyPower"] = pool.SpellOnlyPower;
         if (pool.EquipmentOnlyPower != 0) view["equipmentOnlyPower"] = pool.EquipmentOnlyPower;
         return view;
@@ -10265,7 +10278,7 @@ internal static class ActionPromptBuilder
     private static bool IsTapRuneSource(MatchState state, string playerId, string objectId)
     {
         return state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
-            && (long)pool.Mana + pool.SpellOnlyMana < int.MaxValue
+            && (long)pool.TotalStoredMana < int.MaxValue
             && IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
@@ -10846,9 +10859,9 @@ internal static class ActionPromptBuilder
                 string.Empty,
                 0,
                 false,
-                "GAIN_MANA",
+                "GAIN_DUEL_MANA",
                 ManaGainAmount: 1,
-                TimingKind: LegendActionTimingKinds.SpellDuelFocus),
+                TimingKind: LegendActionTimingKinds.ResourceAction),
             new(
                 KaisaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(KaisaLegendAbilityId),
@@ -12564,7 +12577,7 @@ internal static class ActionPromptBuilder
         var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
                 additionalMana, additionalPower, additionalTrait)
-            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.SpellPlay ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other) >= cost.Mana.Total
+            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.SpellPlay ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state) >= cost.Mana.Total
                 && reachability.CanPay(cost.GenericPower, cost.TypedPower)).ToArray();
     }
 
@@ -13026,7 +13039,7 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
         var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
-        return AvailablePlayMana(runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
+        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
             && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
     }
 
@@ -14423,7 +14436,7 @@ internal static class ActionPromptBuilder
                     (int)echoGeneric, echo.TypedPower, EchoCostRules.PrintedCosts([echo]));
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (!reduced && (AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+            if (!reduced && (AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
                 || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
@@ -14448,7 +14461,7 @@ internal static class ActionPromptBuilder
             if (!reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
-                : AvailablePlayMana(runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
+                : AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(state, playerId, runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -14675,8 +14688,8 @@ internal static class ActionPromptBuilder
             && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
-    private static int AvailablePlayMana(RunePool pool, CardBehaviorDefinition behavior)
-        => PaymentCostRules.AvailableMana(pool, IsPromptSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other);
+    private static int AvailablePlayMana(MatchState state, RunePool pool, CardBehaviorDefinition behavior)
+        => PaymentCostRules.AvailableMana(pool, IsPromptSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state);
 
     private static int PromptAvailableManaWithLuxSpellOnlyResource(
         MatchState state,
@@ -14688,7 +14701,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
-        return AvailablePlayMana(runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -14707,7 +14720,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var sources = PromptLuxSpellOnlyResourceSourceObjectIds(state, playerId, sourceObjectId).Count;
-        var capacity = Math.Max(0, int.MaxValue - AvailablePlayMana(runePool, behavior));
+        var capacity = Math.Max(0, int.MaxValue - AvailablePlayMana(state, runePool, behavior));
         return Math.Min(sources, capacity / P4ActivatedAbilityCatalog.LuxGeneratedMana) * P4ActivatedAbilityCatalog.LuxGeneratedMana;
     }
 
@@ -15079,7 +15092,7 @@ internal static class ActionPromptBuilder
         }
 
         var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
-        if (!pool.HasSupportedAmounts || (long)pool.Mana + pool.SpellOnlyMana + P4ActivatedAbilityCatalog.LuxGeneratedMana > int.MaxValue) return [];
+        if (!pool.HasSupportedAmounts || (long)pool.TotalStoredMana + P4ActivatedAbilityCatalog.LuxGeneratedMana > int.MaxValue) return [];
         var sources = PromptLuxSpellOnlyResourceSourceObjectIds(state, playerId, sourceObjectId);
 
         return sources
@@ -16252,9 +16265,9 @@ internal static class ActionPromptBuilder
             ["optionalCostChoices"] = optionalCostChoices,
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
-            ["availableMana"] = AvailablePlayMana(runePool, behavior),
+            ["availableMana"] = AvailablePlayMana(state, runePool, behavior),
             ["availableSpellOnlyMana"] = IsPromptSpellPlayBehavior(behavior) ? runePool.SpellOnlyMana : 0,
-            ["availableManaWithPaymentResources"] = AvailablePlayMana(runePool, behavior) + luxSpellOnlyGeneratedMana,
+            ["availableManaWithPaymentResources"] = AvailablePlayMana(state, runePool, behavior) + luxSpellOnlyGeneratedMana,
             ["paymentResourceMana"] = luxSpellOnlyGeneratedMana,
             ["availablePower"] = runePool.TotalPower,
             ["availablePowerByTrait"] = availablePowerByTrait,

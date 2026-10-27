@@ -9351,6 +9351,7 @@ public static partial class MatchRecoveryValidator
 
         foreach (var (property, expectedAmount, name) in new[] {
             ("spellOnlyMana", expectedRunePool.SpellOnlyMana, "spell-only mana"),
+            ("duelOnlyMana", expectedRunePool.DuelOnlyMana, "duel-only mana"),
             ("spellOnlyPower", expectedRunePool.SpellOnlyPower, "spell-only power"),
             ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power") })
         {
@@ -24718,6 +24719,8 @@ public static partial class MatchRecoveryValidator
                 errors.Add($"authoritative state rune pool for {playerLabel} contains unsupported resource amounts");
             if (runePool.SpellOnlyMana < 0)
                 errors.Add($"authoritative state rune pool for {playerLabel} spell-only mana cannot be negative");
+            if (runePool.DuelOnlyMana < 0)
+                errors.Add($"authoritative state rune pool for {playerLabel} duel-only mana cannot be negative");
 
             if (runePool.Mana < 0)
             {

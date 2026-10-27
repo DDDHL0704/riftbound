@@ -14,18 +14,18 @@ public sealed partial class CoreRuleEngine
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (pool.HasSupportedAmounts)
         foreach (var id in state.PlayerZones[player].LegendZone.Order(StringComparer.Ordinal))
-        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId })
+        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId, DianaLegendAbilityId })
         {
             if (!TryGetLegendAbility(abilityId, out var legendAbility)
                 || !IsLegendAbilityTimingAllowed(state, player, legendAbility)
                 || legendAbility.RequiresPlayedAnotherCardThisTurn && !ControllerPlayedAnotherCardThisTurn(state, player)
-                || (long)pool.Mana + pool.SpellOnlyMana + legendAbility.ManaGainAmount > int.MaxValue
+                || (long)pool.TotalStoredMana + legendAbility.ManaGainAmount > int.MaxValue
                 || (long)pool.TotalStoredPower + legendAbility.PowerGainAmount > int.MaxValue
                 || !state.CardObjects.TryGetValue(id, out var source) || source.ObjectId != id
                 || source.IsFaceDown || source.IsExhausted || !SourceObjectControlledByPlayerOrLegacyOwned(source, player)
                 || !LegendAbilitySourceHasAbility(state, player, source.CardNo, legendAbility)) continue;
             var restriction = abilityId == KaisaLegendAbilityId ? "打出法术" : "打出装备或使用装备技能";
-            var gain = legendAbility.ManaGainAmount > 0 ? "1 点法力" : $"1 点仅可用于{restriction}的符能";
+            var gain = abilityId == DianaLegendAbilityId ? "1 点仅可在法术对决期间消耗的法力" : legendAbility.ManaGainAmount > 0 ? "1 点法力" : $"1 点仅可用于{restriction}的符能";
             actions.Add(new(new($"LEGEND_RESOURCE:{id}:{abilityId}",
                 $"横置传奇：获得 {gain}，之后继续选择", [id]),
                 new LegendActCommand(id, abilityId, [], [])));
@@ -83,7 +83,7 @@ public sealed partial class CoreRuleEngine
         if (!pool.HasSupportedAmounts) return false;
         if (P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId))
             return CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana);
-        long mana = pool.Mana, power = pool.TotalStoredPower;
+        long mana = (long)pool.Mana + pool.DuelOnlyMana, power = pool.TotalStoredPower;
         if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
         {
             var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;

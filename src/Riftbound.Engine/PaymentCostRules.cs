@@ -124,7 +124,8 @@ public static class PaymentCostRules
     public static PaymentAuthorizationResult AuthorizePayment(
         PaymentPlan plan,
         RunePool currentPool,
-        int currentExperience = 0)
+        int currentExperience = 0,
+        MatchState? state = null)
     {
         if (string.IsNullOrWhiteSpace(plan.PlayerId))
         {
@@ -136,7 +137,7 @@ public static class PaymentCostRules
             || !SupportedPowerPurpose(plan.PowerPurpose))
             return new(false, "INVALID_PAYMENT_PLAN", "Unsupported resource amount or mana payment purpose.");
 
-        if (AvailableMana(currentPool, plan.ManaPurpose) < plan.TotalManaCost
+        if (AvailableMana(currentPool, plan.ManaPurpose, state) < plan.TotalManaCost
             || !CanPayPowerCost(currentPool, plan.GenericPowerCost, plan.PowerCostByTrait, plan.PowerPurpose))
         {
             return new(false, "INSUFFICIENT_COST", "Not enough rune resources to pay the payment plan.");
@@ -153,14 +154,15 @@ public static class PaymentCostRules
     public static PaymentCommitResult TryCommitPayment(
         PaymentPlan plan,
         IReadOnlyDictionary<string, RunePool> currentRunePools,
-        IReadOnlyDictionary<string, int>? currentPlayerExperience = null)
+        IReadOnlyDictionary<string, int>? currentPlayerExperience = null,
+        MatchState? state = null)
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = (currentPlayerExperience ?? new Dictionary<string, int>(StringComparer.Ordinal))
             .ToDictionary(entry => entry.Key, entry => Math.Max(0, entry.Value), StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(plan.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         var currentExperience = playerExperience.TryGetValue(plan.PlayerId, out var experience) ? experience : 0;
-        var authorization = AuthorizePayment(plan, currentPool, currentExperience);
+        var authorization = AuthorizePayment(plan, currentPool, currentExperience, state);
         if (!authorization.Accepted)
         {
             return new(
@@ -176,11 +178,9 @@ public static class PaymentCostRules
             plan.GenericPowerCost,
             plan.PowerCostByTrait,
             plan.PowerPurpose);
-        var restrictedSpent = plan.ManaPurpose == ManaPaymentPurpose.PlaySpell
-            ? Math.Min(currentPool.SpellOnlyMana, plan.TotalManaCost) : 0;
+        var paidMana = SpendMana(currentPool, plan.TotalManaCost, plan.ManaPurpose, state);
         runePools[plan.PlayerId] = paidPower with {
-            Mana = currentPool.Mana - (plan.TotalManaCost - restrictedSpent),
-            SpellOnlyMana = currentPool.SpellOnlyMana - restrictedSpent };
+            Mana = paidMana.Mana, SpellOnlyMana = paidMana.SpellOnlyMana, DuelOnlyMana = paidMana.DuelOnlyMana };
 
         if (plan.ExperienceCost > 0)
         {
@@ -258,6 +258,7 @@ public static class PaymentCostRules
             : RunePool.Empty;
         result.TryAdd("remainingMana", remainingPool.Mana);
         if (remainingPool.SpellOnlyMana > 0) result.TryAdd("remainingSpellOnlyMana", remainingPool.SpellOnlyMana);
+        if (remainingPool.DuelOnlyMana > 0) result.TryAdd("remainingDuelOnlyMana", remainingPool.DuelOnlyMana);
         result.TryAdd("remainingPower", remainingPool.Power);
         result.TryAdd("remainingPowerByTrait", remainingPool.PowerByTrait);
 
@@ -322,9 +323,27 @@ public static class PaymentCostRules
                 powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
     }
 
-    public static int AvailableMana(RunePool pool, ManaPaymentPurpose purpose)
-        => !pool.HasSupportedAmounts ? -1 : purpose == ManaPaymentPurpose.PlaySpell
-            ? pool.Mana + pool.SpellOnlyMana : pool.Mana;
+    public static bool IsSpellDuel(MatchState? state)
+        => state?.TimingState is TimingStates.SpellDuelOpen or TimingStates.SpellDuelClosed;
+
+    public static int AvailableMana(RunePool pool, ManaPaymentPurpose purpose, MatchState? state = null)
+        => !pool.HasSupportedAmounts ? -1 : pool.Mana
+            + (purpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0)
+            + (IsSpellDuel(state) ? pool.DuelOnlyMana : 0);
+
+    // The current authoritative window enables this bucket; a caller without
+    // that context cannot spend it. Spend temporary-window mana before pools
+    // which remain usable after the duel. Never relabel the remaining balance.
+    public static RunePool SpendMana(RunePool pool, int amount,
+        ManaPaymentPurpose purpose = ManaPaymentPurpose.Other, MatchState? state = null)
+    {
+        if (amount < 0 || AvailableMana(pool, purpose, state) < amount)
+            throw new InvalidOperationException("Not enough eligible mana for this payment.");
+        var duel = IsSpellDuel(state) ? Math.Min(pool.DuelOnlyMana, amount) : 0;
+        var spell = purpose == ManaPaymentPurpose.PlaySpell ? Math.Min(pool.SpellOnlyMana, amount - duel) : 0;
+        return pool with { Mana = pool.Mana - (amount - duel - spell),
+            SpellOnlyMana = pool.SpellOnlyMana - spell, DuelOnlyMana = pool.DuelOnlyMana - duel };
+    }
 
     public static bool CanPayPowerCost(
         RunePool pool,

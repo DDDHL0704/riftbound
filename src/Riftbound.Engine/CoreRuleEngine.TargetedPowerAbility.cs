@@ -53,7 +53,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
             intent.PlayerId, recycledRunes, events, window, paymentId);
-        var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience);
+        var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted)
             return RejectWithCorePrompts(state, "资源不足，无法支付目标的法盾。", ErrorCodes.InsufficientCost);
 

@@ -35,7 +35,7 @@ public sealed partial class CoreRuleEngine
                 PaymentCostRules.BuildPaymentId(state.Tick, ImposedMovementPaymentKind, player, sourceId),
                 ImposedMovementPaymentKind, player, genericPowerCost: amount, totalPowerCost: amount,
                 reason: "MAGESEEKER_PATROL_MOVE_TAX_STATIC", sourceObjectId: sourceId);
-            var canPay = PaymentCostRules.AuthorizePayment(plan, pool).Accepted;
+            var canPay = PaymentCostRules.AuthorizePayment(plan, pool, state: state).Accepted;
             var multipleAllocations = canPay && amount < pool.TotalPower
                 && pool.PowerByTrait.Values.Count(value => value > 0) + (pool.Power > 0 ? 1 : 0) > 1;
             // A uniquely funded standard intent still completes directly.
@@ -106,7 +106,7 @@ public sealed partial class CoreRuleEngine
 
             void Commit(PaymentCostRules.PaymentPlan selectedPlan)
             {
-                var paid = PaymentCostRules.TryCommitPayment(selectedPlan, pools);
+                var paid = PaymentCostRules.TryCommitPayment(selectedPlan, pools, state: state);
                 if (!paid.Accepted) throw new InvalidOperationException("Invalid imposed movement payment: " + paid.ErrorMessage);
                 ReplaceMovementPaymentState(pools, paid.RunePools);
                 events.Add(new("COST_PAID", "支付群体移动的施加费用",

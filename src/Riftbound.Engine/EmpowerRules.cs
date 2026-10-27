@@ -129,7 +129,7 @@ public sealed partial class CoreRuleEngine
         var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>(); var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, recycled, events,
-            "ACTIVATE_ABILITY", plan.PaymentId); var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience);
+            "ACTIVATE_ABILITY", plan.PaymentId); var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，无法支付强化费用。", ErrorCodes.InsufficientCost);
         var effects = state.UntilEndOfTurnEffects;
         if (discarded is not null)

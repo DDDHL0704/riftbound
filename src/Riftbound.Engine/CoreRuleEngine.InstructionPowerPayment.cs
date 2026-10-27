@@ -98,7 +98,7 @@ public sealed partial class CoreRuleEngine
                 InstructionPowerPaymentKind, player, genericPowerCost: allocation?.Wildcard ?? (payment.Trait is null ? payment.Amount : 0),
                 totalPowerCost: payment.Amount, powerCostByTrait: traits,
                 legalPaymentChoiceIds: payments.Keys.Append(selected).Distinct(StringComparer.Ordinal).ToArray(), reason: item.EffectKind, sourceObjectId: item.SourceObjectId);
-            var paid = PaymentCostRules.TryCommitPayment(plan, pools);
+            var paid = PaymentCostRules.TryCommitPayment(plan, pools, state: state);
             if (!paid.Accepted) throw new InvalidOperationException("Invalid generated instruction payment: " + paid.ErrorMessage);
             foreach (var pair in paid.RunePools) pools[pair.Key] = pair.Value;
             events.Add(new("COST_PAID", $"支付结算指令中的 {payment.Amount} 点符能",
