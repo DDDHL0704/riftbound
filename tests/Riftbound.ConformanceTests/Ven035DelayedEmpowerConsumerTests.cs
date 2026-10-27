@@ -303,6 +303,45 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         finally { await Save("actual-return-replay-new-generation", initial, game); }
     }
 
+    [Fact]
+    public async Task ActualResponseRemovalInvalidatesThePaidEarlierModeWithoutRefundOrAnUnearnedDelayedSkill()
+    {
+        var initial = Add(Position("P1"), "RESPONSE", No, "P2");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = new(0, 0) } };
+        for (var i = 0; i < 3; i++) initial = Add(initial, "RESPONSE-RUNE-" + i, "UNL-R02", "P2", "BASE");
+        var game = new Driver(initial);
+        try
+        {
+            var unit = await PrepareTarget(game, "P1", true); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
+            var generation = game.State.CardObjects[unit].ObjectGeneration;
+            await game.Act("P1", new PlayCardCommand("SPELL", No, [unit], Mode: Remove));
+            var earlier = Assert.Single(game.State.StackItems).StackItemId;
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            var paid = JsonSerializer.Serialize(game.State.RunePools["P1"], Json);
+            if (game.State.PriorityPlayerId != "P2") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            for (var i = 0; i < 3; i++) await game.Act("P2", new TapRuneCommand("RESPONSE-RUNE-" + i));
+            await game.Act("P2", new RecycleRuneCommand("RESPONSE-RUNE-0"));
+            Assert.Equal(3, game.State.RunePools["P2"].Mana); Assert.Equal(1, game.State.RunePools["P2"].PowerByTrait[RuneTrait.Green]);
+            await game.Act("P2", new PlayCardCommand("RESPONSE", No, [unit], Mode: Remove));
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(2, game.State.StackItems.Count);
+            Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
+            await game.Top(); Assert.False(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            Assert.Equal(earlier, Assert.Single(game.State.StackItems).StackItemId);
+            Assert.Contains("RESPONSE", game.State.PlayerZones["P2"].Graveyard);
+            await game.Top(); Assert.False(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(paid, JsonSerializer.Serialize(game.State.RunePools["P1"], Json));
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); Assert.Empty(game.State.StackItems);
+            var scheduled = Assert.Single(game.Events(), e => e.Event.Kind == "DELAYED_EMPOWER_SCHEDULED");
+            Assert.Equal("RESPONSE", scheduled.Event.Payload.GetValueOrDefault("sourceObjectId"));
+            await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1");
+            Assert.Equal("P2", game.State.TurnPlayerId); Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-response-removal-invalidates-earlier-paid-mode", initial, game); }
+    }
+
     private static MatchState Position(string owner)
     {
         var state = Add(VenUnitEntryBasicTests.Position(UnitNo), "SPELL", No);
