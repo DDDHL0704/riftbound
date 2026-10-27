@@ -117,9 +117,9 @@ public sealed partial class LastBreathDrawBoundaryTests
         finally { await game.Save("last-breath-draw-original-birth-required"); }
     }
 
-    private static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false, bool transferControl = false)
+    private static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false, bool transferControl = false, string sourceCardNo = Unit)
     {
-        var initial = Position();
+        var initial = Position(sourceCardNo);
         if (transferControl)
         {
             initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
@@ -147,7 +147,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         var game = new Driver(initial);
         // Reserve the two reaction-draw runes until P2's turn.
         foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
-        if (!transferControl) await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
+        if (!transferControl) await game.Act("P1", new PlayCardCommand("UNIT", sourceCardNo, []));
         var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
         for (var i = 0; i < 2; i++) {
             await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));

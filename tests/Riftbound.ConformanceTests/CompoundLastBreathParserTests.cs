@@ -12,7 +12,10 @@ public sealed class CompoundLastBreathParserTests
         var card = Assert.Single((await OfficialCardCatalog.LoadDefaultAsync()).Cards, c => c.CardNo == "OGN·075/298");
         Assert.Equal(31288, card.Id);
         Assert.Equal("{{急速}}（你可以选择额外支付{{1}}和{{绿色}}，让我以活跃状态进场。）\n{{绝念}}—召出两枚休眠的符文，再抽一张牌。（当我被摧毁后，发动此效果。）", card.CardEffect);
-        var trigger = Assert.Single(TriggerParser.Parse(card.CardEffect));
+        var triggers = TriggerParser.Parse(card.CardEffect);
+        // The existing reminder-text candidate has unspecified timing; it is not a second executable death skill.
+        var trigger = Assert.Single(triggers, t => t.Timing == TriggerTimings.UnitDestroyed);
+        Assert.DoesNotContain(triggers, t => t.Kind is TriggerKinds.UnitLastBreathCallRuneOne or TriggerKinds.UnitLastBreathDrawOne);
         Assert.Equal(TriggerKinds.UnitLastBreathCallRunesThenDraw, trigger.Kind);
         Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing); Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
         Assert.Equal(2, trigger.RuneCallCount); Assert.Equal(1, trigger.DrawCount);
