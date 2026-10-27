@@ -20,9 +20,11 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
     public async Task ExactPrintingPreservesEveryPriorCatalogGroupAndMember()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(); var old = catalog.Cards.Where(c => c.CardNo != No).ToArray();
-        Assert.Equal(1085, old.Length); Assert.Equal(1086, catalog.Cards.Count);
+        Assert.Equal(1086, old.Length); Assert.Equal(1087, catalog.Cards.Count);
         var prior = FunctionalUnitBuilder.Build(old); var current = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(866, prior.Count); Assert.Equal(867, current.Count);
+        Assert.Equal(867, prior.Count); Assert.Equal(868, current.Count);
+        var legacy = old.Where(c => c.CardNo != "VEN·128").ToArray();
+        Assert.Equal(1085, legacy.Length); Assert.Equal(866, FunctionalUnitBuilder.Build(legacy).Count);
         foreach (var group in prior) Assert.Equal(JsonSerializer.Serialize(group), JsonSerializer.Serialize(Assert.Single(current, c => c.Id == group.Id)));
         Assert.Equal(No, Assert.Single(Assert.Single(current, c => c.Cards.Any(card => card.CardNo == No)).Cards).CardNo);
     }
