@@ -11,6 +11,12 @@ namespace Riftbound.ConformanceTests;
 // payment/choice. Its use restriction survives every kind of pending window.
 public sealed class PendingLegendResourceTests
 {
+    public static IEnumerable<object[]> DariusWindows()
+        => from row in LegendResourceBridgeVerifierTests.SuccessProfiles()
+           where ((Profile)row[0]).AbilityId == LegendActionAbilityCatalog.DariusLegendAbilityId
+           from window in new[] { "tempered", "effect-play", "instruction" }
+           select new object[] { row[0], window };
+
     [Theory]
     [MemberData(nameof(LegendResourceBridgeVerifierTests.PowerSuccessProfiles), MemberType = typeof(LegendResourceBridgeVerifierTests))]
     public async Task ARealTemperedPaymentCanAcquireLegendPowerAndOnlyEquipmentPowerPays(Profile profile)
@@ -157,6 +163,117 @@ public sealed class PendingLegendResourceTests
         finally { await Export("effect-play", profile, initial, game, probe); }
     }
 
+    [Theory]
+    [MemberData(nameof(DariusWindows))]
+    public async Task ActualEncourageEnablesDariusReactionResourceInsidePaymentAndResolution(Profile profile, string window)
+    {
+        var state = window == "tempered" ? TemperedPlayTriggerAuditTests.PositionFor()
+            : window == "effect-play" ? OfficialGraveyardRecastTests.Fizz("UNL-010/219")
+            : InstructionPowerPaymentTimingTests.Position();
+        var initial = WithLegend(state, profile, window == "tempered" ? new(3, 0)
+            : window == "effect-play" ? new(3, 1) : new(1, 0));
+        if (window == "tempered") initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["HOST"] = Printed("HOST", "SFD·008/221"),
+                ["GEAR"] = Printed("GEAR", "SFD·022/221") with { Tags = [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon] } } };
+        if (window == "effect-play") initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["F"] = Printed("F", "SFD·140/221"), ["C"] = Printed("C", "UNL-010/219") } };
+        var game = new Driver(initial); var probe = new Dictionary<string, object?>();
+        try
+        {
+            if (window == "tempered")
+            {
+                await game.Act("P1", new PlayCardCommand("HOST", "SFD·008/221", []));
+                var c = game.State.PendingCardChoice!;
+                await game.Act("P1", new ChooseCardsCommand(c.ChoiceId, c.ChoiceWindow, ["GEAR"]));
+            }
+            else await game.Act("P1", new PlayCardCommand(window == "effect-play" ? "F" : "CARD",
+                window == "effect-play" ? "SFD·140/221" : "OGN·268/298", window == "effect-play" ? [] : ["FIELD"]));
+            await game.Top();
+            Assert.Equal(1, game.State.PlayerCardsPlayedThisTurn["P1"]); Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+            var before = game.State;
+            var option = $"LEGEND_RESOURCE:LEGEND:{profile.AbilityId}";
+            GameCommand command = window == "instruction"
+                ? new PayCostCommand(before.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", [option])
+                : new LegendActCommand("LEGEND", profile.AbilityId, [], []);
+            var core = await new CoreRuleEngine().ResolveAsync(before, new("darius-pending-core", "P1", command.CmdType), command, default);
+            var offered = window == "instruction" ? before.PendingRuleChoice!.Request.Options.Any(o => o.Id == option)
+                : (ResolutionResult.BuildPrompts(before)["P1"].Candidates ?? []).Any(c => c.Action == CommandTypes.LegendAct
+                    && c.Enabled && (c.Sources ?? []).Any(s => s.Id == "LEGEND"));
+            probe["beforeBank"] = before; probe["core"] = core; probe["offered"] = offered;
+            await Retained(game, "P2", command, false);
+            await Retained(game, "P1", command, true);
+            Assert.True(core.Accepted, core.ErrorMessage); Assert.True(offered);
+            Assert.Equal(new RunePool(1, 0), game.State.RunePools["P1"]);
+            Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+            Assert.Equal(before.PriorityPlayerId, game.State.PriorityPlayerId); Assert.Equal(before.FocusPlayerId, game.State.FocusPlayerId);
+            if (window == "instruction") command = new PayCostCommand(game.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", [option]);
+            await Retained(game, "P1", command, false);
+            await game.Act("P1", new SurrenderCommand());
+            Assert.Equal(MatchStatuses.Finished, game.State.Status); Assert.Equal(new RunePool(1, 0), game.State.RunePools["P1"]);
+            Assert.Single(game.Events(), e => e.Event.Kind == "MANA_GAINED"
+                && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "LEGEND"));
+            await game.Replay();
+        }
+        finally { await Export("darius-" + window, profile, initial, game, probe); }
+    }
+
+    [Fact]
+    public async Task ARealPaymentDoesNotAdmitViktorsNonresourceLegendAction()
+    {
+        var profile = new Profile("Viktor", "OGN·265/298", "LEGEND", LegendActionAbilityCatalog.ViktorLegendAbilityId, "none", "payment-negative");
+        var initial = WithLegend(TemperedPlayTriggerAuditTests.PositionFor(), profile, new(7, 0));
+        var game = new Driver(initial); var probe = new Dictionary<string, object?>();
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("HOST", "SFD·008/221", []));
+            var c = game.State.PendingCardChoice!;
+            await game.Act("P1", new ChooseCardsCommand(c.ChoiceId, c.ChoiceWindow, ["GEAR"])); await game.Top();
+            Assert.NotNull(game.State.PendingPayment);
+            var command = new LegendActCommand("LEGEND", profile.AbilityId, [], ["SPEND_MANA:1"]);
+            // The same source, resources and command are legal in an explicitly
+            // open-main diagnostic control; the real pending window stays closed.
+            var control = game.State with { PendingPayment = null, StackItems = [], PriorityPlayerId = null,
+                FocusPlayerId = null, ActivePlayerId = "P1", Phase = MatchPhases.Main, TimingState = TimingStates.NeutralOpen };
+            var allowed = await new CoreRuleEngine().ResolveAsync(control, new("viktor-open-control", "P1", command.CmdType), command, default);
+            probe["diagnosticOpenMainControl"] = allowed;
+            Assert.True(allowed.Accepted, allowed.ErrorMessage);
+            Assert.DoesNotContain(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [],
+                candidate => candidate.Action == CommandTypes.LegendAct && candidate.Enabled);
+            await Retained(game, "P1", command, false);
+            Assert.False(game.State.CardObjects["LEGEND"].IsExhausted); await game.Replay();
+        }
+        finally { await Export("nonresource", profile, initial, game, probe); }
+    }
+
+    [Fact]
+    public async Task ActualIgnoreAllCostsPlayKeepsItsResourceActionExclusion()
+    {
+        var profile = new Profile("Ornn", "SFD·189/221", "LEGEND", LegendActionAbilityCatalog.OrnnLegendAbilityId, "power", "ignore-all-negative");
+        var initial = WithLegend(HookDeckPlayTests.Position("SFD·148/221"), profile, new(1, 1));
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = Printed("GEAR", "OGN·242/298"), ["HOST"] = Printed("HOST", "SFD·148/221"),
+            ["HOOK_TOP"] = Printed("HOOK_TOP", "OGN·096/298"), ["HOOK_OTHER"] = Printed("HOOK_OTHER", "SFD·042/221") } };
+        var game = new Driver(initial); var probe = new Dictionary<string, object?>();
+        try
+        {
+            var ability = Assert.Single(P4ActivatedAbilityCatalog.GetAll(), a => a.SourceCardNo == "OGN·242/298"
+                && a.Kind == ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest);
+            await game.Act("P1", new ActivateAbilityCommand("GEAR", ability.AbilityId, ["HOST"])); await game.Top();
+            var c = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(c.ChoiceId, c.ChoiceWindow, ["HOOK_TOP"]));
+            Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
+            Assert.DoesNotContain(CommandTypes.LegendAct, ResolutionResult.BuildPrompts(game.State)["P1"].Actions);
+            await Retained(game, "P1", new LegendActCommand("LEGEND", profile.AbilityId, [], []), false);
+            Assert.False(game.State.CardObjects["LEGEND"].IsExhausted); Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+            await game.Act("P1", new PlayCardCommand("HOOK_TOP", "OGN·096/298", []));
+            Assert.Null(game.State.PendingEffectPlay); Assert.Contains("HOOK_TOP", game.State.PlayerZones["P1"].Base);
+            Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]); await game.Replay();
+        }
+        finally { await Export("ignore-all", profile, initial, game, probe); }
+    }
+
     private static MatchState WithLegend(MatchState state, Profile profile, RunePool pool)
         => OfficialHoldSequenceTests.AddLegend(state with { Tick = 0,
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = pool } }, profile.CardNo);
@@ -201,7 +318,7 @@ public sealed class PendingLegendResourceTests
         if (Environment.GetEnvironmentVariable("RIFTBOUND_PENDING_LEGEND_EVIDENCE") is not { Length: > 0 } output) return;
         Directory.CreateDirectory(output);
         await File.WriteAllTextAsync(Path.Combine(output, kind + "-" + profile.CardNo.Replace('/', '_') + ".json"), JsonSerializer.Serialize(new {
-            scope = "Five exact CN legend printings; actual parent play/trigger and resource/payment commands in four pending window kinds. Explicit turn-three/five positions, original journal, per-command privacy/recovery/dedup/replay; no full opening, L2/L3 or whole-card certification. Fizz ID37991/33230 and recycle errata stay separate from this fee slice.",
+            scope = "Exact CN reaction resource printings plus Viktor/ignore-all-cost negatives; actual parent play/trigger and resource/payment commands. Explicit turn-three/five positions, original journal, per-command privacy/recovery/dedup/replay; no full opening, L2/L3 or whole-card certification. Fizz ID37991/33230 and recycle errata stay separate from this fee slice.",
             initial, state = game.State, probe, commands = game.Commands(), events = game.Events()
         }, new JsonSerializerOptions(Web) { WriteIndented = true }));
     }
