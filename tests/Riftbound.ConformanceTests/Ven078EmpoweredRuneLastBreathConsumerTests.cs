@@ -127,7 +127,10 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
     }
     private static async Task Kill(Driver game, string opponent)
     {
-        await Tap(game, opponent); await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1"));
+        // Use four known field runes; ordinary turn channeling may have added
+        // other physical runes that this destruction payment does not spend.
+        for (var i = 1; i <= 4; i++) await game.Act(opponent, new TapRuneCommand(opponent + "-RUNE-" + i));
+        await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1"));
         await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-2"));
         Assert.Equal(4, game.State.RunePools[opponent].Mana); Assert.Equal(2, game.State.RunePools[opponent].PowerByTrait[RuneTrait.Yellow]);
         await game.Act(opponent, new PlayCardCommand("KILL", Destroy, ["UNIT"]));
