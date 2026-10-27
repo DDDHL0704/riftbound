@@ -749,21 +749,21 @@ public static class TriggerParser
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"\{\{绝念>?\}\}\s*[—-]?\s*打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
             RegexOptions.CultureInvariant);
         if (!match.Success)
         {
             return false;
         }
 
-        var tokenCount = ParseChineseNumber(match.Groups[1].Value);
-        var createdTokenPower = ParseChineseNumber(match.Groups[2].Value);
-        var tokenName = match.Groups[3].Value;
-        var tokenKeywords = match.Groups[4].Success
-            && !string.IsNullOrWhiteSpace(match.Groups[4].Value)
-                ? new[] { match.Groups[4].Value }
+        var tokenCount = ParseChineseNumber(match.Groups["count"].Value);
+        var createdTokenPower = ParseChineseNumber(match.Groups["might"].Value);
+        var tokenName = match.Groups["name"].Value;
+        var tokenKeywords = match.Groups["keyword"].Success
+            && !string.IsNullOrWhiteSpace(match.Groups["keyword"].Value)
+                ? new[] { match.Groups["keyword"].Value }
                 : Array.Empty<string>();
-        var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords);
+        var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords, hasLastBreathMarker: true);
         if (string.IsNullOrWhiteSpace(kind))
         {
             return false;
@@ -779,7 +779,8 @@ public static class TriggerParser
             CreatedTokenName: tokenName,
             CreatedTokenPower: createdTokenPower,
             CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
-            CreatedTokenKeywords: tokenKeywords);
+            CreatedTokenKeywords: tokenKeywords,
+            RequiresSourceEmpowered: match.Groups["empowered"].Success ? true : null);
         return true;
     }
 
@@ -2229,10 +2230,11 @@ public static class TriggerParser
         string tokenName,
         int tokenCount,
         int tokenPower,
-        IReadOnlyList<string> tokenKeywords)
+        IReadOnlyList<string> tokenKeywords,
+        bool hasLastBreathMarker = false)
     {
         if (string.Equals(tokenName, "随从", StringComparison.Ordinal)
-            && tokenCount == 3
+            && (tokenCount == 3 || hasLastBreathMarker && tokenCount > 0)
             && tokenPower == 1
             && tokenKeywords.Count == 0)
         {
@@ -2346,9 +2348,12 @@ public static class TriggerParser
 
 public static class ReplacementParser
 {
+    private const string FriendlyDestroySourceCondition = "如果一名友方单位被摧毁，则改为将此牌摧毁";
+    private const string ClearDamageExhaustRecallContinuation = "移除该单位所受伤害，让其进入休眠状态，并将其召回";
+
     public static IReadOnlyList<ReplacementSpec> Parse(string text)
     {
-        return TargetParser.SplitRulesText(text)
+        return ReplacementSpans(text)
             .Where(segment => segment.Contains("改为", StringComparison.Ordinal)
                 || segment.Contains("防止", StringComparison.Ordinal)
                 || segment.Contains("替代", StringComparison.Ordinal)
@@ -2359,6 +2364,22 @@ public static class ReplacementParser
                 segment,
                 "Parsed replacement/prevention candidate; replacement pass ordering is not executed by the P3 skeleton."))
             .ToArray();
+    }
+
+    private static IEnumerable<string> ReplacementSpans(string text)
+    {
+        var segments = TargetParser.SplitRulesText(text);
+        for (var index = 0; index < segments.Count; index++)
+        {
+            // The corrected instruction continues in the immediately following sentence.
+            // Its explicit reference to the same unit binds the two actions together.
+            if (segments[index] == FriendlyDestroySourceCondition
+                && index + 1 < segments.Count && segments[index + 1] == ClearDamageExhaustRecallContinuation)
+            {
+                yield return segments[index] + "。" + segments[++index];
+            }
+            else yield return segments[index];
+        }
     }
 
     private static string DetermineKind(string segment)
@@ -2372,7 +2393,8 @@ public static class ReplacementParser
             return ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted;
         }
 
-        if (segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
+        if (segment == FriendlyDestroySourceCondition + "。" + ClearDamageExhaustRecallContinuation
+            || segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
             && segment.Contains("将此牌摧毁", StringComparison.Ordinal)
             && segment.Contains("休眠状态", StringComparison.Ordinal)
             && segment.Contains("召回", StringComparison.Ordinal))
