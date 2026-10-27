@@ -216,7 +216,7 @@ public sealed partial class CoreRuleEngine
                 costs, sourceObjectId: source, componentEchoReduction: echoReduction);
             if (PaymentCostRules.AvailableMana(availablePool, IsSpellPlayBehavior(behavior)
                     ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other) < total.Total) continue;
-            PrintedPowerCostRules.TrySelectForPlay(behavior, null, availablePool,
+            TrySelectPlayPowerCost(state, player, behavior, null, availablePool,
                 price.GenericPower + SourceReplayPowerCost(state, player), price.TypedPower,
                 out var totalGeneric, out var totalTyped);
             totalTyped = ApplySacrificePowerReduction(totalTyped,

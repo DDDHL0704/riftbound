@@ -13,6 +13,10 @@ on:
       - 'tests/Riftbound.NativeNetworkSmoke/Program.cs'
       - 'tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj'
       - 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs'
+      - 'tests/Riftbound.PaymentResourceSurplusAcceptance/Program.cs'
+      - 'tests/Riftbound.PaymentResourceSurplusAcceptance/Riftbound.PaymentResourceSurplusAcceptance.csproj'
+      - 'tests/Riftbound.InstructionPaymentAcceptance/Program.cs'
+      - 'tests/Riftbound.InstructionPaymentAcceptance/Riftbound.InstructionPaymentAcceptance.csproj'
   workflow_dispatch:
 
 permissions:
@@ -56,6 +60,7 @@ jobs:
       - name: L3 harness safeguards
         run: |
           python3 -m unittest discover -s scripts/tests -p test_process_restart_ci.py -v
+          python3 -m unittest discover -s scripts/tests -p test_payment_reconnect_ci.py -v
           python3 -m unittest discover -s scripts/tests -p test_sql_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
@@ -66,4 +71,16 @@ jobs:
         with:
           name: process-restart-results
           path: var/qa/ci-process-restart/
+          retention-days: 90
+      - name: S3 and P7 SQL, authenticated reconnect and actual API restart
+        if: ${{ !cancelled() }}
+        run: >-
+          python3 scripts/run-payment-reconnect-ci.py --expected "${{ github.sha }}"
+          --case payment-resource-surplus --case instruction-power-payment
+          --output var/qa/ci-payment-harness
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: payment-harness-results
+          path: var/qa/ci-payment-harness/
           retention-days: 90

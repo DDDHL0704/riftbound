@@ -63,7 +63,7 @@ public sealed partial class CoreRuleEngine
             var reduction = SelectedSacrificeCostReduction(state, player, behavior, costs);
             var mana = CalculatePlayManaCost(state, player, behavior, additionalMana,
                 optionalCosts: costs, sourceObjectId: source);
-            PrintedPowerCostRules.TrySelectForPlay(behavior, null, pool,
+            TrySelectPlayPowerCost(state, player, behavior, null, pool,
                 SourceReplayPowerCost(state, player) + (additionalTrait.Length == 0 ? additionalPower : 0), extraTyped,
                 out var generic, out var typed);
             return new OptionalSacrificePlayCost(choice, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), IsSpellPlayBehavior(behavior));

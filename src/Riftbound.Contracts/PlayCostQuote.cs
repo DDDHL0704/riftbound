@@ -30,6 +30,8 @@ public sealed record PlayCostBreakdownDto(
     public int AvailableSpellOnlyMana { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? RemainingSpellOnlyMana { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
 }
 
 // A quote is informational. Submission always rebuilds and authorizes its plan.

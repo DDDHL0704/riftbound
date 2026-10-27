@@ -1,0 +1,13 @@
+# S3 剩余符能篡改验收与独立入口 · 2026-10-24
+- Refs #106；base #161 同步头 `8a918ebf7e5cb9fb27685f418f3e951e6c66c647`；当前实测源 `64ca80cded8c31dd313461c180cf9e6a49c936d7`，已含main907f策略；实现bee0e299、driver88dbcbab。
+- 旧叶单改权威行却要求原日志拒绝；当前结构负控实有4条total/typed视图错误、不含action-log，证明验收层次误判，不代表篡改获准。
+- 先单行结构负控，再协调权威+双snapshot+双prompt五行；新registry严格code/layer/hash、不缓存，finally先落诊断再按原id/payload精确还原。
+- 恢复本房7表及他房认证行，原双方Web视图与原日志；保留外层真实重启checkpoint；原接受/拒绝缓存回执保真且不再扣费或写日志。
+- 新真实CLI `tests/Riftbound.PaymentResourceSurplusAcceptance`：`<sql|prepare|play|recover|verify|tamper> <output> [before-restart|after-restart]`，只链接现存S3/Mighty/网络/严格重连类与原fixture。
+- runtime-<selector>.json含assemblyPath/sha256/mvid/informationalVersion；所有阶段同一专用loopback DB，网络用实际Joined token侧文件，无finish/final。
+- 同步父CI后最新输入222/222原生过、零skip；driver0警告0错，另10项CLI help/格式/远程目标拒绝检查过；早期222及10项不重计，未当作SQL/联网通过。
+- 原73d两Fact/断言仅补实际ErrorCode投影，另4例含同总额换色；每场景原10命令32事件/9接受1拒绝；相对同步父的原572个Conformance C#与完整对局源不改。
+- PDB校验233个Engine/579个测试程序集/5个driver源与提交吻合，原fixture复制校验和一致；生产/API/DTO/客户端/规则目录/CI脚本相对同步父差异为空。
+- 原件 `var/qa/payment-prs-20261024/s3-surplus-tamper-106/`；入口 `fixed-source-runtime-proof-v15.json` SHA `f4d94813c5634707fc4eb1a383e128f042eb9ff3551288ab023b2995e5459c2e`；含新输入TRX/加载身份、driver与CLI日志、PDB/源码保留证明。
+- ①已确认由独立nightly-payment-stages分支声明本源依赖并接第四S3映射，保留另外三入口/原房smoke；本线未发新L3或运行SQL/Hub/双玩家/进程重启。
+- 实际L2 rules-suite/main与固定候选夜间L3仍待；旧A3 Linux/Mac PG原件不追标当前输入通过，issue保持OPEN、净整卡0、Goal继续。

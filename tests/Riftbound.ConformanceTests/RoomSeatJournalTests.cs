@@ -260,7 +260,7 @@ public sealed class RoomSeatJournalTests
     }
 
     private static RecoveredCommand Command(MatchJournalEntry e) => new(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-        e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand };
+        e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode };
 
     private class Journal : IMatchJournal
     {

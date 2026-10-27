@@ -183,8 +183,7 @@ public sealed class InstructionPowerAllocationTests
         await run.Cold();
         var cold = await run.Repeat(input.Actor, input.Intent, input.Raw);
         run.Save("cold-rejection-cache", new { originalCode = rejected.ErrorCode, actualColdCode = cold.ErrorCode, cold });
-        // Exact rejection-code restoration is a separately recorded OPEN baseline.
-        // This assertion covers no writes, no game mutation, and no double debit.
+        Assert.Equal(rejected.ErrorCode, cold.ErrorCode);
         Assert.False(cold.Accepted); Assert.Empty(cold.Events); Assert.Equal(rejected.ErrorMessage, cold.ErrorMessage);
         Assert.Equal(before + 1, run.Entries.Count); Assert.Equal(state, MatchStateHasher.Hash(run.State));
         await ToConfirmation(run, 2, 0, 1, 1, enter: entry);
@@ -463,7 +462,7 @@ public sealed class InstructionPowerAllocationTests
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { Entries.Add(entry); return ValueTask.CompletedTask; }
         public RecoveredCommand[] Commands() => Entries.Select(entry => new RecoveredCommand(entry.PlayerId, entry.ClientIntentId,
             entry.CommandType, entry.RawCommand, entry.StartedTick, entry.CompletedTick, entry.StartedEventSequence,
-            entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { RuleInputs = entry.RuleInputs }).ToArray();
+            entry.CompletedEventSequence, entry.Accepted, entry.ErrorMessage) { ErrorCode = entry.ErrorCode, RuleInputs = entry.RuleInputs }).ToArray();
         public RecoveredEvent[] Events() => Entries.SelectMany(entry => entry.Events.Select((ev, index) =>
             new RecoveredEvent(entry.StartedEventSequence + index + 1, entry.CompletedTick, index, ev))).ToArray();
         public JsonElement Wire(GameCommand command, string actor = "P1")

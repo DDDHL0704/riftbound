@@ -187,7 +187,7 @@ public sealed class OfficialEffectReplayTests
         Assert.Equal(MatchStateHasher.Hash(first.State), MatchStateHasher.Hash(duplicate.State));
         Assert.Single(journal.Entries);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
-            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+            e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, index) => new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(restored, commands, first.State, engine, default, events);
         Assert.Empty(replay.Errors);

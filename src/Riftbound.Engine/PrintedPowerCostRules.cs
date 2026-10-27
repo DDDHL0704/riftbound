@@ -8,6 +8,7 @@ public static class PrintedPowerCostRules
 {
     public const string ChoicePrefix = "PRINTED_POWER:";
     public sealed record Cost(int Amount, IReadOnlyList<string> Traits);
+    internal sealed record Allocation(int GenericPower, IReadOnlyDictionary<string, int> TypedPower);
     private static readonly Lazy<IReadOnlyDictionary<string, Cost>> Costs = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(
             card => card.CardNo,
@@ -66,16 +67,37 @@ public static class PrintedPowerCostRules
         IReadOnlyList<string>? additionalPrintedCosts = null)
         => TrySelect(ForPlay(behavior), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts);
 
+    internal static bool TrySelectForPlayWithFeasibility(CardBehaviorDefinition behavior, string? choice, RunePool pool,
+        int extraGeneric, IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
+        IReadOnlyList<string> additionalPrintedCosts, Func<int, IReadOnlyDictionary<string, int>, bool> feasibility)
+        => TrySelect(ForPlay(behavior), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts, feasibility);
+
     private static bool TrySelect(Cost cost, string? choice, RunePool pool, int extraGeneric,
         IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
-        IReadOnlyList<string>? additionalPrintedCosts)
+        IReadOnlyList<string>? additionalPrintedCosts, Func<int, IReadOnlyDictionary<string, int>, bool>? feasibility = null)
     {
-        generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0);
+        var options = Options(cost, choice, extraGeneric, extraTyped, additionalPrintedCosts);
+        if (options.Count == 0) { generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0); typed = extraTyped; return false; }
+        var selected = options.Where(a => feasibility is null || feasibility(a.GenericPower, a.TypedPower))
+            .OrderBy(a => PaymentCostRules.PowerDeficit(pool, a.GenericPower, a.TypedPower)).FirstOrDefault();
+        if (selected is null) { generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0); typed = extraTyped; return false; }
+        generic = selected.GenericPower; typed = selected.TypedPower;
+        return true;
+    }
+
+    internal static IReadOnlyList<Allocation> OptionsForPlay(CardBehaviorDefinition behavior, string? choice,
+        int extraGeneric, IReadOnlyDictionary<string, int> extraTyped, IReadOnlyList<string>? additionalPrintedCosts = null)
+        => Options(ForPlay(behavior), choice, extraGeneric, extraTyped, additionalPrintedCosts);
+
+    private static IReadOnlyList<Allocation> Options(Cost cost, string? choice, int extraGeneric,
+        IReadOnlyDictionary<string, int> extraTyped, IReadOnlyList<string>? additionalPrintedCosts)
+    {
+        var generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0);
         var allocations = Allocations(cost);
         if (choice is not null)
         {
             allocations = allocations.Where(a => cost.Amount > 0 && string.Equals(ChoiceId(a), choice, StringComparison.Ordinal)).ToArray();
-            if (allocations.Count == 0) { typed = extraTyped; return false; }
+            if (allocations.Count == 0) return [];
         }
         // Each base-cost Echo can choose its printed traits independently of the
         // original spell's explicit allocation.
@@ -87,9 +109,6 @@ public static class PrintedPowerCostRules
                 .Select(second => Combine(first, second)))
                 .DistinctBy(ChoiceId).ToArray();
         }
-        var genericCost = generic;
-        typed = allocations.Select(a => Combine(a, extraTyped))
-            .OrderBy(a => PaymentCostRules.PowerDeficit(pool, genericCost, a)).First();
-        return true;
+        return allocations.Select(a => new Allocation(generic, Combine(a, extraTyped))).ToArray();
     }
 }
