@@ -6,7 +6,7 @@ using Game = Riftbound.ConformanceTests.VenEmpowerCanonicalOpeningTests.Canonica
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class CanonicalDistributedGuardianOpeningTests
+public sealed partial class CanonicalDistributedGuardianOpeningTests
 {
     [Theory]
     [InlineData(false)] [InlineData(true)]
