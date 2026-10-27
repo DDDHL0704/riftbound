@@ -418,7 +418,7 @@ public static class TriggerParser
         }
 
         var hasUnitLastBreathCallRuneTrigger =
-            TryParseUnitLastBreathCallRuneOne(text, out var unitLastBreathCallRuneTrigger);
+            TryParseUnitLastBreathCallRunes(text, out var unitLastBreathCallRuneTrigger);
         if (hasUnitLastBreathCallRuneTrigger)
         {
             triggers.Add(unitLastBreathCallRuneTrigger);
@@ -625,14 +625,20 @@ public static class TriggerParser
         return true;
     }
 
-    private static bool TryParseUnitLastBreathCallRuneOne(string text, out TriggerSpec trigger)
+    private static bool TryParseUnitLastBreathCallRunes(string text, out TriggerSpec trigger)
     {
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"\{\{绝念>?\}\}\s*[—-]?\s*召出一枚休眠的符文",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文(?=[。（(\r\n]|$)",
             RegexOptions.CultureInvariant);
         if (!match.Success)
+        {
+            return false;
+        }
+
+        var runeCount = ParseChineseNumber(match.Groups["count"].Value);
+        if (runeCount <= 0)
         {
             return false;
         }
@@ -643,7 +649,8 @@ public static class TriggerParser
             match.Value,
             "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
-            RuneCallCount: 1);
+            RuneCallCount: runeCount,
+            RequiresSourceEmpowered: match.Groups["empowered"].Success ? true : null);
         return true;
     }
 
