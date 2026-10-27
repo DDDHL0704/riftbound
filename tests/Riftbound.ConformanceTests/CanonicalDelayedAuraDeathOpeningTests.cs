@@ -42,12 +42,13 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             await game.ColdCheckpoint();
             for (var step = 0; ; step++)
             {
+                await FinishBeginning(game);
                 Assert.InRange(step, 0, 79); Assert.Equal(MatchStatuses.InProgress, game.State.Status);
                 if (game.State.TurnPlayerId == "P1" && game.Runes("P1").Length == 12 && game.Runes("P2").Length == 12
                     && game.Hand("P1", "VEN·035").Count() == 3 && game.Hand("P1", "UNL-156/219").Count() >= 2
                     && game.Hand("P1", "VEN·130").Any() && game.Hand("P1", "SFD·051/221").Any()
                     && game.Hand("P2", "OGN·190/298").Any() && game.Hand("P2", "OGN·009/298").Any()) break;
-                await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
+                await EndTurn(game, game.State.TurnPlayerId!);
             }
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED"); await game.ColdCheckpoint();
             await game.Tap("P1"); Assert.Equal(12, game.State.RunePools["P1"].Mana);
@@ -56,21 +57,21 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             foreach (var id in poros) await game.Act("P1", new PlayCardCommand(id, "UNL-156/219", []));
             Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects[aura].IsEmpowered);
             var hostGeneration = game.State.CardObjects[host].ObjectGeneration; var victimGeneration = game.State.CardObjects[victim].ObjectGeneration;
-            await game.ColdCheckpoint(); await game.Act("P1", new EndTurnCommand());
+            await game.ColdCheckpoint(); await EndTurn(game, "P1");
             await game.Tap("P2"); await Recycle(game, "P2", "UNL-R05");
             var source = game.Hand("P2", "OGN·190/298").First(); await game.Act("P2", new PlayCardCommand(source, "OGN·190/298", []));
             Assert.Equal(9, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
             var sourceGeneration = game.State.CardObjects[source].ObjectGeneration;
-            await game.ColdCheckpoint(); await game.Act("P2", new EndTurnCommand());
+            await game.ColdCheckpoint(); await EndTurn(game, "P2");
             await game.Tap("P1"); var guardian = game.Hand("P1", "SFD·051/221").First();
             await game.Act("P1", new PlayCardCommand(guardian, "SFD·051/221", [])); await Recycle(game, "P1", "UNL-R02");
             await game.Act("P1", new AssembleEquipmentCommand(guardian, host, ["ASSEMBLE_GREEN"])); await game.Top();
             Assert.Equal(10, game.State.RunePools["P1"].Mana); Assert.Equal(host, game.State.CardObjects[guardian].AttachedToObjectId);
-            await game.ColdCheckpoint(); await game.Act("P1", new EndTurnCommand());
+            await game.ColdCheckpoint(); await EndTurn(game, "P1");
             var field = game.State.CardObjects.Values.Single(c => c.CardNo == "OGN·278/298" && c.OwnerId == "P1").ObjectId;
             Assert.False(game.State.CardObjects[source].IsExhausted);
             await game.Act("P2", new MoveUnitCommand(source, "BASE", "BATTLEFIELD:" + field, [])); await FinishWindow(game);
-            Assert.Equal("P2", game.State.CardObjects[field].ControllerId); await game.Act("P2", new EndTurnCommand());
+            Assert.Equal("P2", game.State.CardObjects[field].ControllerId); await EndTurn(game, "P2");
             await game.Tap("P1"); var spells = game.Hand("P1", "VEN·035").Take(3).ToArray();
             var targets = new[] { host, victim, aura };
             for (var i = 0; i < 3; i++)
@@ -140,7 +141,8 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
                 Assert.Equal(order[i], inverse.Unit.ObjectId); if (order[i] == victim) Assert.Equal(victimGeneration, inverse.Unit.Generation);
                 await game.Top();
             }
-            Assert.Equal("P2", game.State.TurnPlayerId); Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.Null(game.State.EndStep);
+            Assert.Equal("P2", game.State.TurnPlayerId); Assert.Null(game.State.EndStep); await game.ColdCheckpoint(); await FinishBeginning(game);
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
             Assert.Contains(host, game.State.PlayerZones["P1"].Base); Assert.Equal(hostGeneration, game.State.CardObjects[host].ObjectGeneration);
             Assert.Equal(0, game.State.CardObjects[host].Damage); Assert.False(game.State.CardObjects[host].IsEmpowered); Assert.False(game.State.CardObjects[aura].IsEmpowered);
             var ending = game.Events().Skip(endStart).ToArray();
@@ -159,6 +161,19 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
     private static async Task Recycle(Game game, string player, string no)
         => await game.Act(player, new RecycleRuneCommand(game.Runes(player).First(id => game.State.CardObjects[id].CardNo == no)));
     private static string? Target(GameEvent value) => value.Payload.GetValueOrDefault("targetObjectId") as string;
+    private static async Task EndTurn(Game game, string player)
+    { await game.Act(player, new EndTurnCommand()); await FinishBeginning(game); }
+    private static async Task FinishBeginning(Game game)
+    {
+        for (var i = 0; game.State.Phase == MatchPhases.TurnStart; i++)
+        {
+            Assert.InRange(i, 0, 7);
+            if (game.State.TriggerQueue.Count > 0)
+                await game.Act(game.State.TriggerQueue[0].ControllerId, new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else if (game.State.StackItems.Count > 0) await game.Top();
+            else Assert.Fail("The real beginning phase did not expose its next ordinary skill resolution.");
+        }
+    }
     private static async Task FinishWindow(Game game)
     {
         for (var i = 0; game.State.BattleState.IsActive || game.State.TimingState != TimingStates.NeutralOpen; i++)
