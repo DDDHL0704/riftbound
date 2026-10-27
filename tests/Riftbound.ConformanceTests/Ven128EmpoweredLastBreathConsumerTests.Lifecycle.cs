@@ -43,7 +43,11 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
     [InlineData("P1")] [InlineData("P2")]
     public async Task AnEarnedDependentSkillSurvivesItsSourceReturningFromTheGraveyardToAPrivateHand(string owner)
     {
-        var initial = Hand(Position(owner), "REVIVE", "OGN·170/298", owner);
+        var initial = Hand(Position(owner), "DRAW", "OGN·048/298", owner);
+        var moved = initial.PlayerZones[owner].MainDeck.Concat(initial.PlayerZones[owner].Graveyard).ToArray();
+        initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            [owner] = initial.PlayerZones[owner] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones[owner].Hand, ..moved] } },
+            ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState(owner, "HAND") : p.Value) };
         var cards = initial.CardObjects.ToDictionary(); var locations = initial.ObjectLocations.ToDictionary();
         foreach (var i in new[] { 5, 6 })
         {
@@ -67,9 +71,13 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             if (game.State.PriorityPlayerId != owner) await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.Equal(0, game.State.RunePools[owner].Mana);
             await game.Act(owner, new TapRuneCommand(owner + "-RUNE-5")); await game.Act(owner, new TapRuneCommand(owner + "-RUNE-6"));
-            Assert.Equal(2, game.State.RunePools[owner].Mana); await game.Act(owner, new PlayCardCommand("REVIVE", "OGN·170/298", ["UNIT"]));
+            Assert.Equal(["UNIT"], game.State.PlayerZones[owner].Graveyard);
+            // Reaction is legal in this closed chain; Swift is not. Decline
+            // Meditation's optional exhaust, then real burnout draws its only card.
+            Assert.Equal(2, game.State.RunePools[owner].Mana); await game.Act(owner, new PlayCardCommand("DRAW", "OGN·048/298", []));
             Assert.Equal(0, game.State.RunePools[owner].Mana); await game.Top();
-            Assert.Contains("UNIT", game.State.PlayerZones[owner].Hand); Assert.Equal(generation + 2, game.State.CardObjects["UNIT"].ObjectGeneration);
+            Assert.Contains("UNIT", game.State.PlayerZones[owner].Hand); Assert.Equal(generation + 3, game.State.CardObjects["UNIT"].ObjectGeneration);
+            Assert.Equal(1, game.State.PlayerScores[opponent]); Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Single(game.State.StackItems); JsonCold(initial, game);
             foreach (var view in new[] { ResolutionResult.BuildSnapshots(game.State)[opponent], ResolutionResult.BuildSpectatorSnapshot(game.State) })
             {
