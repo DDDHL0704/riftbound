@@ -53,7 +53,7 @@ public sealed partial class CoreRuleEngine
             return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
             genericPowerCost: pending.PowerCost, totalPowerCost: pending.PowerCost, sourceObjectId: item.SourceObjectId);
-        var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
+        var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "符能不足；可先回收符文或放弃此触发技能。", ErrorCodes.InsufficientCost);
         next = next with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience };
         var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付法盾费用",

@@ -17,7 +17,7 @@ public sealed partial class CoreRuleEngine
             var context = ReplacementResourceContext(state, zones, cards, pools, player);
             var pool = pools.GetValueOrDefault(player) ?? RunePool.Empty;
             var options = new List<RuleChoiceOption> { new("DECLINE", "不支付急速费用，按原状态进场") };
-            if (pool.Mana >= 1)
+            if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, context) >= 1)
             {
                 if (pool.Power > 0 && traits.Count == 0) options.Add(new("PAY:ANY", "支付急速：1 法力和 1 点通用符能"));
                 foreach (var trait in pool.PowerByTrait.Where(t => t.Value > 0 && (traits.Count == 0 || traits.Contains(t.Key)))
@@ -31,7 +31,7 @@ public sealed partial class CoreRuleEngine
             foreach (var rune in runes)
             {
                 if (!cards[rune].IsExhausted && CanGainSpellOnlyMana(pool, 1)) options.Add(new("TAP_RUNE:" + rune, "横置符文，获得 1 法力，之后继续选择", [rune]));
-                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                if (pool.HasSupportedAmounts && (long)pool.TotalStoredPower + 1 <= int.MaxValue)
                     options.Add(new("RECYCLE_RUNE:" + rune, "回收符文，获得 1 符能，之后继续选择", [rune]));
             }
             var resources = ReplacementResourceActions(context, player);
@@ -59,7 +59,7 @@ public sealed partial class CoreRuleEngine
             var paymentEventStart = events.Count;
             pool = pools[player];
             var power = PayPowerCost(pool, selected == "PAY:ANY" ? 1 : 0, spentTraits);
-            pools[player] = pool with { Mana = pool.Mana - 1, Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
+            pools[player] = PaymentCostRules.SpendMana(pool, 1, state: context) with { Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
             events.Add(new("COST_PAID", "支付指示物急速费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = token.ObjectId, ["parentSourceObjectId"] = parentSource,
                 ["mana"] = 1, ["power"] = 1, ["powerByTrait"] = spentTraits,

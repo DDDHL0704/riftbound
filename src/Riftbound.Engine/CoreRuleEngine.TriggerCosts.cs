@@ -220,7 +220,7 @@ public sealed partial class CoreRuleEngine
             genericPowerCost: pending.PowerCost - pending.PowerCostByTrait.Values.Sum(), totalPowerCost: pending.PowerCost,
             powerCostByTrait: pending.PowerCostByTrait,
             reason: pending.Reason, sourceObjectId: item.SourceObjectId);
-        var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
+        var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
         var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId };
         if (item.BattlefieldConquestMight is not null) {

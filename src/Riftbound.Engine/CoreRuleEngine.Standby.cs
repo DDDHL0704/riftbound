@@ -107,7 +107,7 @@ public sealed partial class CoreRuleEngine
         var payment=new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick+1,"HIDE_CARD",intent.PlayerId,command.SourceObjectId),
             "HIDE_CARD",intent.PlayerId,baseManaCost:mana,totalManaCost:mana,genericPowerCost:power,totalPowerCost:power,
             optionalCostIds:costs,reason:"STANDBY_HIDE",sourceObjectId:command.SourceObjectId);
-        var committed=PaymentCostRules.TryCommitPayment(payment,state.RunePools,state.PlayerExperience);
+        var committed=PaymentCostRules.TryCommitPayment(payment,state.RunePools,state.PlayerExperience, state: state);
         if(!committed.Accepted)return RejectWithCorePrompts(state,"待命所需资源不足。",ErrorCodes.InsufficientCost);
         var zones=NormalizeZonesForSeats(state);var own=zones[intent.PlayerId];
         zones[intent.PlayerId]=own with {Hand=RemoveFromZone(own.Hand,source.ObjectId),ChampionZone=RemoveFromZone(own.ChampionZone,source.ObjectId),

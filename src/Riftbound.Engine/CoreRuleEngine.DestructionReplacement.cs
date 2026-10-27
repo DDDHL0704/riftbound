@@ -245,7 +245,8 @@ public sealed partial class CoreRuleEngine
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility, out var ability) && ability.Amount > 0
             && !(appliedReplacements ?? RuleChoices.Value!.AppliedDestructionReplacements).Contains(Key("ALTAR", fieldId))) {
             optionalAvailable = true;
-            if (pool.Mana >= ability.Amount) Add("ALTAR", fieldId, $"支付 {ability.Amount} 法力，鲜血祭坛休眠召回", true, mana: ability.Amount);
+            if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= ability.Amount)
+                Add("ALTAR", fieldId, $"支付 {ability.Amount} 法力，鲜血祭坛休眠召回", true, mana: ability.Amount);
         }
         if (!unit.Tags.Contains(CardObjectTags.Boon)) return options;
         foreach (var source in zones.SelectMany(z => z.Value.LegendZone).Order(StringComparer.Ordinal)) {
@@ -290,7 +291,7 @@ public sealed partial class CoreRuleEngine
             RuleChoices.Value.NestedDestroyedOwners.UnionWith(nested.DestroyedUnitOwnerIds);
         }
         if (option.Kind == "ALTAR") {
-            pools[player] = pools.GetValueOrDefault(player, RunePool.Empty) with { Mana = pools[player].Mana - option.Mana };
+            pools[player] = PaymentCostRules.SpendMana(pools.GetValueOrDefault(player, RunePool.Empty), option.Mana, state: state);
             events.Add(new("COST_PAID", "支付鲜血祭坛替换费用", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = option.Mana, ["power"] = 0, ["reason"] = BattlefieldDestroyedInBattleRecallEffectId }));
         }

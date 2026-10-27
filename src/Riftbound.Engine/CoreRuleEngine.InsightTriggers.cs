@@ -173,7 +173,7 @@ public sealed partial class CoreRuleEngine
         {
             var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
                 baseManaCost: 1, totalManaCost: 1, reason: "黛安娜的可选洞察费用", sourceObjectId: item.SourceObjectId);
-            var committed = PaymentCostRules.TryCommitPayment(plan, pools, experience);
+            var committed = PaymentCostRules.TryCommitPayment(plan, pools, experience, state: state);
             if (!committed.Accepted)
                 return RejectWithCorePrompts(state, "法力不足，可以先横置符文或使用反应资源技能。", ErrorCodes.InsufficientCost);
             pools = committed.RunePools; experience = committed.PlayerExperience;
