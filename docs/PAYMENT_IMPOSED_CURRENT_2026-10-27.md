@@ -20,3 +20,9 @@
 机器清单 SHA256 `85a56a8e17d5a2eea081c8d6194e9ec5813e131fc6ffc7b2545f6b27fe92038e` 对应原公开 `c86007d3a0b7808022ab0a1dc80b0d137bdb30cc`，其后仅补本索引。继续使用原 PR138，目标已改为 main；所有 L1 结果仍只归上列实际测试输入，当前合并输入另走完整 L2。
 
 当前只交付定向语义修复，仍须最新 PR head/base/merge-result 的完整 L2 与实际 main 祖先核验。真实 SQL、双玩家 SignalR、进程重启及完整原日志矩阵留每日固定 main SHA 的既定 Actions L3；没有整卡或全后端认证增量。
+
+实际夜间 `40413203883` 固定旧 main `645a045e…` 后失败。SQL0的 `rune-destination` 原夹具把雷霆之纹设为P1控制，却要求P1获得新的征服；CN468.5/471.1与同程序集的P1/P2初控对照证明这是夹具前提错误。共享夹具现在让P2初控，所有原SQL提交、冷恢复、原日志回放和实际数据库伪造拒绝断言逐字保留；另保留P1维持控制时不触发的负例。当前精确31532/OGN287官方API勘误还明确要求强制回收且不做符文选择，旧目录未保留该勘误内容，不声称全部来源字段未变。
+
+`61d306b0e3d7585b87a1c740575bf555d5f495e7` 实际63/63、0skip，包含1/2枚符文的四个正反控制场景；5个实际模块、2681份Git输入、701份tracked Conformance源码全编译。原筛选的62例又在同一保留程序集上实际62/62，逐例完全对应原62例，不与63相加。新测试最初因通用驱动漏传真实初始seed而4例恢复失败，原44e/62例TRX保留；驱动现传真实OpeningSeed，不改变恢复验证器。上述均为内存规则/冷恢复/原日志回放，校正后的真实SQL仍待Actions。
+
+夜间四个相关平台ZIP的digest、1140份保留文件、原49例41P/8F对局TRX和三片SQL原始日志见 `var/qa/imposed-movement-current-20261027/nightly645a-failure-audit-v31/triage-delivery.json`。其余8个完整对局和2个战斗SQL失败仍按②领域核查，不默认归为同一原因。当前后继完整索引为 `var/qa/imposed-movement-current-20261027/rune-destination-fixture-delivery-v35.json`；原FullGame源码、SQL69例身份和全部既有失败原件保留。
