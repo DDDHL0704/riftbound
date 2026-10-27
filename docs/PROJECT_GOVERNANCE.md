@@ -1,6 +1,6 @@
 # 项目治理与验收约定
 
-当前范围、五个活跃聊天映射、四线所有权和完成条件见 [后端目标](BACKEND_RULES_GOAL_2026-10-23.md)；状态见 [PROJECT_STATUS](PROJECT_STATUS.md)。旧窗只读、旧 Goal 不记完成；①保持无 Goal，②③④按各自开发目标接续。2026-10-26有限清积压已按PR165完成：12个原head及公开head均为main祖先，PR均实际merged，开放22→10；本轮新功能PR冻结条件已达成。①无Goal接续既定S3/P7验收接线，后续保留最新L2与串行main；仍只按实际祖先和PR状态计交付，不关未合入内容凑数。历史逐批规则与原生产品记录保留在 e9bdfd0d 及以前 Git 历史，四线前状态见4aabf78b。当前执行本页和 [L1/L2/L3工作流](RULE_TEST_WORKFLOW.md)，不再层层追加旧流程。
+当前范围、四个本地工作窗及协调窗映射、四线所有权和完成条件见 [后端目标](BACKEND_RULES_GOAL_2026-10-23.md)；状态见 [PROJECT_STATUS](PROJECT_STATUS.md)。旧窗只读、旧 Goal 不记完成；①保持无 Goal，②③④按各自开发目标接续。2026-10-26有限清积压已按PR165完成：12个原head及公开head均为main祖先，PR均实际merged，开放22→10；本轮新功能PR冻结条件已达成。①无Goal接续既定S3/P7验收接线，后续保留最新L2与串行main；仍只按实际祖先和PR状态计交付，不关未合入内容凑数。历史逐批规则与原生产品记录保留在 e9bdfd0d 及以前 Git 历史，四线前状态见4aabf78b。当前执行本页和 [L1/L2/L3工作流](RULE_TEST_WORKFLOW.md)，不再层层追加旧流程。
 
 ## 来源、语义和范围
 
@@ -11,6 +11,12 @@
 保留1740印次、14293条款、旧义务身份和来源缺口。旧17k义务作可追溯历史，主看未认证功能卡、共享机制和阻塞，不按义务增长计算完成率。当前权威历史入口 [current-manifest](audit/current-manifest.json) 保持原版本；轻量治理仅验证引用/形状，不提升语义状态。轻量[认证台账](audit/card-certification-ledger.json)配合scripts/audit/card-certification-view.py生成ignored视图；目前1599保守分组/322未映射，适用总数仍未知，不复制全历史ledger。
 
 ## 验证、协作与完成
+
+2026-10-27开发节奏：保留四线原长期Goal，①无Goal/监控；累计source/registry/数量及旧拒绝守卫只由③写，公共producer/recovery归②，卡牌消费者归④。一次原失败加完整普通依赖交付，后续只核增量；不为普通helper、整文件或完整包另设审批。⑤按用户选择暂缓迁移。
+
+本地小批L1、当前候选完整L2、夜间固定main L3分别归档。夜间新红当日交实际所有者，修复后在新SHA定向验收，必要时显式手动L3；原失败/在途运行不取消或改绑。模板只复用真实相同机制，独立预期、异常、隐私、恢复与原回放断言保留，模板数不作整卡认证。
+
+L2采用[一次构建、六片执行及原TRX派生targeted覆盖](CI_L2_SINGLE_PASS_2026-10-27.md)，完整范围及严格身份门禁不缩减；首轮速度待真实CI测量。个人仓库不启用不具备条件的原生merge queue，跨PR/main复用另行证明，不能按tree相同跳过。
 
 L1为开发定向反馈；日常每个PR/main执行L2定向及规则套件，`L2 required`绿即可合main，不依赖SQL/网络。L3每天02:00上海时间对main固定起始完整SHA执行一次，保留真实SQL/SignalR/重启/完整回放。夜间失败阻止完整验收声明及相关变更，不冻结无关包；所有原测试及语义断言保留。详见[工作流](RULE_TEST_WORKFLOW.md)。
 

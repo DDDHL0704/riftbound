@@ -89,7 +89,11 @@ class FullCiGateTests(unittest.TestCase):
         daily = (ROOT / '.github/workflows/backend-l2.yml').read_text()
         self.assertIn('  push:', daily)
         self.assertIn('  pull_request:', daily)
-        self.assertIn('python3 scripts/test-rules.py l2 --jobs 2', daily)
+        self.assertIn('python3 scripts/l2-distributed.py prepare', daily)
+        self.assertIn('python3 scripts/l2-distributed.py shard', daily)
+        self.assertIn('python3 scripts/l2-distributed.py aggregate', daily)
+        self.assertIn('needs: [quality, prepare, rule_suite, targeted]', daily)
+        self.assertIn('fail-fast: false', daily)
         self.assertNotIn('scripts/test-rules.py full', daily)
         self.assertNotIn('services:', daily)
 

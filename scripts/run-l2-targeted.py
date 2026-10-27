@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run changed conformance classes plus adjacent domains, without external services."""
+"""Validate targeted coverage from the same candidate's original distributed TRX."""
 import argparse
 import importlib.util
 import json
@@ -16,6 +16,7 @@ SPEC.loader.exec_module(RULES)
 
 
 def command_for(classes):
+    # Retained historical focus-plan/CLI regression; daily CI no longer executes this plan.
     tokens = sorted({token for domain in DOMAINS for token in RULES.DOMAINS[domain]} | set(classes))
     command = [sys.executable, str(ROOT / 'scripts/test-rules.py'), 'focus', '--l2-only']
     for token in tokens:
@@ -49,13 +50,14 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--commit', required=True)
     p.add_argument('--base', default='')
+    p.add_argument('--prepared', type=Path, required=True)
+    p.add_argument('--inputs', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
-    classes = changed_classes(ROOT, a.base, a.commit)
-    command = command_for(classes)
-    subprocess.run(command + ['--jobs', '2', '--output', str(a.output)], cwd=ROOT, check=True)
-    (a.output / 'selection.json').write_text(json.dumps(dict(commit=a.commit, base=a.base,
-        domains=DOMAINS, changedClasses=classes, fullMatrixExecuted=False), indent=2) + '\n')
+    spec = importlib.util.spec_from_file_location('targeted_original_trx', ROOT / 'scripts/l2-distributed.py')
+    distributed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(distributed)
+    distributed.write(a.output / 'view.json', distributed.derived_view(a.prepared, a.inputs, a.commit))
 
 
 if __name__ == '__main__':
