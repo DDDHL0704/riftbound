@@ -115,9 +115,12 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             await game.ColdCheckpoint(); await game.WaitFor("P1", 4, Unit); await game.Tap("P1");
             await game.Act("P1", new RecycleRuneCommand(game.Runes("P1").First()));
             var field = game.State.CardObjects.Values.Single(c => c.CardNo == "OGN·278/298" && c.OwnerId == "P1").ObjectId;
-            var source = game.Hand("P1", Unit).First(); await game.Act("P1", new PlayCardCommand(source, Unit, [], Destination: "BATTLEFIELD:" + field));
+            var source = game.Hand("P1", Unit).First(); await game.Act("P1", new PlayCardCommand(source, Unit, []));
+            await game.Act("P1", new EndTurnCommand()); await game.WaitFor("P2", 2, "OGN·009/298");
+            await game.Act("P2", new EndTurnCommand());
+            await game.Act("P1", new MoveUnitCommand(source, "BASE", "BATTLEFIELD:" + field, []));
             while (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
-            await game.Act("P1", new EndTurnCommand()); await game.WaitFor("P2", 2, "OGN·009/298"); await game.Tap("P2");
+            await game.Act("P1", new EndTurnCommand()); await game.Tap("P2");
             await game.Act("P2", new RecycleRuneCommand(game.Runes("P2").First()));
             await game.Act("P2", new PlayCardCommand(game.Hand("P2", "OGN·009/298").First(), "OGN·009/298", [source])); await game.Top();
             var item = Assert.Single(game.State.StackItems); var birth = Assert.IsType<LastBreathBattlefieldDamageContext>(item.LastBreathBattlefieldDamage);
