@@ -1,6 +1,6 @@
 # VEN128 dependent LastBreath consumer — 2026-10-27
 
-Status: **NOT READY**. The current shared death producer ignores the parsed empowered condition and misses actually attached text instances. No PR/publication or whole-card certification is claimed.
+Status: **NOT READY**. The current shared death producer ignores the parsed empowered condition, misses actually attached text instances and exposes a current private source identifier. No PR/publication or whole-card certification is claimed.
 
 The complete isolated input is `51a5f503b5072b004532527ff973e66a3986164c`, based on the complete verified No57 parent `c03cba67f2e5ccc2ef1499d70ac6b9580935c007`. It does not include No35, the later current Zhonya erratum, or main21b3; a later ordinary combination must preserve their complete ancestry and recompute its actual catalog identity.
 
@@ -59,6 +59,12 @@ A read-only projection probe uses the original retained Engine DLL (Info `0e4a99
 Complete consumer `2b2f92b55d2ca260e2870bb2e1ad7088cd2be027` changes only the previously unreachable numeric counter expectation to require a fresh generation after the graveyard; it does not prescribe internal burnout counter steps or remove any privacy/lifetime assertion. That successor is not relabeled as executed. Its final source/data remain byte-identical to51a5; the shared implementation still needs the condition, per-instance capture, private-source masking and independent earned-skill resolution.
 
 `private-source-leak-delivery-v18.json`, SHA256 `5dae43f8f12a7687e184dc59ca748bdea983a6e1855875b116f71aa2303f845d`, retains both fixed lifecycle stages, all2661 measured inputs per stage matched to their exact Git blobs, five actual loaded modules/DLLs, complete original action/event/state exports, exact reused support sources and the retained-assembly projection result. Each stage remains separate. This remains a local safety failure with no L2/L3, source-applicability or whole-card completion claim.
+
+## Replaced destruction controls
+
+At `1e9b628fe1c82ade96d1cbcecd962cf947b2c847`, two new rows pass / zero skip: native text alone and two actually assembled Song text instances. The opponent pays the real destruction spell; pre-existing Zhonya consumes itself, the original unit stays in base at generation1, still empowered with its attachments, and no LastBreath/minions are earned. Rows contain22/30 accepted commands and68/88 events. JSON cold recovery, projections, dedup and original replay remain enabled. This isolated input uses the original c03-derived Zhonya profile; the current c4af erratum/latest cumulative source combination is a separate input.
+
+`replacement-boundary-addendum-v21.json`, SHA256 `aa0f8bc7a76ed759cb3a69a4c97f69af2e75423796c5eb735c6c715b1b3075c4`, links the earlier complete packet and retains this actual two-row TRX, all2662 measured inputs matched to exact Git blobs, five loaded modules and original DLLs, and both full command/event/state records. Production/data remain byte-identical to51a5. These controls do not close the genuine condition, copied-instance or private-source failures.
 
 ## Retrievable evidence and remaining work
 
