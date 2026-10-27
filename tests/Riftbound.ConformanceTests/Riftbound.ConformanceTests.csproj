@@ -7,6 +7,7 @@
     <Compile Include="../Riftbound.PostgresAcceptance/PaymentReconnectEvidence.cs" Link="PaymentReconnectEvidence.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs" Link="RuneRecycleDestinationSqlAcceptance.cs" />
     <Compile Include="../Riftbound.ImposedMovementAcceptance/ImposedMovementSqlAcceptance.cs" Link="ImposedMovementSqlAcceptance.cs" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
