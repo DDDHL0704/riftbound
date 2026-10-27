@@ -23,9 +23,9 @@ public sealed class Ven001ConditionalWardConsumerTests
         initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones }; var game = new Driver(initial);
         try
         {
-            await Fixture.Prepare(game); var seven = Fixture.Runes(game.State);
-            foreach (var id in seven) await game.Act("P1", new TapRuneCommand(id));
-            foreach (var id in seven.Skip(4)) await game.Act("P1", new RecycleRuneCommand(id));
+            await Fixture.Prepare(game); var eight = Fixture.Runes(game.State);
+            foreach (var id in eight) await game.Act("P1", new TapRuneCommand(id));
+            foreach (var id in eight.Skip(4)) await game.Act("P1", new RecycleRuneCommand(id));
             if (empowered)
             {
                 await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));

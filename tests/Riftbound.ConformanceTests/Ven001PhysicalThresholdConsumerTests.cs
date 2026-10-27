@@ -35,20 +35,20 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         try
         {
             await Prepare(game); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            var seven = Runes(game.State); foreach (var id in seven) await game.Act("P1", new TapRuneCommand(id));
-            foreach (var id in seven.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
+            var eight = Runes(game.State); foreach (var id in eight) await game.Act("P1", new TapRuneCommand(id));
+            foreach (var id in eight.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
             Assert.Equal(controlled, Runes(game.State).Length); Assert.Equal(12 - controlled, game.State.PlayerZones["P1"].RuneDeck.Count);
             Assert.All(Runes(game.State), id => Assert.True(game.State.CardObjects[id].IsExhausted));
-            Assert.Equal(7, game.State.RunePools["P1"].Mana); Assert.Equal(7 - controlled, game.State.RunePools["P1"].TotalPower);
+            Assert.Equal(8, game.State.RunePools["P1"].Mana); Assert.Equal(8 - controlled, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
             var captured = Assert.Single(game.State.StackItems).EmpowerActivation!;
             Assert.Equal(controlled, captured.ControlledRunes); Assert.Equal(mana, captured.PaidMana); Assert.Equal(generation, captured.Source.Generation);
-            Assert.Null(captured.DestructionCost); Assert.Equal(7 - mana, game.State.RunePools["P1"].Mana);
-            Assert.Equal(7 - controlled, game.State.RunePools["P1"].TotalPower); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Null(captured.DestructionCost); Assert.Equal(8 - mana, game.State.RunePools["P1"].Mana);
+            Assert.Equal(8 - controlled, game.State.RunePools["P1"].TotalPower); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Equal(6, Might(game.State));
             await game.Act("P1", new RecycleRuneCommand(Runes(game.State)[0]));
             Assert.Equal(controlled - 1, Runes(game.State).Length); Assert.Equal(captured, Assert.Single(game.State.StackItems).EmpowerActivation);
-            Assert.Equal(7 - mana, game.State.RunePools["P1"].Mana); await game.Top();
+            Assert.Equal(8 - mana, game.State.RunePools["P1"].Mana); Assert.Equal(9 - controlled, game.State.RunePools["P1"].TotalPower); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(6, Might(game.State)); Assert.Equal(6, game.State.CardObjects["UNIT"].Power);
             Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["UNIT"].Tags);
             var paidCount = game.Events().Count(e => e.Event.Kind == "COST_PAID");
@@ -67,16 +67,16 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         var initial = Position(true); var game = new Driver(initial);
         try
         {
-            await Prepare(game); var seven = Runes(game.State);
-            foreach (var id in seven.Take(mana - 1)) await game.Act("P1", new TapRuneCommand(id));
-            foreach (var id in seven.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
+            await Prepare(game); var eight = Runes(game.State);
+            foreach (var id in eight.Take(mana - 1)) await game.Act("P1", new TapRuneCommand(id));
+            foreach (var id in eight.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
             Assert.Equal(controlled, Runes(game.State).Length); Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
             var command = new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []);
             var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject(); raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
             var retained = new ConformanceCommand("P1", "ven001-one-mana-short-" + controlled, JsonSerializer.SerializeToElement(raw, Json));
             await game.ActRetained(retained, false); Assert.Equal(ErrorCodes.InsufficientCost, game.LastRetainedResult!.ErrorCode);
             Assert.Empty(game.State.StackItems); Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
-            await game.Act("P1", new TapRuneCommand(seven[mana - 1])); Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+            await game.Act("P1", new TapRuneCommand(eight[mana - 1])); Assert.Equal(mana, game.State.RunePools["P1"].Mana);
             await game.ActRetained(retained, false); Assert.Equal(mana, game.State.RunePools["P1"].Mana); Assert.Empty(game.State.StackItems);
             await game.Act("P1", command); Assert.Equal(0, game.State.RunePools["P1"].Mana);
             var paid = Assert.Single(game.State.StackItems).EmpowerActivation!; Assert.Equal(controlled, paid.ControlledRunes); Assert.Equal(mana, paid.PaidMana);
@@ -94,8 +94,8 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         try
         {
             await Prepare(game, attacking ? "BASE" : "BATTLEFIELD:BF"); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            var seven = Runes(game.State); foreach (var id in seven) await game.Act("P1", new TapRuneCommand(id));
-            foreach (var id in seven.Skip(4)) await game.Act("P1", new RecycleRuneCommand(id));
+            var eight = Runes(game.State); foreach (var id in eight) await game.Act("P1", new TapRuneCommand(id));
+            foreach (var id in eight.Skip(4)) await game.Act("P1", new RecycleRuneCommand(id));
             if (empowered)
             {
                 await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
@@ -124,7 +124,7 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         Assert.Equal(6, game.State.RunePools["P1"].Mana); await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: destination));
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
-        Assert.Equal("P1", game.State.TurnPlayerId); Assert.Equal(7, Runes(game.State).Length); Assert.Equal(5, game.State.PlayerZones["P1"].RuneDeck.Count);
+        Assert.Equal("P1", game.State.TurnPlayerId); Assert.Equal(8, Runes(game.State).Length); Assert.Equal(4, game.State.PlayerZones["P1"].RuneDeck.Count);
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
     }
     internal static string[] Runes(MatchState state) => state.PlayerZones["P1"].Base.Concat(state.PlayerZones["P1"].Battlefields)
