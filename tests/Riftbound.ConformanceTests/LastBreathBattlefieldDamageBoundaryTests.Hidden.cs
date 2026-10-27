@@ -16,7 +16,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             await Flow.Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
             await game.Act("P1", new PlayCardCommand("UNIT", Unit, [], Destination: "BATTLEFIELD:BF"));
             await game.Act("P1", new RecycleRuneCommand("P1-RUNE-2"));
-            await game.Act("P1", new HideCardCommand("SECRET", "UNL-003/219", "BATTLEFIELD:BF"));
+            await game.Act("P1", new HideCardCommand("SECRET", "UNL-003/219", "BATTLEFIELD:BF", ["STANDBY_A"]));
             Assert.True(game.State.CardObjects["SECRET"].IsFaceDown); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game); await game.Act("P1", new EndTurnCommand()); await Flow.Tap(game, "P2");
