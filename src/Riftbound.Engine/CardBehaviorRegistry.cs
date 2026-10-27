@@ -479,6 +479,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
         new("VEN·078", "枯爪巴凯", 4, "VEN_078_EMPOWERED_LAST_BREATH_RUNE_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·124", "脱逃的灰背", 3, "VEN_124_EMPOWERED_SELF_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·055", "实干研究员", 4, "VEN_055_EMPOWERED_SPELL_DISCOUNT_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·059", "电能震荡", 3, "VEN_059_EMPOWERED_OBJECT_COST_DAMAGE", 4, 1,
