@@ -57,6 +57,45 @@ class CardViewTests(unittest.TestCase):
             self.cn[1] = changed; self.refresh()
             self.assertEqual(3, cards.build(self.root, self.ledger)['counts']['provisionalFunctionGroups'])
 
+    def test_category_fallback_cannot_merge_different_card_types(self):
+        for category_list in ([], None):
+            with self.subTest(category_list=category_list):
+                self.cn[0].update(cardCategoryList=category_list, cardCategory='unit')
+                self.cn[1].update(cardCategoryList=category_list, cardCategory='spell')
+                self.refresh()
+                result = cards.build(self.root, self.ledger)
+                self.assertEqual(3, result['counts']['provisionalFunctionGroups'])
+                self.assertEqual(0, result['counts']['certifiedWholeCards'])
+
+    def test_equal_category_fallback_retains_unknown_applicability(self):
+        for card in self.cn:
+            card.update(cardCategoryList=[], cardCategory='unit')
+        self.refresh()
+        result = cards.build(self.root, self.ledger)
+        self.assertEqual(2, result['counts']['provisionalFunctionGroups'])
+        self.assertFalse(result['semanticCoverageCertified'])
+        self.assertTrue(all(row['applicability'] == 'UNKNOWN_PENDING_REGIONAL_EFFECTIVE_DISPOSITION'
+                            and not row['wholeCardCertified'] for row in result['functions']))
+
+    def test_present_malformed_runtime_catalog_cannot_fall_back_to_retained_activation(self):
+        path = self.root/'data/official/card-catalog.zh-CN.json'
+        path.parent.mkdir(parents=True)
+        for value in ({}, [], None):
+            with self.subTest(value=value):
+                path.write_text(json.dumps(value))
+                with self.assertRaisesRegex(ValueError, 'runtime catalog'):
+                    cards.build(self.root, self.ledger)
+
+    def test_explicit_empty_runtime_catalog_preserves_zero_active_entries(self):
+        path = self.root/'data/official/card-catalog.zh-CN.json'
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(dict(cards=[])))
+        result = cards.build(self.root, self.ledger)
+        self.assertEqual(0, result['runtimeCatalog']['entries'])
+        self.assertEqual([], [p for row in result['functions'] for p in row['activePrintings']])
+        self.assertIsNone(result['counts']['applicableFunctionCount'])
+        self.assertEqual(0, result['counts']['certifiedWholeCards'])
+
     def test_mismatched_source_and_duplicate_printing_fail_closed(self):
         (self.root/'cn.json').write_text('{}')
         with self.assertRaisesRegex(ValueError, 'hash mismatch'): cards.build(self.root, self.ledger)

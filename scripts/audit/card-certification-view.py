@@ -42,9 +42,12 @@ def build(root, ledger):
     if len(cn) != len(source['cn']['cards']):
         raise ValueError('Duplicate CN printing identity')
     runtime_path = root/'data/official/card-catalog.zh-CN.json'
-    runtime = json.loads(runtime_path.read_text()) if runtime_path.is_file() else None
-    active = {normalized(c['cardNo']) for c in runtime['cards']} if runtime else None
-    if runtime and len(active) != len(runtime['cards']):
+    runtime_exists = runtime_path.is_file()
+    runtime = json.loads(runtime_path.read_text()) if runtime_exists else None
+    if runtime_exists and (not isinstance(runtime, dict) or not isinstance(runtime.get('cards'), list)):
+        raise ValueError('Invalid runtime catalog: expected a cards list')
+    active = {normalized(c['cardNo']) for c in runtime['cards']} if runtime is not None else None
+    if runtime is not None and len(active) != len(runtime['cards']):
         raise ValueError('Duplicate runtime printing identity')
     groups, mapping = {}, {}
     for printing in source['cards']['records']:
@@ -54,7 +57,7 @@ def build(root, ledger):
         card = cn.get(identity)
         if card and all(k in card for k in SEMANTIC_FIELDS) and isinstance(card['cardEffect'], str) and card.get('cardName') and (card.get('cardCategoryList') or card.get('cardCategory')):
             semantics = {k: card.get(k) for k in SEMANTIC_FIELDS}
-            semantics['category'] = card.get('cardCategoryList', [card.get('cardCategory')])
+            semantics['category'] = card.get('cardCategoryList') or [card.get('cardCategory')]
             family = re.match(r'^([A-Z]+-\d+)', identity)
             # Same official numeric family AND byte-exact semantic fields. Never name-only.
             key = 'CN:'+family[1]+':'+hashed(semantics)[:16] if family else 'PRINTING:'+identity
