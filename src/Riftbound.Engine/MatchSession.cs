@@ -12548,7 +12548,8 @@ internal static class ActionPromptBuilder
         MatchState state, string playerId, CardBehaviorDefinition behavior, string? source,
         int additionalMana = 0, int additionalPower = 0, string additionalTrait = "")
     {
-        var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
+        var pool = PaymentCostRules.PowerPoolForPurpose(state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty,
+            CoreRuleEngine.PowerPurposeForPlay(behavior));
         var resources = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, source);
         var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
@@ -14808,6 +14809,7 @@ internal static class ActionPromptBuilder
     private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
         CardBehaviorDefinition behavior, int amount, string trait)
     {
+        pool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
         var extraGeneric = (long)CoreRuleEngine.SourceReplayPowerCost(state, playerId)
@@ -16163,6 +16165,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior, sourceObjectId);

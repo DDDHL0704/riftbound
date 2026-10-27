@@ -4,6 +4,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static PowerPaymentPurpose PowerPurposeForPlay(CardBehaviorDefinition behavior)
+        => IsSpellPlayBehavior(behavior) ? PowerPaymentPurpose.PlaySpell
+            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
     public PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
     {
         state = RecomputeRuleDerivedKeywords(state);
@@ -24,12 +28,13 @@ public sealed partial class CoreRuleEngine
                 "当前选择无法打出，请检查目标、位置和支付资源。");
 
         var pool = plan.AvailablePool;
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, plan.Payment.PowerPurpose);
         var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose);
         var missingMana = Math.Max(0, plan.TotalManaCost - availableMana);
-        var missingPower = PaymentCostRules.PowerDeficit(pool, plan.AnyPowerCost, plan.PowerCostByTrait);
+        var missingPower = PaymentCostRules.PowerDeficit(powerPool, plan.AnyPowerCost, plan.PowerCostByTrait);
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
-        var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
+        var remaining = accepted ? PaymentCostRules.PayPowerCost(powerPool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
         var adjustments = new List<PlayCostAdjustmentDto>();
         void Adjust(string label, int mana, int power = 0)
         {
@@ -65,7 +70,7 @@ public sealed partial class CoreRuleEngine
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,
-            availableMana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
+            availableMana, powerPool.Power, powerPool.PowerByTrait, missingMana, missingPower, missingExperience,
             accepted ? availableMana - plan.TotalManaCost : null,
             accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments) {
                 AvailableSpellOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0,

@@ -18527,6 +18527,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
+        var powerPurpose = PowerPurposeForPlay(behavior);
+        var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
         var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
@@ -18536,8 +18538,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
             .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, option.GenericPower, option.TypedPower))
-            .OrderBy(option => PaymentCostRules.PowerDeficit(paymentAdjustedPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
+                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower))
+            .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
             rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
@@ -18606,7 +18608,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: behavior.EffectKind,
             sourceObjectId: command.SourceObjectId,
             auditMetadata: paymentAudit,
-            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other);
+            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other,
+            powerPurpose: powerPurpose);
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
         {
@@ -18668,7 +18671,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose) < totalManaCost
                 ? $"Not enough mana to play {behavior.DisplayName}."
-                : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
+                : !PaymentCostRules.CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait, powerPurpose)
                     ? $"Not enough power to play {behavior.DisplayName}."
                     : currentExperience < totalExperienceCost
                         ? $"Not enough experience to play {behavior.DisplayName}."
