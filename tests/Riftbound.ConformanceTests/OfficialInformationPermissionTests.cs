@@ -144,7 +144,8 @@ public sealed class OfficialInformationPermissionTests
         var cast = await Act(s, "P1", new PlayCardCommand("C", "UNL-180/219", [])); var killed = await Top(cast.State);
         Assert.Equal(2, killed.State.TriggerQueue.Count(t => t.DeathRevealContext is not null)); Restore(killed.State);
         Assert.Single(killed.State.TriggerQueue, t => t.SourceObjectId == "KEEPER" && t.LastBreathDraw is not null && t.ControllerId == "P2");
-        var legal = CoreRuleEngine.TriggerResolutionOrderIds(killed.State).ToArray();
+        var metadata = JsonSerializer.SerializeToElement(killed.Prompts["P1"].View!.Metadata);
+        var legal = metadata.GetProperty("orderedTriggerIds").Deserialize<string[]>()!;
         var reveals = killed.State.TriggerQueue.Where(t => t.DeathRevealContext is not null).ToArray();
         Assert.Single(reveals.Select(t => (t.ControllerId, t.EnqueuedAtTick)).Distinct());
         var slots = Enumerable.Range(0, legal.Length).Where(i => reveals.Any(t => t.TriggerId == legal[i])).ToArray();
