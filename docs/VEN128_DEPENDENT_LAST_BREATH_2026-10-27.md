@@ -66,6 +66,12 @@ At `1e9b628fe1c82ade96d1cbcecd962cf947b2c847`, two new rows pass / zero skip: na
 
 `replacement-boundary-addendum-v21.json`, SHA256 `aa0f8bc7a76ed759cb3a69a4c97f69af2e75423796c5eb735c6c715b1b3075c4`, links the earlier complete packet and retains this actual two-row TRX, all2662 measured inputs matched to exact Git blobs, five loaded modules and original DLLs, and both full command/event/state records. Production/data remain byte-identical to51a5. These controls do not close the genuine condition, copied-instance or private-source failures.
 
+## Canonical native-cost openings
+
+At `55b09924ea9c794d5e30498561038ff369989450`, two focused P1/P2 canonical opening rows pass / zero skip. Each starts from seating, submits both legally validated Poppy decks containing three VEN128 cards and twelve yellow runes, uses seed424242 and natural draw/channeling, pays the real 2-mana play cost and1mana/yellow1 Empower, and retains Might2 and empowerment after two turn transitions. Production `InMemoryMatchSessionRegistry` JSON cold restore, accepted-intent dedup and original action/event replay execute. Actual logs contain21/19 accepted commands,87/76 events, final turns6/5; no scenario command or state injection is used.
+
+`canonical-native-addendum-v23.json`, SHA256 `ecd0335594faad0ea53a7ce8396af302d51dddfeb3559acd7cb91cb924579bf7`, retains those exact frames/initial states/commands, actual two-row TRX, all2663 inputs matched to fixed Git blobs and five loaded modules/original DLLs. It explicitly corrects the immutable shared runner's inherited “explicit turn-five” description for these two canonical methods without rewriting its receipt. This verifies their actual opening/cost/status scope only; it does not claim SQL/network/restart, the cumulative source input, dependent-death completion, whole-card certification or current applicability. Earlier results are not added or rebound.
+
 ## Retrievable evidence and remaining work
 
 Physical evidence root: `/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-cards-20261023/var/qa/cards-ven128-empowered-lastbreath-20261027/`.
