@@ -2345,9 +2345,12 @@ public static class TriggerParser
 
 public static class ReplacementParser
 {
+    private const string FriendlyDestroySourceCondition = "如果一名友方单位被摧毁，则改为将此牌摧毁";
+    private const string ClearDamageExhaustRecallContinuation = "移除该单位所受伤害，让其进入休眠状态，并将其召回";
+
     public static IReadOnlyList<ReplacementSpec> Parse(string text)
     {
-        return TargetParser.SplitRulesText(text)
+        return ReplacementSpans(text)
             .Where(segment => segment.Contains("改为", StringComparison.Ordinal)
                 || segment.Contains("防止", StringComparison.Ordinal)
                 || segment.Contains("替代", StringComparison.Ordinal)
@@ -2358,6 +2361,22 @@ public static class ReplacementParser
                 segment,
                 "Parsed replacement/prevention candidate; replacement pass ordering is not executed by the P3 skeleton."))
             .ToArray();
+    }
+
+    private static IEnumerable<string> ReplacementSpans(string text)
+    {
+        var segments = TargetParser.SplitRulesText(text);
+        for (var index = 0; index < segments.Count; index++)
+        {
+            // The corrected instruction continues in the immediately following sentence.
+            // Its explicit reference to the same unit binds the two actions together.
+            if (segments[index] == FriendlyDestroySourceCondition
+                && index + 1 < segments.Count && segments[index + 1] == ClearDamageExhaustRecallContinuation)
+            {
+                yield return segments[index] + "。" + segments[++index];
+            }
+            else yield return segments[index];
+        }
     }
 
     private static string DetermineKind(string segment)
@@ -2371,7 +2390,8 @@ public static class ReplacementParser
             return ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted;
         }
 
-        if (segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
+        if (segment == FriendlyDestroySourceCondition + "。" + ClearDamageExhaustRecallContinuation
+            || segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
             && segment.Contains("将此牌摧毁", StringComparison.Ordinal)
             && segment.Contains("休眠状态", StringComparison.Ordinal)
             && segment.Contains("召回", StringComparison.Ordinal))
