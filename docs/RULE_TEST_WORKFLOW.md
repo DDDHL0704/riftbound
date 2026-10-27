@@ -6,6 +6,8 @@
 
 ## 开发、合入与完整验收
 
+2026-10-27提速实现见[单次L2协议](CI_L2_SINGLE_PASS_2026-10-27.md)：prepare固定SHA构建/发现及逐参数行清单，六runner只执行各自唯一方法片；targeted从同批原始TRX校验完整覆盖，不第二次运行。`L2 required`须quality、prepare、全部rule_suite片与targeted均成功，严格检查同run/attempt、SDK、六模块、原TRX与每行出处。未知影响明确回退完整；不以文件名缩覆盖，首轮耗时以真实CI计。
+
 | 等级 | 执行范围 | 用途 |
 |---|---|---|
 | L1 | 本机定向/受影响回归，合法、非法、边界与拒绝不变性 | 开发反馈，不单独作为 main 合入绿灯 |

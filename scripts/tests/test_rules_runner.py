@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
@@ -7,7 +8,42 @@ import xml.etree.ElementTree as ET
 spec=importlib.util.spec_from_file_location('rules_runner',Path(__file__).parents[1]/'test-rules.py')
 runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
 
+PASSING_TRX = '''<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+<Results>
+<UnitTestResult testName="Riftbound.ConformanceTests.Rules.Theory(a: 1)" outcome="Passed" />
+<UnitTestResult testName="Riftbound.ConformanceTests.Rules.Theory(a: 2)" outcome="Passed" />
+</Results>
+<ResultSummary><Counters total="2" passed="2" failed="0" notExecuted="0" /></ResultSummary>
+</TestRun>'''
+
 class RuleRunnerTests(unittest.TestCase):
+    def report_xml(self, text):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'results.trx'
+            path.write_text(text)
+            return runner.report(path)
+
+    def test_trx_requires_explicit_result_counters(self):
+        for attribute in ('total="2"', 'passed="2"', 'failed="0"', 'notExecuted="0"'):
+            with self.subTest(missing=attribute), self.assertRaises(ValueError):
+                rows, counters = self.report_xml(PASSING_TRX.replace(attribute, ''))
+                runner.verify(rows, counters, {'Riftbound.ConformanceTests.Rules.Theory'})
+
+    def test_real_trx_theory_rows_preserve_case_counts_and_method_coverage(self):
+        rows, counters = self.report_xml(PASSING_TRX)
+        self.assertEqual(2, len(rows))
+        self.assertEqual(dict(total=2, passed=2, failed=0, notExecuted=0), counters)
+        runner.verify(rows, counters, {'Riftbound.ConformanceTests.Rules.Theory'})
+
+    def test_empty_malformed_or_inconsistent_trx_fails_closed(self):
+        for text in ('', '<TestRun>', PASSING_TRX.replace('total="2"', 'total="999"'),
+                     PASSING_TRX.replace('passed="2"', 'passed="1"'),
+                     PASSING_TRX.replace('outcome="Passed"', 'outcome="Failed"'),
+                     PASSING_TRX.replace('outcome="Passed"', 'outcome="NotExecuted"')):
+            with self.subTest(text=text), self.assertRaises((ValueError, ET.ParseError)):
+                rows, counters = self.report_xml(text)
+                runner.verify(rows, counters, {'Riftbound.ConformanceTests.Rules.Theory'})
+
     def test_full_starts_ordinary_rules_and_longest_game_in_first_wave(self):
         ordinary=runner.PREFIX+'Rules.EarlyFailure'
         longest=runner.FULL_CLASS+'LongMatrix'
