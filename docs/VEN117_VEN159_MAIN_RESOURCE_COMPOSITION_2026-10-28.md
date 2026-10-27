@@ -17,7 +17,7 @@
 - `var/qa/cards-ven117-paid-standby-20261028/main-composition-provenance-v15.json` SHA256：`9c12d46b3f43a87b19d002413e1cc963e23d76b62566596d8ec1cd8e0dae4ed7`。
 - 2812项固定输入逐Git blob匹配，808个跟踪Conformance CS全在820条实际Compile输入中；五个实际测试宿主加载模块InfoVersion/MVID/SHA及原DLL已核验。源码、HEAD、Git状态与六份外来原草稿在整个运行中不变，原草稿未编译。
 
-原No117十五行/同DLL十八行、原No159七行/同DLL二十五行及其首次失败保留各原SHA、TRX、DLL和导出，不重命名为本组合结果。两张新卡的采用游戏字段与已核对整图相符，但完整发布日期/生效日期/适用性仍UNKNOWN。
+原No117十五行/同DLL十八行、原No159七行/同DLL二十五行及其首次失败保留各原SHA、TRX、DLL和导出，不重命名为本组合结果。本批两张卡牌的采用游戏字段与已核对整图相符，但完整发布日期/生效日期/适用性仍UNKNOWN。
 
 旧PR205 b45/aa529/cfed 的原完整run40558257016已自然成功且独立归档：8600方法/16872行全P、573源守卫/965行，12原ZIP的平台digest/size、1424 built文件、六原DLL实际PE的Info/MVID/SHA、全部原分片(rowIndex)与targeted同原TRX均核验。CI模块审计为独立进程，另直接读取真实PE；CPU/RSS采样不冒称VSTest同PID模块观察。入口 `pr205-original-l2-40558257016/full-l2-verification-v12.json` SHA256 `c017cea03a12ee32786e1c25252e202348a14d0c78caae4693b94bc03952c1bc`。该旧绿灯不认证新组合。
 
