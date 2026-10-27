@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1087,
+  "total": 1088,
   "cards": [
     {
       "id": 31005,
@@ -45380,6 +45380,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37772,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·078",
+      "cardName": "枯爪巴凯",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Will Gist",
+      "cardEffect": "{{强化1AA}}（支付{{1}}和{{A}}{{A}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2。\n{{已强化>}}{{>绝念>}} 召出两枚休眠的符文。（当我在已强化状态下被摧毁时，发动此效果。）",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/6f2e3c2cb40242438fb162e58a3f4be0.png",
+      "backImage": "",
+      "listSort": 1914,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46812,6 +46860,31 @@
       "printedFaceIdentity": "VEN·128/166 SC",
       "frontImageSha256": "347854dde383a605fd6208635779cf54609f70af22b6b2244e371d4127323297",
       "reason": "Exact CN printing for real typed-resource Empower and dependent LastBreath consumers. Parser and death producer gaps are under executable investigation; registration is not runtime, applicability or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·078",
+      "sourceId": 37772,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "枯爪巴凯",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-27T09:37:35.806975+00:00",
+      "sourceRecordSha256": "0ec9131406d8f02798b38d79e57e1d8737e8982fe7a3cb75eac6729d215987ab",
+      "sourceResponseSha256": "d02d4beb790dff3c7d4b0843e07cca81d91b0c4e129196065c9fd48eb37d119a",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·078/166 SC",
+      "frontImageSha256": "e4067ebe00f6dea1e969fd37379ba1e88151b45e33e79cc82a3abcec93405813",
+      "reason": "Exact CN normal printed unit profile for next-batch generic Empower, self might and conditional two-rune LastBreath consumers. Preserve all prior1087 rows and78 additions. Source registration and parser metadata do not certify gameplay, dates, applicability or whole-card semantics."
     }
   ]
 }

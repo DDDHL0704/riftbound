@@ -34,6 +34,7 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorZhonyaOnlyCatalog = "af4d7aa516d1c93c11ddac2bbcf931a8f344ee6069251dd016a5b18623db9cd6";
     private const string PriorBeforeVen128Catalog = "6747a80cd62ee7cabe3f64c75d0396ec6a181f75d676ea66984789cb0f3b7e35";
     private const string PriorVen128OnlyCatalog = "3c5eb7a6d83bdbc4731e22161d59b749677875690366013afc8a1b96377cb4b4";
+    private const string PriorBeforeVen078Catalog = "44151ac318c8961d6bfbbc0b60e295fb149d619420dafd33835f99bfe319050f";
 
 
     [Fact]
@@ -97,7 +98,7 @@ public sealed class Cn16RuleInputSelectionTests
         foreach (var catalog in new[] {
             "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
             PriorVenFlowCatalog, Prior1074Catalog, Prior1076Catalog, PriorSp6OnlyCatalog,
-            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog, PriorVen050GuardianCatalog, PriorVen070Catalog, PriorVen007Catalog, PriorVen059Catalog, PriorVen055Catalog, PriorVen110Catalog, PriorVen130Catalog, PriorVen057Catalog, PriorNo35OnlyCatalog, PriorZhonyaOnlyCatalog, PriorBeforeVen128Catalog, PriorVen128OnlyCatalog,
+            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog, PriorVen050GuardianCatalog, PriorVen070Catalog, PriorVen007Catalog, PriorVen059Catalog, PriorVen055Catalog, PriorVen110Catalog, PriorVen130Catalog, PriorVen057Catalog, PriorNo35OnlyCatalog, PriorZhonyaOnlyCatalog, PriorBeforeVen128Catalog, PriorVen128OnlyCatalog, PriorBeforeVen078Catalog,
             "6b15cda26c2f69587c9c14331a5fa30d48fd607188b237be47bb3351db734524",
             "88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc" })
         {
