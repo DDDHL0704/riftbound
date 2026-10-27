@@ -423,7 +423,7 @@ public sealed class Ven057EmpoweredMovementConsumerTests
             await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
             Assert.Equal(generation, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(1, game.State.CardObjects["HOST"].MovementCountThisTurn);
             Assert.Equal(copies + 1, SourceEffects(game, "HOST")); Assert.Equal(0, Draws(game, "P1"));
-            if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(game.State.TriggerQueue.Select(item => item.TriggerId).ToArray()));
+            if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(item => item.TriggerId).ToArray()));
             var skills = game.State.StackItems.Where(item => item.SourceObjectId == "HOST").ToArray(); Assert.Equal(copies + 1, skills.Length);
             Assert.Equal(copies + 1, skills.Select(item => item.StackItemId).Distinct(StringComparer.Ordinal).Count());
             Assert.All(skills, item => { Assert.Equal(No, item.CardNo); Assert.NotNull(item.MovementObserver); });
