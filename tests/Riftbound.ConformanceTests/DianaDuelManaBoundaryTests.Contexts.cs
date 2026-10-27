@@ -86,4 +86,45 @@ public sealed partial class DianaDuelManaBoundaryTests
         }
         finally { await Save("convert-only-in-duel", cardNo, initial, game, null); }
     }
+
+    [Theory]
+    [InlineData("UNL-197/219")] [InlineData("UNL-234/219")] [InlineData("UNL-234*/219")]
+    public async Task TheActualDuelStartInsightPaymentCanAcquireAndConsumeItsControllersDuelMana(string cardNo)
+    {
+        var initial = OfficialInsightSourceTests.Diana() with { Tick = 0 };
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["DIANA"] = OfficialGarenConquestBattlefieldCountTests.Printed("DIANA", "UNL-079/219", "P2"),
+            ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", cardNo, "P2"),
+            ["D1"] = OfficialGarenConquestBattlefieldCountTests.Printed("D1", "SFD·125/221", "P2"),
+            ["D2"] = OfficialGarenConquestBattlefieldCountTests.Printed("D2", "OGN·083/298", "P2") };
+        cards.Remove("R");
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+            ["LEGEND"] = new("P2", "LEGEND"), ["D1"] = new("P2", "MAIN_DECK"), ["D2"] = new("P2", "MAIN_DECK") };
+        locations.Remove("R");
+        initial = initial with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { Base = [], LegendZone = ["LEGEND"] } },
+            RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new MoveUnitCommand("UNIT", Destination: "BATTLEFIELD:HILL", SourceObjectIds: ["UNIT"]));
+            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+            Assert.Equal("INSIGHT_EFFECT", payment.PaymentWindow); Assert.Equal("P2", payment.PlayerId); Assert.Equal(1, payment.ManaCost);
+            Assert.True(game.State.TurnWindow.IsSpellDuel);
+            await game.Act("P2", new LegendActCommand("LEGEND", Ability, [], []));
+            Assert.Equal(payment, game.State.PendingPayment);
+            Assert.Equal(RunePool.Empty with { DuelOnlyMana = 1 }, game.State.RunePools["P2"]);
+            await game.Act("P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+            Assert.Null(game.State.PendingPayment); Assert.Equal(RunePool.Empty, game.State.RunePools["P2"]);
+            await game.Top();
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal("P2", choice.PlayerId); Assert.Equal("INSIGHT", choice.ChoiceWindow);
+            await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+            Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice); Assert.Null(game.State.PendingPayment);
+            Assert.Equal("P1", game.State.FocusPlayerId); Assert.Equal(RunePool.Empty, game.State.RunePools["P2"]);
+            Assert.True(game.State.CardObjects["LEGEND"].IsExhausted); await game.Replay();
+        }
+        finally { await Save("actual-insight-duel-payment", cardNo, initial, game, null); }
+    }
 }
