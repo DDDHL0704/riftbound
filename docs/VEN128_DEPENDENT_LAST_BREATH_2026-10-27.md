@@ -1,6 +1,6 @@
 # VEN128 dependent LastBreath consumer — 2026-10-27
 
-Status: **NOT READY**. The current shared death producer ignores the parsed empowered condition. No PR/publication or whole-card certification is claimed.
+Status: **NOT READY**. The current shared death producer ignores the parsed empowered condition and misses actually attached text instances. No PR/publication or whole-card certification is claimed.
 
 The complete isolated input is `51a5f503b5072b004532527ff973e66a3986164c`, based on the complete verified No57 parent `c03cba67f2e5ccc2ef1499d70ac6b9580935c007`. It does not include No35, the later current Zhonya erratum, or main21b3; a later ordinary combination must preserve their complete ancestry and recompute its actual catalog identity.
 
@@ -35,6 +35,18 @@ The two original source-inspection tests retain their assertions. The isolated r
 For each player, the actual command stream starts at turn five with zero resources, taps physical runes, plays the unit, optionally recycles yellow and activates/resolves native Empower, then ends the turn. The opponent taps/recycles physical runes, pays the printed 4/yellow2 destruction spell and resolves it. Actual Session prompts/ticks, cold restore, accepted-intent deduplication, hidden-information checks and complete original action/event replay run after every command.
 
 Both empowered rows pass: 23 accepted commands / 81 events each, two P6 factory minions in the correct base, departure clears source status, and two further turn transitions do not repeat the skill. Both unempowered rows fail at the expected zero skills: 15 accepted commands / 44 events each, with one erroneous skill pending after real destruction. No state was pre-marked empowered and no death/trigger was injected.
+
+## Additional native cost and copied-instance consumers
+
+Consumer-only head `b5ca41a3f9b5032d2a15d42005014f4a226525ee` adds one Theory with **10/10 passing / zero skip**: both owners independently reject insufficient mana, wrong power trait, repeated empowerment, extra targets and foreign control. Actual physical rune actions fund the tests. Rejected client intents remain rejected after resources change, without a second journal entry; new intents pay the exact cost. Wrong-color power is retained. JSON frame serialization/restore, projections and full action/event replay pass. This independent run is not added to the earlier 402.
+
+Complete consumer head `d3d42ea1066d826027661a2ea24b13d705622c06` adds six actual SFD059 attachment cases: **1P / 5F / zero skip**. Both new heads leave production/data byte-identical to51a5. Six physical runes start with zero resource pool. The unit is really played and optionally empowered, then each Song is really assembled for 1 mana/green1. The Songs are explicitly pre-existing, unattached equipment; their hand play or an ordinary opening is not claimed.
+
+The unempowered 0/1/2-copy rows reproduce the existing false-positive skill. The empowered 0-copy control resolves two factory minions. With 1/2 actually attached text instances, the host instead earns only one skill, expected two/three. Both assembly prefixes, exact costs and JSON recovery checkpoints succeeded before actual destruction. These are separate fixed-input results, not a combined pass count.
+
+Fresh exact support CN33139 SFD059 and its whole face were checked: canonical record `c2400573fa1ec6e2bb7c4aabc955deb7b140fc8860d184d183533d28a135e6bf`, face `9076e040d714ff630d6ee5608405a81714b8ff573ce47f4bebc2cd7a4bf59bad`. Adopted core PDF physical pages107/116 were personally viewed: rules718.3/719.1 add attached effect text to the host; 808.1.d captures source details before departure; 808.2 gives each LastBreath instance an independent trigger and controller ordering. Applying those general rules to the exact two card texts is an inference, not a card-specific FAQ. Full current applicability remains UNKNOWN.
+
+The additional complete packet is `copied-instances-shared-gap-v13.json`, SHA256 `20b1cb791c3ea1bc2d274b8fb5973dc8b0bec5d8ae3e4b803fbda8997068a60b`, under the same physical evidence root. It links the independent native-cost packet `native-cost-boundaries-addendum-v11.json` (`ff5bb8edcb10f670b4b3957fe99d24a9c6e6720c909fbae6c92cd78874c53f57`), new five actual module records, source-to-Git verification, six complete action/event/state exports, source receipts, whole rule pages and original red packet. Shared implementation is tracked in [Issue201](https://github.com/DDDHL0704/riftbound/issues/201).
 
 ## Retrievable evidence and remaining work
 
