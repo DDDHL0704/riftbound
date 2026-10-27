@@ -6,6 +6,8 @@ public sealed record TurnDrawLedger(int TurnNumber, IReadOnlyDictionary<string, 
 public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DisarmTriggerContext? Disarm { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RecycledCardBoonOrigin? RecycledBoon { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public EmpoweredTransitionContext? EmpoweredTransition { get; init; }
@@ -33,6 +35,8 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
+        if (context.Kind == DisarmKind) return ValidDisarmShape(context, effect, cardNo);
+        if (context.Disarm is not null) return false;
         if (context.Kind == EmpoweredBanishKind) return ValidEmpoweredBanishShape(context, effect, cardNo);
         if (context.EmpoweredTransition is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
@@ -103,7 +107,7 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
             && (item.FieldContext!.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
-                : item.FieldContext.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
+                : item.FieldContext.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or DisarmKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
                 : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
@@ -161,7 +165,7 @@ public sealed partial class CoreRuleEngine
                 item.FieldContext.Kind == "DEFEND" ? 0 : 1, 1, legal, legal,
                 item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
-                    : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
+                    : item.FieldContext.Kind is "COMBAT_MIGHT" or DisarmKind ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? "选择一名单位，在本次战斗期间获得坚守2；确认目标和法盾费用后开放响应"
@@ -200,7 +204,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
-            && (context.Kind == EmpoweredBanishKind
+            && (context.Kind is EmpoweredBanishKind or DisarmKind
                 ? ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : ValidFieldContext(context, item.EffectKind, item.CardNo)) && item.TargetGenerations is null
             && context.Kind != "ENEMY_ATTACK_MIGHT"
@@ -278,7 +282,7 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events);
         }
         var confirmed = item with { PermanentPlayTargetsPending = false, TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
-        if (item.FieldContext is { Kind: "COMBAT_MIGHT" })
+        if (item.FieldContext is { Kind: "COMBAT_MIGHT" or DisarmKind })
             next = next with { UntilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
                 state, next.UntilEndOfTurnEffects, item.ControllerId, selected) };
         if (item.ReflexiveCopy is { } copy)
@@ -296,6 +300,7 @@ public sealed partial class CoreRuleEngine
             return ResolveBattleLimitedRoleSkill(state, item);
         if (item.FieldContext is { Kind: EmpoweredBanishKind }) return ResolveEmpoweredBanish(state, item);
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);
+        if (item.FieldContext is { Kind: DisarmKind }) return ResolveDisarm(state, item);
         if (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" }) return ResolveAttackDeckPlay(state, item);
         if (item.FieldContext is { Kind: "STANDBY_DEFEND" }) return ResolveStandbyDefendTrigger(state, item);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
