@@ -134,7 +134,7 @@ public sealed class Ven014And030EmpoweredCombatConsumerTests
             else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
             else
             {
-                var actor = Assert.Single(prompts.Values.Where(p => p.Candidates?.Any(c => c.Action == CommandTypes.DeclareBattle && c.Enabled) == true)).PlayerId;
+                var actor = Assert.Single(prompts.Values, p => p.Candidates?.Any(c => c.Action == CommandTypes.DeclareBattle && c.Enabled) == true).PlayerId;
                 var battle = game.State.BattleState;
                 await game.Act(actor, new DeclareBattleCommand(battle.BattlefieldObjectId!, battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
             }
