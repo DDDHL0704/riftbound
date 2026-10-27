@@ -48,6 +48,26 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(self.base, result['baseSha'])
         self.assertEqual(['README.md'], [c['path'] for c in result['changes']])
 
+    def test_dirty_tracked_runtime_cannot_reuse_committed_documentation_scope(self):
+        self.write('src/Riftbound.Engine/Rule.cs', '// fixed runtime\n')
+        base = self.commit()
+        self.write('README.md', 'documentation-only commit\n')
+        self.commit()
+        self.assertFalse(self.decision(base)['full'])
+        self.write('src/Riftbound.Engine/Rule.cs', '// different runtime\n')
+        result = self.decision(base)
+        self.assertTrue(result['full'])
+        self.assertIn('Cannot safely determine change scope', result['reason'])
+
+    def test_untracked_runtime_cannot_reuse_committed_documentation_scope(self):
+        self.write('README.md', 'documentation-only commit\n')
+        self.commit()
+        self.assertFalse(self.decision()['full'])
+        self.write('src/Riftbound.Engine/UntrackedRule.cs', '// additional runtime input\n')
+        result = self.decision()
+        self.assertTrue(result['full'])
+        self.assertIn('Cannot safely determine change scope', result['reason'])
+
     def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
         paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
                  'docs/evidence/ledger.json', 'data/official/card-catalog.json',

@@ -121,6 +121,8 @@ def decide(event_name, event, head, repo=ROOT, allow_fetch=False):
             raise ValueError('Invalid event envelope')
         if not SHA.fullmatch(head or '') or git(repo, 'rev-parse', 'HEAD').decode().strip() != head:
             raise ValueError('Checkout does not match the fixed head')
+        if git(repo, 'status', '--porcelain', '--untracked-files=all').strip():
+            raise ValueError('Checkout contains changes outside the fixed head')
         if event_name in {'workflow_dispatch', 'schedule'}:
             result['reason'] = 'Manual integration gate always runs full'
             return result
