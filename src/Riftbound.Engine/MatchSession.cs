@@ -16351,7 +16351,7 @@ internal static class ActionPromptBuilder
                 .Select(group => new Dictionary<string, object?> {
                     ["sourceObjectId"] = group.Key.SourceObjectId, ["sourceGeneration"] = group.Key.SourceGeneration,
                     ["sourceInstanceId"] = group.Key.SourceInstanceId, ["ruleTextOrigin"] = group.First().RuleTextOrigin,
-                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 0, ["maxSelections"] = 1,
+                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 1, ["maxSelections"] = 1,
                     ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
                     ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
                         .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
