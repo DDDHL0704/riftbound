@@ -1,6 +1,6 @@
 # 强制再次打出中的资源拒付
 
-Issue222/PR223完整普通后继，基线main `aa529812826a53e408d4ae85a50b7f2f296da62f`，包含原公开a9db；最新实际验证输入 `f18626caddf77f5030ecb3725dcc44c74c4c3fce`。仅修改费用可继续判断及相应提示，不含PR215、控制移动或No078/No124，不修改正常目录、registry、CI或恢复守卫。
+Issue222/PR223完整普通后继，最新实码 `33a252f3f11512259a1fc58301b01889506da870` 普通组合原公开7cd与已合入PR215的main `b09281396c46ec63fd417e09d5c1f7c2c028876c`。相对该main的生产增量仅费用可继续判断及相应提示；不含控制移动或No078/No124，不修改正常目录、registry、CI或恢复守卫。此前独立f186/7cd输入及原件仍按自己的基线保留。
 
 新鲜官方目录仍列[CN核心PDF](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf)，updateDate为2026-10-10，取得PDF SHA256为d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11。已读p89：445.2/445.2.a允许拒绝已有资源并撤回相关出牌；445.1.b的零费用没有可拒绝的支付行动。强制指示并不强迫支付非零资源费用，合法免费打出仍须完成。三张实际卡OGN198/118/096的API记录及完整卡面已亲检，非预览、errata空，API提供的玩法字段一致；cardCategory未提供，原null比较保留为不可比较，未伪称改文。卡牌独立发布/生效日期及完整来源适用性UNKNOWN。
 
@@ -14,4 +14,6 @@ Issue222/PR223完整普通后继，基线main `aa529812826a53e408d4ae85a50b7f2f2
 
 最新78方法387/387、零skip，原97及新增3显示名和重数完整保留，另覆盖可选费用入口、组合、牺牲和预览；全部旧方法/Theory/夹具/断言及首轮6例源码未修改。2689 Git输入逐blob、703/703 tracked CS实际编译、5实载模块Info/MVID/SHA及保留DLL核验。9份完整消费者原件，每接受命令检查隐私、恢复和去重，完整原历史重放通过；单独当前状态Core/原生探针不冒充开局或持久化出生证明。
 
-完整入口 `var/qa/mandatory-recast-resource-20261028/complete-delivery-v15.json`，SHA256 `c93e38e24be80f610e0e2e8aac4b30ef816e53ac82d46ceb68a08cb3fbfc079e`；最新TRX `0a42b45e538e416c820b91d9779da6072b0202826af7f877b5dd412770176208`。旧run40556906989归原a9db候选保留、不取消或改绑。新完整候选须自己的完整L2 required，未绿不合；Issue222、合法空房间开局、SQL/SignalR/进程重启、固定main完整L3、整卡及全后端仍OPEN。
+原f186完整入口 `var/qa/mandatory-recast-resource-20261028/complete-delivery-v15.json`，SHA256 `c93e38e24be80f610e0e2e8aac4b30ef816e53ac82d46ceb68a08cb3fbfc079e`，其TRX为 `0a42b45e538e416c820b91d9779da6072b0202826af7f877b5dd412770176208`。新组合33a252f3实际154方法756/756、零skip，严格等于原387与PR215原377显示名和重数的并集，重叠8例；2700 Git输入逐blob、714/714 tracked CS实际编译、5个测试宿主实载模块Info/MVID/SHA及原DLL核验。9份拒付与30份黛安娜消费者原件、每接受命令隐私/恢复/幂等及完整原历史回放归新输入保留，不改绑旧证明。入口 `var/qa/mandatory-recast-resource-20261028/main-composition-delivery-v19.json` SHA256 `a57c49f9f60508c6ca171b86a1da8c3f0169a75e2dba3a45aa7f7402eaa7d1a6`；新TRX `9ce3ab81bbd88fb8562f99900766a1427dc2a9cb294435ad38442d56f82008b7`。
+
+PR215原完整L2 run40554200535的8372方法16282例全过，合入main前最新head/base/synthetic及12份原ZIP、六片逐行并集和同原TRX targeted已独立核验；main自身run40563252992另行执行，不复用PR程序集身份。旧PR223 run40556906989/a9db及40559876189/7cd各自保留、不取消或改绑。新组合候选须自己的完整L2 required，未绿不合；Issue222、拒付消费者合法空房间开局、SQL/SignalR/进程重启、固定main完整L3、整卡及全后端仍OPEN。
