@@ -3247,7 +3247,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4906,38 +4906,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             "UNIT_PLAYED_TO_BASE");
     }
 
-    private static string? ResolveWatchfulSentinelLastBreathDrawPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger,
-                out var triggerSpec))
-        {
-            return null;
-        }
 
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveVisibleWatchfulSentinelCleanupLastBreathDrawPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (destroyedState.IsFaceDown
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-        {
-            return null;
-        }
-
-        return ResolveWatchfulSentinelLastBreathDrawPlayerId(destroyedState, removalResult);
-    }
 
 
     private static string? ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
@@ -5028,59 +4997,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ?? removalResult.OwnerPlayerId;
     }
 
-    private static string? ResolveLoyalPoroLastBreathDrawPlayerId(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
-        string objectId,
-        CardObjectState destroyedState)
-    {
-        if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger,
-                out var triggerSpec)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown)
-        {
-            return null;
-        }
 
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
-        if (string.IsNullOrWhiteSpace(controllerId)
-            || !HasOtherFriendlyUnitAtSamePosition(playerZones, cardObjects, objectLocations, objectId, controllerId))
-        {
-            return null;
-        }
-
-        return controllerId;
-    }
-
-    private static string? ResolveSadPoroLastBreathDrawPlayerId(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
-        string objectId,
-        CardObjectState destroyedState)
-    {
-        if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
-                out var triggerSpec)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown)
-        {
-            return null;
-        }
-
-        var controllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
-        if (string.IsNullOrWhiteSpace(controllerId)
-            || HasOtherFriendlyUnitAtSamePosition(playerZones, cardObjects, objectLocations, objectId, controllerId))
-        {
-            return null;
-        }
-
-        return controllerId;
-    }
 
     private static bool HasOtherFriendlyUnitAtSamePosition(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -26007,19 +25924,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     cardObjects[targetObjectId] = targetState;
 
-                    var loyalPoroLastBreathDrawPlayerId = ResolveLoyalPoroLastBreathDrawPlayerId(
-                        playerZones,
-                        cardObjects,
-                        state.ObjectLocations,
-                        targetObjectId,
-                        targetState);
-                    var sadPoroLastBreathDrawPlayerId = ResolveSadPoroLastBreathDrawPlayerId(
-                        playerZones,
-                        cardObjects,
-                        state.ObjectLocations,
-                        targetObjectId,
-                        targetState);
-
                     var targetControllerIdBeforeRemoval = EffectiveFieldControllerId(
                         playerZones,
                         targetObjectId,
@@ -26042,20 +25946,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             if (removalResult.WasUnit)
                             {
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
-                            }
-
-                            var lastBreathDrawPlayerId = ResolveWatchfulSentinelLastBreathDrawPlayerId(
-                                targetState,
-                                removalResult);
-                            if (lastBreathDrawPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    lastBreathDrawPlayerId,
-                                    TriggerKinds.UnitLastBreathDrawOne, targetState.CardNo);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
                             }
 
                             var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
@@ -26105,53 +25995,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
 
 
-                            if (sadPoroLastBreathDrawPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    sadPoroLastBreathDrawPlayerId,
-                                    TriggerKinds.UnitLastBreathDrawIfAlone);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
 
-                                var drawApplication = ApplyDrawToPlayer(
-                                    state,
-                                    playerZones,
-                                    playerScores,
-                                    sadPoroLastBreathDrawPlayerId,
-                                    UnitLastBreathDrawIfAloneDrawCount(targetState.CardNo),
-                                    rngCursor,
-                                    events,
-                                    deferNormalVictory: true);
-                                playerScores = drawApplication.PlayerScores;
-                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                                rngCursor = drawApplication.RngCursor;
-                            }
-
-                            if (loyalPoroLastBreathDrawPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    loyalPoroLastBreathDrawPlayerId,
-                                    TriggerKinds.UnitLastBreathDrawIfNotAlone);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                events.Add(BuildTriggerResolvedEvent(trigger));
-
-                                var drawApplication = ApplyDrawToPlayer(
-                                    state,
-                                    playerZones,
-                                    playerScores,
-                                    loyalPoroLastBreathDrawPlayerId,
-                                    UnitLastBreathDrawIfNotAloneDrawCount(targetState.CardNo),
-                                    rngCursor,
-                                    events,
-                                    deferNormalVictory: true);
-                                playerScores = drawApplication.PlayerScores;
-                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                                rngCursor = drawApplication.RngCursor;
-                            }
 
                             var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(
                                 behavior,
@@ -26627,6 +26471,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.LastBreathDraw is not null) return ResolveCapturedLastBreathDraw(state, stackItem);
         var cardNo = stackItem.CardNo;
         var count = UnitDestroyedTriggerSpecRules.TryGetTrigger(cardNo, UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger, out var spec)
             ? state.Phase == MatchPhases.TurnStart && state.TurnPlayerId == stackItem.ControllerId && spec.OwnBeginningDrawCount is { } own
@@ -26638,6 +26483,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.LastBreathDraw is not null) return ResolveCapturedLastBreathDraw(state, stackItem);
         return ResolveLastBreathDrawStackItem(
             state,
             stackItem,
@@ -26648,6 +26494,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.LastBreathDraw is not null) return ResolveCapturedLastBreathDraw(state, stackItem);
         return ResolveLastBreathDrawStackItem(
             state,
             stackItem,
@@ -33055,7 +32902,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
-        var stateBasedRemovalObjectIdSet = stateBasedRemovalObjectIds.ToHashSet(StringComparer.Ordinal);
 
         string DestructionReason(string id) => explicitDestroyObjectIds is not null ? explicitDestroyReason
             : damageTriggeredDestroyTargetObjectIds.Contains(id) ? "DAMAGE_TRIGGERED_DESTROY" : "LETHAL_DAMAGE";
@@ -33081,29 +32927,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? battlefieldId
                     : null);
             var cleanupObjectLocations = objectLocations ?? new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
-            var sadPoroLastBreathDrawPlayerId = cleanupLocation is not null
-                    ? ResolveSadPoroLastBreathDrawPlayerId(
-                        playerZones,
-                        cardObjects,
-                        cleanupObjectLocations,
-                        objectId,
-                        destroyedState)
-                    : null;
-            var loyalPoroLastBreathDrawPlayerId = cleanupLocation is not null
-                    ? ResolveLoyalPoroLastBreathDrawPlayerId(
-                        playerZones,
-                        cardObjects,
-                        cleanupObjectLocations,
-                        objectId,
-                        destroyedState)
-                    : null;
-            if (loyalPoroLastBreathDrawPlayerId is not null
-                && !HasOtherFriendlyUnitAtSamePosition(playerZones,
-                    cardObjects.Where(entry => entry.Key == objectId || !stateBasedRemovalObjectIdSet.Contains(entry.Key))
-                        .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal),
-                    cleanupObjectLocations, objectId, loyalPoroLastBreathDrawPlayerId))
-                loyalPoroLastBreathDrawPlayerId = null;
-
             if (!TryDestroyTarget(state, playerZones, cardObjects, nextRunePools, objectId, out var removalResult))
             {
                 continue;
@@ -33131,43 +32954,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (removalResult.WasUnit)
             {
                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
-            }
-
-            var watchfulSentinelControllerId = ResolveVisibleWatchfulSentinelCleanupLastBreathDrawPlayerId(
-                destroyedState,
-                removalResult);
-            if (watchfulSentinelControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    watchfulSentinelControllerId,
-                    TriggerKinds.UnitLastBreathDrawOne, destroyedState.CardNo);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-
-            if (sadPoroLastBreathDrawPlayerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    sadPoroLastBreathDrawPlayerId,
-                    TriggerKinds.UnitLastBreathDrawIfAlone);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            if (loyalPoroLastBreathDrawPlayerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    loyalPoroLastBreathDrawPlayerId,
-                    TriggerKinds.UnitLastBreathDrawIfNotAlone);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
             }
 
             var honestBrokerControllerId = ResolveHonestBrokerLastBreathGoldPlayerId(

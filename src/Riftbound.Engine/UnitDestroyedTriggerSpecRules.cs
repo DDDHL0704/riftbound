@@ -210,6 +210,14 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.RequiresOtherFriendlyUnitAtSamePosition == true;
     }
 
+    public static bool IsSelfDrawTrigger(TriggerSpec trigger)
+        => IsLastBreathDrawOneTrigger(trigger) || IsLastBreathDrawIfAloneTrigger(trigger)
+            || IsLastBreathDrawIfNotAloneTrigger(trigger);
+
+    public static IReadOnlyList<TriggerSpec> SelfDrawTriggers(string? cardNo)
+        => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsSelfDrawTrigger).ToArray() : [];
+
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
         var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
