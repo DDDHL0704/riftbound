@@ -159,10 +159,14 @@ public sealed class MandatoryRecastOpeningTests
             session = await new InMemoryMatchSessionRegistry(engine, journal, new Store(frame), NoopMatchPlayerStore.Instance, options).GetOrCreateAsync(room, default);
             foreach (var player in frame.PlayerViews.Keys)
             {
-                Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Snapshot), MatchStateHasher.HashValue(session.SnapshotFor(player)));
-                Assert.Equal(MatchStateHasher.HashValue(frame.PlayerViews[player].Prompt), MatchStateHasher.HashValue(session.PromptFor(player)));
+                // Persisted untyped metadata retains camel-case wire keys;
+                // live anonymous CLR metadata uses its declared property names.
+                // Compare the entire actual wire shape on both sides.
+                Assert.Equal(WireHash(frame.PlayerViews[player].Snapshot), WireHash(session.SnapshotFor(player)));
+                Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
         }
+        string WireHash(object value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
         async Task Act(string player, GameCommand command, bool accepted = true)
         {
             var before = MatchStateHasher.Hash(State());
