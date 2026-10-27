@@ -38,6 +38,7 @@ public sealed class Ven093And122SubmittedSelfConsumers
             await Act(actor, new MoveUnitCommand(unit, "BASE", "BATTLEFIELD:" + field, []));
             await Common.CompleteMovementWindow(() => game.State, Act);
             await Act(actor, new EndTurnCommand()); await Act(Arena.Other(actor), new EndTurnCommand());
+            await PayAndResolveActualVexHold(game, Act, actor);
             Assert.False(game.State.CardObjects[unit].IsExhausted);
             await Act(actor, new MoveUnitCommand(unit, "BATTLEFIELD:" + field, "BATTLEFIELD:" + other, ["ROAM"]));
             Assert.Equal(other, game.State.ObjectLocations[unit].BattlefieldObjectId);
@@ -55,7 +56,7 @@ public sealed class Ven093And122SubmittedSelfConsumers
     public async Task IndependentlyLegalYellowAndBlueDecksPayNativeEmpowerAndTheActualSpellOrAbilityWard(string actor, bool ability)
     {
         var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "poppy-standby", "UNL-R06",
-            ["VEN·122", "VEN·122", "VEN·122"], opponent: new("vex-spells", "UNL-R03",
+            ["VEN·122", "VEN·122", "VEN·122"], opponent: new("lillia-lowcurve", "UNL-R03",
                 ["UNL-066/219", "UNL-066/219", "UNL-066/219", OrbOfRegretTests.Card, OrbOfRegretTests.Card, OrbOfRegretTests.Card]));
         async Task Act(string player, GameCommand command) { await game.Act(player, command); await game.ColdCheckpoint(); }
         try
@@ -108,4 +109,24 @@ public sealed class Ven093And122SubmittedSelfConsumers
 
     private static string Field(MatchState state, string player) => Assert.Single(state.PlayerZones[player].Battlefields,
         id => state.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
+
+    private static async Task PayAndResolveActualVexHold(VenEmpowerCanonicalOpeningTests.CanonicalGame game,
+        Func<string, GameCommand, Task> act, string actor)
+    {
+        Assert.Equal(MatchPhases.TurnStart, game.State.Phase);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("HOLD_VEX", choice.EffectKind); Assert.Equal(actor, choice.PlayerId);
+        var legend = Assert.IsType<string>(choice.SourceObjectId);
+        Assert.Contains(legend, choice.LegalObjectIds); Assert.False(game.State.CardObjects[legend].IsExhausted);
+        var hand = game.State.PlayerZones[actor].Hand.Count; var prefix = game.Events().Length;
+        await act(actor, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [legend]));
+        Assert.True(game.State.CardObjects[legend].IsExhausted);
+        for (var step = 0; step < 12 && game.State.PriorityPlayerId is { } priority; step++)
+            await act(priority, new PassPriorityCommand());
+        Assert.Equal(MatchPhases.Main, game.State.Phase); Assert.Empty(game.State.StackItems);
+        Assert.Null(game.State.PendingCardChoice); Assert.True(game.State.PlayerZones[actor].Hand.Count >= hand + 1);
+        Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "TRIGGER_RESOLVED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), legend)
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), "HOLD_VEX"));
+    }
 }

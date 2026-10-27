@@ -128,7 +128,8 @@ public sealed class VenEmpowerCanonicalOpeningTests
             main.InsertRange(0, added);
             var result = original with { MainDeck = main, RuneDeck = runes?.ToArray() ?? Enumerable.Repeat(runeNo, 12).ToArray(),
                 Battlefields = fields?.ToArray() ?? original.Battlefields };
-            Assert.True(OfficialDeckValidator.Validate(result, catalog).IsValid);
+            var validation = OfficialDeckValidator.Validate(result, catalog);
+            Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
             return result;
         }
         var deck = BuildDeck(templateId, rune, additions, runeDeck, battlefields);
