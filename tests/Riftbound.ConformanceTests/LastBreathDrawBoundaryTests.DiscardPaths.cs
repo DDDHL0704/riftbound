@@ -15,22 +15,19 @@ public sealed partial class LastBreathDrawBoundaryTests
         var initial = AgentPosition();
         if (battle)
         {
-            // Explicit mature battlefield material: both printed units have five might.
-            initial = AtDrawField(AtDrawField(initial, "UNIT", "P1"), "ENEMY", "P2") with {
+            // An explicit mature defender waits while the attacker is actually played and equipped at base.
+            initial = AtDrawField(initial, "ENEMY", "P2") with {
                 CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                    ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "VEN·048", "P2") },
-                UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BF")] };
+                    ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "VEN·048", "P2"),
+                    ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
         }
         else initial = Add(initial, "MALZ", P4ActivatedAbilityCatalog.MalzaharCardNo, "P1", "BASE");
         var game = new Driver(initial);
         try
         {
             await Tap(game, "P1");
-            if (!battle)
-            {
-                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
-                await game.Act("P1", new PlayCardCommand("UNIT", agent, []));
-            }
+            await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
+            await game.Act("P1", new PlayCardCommand("UNIT", agent, []));
             for (var i = 0; i < 2; i++)
             {
                 await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
@@ -42,6 +39,10 @@ public sealed partial class LastBreathDrawBoundaryTests
             if (battle)
             {
                 Assert.Equal(5, game.State.CardObjects["UNIT"].Power); Assert.Equal(5, game.State.CardObjects["ENEMY"].Power);
+                await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+                Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+                await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+                await BattleWinnerPhaseBoundaryTests.PassFocus(game);
                 await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
                 for (var step = 0; !game.State.PlayerZones["P1"].Graveyard.Contains("UNIT"); step++)
                 {
