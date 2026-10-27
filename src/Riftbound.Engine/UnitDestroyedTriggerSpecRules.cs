@@ -200,6 +200,10 @@ internal static class UnitDestroyedTriggerSpecRules
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
             ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)).ToArray() : [];
 
+    internal static IReadOnlyList<TriggerSpec> LastBreathBattlefieldDamageTriggers(string? cardNo)
+        => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsLastBreathSourceBattlefieldAoeDamageTrigger).ToArray() : [];
+
     public static bool IsLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
         return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)

@@ -3250,7 +3250,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4912,51 +4912,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static string? ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult,
-        string? battlefieldObjectId,
-        out TriggerSpec triggerSpec)
-    {
-        triggerSpec = default!;
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || string.IsNullOrWhiteSpace(battlefieldObjectId)
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
-                out triggerSpec))
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveDestroyedSourceBattlefieldObjectId(
-        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
-        string sourceObjectId,
-        string? fallbackBattlefieldObjectId = null)
-    {
-        if (objectLocations is not null
-            && objectLocations.TryGetValue(sourceObjectId, out var location)
-            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
-            && !string.Equals(location.BattlefieldObjectId, sourceObjectId, StringComparison.Ordinal))
-        {
-            return location.BattlefieldObjectId;
-        }
-
-        return string.IsNullOrWhiteSpace(fallbackBattlefieldObjectId)
-            ? null
-            : fallbackBattlefieldObjectId;
-    }
-
     private static string? ResolveHonestBrokerLastBreathGoldPlayerId(
         CardObjectState destroyedState,
         FieldRemovalResult removalResult)
@@ -5053,21 +5008,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             "UNIT_DESTROYED",
             timingContext: stackItem.TimingContext is TimingStates.SpellDuelOpen or TimingStates.NeutralClosed
                 ? stackItem.TimingContext : null) { SourceCardNo = sourceCardNo };
-    }
-
-    private static TriggerQueueItemState BuildLastBreathSourceBattlefieldTriggerQueueItem(
-        StackItemState stackItem,
-        string sourceObjectId,
-        string controllerId,
-        string battlefieldObjectId,
-        string effectKind)
-    {
-        return new TriggerQueueItemState(
-            $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{effectKind}{SourceBattlefieldTriggerContextMarker}{battlefieldObjectId}",
-            controllerId,
-            sourceObjectId,
-            effectKind,
-            "UNIT_DESTROYED");
     }
 
     private static bool TryReadTriggerBattlefieldObjectId(
@@ -23949,7 +23889,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
-            && TryReadTriggerBattlefieldObjectId(stackItem.StackItemId, out _))
+            && (stackItem.LastBreathBattlefieldDamage is not null || TryReadTriggerBattlefieldObjectId(stackItem.StackItemId, out _)))
         {
             return ResolveUnitLastBreathSourceBattlefieldAoeDamageStackItem(state, stackItem);
         }
@@ -25909,9 +25849,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    var sourceBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
-                        state.ObjectLocations,
-                        targetObjectId);
                     if (behavior.DestroysTarget
                         && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
@@ -25929,23 +25866,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
                             }
 
-                            var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
-                                targetState,
-                                removalResult,
-                                sourceBattlefieldObjectIdBeforeRemoval,
-                                out var sourceBattlefieldAoeTriggerSpec);
-                            if (sourceBattlefieldAoePlayerId is not null
-                                && !string.IsNullOrWhiteSpace(sourceBattlefieldObjectIdBeforeRemoval))
-                            {
-                                var trigger = BuildLastBreathSourceBattlefieldTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    sourceBattlefieldAoePlayerId,
-                                    sourceBattlefieldObjectIdBeforeRemoval,
-                                    sourceBattlefieldAoeTriggerSpec.Kind);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
 
                             var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
                                 targetState,
@@ -27025,6 +26945,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        if (stackItem.LastBreathBattlefieldDamage is not null) return ResolveCapturedLastBreathBattlefieldDamage(state, stackItem);
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
@@ -28026,7 +27947,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
             .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
-                && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal) && FieldObjectTypeRules.IsVisibleUnit(objectState))
             .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -32899,13 +32820,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             var destroyedControllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
             var cleanupLocation = FindFieldObjectLocation(playerZones, objectId);
-            var sourceBattlefieldObjectIdBeforeRemoval = ResolveDestroyedSourceBattlefieldObjectId(
-                objectLocations,
-                objectId,
-                cleanupLocation is not null
-                    && string.Equals(cleanupLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                    ? battlefieldId
-                    : null);
             var cleanupObjectLocations = objectLocations ?? new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
             if (!TryDestroyTarget(state, playerZones, cardObjects, nextRunePools, objectId, out var removalResult))
             {
@@ -32950,23 +32864,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
-                destroyedState,
-                removalResult,
-                sourceBattlefieldObjectIdBeforeRemoval,
-                out var sourceBattlefieldAoeTriggerSpec);
-            if (sourceBattlefieldAoePlayerId is not null
-                && !string.IsNullOrWhiteSpace(sourceBattlefieldObjectIdBeforeRemoval))
-            {
-                var trigger = BuildLastBreathSourceBattlefieldTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    sourceBattlefieldAoePlayerId,
-                    sourceBattlefieldObjectIdBeforeRemoval,
-                    sourceBattlefieldAoeTriggerSpec.Kind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
 
 
         }
