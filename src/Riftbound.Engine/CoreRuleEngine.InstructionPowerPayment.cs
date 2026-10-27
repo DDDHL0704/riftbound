@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
             {
                 if (!cards[rune].IsExhausted && CanGainSpellOnlyMana(pool, 1))
                     options.Add(new("TAP_RUNE:" + rune, "横置符文获得 1 法力，之后继续选择", [rune]));
-                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                if (pool.HasSupportedAmounts && (long)pool.TotalStoredPower + 1 <= int.MaxValue)
                     options.Add(new("RECYCLE_RUNE:" + rune, "回收符文获得 1 符能，之后继续选择", [rune]));
             }
             var resources = ReplacementResourceActions(context, player);
@@ -98,7 +98,7 @@ public sealed partial class CoreRuleEngine
                 InstructionPowerPaymentKind, player, genericPowerCost: allocation?.Wildcard ?? (payment.Trait is null ? payment.Amount : 0),
                 totalPowerCost: payment.Amount, powerCostByTrait: traits,
                 legalPaymentChoiceIds: payments.Keys.Append(selected).Distinct(StringComparer.Ordinal).ToArray(), reason: item.EffectKind, sourceObjectId: item.SourceObjectId);
-            var paid = PaymentCostRules.TryCommitPayment(plan, pools);
+            var paid = PaymentCostRules.TryCommitPayment(plan, pools, state: state);
             if (!paid.Accepted) throw new InvalidOperationException("Invalid generated instruction payment: " + paid.ErrorMessage);
             foreach (var pair in paid.RunePools) pools[pair.Key] = pair.Value;
             events.Add(new("COST_PAID", $"支付结算指令中的 {payment.Amount} 点符能",

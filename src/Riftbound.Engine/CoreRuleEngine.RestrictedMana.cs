@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static bool CanGainSpellOnlyMana(RunePool pool, long amount)
-        => pool.HasSupportedAmounts && amount >= 0 && (long)pool.Mana + pool.SpellOnlyMana + amount <= int.MaxValue;
+        => pool.HasSupportedAmounts && amount >= 0 && (long)pool.TotalStoredMana + amount <= int.MaxValue;
 
     private static void GainLuxSpellOnlyMana(Dictionary<string, RunePool> pools,
         Dictionary<string, CardObjectState> cards, string player, string source,

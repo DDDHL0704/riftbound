@@ -19,7 +19,7 @@ internal sealed class RunePaymentReachability
         candidateTotal = candidates.Values.Sum(v => (long)v);
         Supported = pool.HasSupportedAmounts && candidates.Values.All(v => v >= 0);
         if (!Supported) return;
-        Capacity = int.MaxValue - pool.TotalPower;
+        Capacity = int.MaxValue - pool.TotalStoredPower;
         MaximumTotal = (int)((long)pool.TotalPower + Math.Min(Capacity, candidateTotal));
     }
 

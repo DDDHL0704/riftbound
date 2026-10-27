@@ -7009,7 +7009,7 @@ public sealed class CardCatalogBaselineTests
         var controlledBattlefieldStaticAbilityBody = ExtractSourceSpan(
             coreRuleEngineSource,
             "    private static bool TryGetControlledBattlefieldStaticAbilityObject(",
-            "    private static bool PendingStackSourceHasTag(MatchState state, string tag)");
+            "    private static bool TryGetLegendAbility(");
         Assert.DoesNotContain(
             "BattlefieldStaticAbilitySpecRules.TryGetBattlefieldStaticAbility",
             controlledBattlefieldStaticAbilityBody,

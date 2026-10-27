@@ -175,7 +175,7 @@ public sealed partial class CoreRuleEngine
         if (p.RevealedHand is { Choosing: true }) return BuildRevealedHandPlayPrompts(state, p);
         var own = ActionPromptBuilder.Build(state, p.PlayerId, true,
             EffectPlayReason(p), p.IgnoreAllCosts ? [CommandTypes.PlayCard, CommandTypes.Surrender]
-                : [CommandTypes.PlayCard, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
+                : [CommandTypes.PlayCard, CommandTypes.LegendAct, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
         if (p.ViewedCardIds is not null)
             own = own with { Candidates = own.Candidates!.Select(candidate => candidate.Action != CommandTypes.PlayCard ? candidate
                 : candidate with { Metadata = new Dictionary<string, object?>(candidate.Metadata!)
@@ -328,6 +328,10 @@ public sealed partial class CoreRuleEngine
             return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray());
         }
         if (pending.IgnoreAllCosts) return RejectWithCorePrompts(state, "忽略一切费用时直接完成出牌，无需产费。", ErrorCodes.PhaseNotAllowed);
+        if (command is LegendActCommand legendResource
+            && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
+            && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+            return ResolveLegendAct(state, intent, legendResource);
         if (command is TapRuneCommand tap) return ResolveTapRune(state, intent, tap);
         if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(state, intent, recycle);
         if (command is ActivateAbilityCommand resource

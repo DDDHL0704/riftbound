@@ -73,5 +73,5 @@ internal static class PlayPowerSpendSelectionRules
             experienceCost: fee.ExperienceCost, optionalCostIds: fee.OptionalCostIds, extraCostIds: fee.ExtraCostIds,
             paymentResourceActionIds: fee.PaymentResourceActionIds, legalPaymentChoiceIds: fee.LegalPaymentChoiceIds,
             reason: fee.Reason, sourceObjectId: fee.SourceObjectId, abilityId: fee.AbilityId,
-            auditMetadata: fee.AuditMetadata, manaPurpose: fee.ManaPurpose);
+            auditMetadata: fee.AuditMetadata, manaPurpose: fee.ManaPurpose, powerPurpose: fee.PowerPurpose);
 }
