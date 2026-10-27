@@ -23258,6 +23258,7 @@ public static partial class MatchRecoveryValidator
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
             ValidateDestructionFamilyStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
@@ -24392,6 +24393,7 @@ public static partial class MatchRecoveryValidator
                 : item.SourceReplayDecisionCompleted || CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var replayBehavior) && replayBehavior.SourceReplay is not null) errors.Add("invalid source replay progress");
         if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
             errors.Add("invalid premature source replay completion");
+        ValidateDelayedEmpowerState(state, errors);
         ValidateDelayedDestructionState(state, errors);
         ValidateDestructionFamilyState(state, errors);
         foreach (var item in state.StackItems)
@@ -32382,6 +32384,7 @@ public static partial class MatchRecoveryValidator
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
+        ValidateDelayedEmpowerViews(stackItems, errors);
         ValidateDestructionFamilyStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);

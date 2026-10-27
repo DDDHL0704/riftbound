@@ -3233,6 +3233,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (trigger.PermanentPlayStackItemId is { } pending)
             return state.StackItems.Single(i => i.StackItemId == pending);
+        if (trigger.DelayedEmpower is not null) return DelayedEmpowerStack(trigger);
         var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.HandDiscardObserver?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
@@ -3246,7 +3247,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -21128,6 +21129,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
@@ -21642,6 +21645,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return targetScope is CardTargetScopes.BattlefieldUnit
             or CardTargetScopes.BaseUnit
             or CardTargetScopes.AnyUnit
+            or CardTargetScopes.AnyEmpoweredUnit
             or CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyUnit
             or CardTargetScopes.FriendlyThenEnemyUnits
@@ -23893,6 +23897,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
@@ -24038,6 +24043,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.DelayedEmpower is not null) return ResolveDelayedEmpower(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
         if (stackItem.GraveyardPlay is not null) return ResolveGraveyardPlay(state, stackItem);
@@ -24259,6 +24265,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? winnerPlayerId = null;
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
+        ApplyTemporaryEmpowerInstruction(state, stackItem, cardObjects, untilEndOfTurnEffects, events);
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
         StackItemState[]? updatedStackItems = null;
         PendingPaymentState? pendingPayment = null;

@@ -172,18 +172,24 @@ public sealed partial class CoreRuleEngine
     }
 
     private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding)
+        => ApplyEmpowerStatusAction(state, binding, true);
+
+    private static StackResolutionResult ApplyEmpowerStatusAction(MatchState state, ObjectBinding binding, bool empowered)
     {
         if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration != binding.Generation
-            || !IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsEmpowered) return NoopStackResolutionResult(state);
-        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = true };
+            || !IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsEmpowered == empowered) return NoopStackResolutionResult(state);
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = empowered };
         var payload = new Dictionary<string, object?> {
             ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration };
-        var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],
-            EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
-        if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
-        var banish = CaptureEmpoweredBanish(state, cards, cards[source.ObjectId]);
-        if (banish.Length > 0) payload[EmpoweredBanishCaptureKey] = banish;
+        if (empowered)
+        {
+            var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],
+                EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
+            if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
+            var banish = CaptureEmpoweredBanish(state, cards, cards[source.ObjectId]);
+            if (banish.Length > 0) payload[EmpoweredBanishCaptureKey] = banish;
+        }
         return NoopStackResolutionResult(state) with { CardObjects = cards,
-            Events = [new("OBJECT_EMPOWERED", source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态", payload)] };
+            Events = [new(empowered ? "OBJECT_EMPOWERED" : "OBJECT_EMPOWER_REMOVED", empowered ? source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态" : "解除物体的强化状态", payload)] };
     }
 }
