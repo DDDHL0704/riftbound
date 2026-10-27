@@ -123,6 +123,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
     private static MatchState LethalAuraPosition(bool auraOnBattlefield)
     {
         var state = VenUnitEntryBasicTests.Position("UNL-156/219") with { RoomId = "DELAYED-AURA-LETHAL",
+            PlayerScores = new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 },
             RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
         state = state with {
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["UNIT"] = new("P1", "BATTLEFIELD", "BF") },
