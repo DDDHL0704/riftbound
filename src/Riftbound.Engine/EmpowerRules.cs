@@ -4,11 +4,17 @@ using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record EmpowerUnitDestructionReceipt(
+    [property: JsonRequired] ObjectBinding Unit,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? TokenCeasedAtTick = null);
+
 public sealed record EmpowerActivationContext(ObjectBinding Source, string CardNo, int Keyword, int Alternative,
     int PaidMana, int ControlledRunes, long AcquiredTick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DiscardedHandCard = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DestructionCostUnit = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerUnitDestructionReceipt? DestructionCost = null);
 internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative)
 {
     internal string? InstanceId => Instance.Origin is null ? null : $"{Instance.Id}:{Id}";
@@ -77,16 +83,27 @@ internal static class EmpowerRules
         var spec = specs[c.Keyword]; var cost = spec.Alternatives[c.Alternative];
         if (!SupportedCost(cost) || c.PaidMana != Mana(spec, cost, c.ControlledRunes)) return false;
         if (RequiresFriendlyUnitDestruction(cost))
-            return c.DiscardedHandCard is null && c.DestructionCostUnit is { Generation: >= 0 } destroyed
-                && !string.IsNullOrWhiteSpace(destroyed.ObjectId)
-                && state.CardObjects.TryGetValue(destroyed.ObjectId, out var paidUnit)
-                && destroyed.Generation <= paidUnit.ObjectGeneration;
-        if (c.DestructionCostUnit is not null) return false;
+            return c.DiscardedHandCard is null && ValidDestructionReceipt(state, c.DestructionCost, c.AcquiredTick);
+        if (c.DestructionCost is not null) return false;
         if (!RequiresHandDiscard(cost)) return c.DiscardedHandCard is null;
         return c.DiscardedHandCard is { Generation: >= 0 } discarded
             && !string.IsNullOrWhiteSpace(discarded.ObjectId) && discarded.ObjectId != c.Source.ObjectId
             && state.CardObjects.TryGetValue(discarded.ObjectId, out var paidCard)
             && discarded.Generation <= paidCard.ObjectGeneration;
+    }
+
+    private static bool ValidDestructionReceipt(MatchState state, EmpowerUnitDestructionReceipt? receipt, long acquiredTick)
+    {
+        if (receipt?.Unit is not { Generation: >= 0 } unit || string.IsNullOrWhiteSpace(unit.ObjectId)) return false;
+        if (receipt.TokenFactoryCardNo is null)
+            return receipt.TokenCeasedAtTick is null && state.CardObjects.TryGetValue(unit.ObjectId, out var card)
+                && unit.Generation <= card.ObjectGeneration;
+        if (!P6TokenFactoryCatalog.TryGetByCardNo(receipt.TokenFactoryCardNo, out var factory)
+            || !factory.Tags.Contains(CardObjectTags.UnitCard)) return false;
+        if (state.CardObjects.TryGetValue(unit.ObjectId, out var token))
+            return receipt.TokenCeasedAtTick is null && TokenObjectRules.IsToken(token)
+                && (token.TokenFactoryCardNo ?? token.CardNo) == receipt.TokenFactoryCardNo && unit.Generation <= token.ObjectGeneration;
+        return receipt.TokenCeasedAtTick == acquiredTick;
     }
 }
 
@@ -178,9 +195,12 @@ public sealed partial class CoreRuleEngine
             locations = ReconcileObjectLocations(locations, zones);
         }
         if (cost.Exhaust) cards[source.ObjectId] = cards[source.ObjectId] with { IsExhausted = true };
+        var paidTokenFactory = destroyed is not null && IsTokenObject(state.CardObjects[destroyed.ObjectId])
+            ? state.CardObjects[destroyed.ObjectId].TokenFactoryCardNo ?? state.CardObjects[destroyed.ObjectId].CardNo : null;
+        var destructionReceipt = destroyed is null ? null : new EmpowerUnitDestructionReceipt(destroyed, paidTokenFactory);
         var context = new EmpowerActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Spec.Index, ability.Alternative, mana, runes, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0,
-            ability.Instance.Origin, discarded, destroyed);
+            ability.Instance.Origin, discarded, destructionReceipt);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EMPOWER", intent.PlayerId, source.ObjectId,
             EmpowerRules.Effect, ability.Instance.CardNo, [], 0, 0, []) { EmpowerActivation = context };
         var committedPools = payment.RunePools;
@@ -199,6 +219,11 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events); destroyedOwners = removal.DestroyedUnitOwnerIds;
             costTriggers = removal.TriggerQueue; committedPools = removal.RunePools;
             locations = ReconcileObjectLocations(locations, zones);
+            if (paidTokenFactory is not null && !cards.ContainsKey(destroyed.ObjectId))
+            {
+                context = context with { DestructionCost = destructionReceipt! with { TokenCeasedAtTick = state.Tick + 1 } };
+                item = item with { EmpowerActivation = context };
+            }
         }
         var paidDetails = new Dictionary<string, object?> { ["sourceObjectId"] = source.ObjectId, ["abilityId"] = ability.Id };
         if (discarded is not null) paidDetails["discardedHandCardObjectIds"] = new[] { discarded.ObjectId };

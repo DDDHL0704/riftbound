@@ -25,7 +25,7 @@ public sealed class RequiredEmpowerDestructionKernelTests
             Assert.DoesNotContain("HOST", game.State.PlayerZones["P1"].Graveyard);
             Assert.Contains("GEAR", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(0, game.State.CardObjects["HOST"].Damage); Assert.True(game.State.CardObjects["HOST"].IsExhausted);
-            Assert.Equal(new ObjectBinding("HOST", generation), Assert.Single(game.State.StackItems).EmpowerActivation!.DestructionCostUnit);
+            Assert.Equal(new ObjectBinding("HOST", generation), Assert.Single(game.State.StackItems).EmpowerActivation!.DestructionCost!.Unit);
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); await game.Replay();
         }
@@ -83,7 +83,20 @@ public sealed class RequiredEmpowerDestructionKernelTests
             await game.Act("P1", new ActivateAbilityCommand("SECOND", "EMPOWER:0:0", [], OptionalCosts: ["DESTROY_FRIENDLY_UNIT:" + paymentId]));
             Assert.False(game.State.CardObjects.ContainsKey(paymentId)); Assert.False(game.State.ObjectLocations.ContainsKey(paymentId));
             Assert.DoesNotContain(paymentId, game.State.PlayerZones["P1"].Base); Assert.DoesNotContain(paymentId, game.State.PlayerZones["P1"].Graveyard);
-            Assert.Equal(new ObjectBinding(paymentId, generation), Assert.Single(game.State.StackItems).EmpowerActivation!.DestructionCostUnit);
+            var item = Assert.Single(game.State.StackItems); var context = item.EmpowerActivation!; var receipt = context.DestructionCost!;
+            Assert.Equal(new ObjectBinding(paymentId, generation), receipt.Unit);
+            Assert.True(P6TokenFactoryCatalog.IsTokenFactory(receipt.TokenFactoryCardNo));
+            Assert.Equal(context.AcquiredTick, receipt.TokenCeasedAtTick);
+            foreach (var bad in new[] {
+                receipt with { TokenFactoryCardNo = "UNKNOWN-FACTORY" }, receipt with { TokenFactoryCardNo = "SFD·T03" },
+                receipt with { TokenCeasedAtTick = context.AcquiredTick + 1 }, receipt with { TokenCeasedAtTick = -1 },
+                receipt with { TokenFactoryCardNo = null }, receipt with { Unit = null! } })
+                Assert.Contains("invalid captured empower activation", MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
+                    StackItems = [item with { EmpowerActivation = context with { DestructionCost = bad } }] }));
+            var forged = game.State with { StackItems = [item with { EmpowerActivation = context with {
+                DestructionCost = receipt with { Unit = new("FORGED-PAID-TOKEN", generation) } } }] };
+            var audit = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), forged, new CoreRuleEngine(), default, game.Events());
+            Assert.False(audit.IsMatch); Assert.NotEmpty(audit.Errors);
             Assert.False(game.State.CardObjects["SECOND"].IsEmpowered); await game.Top();
             Assert.True(game.State.CardObjects["SECOND"].IsEmpowered); await game.Replay();
         }

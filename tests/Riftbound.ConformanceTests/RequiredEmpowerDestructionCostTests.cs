@@ -71,12 +71,12 @@ public sealed class RequiredEmpowerDestructionCostTests
         await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [], OptionalCosts: ["DESTROY_FRIENDLY_UNIT:UNIT"]));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
         var item = Assert.Single(game.State.StackItems);
-        Assert.Equal(new ObjectBinding("UNIT", generation), item.EmpowerActivation!.DestructionCostUnit);
+        Assert.Equal(new ObjectBinding("UNIT", generation), item.EmpowerActivation!.DestructionCost!.Unit);
         Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
         Assert.Contains("invalid captured empower activation", MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
-            StackItems = [item with { EmpowerActivation = item.EmpowerActivation with { DestructionCostUnit = null } }] }));
+            StackItems = [item with { EmpowerActivation = item.EmpowerActivation with { DestructionCost = null } }] }));
         Assert.Contains("invalid captured empower activation", MatchRecoveryValidator.ValidateComponentStateAndViews(game.State with {
-            StackItems = [item with { EmpowerActivation = item.EmpowerActivation with { DestructionCostUnit = new("UNIT", generation + 2) } }] }));
+            StackItems = [item with { EmpowerActivation = item.EmpowerActivation with { DestructionCost = new(new("UNIT", generation + 2)) } }] }));
         await game.Top(); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "OBJECT_EMPOWERED"); await game.Replay();
     }
