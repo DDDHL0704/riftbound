@@ -5,8 +5,8 @@ from collections import Counter, defaultdict
 import hashlib
 import importlib.util
 import json
-import math
 import os
+import platform
 from pathlib import Path
 import re
 import shutil
@@ -14,12 +14,14 @@ import subprocess
 import sys
 import tarfile
 import time
-import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('distributed_rules', ROOT / 'scripts/test-rules.py')
 RULES = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RULES)
+SELECT_SPEC = importlib.util.spec_from_file_location('l2_case_selection', ROOT / 'scripts/l2_case_selection.py')
+SELECT = importlib.util.module_from_spec(SELECT_SPEC)
+SELECT_SPEC.loader.exec_module(SELECT)
 ASSEMBLY = 'Riftbound.ConformanceTests.dll'
 HEX = re.compile(r'[0-9a-f]{64}')
 MODULES = {'Riftbound.ConformanceTests', 'Riftbound.Engine', 'Riftbound.Contracts',
@@ -49,18 +51,8 @@ def discovered_cases(text):
 
 
 def partition(methods, weights, count):
-    if not 1 <= count <= 8 or len(methods) < count:
-        raise ValueError('Require 1..8 nonempty L2 shards.')
-    if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values()):
-        raise ValueError('Invalid duration history; it never controls membership.')
-    bins = [dict(name=f'shard-{i + 1}', methods=[], estimatedSeconds=0.0) for i in range(count)]
-    for method in sorted(methods, key=lambda name: (-weights.get(name, 1), name)):
-        shard = min(bins, key=lambda item: (item['estimatedSeconds'], len(item['methods']), item['name']))
-        shard['methods'].append(method)
-        shard['estimatedSeconds'] += weights.get(method, 1)
-    for shard in bins:
-        shard['methods'].sort()
-    return bins
+    return SELECT.partition([dict(kind='method', method=m) for m in methods],
+                            {m: [m] for m in methods}, weights, count)
 
 
 def source_scope_methods(scope, text):
@@ -97,9 +89,10 @@ def make_plan(text, inventory, source_scope, weights, count=6):
     if any(not rows or any(RULES.method(row) != method for row in rows) for method, rows in cases.items()):
         raise ValueError('Empty or foreign parameter rows in fresh inventory.')
     source_l2, source_nightly = source_scope_methods(source_scope, text)
-    result = dict(schemaVersion=2, profile='l2-distributed', methods=sorted(selected),
+    units = SELECT.selectors(discovered_cases(text), cases, weights)
+    result = dict(schemaVersion=3, profile='l2-distributed', methods=sorted(selected),
                   cases=dict(sorted(cases.items())), deferredL3Methods=sorted(RULES.l3_acceptance_methods()),
-                  shards=partition(selected, weights, count),
+                  shards=SELECT.partition(units, cases, weights, count),
                   sourceGuardL2Methods=source_l2, sourceGuardNightlyMethods=source_nightly,
                   targeted=dict(mode='full-fallback', reason='No audited dependency closure; validate the complete L2 input.',
                                 methods=sorted(selected), execution='DERIVED_FROM_ORIGINAL_SHARD_TRX'))
@@ -110,18 +103,18 @@ def make_plan(text, inventory, source_scope, weights, count=6):
 def validate_plan(plan, text):
     expected = RULES.l2_rule_methods(RULES.discover(text))
     names = [shard['name'] for shard in plan['shards']]
-    assigned = Counter(method for shard in plan['shards'] for method in shard['methods'])
-    if (plan.get('schemaVersion') != 2 or plan.get('profile') != 'l2-distributed'
+    if (plan.get('schemaVersion') != 3 or plan.get('profile') != 'l2-distributed'
             or set(plan['methods']) != expected or len(plan['methods']) != len(expected)
-            or set(assigned) != expected or any(n != 1 for n in assigned.values())
             or not names or len(set(names)) != len(names)
             or any(not re.fullmatch(r'shard-[1-8]', name) for name in names)
             or any(not shard['methods'] for shard in plan['shards'])
             or set(plan['cases']) != expected
-            or set(plan['deferredL3Methods']) != RULES.l3_acceptance_methods()):
-        raise ValueError('Distributed plan must partition the exact required L2 methods once.')
+            or set(plan['deferredL3Methods']) != RULES.l3_acceptance_methods()
+            or len(plan['deferredL3Methods']) != len(RULES.l3_acceptance_methods())):
+        raise ValueError('Distributed plan must partition the exact required L2 case inventory once.')
     if any(not rows or any(RULES.method(row) != method for row in rows) for method, rows in plan['cases'].items()):
         raise ValueError('Invalid exact parameter-row inventory.')
+    SELECT.validate(plan['shards'], plan['cases'], discovered_cases(text))
     target = plan['targeted']
     if (target.get('mode') != 'full-fallback' or set(target['methods']) != expected
             or len(target['methods']) != len(expected)
@@ -152,6 +145,10 @@ def check_prepared(prepared, commit):
             or digest(prepared / 'discovery.log') != plan['discoverySha256']):
         raise ValueError('Prepared assembly, case inventory or discovery identity differs.')
     inventory = read(prepared / 'case-inventory.json')
+    probe = read(prepared / 'row-filter-probe/receipt.json')
+    if digest(prepared / 'row-filter-probe/receipt.json') != plan.get('rowProbeSha256'):
+        raise ValueError('Linux row-selection probe artifact identity changed.')
+    validate_probe(probe, commit, plan['sdkVersion'], plan['runId'], plan['runAttempt'])
     source_scope_path = prepared / 'source-scope/source-guard-methods.json'
     source_scope = read(source_scope_path)
     if source_scope.get('sourceHead') != commit or digest(source_scope_path) != plan.get('sourceScopeSha256'):
@@ -202,7 +199,20 @@ def checked_results(prepared, inputs, commit):
             raise ValueError('Shard loaded-module audit differs from the built bundle.')
         RULES.verify(rows, counters, set(shard['methods']))
         actual = Counter(row.get('testName') for row in rows)
-        expected = Counter(row for method in shard['methods'] for row in plan['cases'][method])
+        SELECT.verify_settings(folder / 'execution.runsettings', shard)
+        if receipt.get('executionSettingsSha256') != digest(folder / 'execution.runsettings'):
+            raise ValueError('Execution settings identity differs from the planned selectors.')
+        runtime_path = folder / 'execution-runtime.json'
+        runtime = read(runtime_path)
+        if (receipt.get('runtimeReceiptSha256') != digest(runtime_path)
+                or runtime.get('commit') != commit or runtime.get('sdkVersion') != plan['sdkVersion']
+                or runtime.get('testAssemblySha256') != plan['testAssemblySha256']
+                or runtime.get('exitCode') != 0 or not runtime.get('samples')):
+            raise ValueError('Runtime resource receipt differs from this execution.')
+        if (runtime.get('samplesSha256') != digest(runtime_path.with_suffix('.jsonl'))
+                or [json.loads(line) for line in runtime_path.with_suffix('.jsonl').read_text().splitlines()] != runtime['samples']):
+            raise ValueError('Runtime resource samples differ from the execution receipt.')
+        expected = Counter(SELECT.case_names(shard, plan['cases']))
         if actual != expected or receipt.get('counters') != counters:
             raise ValueError('Missing, repeated, foreign parameter rows or false shard counters.')
         all_cases.update(actual)
@@ -250,6 +260,8 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
                 sourceGuardMethods=len(plan['sourceGuardL2Methods']),
                 sourceGuardCaseMapping=[row for row in mapping if row['method'] in source_methods],
                 sourceScopeSha256=plan['sourceScopeSha256'],
+                splitMethods=len({unit['method'] for shard in plan['shards'] for unit in shard['selectors'] if unit['kind'] == 'case'}),
+                rowSelectors=sum(unit['kind'] == 'case' for shard in plan['shards'] for unit in shard['selectors']),
                 l3SqlNetworkRestartOrFullMatrixCertified=False)
 
 
@@ -258,12 +270,102 @@ def run_logged(command, output):
         subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
 
 
+def process_sample(pid):
+    sample = dict(atUtc=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), processId=pid,
+                  hostProcessorCount=os.cpu_count(), processes=[])
+    try:
+        raw = subprocess.check_output(['ps', '-eo', 'pid=,ppid=,pcpu=,rss=,comm='], text=True)
+        rows = [line.split(None, 4) for line in raw.splitlines()]
+        selected = {pid}
+        while True:
+            children = {int(row[0]) for row in rows if len(row) == 5 and int(row[1]) in selected}
+            if children <= selected:
+                break
+            selected.update(children)
+        sample['processes'] = [dict(pid=int(row[0]), ppid=int(row[1]), cpuPercentLifetime=row[2],
+                                    rssKiB=int(row[3]), name=row[4])
+                               for row in rows if len(row) == 5 and int(row[0]) in selected]
+        if hasattr(os, 'sched_getaffinity'):
+            sample['affinityCpuCount'] = len(os.sched_getaffinity(0))
+        sample['cgroup'] = {name: (Path('/sys/fs/cgroup') / name).read_text().strip()
+                            for name in ['cpu.max', 'cpu.stat', 'memory.max', 'memory.current']
+                            if (Path('/sys/fs/cgroup') / name).is_file()}
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        sample['resourceReadError'] = type(error).__name__ + ': ' + str(error)
+    return sample
+
+
+def run_visible(command, log_path, runtime_path, context, interval=60, env=None):
+    began = time.monotonic()
+    samples, offset = [], 0
+    sample_path = Path(runtime_path).with_suffix('.jsonl')
+    def publish(process, final=False):
+        nonlocal offset
+        with Path(log_path).open('rb') as stream:
+            stream.seek(offset)
+            for data in iter(lambda: stream.read(65536), b''):
+                sys.stdout.buffer.write(data)
+            offset = stream.tell()
+        sys.stdout.buffer.flush()
+        sample = process_sample(process.pid)
+        sample['elapsedSeconds'] = round(time.monotonic() - began, 3)
+        sample['exitCode'] = process.poll()
+        samples.append(sample)
+        sample_stream.write(json.dumps(sample) + '\n')
+        sample_stream.flush()
+        print(json.dumps(dict(event='L2_EXECUTION_FINISHED' if final else 'L2_EXECUTION_RUNNING',
+            kind=context.get('kind', 'L2_SHARD'), shard=context.get('shard'), label=context.get('label'),
+            commit=context['commit'], **sample)), flush=True)
+    with sample_path.open('x') as sample_stream, Path(log_path).open('xb') as log:
+        process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=env)
+        publish(process)
+        while True:
+            try:
+                code = process.wait(timeout=interval)
+                break
+            except subprocess.TimeoutExpired:
+                publish(process)
+        publish(process, final=True)
+    write(runtime_path, dict(**context, platform=platform.system(), architecture=platform.machine(),
+                             exitCode=code, samples=samples, samplesSha256=digest(sample_path),
+                             observation='ps lifetime CPU percent; RSS KiB; no case-completion inference'))
+    return code
+
+
+def validate_probe(probe, commit, sdk, run_id, attempt):
+    if (probe.get('status') != 'LINUX_ROW_SELECTION_PROBE_PASSED' or probe.get('commit') != commit
+            or probe.get('sdk') != sdk or sdk != '10.0.403' or probe.get('platform') != 'Linux'
+            or probe.get('runId') != run_id or probe.get('runAttempt') != attempt
+            or probe.get('riftboundGameAssemblyLoaded') is not False
+            or probe.get('negativeControlsPassed') is not True or probe.get('bodyUnionExact') is not True):
+        raise ValueError('Linux row-selection probe does not bind the prepared candidate and SDK.')
+    labels = {'slice-1': (0, 3), 'slice-2': (0, 2), 'slice-3': (0, 2), 'escaped-values': (0, 2),
+              'case-fold-collision': (0, 2), 'case-fold-whole-fallback': (0, 2),
+              'unexpanded-whole-fallback': (0, 2), 'unexpanded-row-refused': (1, 0)}
+    observations = probe.get('observations', [])
+    if (len(observations) != len(labels) or {row.get('label') for row in observations} != set(labels)
+            or sorted(probe.get('controls', [])) != sorted(['missing-row', 'repeated-row', 'whole-method-row-overlap',
+                                                         'ambiguous-row', 'unexpanded-row'])):
+        raise ValueError('Linux row-selection probe is missing actual positive or negative controls.')
+    for row in observations:
+        code, count = labels[row['label']]
+        if (row.get('exitCode') != code or row.get('expectedExitCode') != code
+                or len(row.get('actualNames', [])) != count or len(row.get('bodyInvocations', [])) != count
+                or len(set(row.get('bodyInvocations', []))) != count
+                or not HEX.fullmatch(row.get('trxSha256', ''))):
+            raise ValueError('Linux row-selection probe lost or repeated actual rows/bodies.')
+    calls = Counter(call for row in observations if row['label'].startswith('slice-') for call in row['bodyInvocations'])
+    if calls != Counter(['Expanded:' + color for color in ['red', 'green', 'blue', 'orange', 'purple', 'yellow']] + ['Fact:single']):
+        raise ValueError('Linux row-selection probe split-body union is not exact once.')
+
+
 def prepare(commit, output, count, github_output):
     began = time.monotonic()
     checkout = read(output / 'checkout.json')
     if checkout.get('actualSha') != commit or checkout.get('eventSha') != commit:
         raise ValueError('Verify the exact checkout before building.')
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
+    validate_probe(read(output / 'row-filter-probe/receipt.json'), commit, sdk, checkout['runId'], checkout['runAttempt'])
     run_logged(['dotnet', 'build', str(RULES.PROJECT), '-m:1', '-v:q', '--nologo'], output / 'build.log')
     bundle = RULES.PROJECT / 'bin/Debug/net10.0'
     run_logged(['dotnet', 'vstest', str(bundle / ASSEMBLY), '--TestAdapterPath:' + str(bundle), '--ListTests'], output / 'discovery.log')
@@ -296,6 +398,7 @@ def prepare(commit, output, count, github_output):
                 testAssemblySha256=files[ASSEMBLY], bundleManifestSha256=digest(output / 'bundle-manifest.json'),
                 caseInventorySha256=digest(output / 'case-inventory.json'), discoverySha256=digest(output / 'discovery.log'),
                 sourceScopeSha256=digest(output / 'source-scope/source-guard-methods.json'),
+                rowProbeSha256=digest(output / 'row-filter-probe/receipt.json'),
                 prepareSeconds=round(time.monotonic() - began, 3))
     write(output / 'plan.json', plan)
     check_prepared(output, commit)
@@ -340,25 +443,24 @@ def execute_shard(prepared, output, commit, name):
                 str(output / 'module-audit.json')], output / 'module-audit.log')
     if read(output / 'module-audit.json')['modules'] != read(prepared / 'case-inventory.json')['modules']:
         raise ValueError('Actual downloaded module metadata differs from the build observation.')
-    settings = ET.Element('RunSettings')
-    config = ET.SubElement(settings, 'RunConfiguration')
-    ET.SubElement(config, 'TestCaseFilter').text = '|'.join('FullyQualifiedName=' + method for method in shard['methods'])
-    ET.SubElement(config, 'TreatNoTestsAsError').text = 'true'
-    ET.ElementTree(settings).write(output / 'execution.runsettings', encoding='utf-8', xml_declaration=True)
+    SELECT.write_settings(output / 'execution.runsettings', shard)
     command = ['dotnet', 'vstest', str(bundle / ASSEMBLY), '--Settings:' + str(output / 'execution.runsettings'),
                '--TestAdapterPath:' + str(bundle), '--ResultsDirectory:' + str(output), '--logger:trx;LogFileName=results.trx']
-    with (output / 'test.log').open('x') as log:
-        code = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT).returncode
+    code = run_visible(command, output / 'test.log', output / 'execution-runtime.json',
+                       dict(commit=commit, sdkVersion=sdk, testAssemblySha256=plan['testAssemblySha256'], shard=name,
+                            moduleRuntime=read(output / 'module-audit.json').get('runtime')))
     receipt = dict(status='FAILED', exitCode=code, commit=commit, shard=name, sdkVersion=sdk,
                    planSha256=digest(prepared / 'plan.json'), bundleManifestSha256=plan['bundleManifestSha256'],
                    testAssemblySha256=plan['testAssemblySha256'], moduleAuditSha256=digest(output / 'module-audit.json'),
+                   executionSettingsSha256=digest(output / 'execution.runsettings'),
+                   runtimeReceiptSha256=digest(output / 'execution-runtime.json'),
                    seconds=round(time.monotonic() - began, 3))
     try:
         if code or bundle_files(bundle) != files:
             raise ValueError('Test process failed or changed the fixed bundle.')
         rows, counters = RULES.report(output / 'results.trx')
         RULES.verify(rows, counters, set(shard['methods']))
-        expected = Counter(row for method in shard['methods'] for row in plan['cases'][method])
+        expected = Counter(SELECT.case_names(shard, plan['cases']))
         if Counter(row.get('testName') for row in rows) != expected:
             raise ValueError('Actual parameter rows differ from the fresh fixed inventory.')
         receipt.update(status='PASSED', counters=counters, trxSha256=digest(output / 'results.trx'))
