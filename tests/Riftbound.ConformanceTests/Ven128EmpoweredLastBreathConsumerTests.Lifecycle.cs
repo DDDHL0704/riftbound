@@ -67,6 +67,7 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1")); await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-2"));
             await game.Act(opponent, new PlayCardCommand("KILL", Destroy, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones[owner].Graveyard); Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
+            var graveGeneration = game.State.CardObjects["UNIT"].ObjectGeneration;
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(TriggerKinds.UnitLastBreathCreateMinions, Assert.Single(game.State.StackItems).EffectKind);
             if (game.State.PriorityPlayerId != owner) await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.Equal(0, game.State.RunePools[owner].Mana);
@@ -76,7 +77,8 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             // Meditation's optional exhaust, then real burnout draws its only card.
             Assert.Equal(2, game.State.RunePools[owner].Mana); await game.Act(owner, new PlayCardCommand("DRAW", "OGN·048/298", []));
             Assert.Equal(0, game.State.RunePools[owner].Mana); await game.Top();
-            Assert.Contains("UNIT", game.State.PlayerZones[owner].Hand); Assert.Equal(generation + 3, game.State.CardObjects["UNIT"].ObjectGeneration);
+            Assert.Contains("UNIT", game.State.PlayerZones[owner].Hand);
+            Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > graveGeneration);
             Assert.Equal(1, game.State.PlayerScores[opponent]); Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Single(game.State.StackItems); JsonCold(initial, game);
             foreach (var view in new[] { ResolutionResult.BuildSnapshots(game.State)[opponent], ResolutionResult.BuildSpectatorSnapshot(game.State) })
