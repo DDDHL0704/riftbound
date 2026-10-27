@@ -86,7 +86,7 @@ public sealed class RestrictedInstructionPowerTests
         finally { await Export(profile, "surrender", initial, game); }
     }
 
-    internal static MatchState Position(Profile profile)
+    private static MatchState Position(Profile profile)
     {
         var state = OfficialHoldSequenceTests.AddLegend(InstructionPowerPaymentTimingTests.Position(), profile.CardNo);
         return state with {

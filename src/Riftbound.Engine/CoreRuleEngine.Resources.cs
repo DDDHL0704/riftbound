@@ -37,7 +37,8 @@ public sealed partial class CoreRuleEngine
             // Existing resource windows only exchange power/mana or add
             // resources. Conversion can release at most the joint mana room;
             // a legal zero conversion releases nothing.
-            released += Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+            released += Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
+                (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
         }
         return (long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
     }
@@ -185,10 +186,17 @@ public sealed partial class CoreRuleEngine
             }
             else if (ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             {
-                // [A] as a cost accepts power of any trait (CN 135.2.e.5.a).
-                if (pool.TotalPower < amount) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
-                var paid = PayPowerCost(pool, amount, new Dictionary<string, int>());
-                pool = pool with { Power = paid.AnyPower, PowerByTrait = paid.PowerByTrait };
+                // This is the equipment's own resource ability. Its [A] cost
+                // can use Ornn's equipment bucket, while Kaisa's stays restricted.
+                var plan = new PaymentCostRules.PaymentPlan(
+                    PaymentCostRules.BuildPaymentId(state.Tick + 1, "RESOURCE_CONVERSION", intent.PlayerId,
+                        command.SourceObjectId, ability.AbilityId),
+                    "RESOURCE_CONVERSION", intent.PlayerId, genericPowerCost: amount, totalPowerCost: amount,
+                    sourceObjectId: command.SourceObjectId, abilityId: ability.AbilityId,
+                    powerPurpose: PowerPurposeForActivatedAbility(ability));
+                var paid = PaymentCostRules.TryCommitPayment(plan, state.RunePools);
+                if (!paid.Accepted) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
+                pool = paid.RunePools[intent.PlayerId];
                 mana = amount;
             }
         }

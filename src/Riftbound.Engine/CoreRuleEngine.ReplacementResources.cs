@@ -79,7 +79,7 @@ public sealed partial class CoreRuleEngine
         if (!pool.HasSupportedAmounts) return false;
         if (P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId))
             return CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana);
-        long mana = pool.Mana, power = pool.TotalPower;
+        long mana = pool.Mana, power = pool.TotalStoredPower;
         if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
         {
             var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
@@ -88,7 +88,11 @@ public sealed partial class CoreRuleEngine
             if (!TryReadResourceConversionAmount(ability.AbilityId, costs, out var amount)) return false;
             if (ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
             { mana -= amount; power += amount; }
-            else { power -= amount; mana += amount; }
+            else
+            {
+                if (amount > PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower) return false;
+                power -= amount; mana += amount;
+            }
         }
         else if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId))
         { power++; if (RenataGoldBonusActive(state, player)) mana++; }

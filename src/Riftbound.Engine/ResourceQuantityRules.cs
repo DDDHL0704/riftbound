@@ -17,7 +17,8 @@ internal static class ResourceQuantityRules
         if (ability == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
             amount = Math.Min((long)pool.Mana, (long)int.MaxValue - pool.TotalStoredPower);
         else if (ability == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
-            amount = Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+            amount = Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
+                (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
         else return false;
         maximum = (int)amount;
         return true;
