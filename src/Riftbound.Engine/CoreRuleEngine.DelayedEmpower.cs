@@ -53,6 +53,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidCurrentDelayedEmpowers(MatchState state)
     {
+        if (state.UntilEndOfTurnEffects is null || state.UntilEndOfTurnEffects.Any(e => e is null)) return false;
         var markers = state.UntilEndOfTurnEffects.Where(e => e.StartsWith(DelayedEmpowerPrefix, StringComparison.Ordinal)).ToArray();
         var pending = markers.Select(ReadDelayedEmpower).ToArray();
         if (pending.Any(c => c is null || !ValidDelayedEmpower(state, c))
