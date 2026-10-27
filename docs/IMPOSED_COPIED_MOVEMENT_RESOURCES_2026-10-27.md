@@ -25,3 +25,9 @@
 实际加载5个模块的 Info、SHA、MVID 与保留 DLL 字节已核验；2713份输入逐一匹配该提交的 Git blob，727份 tracked Conformance 源码全部编译。TRX SHA256 `760a5a0e5a66d8acc712a6d4b71660d1691f38f943c1bfd22da4703e6dbcaf13`；来源证明 SHA256 `d11aa11ea9a532e1c955decbb7771c0a9fd1c2783c73e542d3e6f5ddee6a7fae`。
 
 原合并冲突、元数据失败、单项来源差异探针、9份完整命令/事件与拒绝重试响应、TRX 和实际 DLL 均保存在本树 ignored `var/qa/imposed-copied-movement-resource-20261027/`，入口为 `delivery-v5.json`。本文件是代码提交的说明后继，不改绑运行输入。当前未创建新 PR，未执行本组合 L2；等待②完整交互修正后再组合验证。Issue143、来源适用性、混合替代来源深路径、整卡及固定输入完整后端 L3 仍 OPEN。
+
+## 自动收益的表示边界补验
+
+`1f09e41f8e21c40cd2e6e676358899110630363b` 新增12例：真实0/1/2份复制，法力/符能容量恰够或少1。初始池合法，实际装配后经 Core 与当前 prompt/tick Session 移动；6个恰够情形正常执行，6个无法表示的情形均 UNSUPPORTED_CARD_BEHAVIOR、无事件且全状态不变，恢复/去重/回放通过。公共 Complete 的结算后资源守卫已经阻止无效结果；没有复现自动收益溢出缺陷，也没有修改生产逻辑。整数边界是实现能力，不能表述为官方资源上限。
+
+该固定输入的新12例加原移动支付9例共21/21、零跳过，2方法逐名符合实际计划；不与此前52例相加或改绑。原件在 `automatic-resource-capacity-baseline-v6/`，TRX SHA256 `a71e32bc4624dcaaebdd04fa851fbd184187bce8dc560d1efd948b181f3e6468`。
