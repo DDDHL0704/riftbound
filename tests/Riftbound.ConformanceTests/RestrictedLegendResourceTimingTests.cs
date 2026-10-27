@@ -30,7 +30,10 @@ public sealed class RestrictedLegendResourceTimingTests
             Assert.True(core.Accepted, core.ErrorMessage); Assert.Null(sessionFailure);
             Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
             Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
-            Assert.Null(game.State.PriorityPlayerId); Assert.Equal("P1", game.State.FocusPlayerId);
+            // CN 430.2.a: gaining resources does not transfer priority or focus.
+            Assert.Equal(initial.PriorityPlayerId, game.State.PriorityPlayerId);
+            Assert.Equal(initial.FocusPlayerId, game.State.FocusPlayerId);
+            Assert.Equal(initial.TimingState, game.State.TimingState);
             // Neither spell-only nor equipment-only power is unrestricted power.
             Assert.Equal(0, game.State.RunePools["P1"].Power);
             var pool = game.State.RunePools["P1"];
