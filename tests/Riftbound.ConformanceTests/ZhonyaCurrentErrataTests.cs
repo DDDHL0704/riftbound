@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
+using Riftbound.Engine;
 using Xunit;
 
 namespace Riftbound.ConformanceTests;
