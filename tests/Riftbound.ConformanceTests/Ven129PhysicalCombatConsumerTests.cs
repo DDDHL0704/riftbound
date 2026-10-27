@@ -44,7 +44,11 @@ public sealed class Ven129PhysicalCombatConsumerTests
             Assert.All(members, id => Assert.False(game.State.CardObjects[id].IsExhausted)); AssertTwelveEach(game.State);
             var field = attacking ? "OTHER" : "BF";
             await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:" + field, [], SourceObjectIds: members));
-            if (!attacking) { await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", [])); }
+            if (!attacking)
+            {
+                await CompleteMovementWindow(() => game.State, game.Act);
+                await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+            }
             Assert.Equal(attacking, game.State.CardObjects["UNIT"].IsAttacking); Assert.Equal(!attacking, game.State.CardObjects["UNIT"].IsDefending);
             Assert.Equal(companions, OtherFriendlyUnits(game.State, "P1", "UNIT", field));
             Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base); Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
@@ -90,6 +94,17 @@ public sealed class Ven129PhysicalCombatConsumerTests
         finally { await Save("actual-short-" + missing, initial, game); }
     }
 
+    internal static async Task CompleteMovementWindow(Func<MatchState> state, Func<string, GameCommand, Task> act)
+    {
+        for (var step = 0; step < 20; step++)
+        {
+            if (state().PriorityPlayerId is { } priority) await act(priority, new PassPriorityCommand());
+            else if (state().FocusPlayerId is { } focus) await act(focus, new PassFocusCommand());
+            else break;
+        }
+        Assert.Null(state().FocusPlayerId); Assert.Null(state().PriorityPlayerId);
+        Assert.Equal(TimingStates.NeutralOpen, state().TimingState); Assert.Empty(state().StackItems);
+    }
     internal static async Task FinishCombat(Func<MatchState> state, Func<string, GameCommand, Task> act, Func<RecoveredEvent[]> events, string unit, int expected)
     {
         var prefix = events().Length; var observedOwnAssignment = false;

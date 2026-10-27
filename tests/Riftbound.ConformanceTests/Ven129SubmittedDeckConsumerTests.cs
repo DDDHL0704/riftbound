@@ -32,6 +32,7 @@ public sealed class Ven129SubmittedDeckConsumerTests
             var field = game.State.PlayerZones[actor].Battlefields.First(id => game.State.ObjectLocations[id].BattlefieldObjectId == id);
             await game.Act(actor, new MoveUnitCommand(unit, "BASE", "BATTLEFIELD:" + field, [], SourceObjectIds: [unit, friend]));
             Assert.Equal(1, Common.OtherFriendlyUnits(game.State, actor, unit, field)); Assert.Equal(6, game.Might(actor, unit)); await game.ColdCheckpoint();
+            await Common.CompleteMovementWindow(() => game.State, async (player, command) => { await game.Act(player, command); await game.ColdCheckpoint(); });
             await game.Act(actor, new EndTurnCommand()); Assert.Equal(other, game.State.TurnPlayerId); Assert.False(game.State.CardObjects[enemy].IsExhausted);
             await game.Act(other, new MoveUnitCommand(enemy, "BASE", "BATTLEFIELD:" + field, []));
             Assert.True(game.State.CardObjects[unit].IsDefending); Assert.False(game.State.CardObjects[unit].IsAttacking);
