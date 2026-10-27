@@ -127,6 +127,48 @@ public sealed class Ven035DelayedEmpowerConsumerTests
         finally { await Save("same-generation-removal-move-first-" + moveFirst, initial, game); }
     }
 
+    [Theory]
+    [InlineData("P1", false)] [InlineData("P1", true)]
+    [InlineData("P2", false)] [InlineData("P2", true)]
+    public async Task CanonicalOpeningPaysActualGreenPowerAndColdRecoversBothModesWithoutRefundingTheSpell(string actor, bool remove)
+    {
+        var runes = Enumerable.Repeat("UNL-R03", 6).Concat(Enumerable.Repeat("UNL-R02", 6)).ToArray();
+        var game = await VenEmpowerCanonicalOpeningTests.Open(actor, "lillia-lowcurve", "UNL-R03", [No, No, No, UnitNo, UnitNo, UnitNo], runeDeck: runes);
+        try
+        {
+            await game.WaitFor(actor, 9, No, UnitNo); await game.Tap(actor);
+            await game.Act(actor, new RecycleRuneCommand(game.Runes(actor).First(id => game.State.CardObjects[id].CardNo == "UNL-R03")));
+            var unit = game.Hand(actor, UnitNo).First(); var beforeUnit = game.State.RunePools[actor].Mana;
+            await game.Act(actor, new PlayCardCommand(unit, UnitNo, []));
+            Assert.Equal(beforeUnit - 3, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); await game.ColdCheckpoint();
+            if (remove)
+            {
+                await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
+                Assert.Equal(3, Assert.Single(game.State.StackItems).EmpowerActivation!.PaidMana); await game.Top();
+                Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            }
+            await game.Act(actor, new RecycleRuneCommand(game.Runes(actor).First(id => game.State.CardObjects[id].CardNo == "UNL-R02")));
+            Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Green]);
+            var mana = game.State.RunePools[actor].Mana; var spell = game.Hand(actor, No).First();
+            var generation = game.State.CardObjects[unit].ObjectGeneration;
+            await game.Act(actor, new PlayCardCommand(spell, No, [unit], Mode: remove ? Remove : Empower));
+            Assert.Equal(mana - 3, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
+            Assert.Equal(remove, game.State.CardObjects[unit].IsEmpowered); Assert.Equal(No, Assert.Single(game.State.StackItems).CardNo);
+            await game.ColdCheckpoint();
+            var pool = game.State.RunePools[actor];
+            var refunded = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+                [actor] = pool with { Mana = pool.Mana + 3, PowerByTrait = new Dictionary<string, int>(pool.PowerByTrait) { [RuneTrait.Green] = 1 } } } };
+            await game.RejectCoordinatedForgery("refunded-actual-ven035-three-mana-and-green", refunded);
+            await game.Top(); Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.Contains(spell, game.State.PlayerZones[actor].Graveyard);
+            await game.ColdCheckpoint(); await game.Act(actor, new EndTurnCommand()); await FinishEnd(game, actor);
+            Assert.Equal(remove, game.State.CardObjects[unit].IsEmpowered); Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            await game.ColdCheckpoint();
+        }
+        finally { await game.Save("ven035-canonical-" + actor + "-remove-" + remove); }
+    }
+
     private static MatchState Position(string owner)
     {
         var state = Add(VenUnitEntryBasicTests.Position(UnitNo), "SPELL", No);
@@ -169,6 +211,17 @@ public sealed class Ven035DelayedEmpowerConsumerTests
             if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
             else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
             else Assert.Fail("The actual movement did not expose the next response step.");
+        }
+    }
+    private static async Task FinishEnd(VenEmpowerCanonicalOpeningTests.CanonicalGame game, string player)
+    {
+        for (var i = 0; game.State.TurnPlayerId == player; i++)
+        {
+            Assert.InRange(i, 0, 15);
+            if (game.State.TriggerQueue.Count > 0) await game.Act(game.State.TriggerQueue[0].ControllerId, new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(item => item.TriggerId).ToArray()));
+            else if (game.State.StackItems.Count > 0) await game.Top();
+            else if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            else Assert.Fail("The canonical end-step continuation did not expose its ordinary next action.");
         }
     }
     private static int Draws(Driver game) => game.Events().Count(e => e.Event.Kind == "CARD_DRAWN" && (string?)e.Event.Payload.GetValueOrDefault("playerId") == "P1");
