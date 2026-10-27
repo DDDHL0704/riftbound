@@ -656,7 +656,8 @@ public sealed class CardCatalogBaselineTests
 
         // VEN057 adds classified draw/move/trigger text; these counts do not certify its gated movement consumer.
         AssertFamily(report, BehaviorTemplateIds.Draw, 143, 143, 0, 0, 123, 123, 0);
-        AssertFamily(report, BehaviorTemplateIds.Damage, 155, 155, 0, 0, 136, 136, 0);
+        // Current Zhonya damage-removal wording adds one text-family member, not damage execution.
+        AssertFamily(report, BehaviorTemplateIds.Damage, 156, 156, 0, 0, 137, 137, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 128, 128, 0, 0, 119, 119, 0);
         AssertFamily(report, BehaviorTemplateIds.Stun, 35, 35, 0, 0, 31, 31, 0);
         Assert.All(report.Families, family =>
