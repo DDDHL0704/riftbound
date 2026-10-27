@@ -84,7 +84,13 @@ public sealed class RestrictedPowerAbilityTests
             : kind == "hook" ? HookDeckPlayTests.Position() : ArmamentMightTests.Position("SFD·078/221");
         state = ImposedMovementContinuationTests.WithPool(state with { Tick = 0 }, new RunePool(kind == "hook" ? 1 : 0, 0));
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects);
-        if (kind == "ward") cards["D"] = OfficialGarenConquestBattlefieldCountTests.Printed("D", "SFD·037/221", "P2");
+        if (kind == "ward")
+        {
+            var defender = OfficialGarenConquestBattlefieldCountTests.Printed("D", "SFD·037/221", "P2");
+            // This is an already entered permanent; Printed alone supplies identity and base stats.
+            // SFD037's actual printed native Ward must also be present in this local position.
+            cards["D"] = defender with { Tags = [..defender.Tags, CardObjectTags.Spellshield] };
+        }
         else cards["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", kind == "hook" ? "OGN·242/298" : "SFD·078/221", "P1");
         state = state with { CardObjects = cards };
         if (kind == "ward" && cards.TryGetValue("LEGEND", out var opponentLegend) && opponentLegend.ControllerId == "P2")
