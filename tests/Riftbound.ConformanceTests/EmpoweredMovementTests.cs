@@ -54,7 +54,7 @@ public sealed class EmpoweredMovementTests
     public async Task ActuallyDetachedAndReturnedSourcesKeepEveryEarnedDraw(int copies)
     {
         var initial = HandDiscardObserverTests.Put(CopiedMovementObserverTests.Position(No, copies), "DETACH", "SFD·011/221", "P2", "HAND");
-        initial = HandDiscardObserverTests.Put(initial, "RETURN", "OGN·169/298", "P2", "HAND");
+        initial = HandDiscardObserverTests.Put(initial, "RETURN", "OGN·104/298", "P2", "HAND");
         var game = new Driver(initial);
         try {
             await CopiedMovementObserverTests.Assemble(game, copies);
@@ -67,7 +67,7 @@ public sealed class EmpoweredMovementTests
             Assert.Equal(earned, Contexts(game).Select(MatchStateHasher.HashValue));
             Assert.Equal(1, Draws(game, "P2")); // SFD011's own mandatory draw.
             var generation = game.State.CardObjects["HOST"].ObjectGeneration;
-            await game.Act("P2", new PlayCardCommand("RETURN", "OGN·169/298", ["HOST"])); await game.Top();
+            await game.Act("P2", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
             Assert.Contains("HOST", game.State.PlayerZones["P2"].Hand);
             Assert.False(game.State.CardObjects["HOST"].IsEmpowered);
             Assert.True(game.State.CardObjects["HOST"].ObjectGeneration > generation);
@@ -132,7 +132,7 @@ public sealed class EmpoweredMovementTests
             StackItems = game.State.StackItems.Select(t => t with { MovementObserver = Change(t.MovementObserver!) }).ToArray() };
         Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(attack));
         Assert.Equal(original, MatchStateHasher.Hash(game.State));
-        Save(game, initial, "forgery-" + forgery);
+        Save(game, initial, "forgery-" + forgery, attack);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public sealed class EmpoweredMovementTests
             new CoreRuleEngine(), default, game.Events());
         Assert.False(replay.IsMatch);
         Assert.Empty(Contexts(game));
-        Save(game, initial, "coherent-unearned-birth");
+        Save(game, initial, "coherent-unearned-birth", attack);
     }
 
     private static Task ActivateHost(Driver game, string player)
@@ -186,12 +186,12 @@ public sealed class EmpoweredMovementTests
         && e.Event.Payload.GetValueOrDefault("playerId") as string == player);
     private static void AssertJsonState(MatchState state) => Assert.Equal(MatchStateHasher.Hash(state),
         MatchStateHasher.Hash(OfficialInsightAndSpellLockTests.Restore(state)));
-    private static void Save(Driver game, MatchState initial, string label)
+    private static void Save(Driver game, MatchState initial, string label, MatchState? attack = null)
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN057_EVIDENCE") is not { Length: > 0 } folder) return;
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "shared-" + label + ".json"), JsonSerializer.Serialize(new { initial,
-            final = game.State, commands = game.Commands(), events = game.Events(),
+            final = game.State, commands = game.Commands(), events = game.Events(), constructedSecurityAttack = attack,
             scope = "Explicit finite position with actual activation/assembly/movement/response commands, JSON cold equality and unchanged original replay. No direct state edit is claimed as played disempower." }, Web));
     }
 }
