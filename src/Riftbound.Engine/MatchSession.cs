@@ -10335,16 +10335,21 @@ internal static class ActionPromptBuilder
                 if (ability.Cost.Exhaust && cardObject.IsExhausted) continue;
                 var cost = ability.Cost;
                 var requiredDiscard = EmpowerRules.RequiresHandDiscard(cost);
+                var requiredDestruction = EmpowerRules.RequiresFriendlyUnitDestruction(cost);
+                var requiresAdditional = requiredDiscard || requiredDestruction;
                 var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId, cost)
-                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", ObjectIds: [id])).ToArray() : [];
-                if (requiredDiscard && additionalCosts.Length == 0) continue;
+                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", ObjectIds: [id])).ToArray()
+                    : requiredDestruction ? CoreRuleEngine.EmpowerFriendlyUnitDestructionCostChoices(state, playerId, cost)
+                        .Select(id => new ActionPromptChoiceDto(DestroyFriendlyUnitAdditionalCostPrefix + id,
+                            $"摧毁 {ObjectChoice(state, id, "friendly unit cost").Label}：支付强化费用", ObjectIds: [id])).ToArray() : [];
+                if (requiresAdditional && additionalCosts.Length == 0) continue;
                 var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
                 var costLabels = new List<string>();
                 if (mana > 0) costLabels.Add($"{mana}法力");
                 if (cost.Power > 0) costLabels.Add($"{cost.Power}任意符能");
                 costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
                 if (cost.Exhaust) costLabels.Add("横置");
-                if (requiredDiscard) costLabels.Add(cost.AdditionalCost);
+                if (requiresAdditional) costLabels.Add(cost.AdditionalCost);
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
                 var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
@@ -10356,7 +10361,7 @@ internal static class ActionPromptBuilder
                     new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait), [],
                     cost.Exhaust, false, true, null, AbilityInstanceId: ability.InstanceId,
                     CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId,
-                    AdditionalCostChoices: requiredDiscard ? additionalCosts : null, RequiredAdditionalCostChoiceCount: requiredDiscard ? 1 : 0));
+                    AdditionalCostChoices: requiresAdditional ? additionalCosts : null, RequiredAdditionalCostChoiceCount: requiresAdditional ? 1 : 0));
             }
         }
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
