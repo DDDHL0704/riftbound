@@ -38,6 +38,8 @@ def verify_tests(folder, profile, commit):
         shard_counters[name] = counters
         total += counters['total']
     discovered = RULES.discover((tests / 'discovery.log').read_text())
+    if not methods <= discovered:
+        raise ValueError('L2 plan contains methods absent from discovery.')
     declared_l3 = RULES.l3_acceptance_methods()
     if (plan.get('l2Only') is not True or set(plan.get('deferredL3Methods', [])) != declared_l3
             or not declared_l3 <= discovered or methods & declared_l3):
