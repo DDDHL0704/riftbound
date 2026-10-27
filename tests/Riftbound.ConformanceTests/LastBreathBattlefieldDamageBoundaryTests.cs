@@ -28,6 +28,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
                 Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
             }
             await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
+            await BattleWinnerPhaseBoundaryTests.PassFocus(game);
             await game.Act("P1", new EndTurnCommand()); await Flow.Tap(game, "P2");
             if (battlefield)
             {
