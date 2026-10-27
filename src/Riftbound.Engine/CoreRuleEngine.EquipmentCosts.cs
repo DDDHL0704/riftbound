@@ -2,6 +2,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static PowerPaymentPurpose PowerPurposeForActivatedAbility(P4ActivatedAbilityDefinition ability)
+        => ability.RequiresBaseEquipmentSource || ability.SourceRequiredTag == CardObjectTags.EquipmentCard
+            ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
     private sealed record EquipmentCostAmounts(int Mana, int GenericPower,
         IReadOnlyDictionary<string, int> PowerByTrait, int Experience);
 

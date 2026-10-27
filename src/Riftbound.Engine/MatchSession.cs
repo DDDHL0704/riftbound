@@ -10411,11 +10411,12 @@ internal static class ActionPromptBuilder
                     StringComparison.Ordinal)
                 ? AzirArmamentReattachChoicesByTargetObjectId(state, playerId, targetChoicesByIndex)
                 : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+            var powerPool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
             var availablePowerByTrait = PlayCardAvailablePowerByTrait(
-                runePool,
+                powerPool,
                 new Dictionary<string, int>(StringComparer.Ordinal));
             var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
-                runePool,
+                powerPool,
                 paymentResourcePowerByTrait);
 
             var requirement = new ActivateAbilityPromptRequirement(
@@ -10441,9 +10442,9 @@ internal static class ActionPromptBuilder
                 isResourceConversionAbility
                     ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
                     : paymentResourcePowerByChoice,
-                runePool.TotalPower,
+                powerPool.TotalPower,
                 availablePowerByTrait,
-                new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal,
+                new RunePaymentReachability(powerPool, paymentResourcePowerByTrait).MaximumTotal,
                 availablePowerByTraitWithPaymentResources,
                 [],
                 ability.ExhaustsSourceAsCost,
@@ -11912,7 +11913,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return new RunePaymentReachability(runePool, ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability)).MaximumTotal;
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+        return new RunePaymentReachability(powerPool, ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability)).MaximumTotal;
     }
 
     private static bool CanPayActivateAbilityRequirement(
@@ -11936,7 +11938,9 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        return new RunePaymentReachability(runePool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
+        var powerPool = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability)
+            ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability)) : runePool;
+        return new RunePaymentReachability(powerPool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
             .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
     }
 

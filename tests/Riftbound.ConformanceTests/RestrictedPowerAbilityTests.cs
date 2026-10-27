@@ -87,6 +87,16 @@ public sealed class RestrictedPowerAbilityTests
         if (kind == "ward") cards["D"] = OfficialGarenConquestBattlefieldCountTests.Printed("D", "SFD·037/221", "P2");
         else cards["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", kind == "hook" ? "OGN·242/298" : "SFD·078/221", "P1");
         state = state with { CardObjects = cards };
+        if (kind == "ward" && cards.TryGetValue("LEGEND", out var opponentLegend) && opponentLegend.ControllerId == "P2")
+        {
+            const string opponentId = "P2-ORIGINAL-LEGEND";
+            cards.Remove("LEGEND"); cards[opponentId] = opponentLegend with { ObjectId = opponentId };
+            var locations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations);
+            locations[opponentId] = locations["LEGEND"]; locations.Remove("LEGEND");
+            state = state with { CardObjects = cards, ObjectLocations = locations,
+                PlayerZones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value with {
+                    LegendZone = p.Value.LegendZone.Select(id => id == "LEGEND" ? opponentId : id).ToArray() }) };
+        }
         return OfficialHoldSequenceTests.AddLegend(state, spellResource ? "OGN·247/298" : "SFD·189/221");
     }
 

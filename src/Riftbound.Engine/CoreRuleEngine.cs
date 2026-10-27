@@ -5513,6 +5513,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
@@ -5750,6 +5751,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
