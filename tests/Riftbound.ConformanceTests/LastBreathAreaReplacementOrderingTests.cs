@@ -74,7 +74,8 @@ public sealed class LastBreathAreaReplacementOrderingTests
             Assert.Equal(2, firstEffects.Count(e => e.Event.Kind == "DAMAGE_APPLIED"));
             Assert.DoesNotContain(firstEffects, e => e.Event.Kind == "CARD_DRAWN" || e.Event.Kind == "UNIT_DESTROYED" && Target(e.Event) == "HOST");
             Assert.Contains("HOST", game.State.PlayerZones["P1"].Base); Assert.True(game.State.CardObjects["HOST"].IsExhausted);
-            Assert.Equal(hostGeneration + 1, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(0, game.State.CardObjects["HOST"].Damage);
+            Assert.Equal(hostGeneration, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(0, game.State.CardObjects["HOST"].Damage);
+            Assert.DoesNotContain(firstEffects, e => e.Event.Kind == "UNIT_MOVED" && Target(e.Event) == "HOST");
             Assert.Contains(selectedGear, game.State.PlayerZones["P1"].Graveyard);
             var otherGear = selectedGear == "GUARDIAN-0" ? "GUARDIAN-1" : "GUARDIAN-0";
             Assert.Contains(otherGear, game.State.PlayerZones["P1"].Base); Assert.Equal("HOST", game.State.CardObjects[otherGear].AttachedToObjectId);
