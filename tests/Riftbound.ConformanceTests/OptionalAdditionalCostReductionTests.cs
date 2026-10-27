@@ -768,7 +768,9 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.Equal(MatchStateHasher.Hash(driver.State), MatchStateHasher.Hash(roundTrip));
         var engine = new CoreRuleEngine();
         var cold = new MatchSession(roundTrip, engine, NoopMatchJournal.Instance);
-        var stale = Command("ECHO", oldChoice);
+        // Supply the still-active native reduction so rejection proves the
+        // stale copied binding, rather than a missing mandatory allocation.
+        var stale = Command("ECHO", ManaReduction, oldChoice);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(stale, json))!;
         raw["promptId"] = JsonSerializer.SerializeToElement(cold.PromptFor("P1").PromptId);
