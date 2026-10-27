@@ -101,6 +101,7 @@ public sealed partial class LastBreathDrawBoundaryTests
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zone switch {
                 "BASE" => state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] },
                 "MAIN_DECK" => state.PlayerZones[owner] with { MainDeck = [..state.PlayerZones[owner].MainDeck, id] },
+                "GRAVEYARD" => state.PlayerZones[owner] with { Graveyard = [..state.PlayerZones[owner].Graveyard, id] },
                 _ => state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } } };
 
     private static async Task Tap(Driver game, string player)

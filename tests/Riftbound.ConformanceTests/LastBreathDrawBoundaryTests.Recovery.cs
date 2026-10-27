@@ -136,6 +136,13 @@ public sealed partial class LastBreathDrawBoundaryTests
             initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
+            if (!transferControl)
+            {
+                // Fixed seed 424242 draws the real departed UNIT first and
+                // leaves three recyclable cards for the three earned draws.
+                foreach (var id in new[] { "RESERVE-DRAW-2", "RESERVE-DRAW-3", "RESERVE-DRAW-4" })
+                    initial = Add(initial, id, "OGN·219/298", "P1", "GRAVEYARD");
+            }
         }
         var game = new Driver(initial);
         // Reserve the two reaction-draw runes until P2's turn.
