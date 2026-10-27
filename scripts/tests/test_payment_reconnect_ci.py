@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("payment_reconnect_ci", ROOT / "scripts/run-payment-reconnect-ci.py")
@@ -68,6 +69,27 @@ class RestartSequenceTests(unittest.TestCase):
         self.assertEqual([("finish", None), ("verify", "final"), ("stop", 2)], self.calls[-3:])
         self.assertNotIn(("tamper", None), self.calls)
 
+    def test_imposed_payment_finishes_only_after_verified_real_restart(self):
+        def driver(phase, folder, stage=None):
+            self.calls.append((phase, stage))
+        result = RUNNER.run_case("imposed-movement", self.output, driver, self.launch, self.stop, self.loaded)
+        self.assertEqual([("sql", None), ("prepare", None), ("start", "before-restart", 1), ("play", None),
+                          ("verify", "before-restart"), ("stop", 1), ("start", "after-restart", 2),
+                          ("recover", None), ("verify", "after-restart"), ("finish", None),
+                          ("verify", "final"), ("stop", 2), ("tamper", None)], self.calls)
+        self.assertEqual("PASSED", result["status"])
+
+    def test_failed_imposed_recovery_cannot_finish_or_tamper(self):
+        def driver(phase, folder, stage=None):
+            self.calls.append((phase, stage))
+            if stage == "after-restart":
+                raise ValueError("original recovered payment differs")
+        with self.assertRaisesRegex(ValueError, "original recovered payment differs"):
+            RUNNER.run_case("imposed-movement", self.output, driver, self.launch, self.stop, self.loaded)
+        self.assertEqual([("recover", None), ("verify", "after-restart"), ("stop", 2)], self.calls[-3:])
+        self.assertNotIn(("finish", None), self.calls)
+        self.assertNotIn(("tamper", None), self.calls)
+
     def test_pid_reuse_is_not_a_real_restart(self):
         def same_process(stage, folder):
             return type("Process", (), {"pid": 55})()
@@ -88,6 +110,30 @@ class RestartSequenceTests(unittest.TestCase):
 
 
 class RuntimeInputTests(unittest.TestCase):
+    def test_missing_default_imposed_project_fails_before_starting_any_api(self):
+        # Injected build failure only; these callbacks are not backend evidence.
+        def build(command, root, env, log):
+            if command[2] == 'tests/Riftbound.ImposedMovementAcceptance':
+                raise FileNotFoundError('required imposed project missing')
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'missing-imposed'
+            argv = ['run-payment-reconnect-ci.py', '--expected', 'a' * 40, '--output', str(output)]
+            environment = {'GITHUB_ACTIONS': 'true', 'ConnectionStrings__Riftbound':
+                           'Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=unit-only'}
+            with mock.patch.object(RUNNER.sys, 'argv', argv), \
+                    mock.patch.dict(RUNNER.os.environ, environment), \
+                    mock.patch.object(RUNNER.CANDIDATE, 'verify', return_value={'syntheticUnitFixtureOnly': True}), \
+                    mock.patch.object(RUNNER.shutil, 'which', return_value='/synthetic/dotnet'), \
+                    mock.patch.object(RUNNER, 'checked', side_effect=build), \
+                    mock.patch.object(RUNNER, 'start_api') as api:
+                with self.assertRaisesRegex(FileNotFoundError, 'required imposed project missing'):
+                    RUNNER.main()
+            api.assert_not_called()
+            proof = json.loads((output / 'payment-reconnect-receipt.json').read_text())
+            self.assertIn('imposed-movement', proof['orderedCases'])
+            self.assertEqual('PAYMENT_RECONNECT_FAILURE_OR_INCOMPLETE', proof['status'])
+            self.assertEqual([], proof['cases'])
+
     def test_network_and_sql_inherit_the_same_dedicated_database(self):
         connection = 'Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=unit-only'
         env = RUNNER.ci_environment('a' * 40, {'ConnectionStrings__Riftbound': connection,

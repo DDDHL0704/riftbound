@@ -76,6 +76,22 @@ class WorkflowCandidateTests(unittest.TestCase):
         partition = (ROOT / 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs').read_text()
         self.assertIn('Environment.GetEnvironmentVariable("RIFTBOUND_FIXED_COMMIT") ?? Environment.GetEnvironmentVariable("GITHUB_SHA")', partition)
 
+    def test_imposed_manual_investigation_does_not_expand_automatic_harness(self):
+        text = (ROOT / '.github/workflows/backend-harness.yml').read_text()
+        dispatch = text[text.index('  workflow_dispatch:'):text.index('\npermissions:')]
+        self.assertIn('imposed_movement:', dispatch)
+        self.assertIn('type: boolean', dispatch)
+        self.assertIn('default: false', dispatch)
+        automatic = text[text.index('- name: S3 and P7 SQL,'):text.index('- name: Explicit S7 SQL,')]
+        self.assertIn("!(github.event_name == 'workflow_dispatch' && inputs.imposed_movement)", automatic)
+        self.assertIn('--case payment-resource-surplus --case instruction-power-payment', automatic)
+        self.assertNotIn('--case imposed-movement', automatic)
+        manual = text[text.index('- name: Explicit S7 SQL,'):text.index('      - uses: actions/upload-artifact', text.index('- name: Explicit S7 SQL,'))]
+        self.assertIn("github.event_name == 'workflow_dispatch' && inputs.imposed_movement", manual)
+        self.assertIn('--case imposed-movement', manual)
+        self.assertIn('--expected "${{ github.sha }}"', manual)
+        self.assertIn('--output var/qa/ci-payment-harness', manual)
+
     def test_l2_checks_the_actual_pr_merge_or_main_commit_and_has_no_l3_dependency(self):
         text = (ROOT / ".github/workflows/backend-l2.yml").read_text()
         self.assertEqual(4, text.count("ref: ${{ github.sha }}"))

@@ -18,6 +18,12 @@ on:
       - 'tests/Riftbound.InstructionPaymentAcceptance/Program.cs'
       - 'tests/Riftbound.InstructionPaymentAcceptance/Riftbound.InstructionPaymentAcceptance.csproj'
   workflow_dispatch:
+    inputs:
+      imposed_movement:
+        description: Run only the S7 payment driver for an explicit wiring investigation
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -73,11 +79,16 @@ jobs:
           path: var/qa/ci-process-restart/
           retention-days: 90
       - name: S3 and P7 SQL, authenticated reconnect and actual API restart
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && !(github.event_name == 'workflow_dispatch' && inputs.imposed_movement) }}
         run: >-
           python3 scripts/run-payment-reconnect-ci.py --expected "${{ github.sha }}"
           --case payment-resource-surplus --case instruction-power-payment
           --output var/qa/ci-payment-harness
+      - name: Explicit S7 SQL, authenticated reconnect and actual API restart
+        if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.imposed_movement }}
+        run: >-
+          python3 scripts/run-payment-reconnect-ci.py --expected "${{ github.sha }}"
+          --case imposed-movement --output var/qa/ci-payment-harness
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
