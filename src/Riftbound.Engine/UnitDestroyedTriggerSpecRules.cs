@@ -129,6 +129,12 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.RuneCallCount is > 0;
     }
 
+    public static bool IsLastBreathCallRunesThenDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitLastBreathCallRunesThenDraw
+            && trigger.Timing == TriggerTimings.UnitDestroyed
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+            && trigger.RuneCallCount is > 0 && trigger.DrawCount is > 0;
+
     public static bool IsLastBreathCreateDormantGoldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal)
@@ -190,6 +196,14 @@ internal static class UnitDestroyedTriggerSpecRules
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
             ? triggers.Where(IsLastBreathCreateBaseUnitTrigger).ToArray() : [];
 
+    internal static IReadOnlyList<TriggerSpec> LastBreathRuneCallTriggers(string? cardNo)
+        => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)).ToArray() : [];
+
+    internal static IReadOnlyList<TriggerSpec> LastBreathBattlefieldDamageTriggers(string? cardNo)
+        => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsLastBreathSourceBattlefieldAoeDamageTrigger).ToArray() : [];
+
     public static bool IsLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
         return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
@@ -205,6 +219,14 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.DrawCount is > 0
             && trigger.RequiresOtherFriendlyUnitAtSamePosition == true;
     }
+
+    public static bool IsSelfDrawTrigger(TriggerSpec trigger)
+        => IsLastBreathDrawOneTrigger(trigger) || IsLastBreathDrawIfAloneTrigger(trigger)
+            || IsLastBreathDrawIfNotAloneTrigger(trigger) || IsLastBreathDiscardDrawTrigger(trigger);
+
+    public static IReadOnlyList<TriggerSpec> SelfDrawTriggers(string? cardNo)
+        => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsSelfDrawTrigger).ToArray() : [];
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {

@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
     private static string LastBreathUnitCreationTriggerId(LastBreathUnitCreationContext context)
         => $"TRIGGER-{context.DeathId}:{Convert.ToBase64String(Encoding.UTF8.GetBytes(context.InstanceId))}:{context.TriggerIndex}-{context.Source.ObjectId}-{context.Kind}";
 
-    private static string? ResolveUnitLastBreathCreateBaseUnitPlayerId(CardObjectState before,
+    private static string? CapturedLastBreathControllerId(CardObjectState before,
         TriggerSpec spec, string fieldController)
         => IsFaceUpNonStandbyUnit(before) && (spec.RequiresSourceEmpowered is not { } required || before.IsEmpowered == required)
             ? fieldController : null;
@@ -34,7 +34,7 @@ public sealed partial class CoreRuleEngine
             for (var index = 0; index < specs.Count; index++)
             {
                 var spec = specs[index];
-                if (ResolveUnitLastBreathCreateBaseUnitPlayerId(before, spec, controller) is null) continue;
+                if (CapturedLastBreathControllerId(before, spec, controller) is null) continue;
                 result.Add(new(deathId, instance.CardNo, spec.Kind, controller,
                     new(before.ObjectId, before.ObjectGeneration), instance.Id, index, before.IsEmpowered,
                     state.TurnNumber, state.Tick + 1, before.TokenFactoryCardNo, instance.Origin));

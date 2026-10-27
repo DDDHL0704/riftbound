@@ -32,6 +32,7 @@ public sealed partial class CoreRuleEngine
         public int DestructionBatchSequence { get; set; }
         public int? CurrentDestructionBatch { get; set; }
         public LastKnownMightFrame? CurrentDestructionMightFrame { get; set; }
+        public LastKnownMightFrame? CurrentDestructionDrawFrame { get; set; }
         public IReadOnlyDictionary<string, ObjectLocationState>? CurrentDestructionLocations { get; set; }
         public MatchState? ResolutionState { get; set; }
         public StackItemState? ResolutionItem { get; set; }

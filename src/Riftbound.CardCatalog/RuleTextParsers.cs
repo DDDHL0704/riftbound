@@ -418,10 +418,15 @@ public static class TriggerParser
         }
 
         var hasUnitLastBreathCallRuneTrigger =
-            TryParseUnitLastBreathCallRuneOne(text, out var unitLastBreathCallRuneTrigger);
+            TryParseUnitLastBreathCallRunes(text, out var unitLastBreathCallRuneTrigger);
         if (hasUnitLastBreathCallRuneTrigger)
         {
             triggers.Add(unitLastBreathCallRuneTrigger);
+        }
+
+        if (TryParseUnitLastBreathCallRunesThenDraw(text, out var unitLastBreathRuneDrawTrigger))
+        {
+            triggers.Add(unitLastBreathRuneDrawTrigger);
         }
 
         var hasUnitLastBreathCreateDormantGoldTrigger =
@@ -625,14 +630,20 @@ public static class TriggerParser
         return true;
     }
 
-    private static bool TryParseUnitLastBreathCallRuneOne(string text, out TriggerSpec trigger)
+    private static bool TryParseUnitLastBreathCallRunes(string text, out TriggerSpec trigger)
     {
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"\{\{绝念>?\}\}\s*[—-]?\s*召出一枚休眠的符文",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文(?=[。（(\r\n]|$)",
             RegexOptions.CultureInvariant);
         if (!match.Success)
+        {
+            return false;
+        }
+
+        var runeCount = ParseChineseNumber(match.Groups["count"].Value);
+        if (runeCount <= 0)
         {
             return false;
         }
@@ -643,7 +654,25 @@ public static class TriggerParser
             match.Value,
             "Unit last-breath call-rune trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
-            RuneCallCount: 1);
+            RuneCallCount: runeCount,
+            RequiresSourceEmpowered: match.Groups["empowered"].Success ? true : null);
+        return true;
+    }
+
+    private static bool TryParseUnitLastBreathCallRunesThenDraw(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(text,
+            @"(?:^|[\r\n])[ \t]*\{\{绝念>?\}\}\s*[—-]?\s*召出(?<runes>[0-9一两二三四五六七八九十]+)枚休眠的符文，再抽(?<draws>[0-9一两二三四五六七八九十]+)张牌(?=[。（(\r\n]|$)",
+            RegexOptions.CultureInvariant);
+        if (!match.Success) return false;
+        var runes = ParseChineseNumber(match.Groups["runes"].Value);
+        var draws = ParseChineseNumber(match.Groups["draws"].Value);
+        if (runes <= 0 || draws <= 0) return false;
+        trigger = new TriggerSpec(TriggerKinds.UnitLastBreathCallRunesThenDraw,
+            TriggerTimings.UnitDestroyed, match.Value.Trim(),
+            "One mandatory last-breath skill calls dormant runes, then draws within the same resolution.",
+            TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: runes, DrawCount: draws);
         return true;
     }
 

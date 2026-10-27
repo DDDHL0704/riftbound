@@ -17,6 +17,9 @@ internal sealed record CapturedDeathObserver(string ObjectId, string ControllerI
 internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
 {
     public IReadOnlyList<LastBreathUnitCreationContext> UnitCreations { get; init; } = [];
+    public IReadOnlyList<LastBreathRuneCallContext> RuneCalls { get; init; } = [];
+    public IReadOnlyList<LastBreathDrawContext> Draws { get; init; } = [];
+    public IReadOnlyList<LastBreathBattlefieldDamageContext> BattlefieldDamages { get; init; } = [];
     public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
     public DravenBattleDeathScoreContext? DravenBattleDeathScore { get; init; }
     public DestructionAttribution? Attribution { get; init; }
@@ -83,6 +86,9 @@ public sealed partial class CoreRuleEngine
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
+            RuneCalls = CaptureLastBreathRuneCalls(state, zones, cards, unit, deathId),
+            Draws = CaptureLastBreathDraws(state, zones, cards, unit, deathId),
+            BattlefieldDamages = CaptureLastBreathBattlefieldDamage(state, zones, cards, unit, deathId),
             DravenBattleDeathScore = CaptureDravenBattleDeathScore(state, zones, cards,
                 frame.CurrentDestructionLocations ?? state.ObjectLocations, unit, deathId, state.Tick + 1),
             LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit), GraveyardPlays = CaptureGraveyardPlays(zones, cards, unit) };
@@ -132,6 +138,24 @@ public sealed partial class CoreRuleEngine
             {
                 var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
                 var trigger = LastBreathUnitCreationTrigger(context);
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            foreach (var captured in death.RuneCalls)
+            {
+                var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
+                var trigger = LastBreathRuneCallTrigger(context);
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            foreach (var captured in death.Draws)
+            {
+                var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
+                var trigger = LastBreathDrawTrigger(context);
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            foreach (var captured in death.BattlefieldDamages)
+            {
+                var context = captured with { CreatedAtTick = RuleChoices.Value?.CompletionTick ?? state.Tick };
+                var trigger = LastBreathBattlefieldDamageTrigger(context);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
             QueueGraveyardPlays(state, death, deaths, queue, events);
