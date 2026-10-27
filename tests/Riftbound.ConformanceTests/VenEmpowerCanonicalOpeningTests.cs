@@ -204,7 +204,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var state = authoritativeState ?? State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-                { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand }).ToArray();
+                { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
             var events = entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
