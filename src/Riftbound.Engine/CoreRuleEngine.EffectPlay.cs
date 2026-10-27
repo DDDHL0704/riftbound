@@ -215,22 +215,21 @@ public sealed partial class CoreRuleEngine
     {
         var p = state.PendingEffectPlay!;
         if (p.Optional || EffectPlayDestinations(state, p.PlayerId).Count == 0) return true;
-        var candidates = ActionPromptBuilder.Build(state, p.PlayerId, true, "再次打出", [CommandTypes.PlayCard]);
-        if ((candidates.Candidates?.FirstOrDefault()?.Sources?.Count ?? 0) == 0) return true;
+        var choices = ActionPromptBuilder.PlayCardChoices(state, p.PlayerId)
+            .Where(choice => EffectPlayAllowsBehavior(state, p.PlayerId, choice.Behavior)).ToArray();
+        if (choices.Length == 0) return true;
         // CN445.2/445.2.a permits refusing a nonzero resource fee and
         // withdrawing that play, even when those resources are already pooled.
-        // CN445.1.b does not permit refusing a zero fee. A legal free route
-        // therefore still has to be carried out for a mandatory instruction.
+        // CN445.1.b does not permit refusing a zero fee. But the player can
+        // choose a different, nonzero route and refuse that payment; the mere
+        // presence of a free candidate cannot force that candidate to be played.
         // Optional discard, experience or sacrifice reductions are not assumed:
         // the player can decline those choices and refuse the default fee.
-        return EffectPlaySources(state, p.PlayerId).All(id => {
-            var card = state.CardObjects[id];
-            return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {
-                var behavior = EffectPlayBehavior(state, p.PlayerId, b);
-                return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: id).Total == 0
-                    && PrintedPowerCostRules.ForPlay(behavior).Amount == 0
-                    && SourceReplayPowerCost(state, p.PlayerId) == 0;
-            });
+        return choices.Any(choice => {
+            var behavior = choice.Behavior;
+            return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
+                || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
+                || SourceReplayPowerCost(state, p.PlayerId) > 0;
         });
     }
 

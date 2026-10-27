@@ -16215,8 +16215,14 @@ internal static class ActionPromptBuilder
     private static IEnumerable<IReadOnlyDictionary<string, object?>> PlayCardSourceRequirements(
         MatchState state,
         string playerId)
+        => PlayCardChoices(state, playerId)
+            .Select(choice => PlayCardSourceRequirement(state, playerId, choice.SourceObjectId, choice.Behavior));
+
+    internal static IEnumerable<(string SourceObjectId, CardBehaviorDefinition Behavior)> PlayCardChoices(
+        MatchState state,
+        string playerId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.ContainsKey(playerId))
         {
             return [];
         }
@@ -16225,7 +16231,7 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
                 .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
-                .Select(behavior => PlayCardSourceRequirement(state, playerId, objectId, behavior)));
+                .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
     private static IReadOnlyDictionary<string, object?> PlayCardSourceRequirement(
