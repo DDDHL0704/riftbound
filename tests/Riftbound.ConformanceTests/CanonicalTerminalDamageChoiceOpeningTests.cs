@@ -91,7 +91,8 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
                 var frozen = game.State; await game.Act(ending, new SurrenderCommand());
                 Assert.Equal(MatchStatuses.Finished, game.State.Status); Assert.Equal(ending == "P1" ? "P2" : "P1", game.State.WinnerPlayerId);
                 Assert.Equal(frozen.TurnNumber, game.State.TurnNumber); Assert.Equal(frozen.TurnPlayerId, game.State.TurnPlayerId);
-                Assert.Equal(frozen.EndStep, game.State.EndStep); Assert.Equal(choice, game.State.PendingCardChoice);
+                Assert.Equal(frozen.EndStep, game.State.EndStep);
+                Assert.Equal(JsonSerializer.Serialize(frozen.PendingCardChoice), JsonSerializer.Serialize(game.State.PendingCardChoice));
                 Assert.Equal(frozen.StackItems, game.State.StackItems); Assert.Equal(pools, JsonSerializer.Serialize(game.State.RunePools));
                 Assert.Equal(runes, game.State.PlayerZones["P2"].RuneDeck); Assert.Equal(hand, game.State.PlayerZones["P2"].Hand);
                 Assert.Equal(deckAtChoice, game.State.PlayerZones["P2"].MainDeck); Assert.Equal(scores, game.State.PlayerScores);
