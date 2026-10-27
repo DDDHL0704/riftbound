@@ -2326,6 +2326,21 @@ public sealed record MatchState
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
                     TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId],
                     SourceOrder: (int)Math.Min(int.MaxValue, long.Parse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)]))));
+            var empoweredAuras = CoreRuleEngine.EmpoweredUnitAuraContributions(state, cardObject);
+            if (empoweredAuras.Count > 0) {
+                var before = CoreRuleEngine.CurrentPowerBeforeConditionalAuras(state, cardObject) - empoweredAuras.Sum(aura => aura.Delta);
+                foreach (var aura in empoweredAuras) {
+                    var dependencies = aura.Instance.Origin is { } copied ? new[] { aura.SourceId, copied.Equipment.ObjectId } : new[] { aura.SourceId };
+                    effects.Add(new ContinuousEffectState($"EMPOWERED_UNIT_AURA:{aura.SourceId}:{aura.Instance.Id}:{aura.Index}:{objectId}",
+                        "OBJECT", ContinuousEffectLayers.StaticAura, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", objectId, aura.SourceId,
+                        aura.Delta, before, before + aura.Delta, CoreRuleEngine.EmpoweredUnitAuraEffect, aura.Instance.CardNo,
+                        "CoreRuleEngine.EmpoweredUnitAuraContributions", true, LayerEngineFoundationResiduals(),
+                        Condition: "SOURCE_AND_FRIENDLY_TARGET_EMPOWERED", Lifecycle: "RECOMPUTED_FROM_CURRENT_EMPOWERED_TEXT_AND_CONTROLLER",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                    before += aura.Delta;
+                }
+            }
             foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
             {
                 var dependencies = aura.Instance.Origin is { } copied
@@ -4852,7 +4867,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -5296,7 +5311,7 @@ public sealed record ResolutionResult(
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state)),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
-                ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
+                ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state, state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state, viewerPlayerId),
                 ["pendingEffectPlay"] = CoreRuleEngine.EffectPlayView(state, VisibleObjectIdForViewer(state, state.PendingEffectPlay?.Parent.SourceObjectId, viewerPlayerId)),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
@@ -5476,7 +5491,7 @@ public sealed record ResolutionResult(
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
-            || item.EmpowerActivation is not null || item.HandDiscardObserver is not null
+            || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
@@ -5591,7 +5606,7 @@ public sealed record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
-        return item.DamageDestruction is null && item.GraveyardPlay is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.DamageDestruction is null && item.GraveyardPlay is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -5687,8 +5702,8 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId),
             ["sourceVisibility"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId) == "HIDDEN" ? "HIDDEN" : "VISIBLE",
             ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
-            ["deathObserver"] = item.DeathObserver,
-            ["movementObserver"] = item.MovementObserver,
+            ["deathObserver"] = CoreRuleEngine.PublicDeathObserver(item.DeathObserver),
+            ["movementObserver"] = CoreRuleEngine.PublicMovementObserver(item.MovementObserver),
             ["unitConquest"] = item.UnitConquest,
             ["reflexiveDuel"] = item.ReflexiveDuel,
             ["beginningRecycle"] = item.BeginningRecycle,
@@ -5751,6 +5766,7 @@ public sealed record ResolutionResult(
     }
 
     private static Dictionary<string, object?>? BuildPendingHandChoiceSnapshotView(
+        MatchState state,
         PendingHandChoiceState? choice,
         string viewerPlayerId)
     {
@@ -5768,7 +5784,8 @@ public sealed record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.SourceObjectId,
+            ["sourceObjectId"] = choice.MovementObserver is null ? choice.SourceObjectId
+                : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
         };
@@ -18687,6 +18704,8 @@ public sealed partial class MatchSession : IMatchSession
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "hand-discard-observer" => BuildHandDiscardScenario(current, seed),
+            "copied-death-observer" => BuildCopiedDeathScenario(current, seed),
+            "copied-movement-observer" => BuildCopiedMovementScenario(current, seed),
             "selected-damage-bullet" or "selected-damage-bullet-gate"
                 or "selected-damage-drop" or "selected-damage-drop-gate"
                 or "selected-damage-crescent" or "selected-damage-crescent-gate"

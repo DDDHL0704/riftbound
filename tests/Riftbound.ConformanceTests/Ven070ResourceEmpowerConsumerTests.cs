@@ -21,9 +21,9 @@ public sealed class Ven070ResourceEmpowerConsumerTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var priorCards = catalog.Cards.Where(card => card.CardNo != No).ToArray();
-        Assert.Equal(1081, priorCards.Length); Assert.Equal(1082, catalog.Cards.Count);
+        Assert.Equal(1085, priorCards.Length); Assert.Equal(1086, catalog.Cards.Count);
         var priorUnits = FunctionalUnitBuilder.Build(priorCards); var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(862, priorUnits.Count); Assert.Equal(863, units.Count);
+        Assert.Equal(866, priorUnits.Count); Assert.Equal(867, units.Count);
         foreach (var prior in priorUnits)
         {
             var current = Assert.Single(units, unit => unit.Id == prior.Id);

@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1082,
+  "total": 1086,
   "cards": [
     {
       "id": 31005,
@@ -45140,6 +45140,198 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37807,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·110",
+      "cardName": "梅尔",
+      "subTitle": "镜转乾坤",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "梅尔",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Pandart Studio",
+      "cardEffect": "{{强化}} — 弃置一张法术牌（支付此费用：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+      "flavorText": "“米达尔达家族素来有勇有谋，能征善战。”",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/baa6babfa04349d9be71a9ee3900f929.png",
+      "backImage": "",
+      "listSort": 1879,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37830,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·130",
+      "cardName": "奥洛克将军",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "崔法利",
+      "artist": "Slawomir Maniak",
+      "cardEffect": "{{强化3黄色}}（支付{{3}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的{{已强化}}单位获得{{S}}+2（包括我在内）。",
+      "flavorText": "“听我号令。”",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/1f8b4e8106cd450193094ea8792095ed.png",
+      "backImage": "",
+      "listSort": 1856,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37748,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·057",
+      "cardName": "秘密线人",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Grafit Studio",
+      "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我移动时，抽一张牌。",
+      "flavorText": "一人所知，是为秘密；两人所知，是为交易。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/6b9efb9db2fa4146b38301f6d66eddaa.png",
+      "backImage": "",
+      "listSort": 1938,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37723,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·035",
+      "cardName": "念化盈虚",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Wild Blue Studio",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个效果 —\n- 强化一名单位。回合结束时，解除其强化。\n- 解除一名{{已强化}}单位的强化。在回合结束时，强化该单位。",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/30204533ccc04c47a36e5edb29b52938.png",
+      "backImage": "",
+      "listSort": 1963,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46435,6 +46627,118 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
       "reason": "Exact standard CN printing; resource Empower and conditional spell mana/power discount consumer under shared-cost review. Registration is not support or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·110",
+      "sourceId": 37807,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "梅尔",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T14:48:23.322333+00:00",
+      "sourceRecordSha256": "2a0f83a56d5fdcf4e3253da4c7e6fdfa2dd907a5565ae667a3a5e622c737851c",
+      "sourceResponseSha256": "354273fca2ebcd544a7a91303fdbd87e8f469ef9cf3266d4e3e8420dcfdb5b2f",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·110/166 SC",
+      "frontImageSha256": "6354219eb32a8135ad5d4c82d92391bdcb53782cfb51ae324ce00b3488ea7f6c",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "sourceConflict": {
+        "field": "region",
+        "api": "恕瑞玛",
+        "printedFace": "诺克萨斯",
+        "status": "UNRESOLVED"
+      },
+      "reason": "Exact standard CN raw printing retained for typed spell-discard and empowered-banish consumer repro. Printed/API region conflict remains unresolved; no whole-card certification or alternate-printing inheritance."
+    },
+    {
+      "cardNo": "VEN·130",
+      "sourceId": 37830,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "奥洛克将军",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T16:22:27.182866+00:00",
+      "sourceRecordSha256": "a18e13844d4fe797b3fcbd83dc6eb5798de8185a506077f6583cb2ec5003b1d9",
+      "sourceResponseSha256": "7a441b09675cd338be559c0658f650feeffd36e718ec0257391b698de4c98339",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·130/166 SC",
+      "frontImageSha256": "c38a685d80e0f1ed8b46fee20f24cb715c772ff71fbf2d65cf237b3c1c9ac1b5",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing retained for real resource-Empower and current friendly-empowered-unit Might aura consumer. Whole face and API agree; registration and source inventory are not complete applicability or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·057",
+      "sourceId": 37748,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "秘密线人",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-26T17:27:36.567595+00:00",
+      "sourceRecordSha256": "e4d8724224e2f6f5172ea7cbea1f8952b3e645dddd3e1e743051689da5e8cc2b",
+      "sourceResponseSha256": "4cd5f946539bf15033f66060f8b444c100988ae5b92889dd80585948cddc6339",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·057/166 SC",
+      "frontImageSha256": "a857fee283ad2b1f58d369733d7da87254a64675b035c84eae29866f28a0bf59",
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/zh-cn/news/announcements/the-vendetta-overview/",
+      "reason": "Exact standard CN printing for real resource-Empower and gated movement draw consumers. Existing movement/instance capture should be reused; source/status and trigger lifetime require actual execution. Registration is not applicability or whole-card certification."
+    },
+    {
+      "cardNo": "VEN·035",
+      "sourceId": 37723,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "念化盈虚",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-27T02:52:31.695011+00:00",
+      "sourceRecordSha256": "d3c739162921fec6e9e10d89bd7846d6b50ca0fa7cb0d2a06146e77acf993f14",
+      "sourceResponseSha256": "289c5e31011e9572b16edaa0e2fded89d07dc8308f100347c2133d58db53e45b",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·035/166 SC",
+      "frontImageSha256": "f36ea6bc7a9a1c32d668b75d3eb32bbf449dcae9abc7c903545726aeab718329",
+      "reason": "Exact modal Reaction source for actual empowerment/removal and delayed end-step consumers;3mana GREEN1. Existing1085 records and scoped additions retained. Missing shared runtime/legality/delayed status transitions remain to be verified. No whole-card or applicability certification."
     }
   ]
 }

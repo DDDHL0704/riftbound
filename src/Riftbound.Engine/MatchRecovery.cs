@@ -16129,6 +16129,14 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
+                || !effectId.StartsWith($"EMPOWERED_UNIT_AURA:{sourceObjectId}:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal))
+                errors.Add($"{effectLabel} empowered unit aura identity is invalid");
+            return;
+        }
+
         if (effectKind == StaticAuraKinds.SameLocationEnemyFilteredPower) {
             if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
                 || !effectId.StartsWith($"CONDITIONAL_POWER_AURA:{sourceObjectId}:", StringComparison.Ordinal)
@@ -16526,6 +16534,15 @@ public static partial class MatchRecoveryValidator
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.BoonAmplifiersFor", "Boon amplifier source path", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "CURRENT_FRIENDLY_UNIT_HAS_BOON", "Boon amplifier condition", errors);
             ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", "Boon amplifier lifecycle", errors);
+            return;
+        }
+
+        if (effectKind == CoreRuleEngine.EmpoweredUnitAuraEffect) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD" || CoreRuleEngine.EmpoweredUnitAuras(sourceCardNo).Count == 0)
+                errors.Add($"{effectLabel} empowered unit aura requires a matching official source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.EmpoweredUnitAuraContributions", "empowered aura source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "SOURCE_AND_FRIENDLY_TARGET_EMPOWERED", "empowered aura condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "RECOMPUTED_FROM_CURRENT_EMPOWERED_TEXT_AND_CONTROLLER", "empowered aura lifecycle", errors);
             return;
         }
 
@@ -17774,7 +17791,7 @@ public static partial class MatchRecoveryValidator
         // A graveyard-count aura is not a fixed delta per field participant.
         // ValidateDynamicPowerAuraViews checks its exact amount
         // against the current authoritative effect, including zero.
-        if (effectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect) return;
+        if (effectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect) return;
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
@@ -18857,7 +18874,8 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(spectatorTrigger, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
-            if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
+            CompareMovementObserverView(spectatorTrigger, authoritativeTrigger.MovementObserver, errors, "spectator");
+            if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(authoritativeTrigger.DeathObserver))) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             CompareDestructionFamilyView(spectatorTrigger, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
             var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
@@ -19097,7 +19115,8 @@ public static partial class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(triggerPayload, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
-            if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
+            CompareMovementObserverView(triggerPayload, authoritativeTrigger.MovementObserver, errors, "spectator");
+            if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(authoritativeTrigger.DeathObserver))) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             CompareDestructionFamilyView(triggerPayload, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
             var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
@@ -22092,7 +22111,8 @@ public static partial class MatchRecoveryValidator
             choicePayload,
             "sourceObjectId",
             "spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object",
-            authoritativeChoice.SourceObjectId,
+            authoritativeChoice.MovementObserver is null ? authoritativeChoice.SourceObjectId
+                : ResolutionResult.VisibleObjectIdForViewer(authoritativeState, authoritativeChoice.SourceObjectId, string.Empty),
             errors);
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
             choicePayload,
@@ -23270,6 +23290,7 @@ public static partial class MatchRecoveryValidator
                     var projected = publicTriggers.FirstOrDefault(payload =>
                         TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
                     CompareHandDiscardObserverView(projected, trigger.HandDiscardObserver, errors, $"snapshot for {view.PlayerId}");
+                    CompareMovementObserverView(projected, trigger.MovementObserver, errors, $"snapshot for {view.PlayerId}");
                     CompareDestructionFamilyView(projected, trigger.DamageDestruction, trigger.GraveyardPlay, errors);
                     if (MatchStateHasher.HashValue(ReadDelayedDestructionView(projected)) != MatchStateHasher.HashValue(trigger.DelayedDestruction))
                         errors.Add($"snapshot for {view.PlayerId} captured delayed destruction differs from authoritative state");
@@ -23280,7 +23301,7 @@ public static partial class MatchRecoveryValidator
                 {
                     var projected = publicTriggers.FirstOrDefault(payload =>
                         TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
-                    if (MatchStateHasher.HashValue(ReadDeathObserverView(projected)) != MatchStateHasher.HashValue(trigger.DeathObserver))
+                    if (MatchStateHasher.HashValue(ReadDeathObserverView(projected)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(trigger.DeathObserver)))
                         errors.Add($"snapshot for {view.PlayerId} captured death observer differs from authoritative state");
                 }
             }
@@ -23342,7 +23363,7 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -23351,7 +23372,7 @@ public static partial class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -23372,7 +23393,7 @@ public static partial class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
+                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
                         ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
@@ -23566,6 +23587,18 @@ public static partial class MatchRecoveryValidator
         return true;
     }
 
+    private static void CompareMovementObserverView(object? payload, MovementObserverContext? authority, List<string> errors, string label)
+    {
+        MovementObserverContext? actual = null;
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            if (json.ValueKind == JsonValueKind.Object && json.TryGetProperty("movementObserver", out var raw) && raw.ValueKind != JsonValueKind.Null)
+                actual = raw.Deserialize<MovementObserverContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
+        if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMovementObserver(authority)))
+            errors.Add($"{label} captured movement observer differs from authoritative state");
+    }
+
     private static bool ValidateMovementObserverView(object? payload, string? effect, string? controller, string? source, List<string> errors)
     {
         MovementObserverContext? context = null;
@@ -23575,7 +23608,13 @@ public static partial class MatchRecoveryValidator
                 context = raw.Deserialize<MovementObserverContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
         if (effect is not (CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) && context is null) return false;
-        if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", source ?? ""))
+        // Public old-generation movement facts remain public, while the source
+        // field can hide the source's new private incarnation. Authority parity
+        // checks separately prove this exact captured fact and source visibility.
+        var capturedSource = source == "HIDDEN" && context?.Kind != TriggerKinds.OpponentMovedToOtherBattlefieldDraw
+            ? context?.Kind == TriggerKinds.BattlefieldUnitMovedAwayPowerModifier ? context.Unit?.Origin?.BattlefieldObjectId : context?.Unit?.ObjectId
+            : source;
+        if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", capturedSource ?? ""))
         { errors.Add("invalid public captured movement observer"); return false; }
         return true;
     }
@@ -23812,14 +23851,16 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.MovementObserver is { } movement
-                ? !CoreRuleEngine.ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
+                ? !CoreRuleEngine.ValidMovementObserver(state, movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
+                    || !CoreRuleEngine.ValidMovementInstanceId(movement, trigger.TriggerId)
                     || trigger.TriggeredByEventKind != (movement.DiscardInline is not null ? "CARD_DISCARDED"
                         : movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
                     || !ValidMovementPlayers(state, movement)
                 : trigger.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer");
         foreach (var item in state.StackItems)
             if (item.MovementObserver is { } movement
-                ? !CoreRuleEngine.ValidMovementObserver(movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                ? !CoreRuleEngine.ValidMovementObserver(state, movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                    || !CoreRuleEngine.ValidMovementInstanceId(movement, item.StackItemId, stack: true)
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
@@ -23830,14 +23871,18 @@ public static partial class MatchRecoveryValidator
             if (trigger.DeathObserver is null && IsUncapturedDeathObserver(trigger.EffectKind, trigger.TriggerId))
                 errors.Add("obsolete uncaptured death observer");
         foreach(var trigger in state.TriggerQueue)
-            if (trigger.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId)
+            if (trigger.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId)
+                || trigger.TriggerId.StartsWith("copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
+                || death.RuleTextInstanceId is { } triggerInstance && !trigger.TriggerId.EndsWith(":" + triggerInstance, StringComparison.Ordinal)
                 || trigger.TriggeredByEventKind != TriggerTimings.UnitDestroyed || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
                 : trigger.EffectKind == CoreRuleEngine.DeathObserverEffect || CoreRuleEngine.IsDeathObserverKind(trigger.EffectKind)) errors.Add("invalid captured death observer");
         foreach (var item in state.StackItems)
             if (item.DeathObserver is null && IsUncapturedDeathObserver(item.EffectKind, item.StackItemId))
                 errors.Add("obsolete uncaptured death observer stack");
         foreach(var item in state.StackItems)
-            if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
+            if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
+                || item.StackItemId.StartsWith("ordered-copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
+                || death.RuleTextInstanceId is { } stackInstance && !item.StackItemId.EndsWith(":" + stackInstance, StringComparison.Ordinal)
                 || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
                 : item.EffectKind == CoreRuleEngine.DeathObserverEffect || CoreRuleEngine.IsDeathObserverKind(item.EffectKind)) errors.Add("invalid captured death observer stack");
         foreach (var trigger in state.TriggerQueue)
@@ -24025,12 +24070,17 @@ public static partial class MatchRecoveryValidator
             if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
+                    || field.Kind == CoreRuleEngine.EmpoweredBanishKind && (trigger.TriggeredByEventKind != "OBJECT_EMPOWERED"
+                        || trigger.SourceCardNo != field.CardNo || !trigger.TriggerId.EndsWith("-" + field.EmpoweredTransition!.RuleTextInstanceId, StringComparison.Ordinal))
                 : trigger.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger context");
         foreach (var item in state.StackItems)
             if (item.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
                 item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
+                || field.Kind == CoreRuleEngine.EmpoweredBanishKind && (!item.StackItemId.EndsWith("-" + field.EmpoweredTransition!.RuleTextInstanceId, StringComparison.Ordinal)
+                    || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1 || item.Destination.Length != 0
+                    || item.TargetGenerations is null && item.TargetObjectIds.Count != 0)
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
                 || field.Kind is "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
                     || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
@@ -27355,7 +27405,10 @@ public static partial class MatchRecoveryValidator
                 && CoreRuleEngine.ValidInsightChoice(authoritativeState, choice, parent)
                 && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,
                     parent.SourceObjectId, parent.EffectKind, parent.ControllerId, parent.CardNo);
-            if (!capturedDeckSource && !capturedInsightSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+            var capturedEmpoweredSource = authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { Kind: CoreRuleEngine.EmpoweredBanishKind, SourceCeasedToExist: true } empowered } captured
+                && captured.SourceObjectId == choice.SourceObjectId && CoreRuleEngine.ValidTriggerChoice(authoritativeState, choice)
+                && CoreRuleEngine.ValidFieldContextState(authoritativeState, empowered, captured.SourceObjectId, captured.ControllerId, captured.EffectKind, captured.CardNo);
+            if (!capturedDeckSource && !capturedInsightSource && !capturedEmpoweredSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} source object",
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
@@ -27470,9 +27523,9 @@ public static partial class MatchRecoveryValidator
                     field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
                 && !(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
                 && !(stackItem.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
-                && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
-                && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
@@ -27595,9 +27648,9 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
                 && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
                 && !(trigger.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
-                && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
-                && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
@@ -33864,12 +33917,12 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.EmpowerActivation is not null || item.HandDiscardObserver is not null
+                || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.HandDiscardObserver is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)
