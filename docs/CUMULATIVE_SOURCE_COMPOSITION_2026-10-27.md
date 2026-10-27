@@ -1,8 +1,8 @@
 # No35、中娅与 VEN128 累计来源输入
 
-当前完整组合代码为 `49496a6b063ad9bb2ed42bc362bbf2d7c160dc52`，已普通包含共享生产包 `d4790ee4105e705742f03cde91a67ebfbe7fee16`、累计 No35 数值校准 `262574ae363b611908abb6b0edb2e20f0553efc4` 和 Ahri 精确历史勘误比较 `67916a80566efcbef80bdd6bb64e2a6337f82633`。相对 d479 只有 Ahri 既有方法内的 5 增/2 删，生产与来源数据逐字相同。
+累计来源与生产者的原固定实测输入为 `49496a6b063ad9bb2ed42bc362bbf2d7c160dc52`，已普通包含共享生产包 `d4790ee4105e705742f03cde91a67ebfbe7fee16`、累计 No35 数值校准 `262574ae363b611908abb6b0edb2e20f0553efc4` 和 Ahri 精确历史勘误比较 `67916a80566efcbef80bdd6bb64e2a6337f82633`。相对 d479 只有 Ahri 既有方法内的 5 增/2 删，生产与来源数据逐字相同。当前候选另已普通纳入完整 Hwei `67e6d3b4a2f4c916bae4506fbf0e579311d75b6d`、main `1a84888a11348f079711d97bb3a8dc6ee33d73d2` 和下述九个来源守卫校准。
 
-该固定输入实际 33 方法/75 例全部通过、0skip；另用同一批未改变的 5 个 DLL 独立复验彗私手牌来源回归，实际 1F。两次执行分别记录，不能报为整体通过，也不相加为一个阶段。PR203 仍为旧5b草稿；彗共享恢复反例修复和最新完整 merge-input L2 通过前不得合入。日期/全部来源适用性、整卡、固定输入完整后端 L3 继续 OPEN。No078/Issue204 与独立 Issue200 均未混入此候选。
+该494固定输入实际 33 方法/75 例全部通过、0skip；另用同一批未改变的 5 个 DLL 独立复验彗私手牌来源回归，实际 1F。两次执行分别记录，不相加或改绑。该缺陷后由完整67e6修正，其固定2e5输入48/48与另100/100见[Hwei说明](HWEI_PRIVATE_INLINE_RECOVERY_2026-10-27.md)。PR203当前完整候选仍须最新head/base/synthetic L2通过才能合入；旧5b、67e6及5ba各次CI保留其自己的输入。日期/全部来源适用性、整卡、固定输入完整后端L3继续OPEN。No078/Issue204与独立Issue200均未混入此候选。
 
 ③按①分配统一物化累计来源。完整普通历史保留 No35 `241376b958451057a7e8b19fabc686bee4745329`、中娅 `c4af47b4039da3d0f053b5cdee50720c756421a5`、VEN128 `b696ab07788b2f0c322e9e6b49fce1effe4b2d89` 及实际 main `21b3e43fb7c3f7bb1c50e9957968890dc41b02ea`；随后完整接入 VEN128 两条替代控制后继 `0c5d14ed522df369358ff7f40ccba2f58a576909`。该后继没有更改生产、数据或来源守卫；初次来源交付时其两条控制尚待执行，现已在上述494组合重新执行。
 
@@ -16,7 +16,7 @@
 
 完整源码输入供②普通接入并验证共享死亡生产端。上述14例属于a98，后继新增替代控制不改绑为本轮通过。④原0e私区安全失败也属于它自己的固定输入：最后一步先在既有隐区断言失败，该步后的恢复/去重/回放尚未执行。该14例阶段当时尚无②的完整共享修正；现已普通接入d479，并用上述新固定输入验证。14例原收据与当时失败均不改标为新输入。
 
-原冲突、编译失败、396例实际失败、受控元数据探针及14例原件位于本树 ignored `var/qa/cumulative-ven128-20261027/`，完整入口 `source-delivery-v10.json`。PR203保持草稿，远端旧5b及其L2各自保留；目前最新已证实的彗恢复反例尚未修复，不能发布为完整通过或用旧L2替代。日期/全部来源适用性、整卡和固定输入完整后端L3保持OPEN。独立Issue200原失败不纳入该组合。
+原冲突、编译失败、396例实际失败、受控元数据探针及14例原件位于本树 ignored `var/qa/cumulative-ven128-20261027/`，完整入口 `source-delivery-v10.json`。原旧5b及其L2各自保留，彗反例的完整后继仍需新候选的最新L2，不能把旧失败或旧绿灯改绑。日期/全部来源适用性、整卡和固定输入完整后端L3保持OPEN。独立Issue200原失败不纳入该组合。
 
 ## 摧毁资源费用入口
 
@@ -43,3 +43,11 @@ No35 旧来源比较在累计1087输入需使用控变量1086/867；移除No35�
 Ahri已在当前75中通过。彗原方法 `HweiMoveDiscardRecoveryTests.ActualSourceReturnBeforeResolutionKeepsDrawDiscardAndRunesButCannotBuffNewHandIncarnation` 与旧5b字节相同，在494同DLL的另一次执行仍1F、0skip：P2和spectator timing trigger queue的来源已隐藏，但恢复校验要求effect为HIDDEN，实际是公开的MOVEMENT_DISCARD_TYPE_INLINE。原正常PublicRecovery断言阻止继续执行，后续该步恢复/去重/回放不宣称完成。当前没有删除原隐区断言或放宽全部隐藏效果。
 
 此单例复用v20已固定的5个DLL，没有重新编译；新进程实际Info/SHA/MVID及DLL字节一致。TRX SHA256 `590c54d87780e0fe933e6cbed068e739cf9e6ca64383e33724ddd1b08a914e1f`，独立复用证明 `c27607e1f8a451b7601b88baea35147f288173fb82c9cdab58627f3363565da6`。原件在 `current-hwei-private-source-v22/`；归②共享movement/projection/recovery修复，修复完整依赖接入后按真实差异验证，并对最终候选重新取得最新L2。
+
+## 九个累计来源守卫
+
+No128-only固定`5ba3c321edd97e3baf2f6c434caff29dbd19e174`的新鲜7方法执行为7F；同一批完全未变DLL另两方法为2F，分别保留在`seven-source-counterexamples-v30/`与`two-extra-source-counterexamples-v31/`，不能写成一次9例执行。七个旧守卫为No007/055/057/059/070/110/130；另两项为Lux SP6保留守卫与Vendetta登记统计。它们均不在原378来源筛选中，原378属于独立No078 source输入，不能代替此组合。
+
+代码`6250f4e86`只校准九个精确方法，保留原方法、Theory、来源对象和逐组逐成员断言。去除精确后加入的No128构造旧控变量，仍严格要求1085/866→1086/867；实际累计目录另要求1086/867→1087/868，并比较每个历史功能组及成员原值。登记统计保留旧控变量1086且另严格要求实际1087。没有放宽为下限、导出实际计数充当预期或更改目录。
+
+该代码完整来源筛选实际311方法、385/385、0skip；2730份输入逐Git blob相等、741/741 tracked Conformance源码全编译，5个实际模块Info/SHA/MVID与保留DLL字节已核。原件为`complete-cumulative-source-guards-v32/`，入口`source-guard-delivery-v33.json`。原七失败与另两失败逐名在此固定输入转P；其余消费者玩法不为数量校准重跑，仍由最新完整L2验证。独立No078后继按自己的1088/869输入普通接续，不把No078/parser/RuneCall或Issue200带入PR203。
