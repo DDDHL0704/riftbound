@@ -1,5 +1,7 @@
 # 受限传奇符能：当前用途切片与未完范围
 
+本页保留各历史固定输入；原生窗口与德莱厄斯反应资源的最新普通后继见 [2026-10-28支付窗口证据](PENDING_LEGEND_RESOURCES_2026-10-28.md)，旧run40532065592不代替新完整输入L2。
+
 Issue200 独立分支 `codex/payment-restricted-legend-resources-20261027` 基于 main `21b3e43fb7c3f7bb1c50e9957968890dc41b02ea`，不混入 PR203 的 No128/Hwei 或 No078/No124。最新规则代码固定为 `2d3b1918ab2fd01399e58141f95b09883cdaf1b7`；普通合入 main `406d07f9` 的后继 `d7a42c59` 只增加其CI/工具/治理依赖，src/tests/目录及构建入口逐字不变。各早期输入保持原身份，最新PR仍须自己的完整L2。
 
 精确五个 CN 卡面原件在本树 ignored `var/qa/restricted-legend-resources-20261027/source-v1/`：山隐之焰 SFD·189/244 的符能仅用于打出装备或装备技能，虚空之女 OGN·247/299/299* 仅用于打出法术。日期、全来源适用性仍 UNKNOWN。
