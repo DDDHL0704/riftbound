@@ -35092,18 +35092,32 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty with { SpellOnlyPower = 1 }, result.State.RunePools["P1"]);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.True(result.State.CardObjects["P1-LEGEND-KAISA"].IsExhausted);
         var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
         Assert.Equal(1, powerEvent.Payload["power"]);
-        Assert.Equal(1, powerEvent.Payload["powerAfter"]);
+        Assert.Equal(0, powerEvent.Payload["powerAfter"]);
+        Assert.Equal(1, powerEvent.Payload["spellOnlyPowerAfter"]);
+        Assert.Equal("PLAY_SPELL", powerEvent.Payload["powerPurpose"]);
     }
 
     [Fact]
     public async Task P79LegendActKaisaRequiresPendingSpellStackItem()
     {
         var state = LegendPriorityWindowState("OGN·299/298", "P1-LEGEND-KAISA-REPRINT", CardObjectTags.EquipmentCard);
+
+        // Resource production need not match the already-paid stack object.
+        // Preserve that old fixture as a positive bank, then retain the original
+        // InvalidTarget/no-cost assertions against a genuinely foreign source.
+        var allowed = await new CoreRuleEngine().ResolveAsync(state,
+            new("kaisa-nonmatching-stack-resource-control", "P1", CommandTypes.LegendAct),
+            new LegendActCommand("P1-LEGEND-KAISA-REPRINT", LegendActionAbilityCatalog.KaisaLegendAbilityId, [], []), default);
+        Assert.True(allowed.Accepted, allowed.ErrorMessage);
+        Assert.Equal(RunePool.Empty with { SpellOnlyPower = 1 }, allowed.State.RunePools["P1"]);
+        Assert.Equal(state.PriorityPlayerId, allowed.State.PriorityPlayerId);
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["P1-LEGEND-KAISA-REPRINT"] = state.CardObjects["P1-LEGEND-KAISA-REPRINT"] with { CardNo = "SFD·189/221" } } };
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -35137,12 +35151,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty with { EquipmentOnlyPower = 1 }, result.State.RunePools["P1"]);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.True(result.State.CardObjects["P1-LEGEND-ORNN"].IsExhausted);
         var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
         Assert.Equal(1, powerEvent.Payload["power"]);
-        Assert.Equal(1, powerEvent.Payload["powerAfter"]);
+        Assert.Equal(0, powerEvent.Payload["powerAfter"]);
+        Assert.Equal(1, powerEvent.Payload["equipmentOnlyPowerAfter"]);
+        Assert.Equal("EQUIPMENT", powerEvent.Payload["powerPurpose"]);
     }
 
     [Fact]
