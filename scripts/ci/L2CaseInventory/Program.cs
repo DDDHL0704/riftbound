@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Xunit;
@@ -40,4 +41,8 @@ var modules = new[] { "Riftbound.ConformanceTests", "Riftbound.Engine", "Riftbou
             mvid = loaded.ManifestModule.ModuleVersionId,
             informationalVersion = loaded.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion };
     }).ToArray();
-File.WriteAllText(args[2], JsonSerializer.Serialize(new { cases, modules }, new JsonSerializerOptions { WriteIndented = true }) + "\n");
+var runtime = new { processId = Environment.ProcessId, processorCount = Environment.ProcessorCount,
+    platform = OperatingSystem.IsLinux() ? "Linux" : RuntimeInformation.OSDescription,
+    framework = RuntimeInformation.FrameworkDescription, architecture = RuntimeInformation.ProcessArchitecture.ToString(),
+    os = RuntimeInformation.OSDescription, gcAvailableMemoryBytes = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes };
+File.WriteAllText(args[2], JsonSerializer.Serialize(new { cases, modules, runtime }, new JsonSerializerOptions { WriteIndented = true }) + "\n");
