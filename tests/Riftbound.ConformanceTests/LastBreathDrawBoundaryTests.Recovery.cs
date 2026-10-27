@@ -85,12 +85,15 @@ public sealed partial class LastBreathDrawBoundaryTests
     public async Task ConsistentCurrentDrawViewsStillNeedTheOriginalDeathControllerAndBirthTick()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "poppy-standby").Decklist;
-        var main = original.MainDeck.Where(no => no != Unit && no != Kill).ToList();
-        while (main.Count > 34) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
-        main.InsertRange(0, [Unit, Unit, Unit, Kill, Kill, Kill]);
-        var deck = original with { MainDeck = main, RuneDeck = Enumerable.Repeat("UNL-R06", 12).ToArray() };
-        Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
+        // The sentinel is blue and Vengeance yellow; the previous Poppy
+        // template did not admit blue. Retain an actual legal submitted deck.
+        var fillers = new[] { "OGN·087/298", "OGN·103/298", "OGN·116/298", "OGN·210/298", "OGN·216/298", "OGN·217/298",
+            "SFD·065/221", "SFD·069/221", "SFD·085/221", "SFD·155/221", "SFD·159/221" };
+        var main = new[] { Unit, Unit, Unit, Kill, Kill, Kill, "OGN·246/298" }
+            .Concat(fillers.SelectMany(no => Enumerable.Repeat(no, 3))).ToArray();
+        var fields = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "poppy-standby").Decklist.Battlefields;
+        var deck = new OfficialDecklist("OGN·265/298", "OGN·246/298", main, Enumerable.Repeat("UNL-R06", 12).ToArray(), fields);
+        var legality = OfficialDeckValidator.Validate(deck, catalog); Assert.True(legality.IsValid, string.Join("; ", legality.Errors));
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-DRAW-BIRTH", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
         var game = new VenEmpowerCanonicalOpeningTests.CanonicalGame(initial);
         try
@@ -114,9 +117,18 @@ public sealed partial class LastBreathDrawBoundaryTests
         finally { await game.Save("last-breath-draw-original-birth-required"); }
     }
 
-    private static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false)
+    private static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false, bool transferControl = false)
     {
         var initial = Position();
+        if (transferControl)
+        {
+            initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Hand = initial.PlayerZones["P1"].Hand.Where(id => id != "UNIT").ToArray(),
+                    Battlefields = [..initial.PlayerZones["P1"].Battlefields, "UNIT"] } },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "BATTLEFIELD", "BF") } };
+            initial = Add(initial, "CONTROL", "OGN·203/298", "P2", "HAND");
+            for (var i = 0; i < 8; i++) initial = Add(initial, "CONTROL-RUNE-" + i, i < 3 ? "UNL-R05" : "UNL-R06", "P2", "BASE");
+        }
         if (privateDraw)
         {
             initial = Add(Add(Add(initial, "DRAW", "OGN·048/298", "P1", "HAND"), "DRAW-RUNE-A", "UNL-R06", "P1", "BASE"), "DRAW-RUNE-B", "UNL-R06", "P1", "BASE");
@@ -125,13 +137,23 @@ public sealed partial class LastBreathDrawBoundaryTests
                 ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         }
-        var game = new Driver(initial); await Tap(game, "P1");
-        await game.Act("P1", new PlayCardCommand("UNIT", Unit, [])); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+        var game = new Driver(initial);
+        // Reserve the two reaction-draw runes until P2's turn.
+        foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+        if (!transferControl) await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
+        var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
         for (var i = 0; i < 2; i++) {
             await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
             await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
         }
         await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
+        if (transferControl)
+        {
+            for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("CONTROL-RUNE-" + i));
+            await game.Act("P2", new PlayCardCommand("CONTROL", "OGN·203/298", ["UNIT"])); await game.Top();
+            Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);
+            Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
+        }
         await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
         await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
         return (initial, game, generation);

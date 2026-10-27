@@ -98,9 +98,10 @@ public sealed partial class LastBreathDrawBoundaryTests
     private static MatchState Add(MatchState state, string id, string no, string owner, string zone)
         => state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner) },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(owner, zone) },
-            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zone == "BASE"
-                ? state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] }
-                : state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } };
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zone switch {
+                "BASE" => state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] },
+                "MAIN_DECK" => state.PlayerZones[owner] with { MainDeck = [..state.PlayerZones[owner].MainDeck, id] },
+                _ => state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } } };
 
     private static async Task Tap(Driver game, string player)
     { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
