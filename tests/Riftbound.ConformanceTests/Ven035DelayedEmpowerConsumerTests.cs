@@ -169,6 +169,37 @@ public sealed class Ven035DelayedEmpowerConsumerTests
         finally { await game.Save("ven035-canonical-" + actor + "-remove-" + remove); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ActuallyCounteringEitherModeKeepsPaidCostsAndDoesNotChangeTheTargetOrObservedEndState(bool remove)
+    {
+        var initial = Add(Position("P1"), "COUNTER", "OGN·045/298", "P2");
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P2"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Green] = 1 }) } };
+        var game = new Driver(initial);
+        try
+        {
+            var unit = await PrepareTarget(game, "P1", true); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
+            var generation = game.State.CardObjects[unit].ObjectGeneration; var mana = game.State.RunePools["P1"].Mana;
+            await game.Act("P1", new PlayCardCommand("SPELL", No, [unit], Mode: remove ? Remove : Empower));
+            Assert.Equal(mana - 3, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            var spell = Assert.Single(game.State.StackItems); Assert.Equal(No, spell.CardNo);
+            var paid = JsonSerializer.Serialize(game.State.RunePools["P1"], Json);
+            if (game.State.PriorityPlayerId != "P2") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·045/298", [spell.StackItemId]));
+            Assert.Equal(4, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
+            await game.Top(); Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            Assert.Single(game.Events(), e => e.Event.Kind == "STACK_ITEM_COUNTERED" && (string?)e.Event.Payload.GetValueOrDefault("stackItemId") == spell.StackItemId);
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("COUNTER", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(paid, JsonSerializer.Serialize(game.State.RunePools["P1"], Json));
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1");
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actually-countered-mode-remove-" + remove, initial, game); }
+    }
+
     private static MatchState Position(string owner)
     {
         var state = Add(VenUnitEntryBasicTests.Position(UnitNo), "SPELL", No);
