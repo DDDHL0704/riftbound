@@ -86,7 +86,7 @@ public sealed class RestrictedInstructionPowerTests
         finally { await Export(profile, "surrender", initial, game); }
     }
 
-    private static MatchState Position(Profile profile)
+    internal static MatchState Position(Profile profile)
     {
         var state = OfficialHoldSequenceTests.AddLegend(InstructionPowerPaymentTimingTests.Position(), profile.CardNo);
         return state with {
@@ -105,6 +105,17 @@ public sealed class RestrictedInstructionPowerTests
             o => o.Id == $"LEGEND_RESOURCE:LEGEND:{profile.AbilityId}");
         await Decide(game, option.Id);
         Assert.DoesNotContain(game.State.PendingRuleChoice!.Request.Options, o => o.Id == option.Id);
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(game.State));
+        var pool = game.State.RunePools["P1"];
+        var unrestricted = pool with { Power = pool.Power + 1, SpellOnlyPower = 0, EquipmentOnlyPower = 0 };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+            RunePools = new Dictionary<string, RunePool>(game.State.RunePools) { ["P1"] = unrestricted } }));
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+            CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                ["LEGEND"] = game.State.CardObjects["LEGEND"] with { IsExhausted = false } } }));
+        var pending = game.State.PendingRuleChoice;
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+            PendingRuleChoice = pending with { Answers = pending.Answers.Take(pending.Answers.Count - 1).ToArray() } }));
     }
 
     private static Task Decide(Driver game, string choice)
