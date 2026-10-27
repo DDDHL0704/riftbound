@@ -470,6 +470,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "崔法利"),
         new("VEN·057", "秘密线人", 3, "VEN_057_EMPOWERED_MOVE_DRAW_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·128", "诺克萨斯使节", 2, "VEN_128_EMPOWERED_LAST_BREATH_MINION_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
         new("VEN·055", "实干研究员", 4, "VEN_055_EMPOWERED_SPELL_DISCOUNT_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·059", "电能震荡", 3, "VEN_059_EMPOWERED_OBJECT_COST_DAMAGE", 4, 1,
