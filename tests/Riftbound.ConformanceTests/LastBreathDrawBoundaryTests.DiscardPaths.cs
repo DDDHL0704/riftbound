@@ -7,6 +7,55 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class LastBreathDrawBoundaryTests
 {
+    [Fact]
+    public async Task TwoManualDamageSubmissionsKeepAgentChoicesAndTheSurvivorsConquest()
+    {
+        var initial = AtDrawField(AgentPosition(), "ENEMY", "P2");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "VEN·048", "P2"),
+            ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
+        var game = new Driver(initial);
+        try
+        {
+            await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
+            await game.Act("P1", new PlayCardCommand("UNIT", "OGN·178/298", []));
+            for (var i = 0; i < 2; i++)
+            {
+                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
+                await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
+            }
+            await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+            await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", [], ["UNIT", "ALLY"]));
+            await BattleWinnerPhaseBoundaryTests.PassFocus(game);
+            await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT", "ALLY"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
+            Assert.True(game.State.BattleState.IsActive);
+            await game.Act("P1", new AssignCombatDamageCommand(game.State.BattleState.BattleId!, "BF",
+                [new("UNIT", "ENEMY", 5), new("ALLY", "ENEMY", 4)]));
+            Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Equal(0, game.State.CardObjects["UNIT"].Damage); Assert.Empty(game.State.TriggerQueue);
+            await game.Act("P2", new AssignCombatDamageCommand(game.State.BattleState.BattleId!, "BF", [new("ENEMY", "UNIT", 5)]));
+            Assert.Equal(2, game.Commands().Count(c => c.CommandType == CommandTypes.AssignCombatDamage));
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Contains("ALLY", game.State.PlayerZones["P1"].Battlefields);
+            Assert.Equal(3, game.State.TriggerQueue.Count + game.State.StackItems.Count);
+            if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            for (var i = 0; i < 3; i++)
+            {
+                var hand = game.State.PlayerZones["P1"].Hand.ToArray(); var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
+                await game.Top(); var choice = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
+                Assert.Equal(2, choice.RequiredCount); Assert.Equal(2, choice.DrawCount);
+                await game.Act("P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, hand.Take(2).ToArray()));
+                Assert.Equal(hand.Skip(2).Concat(deck.Take(2)), game.State.PlayerZones["P1"].Hand);
+                Assert.Equal(deck.Skip(2), game.State.PlayerZones["P1"].MainDeck);
+            }
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); Assert.Null(game.State.PendingHandChoice);
+            Assert.Null(game.State.PendingBattleResult); Assert.Equal("P1", game.State.CardObjects["BF"].ControllerId);
+            Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
+        }
+        finally { await Save("agent-two-manual-assignments-and-conquest", initial, game); }
+    }
+
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task ActualResourceOrBattleDeathRetainsAllThreePaidAgentSkills(bool battle)
