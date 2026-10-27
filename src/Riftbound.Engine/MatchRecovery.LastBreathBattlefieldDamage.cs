@@ -40,8 +40,13 @@ public static partial class MatchRecoveryValidator
     {
         var item = state?.TriggerQueue.FirstOrDefault(i => i.TriggerId == id && i.LastBreathBattlefieldDamage is not null);
         if (state is null || item?.LastBreathBattlefieldDamage is not { } c) return false;
+        if (!CoreRuleEngine.ValidLastBreathBattlefieldDamageTrigger(state, item))
+        {
+            errors.Add($"{label} captured last-breath battlefield damage metadata does not match authority");
+            return true;
+        }
         var expectedSource = viewer is null ? c.Source.ObjectId : ResolutionResult.VisibleObjectIdForViewer(state, c.Source.ObjectId, viewer);
-        if (!CoreRuleEngine.ValidLastBreathBattlefieldDamageTrigger(state, item) || controller != c.ControllerId
+        if (controller != c.ControllerId
             || source != expectedSource || kind != c.Kind || eventKind != TriggerTimings.UnitDestroyed
             || visibility is not null && visibility != (expectedSource == "HIDDEN" ? "HIDDEN" : "VISIBLE"))
             errors.Add($"{label} captured last-breath battlefield damage metadata does not match authority");
