@@ -5,8 +5,8 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-// CN 356.4.c/f.1 and current SFD official FAQ p20: choose a reduction for
-// the optional additional cost; an unchosen reduction never changes its price.
+// CN356.4.c/f.1 and current SFD official FAQ p20: allocating every passive
+// component reduction is mandatory once the optional fee is declared.
 public sealed class OptionalAdditionalCostReductionTests
 {
     private const string ManaReduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ECHO:MANA";
@@ -50,29 +50,18 @@ public sealed class OptionalAdditionalCostReductionTests
         var engine = new CoreRuleEngine();
         var command = Command("ECHO");
         var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
-        Assert.True(quote.IsValid, quote.Message);
-        Assert.Equal(4, quote.Cost!.Mana);
-        Assert.Equal(mana >= 4, quote.CanPay);
+        // Historical method/rows retained. Current mandatory errata rejects
+        // the missing allocation; explicit POWER-any can still reduce zero.
+        Assert.False(quote.IsValid);
+        Assert.False(quote.CanPay);
 
         var played = await engine.ResolveAsync(initial,
             new("no-implicit-echo-reduction", "P1", CommandTypes.PlayCard), command, default);
-        Assert.Equal(mana >= 4, played.Accepted);
+        Assert.False(played.Accepted);
         Assert.Equal(before, MatchStateHasher.Hash(initial));
-        if (mana < 4)
-        {
-            Assert.Equal(ErrorCodes.InsufficientCost, played.ErrorCode);
-            Assert.Empty(played.Events);
-            Assert.Equal(before, MatchStateHasher.Hash(played.State));
-        }
-        else
-        {
-            Assert.Equal(0, played.State.RunePools["P1"].Mana);
-            Assert.Equal(2, Assert.Single(played.State.StackItems).EffectRepeatCount);
-            var paid = Assert.Single(played.Events, e => e.Kind == "COST_PAID");
-            Assert.Equal(["ECHO"], Assert.IsType<string[]>(paid.Payload["optionalCosts"]));
-            if (paid.Payload.TryGetValue("costReductionChoices", out var choices))
-                Assert.Empty(Assert.IsAssignableFrom<IEnumerable<string>>(choices));
-        }
+        Assert.Equal(ErrorCodes.InvalidTarget, played.ErrorCode);
+        Assert.Empty(played.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(played.State));
     }
 
     [Theory]
@@ -254,7 +243,7 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.Equal("EZREAL", group["sourceObjectId"]);
         Assert.Equal(0L, group["sourceGeneration"]);
         Assert.Equal("ADDITIONAL", group["componentId"]);
-        Assert.Equal(0, group["minSelections"]);
+        Assert.Equal(1, group["minSelections"]);
         Assert.Equal(1, group["maxSelections"]);
         Assert.Equal(["SPEND_MANA:1", "SPEND_POWER:red:1"],
             Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(group["requiresOneOfOptionalCostSelections"])));
@@ -625,7 +614,8 @@ public sealed class OptionalAdditionalCostReductionTests
     {
         var initial = WithDrawCard(Position("SFD·149/221", 30, card, new(30, 30)));
         var engine = new CoreRuleEngine();
-        var full = new PlayCardCommand("CARD", card, [], OptionalCosts: [fee]);
+        var full = new PlayCardCommand("CARD", card, [], OptionalCosts: [fee,
+            "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:" + (mana ? "POWER-any" : "MANA")]);
         var fullQuote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, full));
         Assert.True(fullQuote.CanPay, fullQuote.Message);
         var exactMana = fullQuote.Cost!.Mana - (mana ? 1 : 0);
@@ -704,6 +694,8 @@ public sealed class OptionalAdditionalCostReductionTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["GEAR"] = new("P2", "BASE") } };
         var engine = new CoreRuleEngine();
         var full = new PlayCardCommand("CARD", "SFD·109/221", [], OptionalCosts: ["AKSHAN_STEAL_EQUIPMENT:GEAR"]);
+        full = full with { OptionalCosts = [..full.OptionalCosts!,
+            "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:MANA", "OPTIONAL_COST_REDUCTION:EZREAL-TWO:0:ADDITIONAL:MANA"] };
         var original = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, full));
         Assert.True(original.CanPay, original.Message);
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
@@ -755,7 +747,8 @@ public sealed class OptionalAdditionalCostReductionTests
     {
         var (initial, driver) = await OpenAttachedReduction(exactMana: false);
         var oldGroup = CopiedReductionGroup(driver.State);
-        var oldChoice = Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(oldGroup["choiceIds"]));
+        var oldChoice = Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(oldGroup["choiceIds"]),
+            choice => choice.EndsWith(":MANA", StringComparison.Ordinal));
         var oldOrigin = Assert.IsType<RuleTextInstanceBinding>(oldGroup["ruleTextOrigin"]);
         var originalGeneration = driver.State.CardObjects["GEAR"].ObjectGeneration;
         await driver.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["EZREAL", "GEAR"]));
@@ -767,7 +760,8 @@ public sealed class OptionalAdditionalCostReductionTests
             await driver.Top();
             var newOrigin = Assert.IsType<RuleTextInstanceBinding>(CopiedReductionGroup(driver.State)["ruleTextOrigin"]);
             Assert.True(newOrigin.Revision > oldOrigin.Revision);
-            Assert.NotEqual(oldChoice, Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"])));
+            Assert.NotEqual(oldChoice, Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"]),
+                choice => choice.EndsWith(":MANA", StringComparison.Ordinal)));
         }
         Assert.Equal(originalGeneration, driver.State.CardObjects["GEAR"].ObjectGeneration);
         var roundTrip = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(driver.State))!;
@@ -785,7 +779,8 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.Empty(rejected.Events);
         Assert.Equal(MatchStateHasher.Hash(roundTrip), MatchStateHasher.Hash(rejected.State));
         var currentCosts = new List<string> { "ECHO", ManaReduction };
-        if (reattach) currentCosts.Add(Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"])));
+        if (reattach) currentCosts.Add(Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"]),
+            choice => choice.EndsWith(":MANA", StringComparison.Ordinal)));
         var valid = await driver.Act("P1", Command(currentCosts.ToArray()));
         Assert.Equal(2, Assert.Single(valid.State.StackItems).EffectRepeatCount);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
