@@ -26,7 +26,7 @@ public sealed class RestrictedPowerPlayTests
         await game.Act("P1", new LegendActCommand("LEGEND", ability, [], []));
         var expected = kind == (spellResource ? "spell" : "equipment");
         var command = new PlayCardCommand("CARD", no, kind == "unit" ? [] : ["HOST"],
-            OptionalCosts: explicitSpend ? ["POWER_SPEND:A:1"] : [], Destination: kind == "unit" ? "BASE" : null);
+            OptionalCosts: explicitSpend ? ["POWER_SPEND:A:1"] : [], Destination: kind == "unit" ? "BASE" : "");
         var before = MatchStateHasher.Hash(game.State);
         var eventCount = game.Events().Length;
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
