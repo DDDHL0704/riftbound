@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -31,8 +32,9 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             await game.Top(); await game.ColdCheckpoint();
             Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
             Assert.Contains(spell, game.State.PlayerZones["P1"].Graveyard);
-            var marker = Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal));
-            var context = Assert.IsType<DelayedEmpowerContext>(CoreRuleEngine.ReadDelayedEmpower(marker));
+            const string prefix = "DELAYED_EMPOWER:";
+            var marker = Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith(prefix, StringComparison.Ordinal));
+            var context = Assert.IsType<DelayedEmpowerContext>(JsonSerializer.Deserialize<DelayedEmpowerContext>(Convert.FromBase64String(marker[prefix.Length..])));
             Assert.Equal(new ObjectBinding(unit, game.State.CardObjects[unit].ObjectGeneration), context.Unit);
             Assert.True(context.Unit.Generation > 0 && context.Source.Generation > 0 && context.CreatedAtTick > 1);
             Assert.Equal(game.State.TurnNumber, context.TurnNumber);
@@ -41,7 +43,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
 
             MatchState Replace(DelayedEmpowerContext replacement) => game.State with {
                 UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == marker
-                    ? CoreRuleEngine.DelayedEmpowerMarker(replacement) : e).ToArray() };
+                    ? prefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(replacement)) : e).ToArray() };
             await game.RejectCoordinatedForgery("deleted-delayed-inverse", game.State with {
                 UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(e => e != marker).ToArray() });
             await game.RejectCoordinatedForgery("opposite-delayed-inverse", Replace(context with {
