@@ -35,7 +35,6 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorBeforeVen128Catalog = "6747a80cd62ee7cabe3f64c75d0396ec6a181f75d676ea66984789cb0f3b7e35";
     private const string PriorVen128OnlyCatalog = "3c5eb7a6d83bdbc4731e22161d59b749677875690366013afc8a1b96377cb4b4";
 
-    private const string PriorVen057Catalog = "f11fa20ce78c5ca1c9376870ec0de0da6b5b5a16b8f0fc751c7aaa6af1c28b45";
 
     [Fact]
     public async Task ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
