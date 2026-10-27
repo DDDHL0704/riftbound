@@ -99,7 +99,7 @@ public sealed class EmpoweredMovementTests
             await ActivateHost(game, "P1"); await game.Top();
             Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
             Assert.Equal(empowerOriginal, game.State.CardObjects["COPY-SOURCE"].IsEmpowered);
-            await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:BF", []));
+            await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
             var captured = Assert.Single(Contexts(game)); Assert.True(captured.SourceWasEmpowered);
             Assert.Equal("GEAR", captured.Origin!.Equipment.ObjectId);
             var identity = MatchStateHasher.HashValue(captured);
@@ -135,13 +135,37 @@ public sealed class EmpoweredMovementTests
         Save(game, initial, "forgery-" + forgery);
     }
 
+    [Fact]
+    public async Task AnInternallyCoherentEmpoweredBirthStillNeedsItsOriginalAcceptedHistory()
+    {
+        var initial = CopiedMovementObserverTests.Position(No, 0);
+        var game = new Driver(initial);
+        await game.Act("P2", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F2", []));
+        Assert.False(game.State.CardObjects["HOST"].IsEmpowered); Assert.Empty(Contexts(game));
+        var generation = game.State.CardObjects["HOST"].ObjectGeneration;
+        var context = new MovementObserverContext(No, TriggerKinds.UnitMovedDraw, generation,
+            new("HOST", generation, "P2", "P2", new("P2", "BASE"), new("P2", "BATTLEFIELD", "F2"))) {
+                SourceWasEmpowered = true };
+        // A coordinated hostile checkpoint, not a played disempower action.
+        // Current status alone cannot disprove an already earned skill.
+        var attack = game.State with { TriggerQueue = [new("movement-forged-birth", "P2", "HOST",
+            "CAPTURED_UNIT_MOVEMENT_OBSERVER", "UNIT_MOVED_TO_BATTLEFIELD", TimingStates.NeutralOpen) {
+                MovementObserver = context, SourceCardNo = No, EnqueuedAtTick = game.State.Tick }] };
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(attack));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), attack,
+            new CoreRuleEngine(), default, game.Events());
+        Assert.False(replay.IsMatch);
+        Assert.Empty(Contexts(game));
+        Save(game, initial, "coherent-unearned-birth");
+    }
+
     private static Task ActivateHost(Driver game, string player)
     {
         var row = ResolutionResult.BuildPrompts(game.State)[player].Candidates!.Where(c => c.Action == CommandTypes.ActivateAbility)
             .SelectMany(c => Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(c.Metadata!["sourceRequirements"]))
             .First(r => (string?)r["sourceObjectId"] == "HOST" && (string?)r["abilityId"] == "EMPOWER:0:0");
         return game.Act(player, new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []) {
-            AbilityInstanceId = Assert.IsType<string>(row["abilityInstanceId"]) });
+            AbilityInstanceId = row.GetValueOrDefault("abilityInstanceId") as string });
     }
     private static async Task Order(Driver game, string player)
     {
