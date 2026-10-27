@@ -749,19 +749,19 @@ public static class TriggerParser
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"\{\{绝念>?\}\}\s*[—-]?\s*打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
             RegexOptions.CultureInvariant);
         if (!match.Success)
         {
             return false;
         }
 
-        var tokenCount = ParseChineseNumber(match.Groups[1].Value);
-        var createdTokenPower = ParseChineseNumber(match.Groups[2].Value);
-        var tokenName = match.Groups[3].Value;
-        var tokenKeywords = match.Groups[4].Success
-            && !string.IsNullOrWhiteSpace(match.Groups[4].Value)
-                ? new[] { match.Groups[4].Value }
+        var tokenCount = ParseChineseNumber(match.Groups["count"].Value);
+        var createdTokenPower = ParseChineseNumber(match.Groups["might"].Value);
+        var tokenName = match.Groups["name"].Value;
+        var tokenKeywords = match.Groups["keyword"].Success
+            && !string.IsNullOrWhiteSpace(match.Groups["keyword"].Value)
+                ? new[] { match.Groups["keyword"].Value }
                 : Array.Empty<string>();
         var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords);
         if (string.IsNullOrWhiteSpace(kind))
@@ -779,7 +779,8 @@ public static class TriggerParser
             CreatedTokenName: tokenName,
             CreatedTokenPower: createdTokenPower,
             CreatedTokenDestination: TriggerTokenDestinations.OwnerBase,
-            CreatedTokenKeywords: tokenKeywords);
+            CreatedTokenKeywords: tokenKeywords,
+            RequiresSourceEmpowered: match.Groups["empowered"].Success ? true : null);
         return true;
     }
 

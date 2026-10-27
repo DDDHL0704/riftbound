@@ -1,0 +1,42 @@
+using Riftbound.CardCatalog;
+using Riftbound.Contracts;
+using Xunit;
+
+namespace Riftbound.ConformanceTests;
+
+public sealed class DependentLastBreathParserTests
+{
+    [Theory]
+    [InlineData("{{绝念}}", false)]
+    [InlineData("{{绝念>}}", false)]
+    [InlineData("{{绝念>}} —", false)]
+    [InlineData("{{已强化>}}{{>绝念>}}", true)]
+    [InlineData("{{已强化>}} {{>绝念>}}", true)]
+    [InlineData("{{已强化>}}\t{{>绝念>}} —", true)]
+    public void MinionProductionRetainsLegacyShapesAndCapturesOnlyTheAdjacentDependentCondition(string prefix, bool empowered)
+    {
+        var trigger = Assert.Single(TriggerParser.Parse(prefix + " 打出两名1{{S}}的“随从”到你的基地。"),
+            t => t.Kind == TriggerKinds.UnitLastBreathCreateMinions);
+        Assert.Equal(empowered ? true : (bool?)null, trigger.RequiresSourceEmpowered);
+        Assert.Equal(2, trigger.CreatedTokenCount); Assert.Equal("随从", trigger.CreatedTokenName); Assert.Equal(1, trigger.CreatedTokenPower);
+        Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing); Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
+        Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination); Assert.Empty(trigger.CreatedTokenKeywords!);
+    }
+
+    [Theory]
+    [InlineData("\n")] [InlineData("\r\n")]
+    public void AnIndependentEmpoweredSelfClauseDoesNotGateALaterOrdinaryLastBreath(string newline)
+    {
+        var triggers = TriggerParser.Parse("{{已强化>}} 我获得{{S}}+2。" + newline + "{{绝念>}} 打出两名1{{S}}的“随从”到你的基地。");
+        Assert.Null(Assert.Single(triggers, t => t.Kind == TriggerKinds.UnitLastBreathCreateMinions).RequiresSourceEmpowered);
+    }
+
+    [Theory]
+    [InlineData("{{>绝念>}} 打出两名1{{S}}的“随从”到你的基地。")]
+    [InlineData("{{已强化>}} 我获得{{S}}+2。\n{{>绝念>}} 打出两名1{{S}}的“随从”到你的基地。")]
+    [InlineData("{{已强化>}}{{>绝念>}} 打出两名1{{S}}的“未知指示物”到你的基地。")]
+    public void AnUnboundDependentMarkerOrUnsupportedTokenDoesNotBecomeAnUnconditionalProducer(string text)
+    {
+        Assert.DoesNotContain(TriggerParser.Parse(text), t => t.Kind == TriggerKinds.UnitLastBreathCreateMinions);
+    }
+}
