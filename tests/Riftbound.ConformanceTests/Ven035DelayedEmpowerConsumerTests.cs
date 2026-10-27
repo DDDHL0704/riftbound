@@ -200,6 +200,28 @@ public sealed class Ven035DelayedEmpowerConsumerTests
         finally { await Save("actually-countered-mode-remove-" + remove, initial, game); }
     }
 
+    [Theory]
+    [InlineData("missing-mode")] [InlineData("unknown-mode")]
+    [InlineData("no-target")] [InlineData("two-targets")]
+    [InlineData("rune-target")] [InlineData("no-green")]
+    public async Task GenericModeTargetAndGreenPaymentRejectionsPreserveTheActualPrefixState(string branch)
+    {
+        var initial = Position("P1"); var game = new Driver(initial); ResolutionResult? probe = null;
+        try
+        {
+            var unit = await PrepareTarget(game, "P1", false);
+            if (branch != "no-green") await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
+            var mode = branch == "missing-mode" ? "" : branch == "unknown-mode" ? "FORGED" : Empower;
+            string[] targets = branch switch { "no-target" => [], "two-targets" => [unit, "ALLY"], "rune-target" => ["STATUS-RUNE-2"], _ => [unit] };
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); var before = MatchStateHasher.Hash(game.State);
+            var command = new PlayCardCommand("SPELL", No, targets, Mode: mode);
+            probe = await new CoreRuleEngine().ResolveAsync(game.State, new("invalid-ven035-" + branch, "P1", CommandTypes.PlayCard), command, default);
+            Assert.False(probe.Accepted); Assert.Empty(probe.Events); Assert.Equal(before, MatchStateHasher.Hash(probe.State));
+            await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("generic-rejection-" + branch, initial, game, probe); }
+    }
+
     private static MatchState Position(string owner)
     {
         var state = Add(VenUnitEntryBasicTests.Position(UnitNo), "SPELL", No);
