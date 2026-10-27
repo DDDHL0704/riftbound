@@ -48,8 +48,9 @@ public sealed class Ven159SubmittedBattlefieldConsumerTests
                 Assert.Equal(player == attacker, game.State.CardObjects[walls[player]].IsAttacking); Assert.Equal(player == defender, game.State.CardObjects[walls[player]].IsDefending);
             }
             await game.ColdCheckpoint(); var prefix = game.Events().Length;
+            var generations = walls.Values.Concat(guards.Values).ToDictionary(id => id, id => game.State.CardObjects[id].ObjectGeneration);
             await Arena.FinishBattle(() => game.State, async (p, c) => { await game.Act(p, c); await game.ColdCheckpoint(); }, game.Events, walls, guards);
-            Arena.AssertBattleOutcome(game.State, game.Events().Skip(prefix).ToArray(), field, walls, guards);
+            Arena.AssertBattleOutcome(game.State, game.Events().Skip(prefix).ToArray(), field, walls, guards, generations);
             Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
         }
         finally { await game.Save("ven159-submitted-real-temple-battle-" + defender); }

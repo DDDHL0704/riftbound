@@ -35,10 +35,12 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
             }
             var walls = new Dictionary<string, string> { ["P1"] = Wall("P1"), ["P2"] = Wall("P2") };
             var guards = new Dictionary<string, string> { ["P1"] = Guard("P1"), ["P2"] = Guard("P2") };
+            var generations = walls.Values.Concat(guards.Values).ToDictionary(id => id, id => game.State.CardObjects[id].ObjectGeneration);
+            Assert.All(generations.Values, value => Assert.Equal(1, value));
             var prefix = game.Events().Length;
             await FinishBattle(() => game.State, game.Act, game.Events, walls, guards,
                 (player, command, intent) => Ven001PhysicalThresholdConsumerTests.Reject(game, player, command, intent));
-            AssertBattleOutcome(game.State, game.Events().Skip(prefix).ToArray(), "BF", walls, guards);
+            AssertBattleOutcome(game.State, game.Events().Skip(prefix).ToArray(), "BF", walls, guards, generations);
             Common.AssertTwelveEach(game.State); await game.Replay();
         }
         finally { await Save("actual-two-sides-bulwark-" + defender, initial, game); }
@@ -59,7 +61,16 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
             await Common.CompleteMovementWindow(() => game.State, game.Act);
             await game.Act(player, new EndTurnCommand()); await game.Act(Other(player), new EndTurnCommand());
             Assert.Equal(7, Might(game.State, id)); Assert.False(game.State.CardObjects[id].IsExhausted);
-            await game.Act(player, new MoveUnitCommand(id, "BATTLEFIELD:BF", "BASE", []));
+            var move = Assert.Single(ResolutionResult.BuildPrompts(game.State)[player].Candidates!, c => c.Action == CommandTypes.MoveUnit && c.Enabled);
+            var metadata = JsonSerializer.SerializeToElement(move.Metadata, Json);
+            var requirement = Assert.Single(metadata.GetProperty("sourceRequirements").EnumerateArray(), r =>
+                r.GetProperty("sourceObjectId").GetString() == id && r.GetProperty("mode").GetString() == "BATTLEFIELD_TO_BASE");
+            Assert.Equal("BATTLEFIELD", requirement.GetProperty("origin").GetString());
+            Assert.Contains(requirement.GetProperty("destinationChoices").EnumerateArray(), d => d.GetProperty("id").GetString() == "BASE");
+            // Keep the original malformed precise-origin command as a state-invariant rejection.
+            await Ven001PhysicalThresholdConsumerTests.Reject(game, player, new MoveUnitCommand(id, "BATTLEFIELD:BF", "BASE", []), "ven159-unsupported-precise-return-" + player);
+            Assert.Equal(7, Might(game.State, id)); Assert.Equal(generation, game.State.CardObjects[id].ObjectGeneration);
+            await game.Act(player, new MoveUnitCommand(id, "BATTLEFIELD", "BASE", []));
             Assert.Equal("BASE", game.State.ObjectLocations[id].Zone); Assert.Equal(6, Might(game.State, id));
             Assert.Equal(6, game.State.CardObjects[id].Power); Assert.Equal(generation, game.State.CardObjects[id].ObjectGeneration);
             Assert.Contains(CardCombatKeywordNames.Bulwark, game.State.CardObjects[id].Tags);
@@ -104,7 +115,8 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
         }
         Assert.Equal(new[] { "P1", "P2" }, assigned.Order()); Assert.Contains(events().Skip(prefix), e => e.Event.Kind == "BATTLE_CLOSED");
     }
-    internal static void AssertBattleOutcome(MatchState state, RecoveredEvent[] events, string field, IReadOnlyDictionary<string, string> walls, IReadOnlyDictionary<string, string> guards)
+    internal static void AssertBattleOutcome(MatchState state, RecoveredEvent[] events, string field, IReadOnlyDictionary<string, string> walls, IReadOnlyDictionary<string, string> guards,
+        IReadOnlyDictionary<string, long> generations)
     {
         Assert.Single(events, e => e.Event.Kind == "BATTLE_CLOSED"); Assert.Single(events, e => e.Event.Kind == "BATTLE_NO_RESULT");
         foreach (var player in new[] { "P1", "P2" }) foreach (var id in new[] { walls[player], guards[player] })
@@ -113,7 +125,7 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
             Assert.Equal(wall ? 7 : 6, damage.Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
             Assert.All(damage, e => { Assert.Equal(6, e.Event.Payload["basePower"]); Assert.Equal(wall ? 7 : 6, e.Event.Payload["combatPower"]); Assert.Equal(0, e.Event.Payload["keywordBonus"]); Assert.Equal(wall ? 1 : 0, Convert.ToInt32(e.Event.Payload.GetValueOrDefault("staticPowerBonus", 0))); });
             Assert.Contains(id, state.PlayerZones[player].Graveyard); Assert.Equal("GRAVEYARD", state.ObjectLocations[id].Zone);
-            Assert.Equal(6, state.CardObjects[id].Power); Assert.Equal(2, state.CardObjects[id].ObjectGeneration);
+            Assert.Equal(6, state.CardObjects[id].Power); Assert.Equal(generations[id] + 1, state.CardObjects[id].ObjectGeneration);
             Assert.False(state.CardObjects[id].IsAttacking); Assert.False(state.CardObjects[id].IsDefending);
         }
         Assert.DoesNotContain(state.ContinuousEffects, e => e.SourceObjectId == field);
