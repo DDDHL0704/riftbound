@@ -166,7 +166,7 @@ public sealed class MandatoryRecastOpeningTests
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
         }
-        string WireHash(object value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
+        string WireHash(object? value) => MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(value, Json));
         async Task Act(string player, GameCommand command, bool accepted = true)
         {
             var before = MatchStateHasher.Hash(State());
