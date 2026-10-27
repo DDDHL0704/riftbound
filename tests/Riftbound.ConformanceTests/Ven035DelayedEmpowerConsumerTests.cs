@@ -74,16 +74,17 @@ public sealed class Ven035DelayedEmpowerConsumerTests
     public async Task TheRemovalModeRejectsAnActuallyUnempoweredUnitWithoutSpendingOrChangingState()
     {
         var initial = Position("P1"); var game = new Driver(initial);
+        ResolutionResult? probe = null;
         try
         {
             var unit = await PrepareTarget(game, "P1", false); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
             Assert.False(game.State.CardObjects[unit].IsEmpowered); var before = MatchStateHasher.Hash(game.State);
             var engine = new CoreRuleEngine(); var command = new PlayCardCommand("SPELL", No, [unit], Mode: Remove);
-            var result = await engine.ResolveAsync(game.State, new("remove-unempowered", "P1", CommandTypes.PlayCard), command, default);
+            var result = probe = await engine.ResolveAsync(game.State, new("remove-unempowered", "P1", CommandTypes.PlayCard), command, default);
             Assert.False(result.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode); Assert.Empty(result.Events);
             Assert.Equal(before, MatchStateHasher.Hash(result.State)); await game.Replay(); Restore(game.State);
         }
-        finally { await Save("removal-mode-unempowered-target", initial, game); }
+        finally { await Save("removal-mode-unempowered-target", initial, game, probe); }
     }
 
     [Theory]
@@ -177,11 +178,11 @@ public sealed class Ven035DelayedEmpowerConsumerTests
         PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zone == "BASE" ? state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] }
             : state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } };
     private static void Restore(MatchState state) => Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(OfficialInsightAndSpellLockTests.Restore(state)));
-    private static async Task Save(string label, MatchState initial, Driver game)
+    private static async Task Save(string label, MatchState initial, Driver game, ResolutionResult? directEngineProbe = null)
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN035_EVIDENCE") is not { Length: > 0 } output) return;
         Directory.CreateDirectory(output); await File.WriteAllTextAsync(Path.Combine(output, label + ".json"), JsonSerializer.Serialize(new {
             scope = "Exact CN VEN035 explicit midgame, physical P1 rune costs, real mode/turn/movement/status commands and original replay. Invalid-target probe is separate direct engine resolution. No same-generation status edit. Applicability/final L2/L3/whole-card OPEN",
-            initial, final = game.State, commands = game.Commands(), events = game.Events() }, Json));
+            initial, final = game.State, commands = game.Commands(), events = game.Events(), directEngineProbe }, Json));
     }
 }
