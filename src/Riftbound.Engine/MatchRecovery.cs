@@ -21,6 +21,10 @@ public sealed record RecoveredCommand(
     public TypedCommandInput? TypedCommand { get; init; }
 
     [System.Text.Json.Serialization.JsonRequired]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.Never)]
+    public string? ErrorCode { get; init; }
+
+    [System.Text.Json.Serialization.JsonRequired]
     public RuleInputIdentity? RuleInputs { get; init; } = RuleInputIdentity.Current;
 }
 
@@ -631,6 +635,12 @@ public static class MatchActionLogReplayer
             {
                 errors.Add(
                     $"command {command.ClientIntentId} error message {FormatReplayError(result.ErrorMessage)} but recovered error message {FormatReplayError(command.ErrorMessage)}");
+            }
+
+            if (!string.Equals(result.ErrorCode, command.ErrorCode, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} error code {FormatReplayError(result.ErrorCode)} but recovered error code {FormatReplayError(command.ErrorCode)}");
             }
 
             if (result.State.Tick != command.CompletedTick)
@@ -23217,6 +23227,7 @@ public static partial class MatchRecoveryValidator
 
         // Private checkpoint and decision transcript are validated above. Public
         // snapshots render the deterministic intermediate replacement preview.
+        var paymentPromptState = authoritativeState;
         authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
 
         foreach (var view in playerViews.Values)
@@ -23226,7 +23237,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateResourcePoolViews(view, authoritativeState, errors);
+            ValidateResourcePoolViews(view, authoritativeState, errors, paymentPromptState);
             if (view.Snapshot.Stack is null)
             {
                 errors.Add($"snapshot for {view.PlayerId} requires a stack collection");

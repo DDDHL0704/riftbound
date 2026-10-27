@@ -1,0 +1,12 @@
+# 资源候选容量与不可完成销毁费用的独立移植
+- 基底PR138/62224b07，选f868f4a6，只变普通符文/资源候选与两个已协调DestructionOptions钩子；保留原41/47病例和历史红，不合旧费用长分支。Gold新精确来源沿用SFD-T03/VEN-T02确认，旧UNL-T05运行夹具不新认证或静默映射。
+- 实际共同方法依赖为PR137/b81d85128e696616e9e5d6030e68fa3b02bd2a05与PR140/5fc08130846920df408ec00ad1fbc532d6912d99。只在签名末尾增加可选applied集合并给ALTAR读取回退，保留其群组/绑定/GEAR/ATTACHED_GEAR与执行体；先合者绿后，后者重基保留双方钩子并验证实际共同输入。
+- 新issue143在f868移植生产142314c8加两个测试复现0/2：满wild或typed池仅腕豪可净付1，MALZ必须获2，启动却接受并进入三个完成选项全Unsupported的费用窗口。原始完整选择/每次拒绝和实际模块位于var/qa/payment-prs-20261024/resource-prompt-capacity/old-read-only-heuristic-red-v1/，不称最终余额腐坏。
+- 资源只读预检按已知实际腾挪量判断：腕豪用既有符能最多释放1，回收符文支付净释放0；现有可选替代资源窗口中的海克斯转换最多释放普通+受限法力联合容量。替代选项数量和0转换本身不释放空间，局部强制召回不凭空开启货币资源窗口。
+- 来源/目标校验后服务器也复用同一预检，原状态拒绝已证明无受支持完成路线的启动。保留0转换、刚好可容纳、typed余额以及真实转换1再付腕豪1/转换2再拒付的正控。GEAR及ATTACHED_GEAR可能嵌套的未界定路线保守保留，不改执行协议，不把此边界标成所有嵌套路线认证。
+- Frame/cursor/clock不创建或借用，重复提示保持状态、两视图及既有Frame；原方法/Theory/FullGame保留。固定CN来源及精确API沿旧审计，当前源码/原例/模块/RIF/TRX、父对照和共同输入验证位于var/qa/payment-prs-20261024/resource-prompt-capacity/。
+- 新数值边界是实现表示限制，不是官方资源上限；大余额显式fixture不冒充普通出生。实际新L2规则CI仍需过，真实SQL/网络/重启由夜间固定main，#107/#143与整个后端Goal保持OPEN。
+
+- 当前同步父 #138 `a1c43f3896e5a9f1c9fbde0d00c0258edb9e67cd`，固定实测源 `3bb9dc79ff15ded639e7c8eee0997a06f64f6bc9` 为1617/1617、0skip，原128与父1516身份全部保留。两份满池原始导出均在进入pending窗口前以Unsupported拒绝、0事件、状态逐字段相同；只移除不支持的资源启动，MALZ的合法普通移动仍保留。五实际模块、239/590PDB、退出RuleInputs及运行catalog/scope核源，identity `2d901dd82a06d4178d61809dbfcec2d82964861fa3d2a7a455f8989a6df00451`。
+- 共享销毁替代整文件只保留已协调的末尾applied可选参/ALTAR回退两钩子，逆向恢复当前父逐字相同，旧自有测试增量源码逐字不变。旧137/140临时联合217仅作其独立输入，不重标当前分支；GEAR/ATTACHED_GEAR未知嵌套仍OPEN。64追加入口runtime/122Core原日志冷registry收据单列。
+- 证明 `var/qa/payment-prs-20261024/resource-prompt-capacity/post-parent-source-runtime-proof-v11.json` SHA256 `2dcec13deb5b58854d0de24526835c22073cb73c6cc8dba680ca7520b55a0cad`。发布头仅更新本审计；固定模块版本/MVID/RIF仍归实测源。旧父639源码16PASS27FAIL与局部0/2失败原件保留，未改标新父；原检查器错误地要求MALZ从所有action消失的范围错误另留记录，原始导出/测试断言未改。父链合main后仍需最新实际L2；没有本机full/SQL/网络/重启或整卡/后端完成声明。

@@ -178,7 +178,7 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<DestructionOption> DestructionOptions(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools,
         string target, string player, StackItemState? cause, string? battlefieldId,
-        IReadOnlyDictionary<string, ObjectLocationState> locations, bool declinedOptional, out bool optionalAvailable)
+        IReadOnlyDictionary<string, ObjectLocationState> locations, bool declinedOptional, out bool optionalAvailable, ISet<string>? appliedReplacements = null)
     {
         var unit = cards[target]; var pool = pools.GetValueOrDefault(player, RunePool.Empty);
         var options = new List<DestructionOption>(); optionalAvailable = false;
@@ -217,7 +217,7 @@ public sealed partial class CoreRuleEngine
             && SourceObjectControlledByPlayerOrLegacyOwned(fieldState, fieldController)
             && BattlefieldStaticAbilitySpecRules.TryGetAbility(fieldState.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldDestroyedInBattlePayRecallReplacementAbility, out var ability) && ability.Amount > 0
-            && !RuleChoices.Value!.AppliedDestructionReplacements.Contains(Key("ALTAR", fieldId))) {
+            && !(appliedReplacements ?? RuleChoices.Value!.AppliedDestructionReplacements).Contains(Key("ALTAR", fieldId))) {
             optionalAvailable = true;
             if (pool.Mana >= ability.Amount) Add("ALTAR", fieldId, $"支付 {ability.Amount} 法力，鲜血祭坛休眠召回", true, mana: ability.Amount);
         }

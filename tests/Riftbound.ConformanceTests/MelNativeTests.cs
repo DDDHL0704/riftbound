@@ -90,7 +90,7 @@ public sealed class MelNativeTests
         Assert.Equal(branch=="counter" ? 2 : 1,coldRestores);
         Export("steps.json",steps);Export("replay.json",new {nativeCommands=native,accepted=steps.Count,staleRejected=1,coldSessionRestored=true,coldRestores,dedupAfterColdRestore=true,replay});
     }
-    private static RecoveredCommand[] Commands(Journal j)=>j.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+    private static RecoveredCommand[] Commands(Journal j)=>j.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
     private static RecoveredEvent[] Events(Journal j)=>j.Entries.SelectMany(e=>e.Events.Select((ev,i)=>new RecoveredEvent(e.StartedEventSequence+i+1,e.CompletedTick,i,ev))).ToArray();
     private sealed class Journal:IMatchJournal {public List<MatchJournalEntry> Entries {get;}=[];public ValueTask RecordAsync(MatchJournalEntry e,CancellationToken token) {Entries.Add(e);return ValueTask.CompletedTask;}}
 }

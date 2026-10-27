@@ -138,11 +138,13 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var commands = new List<RecoveredCommand>();
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
+            var payload = reader.GetString(9);
+            var errorCode = ReadCommandErrorCode(payload);
             commands.Add(new RecoveredCommand(
                 reader.GetString(0),
                 reader.GetString(1),
                 reader.GetString(2),
-                ReadRawCommand(reader.GetString(9)),
+                ReadRawCommand(payload),
                 reader.GetInt64(3),
                 reader.GetInt64(4),
                 reader.GetInt64(5),
@@ -150,6 +152,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
                 reader.GetBoolean(7),
                 reader.IsDBNull(8) ? null : reader.GetString(8))
             {
+                ErrorCode = errorCode,
                 TypedCommand = ReadTypedCommand(reader.GetString(9)),
                 RuleInputs = reader.IsDBNull(10) ? null : ReadRuleInputs(reader.GetString(10))
             });
@@ -304,6 +307,17 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         }
 
         return prompts;
+    }
+
+    private static string? ReadCommandErrorCode(string payload)
+    {
+        using var document = JsonDocument.Parse(payload);
+        if (document.RootElement.ValueKind != JsonValueKind.Object
+            || !document.RootElement.TryGetProperty("errorCode", out var code)
+            || code.ValueKind is not (JsonValueKind.Null or JsonValueKind.String))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "recorded command error code is missing or has an invalid JSON type");
+        return code.ValueKind == JsonValueKind.Null ? null : code.GetString();
     }
 
     private static TypedCommandInput? ReadTypedCommand(string payload)

@@ -7,7 +7,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class Ven035DelayedEmpowerConsumerTests
+public sealed partial class Ven035DelayedEmpowerConsumerTests
 {
     private const string No = "VEN·035";
     private const string UnitNo = "VEN·057";
@@ -40,7 +40,8 @@ public sealed class Ven035DelayedEmpowerConsumerTests
         {
             Assert.True(CardBehaviorRegistry.TryGetByCardNoAndMode(No, mode, out var behavior));
             Assert.Equal(3, behavior.ManaCost); Assert.Equal(1, behavior.RequiredTargetCount);
-            Assert.Equal(CardTargetScopes.AnyUnit, behavior.TargetScope); Assert.True(behavior.CanPlayDuringPriority);
+            Assert.Equal(mode == Remove ? CardTargetScopes.AnyEmpoweredUnit : CardTargetScopes.AnyUnit, behavior.TargetScope);
+            Assert.True(behavior.CanPlayDuringPriority);
         }
     }
 

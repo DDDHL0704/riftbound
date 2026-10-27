@@ -4,8 +4,9 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-// These are actual resource-child operation contexts, not authorization to
-// install a whole outer-action preview. Consumers apply only their differences.
+// These are confirmed resource-child operations and completed instruction
+// payments, not authorization to install an outer-action preview. Consumers
+// apply only their differences, including the debit before a later resource gain.
 internal sealed record RuleChoiceResourceStep(string PlayerId, string ChoiceId,
     JsonElement Before, JsonElement After, IReadOnlyList<GameEvent> Events);
 

@@ -2,8 +2,9 @@ namespace Riftbound.Engine;
 
 public static partial class MatchRecoveryValidator
 {
-    private static void ValidateResourcePoolViews(RecoveredPlayerView view, MatchState state, List<string> errors)
+    private static void ValidateResourcePoolViews(RecoveredPlayerView view, MatchState state, List<string> errors, MatchState paymentPromptState)
     {
+        ValidatePaymentResourceCapacityViews(view, paymentPromptState, errors);
         if (view.Snapshot.Players is null) return;
         foreach (var (player, payload) in view.Snapshot.Players)
         {

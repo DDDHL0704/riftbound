@@ -9,7 +9,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         Dictionary<string, ObjectLocationState> locations,
-        StackItemState stackItem,
+        Dictionary<string, RunePool> pools, StackItemState stackItem,
         List<GameEvent> events)
     {
         // Only the chosen unit and battlefield are targets. CN 355.5.a:
@@ -29,7 +29,7 @@ public sealed partial class CoreRuleEngine
                 && ResolveCurrentFieldUnitPower(current, card) < threshold)
             .Select(card => card.ObjectId).OrderBy(id => id, StringComparer.Ordinal).ToArray();
         foreach (var group in affected.GroupBy(id => FindFieldObjectLocation(playerZones, id)!.Value.PlayerId))
-            MoveFieldUnitsToChosenLocation(current, playerZones, cardObjects, locations,
+            MoveFieldUnitsToChosenLocation(current, playerZones, cardObjects, locations, pools,
                 stackItem, group.ToArray(), "BASE:" + group.Key, events);
     }
 }

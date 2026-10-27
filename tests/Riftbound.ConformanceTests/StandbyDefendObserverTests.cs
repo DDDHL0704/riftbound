@@ -219,7 +219,7 @@ public sealed class StandbyDefendObserverTests
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         public RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-            { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+            { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         public RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         public async Task<ResolutionResult> Act(string player, GameCommand command)
         {
@@ -252,7 +252,8 @@ public sealed class StandbyDefendObserverTests
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
             Assert.Empty(errors);
-            session = MatchSession.Restore(new(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator), new CoreRuleEngine(), this);
+            session = MatchSession.Restore(new(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator)
+                { OpeningSeed = initial.Seed }, new CoreRuleEngine(), this);
             var count = entries.Count;
             Assert.True((await session.SubmitAsync(player, name, command, raw, default)).Accepted);
             Assert.Equal(count, entries.Count);
