@@ -114,14 +114,14 @@ public sealed class VenEmpowerCanonicalOpeningTests
         finally { await game.Save("ven072-" + actor); }
     }
 
-    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions)
+    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
         var main = original.MainDeck.ToList();
         for (var i = 0; i < additions.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
         main.InsertRange(0, additions);
-        var deck = original with { MainDeck = main, RuneDeck = Enumerable.Repeat(rune, 12).ToArray() };
+        var deck = original with { MainDeck = main, RuneDeck = runeDeck?.ToArray() ?? Enumerable.Repeat(rune, 12).ToArray() };
         Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
         var initial = MatchReplayInitialStateBuilder.FromSeats("VEN-CANONICAL-" + templateId + "-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
@@ -199,13 +199,16 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Fail("The cards were not naturally drawn before the bounded turn limit.");
         }
 
+        internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+
         private MatchRecoveryFrame Frame(MatchState? authoritativeState = null)
         {
             var state = authoritativeState ?? State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
                 { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
-            var events = entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+            var events = Events();
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
@@ -234,6 +237,46 @@ public sealed class VenEmpowerCanonicalOpeningTests
             await ColdCheckpoint();
         }
 
+        internal async Task RejectCoordinatedForgeryTwiceThenRecover(string label, MatchState forged)
+        {
+            var original = Frame(); var attempted = Frame(forged);
+            Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
+            Assert.Equal(MatchStateHasher.HashValue(original.Commands), MatchStateHasher.HashValue(attempted.Commands));
+            Assert.Equal(MatchStateHasher.HashValue(original.Events), MatchStateHasher.HashValue(attempted.Events));
+            var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(attempted, Json), Json)!;
+            var store = new RepairableStore(decoded); var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, store);
+            var count = entries.Count; var hash = MatchStateHasher.Hash(State); var failures = new List<string>();
+            for (var attempt = 1; attempt <= 2; attempt++) {
+                var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(State.RoomId, default));
+                Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
+                Assert.Contains("match recovery action-log audit failed", failure.Message, StringComparison.Ordinal);
+                Assert.Contains("replayed final state hash", failure.Message, StringComparison.Ordinal);
+                Assert.Equal(attempt, store.Loads); Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(State));
+                failures.Add(failure.Message);
+            }
+            store.Current = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(original, Json), Json)!;
+            Session = await registry.GetOrCreateAsync(State.RoomId, default); Assert.Equal(3, store.Loads);
+            foreach (var viewer in State.Seats.Keys) {
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(Session.SnapshotFor(viewer)));
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(Session.PromptFor(viewer)));
+            }
+            var previous = last!.Value; var duplicate = await Send(previous.Player, previous.Intent, previous.Command, previous.Raw);
+            Assert.True(duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, entries.Count);
+            Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            recoveryRejections.Add(new { label, failures, loadsAfterRepair = store.Loads, structuralErrors = attempted.ValidationErrors,
+                originalStateHash = hash, forgedStateHash = MatchStateHasher.Hash(forged),
+                commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events),
+                rejectedFrame = decoded, repairedFrame = store.Current });
+        }
+
+        private sealed class RepairableStore(MatchRecoveryFrame current) : IMatchRecoveryStore
+        {
+            internal MatchRecoveryFrame Current { get; set; } = current;
+            internal int Loads { get; private set; }
+            public ValueTask<MatchRecoveryFrame?> LoadAsync(string room, CancellationToken token)
+            { Loads++; return ValueTask.FromResult<MatchRecoveryFrame?>(Current); }
+        }
+
         internal async Task ColdCheckpoint()
         {
             var frame = Frame(); Assert.Empty(frame.ValidationErrors);
@@ -257,7 +300,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
         }
 
-        private IEnumerable<string> Hidden(string player) => State.PlayerZones[player].Hand.Concat(State.PlayerZones[player].MainDeck).Concat(State.PlayerZones[player].RuneDeck);
+        private IEnumerable<string> Hidden(string player)
+        {
+            // A suspended instruction projects its completed intermediate moves.
+            // Its original state remains the replay checkpoint, not the visible zones.
+            var zones = (State.PendingRuleChoice?.Request.Preview ?? State).PlayerZones[player];
+            return zones.Hand.Concat(zones.MainDeck).Concat(zones.RuneDeck);
+        }
         internal async Task Save(string label)
         {
             if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN_CANONICAL_EVIDENCE") is not { Length: > 0 } folder) return;

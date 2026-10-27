@@ -231,6 +231,8 @@ public static class TriggerKinds
         "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     public const string UnitLastBreathCallRuneOne =
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
+    public const string UnitLastBreathCallRunesThenDraw =
+        "UNIT_LAST_BREATH_CALL_DORMANT_RUNES_THEN_DRAW";
     public const string UnitLastBreathCreateDormantGold =
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     public const string UnitLastBreathDiscardDraw =
@@ -631,7 +633,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? RequiresSourceBattlefieldAtTrigger = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? RequiredOtherControlledEquipment = null);
+    int? RequiredOtherControlledEquipment = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresSourceEmpowered = null);
 
 public sealed record ReplacementSpec(
     string Kind,

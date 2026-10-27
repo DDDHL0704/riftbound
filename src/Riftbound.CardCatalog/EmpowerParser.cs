@@ -9,9 +9,14 @@ public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alter
 public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords);
 public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
 public sealed record EmpoweredSpellCostReductionSpec(int Mana, int GenericPower, int MinimumMana);
+public sealed record EmpoweredUnitAuraSpec(int Might);
 
 public static class EmpowerParser
 {
+    public static IReadOnlyList<EmpoweredUnitAuraSpec> FriendlyEmpoweredUnitAuras(string text)
+        => Regex.Matches(text, @"(?:^|\n)\{\{已强化>\}\}\s*你的\{\{已强化\}\}单位获得\{\{S\}\}\+(?<might>[0-9]+)(?:（包括我在内）)?。(?:$|\r?\n)")
+            .Select(match => new EmpoweredUnitAuraSpec(int.Parse(match.Groups["might"].Value))).ToArray();
+
     private static readonly Dictionary<string, string> Colors = new() {
         ["红色"] = "red", ["绿色"] = "green", ["蓝色"] = "blue", ["紫色"] = "purple", ["橙色"] = "orange", ["黄色"] = "yellow"
     };

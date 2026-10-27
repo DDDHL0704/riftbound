@@ -1,6 +1,6 @@
 namespace Riftbound.CardCatalog;
 
-// Reviewed CN scope as of 2026-10-14. Keep the acquired snapshot unchanged;
+// Explicitly reviewed CN corrections. Keep the acquired snapshot unchanged;
 // the runtime catalog and its identity use the applicable official wording.
 internal static class ReviewedCardErrata
 {
@@ -19,5 +19,11 @@ internal static class ReviewedCardErrata
             || id == 33347 && cardNo == "SFD·237*/221")
             // Current CN DOC-16-P005-B003, SHA256 1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c.
             ? printedText.Replace("每当你回收任意数量的卡牌时", "每当你将任意数量的卡牌回收到自己的主牌堆时", StringComparison.Ordinal)
+        // CN31291 current official API errata, scoped readback 2026-10-27.
+        // searchCardCraftWeb canonical record SHA256 9e24c68a21f2856661cd54d8cacd0f8ccd8e799576cf89d50cb0357a40c0a5cd.
+        // Publication/effective dates are not supplied by the API; full applicability remains UNKNOWN.
+        : id == 31291 && cardNo == "OGN·077/298"
+            ? "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n"
+                + "如果一名友方单位被摧毁，则改为将此牌摧毁。移除该单位所受伤害，让其进入休眠状态，并将其召回。（把该单位送回基地，此行动不算作移动。）"
             : printedText;
 }

@@ -18,6 +18,9 @@ public sealed partial class CoreRuleEngine
 
     private static DestructionAttribution? StackDestructionAttribution(StackItemState item, string? responsible = null)
     {
+        if (item.LastBreathBattlefieldDamage is { } area)
+            return new(area.Source, area.SourceCardNo, area.ControllerId, item.StackItemId,
+                responsible ?? area.ControllerId, false);
         if (item.DamageDestruction is { } damage)
             return new(damage.Source, damage.CardNo, damage.ControllerId, item.StackItemId,
                 responsible ?? damage.ControllerId, true);
