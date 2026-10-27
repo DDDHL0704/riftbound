@@ -48,10 +48,64 @@ class L2GateTests(unittest.TestCase):
     def verify(self):
         return GATE.verify(self.commit, self.jobs, self.root)
 
+    def write_two_targeted_shards(self):
+        tests = self.root / 'targeted/tests'
+        single = 'Riftbound.ConformanceTests.ExampleTests.SingleAssertion'
+        theory = 'Riftbound.ConformanceTests.ExampleTests.TheoryAssertion'
+        plan = json.loads((tests / 'plan.json').read_text())
+        plan['shards'] = [dict(name='focus-one', methods=[single]),
+                          dict(name='focus-two', methods=[theory])]
+        self.write(tests / 'plan.json', plan)
+        (tests / 'discovery.log').write_text('Tests:\n    ' + single + '\n    ' + theory + '\n')
+        for name, cases in [('focus-one', [single]),
+                            ('focus-two', [theory + '(value: 1)', theory + '(value: 2)'])]:
+            shard = tests / name
+            shard.mkdir()
+            rows = ''.join('<UnitTestResult testName="' + case + '" outcome="Passed" />' for case in cases)
+            (shard / 'results.trx').write_text('<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">'
+                + '<Results>' + rows + '</Results><ResultSummary><Counters total="' + str(len(cases))
+                + '" passed="' + str(len(cases)) + '" failed="0" notExecuted="0" /></ResultSummary></TestRun>')
+        summary = dict(status='PASSED', profile='focus', total=3, shards=[
+            dict(shard='focus-one', total=1, passed=1, failed=0, notExecuted=0, seconds=0.1),
+            dict(shard='focus-two', total=2, passed=2, failed=0, notExecuted=0, seconds=0.2)])
+        self.write(tests / 'summary.json', summary)
+        return summary
+
     def test_both_real_profiles_are_required_but_l3_is_not_claimed(self):
         result = self.verify()
         self.assertEqual('L2_REQUIRED_PASSED', result['status'])
         self.assertEqual(['focus', 'l2'], [r['profile'] for r in result['results']])
+        self.assertFalse(result['l3SqlNetworkRestartOrFullMatrixCertified'])
+
+    def test_single_shard_summary_cannot_inflate_actual_trx_counts(self):
+        self.assertEqual('L2_REQUIRED_PASSED', self.verify()['status'])
+        path = self.root / 'targeted/tests/summary.json'
+        summary = json.loads(path.read_text())
+        summary['shards'][0].update(total=999, passed=999)
+        self.assertEqual(1, summary['total'])
+        self.write(path, summary)
+        with self.assertRaisesRegex(ValueError, 'summary differs'):
+            self.verify()
+
+    def test_swapped_shard_counts_fail_even_when_aggregate_total_matches(self):
+        summary = self.write_two_targeted_shards()
+        self.assertEqual('L2_REQUIRED_PASSED', self.verify()['status'])
+        summary['shards'][0].update(total=2, passed=2)
+        summary['shards'][1].update(total=1, passed=1)
+        self.assertEqual(3, summary['total'])
+        self.assertEqual(summary['total'], sum(shard['total'] for shard in summary['shards']))
+        self.write(self.root / 'targeted/tests/summary.json', summary)
+        with self.assertRaisesRegex(ValueError, 'summary differs'):
+            self.verify()
+
+    def test_matching_multishard_summary_may_use_a_different_order(self):
+        summary = self.write_two_targeted_shards()
+        summary['shards'].reverse()
+        self.write(self.root / 'targeted/tests/summary.json', summary)
+        result = self.verify()
+        self.assertEqual('L2_REQUIRED_PASSED', result['status'])
+        self.assertEqual(2, result['results'][0]['methods'])
+        self.assertEqual(3, result['results'][0]['cases'])
         self.assertFalse(result['l3SqlNetworkRestartOrFullMatrixCertified'])
 
     def test_failed_skipped_cancelled_pending_or_missing_children_never_pass(self):
