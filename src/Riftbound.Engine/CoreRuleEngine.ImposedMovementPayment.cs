@@ -42,7 +42,8 @@ public sealed partial class CoreRuleEngine
             if (canPay && standardMove && !acquired && !multipleAllocations) { Commit(plan); return ImposedMovementPaymentResult.Paid; }
 
             var resources = ReplacementResourceActions(context, player)
-                .Where(r => !standardMove || !r.Ability.ExhaustsSourceAsCost || !movers.Contains(r.Command.SourceObjectId, StringComparer.Ordinal))
+                .Where(r => !standardMove || r.Ability?.ExhaustsSourceAsCost != true
+                    || r.Command is not ActivateAbilityCommand activated || !movers.Contains(activated.SourceObjectId, StringComparer.Ordinal))
                 .ToArray();
             var options = new List<RuleChoiceOption>();
             if (canPay) options.Add(new("PAY", $"支付 {amount} 点符能，执行此次群体移动"));

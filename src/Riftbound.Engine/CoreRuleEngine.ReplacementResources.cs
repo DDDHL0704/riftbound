@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
                 var name = CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var card) ? card.DisplayName
                     : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) ? "金币" : state.CardObjects[id].CardNo;
                 var key = $"RESOURCE:{id}:{ability.AbilityId}:{string.Join(',',costs)}";
-                actions.Add(new(new(key, $"{name}：{label}，之后继续选择支付或放弃", [id]), new(id, ability.AbilityId, [], costs), ability));
+                actions.Add(new(new(key, $"{name}：{label}，之后继续选择支付或放弃", [id]), new ActivateAbilityCommand(id, ability.AbilityId, [], costs), ability));
             }
         }
         return actions;
