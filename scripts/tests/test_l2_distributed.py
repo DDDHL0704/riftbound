@@ -56,28 +56,55 @@ class DistributedL2Tests(unittest.TestCase):
         self.put(self.prepared / 'case-inventory.json', self.inventory)
         self.put(self.prepared / 'source-scope/source-guard-methods.json', self.scope)
         self.put(self.prepared / 'bundle-manifest.json', {name + '.dll': 'a' * 64 for name in D.MODULES})
+        self.probe = self.probe_fixture()
+        self.put(self.prepared / 'row-filter-probe/receipt.json', self.probe)
         (self.prepared / 'discovery.log').write_text(self.text)
-        self.plan.update(commit=self.commit, sdkVersion='10.0.100', runId='123', runAttempt='1', testAssemblySha256='a' * 64,
+        self.plan.update(commit=self.commit, sdkVersion='10.0.403', runId='123', runAttempt='1', testAssemblySha256='a' * 64,
                          bundleManifestSha256=D.digest(self.prepared / 'bundle-manifest.json'),
                          caseInventorySha256=D.digest(self.prepared / 'case-inventory.json'),
                          sourceScopeSha256=D.digest(self.prepared / 'source-scope/source-guard-methods.json'),
+                         rowProbeSha256=D.digest(self.prepared / 'row-filter-probe/receipt.json'),
                          discoverySha256=D.digest(self.prepared / 'discovery.log'))
+        self.materialize()
+        self.jobs = dict.fromkeys(['quality', 'prepare', 'rule_suite', 'targeted'], 'success')
+
+    def probe_fixture(self):
+        calls = {'slice-1': ['Expanded:red', 'Expanded:green', 'Fact:single'],
+                 'slice-2': ['Expanded:blue', 'Expanded:orange'], 'slice-3': ['Expanded:purple', 'Expanded:yellow'],
+                 'escaped-values': ['edge1', 'edge2'], 'case-fold-collision': ['case', 'CASE'],
+                 'case-fold-whole-fallback': ['case', 'CASE'], 'unexpanded-whole-fallback': ['opaque1', 'opaque2'],
+                 'unexpanded-row-refused': []}
+        return dict(status='LINUX_ROW_SELECTION_PROBE_PASSED', commit=self.commit, sdk='10.0.403',
+            platform='Linux', runId='123', runAttempt='1', riftboundGameAssemblyLoaded=False,
+            negativeControlsPassed=True, bodyUnionExact=True,
+            controls=['missing-row', 'repeated-row', 'whole-method-row-overlap', 'ambiguous-row', 'unexpanded-row'],
+            observations=[dict(label=label, actualNames=body, bodyInvocations=body,
+                exitCode=int(label == 'unexpanded-row-refused'), expectedExitCode=int(label == 'unexpanded-row-refused'),
+                trxSha256='c' * 64) for label, body in calls.items()])
+
+    def materialize(self):
         self.put(self.prepared / 'plan.json', self.plan)
         for shard in self.plan['shards']:
             folder = self.inputs / shard['name']
             self.put(folder / 'checkout.json', self.checkout)
-            names = [case for method in shard['methods'] for case in self.plan['cases'][method]]
+            names = D.SELECT.case_names(shard, self.plan['cases'])
             self.trx(folder / 'results.trx', names)
+            D.SELECT.write_settings(folder / 'execution.runsettings', shard)
+            (folder / 'execution-runtime.jsonl').write_text(json.dumps(dict(processId=1)) + '\n')
+            self.put(folder / 'execution-runtime.json', dict(commit=self.commit, sdkVersion='10.0.403',
+                testAssemblySha256='a' * 64, exitCode=0, samples=[dict(processId=1)],
+                samplesSha256=D.digest(folder / 'execution-runtime.jsonl')))
             self.put(folder / 'module-audit.json', dict(cases={}, modules=self.inventory['modules']))
             self.put(folder / 'receipt.json', dict(status='PASSED', exitCode=0, commit=self.commit, shard=shard['name'],
-                sdkVersion='10.0.100', seconds=1, planSha256=D.digest(self.prepared / 'plan.json'),
+                sdkVersion='10.0.403', seconds=1, planSha256=D.digest(self.prepared / 'plan.json'),
                 bundleManifestSha256=self.plan['bundleManifestSha256'], testAssemblySha256='a' * 64,
                 moduleAuditSha256=D.digest(folder / 'module-audit.json'),
+                executionSettingsSha256=D.digest(folder / 'execution.runsettings'),
+                runtimeReceiptSha256=D.digest(folder / 'execution-runtime.json'),
                 trxSha256=D.digest(folder / 'results.trx'), counters=dict(total=len(names), passed=len(names), failed=0, notExecuted=0)))
         self.put(self.target / 'view.json', D.derived_view(self.prepared, self.inputs, self.commit))
         self.put(self.target / 'checkout.json', self.checkout)
         self.put(self.quality / 'checkout.json', self.checkout)
-        self.jobs = dict.fromkeys(['quality', 'prepare', 'rule_suite', 'targeted'], 'success')
 
     def put(self, path, value):
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -227,3 +254,75 @@ class DistributedL2Tests(unittest.TestCase):
         self.put(self.prepared / 'plan.json', self.plan)
         (self.prepared / 'discovery.log').write_text(self.text + '    ' + D.RULES.PREFIX + 'NewTests.Omitted\n')
         with self.assertRaises(ValueError): self.verify()
+
+    def test_safe_heavy_rows_split_but_unexpanded_member_data_stays_whole(self):
+        plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400, self.dynamic: 3000}, 6)
+        for key in ['commit', 'sdkVersion', 'runId', 'runAttempt', 'testAssemblySha256', 'bundleManifestSha256',
+                    'caseInventorySha256', 'sourceScopeSha256', 'rowProbeSha256', 'discoverySha256']:
+            plan[key] = self.plan[key]
+        self.plan = plan
+        self.materialize()
+        result = self.verify()
+        self.assertEqual(1, result['splitMethods'])
+        self.assertEqual(2, result['rowSelectors'])
+        self.assertEqual(len(self.plan['methods']), result['methods'])
+        self.assertEqual(2, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.theory}))
+        self.assertEqual(1, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.dynamic}))
+
+    def test_partial_rows_never_overlap_a_whole_method_or_repeat_in_another_shard(self):
+        plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400}, 6)
+        row_shard = next(s for s in plan['shards'] if any(u['kind'] == 'case' for u in s['selectors']))
+        row = next(u for u in row_shard['selectors'] if u['kind'] == 'case')
+        for extra in [dict(kind='method', method=self.theory), row]:
+            changed = copy.deepcopy(plan)
+            changed['shards'][-1]['selectors'].append(copy.deepcopy(extra))
+            changed['shards'][-1]['methods'] = sorted({u['method'] for u in changed['shards'][-1]['selectors']})
+            with self.subTest(extra=extra), self.assertRaisesRegex(ValueError, 'partition'):
+                D.validate_plan(changed, self.text)
+        changed = copy.deepcopy(plan)
+        shard = next(s for s in changed['shards'] if row in s['selectors'])
+        shard['selectors'].remove(row)
+        shard['methods'] = sorted({u['method'] for u in shard['selectors']})
+        with self.assertRaisesRegex(ValueError, 'partition'): D.validate_plan(changed, self.text)
+
+    def test_ambiguity_unicode_and_runtime_only_rows_conservatively_fall_back(self):
+        m = self.theory
+        for rows, discovery in [([m + '(x: "a")', m + '(x: "A")'], None),
+                                ([m + '(x: "中文")', m + '(x: "other")'], None),
+                                ([m + '(x: 1)', m + '(x: 2)'], [m])]:
+            units = D.SELECT.selectors(discovery or rows, {m: rows}, {m: 3000})
+            self.assertEqual([dict(kind='method', method=m)], units)
+            with self.assertRaisesRegex(ValueError, 'unsafe'):
+                D.SELECT.validate([dict(name='shard-1', methods=[m], selectors=[dict(kind='case', method=m, case=rows[0])])],
+                                  {m: rows}, discovery or rows)
+
+    def test_linux_probe_cannot_be_an_empty_or_wrong_sdk_success_boolean(self):
+        bad = [{**self.probe, 'platform': 'Darwin'}, {**self.probe, 'sdk': '10.0.301'},
+               {**self.probe, 'observations': []}, {**self.probe, 'controls': []},
+               {**self.probe, 'riftboundGameAssemblyLoaded': True}]
+        for change in ['missing-body', 'repeated-body']:
+            value = copy.deepcopy(self.probe)
+            row = value['observations'][0]
+            row['bodyInvocations'] = row['bodyInvocations'][1:] if change == 'missing-body' else [row['bodyInvocations'][0]] * 3
+            bad.append(value)
+        for probe in bad:
+            self.put(self.prepared / 'row-filter-probe/receipt.json', probe)
+            self.put(self.prepared / 'plan.json', {**self.plan, 'rowProbeSha256': D.digest(self.prepared / 'row-filter-probe/receipt.json')})
+            with self.subTest(probe=probe), self.assertRaises(ValueError): D.check_prepared(self.prepared, self.commit)
+
+    def test_execution_filter_and_runtime_context_cannot_be_rebound(self):
+        folder = self.inputs / 'shard-1'
+        settings = folder / 'execution.runsettings'
+        original = settings.read_bytes()
+        settings.write_bytes(original.replace(b'FullyQualifiedName=', b'DisplayName='))
+        receipt = D.read(folder / 'receipt.json')
+        receipt['executionSettingsSha256'] = D.digest(settings)
+        self.put(folder / 'receipt.json', receipt)
+        with self.assertRaisesRegex(ValueError, 'settings'): self.verify()
+        settings.write_bytes(original)
+        receipt['executionSettingsSha256'] = D.digest(settings)
+        runtime_path = folder / 'execution-runtime.json'
+        self.put(runtime_path, {**D.read(runtime_path), 'commit': '2' * 40})
+        receipt['runtimeReceiptSha256'] = D.digest(runtime_path)
+        self.put(folder / 'receipt.json', receipt)
+        with self.assertRaisesRegex(ValueError, 'Runtime resource'): self.verify()

@@ -199,13 +199,16 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Fail("The cards were not naturally drawn before the bounded turn limit.");
         }
 
+        internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) =>
+            new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+
         private MatchRecoveryFrame Frame(MatchState? authoritativeState = null)
         {
             var state = authoritativeState ?? State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
                 { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
-            var events = entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+            var events = Events();
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
@@ -297,7 +300,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
         }
 
-        private IEnumerable<string> Hidden(string player) => State.PlayerZones[player].Hand.Concat(State.PlayerZones[player].MainDeck).Concat(State.PlayerZones[player].RuneDeck);
+        private IEnumerable<string> Hidden(string player)
+        {
+            // A suspended instruction projects its completed intermediate moves.
+            // Its original state remains the replay checkpoint, not the visible zones.
+            var zones = (State.PendingRuleChoice?.Request.Preview ?? State).PlayerZones[player];
+            return zones.Hand.Concat(zones.MainDeck).Concat(zones.RuneDeck);
+        }
         internal async Task Save(string label)
         {
             if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN_CANONICAL_EVIDENCE") is not { Length: > 0 } folder) return;
