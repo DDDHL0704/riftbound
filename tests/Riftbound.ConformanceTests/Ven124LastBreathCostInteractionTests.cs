@@ -90,7 +90,7 @@ public sealed class Ven124LastBreathCostInteractionTests
                 Assert.Equal(hand, game.State.PlayerZones["P1"].Hand); Assert.Equal(deck, game.State.PlayerZones["P1"].MainDeck);
                 Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
                 await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-                if (discardCount > 0 && hand.Length > discardCount)
+                if (discardCount > 0 && hand.Length >= discardCount)
                 {
                     var pending = Assert.IsType<PendingHandChoiceState>(game.State.PendingHandChoice);
                     Assert.Equal("P1", pending.PlayerId); Assert.Equal(discardCount, pending.RequiredCount); Assert.Equal(drawCount, pending.DrawCount);
@@ -113,7 +113,8 @@ public sealed class Ven124LastBreathCostInteractionTests
                 Assert.Equal(hand.Skip(discarded).Concat(deck.Take(drawCount)), game.State.PlayerZones["P1"].Hand);
                 Assert.Equal(deck.Skip(drawCount), game.State.PlayerZones["P1"].MainDeck);
                 var recent = game.Events().Skip(prefix).Select(e => e.Event).ToArray();
-                Assert.Equal(drawCount, recent.Count(e => e.Kind == "CARD_DRAWN")); Assert.Equal(discarded, recent.Count(e => e.Kind == "CARD_DISCARDED"));
+                var drawn = Assert.Single(recent, e => e.Kind == "CARD_DRAWN");
+                Assert.Equal(drawCount, Convert.ToInt32(drawn.Payload["count"])); Assert.Equal(discarded, recent.Count(e => e.Kind == "CARD_DISCARDED"));
                 if (discarded > 0) Assert.True(Array.FindLastIndex(recent, e => e.Kind == "CARD_DISCARDED") < Array.FindIndex(recent, e => e.Kind == "CARD_DRAWN"));
                 if (runeCount > 0)
                 {
@@ -130,7 +131,8 @@ public sealed class Ven124LastBreathCostInteractionTests
             Assert.Empty(game.State.TriggerQueue); Assert.Single(game.State.StackItems); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(5, Might(game.State));
             Assert.Equal(3, game.State.CardObjects["UNIT"].Power); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
-            Assert.Equal((copies + 1) * drawCount, game.Events().Count(e => e.Event.Kind == "CARD_DRAWN"));
+            var draws = game.Events().Where(e => e.Event.Kind == "CARD_DRAWN").ToArray(); Assert.Equal(copies + 1, draws.Length);
+            Assert.Equal((copies + 1) * drawCount, draws.Sum(e => Convert.ToInt32(e.Event.Payload["count"])));
             Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingHandChoice); await game.Replay();
         }
         finally { await Save(victimNo, copies, held, initial, game); }
