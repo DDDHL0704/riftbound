@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -33,6 +34,17 @@ public sealed class Ven089SubmittedDeckConsumerTests
             await game.Act(actor, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [selected]));
             var decision = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice); Assert.Equal("DECK_REFLEXIVE_CREATE", decision.Request.Kind);
             var preview = Assert.IsType<MatchState>(decision.Request.Preview); Assert.Equal("STACK", preview.ObjectLocations[selected].Zone); Assert.False(preview.CardObjects[selected].IsEmpowered);
+            var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            foreach (var viewer in game.State.Seats.Keys)
+            {
+                var snapshot = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(game.State)[viewer], json);
+                var staged = Assert.Single(snapshot.GetProperty("stack").EnumerateArray(), item => item.GetProperty("sourceObjectId").GetString() == selected);
+                Assert.Equal(selectedNo, staged.GetProperty("cardNo").GetString());
+                Assert.Equal(generation + 1, staged.GetProperty("deckPlayPendingCard").GetProperty("card").GetProperty("generation").GetInt32());
+                if (viewer == actor) continue;
+                var visible = snapshot.GetRawText() + JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)[viewer], json);
+                foreach (var hidden in choice.ContextObjectIds.Where(id => id != selected)) Assert.DoesNotContain(hidden, visible, StringComparison.Ordinal);
+            }
             await game.ColdCheckpoint();
             await game.Act(actor, new PayCostCommand(decision.Request.Id, "RULE_REPLACEMENT", [create ? "CREATE" : "DECLINE"]));
             Assert.Contains(parent, game.State.PlayerZones[actor].Graveyard); Assert.Equal(5, game.State.PendingEffectPlay!.ManaReduction);

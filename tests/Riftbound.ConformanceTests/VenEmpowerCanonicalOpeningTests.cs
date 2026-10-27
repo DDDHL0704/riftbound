@@ -297,7 +297,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
         }
 
-        private IEnumerable<string> Hidden(string player) => State.PlayerZones[player].Hand.Concat(State.PlayerZones[player].MainDeck).Concat(State.PlayerZones[player].RuneDeck);
+        private IEnumerable<string> Hidden(string player)
+        {
+            // A suspended instruction projects its completed intermediate moves.
+            // Its original state remains the replay checkpoint, not the visible zones.
+            var zones = (State.PendingRuleChoice?.Request.Preview ?? State).PlayerZones[player];
+            return zones.Hand.Concat(zones.MainDeck).Concat(zones.RuneDeck);
+        }
         internal async Task Save(string label)
         {
             if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN_CANONICAL_EVIDENCE") is not { Length: > 0 } folder) return;
