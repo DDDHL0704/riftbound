@@ -42,7 +42,7 @@ public sealed class RestrictedLegendResourceTimingTests
             {
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(Path.Combine(output, "neutral-" + no.Replace('/', '_') + ".json"), JsonSerializer.Serialize(new {
-                    scope = "Exact five CN source printings; explicit turn5 neutral position, real Core and current prompt/tick Session command. No pending-card prerequisite in the source. Full journal and original failure retained; no ordinary opening or external acceptance.",
+                    scope = "Exact five CN source printings; explicit turn3 neutral position, real Core and current prompt/tick Session command. No pending-card prerequisite in the source. Full journal and original failure retained; no ordinary opening or external acceptance.",
                     initial, core, sessionFailure, driverState = game.State, commands = game.Commands(), events = game.Events()
                 }, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
             }

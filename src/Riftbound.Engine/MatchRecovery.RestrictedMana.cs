@@ -11,15 +11,23 @@ public static partial class MatchRecoveryValidator
             var expected = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
             if (!TryReadObjectValue(payload, "runePool", out var pool))
             {
-                if (expected.SpellOnlyMana != 0) errors.Add($"snapshot for {view.PlayerId} player {player} is missing its restricted resource pool");
+                if (expected.SpellOnlyMana != 0 || expected.SpellOnlyPower != 0 || expected.EquipmentOnlyPower != 0)
+                    errors.Add($"snapshot for {view.PlayerId} player {player} is missing its restricted resource pool");
                 continue;
             }
             var label = $"snapshot for {view.PlayerId} player {player} rune pool";
             if (!TryReadObjectInt(pool, "mana", out var mana) || mana != expected.Mana)
                 errors.Add(label + " ordinary mana does not match authoritative state");
-            var hasRestricted = TryReadObjectInt(pool, "spellOnlyMana", out var restricted);
-            if (hasRestricted ? restricted != expected.SpellOnlyMana : expected.SpellOnlyMana != 0)
-                errors.Add(label + " spell-only mana does not match authoritative state");
+            foreach (var (property, amount, name) in new[] {
+                ("spellOnlyMana", expected.SpellOnlyMana, "spell-only mana"),
+                ("spellOnlyPower", expected.SpellOnlyPower, "spell-only power"),
+                ("equipmentOnlyPower", expected.EquipmentOnlyPower, "equipment-only power") })
+            {
+                var present = TryReadObjectValue(pool, property, out _);
+                var numeric = TryReadObjectInt(pool, property, out var actual);
+                if (present ? !numeric || actual != amount : amount != 0)
+                    errors.Add(label + " " + name + " does not match authoritative state");
+            }
             if (!TryReadObjectInt(pool, "power", out var power) || power != expected.TotalPower)
                 errors.Add(label + " total power does not match authoritative state");
             if (!TryReadObjectInt(pool, "untypedPower", out var untyped) || untyped != expected.Power)

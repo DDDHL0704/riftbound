@@ -80,7 +80,9 @@ public sealed record RunePool
         int mana,
         int power,
         IReadOnlyDictionary<string, int>? powerByTrait = null,
-        int spellOnlyMana = 0)
+        int spellOnlyMana = 0,
+        int spellOnlyPower = 0,
+        int equipmentOnlyPower = 0)
     {
         // Preserve malformed input for recovery validation instead of washing
         // negative or unrepresentable resource amounts into a legal pool.
@@ -88,6 +90,8 @@ public sealed record RunePool
         Power = power;
         PowerByTrait = NormalizePowerByTrait(powerByTrait);
         SpellOnlyMana = spellOnlyMana;
+        SpellOnlyPower = spellOnlyPower;
+        EquipmentOnlyPower = equipmentOnlyPower;
     }
 
     public static RunePool Empty { get; } = new(0, 0);
@@ -102,6 +106,14 @@ public sealed record RunePool
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int Power { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public int SpellOnlyPower { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public int EquipmentOnlyPower { get; init; }
+
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public IReadOnlyDictionary<string, int> PowerByTrait { get; init; }
 
@@ -110,11 +122,19 @@ public sealed record RunePool
         && (long)Power + PowerByTrait.Values.Sum(value => (long)value) is >= 0 and <= int.MaxValue
             ? (int)((long)Power + PowerByTrait.Values.Sum(value => (long)value)) : -1;
 
+    // TotalPower remains ordinary spendable power. A payment purpose selects
+    // eligible restricted power; all stored power shares the representation limit.
+    [JsonIgnore]
+    public int TotalStoredPower => PowerByTrait is not null
+        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower is >= 0 and <= int.MaxValue
+            ? (int)((long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower) : -1;
+
     [JsonIgnore]
     public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && Power >= 0
+        && SpellOnlyPower >= 0 && EquipmentOnlyPower >= 0
         && (long)Mana + SpellOnlyMana <= int.MaxValue
         && PowerByTrait.Values.All(value => value >= 0)
-        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) <= int.MaxValue;
+        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower <= int.MaxValue;
 
     public bool Equals(RunePool? other)
     {
@@ -127,6 +147,8 @@ public sealed record RunePool
             && Mana == other.Mana
             && SpellOnlyMana == other.SpellOnlyMana
             && Power == other.Power
+            && SpellOnlyPower == other.SpellOnlyPower
+            && EquipmentOnlyPower == other.EquipmentOnlyPower
             && PowerByTrait.Count == other.PowerByTrait.Count
             && PowerByTrait.All(entry =>
                 other.PowerByTrait.TryGetValue(entry.Key, out var otherValue)
@@ -139,6 +161,8 @@ public sealed record RunePool
         hash.Add(Mana);
         hash.Add(SpellOnlyMana);
         hash.Add(Power);
+        hash.Add(SpellOnlyPower);
+        hash.Add(EquipmentOnlyPower);
         foreach (var entry in PowerByTrait.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
             hash.Add(entry.Key);
@@ -6288,6 +6312,8 @@ public sealed record ResolutionResult(
         var view = new Dictionary<string, object?> { ["mana"] = pool.Mana, ["power"] = pool.TotalPower,
             ["untypedPower"] = pool.Power, ["powerByTrait"] = pool.PowerByTrait };
         if (pool.SpellOnlyMana != 0) view["spellOnlyMana"] = pool.SpellOnlyMana;
+        if (pool.SpellOnlyPower != 0) view["spellOnlyPower"] = pool.SpellOnlyPower;
+        if (pool.EquipmentOnlyPower != 0) view["equipmentOnlyPower"] = pool.EquipmentOnlyPower;
         return view;
     }
 
