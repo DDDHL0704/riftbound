@@ -252,7 +252,8 @@ public sealed class StandbyDefendObserverTests
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
             Assert.Empty(errors);
-            session = MatchSession.Restore(new(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator), new CoreRuleEngine(), this);
+            session = MatchSession.Restore(new(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator)
+                { OpeningSeed = initial.Seed }, new CoreRuleEngine(), this);
             var count = entries.Count;
             Assert.True((await session.SubmitAsync(player, name, command, raw, default)).Accepted);
             Assert.Equal(count, entries.Count);
