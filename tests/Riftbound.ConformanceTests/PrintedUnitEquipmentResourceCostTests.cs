@@ -98,10 +98,13 @@ public sealed class PrintedUnitEquipmentResourceCostTests
         if (replacement != "none") entries.Add(("REPLACEMENT", replacement == "angel" ? "SFD·051/221" : "OGN·077/298", "P1", "BASE", null));
         if (replacement == "angel") entries.Add(("SETUP-RUNE", "OGN·042/298", "P1", "BASE", null));
         var green = replacement == "angel" ? 1 : 0;
+        var cards = entries.ToDictionary(e => e.Id, e => OfficialGarenConquestBattlefieldCountTests.Printed(e.Id, e.No, e.Player));
+        // This midgame field is already controlled, while a freshly printed battlefield is uncontrolled.
+        if (zone == "BATTLEFIELD") cards["FIELD1"] = cards["FIELD1"] with { ControllerId = "P1" };
         return new("PRINTED-DUAL-COST", 0, 5, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1", phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen, seed: 424242,
-            cardObjects: entries.ToDictionary(e => e.Id, e => OfficialGarenConquestBattlefieldCountTests.Printed(e.Id, e.No, e.Player)),
+            cardObjects: cards,
             objectLocations: entries.ToDictionary(e => e.Id, e => new ObjectLocationState(e.Player, e.Zone, e.Field)),
             playerZones: new Dictionary<string, PlayerZones> {
                 ["P1"] = PlayerZones.Empty with { Base = entries.Where(e => e.Player == "P1" && e.Zone == "BASE").Select(e => e.Id).ToArray(),
