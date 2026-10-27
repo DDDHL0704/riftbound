@@ -12,7 +12,7 @@ public sealed class SelectedRecastFeeIntentTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
 
     [Theory]
-    [InlineData("wire", null)] [InlineData("typed", null)]
+    [InlineData("wire", null)] [InlineData("typed", null)] [InlineData("printed-fee", null)]
     [InlineData("wrong-player", ErrorCodes.PhaseNotAllowed)]
     [InlineData("wrong-source", ErrorCodes.CardNotInHand)]
     [InlineData("wrong-card", ErrorCodes.InvalidTarget)]
@@ -29,7 +29,8 @@ public sealed class SelectedRecastFeeIntentTests
     [InlineData("outside-window", ErrorCodes.PhaseNotAllowed)]
     public async Task RefusalUsesCurrentServerChoicesAndRetainsNativeIngressAndOriginalHistoryGuards(string kind, string? error)
     {
-        var initial = Position(); var game = new Driver(initial); var engine = new CoreRuleEngine(); var journal = new Journal();
+        var unit = kind == "printed-fee" ? "OGN·118/298" : "OGN·010/298";
+        var initial = Position(unit); var game = new Driver(initial); var engine = new CoreRuleEngine(); var journal = new Journal();
         ResolutionResult? core = null, native = null; JsonElement? wire = null;
         var prefixCommands = Array.Empty<RecoveredCommand>(); var prefixEvents = Array.Empty<RecoveredEvent>();
         try
@@ -43,7 +44,7 @@ public sealed class SelectedRecastFeeIntentTests
                 Assert.NotNull(game.State.PendingEffectPlay); Assert.Equal(1, game.State.RunePools["P1"].Mana);
                 Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
             }
-            var command = new RefusePlayPaymentCommand("UNIT", "OGN·010/298", [], OptionalCosts: ["HASTE_READY"]);
+            var command = new RefusePlayPaymentCommand("UNIT", unit, [], OptionalCosts: kind == "printed-fee" ? [] : ["HASTE_READY"]);
             command = kind switch {
                 "wrong-source" => command with { SourceObjectId = "MISSING" },
                 "wrong-card" => command with { CardNo = "OGN·096/298" },
@@ -56,6 +57,15 @@ public sealed class SelectedRecastFeeIntentTests
             var player = kind == "wrong-player" ? "P2" : "P1";
             prefixCommands = game.Commands(); prefixEvents = game.Events();
             var session = MatchSession.Restore(Clone(Frame(game.State, prefixCommands, prefixEvents)), engine, journal);
+            if (error is null)
+                Assert.Contains(session.PromptFor(player).Candidates!, c => c.Action == CommandTypes.RefusePlayPayment && c.Enabled);
+            if (kind == "printed-fee")
+            {
+                var quote = engine.PreviewPlayCard(game.State, player,
+                    new("printed-fee-guard", session.PromptFor(player).PromptId!, game.State.Tick, command.AsPlayCard()));
+                Assert.True(quote.IsValid, quote.Message); Assert.False(quote.CanPay);
+                Assert.Equal(0, quote.Cost!.Mana); Assert.Equal(1, quote.Cost.PowerByTrait[RuneTrait.Blue]);
+            }
             var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
             raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = game.State.Tick;
             switch (kind)
@@ -74,7 +84,7 @@ public sealed class SelectedRecastFeeIntentTests
             wire = kind == "typed" ? null : JsonSerializer.SerializeToElement(raw, Json);
             GameCommand submitted = kind is "typed" or "typed-wire-mismatch" ? command : GameCommandJsonMapper.Map(wire!.Value);
             var before = MatchStateHasher.Hash(game.State); var pool = game.State.RunePools["P1"];
-            var semantic = kind is "wire" or "typed" or "wrong-player" or "wrong-source" or "wrong-card" or "wrong-mode"
+            var semantic = kind is "wire" or "typed" or "printed-fee" or "wrong-player" or "wrong-source" or "wrong-card" or "wrong-mode"
                 or "wrong-target" or "wrong-destination" or "zero" or "false-price" or "unknown-cost" or "outside-window";
             if (semantic) core = await engine.ResolveAsync(game.State, new("fee-guard-core", player, submitted.CmdType), submitted, default);
             const string intent = "selected-fee-guard";
@@ -104,9 +114,14 @@ public sealed class SelectedRecastFeeIntentTests
                 Assert.Equal(MatchStateHasher.Hash(native.State), MatchStateHasher.Hash(duplicate.State)); Assert.Equal(count, journal.Entries.Count);
                 if (error is null)
                 {
-                    var conflicting = command with { OptionalCosts = [] };
+                    var conflicting = kind == "printed-fee" ? command with { SourceObjectId = "MISSING" } : command with { OptionalCosts = [] };
                     JsonElement? conflictWire = null;
-                    if (wire is not null) { var conflict = JsonNode.Parse(wire.Value.GetRawText())!.AsObject(); conflict["optionalCosts"] = new JsonArray(); conflictWire = JsonSerializer.SerializeToElement(conflict, Json); }
+                    if (wire is not null)
+                    {
+                        var conflict = JsonNode.Parse(wire.Value.GetRawText())!.AsObject();
+                        if (kind == "printed-fee") conflict["sourceObjectId"] = "MISSING"; else conflict["optionalCosts"] = new JsonArray();
+                        conflictWire = JsonSerializer.SerializeToElement(conflict, Json);
+                    }
                     var conflictResult = await session.SubmitAsync(player, intent, conflicting, conflictWire, default);
                     Assert.False(conflictResult.Accepted); Assert.Equal(ErrorCodes.ClientIntentConflict, conflictResult.ErrorCode);
                     Assert.Equal(count, journal.Entries.Count); Assert.Empty(conflictResult.Events);
@@ -114,8 +129,13 @@ public sealed class SelectedRecastFeeIntentTests
             }
             var commands = prefixCommands.Concat(Commands()).ToArray(); var events = prefixEvents.Concat(Events()).ToArray();
             var finalFrame = Clone(Frame(native.State, commands, events));
-            var restored = await new InMemoryMatchSessionRegistry(engine, NoopMatchJournal.Instance, new Store(finalFrame))
-                .GetOrCreateAsync(initial.RoomId, default);
+            // A declared midgame component is not a canonical room birth.
+            // Keep the strict production boundary and verify its rejection.
+            var production = new InMemoryMatchSessionRegistry(engine, NoopMatchJournal.Instance, new Store(finalFrame));
+            var birthError = await Assert.ThrowsAsync<MatchSessionException>(async () => await production.GetOrCreateAsync(initial.RoomId, default));
+            Assert.Equal(ErrorCodes.RecoveryInconsistent, birthError.Code);
+            Assert.Contains("initial state", birthError.Message, StringComparison.Ordinal);
+            var restored = MatchSession.Restore(finalFrame, engine, NoopMatchJournal.Instance);
             foreach (var owner in native.State.Seats.Keys)
             {
                 Assert.Equal(WireHash(ResolutionResult.BuildSnapshots(native.State)[owner]), WireHash(restored.SnapshotFor(owner)));
@@ -130,7 +150,7 @@ public sealed class SelectedRecastFeeIntentTests
             {
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(Path.Combine(output, kind + ".json"), JsonSerializer.Serialize(new {
-                    scope = "Explicit turn-five normal-card component, zero initial pools and ten physical runes. Actual native resource/Harrowing prefix. Core/native chosen-fee refusal, independent expected ingress/identity failures, no rejected-request mutation, exact duplicates/conflicts and current-version typed/wire original-history production-registry cold replay. No canonical birth, SQL/SignalR/real restart/full L2/L3 or whole-card claim.",
+                    scope = "Explicit turn-five normal-card component, zero initial pools and ten physical runes. Actual native resource/Harrowing prefix. Core/native chosen-fee refusal, independent expected ingress/identity failures, no rejected-request mutation, exact duplicates/conflicts and current-version typed/wire original-history JSON component restore/replay; strict production registry rejects this noncanonical midgame origin. No canonical birth, SQL/SignalR/real restart/full L2/L3 or whole-card claim.",
                     initial, kind, expectedError = error, wire, core, native, commands = prefixCommands.Concat(Commands()), events = prefixEvents.Concat(Events()) }, Json));
             }
         }
@@ -166,12 +186,12 @@ public sealed class SelectedRecastFeeIntentTests
         Assert.Equal(MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(expected, Json)), MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(play, Json)));
     }
 
-    private static MatchState Position()
+    private static MatchState Position(string unit)
     {
         var cards = new Dictionary<string, CardObjectState>(); var locations = new Dictionary<string, ObjectLocationState>();
         void Put(string id, string no, string zone, string owner = "P1")
         { cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner); locations[id] = new(owner, zone); }
-        Put("PARENT", "OGN·198/298", "HAND"); Put("UNIT", "OGN·010/298", "GRAVEYARD");
+        Put("PARENT", "OGN·198/298", "HAND"); Put("UNIT", unit, "GRAVEYARD");
         Put("PRIVATE", "OGN·013/298", "HAND", "P2");
         foreach (var i in Enumerable.Range(1, 8)) Put("R" + i, "UNL-R05", "BASE");
         Put("RED", "UNL-R01", "BASE"); Put("BLUE", "UNL-R03", "BASE");

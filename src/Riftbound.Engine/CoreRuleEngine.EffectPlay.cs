@@ -184,7 +184,7 @@ public sealed partial class CoreRuleEngine
                       ["reason"] = EffectPlayReason(p) } }).ToArray() };
         // The fee depends on the selected source/mode/optional costs. Reuse the
         // ordinary play composer; the server validates the completed declaration.
-        if (!p.IgnoreAllCosts && own.Candidates!.Single(c => c.Action == CommandTypes.PlayCard) is { Enabled: true, OptionalCosts.Count: > 0 } play)
+        if (!p.IgnoreAllCosts && own.Candidates!.Single(c => c.Action == CommandTypes.PlayCard) is { Enabled: true } play)
         {
             var refuse = play with { Action = CommandTypes.RefusePlayPayment, Label = "拒绝所选打出的资源费用",
                 Reason = "选择来源、模式和额外费用；只有最终法力或符能费用非零时才可拒付。",
