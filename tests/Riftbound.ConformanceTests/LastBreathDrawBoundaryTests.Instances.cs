@@ -57,7 +57,7 @@ public sealed partial class LastBreathDrawBoundaryTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
             }
             await game.Act("P1", new PlayCardCommand("EPHEMERAL", "UNL-165/219", ["UNIT"])); await game.Top();
-            Assert.Contains(CardObjectTags.Ephemeral, game.State.CardObjects["UNIT"].GrantedTags);
+            Assert.Contains(CardObjectTags.Ephemeral, game.State.CardObjects["UNIT"].GrantedTags ?? []);
             Assert.Equal(2, game.State.PlayerZones["P1"].Hand.Count);
             await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
             Assert.Equal(MatchPhases.TurnStart, game.State.Phase); Assert.NotNull(Assert.Single(game.State.StackItems).EphemeralStart);
