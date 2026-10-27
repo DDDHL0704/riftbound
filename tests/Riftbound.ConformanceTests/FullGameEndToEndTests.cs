@@ -21967,6 +21967,9 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
+            // A conquest skill can open a real payment window while remaining
+            // on the stack. Leave that decision to the scenario's payment step.
+            if (result.State.PendingPayment is not null) return result with { Events = events };
             if (result.State.PendingCardChoice is not null) return result;
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
