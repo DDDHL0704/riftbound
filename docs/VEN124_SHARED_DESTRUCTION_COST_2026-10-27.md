@@ -16,6 +16,6 @@ CN37824的精确正常来源见`VEN124_SOURCE_PROFILE_2026-10-27.md`。本次在
 | 1542c30f119301539d96eed1338c4247aa2d4756 | 原实际生成随从支付0P/1F；12命令42事件后指示物已消失，费用收据仍要求活对象，恢复拒绝；原红保持 |
 | a884f5ada75a109bca5ea7c701aaa85dd28bfb0d | 33方法90/90、0skip；原九个消费者、共享费用/收据/原历史安全与来源metadata，随从原红逐名转P |
 
-最新输入核对2750 Git来源、758/758 tracked Conformance实际编译及5实际模块Info/SHA/MVID。90例的新原始导出和逐名比对见本树ignored `var/qa/ven124-friendly-destruction-20261027/exact-consumer-and-token-progress-v8.json`；各阶段TRX/发现/编译/模块原件保持各自目录。298及来源930仍归其原输入，不与90相加或改绑。
+最新输入核对2750 Git来源、758/758 tracked Conformance实际编译及5实际模块Info/SHA/MVID。本轮17份原始命令/事件导出和逐名比对见本树ignored `var/qa/ven124-friendly-destruction-20261027/exact-consumer-and-token-progress-v8.json`。提交牌组两行的专用导出环境未开启，本轮验据为TRX和未改源码的恢复/去重/原历史断言，原红导出保持。各阶段TRX/发现/编译/模块仍归各自目录；298及来源930不与90相加或改绑。
 
 完整分支普通包含④完整ab553及正常来源10ee；④全部原No124消费者文件字节不变，源记录和正常profile也未再改。独立Issue200未混入，当前未新开重复PR或重启在途CI。来源日期/全适用性、当前完整L2、固定main L3及整卡/后端认证仍OPEN；Issue211以当前候选实际验收为准。本说明后继只补文档。
