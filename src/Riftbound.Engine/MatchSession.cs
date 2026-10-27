@@ -10835,7 +10835,8 @@ internal static class ActionPromptBuilder
                 false,
                 "GAIN_MANA",
                 RequiresPlayedAnotherCardThisTurn: true,
-                ManaGainAmount: 1),
+                ManaGainAmount: 1,
+                TimingKind: LegendActionTimingKinds.ResourceAction),
             new(
                 DianaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(DianaLegendAbilityId),

@@ -8128,7 +8128,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainMana,
                 RequiresPlayedAnotherCardThisTurn: true,
-                ManaGainAmount: DariusLegendManaGain),
+                ManaGainAmount: DariusLegendManaGain,
+                TimingKind: LegendAbilityTimingKinds.ResourceAction),
             DianaLegendAbilityId => new LegendAbilityDefinition(
                 DianaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(DianaLegendAbilityId),

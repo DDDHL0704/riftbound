@@ -12,18 +12,22 @@ public sealed partial class CoreRuleEngine
     {
         var actions = new List<ReplacementResourceAction>();
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
-        if (pool.HasSupportedAmounts && pool.TotalStoredPower < int.MaxValue)
+        if (pool.HasSupportedAmounts)
         foreach (var id in state.PlayerZones[player].LegendZone.Order(StringComparer.Ordinal))
-        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId })
+        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId })
         {
             if (!TryGetLegendAbility(abilityId, out var legendAbility)
                 || !IsLegendAbilityTimingAllowed(state, player, legendAbility)
+                || legendAbility.RequiresPlayedAnotherCardThisTurn && !ControllerPlayedAnotherCardThisTurn(state, player)
+                || (long)pool.Mana + pool.SpellOnlyMana + legendAbility.ManaGainAmount > int.MaxValue
+                || (long)pool.TotalStoredPower + legendAbility.PowerGainAmount > int.MaxValue
                 || !state.CardObjects.TryGetValue(id, out var source) || source.ObjectId != id
                 || source.IsFaceDown || source.IsExhausted || !SourceObjectControlledByPlayerOrLegacyOwned(source, player)
                 || !LegendAbilitySourceHasAbility(state, player, source.CardNo, legendAbility)) continue;
             var restriction = abilityId == KaisaLegendAbilityId ? "打出法术" : "打出装备或使用装备技能";
+            var gain = legendAbility.ManaGainAmount > 0 ? "1 点法力" : $"1 点仅可用于{restriction}的符能";
             actions.Add(new(new($"LEGEND_RESOURCE:{id}:{abilityId}",
-                $"横置传奇：获得 1 点仅可用于{restriction}的符能，之后继续选择", [id]),
+                $"横置传奇：获得 {gain}，之后继续选择", [id]),
                 new LegendActCommand(id, abilityId, [], [])));
         }
         foreach (var id in state.PlayerZones[player].Base.Concat(state.PlayerZones[player].Battlefields).Order(StringComparer.Ordinal))
