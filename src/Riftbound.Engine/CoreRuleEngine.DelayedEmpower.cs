@@ -67,8 +67,7 @@ public sealed partial class CoreRuleEngine
             && ValidDelayedEmpower(state, context) && ValidDelayedEmpowerEndWindow(state)
             && item.StackItemId == "ordered-" + context.InstanceId + ":END"
             && item.SourceObjectId == context.Source.ObjectId && item.ControllerId == context.ControllerId && item.CardNo == context.CardNo
-            && item.TargetObjectIds.SequenceEqual([context.Unit.ObjectId])
-            && item.TargetGenerations is { Count: 1 } && item.TargetGenerations.GetValueOrDefault(context.Unit.ObjectId, -1) == context.Unit.Generation;
+            && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null;
 
     internal static bool ValidDelayedEmpowerTrigger(MatchState state, TriggerQueueItemState item)
         => item.DelayedEmpower is { } context && item.EffectKind == DelayedEmpowerEffect
@@ -121,10 +120,10 @@ public sealed partial class CoreRuleEngine
     private static StackItemState DelayedEmpowerStack(TriggerQueueItemState trigger)
     {
         var context = trigger.DelayedEmpower!;
+        // This is an instruction referring to the old object, not a new target
+        // selection. Ordinary target binding must never rebind it on entry.
         return new("ordered-" + trigger.TriggerId, trigger.ControllerId, trigger.SourceObjectId, trigger.EffectKind,
-            context.CardNo, [context.Unit.ObjectId], 0, 0, [], timingContext: trigger.TimingContext) {
-                DelayedEmpower = context,
-                TargetGenerations = new Dictionary<string, long>(StringComparer.Ordinal) { [context.Unit.ObjectId] = context.Unit.Generation } };
+            context.CardNo, [], 0, 0, [], timingContext: trigger.TimingContext) { DelayedEmpower = context };
     }
 
     private static StackResolutionResult ResolveDelayedEmpower(MatchState state, StackItemState item)
