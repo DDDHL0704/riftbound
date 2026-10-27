@@ -16,6 +16,7 @@ public sealed partial class CoreRuleEngine
         private readonly HashSet<string> previousDeaths = frame.CurrentDestructions;
         private readonly int? previousBatch = frame.CurrentDestructionBatch;
         private readonly LastKnownMightFrame? previousMight = frame.CurrentDestructionMightFrame;
+        private readonly LastKnownMightFrame? previousDraw = frame.CurrentDestructionDrawFrame;
         private readonly IReadOnlyDictionary<string, ObjectLocationState>? previousLocations = frame.CurrentDestructionLocations;
         public HashSet<string> Replaced { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, FieldRemovalResult> Outcomes { get; } = new(StringComparer.Ordinal);
@@ -26,6 +27,7 @@ public sealed partial class CoreRuleEngine
             frame.CurrentDestructions = previousDeaths;
             frame.CurrentDestructionBatch = previousBatch;
             frame.CurrentDestructionMightFrame = previousMight;
+            frame.CurrentDestructionDrawFrame = previousDraw;
             frame.CurrentDestructionLocations = previousLocations;
         }
     }
@@ -51,6 +53,7 @@ public sealed partial class CoreRuleEngine
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
+        frame.CurrentDestructionDrawFrame = null;
         frame.CurrentDestructionLocations = locations ?? state.ObjectLocations;
         frame.CurrentDestructionMightFrame = remaining.Any(id => cards.TryGetValue(id, out var unit)
             && AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.TryGetTrigger(i.CardNo,
@@ -119,6 +122,10 @@ public sealed partial class CoreRuleEngine
                         option.Kind == "BANISH", option.Kind != "BANISH", unitBefore.Tags.Contains(CardObjectTags.EquipmentCard), unitBefore.Tags.Contains(CardObjectTags.UnitCard), []);
                 }
             }
+            frame.CurrentDestructionDrawFrame = remaining.Any(id => cards.TryGetValue(id, out var unit)
+                && AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.SelfDrawTriggers(i.CardNo).Count > 0
+                    || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0))
+                ? CapturePublicMightFrame(state, zones, cards, locations) : null;
             return scope;
         } catch { scope.Dispose(); throw; }
     }
@@ -173,6 +180,25 @@ public sealed partial class CoreRuleEngine
             && locations.TryGetValue(target, out var x) && locations.TryGetValue(source, out var y)
             && x.Zone == MoveUnitBattlefieldZone && y.Zone == MoveUnitBattlefieldZone
             && !string.IsNullOrWhiteSpace(x.BattlefieldObjectId) && x.BattlefieldObjectId == y.BattlefieldObjectId;
+    }
+
+    private static string? ResolveDestroyedSourceBattlefieldObjectId(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations,
+        string sourceObjectId,
+        string? fallbackBattlefieldObjectId = null)
+    {
+        if (objectLocations is not null
+            && objectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+            && !string.Equals(location.BattlefieldObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return location.BattlefieldObjectId;
+        }
+
+        return string.IsNullOrWhiteSpace(fallbackBattlefieldObjectId)
+            ? null
+            : fallbackBattlefieldObjectId;
     }
 
     private static IReadOnlyList<DestructionOption> DestructionOptions(MatchState state,

@@ -19,11 +19,13 @@ public sealed class Ven070ResourceEmpowerConsumerTests
     [Fact]
     public async Task TheExactNewPrintingAddsOneCatalogGroupWithoutChangingAnyExistingGroupOrMember()
     {
-        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        var priorCards = catalog.Cards.Where(card => card.CardNo != No).ToArray();
-        Assert.Equal(1081, priorCards.Length); Assert.Equal(1082, catalog.Cards.Count);
-        var priorUnits = FunctionalUnitBuilder.Build(priorCards); var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        Assert.Equal(862, priorUnits.Count); Assert.Equal(863, units.Count);
+        var latestCatalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var catalog = latestCatalog with { Total = 1088, Cards = latestCatalog.Cards.Where(c => c.CardNo != "VEN·124").ToArray() };
+        var controlCards = catalog.Cards.Where(c => c.CardNo is not ("VEN·128" or "VEN·078")).ToArray();
+        var priorCards = controlCards.Where(card => card.CardNo != No).ToArray();
+        Assert.Equal(1085, priorCards.Length); Assert.Equal(1086, controlCards.Length);
+        var priorUnits = FunctionalUnitBuilder.Build(priorCards); var units = FunctionalUnitBuilder.Build(controlCards);
+        Assert.Equal(866, priorUnits.Count); Assert.Equal(867, units.Count);
         foreach (var prior in priorUnits)
         {
             var current = Assert.Single(units, unit => unit.Id == prior.Id);
@@ -31,6 +33,18 @@ public sealed class Ven070ResourceEmpowerConsumerTests
         }
         var added = Assert.Single(units, unit => unit.Cards.Any(card => card.CardNo == No));
         Assert.Equal(No, Assert.Single(added.Cards).CardNo);
+        var cumulativePriorCards = catalog.Cards.Where(c => c.CardNo != No).ToArray();
+        Assert.Equal(1087, cumulativePriorCards.Length); Assert.Equal(1088, catalog.Cards.Count);
+        var cumulativePrior = FunctionalUnitBuilder.Build(cumulativePriorCards); var cumulative = FunctionalUnitBuilder.Build(catalog.Cards);
+        Assert.Equal(868, cumulativePrior.Count); Assert.Equal(869, cumulative.Count);
+        foreach (var unit in cumulativePrior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
+        foreach (var unit in units) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
+        Assert.Equal(1089, latestCatalog.Cards.Count);
+        var latestUnits = FunctionalUnitBuilder.Build(latestCatalog.Cards);
+        Assert.Equal(870, latestUnits.Count);
+        foreach (var unit in FunctionalUnitBuilder.Build(catalog.Cards))
+            Assert.Equal(System.Text.Json.JsonSerializer.Serialize(unit), System.Text.Json.JsonSerializer.Serialize(Assert.Single(latestUnits, c => c.Id == unit.Id)));
+        Assert.Equal("VEN·124", Assert.Single(Assert.Single(latestUnits, c => c.Cards.Any(card => card.CardNo == "VEN·124")).Cards).CardNo);
     }
 
     [Fact]

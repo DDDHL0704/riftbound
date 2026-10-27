@@ -312,6 +312,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
     public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
@@ -464,6 +465,22 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark),
         new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
+        new("VEN·110", "梅尔", 5, "VEN_110_EMPOWERED_BANISH_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·130", "奥洛克将军", 5, "VEN_130_EMPOWERED_UNIT_AURA_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "崔法利"),
+        new("VEN·057", "秘密线人", 3, "VEN_057_EMPOWERED_MOVE_DRAW_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·035", "念化盈虚", 3, "TEMPORARY_EMPOWER_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, Mode: "EMPOWER_THEN_REMOVE"),
+        new("VEN·035", "念化盈虚", 3, "TEMPORARY_REMOVE_EMPOWER_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.AnyEmpoweredUnit, Mode: "REMOVE_THEN_EMPOWER"),
+        new("VEN·128", "诺克萨斯使节", 2, "VEN_128_EMPOWERED_LAST_BREATH_MINION_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
+        new("VEN·078", "枯爪巴凯", 4, "VEN_078_EMPOWERED_LAST_BREATH_RUNE_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·124", "脱逃的灰背", 3, "VEN_124_EMPOWERED_SELF_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·055", "实干研究员", 4, "VEN_055_EMPOWERED_SPELL_DISCOUNT_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·059", "电能震荡", 3, "VEN_059_EMPOWERED_OBJECT_COST_DAMAGE", 4, 1,

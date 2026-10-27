@@ -1,0 +1,13 @@
+# VEN035 historical reference and restricted counters
+
+This consumer increment ordinarily includes the complete published No35 dependency `b794f57db0325292fc0d159f20262b4579d8eda7`. It changes no production/data/CI path or original consumer method. The prior49,4,367 and7 results retain their respective fixed inputs; they are not relabeled here.
+
+The source reasoning uses personally viewed official core pages46 and56:355.10.d/d.1 excludes objects fixed automatically without a choice, and359.3.f.3.a captures delayed references at creation. Together with the exact No35 text, these support treating its inverse's fixed unit as a historical reference, not a new target. This is an inference from general rules, not a card-specific FAQ. The inverse is an ability; its creating source being a spell does not make the inverse a spell.
+
+The freshly fetched and viewed CN33121 / SFD·045/221 极速反制 requires an enemy spell or ability to target a friendly unit/equipment. Its canonical API record SHA256 is `3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1`. The previously viewed OGN045 support only counters spells. Publication/effective dates and full source applicability remain UNKNOWN.
+
+Two actual Session paths first play/native-empower a P2 unit, pay No35's3 mana/one green from P1 physical runes and earn its inverse. At the real end window, P2 taps/recycles physical runes to hold2 mana/one green, then attempts either counter using the current prompt/tick. Both return INVALID_TARGET with unchanged state/views and no events; the counter stays in hand. One subsequent pass resolves the original inverse. Two more ordinary turn endings leave the unit unempowered, with exactly one removal event.
+
+Fixed `4657bfddb1bf8ce34a74f51cd01669b213677dd1` first ran2 failures: both counter refusals and the original inverse had already succeeded, but the new test incorrectly used a fresh two-pass helper after P1 had passed. Fixed `8af7e01fc103a69885a7efdd7ce98903a073dbb7` only corrects that new continuation; the same2 rows pass,0 skipped. Each retains27 commands (26 accepted/one rejected),92 events and generation continuity through turn9. Five actual loaded module Info/SHA/MVID records,2712 measured inputs,725 tracked/737 actual compile inputs and six unchanged excluded drafts were verified. Original failures and source/rule readbacks remain under ignored `var/qa/cards-ven035-delayed-empower-20261027/`.
+
+This is a bounded additional card-consumer result. It is not whole-card certification or a new complete L2/main/L3 result. PR199's fixed input and PR198's separate source correction remain unchanged; no new feature PR is created for these two rows.

@@ -40956,15 +40956,25 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["effectKind"] as string, "SAD_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
         Assert.Equal(sourceObjectId, triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.DoesNotContain(p2Pass.Events, e => e.Kind is "TRIGGER_RESOLVED" or "CARD_DRAWN");
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.NotNull(Assert.Single(p2Pass.State.StackItems).LastBreathDraw);
+        var drawResponse = await engine.ResolveAsync(p2Pass.State,
+            new PlayerIntent($"intent-p7-9-sad-poro-{sourceObjectId}-draw-response-1", p2Pass.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(drawResponse.Accepted, drawResponse.ErrorMessage);
+        Assert.DoesNotContain(drawResponse.Events, e => e.Kind is "TRIGGER_RESOLVED" or "CARD_DRAWN");
+        var drawResolved = await engine.ResolveAsync(drawResponse.State,
+            new PlayerIntent($"intent-p7-9-sad-poro-{sourceObjectId}-draw-response-2", drawResponse.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(drawResolved.Accepted, drawResolved.ErrorMessage);
+        Assert.Contains(drawResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "SAD_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
-        var drawnEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var drawnEvent = Assert.Single(drawResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal("P1", drawnEvent.Payload["playerId"]);
         Assert.Equal(1, drawnEvent.Payload["count"]);
-        Assert.Equal(["P1-SAD-PORO-DRAW"], p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P1-SAD-PORO-DRAW"], drawResolved.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], drawResolved.State.PlayerZones["P1"].Graveyard);
     }
 
     [Fact]
@@ -41610,19 +41620,29 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-LOYAL-PORO", triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        var triggerResolved = Assert.Single(p2Pass.Events, gameEvent =>
+        Assert.DoesNotContain(p2Pass.Events, e => e.Kind is "TRIGGER_RESOLVED" or "CARD_DRAWN");
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.NotNull(Assert.Single(p2Pass.State.StackItems).LastBreathDraw);
+        var drawResponse = await engine.ResolveAsync(p2Pass.State,
+            new PlayerIntent("intent-p7-9-loyal-poro-draw-response-1", p2Pass.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(drawResponse.Accepted, drawResponse.ErrorMessage);
+        Assert.DoesNotContain(drawResponse.Events, e => e.Kind is "TRIGGER_RESOLVED" or "CARD_DRAWN");
+        var drawResolved = await engine.ResolveAsync(drawResponse.State,
+            new PlayerIntent("intent-p7-9-loyal-poro-draw-response-2", drawResponse.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(drawResolved.Accepted, drawResolved.ErrorMessage);
+        var triggerResolved = Assert.Single(drawResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "LOYAL_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
         Assert.Equal("P1-LOYAL-PORO", triggerResolved.Payload["sourceObjectId"]);
 
-        var drawnEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var drawnEvent = Assert.Single(drawResolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal("P1", drawnEvent.Payload["playerId"]);
         Assert.Equal(1, drawnEvent.Payload["count"]);
-        Assert.Equal(["P1-LOYAL-PORO-ALLY"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-LOYAL-PORO-DRAW"], p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-LOYAL-PORO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-LOYAL-PORO", "GRAVEYARD");
+        Assert.Equal(["P1-LOYAL-PORO-ALLY"], drawResolved.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-LOYAL-PORO-DRAW"], drawResolved.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-LOYAL-PORO", "P1-SPELL-VENGEANCE"], drawResolved.State.PlayerZones["P1"].Graveyard);
+        CardZoneTestAssertions.RetainedOutsidePlay(drawResolved.State, "P1-LOYAL-PORO", "GRAVEYARD");
     }
 
     [Fact]

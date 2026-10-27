@@ -25,8 +25,18 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CaptureDeathTriggerSources(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var triggers = result.State.TriggerQueue.Select(trigger => CaptureDeathTriggerSource(
-            trigger, before.CardObjects, result.State.CardObjects)).ToArray();
+        var prior = before.TriggerQueue.Select(t => t.TriggerId).ToHashSet(StringComparer.Ordinal);
+        var timing = before.StackItems.LastOrDefault()?.TimingContext;
+        if (timing is not (TimingStates.SpellDuelOpen or TimingStates.NeutralClosed))
+            timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
+        var triggers = result.State.TriggerQueue.Select(trigger => {
+            var captured = CaptureDeathTriggerSource(trigger, before.CardObjects, result.State.CardObjects);
+            // Post-resolution death collectors run after the old stack-local
+            // inheritance pass. Preserve the same chain for their new skills.
+            return !prior.Contains(captured.TriggerId) && captured.TriggeredByEventKind == TriggerTimings.UnitDestroyed
+                && IsImmediateTrigger(captured) && string.IsNullOrWhiteSpace(captured.TimingContext) && timing is not null
+                    ? captured with { TimingContext = timing } : captured;
+        }).ToArray();
         return result with { State = result.State with { TriggerQueue = triggers } };
     }
 

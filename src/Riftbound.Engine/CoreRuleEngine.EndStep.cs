@@ -46,6 +46,7 @@ public sealed partial class CoreRuleEngine
             result.Add(new("delayed-end-" + state.Tick + "-" + result.Count, context.Source.ControllerId!, context.Source.ObjectId,
                 EndAbilityEffect, "TURN_END_STEP_STARTED", TimingStates.NeutralClosed) { EndAbility = context });
         }
+        result.AddRange(CaptureDelayedEmpowerEndAbilities(state));
         return result.ToArray();
     }
 
@@ -60,7 +61,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { Tick = state.Tick + 1, Phase = MatchPhases.TurnEnd,
             EndStep = new(intent.PlayerId, state.TurnNumber), TimingState = TimingStates.NeutralClosed,
             TriggerQueue = state.TriggerQueue.Concat(triggers).ToArray(), PriorityPlayerId = null, PassedPriorityPlayerIds = [],
-            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(s => !s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal)).ToArray() };
+            UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Where(s => !s.StartsWith(DelayedEndReadyPrefix, StringComparison.Ordinal) && !s.StartsWith(DelayedEmpowerPrefix, StringComparison.Ordinal)).ToArray() };
         return new(true, null, next, [new("TURN_END_STEP_STARTED", "开始结束步骤，先处理触发和待确认出牌", new Dictionary<string,object?> {
             ["playerId"] = intent.PlayerId, ["turnNumber"] = state.TurnNumber })], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }

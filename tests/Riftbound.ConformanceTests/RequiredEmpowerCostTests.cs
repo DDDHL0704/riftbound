@@ -15,8 +15,11 @@ public sealed class RequiredEmpowerCostTests
         var cost = Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张手牌")).Alternatives);
         Assert.False(cost.SupportedResources); Assert.Equal("弃置一张手牌", cost.AdditionalCost);
         Assert.True(Supported(cost)); Assert.Equal(0, cost.Mana); Assert.Equal(0, cost.Power); Assert.Empty(cost.TypedPower);
-        foreach (var text in new[] { "{{强化}}", "{{强化}} — 弃置两张手牌", "{{强化}} — 摧毁一名友方单位" })
+        foreach (var text in new[] { "{{强化}}", "{{强化}} — 弃置两张手牌", "{{强化}} — 摧毁两名友方单位" })
             Assert.False(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse(text)).Alternatives)));
+        var destruction = Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 摧毁一名友方单位")).Alternatives);
+        Assert.False(destruction.SupportedResources); Assert.Equal("摧毁一名友方单位", destruction.AdditionalCost);
+        Assert.True(Supported(destruction));
         Assert.True(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化}} — 弃置一张法术牌")).Alternatives)));
         Assert.True(Supported(Assert.Single(Assert.Single(EmpowerParser.Parse("{{强化2红色}}")).Alternatives)));
     }

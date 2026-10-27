@@ -1,0 +1,32 @@
+# Captured battlefield-damage LastBreath — 2026-10-27
+
+Kogmaw (OGN·190/298) earned only one native area skill after two independently paid Song copies, attributed subsequent deaths to its departed incarnation, and earned no skill when genuinely destroyed at base. Capture each effective text instance after destruction replacements with its controller, source generation and previous battlefield. Every earned skill receives its own response window. A legitimate base death earns a responding skill whose impossible battlefield instruction completes without damage; a legacy malformed battlefield location remains a separate rejected boundary. Face-down standby printings are excluded from the common battlefield-unit damage selector.
+
+This is an ordinary complete successor of #213 `54a6a5f095b1200ac302d0c0bac3b2934d57f6b6`, including #210/#208 and No078. Main `406d07f917e723ee6f2db0e16c6e9e06d2ccad6b` was ordinarily received at `da0c30e9a2787a4e7e24e6d609379819fe2ae269`; its unified CI/source-scope tooling is unchanged from its owners. No CI/performance or cumulative registry/count guards were authored here.
+
+| Fixed input | Actual result | Scope |
+|---|---|---|
+| `42a1c1d6b211f3751e3b475d708ce151f873da4a` | 0P/4F/0skip | Two genuine reds: copies expect3/actual1 and source generation1/actual2. Two base rows stop at an unclosed-focus fixture error |
+| `c1f14f40734447bea3ed55cc2e7f961c8e0f003d` | 0P/2F/0skip | Corrected real base deaths expect1/3 skills, actual0/0 |
+| `3d17029299e6864dd7476e0597782c5c9debb1fe` | 0P/1F/0skip | Standby fixture omitted its explicit payment selector; no area verdict |
+| `08c521423e9803c7901758921995e7fba597d9ef` | 0P/1F/0skip | Real paid face-down UNL-003 incorrectly takes4 area damage |
+| `401ab987a80d0b5a14d987106d1dc88c8e1a5f7a` | Compile failure; no TRX | Removed lookup still used by destruction replacement |
+| `9475c7421a03389452dc1287ef1ce03d3799a99b` | 9P/0F/0skip | Five new physical-payment rows and four original native/cleanup/hidden-source/missing-location methods |
+| `1247adea573e284ccfd4ebdfc8616706a3fc0601` | Compile failure; no TRX | New fixture used a nonexistent battlefield tag |
+| `a5c30d8abce54c654a4cc9d13c0628b3c154599d` | 0P/2F/0skip | Canonical deck wrongly admits red; actual transferred/equipped host is rejected by standard movement |
+| `1fd2674ef61d9faf5b0c83d8984a29327578698d` | 0P/1F/0skip | Legal decks, but uncontrolled battlefield is an invalid native play destination |
+| `b97198f0ef8288caad50b81895be1b8efbbc9aca` | 1P/0F/0skip | Corrected canonical base play, natural readiness, movement/conquest, paid Ray death and original-history cold recovery |
+| `99b39e72b3cf19c47a67c372d71977d87b4f3be1` | 0P/1F/0skip | New safety red: malformed null source throws during metadata validation |
+| `041dd028365f66af961e3bc3844df1b2bfdd44d8` | 1P/0F/0skip | Only extended two-copy battlefield row: malformed, stripped and duplicate births/public receipt injection all reject safely |
+
+Results are not summed or rebound to later heads. After the nine-pass input, production changes only in the metadata helper: validate the birth before reading its source. The canonical and other unchanged positives were not repeated locally. The original failures, method identities and assertions remain. Direct spell damage and cleanup still stabilize actual lethal victims; base and other-battlefield objects remain unaffected. Attribution retains the old source generation and death controller and identifies the effect as a unit skill.
+
+Birth receipts are authority-only. Source/card/spec/instance/position/controller/generation/tick and copied-origin bindings remain strict, including missing new-era receipts. Canonical recovery uses separately legal green/purple Yasuo and red/blue Kai'Sa decks, actual submit/ready/mulligan and natural draws/channeling. After the actual pending skill, structurally consistent battlefield, controller and tick forgeries fail original action-log audit. Two failed loads are not cached; repaired storage succeeds on load3 with original command/event hashes and dedup behavior. This proves the in-memory production registry path, not SQL/network or process restart.
+
+The actual transfer/private-return row remains OPEN: P2 really controls/recalls the paid host while both attached Songs retain P1 control, then standard movement rejects that legal relationship before death. CN718.5.e/f and719.3/a permit distinct controllers and require attached cards to follow the host. The movement owner is handling that narrow guard. Its downstream private return, damage and attribution assertions have **not** passed; no guard or expectation was relaxed.
+
+Exact official records id31420/id31215 and complete card faces were freshly inspected at HTTP200; recorded game fields match the adopted catalog. Kogmaw record/face SHA256: `3771679f04a2aa2146bd6de7cdc39efad821d102a0dfcd5d76b8e90957083f40` / `b6453a73d528142b61c680f932f509e4e5d82593b22d7f52a66c18ee0fe96cd4`. Core CN2026-10-10 PDF SHA256 `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`; physical pages1/4/45/54/62/63/107/117 were visually inspected across this and the directly reused draw package. Relevant boundaries are055,107.3,355.9,359.3.e,383.2/383.3,718/719 and811.1. Publication/effective dates and complete source applicability remain UNKNOWN.
+
+Retrievable packet: `/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-combat-20261023/var/qa/lastbreath-aoe-20261027/captured-battlefield-damage-delivery-v1.json`, SHA256 `0f0687b46c5a61fd4b7c845839f96f7ebc374a20038b1df92be1d2db1d3347af`. It indexes all twelve fixed stages, actual loaded four-module Info/MVID/SHA and retained DLLs, complete compile inputs, three linked client C# files frozen before each run, source rechecks and command/event/canonical exports. All762–765 tracked conformance C# files at their respective inputs were compiled; five foreign Gangplank drafts remain unchanged and excluded.
+
+The same packet separately retains #208's original run40513499587 `rule_suite`: actual synthetic `d8bd87cf5644fc69bb12d51b050212552c9d2302`, 16678P/8F/0skip, original ZIP/TRX and failures. Those actual adjacent regressions are being repaired separately; no old run was cancelled or relabeled. Newly received #217 concerns ceased copied-token public recovery and is also separate. Merge requires the latest actual head/base/synthetic complete `L2 required`, zero failure/skip and original artifacts. Whole-card certification and complete backend L3 remain OPEN. Refs #214.

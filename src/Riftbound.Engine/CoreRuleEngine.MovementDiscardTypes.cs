@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
     {
         if (choice.EffectKind != TriggerKinds.UnitMovedDrawDiscardTypes) return state;
         if (choice.MovementObserver is not { DiscardInline: null } source
-            || !ValidMovementObserver(source, MovementObserverEffect, choice.PlayerId, choice.SourceObjectId)
+            || !ValidMovementObserver(before, source, MovementObserverEffect, choice.PlayerId, choice.SourceObjectId)
             || discarded.Count != 1) throw new InvalidOperationException("Invalid typed movement discard continuation.");
         var card = before.CardObjects[discarded[0]];
         if (card.CardNo is not { } cardNo || !PrintedPlayTypes.Value.TryGetValue(cardNo, out var types)) return state;
@@ -79,7 +79,8 @@ public sealed partial class CoreRuleEngine
         {
             var context = source with { DiscardInline = new(new(card.ObjectId, card.ObjectGeneration),
                 cardNo, types, type, state.Tick) };
-            var trigger = new TriggerQueueItemState($"movement-discard-{state.Tick}-{choice.SourceObjectId}-{card.ObjectId}-{type}",
+            var suffix = source.RuleTextInstanceId is { } instance ? ":" + instance : "";
+            var trigger = new TriggerQueueItemState($"{(suffix.Length == 0 ? "" : "copied-")}movement-discard-{state.Tick}-{choice.SourceObjectId}-{card.ObjectId}-{type}{suffix}",
                 choice.PlayerId, choice.SourceObjectId, MovementDiscardInlineEffect, "CARD_DISCARDED") {
                 MovementObserver = context, SourceCardNo = source.CardNo };
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
@@ -99,7 +100,7 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.LastOrDefault(s => s.StackItemId == choice.ResolvingStackItemId);
         if (item is null || !NeedsMovementDiscardRuneConfirmation(item) || item.MovementObserver is not { } c
-            || !ValidMovementObserver(c, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+            || !ValidMovementObserver(state, c, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
             || selected.Count > 2 || selected.Any(id => !EndRuneTargets(state, item.ControllerId).Contains(id)))
             return RejectWithCorePrompts(state, "弃置装备后的符文选择已失效。", ErrorCodes.InvalidTarget);
         return ConfirmRuneTargets(state, item, selected, "MOVEMENT_DISCARD_RUNES_CONFIRMED", "符文目标已确认，双方可以响应");
@@ -109,7 +110,7 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.LastOrDefault(s => s.StackItemId == choice.ResolvingStackItemId);
         if (item is null || !NeedsMovementDiscardRuneConfirmation(item) || item.MovementObserver is not { } c
-            || !ValidMovementObserver(c, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)) return false;
+            || !ValidMovementObserver(state, c, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)) return false;
         var ids = EndRuneTargets(state, item.ControllerId);
         return choice.ChoiceWindow == MovementDiscardRuneChoiceWindow
             && choice.ChoiceId == "MOVE-DISCARD-RUNES:" + item.StackItemId && choice.PlayerId == item.ControllerId
