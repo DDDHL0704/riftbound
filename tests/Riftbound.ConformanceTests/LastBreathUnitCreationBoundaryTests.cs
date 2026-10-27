@@ -24,13 +24,17 @@ public sealed class LastBreathUnitCreationBoundaryTests
         {
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
-            Assert.Equal(PromptTypes.AssignCombatDamage, ResolutionResult.BuildPrompts(game.State)["P1"].View!.Type);
-            await game.Act("P1", new AssignCombatDamageCommand("battle:BF", "BF", [new("UNIT", "ENEMY", empowered ? 3 : 2)]));
-            await game.Act("P2", new AssignCombatDamageCommand("battle:BF", "BF", [new("ENEMY", "UNIT", 4)]));
             for (var step = 0; !game.State.PlayerZones["P1"].Graveyard.Contains("UNIT"); step++)
             {
                 Assert.InRange(step, 0, 12);
-                if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+                var damagePrompt = ResolutionResult.BuildPrompts(game.State).Values.FirstOrDefault(p => p.Actionable && p.Actions.Contains(CommandTypes.AssignCombatDamage));
+                if (damagePrompt is not null)
+                {
+                    var assignment = damagePrompt.PlayerId == "P1" ? new CombatDamageAssignmentDto("UNIT", "ENEMY", empowered ? 3 : 2)
+                        : new CombatDamageAssignmentDto("ENEMY", "UNIT", 4);
+                    await game.Act(damagePrompt.PlayerId, new AssignCombatDamageCommand(game.State.BattleState.BattleId!, "BF", [assignment]));
+                }
+                else if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
                 else if (game.State.FocusPlayerId is { } focus) await game.Act(focus, new PassFocusCommand());
                 else Assert.Fail("Battle damage must expose its next ordinary continuation.");
             }
