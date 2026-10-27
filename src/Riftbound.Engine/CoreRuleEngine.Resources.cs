@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
         long released = options.Any(o => o.Kind == "SETT" && !o.Payment.StartsWith("RUNE:", StringComparison.Ordinal)) ? 1 : 0;
         if (optionalAvailable
             && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player)
-                .Any(action => action.Ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
+                .Any(action => action.Ability?.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
         {
             // Existing resource windows only exchange power/mana or add
             // resources. Conversion can release at most the joint mana room;

@@ -48,7 +48,8 @@ public sealed class RestrictedInstructionPowerTests
             Assert.Contains("PAY-RUNE", game.State.PlayerZones["P1"].RuneDeck);
             var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID"
                 && Equals(e.Event.Payload.GetValueOrDefault("paymentWindow"), "INSTRUCTION_POWER_PAYMENT")).Event;
-            Assert.Equal("OTHER", paid.Payload["powerPurpose"]); Assert.Equal(1, paid.Payload["totalPowerCost"]);
+            // The public receipt omits the default Other purpose.
+            Assert.DoesNotContain("powerPurpose", paid.Payload.Keys); Assert.Equal(1, paid.Payload["totalPowerCost"]);
             Assert.Single(game.Events(), e => e.Event.Kind == "POWER_GAINED"
                 && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "LEGEND"));
             Assert.Single(game.Events(), e => e.Event.Kind == "RUNE_RECYCLED");

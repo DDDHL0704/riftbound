@@ -4,13 +4,28 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    private sealed record ReplacementResourceAction(RuleChoiceOption Choice, ActivateAbilityCommand Command, P4ActivatedAbilityDefinition Ability);
+    private sealed record ReplacementResourceAction(RuleChoiceOption Choice, GameCommand Command, P4ActivatedAbilityDefinition? Ability = null);
 
     // CN 430.3: reaction resource skills resolve while paying, including a
     // restricted gain that cannot itself pay the instruction being resolved.
     private static IReadOnlyList<ReplacementResourceAction> ReplacementResourceActions(MatchState state, string player)
     {
         var actions = new List<ReplacementResourceAction>();
+        var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
+        if (pool.HasSupportedAmounts && pool.TotalStoredPower < int.MaxValue)
+        foreach (var id in state.PlayerZones[player].LegendZone.Order(StringComparer.Ordinal))
+        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId })
+        {
+            if (!TryGetLegendAbility(abilityId, out var legendAbility)
+                || !IsLegendAbilityTimingAllowed(state, player, legendAbility)
+                || !state.CardObjects.TryGetValue(id, out var source) || source.ObjectId != id
+                || source.IsFaceDown || source.IsExhausted || !SourceObjectControlledByPlayerOrLegacyOwned(source, player)
+                || !LegendAbilitySourceHasAbility(state, player, source.CardNo, legendAbility)) continue;
+            var restriction = abilityId == KaisaLegendAbilityId ? "打出法术" : "打出装备或使用装备技能";
+            actions.Add(new(new($"LEGEND_RESOURCE:{id}:{abilityId}",
+                $"横置传奇：获得 1 点仅可用于{restriction}的符能，之后继续选择", [id]),
+                new LegendActCommand(id, abilityId, [], [])));
+        }
         foreach (var id in state.PlayerZones[player].Base.Concat(state.PlayerZones[player].Battlefields).Order(StringComparer.Ordinal))
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll().Where(a => a.IsResourceSkill && a.ReactionSpeed
             && (string.IsNullOrWhiteSpace(a.ResourceRestriction) || P4ActivatedAbilityCatalog.IsLuxResourceAbility(a.AbilityId))))
@@ -27,7 +42,6 @@ public sealed partial class CoreRuleEngine
             if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             {
                 var stele = ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId;
-                var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
                 if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum)) continue;
                 var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
                 if ((long)maximum + 1 > ResourceQuantityRules.DirectChoiceLimit)
@@ -99,12 +113,18 @@ public sealed partial class CoreRuleEngine
     {
         context = RuleChoiceResourceContext(context);
         var capture = BeginRuleChoiceResourceStep(context, player, action.Choice.Id);
-        var intent = new PlayerIntent("replacement-resource", player, CommandTypes.ActivateAbility);
-        var result = P4ActivatedAbilityCatalog.IsLuxResourceAbility(action.Ability.AbilityId)
-            ? ResolveLuxRestrictedMana(context, intent, action.Command)
-            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(action.Ability.AbilityId)
-            ? ResolveGoldTokenResourceSkill(context, intent, action.Command, action.Ability)
-            : ResolveImmediateResourceSkill(context, intent, action.Command, action.Ability);
+        var intent = new PlayerIntent("replacement-resource", player, action.Command.CmdType);
+        var result = action.Command switch
+        {
+            LegendActCommand legend => ResolveLegendAct(context, intent, legend),
+            ActivateAbilityCommand activated when action.Ability is { } ability
+                => P4ActivatedAbilityCatalog.IsLuxResourceAbility(ability.AbilityId)
+                    ? ResolveLuxRestrictedMana(context, intent, activated)
+                    : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
+                        ? ResolveGoldTokenResourceSkill(context, intent, activated, ability)
+                        : ResolveImmediateResourceSkill(context, intent, activated, ability),
+            _ => throw new InvalidOperationException("Invalid generated resource command.")
+        };
         if (!result.Accepted) throw new InvalidOperationException("Invalid generated resource choice: " + result.ErrorMessage);
         result = FinalizeTokenDepartures(context, result);
         result = CompleteRuleChoiceResourceEffects(context, result);
