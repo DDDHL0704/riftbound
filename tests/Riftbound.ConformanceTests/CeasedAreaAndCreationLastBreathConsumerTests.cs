@@ -45,8 +45,8 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
                 var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ActivateAbility);
                 var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
                 var selected = Assert.Single(requirements, row => Equals(row["sourceObjectId"], token) && Equals(row["abilityId"], "EMPOWER:0:0"));
-                await game.Act("P1", new ActivateAbilityCommand(token, "EMPOWER:0:0", [],
-                    AbilityInstanceId: selected.GetValueOrDefault("abilityInstanceId") as string)); await game.Top();
+                await game.Act("P1", new ActivateAbilityCommand(token, "EMPOWER:0:0", []) {
+                    AbilityInstanceId = selected.GetValueOrDefault("abilityInstanceId") as string }); await game.Top();
                 Assert.True(game.State.CardObjects[token].IsEmpowered);
             }
             for (var i = 0; i < copies; i++)
