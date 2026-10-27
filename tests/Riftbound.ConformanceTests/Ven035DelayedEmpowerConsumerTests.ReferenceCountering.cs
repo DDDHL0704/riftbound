@@ -43,7 +43,14 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             Assert.Equal(before, MatchStateHasher.Hash(game.State));
             Assert.Contains("REFERENCE-COUNTER", game.State.PlayerZones["P2"].Hand);
             Assert.Equal(inverse.StackItemId, Assert.Single(game.State.StackItems).StackItemId);
-            await FinishEnd(game, "P1");
+            // P1 has already passed; immediate rune actions and a rejected counter
+            // do not start a fresh two-pass round.
+            for (var step = 0; game.State.TurnPlayerId == "P1"; step++)
+            {
+                Assert.InRange(step, 0, 5);
+                Assert.NotNull(game.State.PriorityPlayerId);
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            }
             Assert.Equal("P2", game.State.TurnPlayerId); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "STACK_ITEM_COUNTERED");
