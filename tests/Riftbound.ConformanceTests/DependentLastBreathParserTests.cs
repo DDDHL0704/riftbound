@@ -7,18 +7,18 @@ namespace Riftbound.ConformanceTests;
 public sealed class DependentLastBreathParserTests
 {
     [Theory]
-    [InlineData("{{绝念}}", false)]
-    [InlineData("{{绝念>}}", false)]
-    [InlineData("{{绝念>}} —", false)]
-    [InlineData("{{已强化>}}{{>绝念>}}", true)]
-    [InlineData("{{已强化>}} {{>绝念>}}", true)]
-    [InlineData("{{已强化>}}\t{{>绝念>}} —", true)]
-    public void MinionProductionRetainsLegacyShapesAndCapturesOnlyTheAdjacentDependentCondition(string prefix, bool empowered)
+    [InlineData("{{绝念}}", false, "三", 3)]
+    [InlineData("{{绝念>}}", false, "三", 3)]
+    [InlineData("{{绝念>}} —", false, "三", 3)]
+    [InlineData("{{已强化>}}{{>绝念>}}", true, "两", 2)]
+    [InlineData("{{已强化>}} {{>绝念>}}", true, "两", 2)]
+    [InlineData("{{已强化>}}\t{{>绝念>}} —", true, "两", 2)]
+    public void MinionProductionRetainsLegacyShapesAndCapturesOnlyTheAdjacentDependentCondition(string prefix, bool empowered, string count, int expectedCount)
     {
-        var trigger = Assert.Single(TriggerParser.Parse(prefix + " 打出两名1{{S}}的“随从”到你的基地。"),
+        var trigger = Assert.Single(TriggerParser.Parse(prefix + " 打出" + count + "名1{{S}}的“随从”到你的基地。"),
             t => t.Kind == TriggerKinds.UnitLastBreathCreateMinions);
         Assert.Equal(empowered ? true : (bool?)null, trigger.RequiresSourceEmpowered);
-        Assert.Equal(2, trigger.CreatedTokenCount); Assert.Equal("随从", trigger.CreatedTokenName); Assert.Equal(1, trigger.CreatedTokenPower);
+        Assert.Equal(expectedCount, trigger.CreatedTokenCount); Assert.Equal("随从", trigger.CreatedTokenName); Assert.Equal(1, trigger.CreatedTokenPower);
         Assert.Equal(TriggerTimings.UnitDestroyed, trigger.Timing); Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
         Assert.Equal(TriggerTokenDestinations.OwnerBase, trigger.CreatedTokenDestination); Assert.Empty(trigger.CreatedTokenKeywords!);
     }

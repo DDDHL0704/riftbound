@@ -2233,7 +2233,7 @@ public static class TriggerParser
         IReadOnlyList<string> tokenKeywords)
     {
         if (string.Equals(tokenName, "随从", StringComparison.Ordinal)
-            && tokenCount == 3
+            && tokenCount > 0
             && tokenPower == 1
             && tokenKeywords.Count == 0)
         {
