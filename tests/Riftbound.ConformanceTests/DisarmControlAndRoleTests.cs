@@ -10,9 +10,9 @@ namespace Riftbound.ConformanceTests;
 public sealed class DisarmControlAndRoleTests
 {
     [Theory]
-    [InlineData("HOST", "P2", 2)]
-    [InlineData("ENEMY1", "P1", 3)]
-    public async Task ActualStandbyTakeoverKeepsTheAbilityControllerAndChecksTheCurrentEnemy(string target, string thief, int expectedPower)
+    [InlineData("HOST", "P2", true)]
+    [InlineData("ENEMY1", "P1", false)]
+    public async Task TakeoverRequiresALegalSourceAndCannotChangeTheAlreadyCreatedAbilityController(string target, string thief, bool allowed)
     {
         var row = "control-" + target;
         var initial = AttackDamageDistributionTests.Spell(await Position("RAD·054/167", 1), "TAKEOVER", "SFD·202/221", thief);
@@ -40,17 +40,32 @@ public sealed class DisarmControlAndRoleTests
         var original = Assert.Single(confirmed.State.StackItems);
         Assert.Equal("P1", original.ControllerId);
         if (thief == "P2") confirmed = await Act(confirmed.State, "P1", new PassPriorityCommand());
-        var taken = await TopWithReceipt((await Act(confirmed.State, thief,
-            new PlayCardCommand("TAKEOVER", "SFD·202/221", [target]))).State, row);
-        Assert.Equal(thief, taken.State.CardObjects[target].ControllerId);
-        Assert.Equal(initial.CardObjects[target].OwnerId, taken.State.CardObjects[target].OwnerId);
-        Assert.Equal(initial.CardObjects[target].ObjectGeneration, taken.State.CardObjects[target].ObjectGeneration);
-        Assert.Equal("P1", Assert.Single(taken.State.StackItems).ControllerId);
-        var done = await AttackDamageDistributionTests.Top(taken.State);
-        Assert.Equal(expectedPower, done.State.CardObjects["ENEMY1"].Power);
+        var command = new PlayCardCommand("TAKEOVER", "SFD·202/221", [target]);
+        var cast = await new CoreRuleEngine().ResolveAsync(confirmed.State, new("disarm-takeover", thief, command.CmdType), command, default);
+        Record(row, "declaration", cast.State, cast.Events, cast.Accepted, cast.ErrorMessage);
+        Assert.Equal(allowed, cast.Accepted);
+        if (allowed)
+        {
+            var taken = await TopWithReceipt(cast.State, row);
+            Assert.Equal(thief, taken.State.CardObjects[target].ControllerId);
+            Assert.Equal(initial.CardObjects[target].OwnerId, taken.State.CardObjects[target].OwnerId);
+            Assert.Equal(initial.CardObjects[target].ObjectGeneration, taken.State.CardObjects[target].ObjectGeneration);
+            Assert.Equal("P1", Assert.Single(taken.State.StackItems).ControllerId);
+            confirmed = taken;
+        }
+        else
+        {
+            // This newly hidden card at HOME is not an allowed source for F.
+            // It must not be treated as an actual target-control response.
+            Assert.Empty(cast.Events);
+            Assert.Equal(MatchStateHasher.Hash(confirmed.State), MatchStateHasher.Hash(cast.State));
+            Assert.True(cast.State.CardObjects["TAKEOVER"].IsFaceDown);
+            Assert.Equal("P2", cast.State.CardObjects["ENEMY1"].ControllerId);
+        }
+        var done = await AttackDamageDistributionTests.Top(confirmed.State);
+        Assert.Equal(2, done.State.CardObjects["ENEMY1"].Power);
         Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
-        if (target == "HOST") Assert.Single(done.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
-        else Assert.DoesNotContain(done.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
+        Assert.Single(done.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
         Record(row, "done", done.State, done.Events);
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
     }
