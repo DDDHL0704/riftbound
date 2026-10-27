@@ -2973,9 +2973,9 @@ public sealed class CardCatalogBaselineTests
                 StringComparison.Ordinal));
         Assert.Equal(ReplacementKinds.FriendlyUnitDestroyedDestroySourceRecallExhausted, replacement.Kind);
         Assert.Equal("friendly-unit-destroyed", replacement.AppliesTo);
-        Assert.Contains("下一次当友方单位被摧毁时", replacement.Text, StringComparison.Ordinal);
+        Assert.Contains("如果一名友方单位被摧毁", replacement.Text, StringComparison.Ordinal);
         Assert.Contains("将此牌摧毁", replacement.Text, StringComparison.Ordinal);
-        Assert.Contains("休眠状态将该单位召回", replacement.Text, StringComparison.Ordinal);
+        Assert.Contains("移除该单位所受伤害，让其进入休眠状态，并将其召回", replacement.Text, StringComparison.Ordinal);
     }
 
     [Fact]
