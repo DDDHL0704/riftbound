@@ -54,6 +54,8 @@ public sealed class Ven124CreatedTokenCostInteractionTests
                 Assert.Equal(copiedNo, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
                 Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
             }
+            var returnedRunes = Enumerable.Range(0, 2 + copies).Select(i => "TOKEN-COST-RUNE-" + i).ToArray();
+            Assert.Equal(returnedRunes, game.State.PlayerZones["P1"].RuneDeck);
             await game.Act("P1", new PlayCardCommand("SECOND", "VEN·124", []));
             Assert.Equal(2 - copies, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             var before = game.Events().Length; var handAtCost = game.State.PlayerZones["P1"].Hand.ToArray(); var deckAtCost = game.State.PlayerZones["P1"].MainDeck.ToArray();
@@ -66,6 +68,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
             Assert.Single(game.Events().Skip(before), e => e.Event.Kind == "TOKEN_CEASED_TO_EXIST");
             Assert.DoesNotContain(game.Events().Skip(before), e => e.Event.Kind is "CARD_DRAWN" or "CARD_DISCARDED" or "RUNES_CALLED");
             Assert.Equal(handAtCost, game.State.PlayerZones["P1"].Hand); Assert.Equal(deckAtCost, game.State.PlayerZones["P1"].MainDeck);
+            Assert.Equal(returnedRunes, game.State.PlayerZones["P1"].RuneDeck);
             var parent = Assert.Single(game.State.StackItems, s => s.EmpowerActivation is not null); var paid = parent.EmpowerActivation!;
             Assert.Equal(new ObjectBinding(tokenId, generation), paid.DestructionCost!.Unit); Assert.Equal(factory, paid.DestructionCost.TokenFactoryCardNo);
             Assert.Equal(paid.AcquiredTick, paid.DestructionCost.TokenCeasedAtTick); Assert.False(game.State.CardObjects["SECOND"].IsEmpowered);
@@ -82,8 +85,11 @@ public sealed class Ven124CreatedTokenCostInteractionTests
                 Assert.Equal(factory, top.LastBreathDraw?.SourceTokenFactoryCardNo ?? top.LastBreathRuneCall!.SourceTokenFactoryCardNo);
                 Assert.True(instances.Add(top.LastBreathDraw?.InstanceId ?? top.LastBreathRuneCall!.InstanceId)); AssertPrivateBirths(game.State);
                 var hand = game.State.PlayerZones["P1"].Hand.ToArray(); var deck = game.State.PlayerZones["P1"].MainDeck.ToArray(); before = game.Events().Length;
+                var expectedRunesBefore = copiedNo == "OGN·075/298" ? returnedRunes.Skip(i * 2).ToArray() : returnedRunes;
+                Assert.Equal(expectedRunesBefore, game.State.PlayerZones["P1"].RuneDeck);
                 await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
                 Assert.Equal(hand, game.State.PlayerZones["P1"].Hand); Assert.Equal(deck, game.State.PlayerZones["P1"].MainDeck);
+                Assert.Equal(expectedRunesBefore, game.State.PlayerZones["P1"].RuneDeck);
                 Assert.False(game.State.CardObjects["SECOND"].IsEmpowered);
                 await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
                 if (discardCount > 0 && hand.Length >= discardCount)
@@ -102,10 +108,22 @@ public sealed class Ven124CreatedTokenCostInteractionTests
                 if (discarded > 0) Assert.True(Array.FindLastIndex(recent, e => e.Kind == "CARD_DISCARDED") < Array.FindIndex(recent, e => e.Kind == "CARD_DRAWN"));
                 if (copiedNo == "OGN·075/298")
                 {
-                    var call = Assert.Single(recent, e => e.Kind == "RUNES_CALLED"); Assert.Equal(0, Convert.ToInt32(call.Payload["count"]));
+                    var call = Assert.Single(recent, e => e.Kind == "RUNES_CALLED"); var expectedCalled = i < 2 ? 2 : 0;
+                    Assert.Equal(expectedCalled, Convert.ToInt32(call.Payload["count"]));
                     Assert.True(Array.IndexOf(recent, call) < Array.FindIndex(recent, e => e.Kind == "CARD_DRAWN"));
+                    foreach (var id in returnedRunes.Skip(i * 2).Take(expectedCalled))
+                    { Assert.Contains(id, game.State.PlayerZones["P1"].Base); Assert.True(game.State.CardObjects[id].IsExhausted); }
+                    Assert.Equal(returnedRunes.Skip((i + 1) * 2), game.State.PlayerZones["P1"].RuneDeck);
+                    if (i >= 1) Assert.Empty(game.State.PlayerZones["P1"].RuneDeck);
                 }
-                Assert.Empty(game.State.PlayerZones["P1"].RuneDeck); Assert.False(game.State.CardObjects.ContainsKey(tokenId));
+                else
+                {
+                    Assert.Equal(returnedRunes, game.State.PlayerZones["P1"].RuneDeck);
+                    Assert.DoesNotContain(recent, e => e.Kind == "RUNES_CALLED");
+                }
+                Assert.False(game.State.CardObjects.ContainsKey(tokenId)); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+                Assert.Equal(12, game.State.PlayerZones["P1"].Base.Count(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard))
+                    + game.State.PlayerZones["P1"].RuneDeck.Count);
                 Assert.False(game.State.CardObjects["SECOND"].IsEmpowered); Assert.Equal(parent, game.State.StackItems[0]);
                 Assert.Equal(copies - i + 1, game.State.StackItems.Count); Assert.Equal(2 - copies, game.State.RunePools["P1"].Mana);
             }
@@ -161,7 +179,7 @@ public sealed class Ven124CreatedTokenCostInteractionTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN124_TOKEN_EVIDENCE") is not { Length: > 0 } folder) return;
         Directory.CreateDirectory(folder); await File.WriteAllTextAsync(Path.Combine(folder, no.Replace('/', '-') + "-copies-" + copies + ".json"), JsonSerializer.Serialize(new {
-            scope = "Explicit midgame copy-source/gear material. Zero pools/exactly12 physical own runes, actual normal No128 play, native typed Empower, first No124 cost earns actual minions, actual paid Shady copy and0/2 paid Song texts. No124 second required cost makes real copied minion cease, independently captured skills finish before parent Empower. No injected token/copy/empower/death/skill/source/result. Original per-command hidden/recovery/dedup/original action replay. No canonical opening, SQL/network, latest complete L2/L3, applicability or whole-card claim.",
+            scope = "Explicit midgame copy-source/gear material. Zero pools/exactly12 physical own runes, actual normal No128 play, native typed Empower, first No124 cost earns actual minions, actual paid Shady copy and0/2 paid Song texts. No124 second required cost makes real copied minion cease, independently captured skills finish before parent Empower. Actual native/Shady payments return two yellow runes, with two Song payments returning two more green runes; non-call skills preserve their exact order and Fae independently calls2/2/0 dormant before each draw. No injected token/copy/empower/death/skill/source/result. Original per-command hidden/recovery/dedup/original action replay. No canonical opening, SQL/network, latest complete L2/L3, applicability or whole-card claim.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }
