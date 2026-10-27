@@ -15,6 +15,25 @@ public sealed class RunePaymentCapacityTests
     private static readonly MethodInfo CanPay = Reachability.GetMethod("CanPay", BindingFlags.Instance | BindingFlags.NonPublic)!;
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
+    [Theory]
+    [InlineData(false, 0)] [InlineData(false, 1)] [InlineData(false, 2)]
+    [InlineData(true, 0)] [InlineData(true, 1)] [InlineData(true, 2)]
+    public void RestrictedBalancesOccupyTheSamePhysicalPowerCapacity(bool spell, int capacity)
+    {
+        var pool = new RunePool(0, 0, spellOnlyPower: spell ? int.MaxValue - capacity : 0,
+            equipmentOnlyPower: spell ? 0 : int.MaxValue - capacity);
+        var resources = new Dictionary<string, int> { [RuneTrait.Red] = 1, [RuneTrait.Green] = 1 };
+        var summary = Activator.CreateInstance(Reachability, BindingFlags.Instance | BindingFlags.NonPublic, null, [pool, resources], null)!;
+        Assert.Equal(capacity, Reachability.GetProperty("Capacity", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(summary));
+        Assert.Equal(capacity, Reachability.GetProperty("MaximumTotal", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(summary));
+        Assert.Equal(capacity >= 1, (bool)CanPay.Invoke(summary, [0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }])!);
+        Assert.Equal(capacity >= 2, (bool)CanPay.Invoke(summary, [2, new Dictionary<string, int>()])!);
+        Assert.Equal(capacity >= 2, (bool)CanPay.Invoke(summary, [0, resources])!);
+        var eligible = PaymentCostRules.PowerPoolForPurpose(pool,
+            spell ? PowerPaymentPurpose.PlaySpell : PowerPaymentPurpose.Equipment);
+        Assert.True(PaymentCostRules.CanPayPowerCost(eligible, 2, new Dictionary<string, int>()));
+    }
+
     [Fact]
     public void JointAffordabilityMatchesAnIndependentEnumerationOfEveryRepresentableRuneSubset()
     {

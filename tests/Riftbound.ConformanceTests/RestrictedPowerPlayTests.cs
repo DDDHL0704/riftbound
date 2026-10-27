@@ -68,6 +68,41 @@ public sealed class RestrictedPowerPlayTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OnlyEquipmentResourceCanPayAnActualEquipmentAssembly(bool spellResource)
+    {
+        var initial = OfficialHoldSequenceTests.AddLegend(ImposedMovementContinuationTests.WithPool(
+            ArmamentMightTests.Position() with { Tick = 0 }, RunePool.Empty),
+            spellResource ? "OGN·247/298" : "SFD·189/221");
+        var game = new Driver(initial);
+        await game.Act("P1", new LegendActCommand("LEGEND", spellResource
+            ? LegendActionAbilityCatalog.KaisaLegendAbilityId : LegendActionAbilityCatalog.OrnnLegendAbilityId, [], []));
+        var prompt = ResolutionResult.BuildPrompts(game.State)["P1"];
+        Assert.Equal(!spellResource, (prompt.Candidates ?? []).Any(c => c.Action == CommandTypes.AssembleEquipment
+            && (c.Sources ?? []).Any(s => s.Id == "GEAR")));
+        var command = new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_RED"]);
+        var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Web)!.AsObject();
+        raw["promptId"] = prompt.PromptId; raw["snapshotTick"] = game.State.Tick;
+        var before = MatchStateHasher.Hash(game.State);
+        await game.ActRetained(new("P1", "restricted-power-assemble", JsonSerializer.SerializeToElement(raw, Web)), !spellResource);
+        if (!spellResource)
+        {
+            Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower);
+            Assert.Equal("EQUIPMENT", Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event.Payload["powerPurpose"]);
+            await game.Top();
+            Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        }
+        else
+        {
+            Assert.Equal(before, MatchStateHasher.Hash(game.State));
+            Assert.Equal(1, game.State.RunePools["P1"].SpellOnlyPower);
+            Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        }
+        await game.Replay();
+    }
+
     private static MatchState Position(string no, bool spellResource)
     {
         // Explicit turn-three local fixture; this is not a complete legal opening.
