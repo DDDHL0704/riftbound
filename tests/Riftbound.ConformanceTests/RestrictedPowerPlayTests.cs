@@ -71,7 +71,7 @@ public sealed class RestrictedPowerPlayTests
     private static MatchState Position(string no, bool spellResource)
     {
         // Explicit turn-three local fixture; this is not a complete legal opening.
-        var state = PlayCostPreviewTests.Position(new(10, 0), no);
+        var state = PlayCostPreviewTests.Position(new(10, 0), no) with { Tick = 0 };
         state = state with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
