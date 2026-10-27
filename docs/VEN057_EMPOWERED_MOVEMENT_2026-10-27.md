@@ -21,6 +21,8 @@ Both canonical openings begin from empty seating with seed424242, submit valid d
 
 The new copy rows separately empower the original unit or leave it unempowered, then really assemble/copy with VEN137 and choose the host's acquired Empower by its prompt instance ID. The host remains initially unempowered, pays3 mana without power, and its pending activation resolves even if SFD011 removes the copy first. Each then moves the empowered, restored physical host after copy removal and verifies no extra draw. Fresh API and whole-card readback confirm SFD011 itself draws1; its schema uses `cardCategoryList` where the runtime snapshot uses `cardCategory`. The corrected four rows retain13/36 or16/43 accepted commands/events, one support draw, and zero draws after movement. They do not verify the still-missing positive copied movement trigger.
 
+Seven further rows at `3c0edca7ee013018dfb5372b34e1e3d302639a22` specify the original/host empowerment cross-product, earned copied draw after actual copy removal, and one draw per native/one-or-two attached text instances while physical movement increments only once. Compile and discovery succeed for all16 methods/30 rows. These7 rows have **not executed**: the complete copied movement producer and conditional birth implementation are not yet combined here. No semantic TRX or green result is attributed to that compile-only input.
+
 Original logs, TRX, requested-versus-discovered methods, actual compile inputs and five loaded module hashes remain in the ignored QA directory. The original six untracked drafts remain unchanged and excluded from compile. Results are not rebound to later documentation or composition commits.
 
 ## Shared dependency and remaining work
