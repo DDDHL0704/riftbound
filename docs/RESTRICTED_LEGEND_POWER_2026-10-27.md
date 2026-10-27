@@ -1,6 +1,6 @@
 # 受限传奇符能：当前用途切片与未完范围
 
-Issue200 独立分支 `codex/payment-restricted-legend-resources-20261027` 基于 main `21b3e43fb7c3f7bb1c50e9957968890dc41b02ea`，不混入 PR203 的 No128/Hwei 或 No078。当前代码与测试输入为 `77e09ada4977b5d1496f36f8a66d125afd5d1891`；本记录后继只补说明。
+Issue200 独立分支 `codex/payment-restricted-legend-resources-20261027` 基于 main `21b3e43fb7c3f7bb1c50e9957968890dc41b02ea`，不混入 PR203 的 No128/Hwei 或 No078。最新费用/容量代码固定在下述 bb887ba8 输入；本记录后继只补说明，各早期输入保持原身份。
 
 精确五个 CN 卡面原件在本树 ignored `var/qa/restricted-legend-resources-20261027/source-v1/`：山隐之焰 SFD·189/244 的符能仅用于打出装备或装备技能，虚空之女 OGN·247/299/299* 仅用于打出法术。日期、全来源适用性仍 UNKNOWN。
 
@@ -20,7 +20,12 @@ Issue200 独立分支 `codex/payment-restricted-legend-resources-20261027` 基�
 | 8167e6cd / actual-play-counterexamples-v13 | 17 例 5P/12F；12条因预览夹具初始tick=1在正常恢复处停止，未到实际支付 |
 | 3c5d0a79 / actual-play-counterexamples-v14 | 修正日志初始tick=0，17 例 13P/4F；四条匹配用途的预览/支付反例，八条用途拒绝及五条时点通过 |
 | 77e09ada / actual-purpose-fix-v15 | 46 方法、168/168、0skip；四条原反例逐名转P，含实际法术/装备/单位、显式向量、受限池/法力、预览、原日志、重连、去重和恢复安全的定向检查 |
+| 8628d6c8 / equipment-capacity-counterexamples-v19 | 2 方法、8例 1P/7F；原法术专用资源拒绝装配通过，装备资源装配及六条受限桶容量失败 |
+| bb887ba8 / equipment-capacity-fix-v20 | 73 方法、240/240、0skip；七条原失败逐名转P，含真实长剑装配、受限桶物理容量和实际符文回收的提示/扣账边界 |
+| 同bb887ba8 / adjacent-capacity-guards-v21 | 同一测试程序集另21方法108/108、0skip；资源费用替代、资源取得容量与 token 急速相邻守卫，独立记录不相加 |
 
 最后一阶段入口 `var/qa/restricted-legend-resources-20261027/actual-purpose-delivery-v18.json`。它引用原 TRX、discovery、plan 和对应保留构建 DLL；测试计划程序集哈希与保留字节一致，未声称额外采集了运行时模块 MVID。失败、编译失败和 fixture 停止点在 `original-and-new-counterexamples-v16.json` 各归原输入。
 
-尚未闭合：所有装备技能用途、受限桶占用的总容量、完整可选费用交互，以及旧来源错误预期的逐项校准。原方法、Theory行、断言与拒绝守卫未删除；不能把旧164中的失败改记为本轮通过。该独立分支尚无新 PR/L2、SQL、SignalR、真实进程重启、完整胜局或矩阵 L3，通过范围不扩大到整卡或全后端。
+最新入口 `var/qa/restricted-legend-resources-20261027/equipment-capacity-delivery-v23.json` 保留两个独立阶段和对应5份构建DLL；七条原红仍在v19，原红/新绿逐名比较在v22。装配计划和提示使用装备用途；回收/转换/各支付资源选择按包含受限桶的物理容量计算，默认其他费用仍不能使用受限符能。
+
+尚未闭合：装配以外的全部装备技能用途、完整可选费用交互，以及旧来源错误预期的逐项校准。原方法、Theory行、断言与拒绝守卫未删除；不能把旧164中的失败改记为本轮通过。该独立分支尚无新 PR/L2、SQL、SignalR、真实进程重启、完整胜局或矩阵 L3，通过范围不扩大到整卡或全后端。
