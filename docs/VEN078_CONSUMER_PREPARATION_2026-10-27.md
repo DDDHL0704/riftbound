@@ -1,5 +1,7 @@
 # VEN078 consumer preparation — 2026-10-27
 
+This is the retained original preparation input. The actually executed successor is recorded in [VEN078 actual consumers](VEN078_ACTUAL_CONSUMERS_2026-10-27.md).
+
 Status: **compiled/discovered, semantic execution NOT STARTED**. The normal raw catalog at this input still contains1087 records and no VEN·078. Its normal source/profile and cumulative identity/number guards remain with the assigned source writer. No source or registry fixture substitutes for that integration.
 
 Prepared complete code `0c3fc29d49155e16f1b7ba14408f68f0c19628da` ordinarily includes the parser dependency `800fb7340bea957c78f25b5ed564831e61303c11` and full shared unit-creation producer `d4790ee4105e705742f03cde91a67ebfbe7fee16`. The latter does not implement the next rune-call producer. This branch does not include the later Ahri source guard correction or claim current combined L2.
