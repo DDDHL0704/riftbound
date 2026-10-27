@@ -4441,7 +4441,8 @@ public static partial class MatchRecoveryValidator
                 effectKind,
                 errors,
                 HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
-                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 triggerLabel,
                 triggerId,
@@ -19289,7 +19290,8 @@ public static partial class MatchRecoveryValidator
             effectKind,
             errors,
             HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
-                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
         ValidateTriggerQueueBlueSentinelDelayedResourceContext(
             payloadLabel,
             triggerId,
