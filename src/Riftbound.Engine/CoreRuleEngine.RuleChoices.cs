@@ -77,8 +77,10 @@ public sealed partial class CoreRuleEngine
             if (!frame.Complete) return RejectWithCorePrompts(state, "替换选择记录未完整消费。", ErrorCodes.InvalidTarget);
             if (pending is null) return result;
             if (!result.Accepted) return RejectWithCorePrompts(state, result.ErrorMessage!, result.ErrorCode!);
-            var next = result.State with { Tick = state.Tick + 1, PendingRuleChoice = null };
-            return result with { State = next, Events = UncommittedRuleChoiceEvents(result.Events, committedResources),
+            var events = UncommittedRuleChoiceEvents(result.Events, committedResources);
+            var next = FinalizeRuleChoiceBattleRoleCoordinates(state, result, events, state.Tick + 1)
+                with { Tick = state.Tick + 1, PendingRuleChoice = null };
+            return result with { State = next, Events = events,
                 Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
         }
         catch (RuleChoiceRequired required) {

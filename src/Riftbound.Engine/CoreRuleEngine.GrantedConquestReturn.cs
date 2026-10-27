@@ -118,9 +118,10 @@ public sealed partial class CoreRuleEngine
             || !IsObjectOnField(state.PlayerZones, unit.ObjectId)) return result;
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones).ToDictionary(p => p.Key, p => p.Value);
+        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>();
-        MoveFieldUnitsToChosenLocation(state, zones, cards, locations, item, [unit.ObjectId],
+        MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, [unit.ObjectId],
             "BASE:" + EffectiveFieldControllerId(zones, unit.ObjectId, unit), events);
-        return result with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
+        return result with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools, Events = events };
     }
 }

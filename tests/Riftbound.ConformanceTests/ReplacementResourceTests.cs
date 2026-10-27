@@ -110,7 +110,11 @@ public sealed class ReplacementResourceTests
     {
         var s = AddResource(AddResource(Position(power:0,mana:0), P4ActivatedAbilityCatalog.EnergyChannelCardNo,"CHANNEL"), P4ActivatedAbilityCatalog.AncientSteleCardNo,"STELE");
         var opened = await Open(s);
-        Assert.DoesNotContain(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id.StartsWith("RESOURCE:STELE:"));
+        // CN204.3.a / current SFD117: any quantity includes the existing legal
+        // zero activation; it grants no free power. Keep the positive chain below.
+        var zero = Assert.Single(opened.State.PendingRuleChoice!.Request.Options, o=>o.Id.StartsWith("RESOURCE:STELE:"));
+        Assert.EndsWith(P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix + "0", zero.Id);
+        Assert.Equal(0, opened.State.RunePools["P2"].TotalPower);
         var mana = await Resource(opened.State,"CHANNEL"); Restore(mana.State);
         Assert.Equal(1,mana.State.RunePools["P2"].Mana);
         Assert.Single(mana.Events,e=>e.Kind=="RESOURCE_SKILL_RESOLVED");
