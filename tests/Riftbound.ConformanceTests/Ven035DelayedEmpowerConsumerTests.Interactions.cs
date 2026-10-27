@@ -142,6 +142,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             var opponent = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(game.State)["P2"], Json);
             var shown = Assert.Single(opponent.GetProperty("stack").EnumerateArray()); Assert.Equal("HIDDEN", shown.GetProperty("sourceObjectId").GetString());
             Assert.False(shown.TryGetProperty("delayedEmpower", out _));
+            AssertPrivateDelayedSpectatorSource(game);
             if (winningBurnout)
             {
                 Assert.Equal(MatchStatuses.Finished, game.State.Status); Assert.Equal("P2", game.State.WinnerPlayerId);
@@ -154,6 +155,30 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             else { await FinishEnd(game, "P1"); Assert.False(game.State.CardObjects[unit].IsEmpowered); }
             await game.Replay(); Restore(game.State);
         }
-        finally { await Save("delayed-source-private-winning-burnout-" + winningBurnout, initial, game, probe); }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN035_EVIDENCE") is { Length: > 0 } output)
+            {
+                Directory.CreateDirectory(output);
+                await File.WriteAllTextAsync(Path.Combine(output, "private-source-views-winning-burnout-" + winningBurnout + ".json"),
+                    JsonSerializer.Serialize(new { spectator = ResolutionResult.BuildSpectatorSnapshot(game.State), players = ResolutionResult.BuildSnapshots(game.State) }, Json));
+            }
+            await Save("delayed-source-private-winning-burnout-" + winningBurnout, initial, game, probe);
+        }
+    }
+
+    private static void AssertPrivateDelayedSpectatorSource(Driver game)
+    {
+        var state = game.State; var sequence = game.Events().Last().Sequence;
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        var original = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(Assert.Single(spectator.SpectatorSnapshot.Stack), Json), Json)!;
+        Assert.Equal("HIDDEN", Assert.IsType<JsonElement>(original["sourceObjectId"]).GetString());
+        original["sourceObjectId"] = "SPELL"; original["sourceVisibility"] = "VISIBLE";
+        var leaky = spectator with { SpectatorSnapshot = spectator.SpectatorSnapshot with { Stack = [original] } };
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, spectator));
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, leaky);
+        Assert.Contains(errors, e => e.Contains("source object", StringComparison.Ordinal) || e.Contains("sourceObjectId", StringComparison.Ordinal));
     }
 }
