@@ -40,7 +40,7 @@ public sealed class Ven089SubmittedDeckConsumerTests
                 var snapshot = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(game.State)[viewer], json);
                 var staged = Assert.Single(snapshot.GetProperty("stack").EnumerateArray(), item => item.GetProperty("sourceObjectId").GetString() == selected);
                 Assert.Equal(selectedNo, staged.GetProperty("cardNo").GetString());
-                Assert.Equal(generation + 1, staged.GetProperty("deckPlayPendingCard").GetProperty("card").GetProperty("generation").GetInt32());
+                Assert.Equal(generation + 2, staged.GetProperty("deckPlayPendingCard").GetProperty("card").GetProperty("generation").GetInt32());
                 if (viewer == actor) continue;
                 var visible = snapshot.GetRawText() + JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)[viewer], json);
                 foreach (var hidden in choice.ContextObjectIds.Where(id => id != selected)) Assert.DoesNotContain(hidden, visible, StringComparison.Ordinal);
@@ -48,21 +48,21 @@ public sealed class Ven089SubmittedDeckConsumerTests
             await game.ColdCheckpoint();
             await game.Act(actor, new PayCostCommand(decision.Request.Id, "RULE_REPLACEMENT", [create ? "CREATE" : "DECLINE"]));
             Assert.Contains(parent, game.State.PlayerZones[actor].Graveyard); Assert.Equal(5, game.State.PendingEffectPlay!.ManaReduction);
-            Assert.Equal(generation + 1, game.State.CardObjects[selected].ObjectGeneration); Assert.False(game.State.CardObjects[selected].IsEmpowered);
+            Assert.Equal(generation + 2, game.State.CardObjects[selected].ObjectGeneration); Assert.False(game.State.CardObjects[selected].IsEmpowered);
             Assert.All(choice.ContextObjectIds.Where(id => id != selected), id => Assert.Contains(id, game.State.PlayerZones[actor].MainDeck));
             await game.ColdCheckpoint();
             if (selectedNo == "VEN·070") await game.Act(actor, new RecycleRuneCommand(runes[1]));
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(selectedNo == "VEN·070" ? 1 : 0, game.State.RunePools[actor].TotalPower);
             await game.Act(actor, new PlayCardCommand(selected, selectedNo, []));
             Assert.Null(game.State.PendingEffectPlay); Assert.Contains(selected, game.State.PlayerZones[actor].Base);
-            Assert.Equal(generation + 2, game.State.CardObjects[selected].ObjectGeneration); Assert.False(game.State.CardObjects[selected].IsEmpowered);
+            Assert.Equal(generation + 3, game.State.CardObjects[selected].ObjectGeneration); Assert.False(game.State.CardObjects[selected].IsEmpowered);
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             Assert.Equal(selectedNo switch { "VEN·124" => 3, "VEN·070" => 4, _ => 0 }, game.Might(actor, selected));
             Assert.All(existingUnits, id => Assert.Contains(id, game.State.PlayerZones[actor].Base));
             if (create)
             {
                 var ability = Assert.Single(game.State.StackItems).DeckPlayReflexive!;
-                Assert.True(ability.Confirmed); Assert.Equal(new ObjectBinding(selected, generation + 2), ability.Played); Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
+                Assert.True(ability.Confirmed); Assert.Equal(new ObjectBinding(selected, generation + 3), ability.Played); Assert.Empty(Assert.Single(game.State.StackItems).TargetObjectIds);
             }
             else Assert.Empty(game.State.StackItems);
             await game.ColdCheckpoint();
