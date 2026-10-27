@@ -121,7 +121,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             await game.Act("P2", new PlayCardCommand(game.Hand("P2", "OGN·009/298").First(), "OGN·009/298", [source])); await game.Top();
             var item = Assert.Single(game.State.StackItems); var birth = Assert.IsType<LastBreathBattlefieldDamageContext>(item.LastBreathBattlefieldDamage);
             Assert.Equal(field, birth.BattlefieldObjectId); await game.ColdCheckpoint();
-            var other = game.State.CardObjects.Values.First(c => c.Tags.Contains(CardObjectTags.BattlefieldCard) && c.ObjectId != field).ObjectId;
+            var other = game.State.CardObjects.Values.First(c => c.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag) && c.ObjectId != field).ObjectId;
             await game.RejectCoordinatedForgery("area-skill-original-battlefield", game.State with { StackItems = [item with {
                 StackItemId = item.StackItemId.Replace("::BATTLEFIELD::" + field, "::BATTLEFIELD::" + other, StringComparison.Ordinal),
                 LastBreathBattlefieldDamage = birth with { BattlefieldObjectId = other } }] });
