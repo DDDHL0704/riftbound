@@ -37,6 +37,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidDelayedEmpower(MatchState state, DelayedEmpowerContext context)
         => context.Source is { Generation: >= 0 } && context.Unit is { Generation: >= 0 }
+            && !string.IsNullOrWhiteSpace(context.Source.ObjectId) && !string.IsNullOrWhiteSpace(context.Unit.ObjectId)
+            && !string.IsNullOrWhiteSpace(context.ControllerId)
             && !string.IsNullOrWhiteSpace(context.CreatingStackItemId) && context.ExecutionIndex >= 0
             && context.InstanceId == $"{context.CreatingStackItemId}:END-EMPOWER:{context.ExecutionIndex}:{context.Unit.ObjectId}"
             && context.CreatedAtTick > 0 && context.CreatedAtTick <= state.Tick
