@@ -135,7 +135,7 @@ public sealed class EmpoweredMovementTests
         Save(game, initial, "forgery-" + forgery);
     }
 
-    private static Task<ResolutionResult> ActivateHost(Driver game, string player)
+    private static Task ActivateHost(Driver game, string player)
     {
         var row = ResolutionResult.BuildPrompts(game.State)[player].Candidates!.Where(c => c.Action == CommandTypes.ActivateAbility)
             .SelectMany(c => Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(c.Metadata!["sourceRequirements"]))
