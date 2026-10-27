@@ -182,6 +182,17 @@ public sealed partial class CoreRuleEngine
                     { ["viewedCardsPublic"] = TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayRevealsCards,
                       ["viewedCards"] = p.ViewedCardIds.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state, id), IsPubliclyRevealedDeckCard(state, id) ? "已公开展示" : "仅你可见")).ToArray(),
                       ["reason"] = EffectPlayReason(p) } }).ToArray() };
+        // The fee depends on the selected source/mode/optional costs. Reuse the
+        // ordinary play composer; the server validates the completed declaration.
+        if (!p.IgnoreAllCosts && own.Candidates!.Single(c => c.Action == CommandTypes.PlayCard) is { Enabled: true, OptionalCosts.Count: > 0 } play)
+        {
+            var refuse = play with { Action = CommandTypes.RefusePlayPayment, Label = "拒绝所选打出的资源费用",
+                Reason = "选择来源、模式和额外费用；只有最终法力或符能费用非零时才可拒付。",
+                CommandTemplate = play.CommandTemplate! with { CmdType = CommandTypes.RefusePlayPayment },
+                Presentation = play.Presentation! with { Intent = "refuse-play-payment" } };
+            own = own with { Actions = own.Actions.Append(CommandTypes.RefusePlayPayment).ToArray(),
+                Candidates = own.Candidates!.Append(refuse).ToArray() };
+        }
         // A decline is a zero-card choice, using the existing native card-choice composer.
         if (CanFinishWithoutEffectPlay(state))
         {
@@ -227,9 +238,14 @@ public sealed partial class CoreRuleEngine
         // the player can decline those choices and refuse the default fee.
         return choices.Any(choice => {
             var behavior = choice.Behavior;
+            var pool = PaymentCostRules.PowerPoolForPurpose(state.RunePools.GetValueOrDefault(p.PlayerId) ?? RunePool.Empty,
+                PowerPurposeForPlay(behavior));
+            // Compulsory total-power reductions also apply to a waived-base
+            // play. A printed pip alone is not proof of a nonzero final fee.
+            var hasPowerPrice = TrySelectPlayPowerCost(state, p.PlayerId, behavior, null, pool,
+                SourceReplayPowerCost(state, p.PlayerId), new Dictionary<string, int>(), out var generic, out var typed);
             return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
-                || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
-                || SourceReplayPowerCost(state, p.PlayerId) > 0;
+                || hasPowerPrice && (generic > 0 || typed.Values.Any(amount => amount > 0));
         });
     }
 
@@ -297,6 +313,8 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "当前选择不能放弃或已经过期。", ErrorCodes.InvalidTarget);
             return FinishEffectPlay(state with { Tick = state.Tick + 1 }, intent, pending, []);
         }
+        if (command is RefusePlayPaymentCommand refusal)
+            return ResolveRefusePlayPayment(state, intent, pending, refusal);
         if (command is PlayCardCommand play)
         {
             if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)

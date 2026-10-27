@@ -1698,6 +1698,7 @@ public static partial class MatchRecoveryValidator
                 ValidateRawCommandStringArray(command, rawCommand, "handObjectIds", errors);
                 break;
             case CommandTypes.PlayCard:
+            case CommandTypes.RefusePlayPayment:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
@@ -2057,6 +2058,7 @@ public static partial class MatchRecoveryValidator
             CommandTypes.SubmitDeck
                 or CommandTypes.Mulligan
                 or CommandTypes.PlayCard
+                or CommandTypes.RefusePlayPayment
                 or CommandTypes.ActivateAbility
                 or CommandTypes.LegendAct
                 or CommandTypes.HideCard

@@ -110,6 +110,9 @@ public sealed class SelectedRecastFeeOpeningTests
                 changed["optionalCosts"] = new JsonArray();
                 altered[at] = altered[at] with { RawCommand = JsonSerializer.SerializeToElement(changed, Json) };
                 frame = frame with { Commands = altered }; Assert.Empty(frame.ValidationErrors);
+                var alteredShape = MatchRecoveryValidator.Validate(room, frame.LastEventSequence, frame.Commands, frame.Events,
+                    frame.PlayerViews, frame.AuthoritativeState!, frame.CurrentTick, frame.SpectatorReplayFrame);
+                Assert.Empty(alteredShape);
                 var writes = new Journal();
                 var registry = new InMemoryMatchSessionRegistry(engine, writes, new Store(frame), NoopMatchPlayerStore.Instance, options);
                 var error = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(room, default));

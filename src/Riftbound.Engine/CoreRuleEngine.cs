@@ -195,6 +195,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (state.PendingEffectPlay is not null)
             return Complete(ResolveEffectPlayCommand(state, intent, command));
+        if (command is RefusePlayPaymentCommand)
+            return Complete(RejectWithCorePrompts(state, "当前没有效果要求的再次打出。", ErrorCodes.PhaseNotAllowed));
 
         if (TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult))
         {

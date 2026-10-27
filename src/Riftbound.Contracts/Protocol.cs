@@ -82,6 +82,7 @@ public static class CommandTypes
     public const string EndTurn = "END_TURN";
     public const string Surrender = "SURRENDER";
     public const string PlayCard = "PLAY_CARD";
+    public const string RefusePlayPayment = "REFUSE_PLAY_PAYMENT";
     public const string ActivateAbility = "ACTIVATE_ABILITY";
     public const string LegendAct = "LEGEND_ACT";
     public const string HideCard = "HIDE_CARD";

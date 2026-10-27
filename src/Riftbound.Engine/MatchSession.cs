@@ -17972,12 +17972,15 @@ public sealed partial class MatchSession : IMatchSession
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
             // persist the request, including stale-prompt rejections.
-            if (command is PlayCardCommand
+            if (command is (PlayCardCommand or RefusePlayPaymentCommand)
                 && rawCommand is { ValueKind: JsonValueKind.Object } playRaw
                 && !HasCanonicalRequiredStringArray(playRaw, "targetObjectIds"))
                 return ResolutionResult.Rejected(state, "出牌目标格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (!HasCanonicalOptionalCosts(command, rawCommand))
                 return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+            if (command is RefusePlayPaymentCommand && rawCommand is { ValueKind: JsonValueKind.Object } refusalRaw
+                && (!HasCanonicalRequiredText(refusalRaw, "sourceObjectId") || !HasCanonicalRequiredText(refusalRaw, "cardNo")))
+                return ResolutionResult.Rejected(state, "拒付的出牌来源格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (command is DeclareBattleCommand
                 && rawCommand is { ValueKind: JsonValueKind.Object } raw
                 && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
@@ -18077,6 +18080,10 @@ public sealed partial class MatchSession : IMatchSession
             || tick.ValueKind == JsonValueKind.Number && tick.TryGetInt64(out var number) && number >= 0;
     }
 
+    private static bool HasCanonicalRequiredText(JsonElement raw, string field)
+        => raw.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String
+            && value.GetString() is { Length: > 0 } text && !string.IsNullOrWhiteSpace(text) && text == text.Trim();
+
     private static bool HasCanonicalRequiredStringArray(JsonElement raw, string field)
     {
         return raw.TryGetProperty(field, out var value)
@@ -18086,7 +18093,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static bool HasCanonicalOptionalCosts(GameCommand command, JsonElement? rawCommand)
     {
-        if (command is not (PlayCardCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
+        if (command is not (PlayCardCommand or RefusePlayPaymentCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
                 or RevealCardCommand or MoveUnitCommand or AssembleEquipmentCommand or DeclareBattleCommand)
             || rawCommand is not { ValueKind: JsonValueKind.Object } raw)
             return true;
