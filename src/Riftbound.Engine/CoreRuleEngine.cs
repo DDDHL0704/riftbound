@@ -203,6 +203,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (state.PendingPayment is not null)
         {
+            if (command is LegendActCommand legendResource
+                && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
+                && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+                return Complete(ResolveLegendAct(state, intent, legendResource));
             if (command is ActivateAbilityCommand resource
                 && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
                 && definition.IsResourceSkill && definition.ReactionSpeed)
@@ -228,6 +232,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (command.CmdType == CommandTypes.AssignEffectDamage) return Complete(ResolveEffectDamageAssignment(state, intent, command));
             if (state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION")
             {
+                if (command is LegendActCommand legendResource
+                    && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
+                    && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+                    return Complete(ResolveLegendAct(state, intent, legendResource));
                 if (command is ActivateAbilityCommand resource && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
                     && definition.IsResourceSkill && definition.ReactionSpeed) return Complete(ResolveActivateAbility(state, intent, resource));
                 if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));
@@ -665,7 +673,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 submittedPaymentResourceActions,
                 paymentResourceActions),
             legalPaymentChoiceIds: legalSpendChoiceIds);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -903,7 +911,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             TriggerKinds.BattlefieldConquerPayCreateGold,
             sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1014,7 +1022,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             trigger.Kind,
             sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1135,7 +1143,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             trigger.Kind,
             sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1220,7 +1228,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         if (canResolveBattlefieldReturnTrigger
-            && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+            && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                 playerZones,
                 cardObjects,
                 runePools,
@@ -1302,7 +1310,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             effectKind,
             sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -1409,7 +1417,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             effectKind,
             sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
+        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -3563,11 +3571,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentId);
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
+        var duelOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).DuelOnlyMana;
         var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             debitPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -3716,7 +3725,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
                     ["spellOnlyManaSpent"] = spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana,
-                    ["ordinaryManaSpent"] = plan.TotalManaCost - (spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana),
+                    ["duelOnlyManaSpent"] = duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana,
+                    ["ordinaryManaSpent"] = plan.TotalManaCost - (spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana)
+                        - (duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana),
                     ["power"] = plan.TotalPowerCost,
                     ["powerByTrait"] = plan.PowerCostByTrait,
                     ["experience"] = plan.TotalExperienceCost,
@@ -4010,7 +4021,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -4022,7 +4033,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -5513,6 +5524,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray()
@@ -5541,7 +5553,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -5553,7 +5565,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -5750,6 +5762,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -5779,7 +5792,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -5791,7 +5804,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6091,7 +6104,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6103,7 +6116,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6340,7 +6353,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6352,7 +6365,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6622,7 +6635,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6634,7 +6647,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6859,7 +6872,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -6871,7 +6884,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -7112,7 +7125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -7124,7 +7137,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -7545,24 +7558,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        if (ability.RequiresPendingSpellStackItem
-            && !PendingStackSourceHasTag(state, CardObjectTags.SpellCard))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{ability.DisplayName} requires a pending spell stack item.",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (ability.RequiresPendingEquipmentStackItem
-            && !PendingStackSourceHasTag(state, CardObjectTags.EquipmentCard))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{ability.DisplayName} requires a pending equipment stack item.",
-                ErrorCodes.InvalidTarget);
-        }
-
         if (ability.RequiresEzrealEnemyTargetsThisTurn
             && EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, intent.PlayerId) < EzrealEnemyTargetThreshold)
         {
@@ -7636,8 +7631,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             currentExperience.TryGetValue(intent.PlayerId, out var availableExperience)
                 ? availableExperience
-                : 0);
-        if (!paymentAuthorization.Accepted && currentPool.Mana < manaCost)
+                : 0, state: state);
+        if (!paymentAuthorization.Accepted && PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7669,7 +7664,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             state.RunePools,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -7828,7 +7823,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     isExhausted: true,
                     events);
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -7843,6 +7838,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 break;
             }
             case LegendAbilityEffectKinds.GainMana:
+            case LegendAbilityEffectKinds.GainDuelMana:
                 runePools = GainLegendMana(
                     runePools,
                     intent.PlayerId,
@@ -7851,13 +7847,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
                     command.AbilityId,
-                    events);
+                    events, duelOnly: ability.EffectKind == LegendAbilityEffectKinds.GainDuelMana);
                 break;
             case LegendAbilityEffectKinds.GainPower:
                 runePools = GainLegendPower(
                     runePools,
                     intent.PlayerId,
                     ability.PowerGainAmount,
+                    ability.GrantedPowerPurpose,
                     command.SourceObjectId,
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
@@ -7889,7 +7886,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -7908,7 +7905,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextState = state with
         {
             Tick = state.Tick + 1,
-            ActivePlayerId = intent.PlayerId,
+            ActivePlayerId = ability.TimingKind == LegendAbilityTimingKinds.ResourceAction ? state.ActivePlayerId : intent.PlayerId,
             RunePools = runePools,
             PlayerZones = playerZones,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
@@ -7934,6 +7931,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         LegendAbilityDefinition ability)
     {
+        if (ability.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+            return ResourceActionWindow.CanAct(state, playerId);
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
             return false;
@@ -7994,13 +7994,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         battlefieldObjectId = found?.ObjectId ?? string.Empty;
         battlefieldState = found ?? new CardObjectState();
         return found is not null;
-    }
-
-    private static bool PendingStackSourceHasTag(MatchState state, string tag)
-    {
-        return state.StackItems.Any(stackItem =>
-            state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-            && sourceState.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
     private static bool TryGetLegendAbility(
@@ -8139,7 +8132,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainMana,
                 RequiresPlayedAnotherCardThisTurn: true,
-                ManaGainAmount: DariusLegendManaGain),
+                ManaGainAmount: DariusLegendManaGain,
+                TimingKind: LegendAbilityTimingKinds.ResourceAction),
             DianaLegendAbilityId => new LegendAbilityDefinition(
                 DianaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(DianaLegendAbilityId),
@@ -8149,9 +8143,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 string.Empty,
                 0,
                 RequiresFriendlyUnitTarget: false,
-                LegendAbilityEffectKinds.GainMana,
+                LegendAbilityEffectKinds.GainDuelMana,
                 ManaGainAmount: DianaLegendManaGain,
-                TimingKind: LegendAbilityTimingKinds.SpellDuelFocus),
+                TimingKind: LegendAbilityTimingKinds.ResourceAction),
             KaisaLegendAbilityId => new LegendAbilityDefinition(
                 KaisaLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(KaisaLegendAbilityId),
@@ -8163,8 +8157,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainPower,
                 PowerGainAmount: KaisaLegendPowerGain,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
-                RequiresPendingSpellStackItem: true),
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.PlaySpell),
             OrnnLegendAbilityId => new LegendAbilityDefinition(
                 OrnnLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(OrnnLegendAbilityId),
@@ -8176,8 +8170,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainPower,
                 PowerGainAmount: OrnnLegendPowerGain,
-                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
-                RequiresPendingEquipmentStackItem: true),
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
             EzrealLegendAbilityId => new LegendAbilityDefinition(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -8640,19 +8634,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string sourceCardNo,
         IReadOnlyList<string> sourceCardNos,
         string abilityId,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        bool duelOnly = false)
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = currentPool with
-        {
-            Mana = currentPool.Mana + manaAmount
-        };
+        var nextPool = duelOnly
+            ? currentPool with { DuelOnlyMana = currentPool.DuelOnlyMana + manaAmount }
+            : currentPool with { Mana = currentPool.Mana + manaAmount };
         runePools[playerId] = nextPool;
-        events.Add(new GameEvent(
-            "MANA_GAINED",
-            $"{playerId} 通过传奇技能获得 {manaAmount} 点法力",
-            new Dictionary<string, object?>
+        var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
@@ -8666,7 +8657,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["amount"] = manaAmount,
                 ["mana"] = manaAmount,
                 ["manaAfter"] = nextPool.Mana
-            }));
+            };
+        if (duelOnly)
+        {
+            payload["manaRestriction"] = "SPELL_DUEL";
+            payload["duelOnlyManaAfter"] = nextPool.DuelOnlyMana;
+        }
+        events.Add(new GameEvent("MANA_GAINED", $"{playerId} 通过传奇技能获得 {manaAmount} 点法力", payload));
         return runePools;
     }
 
@@ -8674,6 +8671,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, RunePool> currentRunePools,
         string playerId,
         int powerAmount,
+        PowerPaymentPurpose purpose,
         string sourceObjectId,
         string sourceCardNo,
         IReadOnlyList<string> sourceCardNos,
@@ -8682,9 +8680,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = currentPool with
+        var nextPool = purpose switch
         {
-            Power = currentPool.Power + powerAmount
+            PowerPaymentPurpose.PlaySpell => currentPool with { SpellOnlyPower = currentPool.SpellOnlyPower + powerAmount },
+            PowerPaymentPurpose.Equipment => currentPool with { EquipmentOnlyPower = currentPool.EquipmentOnlyPower + powerAmount },
+            _ => currentPool with { Power = currentPool.Power + powerAmount }
         };
         runePools[playerId] = nextPool;
         events.Add(new GameEvent(
@@ -8703,7 +8703,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["generatedResource"] = true,
                 ["amount"] = powerAmount,
                 ["power"] = powerAmount,
-                ["powerAfter"] = nextPool.Power
+                ["powerAfter"] = nextPool.Power,
+                ["powerPurpose"] = purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
+                ["spellOnlyPowerAfter"] = nextPool.SpellOnlyPower,
+                ["equipmentOnlyPowerAfter"] = nextPool.EquipmentOnlyPower
             }));
         return runePools;
     }
@@ -9046,7 +9049,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9058,7 +9061,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9302,7 +9305,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             currentPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9314,7 +9317,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             state.RunePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9538,7 +9541,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             currentPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9550,7 +9553,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             state.RunePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9827,7 +9830,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             adjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
             return RejectWithCorePrompts(
@@ -9839,7 +9842,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             paymentPlan,
             runePools,
-            state.PlayerExperience);
+            state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
         {
             return RejectWithCorePrompts(
@@ -10554,7 +10557,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         generatedMana = checked(sourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana);
-        var restrictedSpent = Math.Min(currentPool.SpellOnlyMana + generatedMana, totalManaCost);
+        var afterDuelMana = totalManaCost - (PaymentCostRules.IsSpellDuel(state)
+            ? Math.Min(currentPool.DuelOnlyMana, totalManaCost) : 0);
+        var restrictedSpent = Math.Min(currentPool.SpellOnlyMana + generatedMana, afterDuelMana);
         consumedMana = Math.Max(0, restrictedSpent - currentPool.SpellOnlyMana);
         remainingMana = generatedMana - consumedMana;
         return true;
@@ -10629,7 +10634,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     // is unrelated to the current fee. Cost authorization still checks exact traits.
     internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
         => state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
-            && pool.TotalPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && pool.TotalStoredPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
                 && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
                 .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
@@ -15009,7 +15014,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out _);
     }
 
-    private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+    private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
@@ -15069,16 +15074,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < manaCost)
+        if (PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return false;
         }
 
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost
-        };
+        mutableRunePools[playerId] = PaymentCostRules.SpendMana(currentPool, manaCost, state: state);
         nextRunePools = mutableRunePools;
 
         events.Add(new GameEvent(
@@ -18542,6 +18544,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
+        var powerPurpose = PowerPurposeForPlay(behavior);
+        var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
         var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
@@ -18551,8 +18555,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
             .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, option.GenericPower, option.TypedPower))
-            .OrderBy(option => PaymentCostRules.PowerDeficit(paymentAdjustedPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
+                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower))
+            .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
             rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
@@ -18621,7 +18625,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: behavior.EffectKind,
             sourceObjectId: command.SourceObjectId,
             auditMetadata: paymentAudit,
-            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other);
+            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other,
+            powerPurpose: powerPurpose);
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
         {
@@ -18678,12 +18683,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
-            currentExperience);
+            currentExperience, state: state);
         if (!paymentAuthorization.Accepted)
         {
-            var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose) < totalManaCost
+            var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose, state: state) < totalManaCost
                 ? $"Not enough mana to play {behavior.DisplayName}."
-                : !CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait)
+                : !PaymentCostRules.CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait, powerPurpose)
                     ? $"Not enough power to play {behavior.DisplayName}."
                     : currentExperience < totalExperienceCost
                         ? $"Not enough experience to play {behavior.DisplayName}."
@@ -23158,7 +23163,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
@@ -23210,16 +23215,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || manaCost <= 0
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            || currentPool.Mana < manaCost)
+            || PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return false;
         }
 
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost
-        };
+        mutableRunePools[playerId] = PaymentCostRules.SpendMana(currentPool, manaCost, state: state);
         nextRunePools = mutableRunePools;
 
         events.Add(new GameEvent(
@@ -24330,7 +24332,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state, playerZones, cardObjects, behavior, stackItem, events, out var stolenLocations))
                 resolvedObjectLocations = stolenLocations;
 
-            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(state,
                     playerZones,
                     cardObjects,
                     runePools,
@@ -24965,7 +24967,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["ownerPlayerId"] = returnedOwnerPlayerId
                     }));
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -25001,7 +25003,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     returnedWasEquipment));
                 if (canResolveBattlefieldReturnTrigger
                     && !returnedWasEquipment
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -26273,7 +26275,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
 
                             if (!battlefieldReturnedWasEquipment
-                                && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                                && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                                     playerZones,
                                     cardObjects,
                                     runePools,
@@ -34780,11 +34782,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int ManaGainAmount = 0,
         int PowerGainAmount = 0,
         string TimingKind = LegendAbilityTimingKinds.MainOpen,
-        bool RequiresPendingSpellStackItem = false,
-        bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
-        string RequiredControlledBattlefieldStaticAbilityKind = "");
+        string RequiredControlledBattlefieldStaticAbilityKind = "",
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
 
     private static class LegendAbilityEffectKinds
     {
@@ -34796,6 +34797,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string AttachArmament = "ATTACH_ARMAMENT";
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
+        public const string GainDuelMana = "GAIN_DUEL_MANA";
         public const string GainPower = "GAIN_POWER";
         public const string ReadyFriendlyUnit = "READY_FRIENDLY_UNIT";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
@@ -34808,6 +34810,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public const string MainOpen = "MAIN_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }
 

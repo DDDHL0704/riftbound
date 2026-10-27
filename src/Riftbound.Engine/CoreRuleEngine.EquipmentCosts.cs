@@ -2,6 +2,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static PowerPaymentPurpose PowerPurposeForActivatedAbility(P4ActivatedAbilityDefinition ability)
+        => ability.RequiresBaseEquipmentSource || ability.SourceRequiredTag == CardObjectTags.EquipmentCard
+            ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
     private sealed record EquipmentCostAmounts(int Mana, int GenericPower,
         IReadOnlyDictionary<string, int> PowerByTrait, int Experience);
 
@@ -22,5 +26,5 @@ public sealed partial class CoreRuleEngine
             totalPowerCost: amounts.GenericPower + amounts.PowerByTrait.Values.Sum(),
             powerCostByTrait: amounts.PowerByTrait, experienceCost: amounts.Experience,
             optionalCostIds: costIds, paymentResourceActionIds: resourceActions,
-            reason: paymentWindow, sourceObjectId: sourceId);
+            reason: paymentWindow, sourceObjectId: sourceId, powerPurpose: PowerPaymentPurpose.Equipment);
 }

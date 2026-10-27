@@ -205,6 +205,8 @@ public sealed class VenBasicFlowSpellTests
         private readonly JsonSerializerOptions json = new(JsonSerializerDefaults.Web);
         private MatchSession session;
         internal MatchState State { get; private set; }
+        internal ResolutionResult? LastRetainedResult { get; private set; }
+        internal ActionPromptDto PromptFor(string player) => session.PromptFor(player);
         internal Driver(MatchState initial) { this.initial = initial; State = initial; session = new(initial, new CoreRuleEngine(), this); }
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token) { entries.Add(entry); return ValueTask.CompletedTask; }
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
@@ -240,6 +242,7 @@ public sealed class VenBasicFlowSpellTests
             var promptsBefore = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(State));
             var raw = retained.Cmd.Clone(); var command = GameCommandJsonMapper.Map(raw);
             var result = await session.SubmitAsync(retained.PlayerId, retained.ClientIntentId, command, raw, default);
+            LastRetainedResult = result;
             Assert.Equal(expectedAccepted, result.Accepted); State = result.State;
             if (!expectedAccepted) {
                 Assert.Equal(before, MatchStateHasher.Hash(State)); Assert.Empty(result.Events);

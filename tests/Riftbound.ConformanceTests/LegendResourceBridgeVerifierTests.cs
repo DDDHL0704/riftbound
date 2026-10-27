@@ -77,11 +77,11 @@ public sealed class LegendResourceBridgeVerifierTests
         Assert.True(result.State.CardObjects[profile.SourceObjectId].IsExhausted);
         if (string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal))
         {
-            Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+            Assert.Equal(ExpectedGrantedPool(profile), result.State.RunePools["P1"]);
         }
         else
         {
-            Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+            Assert.Equal(ExpectedGrantedPool(profile), result.State.RunePools["P1"]);
         }
 
         AssertResourceGainedEvent(result.Events, profile);
@@ -142,6 +142,12 @@ public sealed class LegendResourceBridgeVerifierTests
             PendingPayment = pendingPayment
         };
 
+        // The retained generic window cannot spend either restricted bucket.
+        // Keep its original positive payment assertions as an explicit ordinary-power control.
+        var restrictedAttempt = await PayCostAsync(paymentState, pendingPayment, ["SPEND_POWER:1"], profile, "unrestricted-window-reject");
+        AssertRejectedNoMutation(restrictedAttempt, MatchStateHasher.Hash(paymentState));
+        Assert.Equal(ExpectedGrantedPool(profile), restrictedAttempt.State.RunePools["P1"]);
+        paymentState = WithOrdinaryPowerControl(paymentState);
         var paid = await new CoreRuleEngine().ResolveAsync(
             paymentState,
             new PlayerIntent($"intent-legend-resource-bridge-power-consume-{profile.Name}-{profile.CardNo}", "P1", CommandTypes.PayCost),
@@ -157,6 +163,7 @@ public sealed class LegendResourceBridgeVerifierTests
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
         Assert.Equal(["SPEND_POWER:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        await AssertRestrictedLegendPaysActualMatchingAction(profile);
     }
 
     [Theory]
@@ -180,6 +187,13 @@ public sealed class LegendResourceBridgeVerifierTests
             PendingPayment = pendingPayment
         };
 
+        if (!paysMana)
+        {
+            var restrictedAttempt = await PayCostAsync(paymentState, pendingPayment, [paymentChoiceId], profile, "boundary-untyped-reject");
+            AssertRejectedNoMutation(restrictedAttempt, MatchStateHasher.Hash(paymentState));
+            Assert.Equal(ExpectedGrantedPool(profile), restrictedAttempt.State.RunePools["P1"]);
+            paymentState = WithOrdinaryPowerControl(paymentState);
+        }
         var paid = await PayCostAsync(paymentState, pendingPayment, [paymentChoiceId], profile, "boundary-first");
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
@@ -205,6 +219,7 @@ public sealed class LegendResourceBridgeVerifierTests
         Assert.True(duplicate.State.CardObjects[profile.SourceObjectId].IsExhausted);
         Assert.Equal(0, CountEvents(duplicate.Events, "COST_PAID"));
         Assert.Equal(0, CountEvents(duplicate.Events, "PAYMENT_WINDOW_CLOSED"));
+        if (!paysMana) await AssertRestrictedLegendPaysActualMatchingAction(profile);
     }
 
     [Theory]
@@ -234,6 +249,17 @@ public sealed class LegendResourceBridgeVerifierTests
     public async Task LegendResourceBridgeRejectsWrongGateWithoutMutation(BridgeProfile profile)
     {
         var state = BuildRejectState(profile);
+        if (profile.ResourceKind == "power" || profile.AbilityId == DianaAbilityId)
+        {
+            // Retain the exact old nonmatching-stack fixture as a positive control:
+            // CN430 allows acquiring resources without a matching already-paid card.
+            var allowed = await ResolveLegendActAsync(state, profile);
+            Assert.True(allowed.Accepted, allowed.ErrorMessage); Assert.Equal(ExpectedGrantedPool(profile), allowed.State.RunePools["P1"]);
+            Assert.Equal(state.PriorityPlayerId, allowed.State.PriorityPlayerId);
+            state = profile.AbilityId == DianaAbilityId
+                ? state with { TurnPlayerId = "P2", ActivePlayerId = "P2" }
+                : state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
+        }
         var initialStateHash = MatchStateHasher.Hash(state);
 
         var result = await ResolveLegendActAsync(state, profile);
@@ -247,6 +273,13 @@ public sealed class LegendResourceBridgeVerifierTests
     public void LegendResourceBridgePromptFiltersIllegalSourceAtWrongGate(BridgeProfile profile)
     {
         var state = BuildRejectState(profile);
+        if (profile.ResourceKind == "power" || profile.AbilityId == DianaAbilityId)
+        {
+            AssertLegendActPrompt(state, profile);
+            state = profile.AbilityId == DianaAbilityId
+                ? state with { TurnPlayerId = "P2", ActivePlayerId = "P2" }
+                : state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
+        }
         var p1Prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
         Assert.DoesNotContain(
@@ -294,10 +327,7 @@ public sealed class LegendResourceBridgeVerifierTests
         var duplicate = await ResolveLegendActAsync(gained.State, profile);
 
         AssertRejectedNoMutation(duplicate, afterFirstUseHash);
-        Assert.Equal(new RunePool(
-            string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal) ? 1 : 0,
-            string.Equals(profile.ResourceKind, "power", StringComparison.Ordinal) ? 1 : 0),
-            duplicate.State.RunePools["P1"]);
+        Assert.Equal(ExpectedGrantedPool(profile), duplicate.State.RunePools["P1"]);
     }
 
     [Theory]
@@ -695,6 +725,10 @@ public sealed class LegendResourceBridgeVerifierTests
         {
             PendingPayment = pendingPayment
         };
+        var restrictedAttempt = await PayCostAsync(paymentState, pendingPayment, ["SPEND_POWER:1"], profile, "power-untyped-reject");
+        AssertRejectedNoMutation(restrictedAttempt, MatchStateHasher.Hash(paymentState));
+        Assert.Equal(ExpectedGrantedPool(profile), restrictedAttempt.State.RunePools["P1"]);
+        paymentState = WithOrdinaryPowerControl(paymentState);
         var paid = await PayCostAsync(paymentState, pendingPayment, ["SPEND_POWER:1"], profile, "power-duplicate-first");
         Assert.True(paid.Accepted, paid.ErrorMessage);
         var afterSpendHash = MatchStateHasher.Hash(paid.State);
@@ -703,6 +737,69 @@ public sealed class LegendResourceBridgeVerifierTests
 
         AssertRejectedNoMutation(duplicate, afterSpendHash);
         Assert.Equal(RunePool.Empty, duplicate.State.RunePools["P1"]);
+        await AssertRestrictedLegendPaysActualMatchingAction(profile);
+    }
+
+    private static RunePool ExpectedGrantedPool(BridgeProfile profile) => profile.AbilityId switch {
+        DianaAbilityId => RunePool.Empty with { DuelOnlyMana = 1 },
+        DariusAbilityId => new RunePool(1, 0),
+        OrnnAbilityId => RunePool.Empty with { EquipmentOnlyPower = 1 },
+        KaisaAbilityId => RunePool.Empty with { SpellOnlyPower = 1 },
+        _ => throw new InvalidOperationException("No reviewed resource profile for " + profile.AbilityId)
+    };
+
+    private static MatchState WithOrdinaryPowerControl(MatchState state)
+        => state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(0, 1) } };
+
+    private static async Task AssertRestrictedLegendPaysActualMatchingAction(BridgeProfile profile)
+    {
+        // Current source-conformant midgame fixture, with actual source IDs for all five printings.
+        // This path never assigns a payment purpose or converts the gained bucket into ordinary power.
+        var spell = profile.AbilityId == KaisaAbilityId;
+        Assert.True(spell || profile.AbilityId == OrnnAbilityId);
+        var no = spell ? "UNL-010/219" : "SFD·078/221";
+        var initial = RestrictedPowerPlayTests.Position(no, spell);
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects);
+        cards[profile.SourceObjectId] = cards["LEGEND"] with { ObjectId = profile.SourceObjectId, CardNo = profile.CardNo };
+        cards.Remove("LEGEND");
+        cards["SECOND-CARD"] = OfficialGarenConquestBattlefieldCountTests.Printed("SECOND-CARD", no, "P1");
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations);
+        locations[profile.SourceObjectId] = locations["LEGEND"]; locations.Remove("LEGEND");
+        locations["SECOND-CARD"] = new("P1", spell ? "HAND" : "BASE");
+        var zones = new Dictionary<string, PlayerZones>(initial.PlayerZones);
+        zones["P1"] = zones["P1"] with { LegendZone = [profile.SourceObjectId] };
+        if (spell)
+        {
+            zones["P1"] = zones["P1"] with { Hand = [..zones["P1"].Hand, "SECOND-CARD"], Base = [..zones["P1"].Base, "PAY-RUNE"] };
+            cards["PAY-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("PAY-RUNE", "UNL-R01", "P1");
+            locations["PAY-RUNE"] = new("P1", "BASE");
+        }
+        else
+        {
+            zones["P1"] = zones["P1"] with { Hand = zones["P1"].Hand.Where(id => id != "CARD").ToArray(),
+                Base = [..zones["P1"].Base, "CARD", "SECOND-CARD"] };
+            locations["CARD"] = new("P1", "BASE");
+        }
+        initial = initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones,
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(spell ? 1 : 0, 0) } };
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await game.Act("P1", new LegendActCommand(profile.SourceObjectId, profile.AbilityId, [], []));
+        Assert.Equal(1, game.State.RunePools["P1"].TotalStoredPower); Assert.Equal(0, game.State.RunePools["P1"].Power);
+        GameCommand Command(string id) => spell ? new PlayCardCommand(id, no, ["HOST"])
+            : new ActivateAbilityCommand(id, P4ActivatedAbilityCatalog.NextSpellEchoAbilityId, []);
+        await game.Act("P1", Command("CARD")); Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+        var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event;
+        Assert.Equal(1, paid.Payload["totalPowerCost"]); Assert.Equal(spell ? "PLAY_SPELL" : "EQUIPMENT", paid.Payload["powerPurpose"]);
+        await game.Top();
+        // Supply only the spell's next mana through a real rune action; its spent power stays absent.
+        if (spell) await game.Act("P1", new TapRuneCommand("PAY-RUNE"));
+        var before = MatchStateHasher.Hash(game.State); var count = game.Events().Length;
+        var command = Command("SECOND-CARD"); var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
+        raw["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; raw["snapshotTick"] = game.State.Tick;
+        await game.ActRetained(new("P1", "spent-restricted-power-on-another-source", JsonSerializer.SerializeToElement(raw, json)), false);
+        Assert.Equal(before, MatchStateHasher.Hash(game.State)); Assert.Equal(count, game.Events().Length);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower); await game.Replay();
     }
 
     private static void AssertLegendActPrompt(MatchState state, BridgeProfile profile)

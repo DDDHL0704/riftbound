@@ -42,7 +42,8 @@ public sealed partial class CoreRuleEngine
         var paymentId = PaymentCostRules.BuildPaymentId(state.Tick + 1, window, intent.PlayerId, command.SourceObjectId, command.AbilityId);
         var plan = new PaymentCostRules.PaymentPlan(paymentId, window, intent.PlayerId, 0, 0, tax, tax,
             paymentResourceActionIds: resources, reason: ability.EffectKind, sourceObjectId: command.SourceObjectId,
-            abilityId: ability.AbilityId, auditMetadata: new Dictionary<string, object?> {
+            abilityId: ability.AbilityId, powerPurpose: PowerPurposeForActivatedAbility(ability),
+            auditMetadata: new Dictionary<string, object?> {
                 ["spellshieldTaxPower"] = tax, ["spellshieldTaxTargetObjectIds"] = taxedTargets.ToArray(),
                 ["recycledRuneObjectIds"] = recycledRunes.ToArray(), ["exhaustsSource"] = true,
                 ["targetObjectIds"] = targets.ToArray() });
@@ -52,7 +53,7 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
             intent.PlayerId, recycledRunes, events, window, paymentId);
-        var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience);
+        var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted)
             return RejectWithCorePrompts(state, "资源不足，无法支付目标的法盾。", ErrorCodes.InsufficientCost);
 

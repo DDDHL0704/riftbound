@@ -35,14 +35,15 @@ public sealed partial class CoreRuleEngine
                 PaymentCostRules.BuildPaymentId(state.Tick, ImposedMovementPaymentKind, player, sourceId),
                 ImposedMovementPaymentKind, player, genericPowerCost: amount, totalPowerCost: amount,
                 reason: "MAGESEEKER_PATROL_MOVE_TAX_STATIC", sourceObjectId: sourceId);
-            var canPay = PaymentCostRules.AuthorizePayment(plan, pool).Accepted;
+            var canPay = PaymentCostRules.AuthorizePayment(plan, pool, state: state).Accepted;
             var multipleAllocations = canPay && amount < pool.TotalPower
                 && pool.PowerByTrait.Values.Count(value => value > 0) + (pool.Power > 0 ? 1 : 0) > 1;
             // A uniquely funded standard intent still completes directly.
             if (canPay && standardMove && !acquired && !multipleAllocations) { Commit(plan); return ImposedMovementPaymentResult.Paid; }
 
             var resources = ReplacementResourceActions(context, player)
-                .Where(r => !standardMove || !r.Ability.ExhaustsSourceAsCost || !movers.Contains(r.Command.SourceObjectId, StringComparer.Ordinal))
+                .Where(r => !standardMove || r.Ability?.ExhaustsSourceAsCost != true
+                    || r.Command is not ActivateAbilityCommand activated || !movers.Contains(activated.SourceObjectId, StringComparer.Ordinal))
                 .ToArray();
             var options = new List<RuleChoiceOption>();
             if (canPay) options.Add(new("PAY", $"支付 {amount} 点符能，执行此次群体移动"));
@@ -56,7 +57,7 @@ public sealed partial class CoreRuleEngine
                     || locations.GetValueOrDefault(id) is not { Zone: "BASE" } position || position.PlayerId != player) continue;
                 if (!rune.IsExhausted && CanGainSpellOnlyMana(pool, 1))
                     options.Add(new("TAP_RUNE:" + id, "横置符文获得 1 点法力，之后继续选择", [id]));
-                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                if (pool.HasSupportedAmounts && (long)pool.TotalStoredPower + 1 <= int.MaxValue)
                     options.Add(new("RECYCLE_RUNE:" + id, "回收符文获得 1 点符能，之后继续选择", [id]));
             }
             options.AddRange(resources.Select(r => r.Choice));
@@ -105,7 +106,7 @@ public sealed partial class CoreRuleEngine
 
             void Commit(PaymentCostRules.PaymentPlan selectedPlan)
             {
-                var paid = PaymentCostRules.TryCommitPayment(selectedPlan, pools);
+                var paid = PaymentCostRules.TryCommitPayment(selectedPlan, pools, state: state);
                 if (!paid.Accepted) throw new InvalidOperationException("Invalid imposed movement payment: " + paid.ErrorMessage);
                 ReplaceMovementPaymentState(pools, paid.RunePools);
                 events.Add(new("COST_PAID", "支付群体移动的施加费用",

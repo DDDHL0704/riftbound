@@ -8,7 +8,7 @@ public sealed partial class CoreRuleEngine
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (!pool.HasSupportedAmounts) return false;
-        if ((long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
+        if ((long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
 
         // The destruction cost may pause before the gain. A replacement can
         // spend power, or its resource window can convert power first. Read the
@@ -32,14 +32,15 @@ public sealed partial class CoreRuleEngine
         long released = options.Any(o => o.Kind == "SETT" && !o.Payment.StartsWith("RUNE:", StringComparison.Ordinal)) ? 1 : 0;
         if (optionalAvailable
             && ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player)
-                .Any(action => action.Ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
+                .Any(action => action.Ability?.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId))
         {
             // Existing resource windows only exchange power/mana or add
             // resources. Conversion can release at most the joint mana room;
             // a legal zero conversion releases nothing.
-            released += Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+            released += Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
+                (long)int.MaxValue - pool.TotalStoredMana);
         }
-        return (long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
+        return (long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
     }
 
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,
@@ -154,7 +155,7 @@ public sealed partial class CoreRuleEngine
         if (ResourceQuantityRules.ConversionPrefix(ability.AbilityId) is { } conversionPrefix
             && choices.SequenceEqual([conversionPrefix + ResourceQuantityRules.ChooseAmountSuffix]))
         {
-            if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum))
+            if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum, state))
                 return RejectWithCorePrompts(state, "资源数量超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
             if ((long)maximum + 1 <= ResourceQuantityRules.DirectChoiceLimit)
                 return RejectWithCorePrompts(state, "该数量范围应直接选择精确数字。", ErrorCodes.InvalidTarget);
@@ -179,16 +180,24 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "请选择合法的资源转换数量。", ErrorCodes.InvalidTarget);
             if (ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
             {
-                if (pool.Mana < amount) return RejectWithCorePrompts(state, "法力不足。", ErrorCodes.InsufficientCost);
-                pool = pool with { Mana = pool.Mana - amount };
+                if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) < amount)
+                    return RejectWithCorePrompts(state, "法力不足。", ErrorCodes.InsufficientCost);
+                pool = PaymentCostRules.SpendMana(pool, amount, state: state);
                 power = amount;
             }
             else if (ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             {
-                // [A] as a cost accepts power of any trait (CN 135.2.e.5.a).
-                if (pool.TotalPower < amount) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
-                var paid = PayPowerCost(pool, amount, new Dictionary<string, int>());
-                pool = pool with { Power = paid.AnyPower, PowerByTrait = paid.PowerByTrait };
+                // This is the equipment's own resource ability. Its [A] cost
+                // can use Ornn's equipment bucket, while Kaisa's stays restricted.
+                var plan = new PaymentCostRules.PaymentPlan(
+                    PaymentCostRules.BuildPaymentId(state.Tick + 1, "RESOURCE_CONVERSION", intent.PlayerId,
+                        command.SourceObjectId, ability.AbilityId),
+                    "RESOURCE_CONVERSION", intent.PlayerId, genericPowerCost: amount, totalPowerCost: amount,
+                    sourceObjectId: command.SourceObjectId, abilityId: ability.AbilityId,
+                    powerPurpose: PowerPurposeForActivatedAbility(ability));
+                var paid = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state: state);
+                if (!paid.Accepted) return RejectWithCorePrompts(state, "符能不足。", ErrorCodes.InsufficientCost);
+                pool = paid.RunePools[intent.PlayerId];
                 mana = amount;
             }
         }
