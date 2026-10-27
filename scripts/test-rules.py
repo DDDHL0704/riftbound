@@ -69,9 +69,11 @@ def report(path):
     tree = ET.parse(path)
     rows = tree.findall('.//t:UnitTestResult', NS)
     counters = tree.find('.//t:ResultSummary/t:Counters', NS)
-    if counters is None or not rows or int(counters.get('total', 0)) != len(rows):
+    keys = ('total', 'passed', 'failed', 'notExecuted')
+    if (counters is None or any(counters.get(key) is None for key in keys)
+            or not rows or int(counters.get('total')) != len(rows)):
         raise ValueError(f'Missing, empty or inconsistent TRX: {path}')
-    return rows, {key: int(counters.get(key, 0)) for key in ('total', 'passed', 'failed', 'notExecuted')}
+    return rows, {key: int(counters.get(key)) for key in keys}
 
 
 def elapsed(value):
