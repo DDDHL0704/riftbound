@@ -3247,7 +3247,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4939,27 +4939,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return ResolveWatchfulSentinelLastBreathDrawPlayerId(destroyedState, removalResult);
     }
 
-    private static string? ResolveUnitLastBreathCallRunePlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult)
-    {
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
-                out var triggerSpec)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown)
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
 
     private static string? ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
         CardObjectState destroyedState,
@@ -26079,20 +26058,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var warhawkRunePlayerId = ResolveUnitLastBreathCallRunePlayerId(
-                                targetState,
-                                removalResult);
-                            if (warhawkRunePlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    warhawkRunePlayerId,
-                                    TriggerKinds.UnitLastBreathCallRuneOne);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
                             var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
                                 targetState,
                                 removalResult,
@@ -27116,11 +27081,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.EffectKind,
                 "UNIT_DESTROYED"))
         };
+        int count;
+        if (stackItem.LastBreathRuneCall is { } captured)
+        {
+            if (!ValidLastBreathRuneCallStack(state, stackItem) || !TryGetLastBreathRuneCallSpec(captured, out var spec))
+                throw new InvalidOperationException("Invalid captured last-breath rune call.");
+            count = spec.RuneCallCount!.Value;
+        }
+        else
+        {
+            if (UnitDestroyedTriggerSpecRules.LastBreathRuneCallTriggers(stackItem.CardNo).Any(t => t.RequiresSourceEmpowered is not null))
+                throw new InvalidOperationException("A conditional last-breath rune call needs its captured source state.");
+            count = UnitLastBreathCallRuneCount(cardObjects, stackItem.SourceObjectId);
+        }
         var runeCallResult = CallRunes(
             playerZones,
             cardObjects,
             stackItem.ControllerId,
-            UnitLastBreathCallRuneCount(cardObjects, stackItem.SourceObjectId));
+            count);
         events.Add(new GameEvent(
             "RUNES_CALLED",
             $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
@@ -31639,7 +31617,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
             Death = removed && removal.WasDestroyed && removal.WasUnit
-                ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [] }
+                ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }
                 : null,
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
@@ -33202,20 +33180,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     objectId,
                     honestBrokerControllerId,
                     TriggerKinds.UnitLastBreathCreateDormantGold);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            var scoutingWarhawkControllerId = ResolveUnitLastBreathCallRunePlayerId(
-                destroyedState,
-                removalResult);
-            if (scoutingWarhawkControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    scoutingWarhawkControllerId,
-                    TriggerKinds.UnitLastBreathCallRuneOne);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }
