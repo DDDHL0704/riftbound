@@ -84,7 +84,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         finally { await Save("conditional-native-" + no.Replace('/', '-') + "-ally-" + hasAlly, initial, game); }
     }
 
-    private static MatchState Position(string no = Unit)
+    internal static MatchState Position(string no = Unit)
     {
         var state = VenUnitEntryBasicTests.Position(no) with { RoomId = "LAST-BREATH-DRAW-COPIES",
             RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
@@ -95,7 +95,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         return state;
     }
 
-    private static MatchState Add(MatchState state, string id, string no, string owner, string zone)
+    internal static MatchState Add(MatchState state, string id, string no, string owner, string zone)
         => state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner) },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(owner, zone) },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [owner] = zone switch {
@@ -104,10 +104,10 @@ public sealed partial class LastBreathDrawBoundaryTests
                 "GRAVEYARD" => state.PlayerZones[owner] with { Graveyard = [..state.PlayerZones[owner].Graveyard, id] },
                 _ => state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } } };
 
-    private static async Task Tap(Driver game, string player)
+    internal static async Task Tap(Driver game, string player)
     { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
 
-    private static async Task Save(string label, MatchState initial, Driver game)
+    internal static async Task Save(string label, MatchState initial, Driver game)
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_LAST_BREATH_DRAW_EVIDENCE") is not { Length: > 0 } output) return;
         Directory.CreateDirectory(output);
