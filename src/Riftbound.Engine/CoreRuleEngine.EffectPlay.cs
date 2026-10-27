@@ -221,11 +221,13 @@ public sealed partial class CoreRuleEngine
         // withdrawing that play, even when those resources are already pooled.
         // CN445.1.b does not permit refusing a zero fee. A legal free route
         // therefore still has to be carried out for a mandatory instruction.
+        // Optional discard, experience or sacrifice reductions are not assumed:
+        // the player can decline those choices and refuse the default fee.
         return EffectPlaySources(state, p.PlayerId).All(id => {
             var card = state.CardObjects[id];
             return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {
                 var behavior = EffectPlayBehavior(state, p.PlayerId, b);
-                return MinimumPlayManaCost(state, p.PlayerId, behavior, id).Total == 0
+                return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: id).Total == 0
                     && PrintedPowerCostRules.ForPlay(behavior).Amount == 0
                     && SourceReplayPowerCost(state, p.PlayerId) == 0;
             });
