@@ -55,9 +55,13 @@ public sealed partial class FullGameEndToEndTests
         var battlefieldId = BattlefieldObjectIdForPlayer(initialState, "P1");
         var previousController = initialState.CardObjects[battlefieldId].ControllerId;
         var journal = new RecordingMatchJournal();
-        var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
         RecordConquestFixturePrefix(source, "initial", current);
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(initialState));
+        var restored = OfficialInsightAndSpellLockTests.Restore(initialState);
+        Assert.Equal(MatchStateHasher.Hash(initialState), MatchStateHasher.Hash(restored));
+        var session = new MatchSession(restored, new CoreRuleEngine(), journal);
+        current = AcceptedCurrentResult(restored);
         var triggered = source switch
         {
             "vayne" => await SubmitVayneConquestReturnDeclareBattleAsync(session, current, "P1", room),
