@@ -26,6 +26,7 @@ def verify_tests(folder, profile, commit):
             or not re.fullmatch(r'[0-9a-f]{64}', plan.get('testAssemblySha256', ''))):
         raise ValueError('A successful nonempty actual L2 plan and summary are required.')
     names, methods, total = set(), set(), 0
+    shard_counters = {}
     for shard in plan['shards']:
         name, expected = shard['name'], set(shard['methods'])
         if not re.fullmatch(r'[a-z0-9-]+', name) or name in names or not expected or methods & expected:
@@ -34,8 +35,11 @@ def verify_tests(folder, profile, commit):
         methods.update(expected)
         rows, counters = RULES.report(tests / name / 'results.trx')
         RULES.verify(rows, counters, expected)
+        shard_counters[name] = counters
         total += counters['total']
     discovered = RULES.discover((tests / 'discovery.log').read_text())
+    if not methods <= discovered:
+        raise ValueError('L2 plan contains methods absent from discovery.')
     declared_l3 = RULES.l3_acceptance_methods()
     if (plan.get('l2Only') is not True or set(plan.get('deferredL3Methods', [])) != declared_l3
             or not declared_l3 <= discovered or methods & declared_l3):
@@ -46,7 +50,9 @@ def verify_tests(folder, profile, commit):
     if (len(actual_summaries) != len(names) or {s['shard'] for s in actual_summaries} != names
             or summary.get('total') != total or total <= 0
             or any(s.get('passed') != s.get('total') or s.get('failed') != 0
-                   or s.get('notExecuted') != 0 for s in actual_summaries)):
+                   or s.get('notExecuted') != 0 for s in actual_summaries)
+            or any(s.get(key) != shard_counters[s['shard']][key]
+                   for s in actual_summaries for key in ('total', 'passed', 'failed', 'notExecuted'))):
         raise ValueError('L2 summary differs from the actual passing TRX results.')
     return dict(profile=profile, methods=len(methods), cases=total, deferredL3Methods=sorted(declared_l3),
                 testAssemblySha256=plan['testAssemblySha256'])
