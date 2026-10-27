@@ -114,23 +114,35 @@ public sealed class VenEmpowerCanonicalOpeningTests
         finally { await game.Save("ven072-" + actor); }
     }
 
-    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null, IReadOnlyList<string>? battlefields = null)
+    internal sealed record CanonicalDeckInput(string TemplateId, string Rune, string[] Additions, IReadOnlyList<string>? RuneDeck = null);
+
+    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null, IReadOnlyList<string>? battlefields = null, CanonicalDeckInput? opponent = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
-        var main = original.MainDeck.ToList();
-        for (var i = 0; i < additions.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
-        main.InsertRange(0, additions);
-        var deck = original with { MainDeck = main, RuneDeck = runeDeck?.ToArray() ?? Enumerable.Repeat(rune, 12).ToArray(),
-            Battlefields = battlefields?.ToArray() ?? original.Battlefields };
-        Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
+        var templates = PreconstructedDeckCatalog.Build(catalog);
+        OfficialDecklist BuildDeck(string id, string runeNo, string[] added, IReadOnlyList<string>? runes, IReadOnlyList<string>? fields = null)
+        {
+            var original = templates.Single(d => d.Id == id).Decklist;
+            var main = original.MainDeck.ToList();
+            for (var i = 0; i < added.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
+            main.InsertRange(0, added);
+            var result = original with { MainDeck = main, RuneDeck = runes?.ToArray() ?? Enumerable.Repeat(runeNo, 12).ToArray(),
+                Battlefields = fields?.ToArray() ?? original.Battlefields };
+            Assert.True(OfficialDeckValidator.Validate(result, catalog).IsValid);
+            return result;
+        }
+        var deck = BuildDeck(templateId, rune, additions, runeDeck, battlefields);
+        var opposingDeck = opponent is null ? deck : BuildDeck(opponent.TemplateId, opponent.Rune, opponent.Additions, opponent.RuneDeck);
         var initial = MatchReplayInitialStateBuilder.FromSeats("VEN-CANONICAL-" + templateId + "-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
         var game = new CanonicalGame(initial);
         try
         {
             foreach (var player in new[] { "P1", "P2" })
-                await game.Act(player, new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields));
+            {
+                var submitted = player == actor ? deck : opposingDeck;
+                await game.Act(player, new SubmitDeckCommand(submitted.LegendCardNo, submitted.ChampionCardNo, submitted.MainDeck, submitted.RuneDeck, submitted.Battlefields));
+            }
             await game.Act("P1", new ReadyCommand());
             await game.Act("P2", new ReadyCommand());
             await game.Act(game.State.ActivePlayerId, new MulliganCommand([]));
