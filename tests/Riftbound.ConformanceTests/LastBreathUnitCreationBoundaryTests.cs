@@ -6,7 +6,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class LastBreathUnitCreationBoundaryTests
+public sealed partial class LastBreathUnitCreationBoundaryTests
 {
     private const string No = "VEN·128";
     private const string Kill = "OGN·229/298";
