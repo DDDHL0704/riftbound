@@ -78,7 +78,31 @@ public sealed class Ven013And103PaidGraveyardConsumers
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-013-103-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
         var game = new CanonicalGame(initial);
-        async Task Act(string player, GameCommand command) { await game.Act(player, command); await game.ColdCheckpoint(); }
+        async Task Act(string player, GameCommand command)
+        {
+            await game.Act(player, command); await game.ColdCheckpoint();
+            if (game.State.Phase != MatchPhases.TurnStart) return;
+            for (var step = 0; step < 12 && game.State.Phase == MatchPhases.TurnStart; step++)
+            {
+                Assert.Null(game.State.PendingCardChoice);
+                var trigger = Assert.Single(game.State.StackItems);
+                Assert.Equal("CAPTURED_BEGINNING_DRAW", trigger.EffectKind);
+                Assert.Equal("OGN·251/298", trigger.CardNo);
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await game.ColdCheckpoint();
+            }
+            Assert.Equal(MatchPhases.Main, game.State.Phase);
+        }
+        async Task WaitFor(string player, params string[] cards)
+        {
+            for (var turn = 0; turn < 80; turn++)
+            {
+                Assert.Equal(MatchPhases.Main, game.State.Phase);
+                if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
+                    && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
+                await Act(game.State.TurnPlayerId!, new EndTurnCommand());
+            }
+            Assert.Fail("The fixed legal deck must naturally draw the required cards within the bounded turns.");
+        }
         try
         {
             foreach (var player in new[] { "P1", "P2" })
@@ -87,9 +111,9 @@ public sealed class Ven013And103PaidGraveyardConsumers
             await Act(game.State.ActivePlayerId, new MulliganCommand([]));
             await Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             var enemy = Arena.Other(actor);
-            await game.WaitFor(actor, 12, Assassin, Assassin, Return); await game.ColdCheckpoint();
-            await game.WaitFor(enemy, 12, Assassin, Strike); await game.ColdCheckpoint();
-            await game.WaitFor(actor, 12); await game.ColdCheckpoint();
+            await WaitFor(actor, Assassin, Assassin, Return); await game.ColdCheckpoint();
+            await WaitFor(enemy, Assassin, Strike); await game.ColdCheckpoint();
+            await WaitFor(actor); await game.ColdCheckpoint();
             var units = game.Hand(actor, Assassin).Take(2).ToArray();
             var food = game.Hand(enemy, Assassin).First(); var spell = game.Hand(actor, Return).First();
             var strike = game.Hand(enemy, Strike).First();
