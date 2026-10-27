@@ -68,10 +68,10 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
-        Assert.Equal("44151ac318c8961d6bfbbc0b60e295fb149d619420dafd33835f99bfe319050f", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("06d1691637cd0750546481265b86b363c78d0f4bbd5c16770331415d0bc66cd2", RuleInputIdentity.Current.CatalogSha256);
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1087, catalog.Cards.Count);
-        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057", "VEN·035", "VEN·128" })
+        Assert.Equal(1088, catalog.Cards.Count);
+        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057", "VEN·035", "VEN·128", "VEN·078" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
     }
 
