@@ -18810,9 +18810,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayerExperience = stackResolution.PlayerExperience,
                 RunePools = resolvedRunePools,
                 CardObjects = resolvedCardObjects,
-                UntilEndOfTurnEffects = state.BattleState.IsActive && !resolvedBattleState.BattleState.IsActive
-                    ? ClearBattleResponseDeclarationContextMarkers(stackResolution.UntilEndOfTurnEffects)
-                    : stackResolution.UntilEndOfTurnEffects,
+                // FinalizeTokenDepartures still has to bind newly ceased battle
+                // participants. Battle settlement clears the declaration later.
+                UntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects,
                 RngCursor = stackResolution.RngCursor,
                 DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                     state.DestroyedUnitOwnerIdsThisTurn,

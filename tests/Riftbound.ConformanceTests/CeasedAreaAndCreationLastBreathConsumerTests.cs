@@ -204,12 +204,22 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
                 }
                 Assert.False(game.State.CardObjects.ContainsKey(token)); Assert.Equal(0, game.State.CardObjects["ALLY"].Damage);
                 Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+                Assert.True(game.State.BattleState.IsActive); Assert.Equal("BF", game.State.BattleState.BattlefieldObjectId);
+                if (i == 0)
+                    Assert.Contains("invalid private battle scope lifetime or players", OfficialInsightAndSpellLockTests.Errors(game.State with {
+                        UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(e => !e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray() }));
                 Assert.Equal(copies - i, game.State.StackItems.Count);
             }
             Assert.False(game.State.CardObjects.ContainsKey(other)); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
             Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); Assert.Empty(game.State.TriggerQueue);
             foreach (var player in new[] { "P1", "P2" })
                 Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == player && c.Tags.Contains(CardObjectTags.RuneCard)));
+            var scores = game.State.PlayerScores.ToDictionary(); await BattleWinnerPhaseBoundaryTests.PassFocus(game);
+            Assert.False(game.State.BattleState.IsActive); Assert.False(game.State.SpellDuelState.IsActive); Assert.Null(game.State.PendingBattleResult);
+            Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_NO_RESULT"); Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
+            Assert.Equal(scores, game.State.PlayerScores); Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+            Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal)
+                || e.StartsWith("BATTLE_ROLE_", StringComparison.Ordinal));
             await game.Replay();
         }
         finally { await Flow.Save("created-copied-ceased-battlefield-area-copies-" + copies, initial, game); }
