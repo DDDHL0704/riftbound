@@ -9,7 +9,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class Ven128EmpoweredLastBreathConsumerTests
+public sealed partial class Ven128EmpoweredLastBreathConsumerTests
 {
     private const string No = "VEN·128";
     private const string Text = "{{强化1黄色}}（支付{{1}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}}{{>绝念>}} 打出两名1{{S}}的“随从”到你的基地。（当我在已强化状态下被摧毁时，发动此效果。）";
