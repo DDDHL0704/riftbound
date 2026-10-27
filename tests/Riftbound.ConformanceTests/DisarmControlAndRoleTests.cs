@@ -22,11 +22,12 @@ public sealed class DisarmControlAndRoleTests
             hidingField = "HOME";
             initial = initial with {
                 CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                    [hidingField] = OfficialGarenConquestBattlefieldCountTests.Printed(hidingField, "OGN·275/298", "P1") with { ControllerId = "P1" } },
+                    [hidingField] = OfficialGarenConquestBattlefieldCountTests.Printed(hidingField, "OGN·275/298", "P1") with { ControllerId = "P1" },
+                    ["HOME-HOLDER"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOME-HOLDER", "OGN·175/298", "P1") },
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
-                    [hidingField] = new("P1", "BATTLEFIELD", hidingField) },
+                    [hidingField] = new("P1", "BATTLEFIELD", hidingField), ["HOME-HOLDER"] = new("P1", "BATTLEFIELD", hidingField) },
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
-                    ["P1"] = initial.PlayerZones["P1"] with { Battlefields = [..initial.PlayerZones["P1"].Battlefields, hidingField] } } };
+                    ["P1"] = initial.PlayerZones["P1"] with { Battlefields = [..initial.PlayerZones["P1"].Battlefields, hidingField, "HOME-HOLDER"] } } };
         }
         else initial = initial with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
         Restore(initial); ArmamentMightTests.PublicRecovery(initial);
