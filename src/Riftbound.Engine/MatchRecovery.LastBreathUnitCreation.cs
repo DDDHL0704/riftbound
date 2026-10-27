@@ -19,7 +19,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured last-breath unit creation stack");
         foreach (var item in state.TriggerQueue)
             if (item.LastBreathUnitCreation is not null ? !CoreRuleEngine.ValidLastBreathUnitCreationTrigger(state, item)
-                : NeedsCapturedCondition(item.SourceCardNo ?? state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo, item.EffectKind))
+                : NeedsCapturedCondition(item.SourceCardNo ?? (string.IsNullOrWhiteSpace(item.SourceObjectId) ? null : state.CardObjects.GetValueOrDefault(item.SourceObjectId)?.CardNo), item.EffectKind))
                 errors.Add("invalid captured last-breath unit creation trigger");
         var contexts = state.StackItems.Select(i => i.LastBreathUnitCreation)
             .Concat(state.TriggerQueue.Select(i => i.LastBreathUnitCreation)).OfType<LastBreathUnitCreationContext>().ToArray();

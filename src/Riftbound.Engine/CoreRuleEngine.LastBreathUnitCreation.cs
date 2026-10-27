@@ -61,6 +61,8 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(context.InstanceId) || context.TurnNumber != state.TurnNumber
             || context.CreatedAtTick <= 0 || context.CreatedAtTick > state.Tick
             || !TryGetLastBreathUnitCreationSpec(context, out _)) return false;
+        if (context.Origin is { } binding && (binding.Unit is null || binding.Equipment is null
+            || string.IsNullOrWhiteSpace(binding.Unit.ObjectId) || string.IsNullOrWhiteSpace(binding.Equipment.ObjectId))) return false;
         var expectedInstance = context.Origin is { Unit: not null, Equipment: not null } origin
             ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
             : $"PRINTED:{context.Source.ObjectId}:{context.Source.Generation}";
@@ -81,7 +83,7 @@ public sealed partial class CoreRuleEngine
             && item.StackItemId == "ordered-" + LastBreathUnitCreationTriggerId(context)
             && item.ControllerId == context.ControllerId && item.SourceObjectId == context.Source.ObjectId
             && item.CardNo == context.CardNo && item.EffectKind == context.Kind
-            && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null;
+            && item.TargetObjectIds is { Count: 0 } && item.TargetGenerations is null;
 
     internal static bool ValidLastBreathUnitCreationTrigger(MatchState state, TriggerQueueItemState item)
         => item.LastBreathUnitCreation is { } context && ValidLastBreathUnitCreation(state, context)
