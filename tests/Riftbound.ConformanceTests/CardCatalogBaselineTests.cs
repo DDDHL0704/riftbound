@@ -654,7 +654,7 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Stun
             ]);
 
-        // VEN057 adds classified draw/move/trigger text; these counts do not certify its gated movement consumer.
+        // VEN128 adds classified destruction/LastBreath text; counts do not certify its dependent trigger.
         AssertFamily(report, BehaviorTemplateIds.Draw, 143, 143, 0, 0, 123, 123, 0);
         // Current Zhonya damage-removal wording adds one text-family member, not damage execution.
         AssertFamily(report, BehaviorTemplateIds.Damage, 156, 156, 0, 0, 137, 137, 0);
@@ -949,16 +949,16 @@ public sealed class CardCatalogBaselineTests
         AssertLifecycleKeywordCoverage(
             lifecycleRows,
             CardLifecycleKeywordNames.LastBreath,
-            entries: 25,
-            specImplementedEntries: 25,
-            functionalUnits: 25,
-            specImplementedFunctionalUnits: 25,
+            entries: 26,
+            specImplementedEntries: 26,
+            functionalUnits: 26,
+            specImplementedFunctionalUnits: 26,
             profileImplementedEntries: 0,
             profileDelegatedEntries: 0,
-            profileDeferredEntries: 25,
+            profileDeferredEntries: 26,
             profileImplementedFunctionalUnits: 0,
             profileDelegatedFunctionalUnits: 0,
-            profileDeferredFunctionalUnits: 25);
+            profileDeferredFunctionalUnits: 26);
         AssertLifecycleKeywordCoverage(
             lifecycleRows,
             CardLifecycleKeywordNames.Predict,
@@ -975,12 +975,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 556,
-            specImplementedEntries: 556,
+            entries: 557,
+            specImplementedEntries: 557,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 446,
-            specImplementedFunctionalUnits: 446,
+            functionalUnits: 447,
+            specImplementedFunctionalUnits: 447,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,

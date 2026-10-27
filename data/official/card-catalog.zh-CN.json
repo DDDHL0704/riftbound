@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1086,
+  "total": 1087,
   "cards": [
     {
       "id": 31005,
@@ -45332,6 +45332,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37828,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·128",
+      "cardName": "诺克萨斯使节",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{强化1黄色}}（支付{{1}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}}{{>绝念>}} 打出两名1{{S}}的“随从”到你的基地。（当我在已强化状态下被摧毁时，发动此效果。）",
+      "flavorText": "他的每个字背后，都是整个诺克萨斯的力量。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/57fcade8fe364dbfb1f7c7eb0757d773.png",
+      "backImage": "",
+      "listSort": 1858,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46739,6 +46787,31 @@
       "printedFaceIdentity": "VEN·035/166 SC",
       "frontImageSha256": "f36ea6bc7a9a1c32d668b75d3eb32bbf449dcae9abc7c903545726aeab718329",
       "reason": "Exact modal Reaction source for actual empowerment/removal and delayed end-step consumers;3mana GREEN1. Existing1085 records and scoped additions retained. Missing shared runtime/legality/delayed status transitions remain to be verified. No whole-card or applicability certification."
+    },
+    {
+      "cardNo": "VEN·128",
+      "sourceId": 37828,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "诺克萨斯使节",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-27T06:03:33.916198+00:00",
+      "sourceRecordSha256": "a81261697e215beb7e38060ded585993c5786a806c54ba7d998479f44207d168",
+      "sourceResponseSha256": "4c23c1a3c47ecca8d11fcceff4d7c257858d3cf65903229435f596280b15f1bd",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·128/166 SC",
+      "frontImageSha256": "347854dde383a605fd6208635779cf54609f70af22b6b2244e371d4127323297",
+      "reason": "Exact CN printing for real typed-resource Empower and dependent LastBreath consumers. Parser and death producer gaps are under executable investigation; registration is not runtime, applicability or whole-card certification."
     }
   ]
 }
