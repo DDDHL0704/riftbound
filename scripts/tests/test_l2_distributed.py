@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import importlib.util
 import json
 import os
@@ -40,16 +41,26 @@ class DistributedL2Tests(unittest.TestCase):
         self.inventory = dict(cases=bare, modules=[dict(name=name, sha256='a' * 64,
             mvid='12345678-1234-1234-1234-123456789abc', informationalVersion='1.0.0+' + self.commit)
             for name in sorted(D.MODULES)])
-        self.plan = D.make_plan(self.text, self.inventory, {self.dynamic: 100, self.theory: 50}, 6)
+        self.scope = dict(schemaVersion=1, sourceHead=self.commit,
+            discoverySha256=hashlib.sha256(self.text.encode()).hexdigest(),
+            discoveredMethods=len(D.RULES.discover(self.text)), declaredTestMethods=len(D.RULES.discover(self.text)),
+            unmatchedDeclaredMethods=[], unmatchedDiscoveredMethods=[], sourceRelatedMethodCount=3, sourceGuardBatchCount=2,
+            semanticTestsExecuted=False, existingLanesChanged=False, unknownMethodsRemainInExistingRuleSuite=True,
+            methods=[dict(method=self.fact, includeInSourceGuardBatch=True, existingLane='L2'),
+                     dict(method=self.dynamic, includeInSourceGuardBatch=False, existingLane='L2'),
+                     dict(method=sorted(D.RULES.l3_acceptance_methods())[0], includeInSourceGuardBatch=True, existingLane='L3')])
+        self.plan = D.make_plan(self.text, self.inventory, self.scope, {self.dynamic: 100, self.theory: 50}, 6)
         self.checkout = dict(status='FIXED_CANDIDATE_CHECKOUT_VERIFIED', actualSha=self.commit,
                              expectedSha=self.commit, eventSha=self.commit, treeSha='d' * 40, runId='123', runAttempt='1')
         self.put(self.prepared / 'checkout.json', self.checkout)
         self.put(self.prepared / 'case-inventory.json', self.inventory)
+        self.put(self.prepared / 'source-scope/source-guard-methods.json', self.scope)
         self.put(self.prepared / 'bundle-manifest.json', {name + '.dll': 'a' * 64 for name in D.MODULES})
         (self.prepared / 'discovery.log').write_text(self.text)
         self.plan.update(commit=self.commit, sdkVersion='10.0.100', runId='123', runAttempt='1', testAssemblySha256='a' * 64,
                          bundleManifestSha256=D.digest(self.prepared / 'bundle-manifest.json'),
                          caseInventorySha256=D.digest(self.prepared / 'case-inventory.json'),
+                         sourceScopeSha256=D.digest(self.prepared / 'source-scope/source-guard-methods.json'),
                          discoverySha256=D.digest(self.prepared / 'discovery.log'))
         self.put(self.prepared / 'plan.json', self.plan)
         for shard in self.plan['shards']:
@@ -93,6 +104,9 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual(2, len([row for row in result['rawCaseMapping'] if row['method'] == self.dynamic]))
         self.assertFalse(result['l3SqlNetworkRestartOrFullMatrixCertified'])
         self.assertEqual('DERIVED_FROM_ORIGINAL_SHARD_TRX', D.read(self.target / 'view.json')['execution'])
+        self.assertEqual(1, result['sourceGuardMethods'])
+        self.assertEqual([self.fact], [row['method'] for row in result['sourceGuardCaseMapping']])
+        self.assertNotIn(self.plan['sourceGuardNightlyMethods'][0], self.plan['methods'])
 
     def test_targeted_cli_derives_original_rows_without_executing_a_test_runner(self):
         output = self.root / 'cli-targeted'
@@ -173,6 +187,16 @@ class DistributedL2Tests(unittest.TestCase):
     def test_unknown_impact_cannot_silently_become_filename_only_subset(self):
         plan = copy.deepcopy(self.plan);plan['targeted']['methods'] = [self.fact]
         with self.assertRaisesRegex(ValueError, 'Unknown impact'): D.validate_plan(plan, self.text)
+
+    def test_source_scope_is_bound_to_current_sha_discovery_and_original_l3_lane(self):
+        variations = [{**self.scope, 'sourceHead': '2' * 40}, {**self.scope, 'discoverySha256': 'b' * 64},
+                      {**self.scope, 'declaredTestMethods': self.scope['declaredTestMethods'] - 1}]
+        duplicate = copy.deepcopy(self.scope);duplicate['methods'][1]['method'] = self.fact;variations.append(duplicate)
+        wrong_lane = copy.deepcopy(self.scope);wrong_lane['methods'][2]['existingLane'] = 'L2';variations.append(wrong_lane)
+        for scope in variations:
+            self.put(self.prepared / 'source-scope/source-guard-methods.json', scope)
+            self.put(self.prepared / 'plan.json', {**self.plan, 'sourceScopeSha256': D.digest(self.prepared / 'source-scope/source-guard-methods.json')})
+            with self.subTest(scope=scope), self.assertRaises(ValueError): D.check_prepared(self.prepared, self.commit)
 
     def test_actual_shard_module_metadata_cannot_rebind_mvid(self):
         path = self.inputs / 'shard-1/module-audit.json';audit = D.read(path)

@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import time
 import xml.etree.ElementTree as ET
@@ -62,7 +63,26 @@ def partition(methods, weights, count):
     return bins
 
 
-def make_plan(text, inventory, weights, count=6):
+def source_scope_methods(scope, text):
+    discovered = RULES.discover(text)
+    records = scope.get('methods', [])
+    deferred = RULES.l3_acceptance_methods()
+    names = [row['method'] for row in records]
+    selected = {row['method'] for row in records if row['includeInSourceGuardBatch']}
+    if (scope.get('schemaVersion') != 1 or scope.get('discoverySha256') != hashlib.sha256(text.encode()).hexdigest()
+            or scope.get('discoveredMethods') != len(discovered) or scope.get('declaredTestMethods') != len(discovered)
+            or scope.get('unmatchedDeclaredMethods') != [] or scope.get('unmatchedDiscoveredMethods') != []
+            or len(names) != len(set(names)) or not set(names) <= discovered
+            or scope.get('sourceRelatedMethodCount') != len(records) or scope.get('sourceGuardBatchCount') != len(selected)
+            or scope.get('semanticTestsExecuted') is not False or scope.get('existingLanesChanged') is not False
+            or scope.get('unknownMethodsRemainInExistingRuleSuite') is not True
+            or any(row['method'] in deferred and row['existingLane'] != 'L3' for row in records)):
+        raise ValueError('Source-scope inventory differs from the complete fresh declaration/discovery input.')
+    required = RULES.l2_rule_methods(discovered)
+    return sorted(selected & required), sorted(selected - required)
+
+
+def make_plan(text, inventory, source_scope, weights, count=6):
     discovered = RULES.discover(text)
     selected = RULES.l2_rule_methods(discovered)
     cases = defaultdict(list)
@@ -76,9 +96,11 @@ def make_plan(text, inventory, weights, count=6):
         cases[method] = inventory['cases'][method]
     if any(not rows or any(RULES.method(row) != method for row in rows) for method, rows in cases.items()):
         raise ValueError('Empty or foreign parameter rows in fresh inventory.')
-    result = dict(schemaVersion=1, profile='l2-distributed', methods=sorted(selected),
+    source_l2, source_nightly = source_scope_methods(source_scope, text)
+    result = dict(schemaVersion=2, profile='l2-distributed', methods=sorted(selected),
                   cases=dict(sorted(cases.items())), deferredL3Methods=sorted(RULES.l3_acceptance_methods()),
                   shards=partition(selected, weights, count),
+                  sourceGuardL2Methods=source_l2, sourceGuardNightlyMethods=source_nightly,
                   targeted=dict(mode='full-fallback', reason='No audited dependency closure; validate the complete L2 input.',
                                 methods=sorted(selected), execution='DERIVED_FROM_ORIGINAL_SHARD_TRX'))
     validate_plan(result, text)
@@ -89,7 +111,7 @@ def validate_plan(plan, text):
     expected = RULES.l2_rule_methods(RULES.discover(text))
     names = [shard['name'] for shard in plan['shards']]
     assigned = Counter(method for shard in plan['shards'] for method in shard['methods'])
-    if (plan.get('schemaVersion') != 1 or plan.get('profile') != 'l2-distributed'
+    if (plan.get('schemaVersion') != 2 or plan.get('profile') != 'l2-distributed'
             or set(plan['methods']) != expected or len(plan['methods']) != len(expected)
             or set(assigned) != expected or any(n != 1 for n in assigned.values())
             or not names or len(set(names)) != len(names)
@@ -130,9 +152,15 @@ def check_prepared(prepared, commit):
             or digest(prepared / 'discovery.log') != plan['discoverySha256']):
         raise ValueError('Prepared assembly, case inventory or discovery identity differs.')
     inventory = read(prepared / 'case-inventory.json')
-    expected = make_plan((prepared / 'discovery.log').read_text(), inventory, {}, len(plan['shards']))
+    source_scope_path = prepared / 'source-scope/source-guard-methods.json'
+    source_scope = read(source_scope_path)
+    if source_scope.get('sourceHead') != commit or digest(source_scope_path) != plan.get('sourceScopeSha256'):
+        raise ValueError('Source-scope candidate or artifact identity differs from the prepared build.')
+    expected = make_plan((prepared / 'discovery.log').read_text(), inventory, source_scope, {}, len(plan['shards']))
     if plan['cases'] != expected['cases']:
         raise ValueError('Plan changed the freshly enumerated parameter rows.')
+    if any(plan[key] != expected[key] for key in ['sourceGuardL2Methods', 'sourceGuardNightlyMethods']):
+        raise ValueError('Source guard view changed the classified methods or their original execution lanes.')
     modules = inventory.get('modules', [])
     if len(modules) != len(MODULES) or {module.get('name') for module in modules} != MODULES:
         raise ValueError('Require each of the exact six built modules once.')
@@ -213,10 +241,15 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
     if any(target_checkout.get(key) != q.get(key) for key in
            ['status', 'actualSha', 'expectedSha', 'eventSha', 'treeSha', 'runId', 'runAttempt']):
         raise ValueError('Targeted view checkout differs from the required execution.')
+    source_methods = set(plan['sourceGuardL2Methods'])
     return dict(status='L2_REQUIRED_PASSED', commit=commit, mode='ONE_EXECUTION_DERIVED_TARGETED', jobs=jobs,
                 methods=len(plan['methods']), cases=len(mapping), shards=len(plan['shards']),
                 testAssemblySha256=plan['testAssemblySha256'], planSha256=digest(prepared / 'plan.json'),
                 rawCaseMapping=mapping, shardExecutionSeconds=seconds,
+                sourceCoverageExecution='DERIVED_FROM_SAME_ORIGINAL_TRX',
+                sourceGuardMethods=len(plan['sourceGuardL2Methods']),
+                sourceGuardCaseMapping=[row for row in mapping if row['method'] in source_methods],
+                sourceScopeSha256=plan['sourceScopeSha256'],
                 l3SqlNetworkRestartOrFullMatrixCertified=False)
 
 
@@ -247,15 +280,22 @@ def prepare(commit, output, count, github_output):
     helper = inventory_project / 'bin/Debug/net10.0/L2CaseInventory.dll'
     run_logged(['dotnet', str(helper), str(bundle / ASSEMBLY), str(output / 'unexpanded-methods.json'),
                 str(output / 'case-inventory.json')], output / 'inventory.log')
+    scanner_project = ROOT / 'tools/source-guard-scope/scanner/Scanner.csproj'
+    run_logged(['dotnet', 'build', str(scanner_project), '-m:1', '-v:q', '--nologo'], output / 'source-scanner-build.log')
+    scanner = scanner_project.parent / 'bin/Debug/net10.0/Scanner.dll'
+    run_logged([sys.executable, str(ROOT / 'tools/source-guard-scope/generate_inventory.py'), '--repo', str(ROOT),
+                '--source-head', commit, '--discovery', str(output / 'discovery.log'), '--scanner', str(scanner),
+                '--output', str(output / 'source-scope')], output / 'source-inventory.log')
     for suffix in ['.dll', '.deps.json', '.runtimeconfig.json']:
         shutil.copyfile(helper.with_name('L2CaseInventory' + suffix), bundle / ('L2CaseInventory' + suffix))
     files = bundle_files(bundle)
     write(output / 'bundle-manifest.json', files)
     weights = RULES.load_weights(ROOT / 'scripts/l2-method-timings.json')
-    plan = make_plan(text, read(output / 'case-inventory.json'), weights, count)
+    plan = make_plan(text, read(output / 'case-inventory.json'), read(output / 'source-scope/source-guard-methods.json'), weights, count)
     plan.update(commit=commit, sdkVersion=sdk, runId=checkout['runId'], runAttempt=checkout['runAttempt'],
                 testAssemblySha256=files[ASSEMBLY], bundleManifestSha256=digest(output / 'bundle-manifest.json'),
                 caseInventorySha256=digest(output / 'case-inventory.json'), discoverySha256=digest(output / 'discovery.log'),
+                sourceScopeSha256=digest(output / 'source-scope/source-guard-methods.json'),
                 prepareSeconds=round(time.monotonic() - began, 3))
     write(output / 'plan.json', plan)
     check_prepared(output, commit)

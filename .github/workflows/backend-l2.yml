@@ -36,6 +36,8 @@ jobs:
           python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
           python3 -m unittest discover -s scripts/tests -p test_project_governance.py -v
           python3 -m unittest discover -s scripts/tests -p test_current_audit.py -v
+          python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
+          python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
       - name: Make retained audit commit available without rewriting evidence
         run: python3 scripts/ensure-retained-ci-commit.py
       - name: Source-index and governance integrity
@@ -76,6 +78,7 @@ jobs:
           path: |
             var/qa/l2-prepared/*.json
             var/qa/l2-prepared/*.log
+            var/qa/l2-prepared/source-scope/source-guard-methods.json
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
