@@ -20,7 +20,8 @@ public sealed partial class CoreRuleEngine
             var pool = pools.GetValueOrDefault(player) ?? RunePool.Empty;
             var options = new List<RuleChoiceOption> { new(DeclinePaymentChoiceId, "不支付，尝试无效化该法术") };
             var spend = BuildSpendManaPaymentChoiceId(manaCost);
-            if (pool.Mana >= manaCost) options.Add(new(spend, $"支付 {manaCost} 法力，保留该法术"));
+            if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, context) >= manaCost)
+                options.Add(new(spend, $"支付 {manaCost} 法力，保留该法术"));
             foreach (var rune in zones[player].Base.Where(id => cards.TryGetValue(id, out var card)
                 && card.Tags.Contains(CardObjectTags.RuneCard) && !card.IsFaceDown
                 && SourceObjectControlledByPlayerOrLegacyOwned(card, player) && TryGetRuneTrait(card, out _))
@@ -56,7 +57,7 @@ public sealed partial class CoreRuleEngine
             // another independent execution can request resources or payment.
             var paymentCapture = BeginRuleChoiceResourceStep(context, player, selected);
             var paymentEventStart = events.Count;
-            pools[player] = pool with { Mana = pool.Mana - manaCost };
+            pools[player] = PaymentCostRules.SpendMana(pool, manaCost, state: context);
             events.Add(new("COST_PAID", $"支付 {manaCost} 法力，保留法术", new Dictionary<string, object?> {
                 ["playerId"] = player, ["mana"] = manaCost, ["power"] = 0,
                 ["sourceObjectId"] = counter.SourceObjectId, ["targetStackItemId"] = targetId,

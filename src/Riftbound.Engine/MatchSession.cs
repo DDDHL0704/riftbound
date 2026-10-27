@@ -9957,7 +9957,7 @@ internal static class ActionPromptBuilder
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
         if (pool.TotalPower >= 1) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
-        if (pool.Mana >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
+        if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
     }
@@ -10576,7 +10576,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (!ResourceQuantityRules.TryConversionMaximum(runePool, ability.AbilityId, out var conversionMaximum)) return [];
+        if (!ResourceQuantityRules.TryConversionMaximum(runePool, ability.AbilityId, out var conversionMaximum, state)) return [];
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
         {
             return ResourceConversionChoices(
@@ -11266,7 +11266,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (runePool.Mana < requirement.ManaCost)
+        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < requirement.ManaCost)
         {
             return false;
         }
@@ -11552,7 +11552,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.Mana >= ability.ManaCost
+        return PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) >= ability.ManaCost
             && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
@@ -11942,7 +11942,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (runePool.Mana < requirement.ManaCost)
+        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < requirement.ManaCost)
         {
             return false;
         }
@@ -12001,7 +12001,7 @@ internal static class ActionPromptBuilder
     {
         return manaCost >= 0
             && powerCost >= 0
-            && runePool.Mana >= manaCost
+            && PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) >= manaCost
             && runePool.TotalPower >= powerCost;
     }
 
@@ -12367,7 +12367,7 @@ internal static class ActionPromptBuilder
         int manaCost = 0)
     {
         runePool = PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Equipment);
-        if (runePool.Mana < manaCost)
+        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return false;
         }
@@ -14502,7 +14502,7 @@ internal static class ActionPromptBuilder
             var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
+            if (AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
                     $"{behavior.DisplayName}的可选额外费用"));
@@ -14580,7 +14580,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId)
     {
         if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+            || AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
             || !SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
         {
             return false;
@@ -14720,7 +14720,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var sources = PromptLuxSpellOnlyResourceSourceObjectIds(state, playerId, sourceObjectId).Count;
-        var capacity = Math.Max(0, int.MaxValue - AvailablePlayMana(state, runePool, behavior));
+        var capacity = Math.Max(0, int.MaxValue - runePool.TotalStoredMana);
         return Math.Min(sources, capacity / P4ActivatedAbilityCatalog.LuxGeneratedMana) * P4ActivatedAbilityCatalog.LuxGeneratedMana;
     }
 
@@ -14906,7 +14906,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId)
     {
         return behavior.TargetEffectAdditionalPowerCost > 0
-            && (runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+            && (AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
                     + behavior.TargetEffectAdditionalManaCost
                 && CanPayTargetEffectAdditionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,

@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
             if (ability.AbilityId is P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId or P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             {
                 var stele = ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId;
-                if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum)) continue;
+                if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum, state)) continue;
                 var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
                 if ((long)maximum + 1 > ResourceQuantityRules.DirectChoiceLimit)
                     Add([prefix + ResourceQuantityRules.ChooseAmountSuffix], $"横置：选择 0–{maximum} 的转换数量");
@@ -88,10 +88,13 @@ public sealed partial class CoreRuleEngine
         {
             var prefix = ResourceQuantityRules.ConversionPrefix(ability.AbilityId)!;
             if (costs.SequenceEqual([prefix + ResourceQuantityRules.ChooseAmountSuffix]))
-                return ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out _);
+                return ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out _, state);
             if (!TryReadResourceConversionAmount(ability.AbilityId, costs, out var amount)) return false;
             if (ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
-            { mana -= amount; power += amount; }
+            {
+                if (amount > PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state)) return false;
+                mana -= amount; power += amount;
+            }
             else
             {
                 if (amount > PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower) return false;

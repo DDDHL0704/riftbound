@@ -1228,7 +1228,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         if (canResolveBattlefieldReturnTrigger
-            && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+            && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                 playerZones,
                 cardObjects,
                 runePools,
@@ -7632,7 +7632,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentExperience.TryGetValue(intent.PlayerId, out var availableExperience)
                 ? availableExperience
                 : 0, state: state);
-        if (!paymentAuthorization.Accepted && currentPool.Mana < manaCost)
+        if (!paymentAuthorization.Accepted && PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7823,7 +7823,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     isExhausted: true,
                     events);
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -7886,7 +7886,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -10557,7 +10557,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         generatedMana = checked(sourceObjectIds.Count * P4ActivatedAbilityCatalog.LuxGeneratedMana);
-        var restrictedSpent = Math.Min(currentPool.SpellOnlyMana + generatedMana, totalManaCost);
+        var afterDuelMana = totalManaCost - (PaymentCostRules.IsSpellDuel(state)
+            ? Math.Min(currentPool.DuelOnlyMana, totalManaCost) : 0);
+        var restrictedSpent = Math.Min(currentPool.SpellOnlyMana + generatedMana, afterDuelMana);
         consumedMana = Math.Max(0, restrictedSpent - currentPool.SpellOnlyMana);
         remainingMana = generatedMana - consumedMana;
         return true;
@@ -15012,7 +15014,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out _);
     }
 
-    private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+    private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
@@ -15072,16 +15074,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < manaCost)
+        if (PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return false;
         }
 
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost
-        };
+        mutableRunePools[playerId] = PaymentCostRules.SpendMana(currentPool, manaCost, state: state);
         nextRunePools = mutableRunePools;
 
         events.Add(new GameEvent(
@@ -23164,7 +23163,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
@@ -23216,16 +23215,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || manaCost <= 0
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            || currentPool.Mana < manaCost)
+            || PaymentCostRules.AvailableMana(currentPool, ManaPaymentPurpose.Other, state) < manaCost)
         {
             return false;
         }
 
         var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost
-        };
+        mutableRunePools[playerId] = PaymentCostRules.SpendMana(currentPool, manaCost, state: state);
         nextRunePools = mutableRunePools;
 
         events.Add(new GameEvent(
@@ -24336,7 +24332,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state, playerZones, cardObjects, behavior, stackItem, events, out var stolenLocations))
                 resolvedObjectLocations = stolenLocations;
 
-            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(state,
                     playerZones,
                     cardObjects,
                     runePools,
@@ -24971,7 +24967,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["ownerPlayerId"] = returnedOwnerPlayerId
                     }));
                 if (canResolveBattlefieldReturnTrigger
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -25007,7 +25003,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     returnedWasEquipment));
                 if (canResolveBattlefieldReturnTrigger
                     && !returnedWasEquipment
-                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -26279,7 +26275,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             }
 
                             if (!battlefieldReturnedWasEquipment
-                                && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                                && TryResolveBattlefieldUnitReturnedCallRuneTrigger(state,
                                     playerZones,
                                     cardObjects,
                                     runePools,

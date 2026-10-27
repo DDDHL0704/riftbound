@@ -35027,19 +35027,31 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
-        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(RunePool.Empty with { DuelOnlyMana = 1 }, result.State.RunePools["P1"]);
         Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
         Assert.Equal("P1", result.State.FocusPlayerId);
         Assert.True(result.State.CardObjects["P1-LEGEND-DIANA"].IsExhausted);
         var manaEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
         Assert.Equal(1, manaEvent.Payload["mana"]);
-        Assert.Equal(1, manaEvent.Payload["manaAfter"]);
+        Assert.Equal(0, manaEvent.Payload["manaAfter"]);
+        Assert.Equal(1, manaEvent.Payload["duelOnlyManaAfter"]);
+        Assert.Equal("SPELL_DUEL", manaEvent.Payload["manaRestriction"]);
     }
 
     [Fact]
     public async Task P79LegendActDianaRejectsOutsideSpellDuelFocus()
     {
         var state = LegendActiveAbilityState("UNL-234/219", "P1-LEGEND-DIANA-REPRINT", mana: 0);
+
+        // Retain this historical method and all original rejection assertions.
+        // Fresh CN text allows neutral Reaction production; only consumption is
+        // duel-restricted. Prove that control before testing the waiting player.
+        var allowed = await new CoreRuleEngine().ResolveAsync(state,
+            new("diana-neutral-source-control", "P1", CommandTypes.LegendAct),
+            new LegendActCommand("P1-LEGEND-DIANA-REPRINT", LegendActionAbilityCatalog.DianaLegendAbilityId, [], []), default);
+        Assert.True(allowed.Accepted, allowed.ErrorMessage);
+        Assert.Equal(RunePool.Empty with { DuelOnlyMana = 1 }, allowed.State.RunePools["P1"]);
+        state = state with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,

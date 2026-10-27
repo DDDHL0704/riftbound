@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
             // resources. Conversion can release at most the joint mana room;
             // a legal zero conversion releases nothing.
             released += Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
-                (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+                (long)int.MaxValue - pool.TotalStoredMana);
         }
         return (long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
     }
@@ -155,7 +155,7 @@ public sealed partial class CoreRuleEngine
         if (ResourceQuantityRules.ConversionPrefix(ability.AbilityId) is { } conversionPrefix
             && choices.SequenceEqual([conversionPrefix + ResourceQuantityRules.ChooseAmountSuffix]))
         {
-            if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum))
+            if (!ResourceQuantityRules.TryConversionMaximum(pool, ability.AbilityId, out var maximum, state))
                 return RejectWithCorePrompts(state, "资源数量超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
             if ((long)maximum + 1 <= ResourceQuantityRules.DirectChoiceLimit)
                 return RejectWithCorePrompts(state, "该数量范围应直接选择精确数字。", ErrorCodes.InvalidTarget);
@@ -180,8 +180,9 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "请选择合法的资源转换数量。", ErrorCodes.InvalidTarget);
             if (ability.AbilityId == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
             {
-                if (pool.Mana < amount) return RejectWithCorePrompts(state, "法力不足。", ErrorCodes.InsufficientCost);
-                pool = pool with { Mana = pool.Mana - amount };
+                if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) < amount)
+                    return RejectWithCorePrompts(state, "法力不足。", ErrorCodes.InsufficientCost);
+                pool = PaymentCostRules.SpendMana(pool, amount, state: state);
                 power = amount;
             }
             else if (ability.AbilityId == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)

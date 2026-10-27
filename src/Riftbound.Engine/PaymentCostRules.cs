@@ -286,7 +286,7 @@ public static class PaymentCostRules
             playerId,
             manaCost,
             powerCost,
-            powerCostByTrait);
+            powerCostByTrait, state);
     }
 
     public static Dictionary<string, RunePool> PayRuneCosts(
@@ -294,7 +294,8 @@ public static class PaymentCostRules
         string playerId,
         int manaCost,
         int powerCost,
-        IReadOnlyDictionary<string, int>? powerCostByTrait = null)
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null,
+        MatchState? state = null)
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
@@ -302,7 +303,7 @@ public static class PaymentCostRules
             currentPool,
             powerCost,
             powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
-        runePools[playerId] = currentPool with { Mana = currentPool.Mana - manaCost,
+        runePools[playerId] = SpendMana(currentPool, manaCost, state: state) with {
             Power = remainingAnyPower, PowerByTrait = remainingPowerByTrait };
 
         return runePools;
@@ -312,11 +313,12 @@ public static class PaymentCostRules
         RunePool pool,
         int manaCost,
         int anyPowerCost,
-        IReadOnlyDictionary<string, int>? powerCostByTrait = null)
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null,
+        MatchState? state = null)
     {
         return pool.HasSupportedAmounts && manaCost >= 0
             && anyPowerCost >= 0
-            && pool.Mana >= manaCost
+            && AvailableMana(pool, ManaPaymentPurpose.Other, state) >= manaCost
             && CanPayPowerCost(
                 pool,
                 anyPowerCost,
@@ -327,7 +329,7 @@ public static class PaymentCostRules
         => state?.TimingState is TimingStates.SpellDuelOpen or TimingStates.SpellDuelClosed;
 
     public static int AvailableMana(RunePool pool, ManaPaymentPurpose purpose, MatchState? state = null)
-        => !pool.HasSupportedAmounts ? -1 : pool.Mana
+        => !pool.HasSupportedAmounts || purpose is not (ManaPaymentPurpose.Other or ManaPaymentPurpose.PlaySpell) ? -1 : pool.Mana
             + (purpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0)
             + (IsSpellDuel(state) ? pool.DuelOnlyMana : 0);
 

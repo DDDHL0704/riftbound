@@ -9,16 +9,17 @@ internal static class ResourceQuantityRules
         P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix,
         _ => null };
 
-    internal static bool TryConversionMaximum(RunePool pool, string ability, out int maximum)
+    internal static bool TryConversionMaximum(RunePool pool, string ability, out int maximum, MatchState? state = null)
     {
         maximum = 0;
         if (!pool.HasSupportedAmounts) return false;
         long amount;
         if (ability == P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId)
-            amount = Math.Min((long)pool.Mana, (long)int.MaxValue - pool.TotalStoredPower);
+            amount = Math.Min((long)PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state),
+                (long)int.MaxValue - pool.TotalStoredPower);
         else if (ability == P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId)
             amount = Math.Min((long)PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Equipment).TotalPower,
-                (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
+                (long)int.MaxValue - pool.TotalStoredMana);
         else return false;
         maximum = (int)amount;
         return true;

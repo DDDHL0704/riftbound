@@ -77,7 +77,7 @@ public sealed class LegendResourceBridgeVerifierTests
         Assert.True(result.State.CardObjects[profile.SourceObjectId].IsExhausted);
         if (string.Equals(profile.ResourceKind, "mana", StringComparison.Ordinal))
         {
-            Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+            Assert.Equal(ExpectedGrantedPool(profile), result.State.RunePools["P1"]);
         }
         else
         {
@@ -249,14 +249,16 @@ public sealed class LegendResourceBridgeVerifierTests
     public async Task LegendResourceBridgeRejectsWrongGateWithoutMutation(BridgeProfile profile)
     {
         var state = BuildRejectState(profile);
-        if (profile.ResourceKind == "power")
+        if (profile.ResourceKind == "power" || profile.AbilityId == DianaAbilityId)
         {
             // Retain the exact old nonmatching-stack fixture as a positive control:
             // CN430 allows acquiring resources without a matching already-paid card.
             var allowed = await ResolveLegendActAsync(state, profile);
             Assert.True(allowed.Accepted, allowed.ErrorMessage); Assert.Equal(ExpectedGrantedPool(profile), allowed.State.RunePools["P1"]);
             Assert.Equal(state.PriorityPlayerId, allowed.State.PriorityPlayerId);
-            state = state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
+            state = profile.AbilityId == DianaAbilityId
+                ? state with { TurnPlayerId = "P2", ActivePlayerId = "P2" }
+                : state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
         }
         var initialStateHash = MatchStateHasher.Hash(state);
 
@@ -271,10 +273,12 @@ public sealed class LegendResourceBridgeVerifierTests
     public void LegendResourceBridgePromptFiltersIllegalSourceAtWrongGate(BridgeProfile profile)
     {
         var state = BuildRejectState(profile);
-        if (profile.ResourceKind == "power")
+        if (profile.ResourceKind == "power" || profile.AbilityId == DianaAbilityId)
         {
             AssertLegendActPrompt(state, profile);
-            state = state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
+            state = profile.AbilityId == DianaAbilityId
+                ? state with { TurnPlayerId = "P2", ActivePlayerId = "P2" }
+                : state with { PriorityPlayerId = "P2", ActivePlayerId = "P2" };
         }
         var p1Prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
@@ -737,7 +741,8 @@ public sealed class LegendResourceBridgeVerifierTests
     }
 
     private static RunePool ExpectedGrantedPool(BridgeProfile profile) => profile.AbilityId switch {
-        DianaAbilityId or DariusAbilityId => new RunePool(1, 0),
+        DianaAbilityId => RunePool.Empty with { DuelOnlyMana = 1 },
+        DariusAbilityId => new RunePool(1, 0),
         OrnnAbilityId => RunePool.Empty with { EquipmentOnlyPower = 1 },
         KaisaAbilityId => RunePool.Empty with { SpellOnlyPower = 1 },
         _ => throw new InvalidOperationException("No reviewed resource profile for " + profile.AbilityId)
