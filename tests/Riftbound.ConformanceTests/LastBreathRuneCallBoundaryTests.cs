@@ -6,7 +6,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class LastBreathRuneCallBoundaryTests
+public sealed partial class LastBreathRuneCallBoundaryTests
 {
     private const string Unit = "OGN·216/298";
     private const string Kill = "OGN·229/298";
@@ -16,26 +16,9 @@ public sealed class LastBreathRuneCallBoundaryTests
     [InlineData(0)] [InlineData(1)] [InlineData(2)]
     public async Task EachActuallyPaidSongInstanceEarnsItsOwnPrintedDormantRuneCall(int copies)
     {
-        var initial = Position(); var game = new Driver(initial);
+        var (initial, game, generation) = await Capture(copies);
         try
         {
-            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P2"].Mana);
-            await Tap(game, "P1"); var mana = game.State.RunePools["P1"].Mana;
-            await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
-            Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.CardObjects["UNIT"].Power);
-            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            for (var i = 0; i < copies; i++)
-            {
-                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
-                mana = game.State.RunePools["P1"].Mana;
-                await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
-                Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
-                Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
-                Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
-            }
-            await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
-            await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
             for (var i = 0; i < copies; i++) Assert.Null(game.State.CardObjects["SONG-" + i].AttachedToObjectId);
@@ -70,6 +53,39 @@ public sealed class LastBreathRuneCallBoundaryTests
                 }, Json));
             }
         }
+    }
+
+    private static async Task<(MatchState Initial, Driver Game, long Generation)> Capture(int copies, bool privateDraw = false)
+    {
+        var initial = Position();
+        if (privateDraw)
+        {
+            initial = Add(Add(Add(initial, "DRAW", "OGN·048/298", "P1", "HAND"), "DRAW-RUNE-A", "UNL-R06", "P1", "BASE"), "DRAW-RUNE-B", "UNL-R06", "P1", "BASE");
+            var moved = initial.PlayerZones["P1"].MainDeck.Concat(initial.PlayerZones["P1"].Graveyard).ToArray();
+            initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [], Graveyard = [], Hand = [..initial.PlayerZones["P1"].Hand, ..moved] } },
+                ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
+        }
+        var game = new Driver(initial);
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P2"].Mana);
+            foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+            var mana = game.State.RunePools["P1"].Mana;
+            await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
+            Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.CardObjects["UNIT"].Power);
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            for (var i = 0; i < copies; i++)
+            {
+                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
+                mana = game.State.RunePools["P1"].Mana;
+                await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
+                Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
+                Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
+                Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
+            }
+            await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
+        return (initial, game, generation);
     }
 
     private static MatchState Position()
