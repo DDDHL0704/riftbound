@@ -11,7 +11,7 @@ This branch adds the exact raw record, two ordinary mode registrations and `Ven0
 
 The six valid-mode paths use actual unit play/native empowerment and physical P1 rune taps/recycles. All ordinary commands are accepted. First mode leaves unempowered friendly/enemy units unchanged; removal mode leaves empowered units unchanged. First mode on already-empowered units reaches the next player's turn without the required removal. These are missing-effect observations, not protocol fixture rejections. Later inverse-status assertions remain unexecuted where the immediate-state assertion fails.
 
-Both same-generation VEN057 interactions use actual play, native Empower, two ordinary turns to ready, physical resources and a real Reaction. One moves before removal and retains an earned draw; the other attempts removal before moving. They currently stop because VEN035 never removes the status; future trigger/lifetime assertions remain present and OPEN. No direct status mutation or departure substitutes for removal.
+Both same-generation VEN057 interactions use actual play, native Empower, two ordinary turns to ready, physical resources and a real Reaction. One actually moves first and earns a pending draw; the other attempts removal first. They currently stop because VEN035 never removes the status; future trigger/lifetime assertions remain present and OPEN. No direct status mutation or departure substitutes for removal.
 
 The illegal-target probe is a separate direct `CoreRuleEngine` call using a state reached through real commands. It accepts an unempowered target, spends3 mana/one green, and creates the spell stack item. Both the preceding state and the returned result/events are retained. It is not an API transport or journaled command proof.
 
