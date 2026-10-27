@@ -2,7 +2,7 @@
 
 2026-10-24 用户授权：所属方法自行实现、提 PR，最新 PR 合并输入的 L2 通过即可合 main；真实数据库、网络、重启与完整回放移至每日夜间 L3。此约定覆盖旧“候选全绿才发布”“只有①可合 main”和逐 helper/完整包审批。完整规则目标与原测试断言保留。
 
-2026-10-26 有限清积压覆盖：开放 PR ≤10 前暂停新增功能 PR，先修现有红测、依赖与真实冲突，由①串行发布保留原 head 祖先关系的组合。沿用同一 L2/L3 门槛；已知语义缺陷未修复时，即使旧输入 L2 绿也不能合入。活跃聊天及分支以[后端目标](BACKEND_RULES_GOAL_2026-10-23.md#四线与共享接点)为准，旧窗只读。
+2026-10-26有限清积压已完成：PR165普通merge保留12个原/公开head为main祖先，PR实际merged，开放22→10；本轮新增功能PR冻结条件已达成。后续保留同一L2/L3门槛及串行main；已知相关语义缺陷未修复时，即使旧输入L2绿也不能合入。活跃聊天及分支以[后端目标](BACKEND_RULES_GOAL_2026-10-23.md#四线与共享接点)为准，旧窗只读。
 
 ## 开发、合入与完整验收
 
@@ -22,7 +22,7 @@
 
 ## 夜间 L3 与失败归属
 
-[native-desktop.yml](../.github/workflows/native-desktop.yml) 只有一个每日 schedule 和显式 workflow_dispatch；不由 PR/main push 自动启动。scope 启动时只读取一次 main，记录完整 SHA/源码索引，后续所有 checkout 使用该 SHA，即使 main 后续移动也不混入新版本。完整规则、四片 SQL、原生网络与实际进程重启在固定输入上运行，缺片/失败/取消/跳过不能通过完整汇总。既有原生打包 CI 保留。仅修改 CI/验收工具的 PR 另有 [harness 冒烟](../.github/workflows/backend-harness.yml)，检查工具自身及一条真实重启；它不加入 L2 required，不在普通规则 PR 上执行，也不代表完整 L3。
+[native-desktop.yml](../.github/workflows/native-desktop.yml) 只有一个每日 schedule 和显式 workflow_dispatch；不由 PR/main push 自动启动。scope 启动时只读取一次 main，记录完整 SHA/源码索引，后续所有 checkout 使用该 SHA，即使 main 后续移动也不混入新版本。完整规则、四片 SQL、原生网络与实际进程重启在固定输入上运行，缺片/失败/取消/跳过不能通过完整汇总。既有原生打包 CI 保留。仅修改 CI/验收工具的 PR 另有 [harness 冒烟](../.github/workflows/backend-harness.yml)，检查工具自身、原通用真实重启及S3/P7的真实SQL/双玩家重连/重启；它不加入L2 required，不因普通消费者变更额外启动，也不代表完整L3。
 
 SQL 清单来自 `tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json`，按有序身份分四片，独立真实 PostgreSQL。`postgres` 严格检查四份收据的提交、清单、有序实际用例和全部输出哈希，并要求 native_network 与 related_network 成功；`rules` 再要求完整规则及 SQL 汇总成功。重启任务用真实持久 API 的不同进程恢复原两玩家、验证认证/私有视图和原 SQL 历史；完整对局/原日志语义由保留的完整规则及 SQL 用例共同验证，不把房间恢复冒烟称为完整实战。
 

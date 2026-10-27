@@ -44,6 +44,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards,
         Dictionary<string, ObjectLocationState> locations,
+        Dictionary<string, RunePool> pools,
         StackItemState item,
         IReadOnlyList<string> ids,
         string destination,
@@ -52,10 +53,20 @@ public sealed partial class CoreRuleEngine
         var toBase = destination.StartsWith("BASE:", StringComparison.Ordinal);
         var destinationZone = toBase ? "BASE" : "BATTLEFIELD";
         var field = toBase ? null : destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? destination[12..] : null;
-        var before = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
-        var movable = ids.Where(id => IsUnitMovementDestination(before, id, destination)
-            && MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), item.ControllerId)
-            && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(before, id))).ToArray();
+        var bindings = ids.Distinct(StringComparer.Ordinal).Where(cards.ContainsKey)
+            .ToDictionary(id => id, id => (cards[id].ObjectGeneration, cards[id].ControllerId), StringComparer.Ordinal);
+        string[] CurrentMovers(MatchState current) => bindings.Keys.Where(id =>
+            current.CardObjects.TryGetValue(id, out var unit) && FieldObjectTypeRules.IsVisibleUnit(unit)
+            && (unit.ObjectGeneration, unit.ControllerId) == bindings[id]
+            && (item.TargetGenerations?.ContainsKey(id) != true || MovementTargetIsCurrent(current, item, id))
+            && IsUnitMovementDestination(current, id, destination)
+            && MovementRestrictionRules.CanMove(unit, item.ControllerId)
+            && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))).ToArray();
+        var payment = PayImposedMovementCost(state, item.ControllerId, item.SourceObjectId, field, false,
+            zones, cards, locations, pools, CurrentMovers, events);
+        if (payment != ImposedMovementPaymentResult.Paid) return [];
+        var before = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
+        var movable = CurrentMovers(before);
         var captured = CaptureMovementBatchObservers(before, cards, movable
             .Select(id => CaptureMovedUnitFact(before, id, item.ControllerId, destinationZone, field))
             .OfType<MovedUnitFact>().ToArray());
@@ -74,7 +85,7 @@ public sealed partial class CoreRuleEngine
                     ["playerId"] = origin.PlayerId, ["ownerPlayerId"] = origin.PlayerId, ["movingPlayerId"] = item.ControllerId,
                     ["originZone"] = origin.Zone, ["originBattlefieldObjectId"] = originBattlefield,
                     ["destinationZone"] = destinationZone, ["destination"] = destination, ["battlefieldObjectId"] = field,
-                    ["simultaneousSourceObjectIds"] = ids
+                    ["simultaneousSourceObjectIds"] = movable
                 }));
             events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, origin.PlayerId, id, destinationZone));
             foreach (var gear in equipment) locations[gear] = new(origin.PlayerId, destinationZone, field);

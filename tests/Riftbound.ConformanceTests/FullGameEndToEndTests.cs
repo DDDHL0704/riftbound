@@ -6388,7 +6388,10 @@ public sealed partial class FullGameEndToEndTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        // The defeated opponent's Last Breath can already have drawn a card.
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, payment.PlayerId, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -21967,6 +21970,9 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
+            // A conquest skill can open a real payment window while remaining
+            // on the stack. Leave that decision to the scenario's payment step.
+            if (result.State.PendingPayment is not null) return result with { Events = events };
             if (result.State.PendingCardChoice is not null) return result;
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
@@ -25698,7 +25704,7 @@ public sealed partial class FullGameEndToEndTests
             entry.StartedEventSequence,
             entry.CompletedEventSequence,
             entry.Accepted,
-            entry.ErrorMessage) { TypedCommand = entry.TypedCommand };
+            entry.ErrorMessage) { ErrorCode = entry.ErrorCode, TypedCommand = entry.TypedCommand };
     }
 
     private static IReadOnlyList<RecoveredEvent> ToRecoveredEvents(IEnumerable<MatchJournalEntry> entries)
@@ -25898,6 +25904,8 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        // Winning a battle only conquers a field whose control actually changes.
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[kaisaObjectId] = cardObjects[kaisaObjectId] with
         {
             Damage = 0,
@@ -26499,7 +26507,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26677,7 +26685,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27352,7 +27360,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27909,7 +27917,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27999,7 +28007,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -28094,7 +28102,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,

@@ -3233,6 +3233,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (trigger.PermanentPlayStackItemId is { } pending)
             return state.StackItems.Single(i => i.StackItemId == pending);
+        if (trigger.DelayedEmpower is not null) return DelayedEmpowerStack(trigger);
         var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.HandDiscardObserver?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
@@ -3246,7 +3247,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -3563,8 +3564,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentId);
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
+        var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience);
         if (!paymentCommit.Accepted)
@@ -4948,30 +4950,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destroyedState.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
                 out var triggerSpec)
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown)
-        {
-            return null;
-        }
-
-        return destroyedState.ControllerId
-            ?? destroyedState.OwnerId
-            ?? removalResult.OwnerPlayerId;
-    }
-
-    private static string? ResolveUnitLastBreathCreateBaseUnitPlayerId(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult,
-        out TriggerSpec triggerSpec)
-    {
-        triggerSpec = default!;
-        if (!removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                destroyedState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
-                out triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown)
         {
@@ -10627,7 +10605,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     // CN 430: acquiring a legal rune resource is voluntary, even when its trait
     // is unrelated to the current fee. Cost authorization still checks exact traits.
     internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
-        => state.PlayerZones.TryGetValue(playerId, out var zones)
+        => state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
+            && pool.TotalPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
                 && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
                 .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
@@ -18252,7 +18231,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+        {
+            rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (behavior.DamageAmountFromOptionalPowerCost
             && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
         {
@@ -18540,13 +18524,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
-        var selectedPower = powerOptions.Where(option => spellPowerReductionChoices.Length == 0
+        // A repeat probe validates a target declaration, not the final combined
+        // price. Both reduction and wallet choices belong to the complete plan.
+        var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
+            .Where(option => powerSpend is null || !validateRepeats
+                || PlayPowerSpendSelectionRules.CanPay(powerSpend, paymentAdjustedPool, option.GenericPower, option.TypedPower))
             .OrderBy(option => PaymentCostRules.PowerDeficit(paymentAdjustedPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
-            rejection = Reject(state, spellPowerReductionChoices.Length == 0
-                ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
+                : spellPowerReductionChoices.Length == 0 ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
             return false;
         }
         var totalGenericPowerCost = selectedPower.GenericPower;
@@ -18663,7 +18651,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction,
-                SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices };
+                SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
+                PowerSpend = powerSpend };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -21116,6 +21105,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
@@ -21630,6 +21621,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return targetScope is CardTargetScopes.BattlefieldUnit
             or CardTargetScopes.BaseUnit
             or CardTargetScopes.AnyUnit
+            or CardTargetScopes.AnyEmpoweredUnit
             or CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyUnit
             or CardTargetScopes.FriendlyThenEnemyUnits
@@ -23881,6 +23873,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
@@ -24026,6 +24019,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.DelayedEmpower is not null) return ResolveDelayedEmpower(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
         if (stackItem.GraveyardPlay is not null) return ResolveGraveyardPlay(state, stackItem);
@@ -24247,6 +24241,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? winnerPlayerId = null;
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
+        ApplyTemporaryEmpowerInstruction(state, stackItem, cardObjects, untilEndOfTurnEffects, events);
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
         StackItemState[]? updatedStackItems = null;
         PendingPaymentState? pendingPayment = null;
@@ -26098,21 +26093,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 officialLastBreathTriggers.Add(trigger);
                             }
 
-                            var createBaseUnitPlayerId = ResolveUnitLastBreathCreateBaseUnitPlayerId(
-                                targetState,
-                                removalResult,
-                                out var createBaseUnitTriggerSpec);
-                            if (createBaseUnitPlayerId is not null)
-                            {
-                                var trigger = BuildLastBreathTriggerQueueItem(
-                                    stackItem,
-                                    targetObjectId,
-                                    createBaseUnitPlayerId,
-                                    createBaseUnitTriggerSpec.Kind);
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                            }
-
                             var sourceBattlefieldAoePlayerId = ResolveUnitLastBreathSourceBattlefieldAoeDamagePlayerId(
                                 targetState,
                                 removalResult,
@@ -26559,28 +26539,28 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             for (var index = 0; index < stackItem.TargetObjectIds.Count; index++)
                 MoveFieldUnitsToChosenLocation(state with { PlayerZones = playerZones, CardObjects = cardObjects, ObjectLocations = movementLocations },
-                    playerZones, cardObjects, movementLocations, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
+                    playerZones, cardObjects, movementLocations, runePools, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.TargetReferencedMovement is not null)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveTargetReferencedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
+            ResolveTargetReferencedMovement(state, playerZones, cardObjects, movementLocations, runePools, stackItem, behavior, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.CommandedMovement is not null)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
+            ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, runePools, stackItem, behavior, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.MovesTargetsToChosenLocation)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
+            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
                 stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
             // CN359.3.e.14: the following instruction refers to the moved unit;
             // if movement is ignored, its linked ready instruction is ignored.
@@ -26598,7 +26578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.MovesWeakerEnemiesAtSelectedBattlefieldToBase)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, movementLocations, stackItem, events);
+            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, movementLocations, runePools, stackItem, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
@@ -27193,13 +27173,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
                 out var trigger)
             && string.Equals(trigger.Kind, stackItem.EffectKind, StringComparison.Ordinal);
-        if (!hasTrigger)
+        if (stackItem.LastBreathUnitCreation is { } captured)
+        {
+            if (!ValidLastBreathUnitCreationStack(state, stackItem)
+                || !TryGetLastBreathUnitCreationSpec(captured, out trigger))
+                throw new InvalidOperationException("Invalid captured last-breath unit creation.");
+            hasTrigger = true;
+        }
+        else if (!hasTrigger)
         {
             hasTrigger = UnitDestroyedTriggerSpecRules.TryGetTriggerByKind(
                 stackItem.EffectKind,
                 UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
                 out trigger);
         }
+        if (stackItem.LastBreathUnitCreation is null && hasTrigger && trigger.RequiresSourceEmpowered is not null)
+            throw new InvalidOperationException("A conditional last-breath needs its captured source state.");
 
         if (hasTrigger)
         {
@@ -31649,7 +31638,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
         removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
-            Death = removed && removal.WasDestroyed && removal.WasUnit ? death : null,
+            Death = removed && removal.WasDestroyed && removal.WasUnit
+                ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [] }
+                : null,
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
@@ -33261,20 +33252,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var createBaseUnitControllerId = ResolveUnitLastBreathCreateBaseUnitPlayerId(
-                destroyedState,
-                removalResult,
-                out var createBaseUnitTriggerSpec);
-            if (createBaseUnitControllerId is not null)
-            {
-                var trigger = BuildLastBreathTriggerQueueItem(
-                    destructionSource,
-                    objectId,
-                    createBaseUnitControllerId,
-                    createBaseUnitTriggerSpec.Kind);
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
 
         }
 
@@ -34851,6 +34828,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public int EmpoweredSpellCostReductionMana { get; init; }
         public int EmpoweredSpellCostReductionPower { get; init; }
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
+        public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(

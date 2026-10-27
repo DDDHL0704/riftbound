@@ -180,7 +180,7 @@ public sealed class SurrenderResourceProgressTests
         {
             var last = Entries[^1]; state ??= last.AuthoritativeState;
             var commands = Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs, ErrorCode = e.ErrorCode }).ToArray();
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = snapshots.ToDictionary(e => e.Key, e => new RecoveredPlayerView(e.Key, state.Tick, last.CompletedEventSequence,
                 e.Value, state.Tick, last.CompletedEventSequence, prompts[e.Key]));

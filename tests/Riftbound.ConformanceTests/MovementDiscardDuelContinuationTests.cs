@@ -70,7 +70,7 @@ public sealed class MovementDiscardDuelContinuationTests
         { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
         RecoveredCommand[] Commands() => journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId,
             e.CommandType, e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence,
-            e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+            e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         RecoveredEvent[] Events() => journal.Entries.SelectMany(e => e.Events.Select((value, index) =>
             new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, value))).ToArray();
         async Task<ResolutionResult> Submit(string player, GameCommand command)
@@ -204,7 +204,7 @@ public sealed class MovementDiscardDuelContinuationTests
             var prefix = journal.Entries.Take(index + 1).ToArray();
             var commands = prefix.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-                { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+                { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
             var events = prefix.SelectMany(e => e.Events.Select((value, order) =>
                 new RecoveredEvent(e.StartedEventSequence + order + 1, e.CompletedTick, order, value))).ToArray();
             var sequence = entry.CompletedEventSequence;
@@ -313,7 +313,7 @@ public sealed class MovementDiscardDuelContinuationTests
         Assert.Equal(new[] { "H3", "DRAW-TOP", "DRAW-NEXT" }, current.State.PlayerZones["P2"].Hand);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-            { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+            { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((value, index) =>
             new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, value))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current.State, engine, default, events);

@@ -61,7 +61,7 @@ public sealed class MightyTransitionNativeTests
         if (legend) Assert.Equal(accept ? 2 : 3, state.PlayerZones["P1"].RuneDeck.Count);
         else Assert.Equal(!accept, state.CardObjects["HOST"].IsExhausted);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
-            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand }).ToArray();
+            e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand }).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, state, engine, default, events);
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors)); Assert.Equal(steps.Length, commands.Count(c => c.Accepted));

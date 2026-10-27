@@ -114,14 +114,14 @@ public sealed class VenEmpowerCanonicalOpeningTests
         finally { await game.Save("ven072-" + actor); }
     }
 
-    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions)
+    internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var original = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == templateId).Decklist;
         var main = original.MainDeck.ToList();
         for (var i = 0; i < additions.Length; i++) main.RemoveAt(main.FindIndex(no => no != original.ChampionCardNo));
         main.InsertRange(0, additions);
-        var deck = original with { MainDeck = main, RuneDeck = Enumerable.Repeat(rune, 12).ToArray() };
+        var deck = original with { MainDeck = main, RuneDeck = runeDeck?.ToArray() ?? Enumerable.Repeat(rune, 12).ToArray() };
         Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
         var initial = MatchReplayInitialStateBuilder.FromSeats("VEN-CANONICAL-" + templateId + "-" + actor,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
@@ -204,7 +204,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var state = authoritativeState ?? State;
             var commands = entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
                 e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
-                { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand }).ToArray();
+                { RuleInputs = e.RuleInputs, TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode }).ToArray();
             var events = entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
             var sequence = entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence;
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);

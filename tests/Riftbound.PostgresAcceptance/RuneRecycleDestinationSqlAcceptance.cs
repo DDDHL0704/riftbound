@@ -11,11 +11,8 @@ internal static class RuneRecycleDestinationSqlAcceptance
         foreach (var runeCount in new[] { 1, 2 })
             await RunBranch(source, Path.Combine(output, runeCount == 1 ? "single" : "multiple"), runeCount);
     }
-    private static async Task RunBranch(NpgsqlDataSource source, string output, int runeCount)
+    internal static MatchState CreateInitialState(string room, int runeCount, string initialController)
     {
-        Directory.CreateDirectory(output);
-        var room = "postgres-rune-destination-" + Guid.NewGuid().ToString("N");
-        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         var initial = new MatchState(room, tick: 0, turnNumber: 1, activePlayerId: "P1",
             seats: new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }, seed: 424242,
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
@@ -26,7 +23,7 @@ internal static class RuneRecycleDestinationSqlAcceptance
                 ["RUNE"] = new("RUNE", cardNo: "UNL-R01", ownerId: "P1", controllerId: "P1", isExhausted: true, tags: [CardObjectTags.RuneCard, "COLOR:blue"]),
                 ["BOTTOM"] = new("BOTTOM", cardNo: "UNL-R01", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.RuneCard, "COLOR:blue"]),
                 ["D1"] = new("D1", cardNo: "UNL-007/219", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]),
-                ["THUNDER"] = new("THUNDER", cardNo: "OGN·287/298", ownerId: "P1", controllerId: "P1", tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
+                ["THUNDER"] = new("THUNDER", cardNo: "OGN·287/298", ownerId: "P1", controllerId: initialController, tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 ["ATTACKER"] = new("ATTACKER", cardNo: "SFD·125/221", power: 3, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]),
                 ["DEFENDER"] = new("DEFENDER", cardNo: "SFD·125/221", power: 1, ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) },
             objectLocations: new Dictionary<string, ObjectLocationState> {
@@ -37,6 +34,16 @@ internal static class RuneRecycleDestinationSqlAcceptance
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with { Base = ["RUNE", "RUNE2"] } },
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["RUNE2"] = initial.CardObjects["RUNE"] with { ObjectId = "RUNE2" } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["RUNE2"] = new("P1", "BASE") } };
+        return initial;
+    }
+    private static async Task RunBranch(NpgsqlDataSource source, string output, int runeCount)
+    {
+        Directory.CreateDirectory(output);
+        var room = "postgres-rune-destination-" + Guid.NewGuid().ToString("N");
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
+        // CN468.5 / 471.1: this consumer needs an actual new conquest.
+        // Retaining a battlefield already controlled by P1 cannot trigger it.
+        var initial = CreateInitialState(room, runeCount, "P2");
         var engine = new CoreRuleEngine(); var journal = new PostgresMatchJournal(source); var players = new PostgresMatchPlayerStore(source);
         var store = new PostgresMatchRecoveryStore(source); IMatchSession session = new MatchSession(initial, engine, journal, players);
         var current = initial; var checks = new List<object>(); var submitted = 0; long sequence = 0;

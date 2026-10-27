@@ -167,6 +167,73 @@ public sealed class BattleResultContinuationRecoveryTests
         run.Save("burnout-" + cardNo.Replace('/', '-').Replace('·', '-'));
     }
 
+    [Theory]
+    [InlineData("nidalee")]
+    [InlineData("enforcer")]
+    public async Task LateDefenderClosesOldScopeBeforeTheNextShowdownRolesAndCombat(string source)
+    {
+        var run = new Driver(MatchState.Create("BATTLE-RESULT-LATE-RECOVERY-" + source) with { Seed = 424242 });
+        await run.Prepare("battle-result-" + source + "-late-defender");
+        await run.Act("P1", new MoveUnitCommand("SOURCE", "BASE", "BATTLEFIELD:FIELD", []));
+        for (var i = 0; i < 4 && run.State.FocusPlayerId is not null; i++)
+            await run.Act(run.State.FocusPlayerId, new PassFocusCommand());
+        await run.Act("P1", new DeclareBattleCommand("FIELD", ["SOURCE"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        Assert.Equal("RESULT_TRIGGERS", run.State.PendingBattleResult!.Stage);
+        const string scopePrefix = "BATTLE_LIMITED_SCOPE:";
+        var oldScope = Assert.Single(run.State.UntilEndOfTurnEffects, e => e.StartsWith(scopePrefix, StringComparison.Ordinal));
+        await run.Act("P1", new PassPriorityCommand());
+        await run.Act("P2", new PlayCardCommand("LATE", "SFD·025/221", [], Destination: "BATTLEFIELD:FIELD"));
+        Assert.True(run.State.CardObjects["LATE"].IsDefending);
+        for (var i = 0; run.State.PendingBattleResult is not null; i++)
+        {
+            Assert.InRange(i, 0, 7);
+            await run.Act(run.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        var events = run.Frame().Events;
+        var closed = Assert.Single(events, e => e.Event.Kind == "BATTLE_CLOSED");
+        var cleared = JsonSerializer.SerializeToElement(closed.Event.Payload, Json).GetProperty("clearedObjectIds")
+            .EnumerateArray().Select(e => e.GetString()).ToArray();
+        Assert.Contains("SOURCE", cleared);
+        Assert.Contains("LATE", cleared);
+        Assert.DoesNotContain(oldScope, run.State.UntilEndOfTurnEffects);
+        var nextScope = Assert.Single(run.State.UntilEndOfTurnEffects, e => e.StartsWith(scopePrefix, StringComparison.Ordinal));
+        using var scope = JsonDocument.Parse(nextScope[scopePrefix.Length..]);
+        Assert.Equal(run.State.Tick, scope.RootElement.GetProperty("startedAtTick").GetInt64());
+        Assert.True(closed.Order < Assert.Single(events, e => e.Tick == run.State.Tick && e.Event.Kind == "BATTLE_ROLES_ESTABLISHED").Order);
+        Assert.True(run.State.CardObjects["SOURCE"].IsAttacking);
+        Assert.True(run.State.CardObjects["LATE"].IsDefending);
+        Assert.Equal(TimingStates.SpellDuelOpen, run.State.TimingState);
+        Assert.Equal("P2", run.State.CardObjects["FIELD"].ControllerId);
+        Assert.Equal(0, run.State.PlayerScores["P1"]);
+        Assert.DoesNotContain(events, e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        var frame = run.Frame();
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), new Journal(), new Store(frame));
+        var restored = await registry.GetOrCreateAsync(frame.RoomId, default);
+        Assert.Equal(JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(run.State)["P1"], Json),
+            JsonSerializer.Serialize(restored.SnapshotFor("P1"), Json));
+        for (var i = 0; run.State.FocusPlayerId is not null; i++)
+        {
+            Assert.InRange(i, 0, 3);
+            await run.Act(run.State.FocusPlayerId, new PassFocusCommand());
+        }
+        await run.Act("P1", new DeclareBattleCommand("FIELD", ["SOURCE"], ["LATE"], ["COMBAT_ASSIGNMENT"]));
+        for (var i = 0; run.State.PriorityPlayerId is not null; i++)
+        {
+            Assert.InRange(i, 0, 7);
+            await run.Act(run.State.PriorityPlayerId, new PassPriorityCommand());
+        }
+        Assert.Contains("DRAW", run.State.PlayerZones["P1"].Hand);
+        Assert.Contains("DRAW2", run.State.PlayerZones["P1"].Hand);
+        Assert.Contains("LATE", run.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(2, run.Frame().Events.Count(e => e.Event.Kind == "BATTLE_CLOSED"));
+        Assert.Single(run.Frame().Events, e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        Assert.Equal(1, run.State.PlayerScores["P1"]);
+        Assert.Null(run.State.PendingBattleResult);
+        Assert.False(run.State.CardObjects["SOURCE"].IsAttacking);
+        Assert.False(run.State.CardObjects["LATE"].IsDefending);
+        run.Save("late-defender-next-scope-" + source);
+    }
+
     private static async Task<Driver> Open(string cardNo, bool burnout = false)
     {
         var run = new Driver(MatchState.Create("BATTLE-RESULT-RECOVERY") with { Seed = 424242 });
@@ -231,7 +298,7 @@ public sealed class BattleResultContinuationRecoveryTests
             var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
             var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
             var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand?.Clone(),
-                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
             var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, journal.Entries[^1].Events, state);
             var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator);

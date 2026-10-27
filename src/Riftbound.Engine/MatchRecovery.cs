@@ -21,6 +21,10 @@ public sealed record RecoveredCommand(
     public TypedCommandInput? TypedCommand { get; init; }
 
     [System.Text.Json.Serialization.JsonRequired]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.Never)]
+    public string? ErrorCode { get; init; }
+
+    [System.Text.Json.Serialization.JsonRequired]
     public RuleInputIdentity? RuleInputs { get; init; } = RuleInputIdentity.Current;
 }
 
@@ -631,6 +635,12 @@ public static class MatchActionLogReplayer
             {
                 errors.Add(
                     $"command {command.ClientIntentId} error message {FormatReplayError(result.ErrorMessage)} but recovered error message {FormatReplayError(command.ErrorMessage)}");
+            }
+
+            if (!string.Equals(result.ErrorCode, command.ErrorCode, StringComparison.Ordinal))
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} error code {FormatReplayError(result.ErrorCode)} but recovered error code {FormatReplayError(command.ErrorCode)}");
             }
 
             if (result.State.Tick != command.CompletedTick)
@@ -2477,7 +2487,7 @@ public static partial class MatchRecoveryValidator
                 "triggerQueue",
                 "trigger queue",
                 errors);
-            ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors);
+            ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
                 "battlefieldTasks",
@@ -4312,13 +4322,16 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingTriggerQueuePayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var triggerPayloads))
         {
             return;
         }
+
+        ValidateLastBreathUnitCreationViews(triggerPayloads, errors);
 
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
@@ -4426,7 +4439,9 @@ public static partial class MatchRecoveryValidator
                 sourceObjectId,
                 sourceVisibility,
                 effectKind,
-                errors);
+                errors,
+                HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 triggerLabel,
                 triggerId,
@@ -4632,7 +4647,8 @@ public static partial class MatchRecoveryValidator
                 "player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
             if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -18763,6 +18779,8 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        ValidateLastBreathUnitCreationViews(spectatorTriggers, errors);
+
         var authoritativeTriggers = authoritativeState.TriggerQueue;
         var validateAuthoritativeParity = spectatorTriggers.Count == authoritativeTriggers.Count;
         if (!validateAuthoritativeParity)
@@ -18820,6 +18838,7 @@ public static partial class MatchRecoveryValidator
                 battlefieldStateObjectIds,
                 authoritativeState.Tick,
                 authoritativeState.TurnNumber,
+                authoritativeState,
                 errors);
         }
 
@@ -19205,6 +19224,7 @@ public static partial class MatchRecoveryValidator
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
+        MatchState authoritativeState,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -19267,7 +19287,9 @@ public static partial class MatchRecoveryValidator
             sourceObjectId,
             sourceVisibility,
             effectKind,
-            errors);
+            errors,
+            HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         ValidateTriggerQueueBlueSentinelDelayedResourceContext(
             payloadLabel,
             triggerId,
@@ -19470,7 +19492,8 @@ public static partial class MatchRecoveryValidator
             "authoritative state player zones",
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
-            errors);
+            errors,
+            HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
         if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -19492,7 +19515,8 @@ public static partial class MatchRecoveryValidator
         string? sourceObjectId,
         string? sourceVisibility,
         string? effectKind,
-        List<string> errors)
+        List<string> errors,
+        bool publicCapturedEffect = false)
     {
         if (string.Equals(sourceVisibility, "HIDDEN", StringComparison.Ordinal))
         {
@@ -19504,7 +19528,8 @@ public static partial class MatchRecoveryValidator
             }
 
             if (effectKind is not null
-                && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+                && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+                && !publicCapturedEffect)
             {
                 errors.Add(
                     $"{payloadLabel} hidden effect kind must be redacted; {FormatExpectedActualForRecovery("HIDDEN", effectKind)}");
@@ -21262,8 +21287,12 @@ public static partial class MatchRecoveryValidator
         string playerBaseObjectIdsLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
         string playerGraveyardObjectIdsLabel,
-        List<string> errors)
+        List<string> errors,
+        bool hasValidatedCapturedUnitCreation = false)
     {
+        // The death controller belongs to the captured skill, even after the card returns to its owner.
+        if (hasValidatedCapturedUnitCreation) return;
+
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
@@ -23217,6 +23246,7 @@ public static partial class MatchRecoveryValidator
 
         // Private checkpoint and decision transcript are validated above. Public
         // snapshots render the deterministic intermediate replacement preview.
+        var paymentPromptState = authoritativeState;
         authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
 
         foreach (var view in playerViews.Values)
@@ -23226,7 +23256,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateResourcePoolViews(view, authoritativeState, errors);
+            ValidateResourcePoolViews(view, authoritativeState, errors, paymentPromptState);
             if (view.Snapshot.Stack is null)
             {
                 errors.Add($"snapshot for {view.PlayerId} requires a stack collection");
@@ -23247,6 +23277,8 @@ public static partial class MatchRecoveryValidator
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
+            ValidateLastBreathUnitCreationViews(view.Snapshot.Stack, errors);
             ValidateDestructionFamilyStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
@@ -24381,6 +24413,8 @@ public static partial class MatchRecoveryValidator
                 : item.SourceReplayDecisionCompleted || CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var replayBehavior) && replayBehavior.SourceReplay is not null) errors.Add("invalid source replay progress");
         if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
             errors.Add("invalid premature source replay completion");
+        ValidateDelayedEmpowerState(state, errors);
+        ValidateLastBreathUnitCreationState(state, errors);
         ValidateDelayedDestructionState(state, errors);
         ValidateDestructionFamilyState(state, errors);
         foreach (var item in state.StackItems)
@@ -24951,7 +24985,8 @@ public static partial class MatchRecoveryValidator
             battlefieldStateObjectIds,
             authoritativeState.Tick,
             authoritativeState.TurnNumber,
-            errors);
+            errors,
+            authoritativeState);
     }
 
     private static void ValidateAuthoritativeStatePendingPaymentValues(
@@ -25380,7 +25415,8 @@ public static partial class MatchRecoveryValidator
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
-        List<string> errors)
+        List<string> errors,
+        MatchState authoritativeState)
     {
         if (triggerQueue is null)
         {
@@ -25653,7 +25689,8 @@ public static partial class MatchRecoveryValidator
                 "authoritative state player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "authoritative state player zones",
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         }
     }
 
@@ -32371,6 +32408,8 @@ public static partial class MatchRecoveryValidator
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
+        ValidateDelayedEmpowerViews(stackItems, errors);
+        ValidateLastBreathUnitCreationViews(stackItems, errors);
         ValidateDestructionFamilyStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
@@ -33907,12 +33946,12 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
+                || item.LastBreathUnitCreation is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.LastBreathUnitCreation is not null || item.DelayedEmpower is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

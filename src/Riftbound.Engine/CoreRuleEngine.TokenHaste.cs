@@ -30,8 +30,9 @@ public sealed partial class CoreRuleEngine
                 .Order(StringComparer.Ordinal).ToArray();
             foreach (var rune in runes)
             {
-                if (!cards[rune].IsExhausted) options.Add(new("TAP_RUNE:" + rune, "横置符文，获得 1 法力，之后继续选择", [rune]));
-                options.Add(new("RECYCLE_RUNE:" + rune, "回收符文，获得 1 符能，之后继续选择", [rune]));
+                if (!cards[rune].IsExhausted && CanGainSpellOnlyMana(pool, 1)) options.Add(new("TAP_RUNE:" + rune, "横置符文，获得 1 法力，之后继续选择", [rune]));
+                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                    options.Add(new("RECYCLE_RUNE:" + rune, "回收符文，获得 1 符能，之后继续选择", [rune]));
             }
             var resources = ReplacementResourceActions(context, player);
             options.AddRange(resources.Select(r => r.Choice));
@@ -54,6 +55,8 @@ public sealed partial class CoreRuleEngine
             }
             var spentTraits = selected == "PAY:ANY" ? new Dictionary<string, int>()
                 : new Dictionary<string, int> { [selected[10..]] = 1 };
+            var paymentCapture = BeginRuleChoiceResourceStep(context, player, selected);
+            var paymentEventStart = events.Count;
             pool = pools[player];
             var power = PayPowerCost(pool, selected == "PAY:ANY" ? 1 : 0, spentTraits);
             pools[player] = pool with { Mana = pool.Mana - 1, Power = power.AnyPower, PowerByTrait = power.PowerByTrait };
@@ -61,6 +64,8 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = player, ["sourceObjectId"] = token.ObjectId, ["parentSourceObjectId"] = parentSource,
                 ["mana"] = 1, ["power"] = 1, ["powerByTrait"] = spentTraits,
                 ["optionalCosts"] = new[] { HasteOptionalCostNames.HasteReady }, ["reason"] = "TOKEN_HASTE_PAYMENT" }));
+            CompleteRuleChoiceResourceStep(paymentCapture, context with { RunePools = pools },
+                events.Skip(paymentEventStart).ToArray());
             return true;
         }
     }
