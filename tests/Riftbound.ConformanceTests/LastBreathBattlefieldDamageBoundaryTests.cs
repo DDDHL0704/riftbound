@@ -45,13 +45,20 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
             Assert.Equal(0, game.State.CardObjects["ALLY"].Damage); Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
             Assert.Equal(1 + copies, game.State.TriggerQueue.Count + game.State.StackItems.Count);
-            if (battlefield && copies == 2) AssertAreaBirthBindings(game);
+            if (battlefield && copies == 2)
+            {
+                Assert.All(game.State.TriggerQueue, t => Assert.Equal(TimingStates.SpellDuelOpen, t.TimingContext));
+                AssertAreaBirthBindings(game);
+            }
             if (game.State.TriggerQueue.Count > 0)
                 await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             if (battlefield && copies == 2)
+            {
+                Assert.All(game.State.StackItems, t => Assert.Equal(TimingStates.SpellDuelOpen, t.TimingContext));
                 Assert.Contains(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = game.State.StackItems
                     .Select((item, index) => index == 0 ? item with { LastBreathBattlefieldDamage = null } : item).ToArray() }),
                     e => e.Contains("captured last-breath battlefield damage", StringComparison.Ordinal));
+            }
             for (var i = 0; i <= copies; i++)
             {
                 var prefix = game.Events().Length; await game.Top(); var events = game.Events().Skip(prefix).Select(e => e.Event).ToArray();
