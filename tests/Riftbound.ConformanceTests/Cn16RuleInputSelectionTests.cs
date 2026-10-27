@@ -30,6 +30,8 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorVen110Catalog = "353df2f0aa104ad593b90add08ca8f1e7187ccd68e4c43abe285d27f2c88462f";
     private const string PriorVen130Catalog = "534f281ee07516c8431e6121e7f4ad5fab30faec5eaa5cea01c54a9118c2f6b4";
 
+    private const string PriorVen057Catalog = "f11fa20ce78c5ca1c9376870ec0de0da6b5b5a16b8f0fc751c7aaa6af1c28b45";
+
     [Fact]
     public async Task ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
     {
@@ -61,10 +63,10 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
-        Assert.Equal("f11fa20ce78c5ca1c9376870ec0de0da6b5b5a16b8f0fc751c7aaa6af1c28b45", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("3c5eb7a6d83bdbc4731e22161d59b749677875690366013afc8a1b96377cb4b4", RuleInputIdentity.Current.CatalogSha256);
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1085, catalog.Cards.Count);
-        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057" })
+        Assert.Equal(1086, catalog.Cards.Count);
+        foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057", "VEN·128" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
     }
 
@@ -91,7 +93,7 @@ public sealed class Cn16RuleInputSelectionTests
         foreach (var catalog in new[] {
             "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog,
             PriorVenFlowCatalog, Prior1074Catalog, Prior1076Catalog, PriorSp6OnlyCatalog,
-            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog, PriorVen050GuardianCatalog, PriorVen070Catalog, PriorVen007Catalog, PriorVen059Catalog, PriorVen055Catalog, PriorVen110Catalog, PriorVen130Catalog,
+            PriorPaymentPreparationCatalog, PriorCombatPreparationCatalog, PriorGuardianCatalog, PriorVen050PreparationCatalog, PriorVen050GuardianCatalog, PriorVen070Catalog, PriorVen007Catalog, PriorVen059Catalog, PriorVen055Catalog, PriorVen110Catalog, PriorVen130Catalog, PriorVen057Catalog,
             "6b15cda26c2f69587c9c14331a5fa30d48fd607188b237be47bb3351db734524",
             "88711bc685dbfe2202b6aff49731b3269043dfcc22ab56d6d793e3f5c9af73dc" })
         {

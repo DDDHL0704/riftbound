@@ -763,7 +763,7 @@ public static class TriggerParser
             && !string.IsNullOrWhiteSpace(match.Groups["keyword"].Value)
                 ? new[] { match.Groups["keyword"].Value }
                 : Array.Empty<string>();
-        var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords);
+        var kind = UnitLastBreathCreateBaseUnitKind(tokenName, tokenCount, createdTokenPower, tokenKeywords, hasLastBreathMarker: true);
         if (string.IsNullOrWhiteSpace(kind))
         {
             return false;
@@ -2230,10 +2230,11 @@ public static class TriggerParser
         string tokenName,
         int tokenCount,
         int tokenPower,
-        IReadOnlyList<string> tokenKeywords)
+        IReadOnlyList<string> tokenKeywords,
+        bool hasLastBreathMarker = false)
     {
         if (string.Equals(tokenName, "随从", StringComparison.Ordinal)
-            && tokenCount > 0
+            && (tokenCount == 3 || hasLastBreathMarker && tokenCount > 0)
             && tokenPower == 1
             && tokenKeywords.Count == 0)
         {

@@ -39,4 +39,15 @@ public sealed class DependentLastBreathParserTests
     {
         Assert.DoesNotContain(TriggerParser.Parse(text), t => t.Kind == TriggerKinds.UnitLastBreathCreateMinions);
     }
+
+    [Theory]
+    [InlineData("OGN·117/298", "on-play")]
+    [InlineData("OGN·117a/298", "on-play")]
+    [InlineData("OGN·212/298", "on-play")]
+    [InlineData("OGN·275/298", TriggerKinds.BattlefieldHeldCreateMinion)]
+    public async Task OnPlayAndBattlefieldHeldMinionClausesKeepTheirOriginalTriggerKinds(string no, string expectedKind)
+    {
+        var card = Assert.Single((await OfficialCardCatalog.LoadDefaultAsync()).Cards, c => c.CardNo == no);
+        Assert.Equal(expectedKind, Assert.Single(TriggerParser.Parse(card.CardEffect)).Kind);
+    }
 }
