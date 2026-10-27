@@ -25,7 +25,7 @@ public sealed class DianaDuelManaOpeningTests
             var fillers = new[] { "OGN·084/298", "OGN·086/298", "OGN·087/298", "OGN·088/298", "OGN·091/298",
                 "OGN·092/298", "OGN·096/298", "OGN·097/298", "OGN·100/298", "OGN·103/298", "OGN·106/298", "OGN·107/298", "OGN·116/298" };
             deck = new(cardNo, "UNL-149/219", fillers.SelectMany(no => Enumerable.Repeat(no, 3)).Append("UNL-149/219").ToArray(),
-                Enumerable.Repeat("UNL-R04", 12).ToArray(), ["OGN·278/298", "OGN·294/298", "OGN·297/298"]);
+                Enumerable.Repeat("UNL-R03", 12).ToArray(), ["OGN·278/298", "OGN·294/298", "OGN·297/298"]);
             var legality = OfficialDeckValidator.Validate(deck, catalog);
             Assert.True(legality.IsValid, string.Join("; ", legality.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
