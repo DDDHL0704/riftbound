@@ -122,7 +122,7 @@ public sealed class Ven014And030EmpoweredCombatConsumerTests
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { Base = [..state.PlayerZones["P1"].Base, ..added] } },
             RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
     }
-    private static async Task FinishCombat(Driver game)
+    internal static async Task FinishCombat(Driver game)
     {
         for (var step = 0; step < 40 && !game.Events().Any(e => e.Event.Kind == "BATTLE_CLOSED"); step++)
         {
