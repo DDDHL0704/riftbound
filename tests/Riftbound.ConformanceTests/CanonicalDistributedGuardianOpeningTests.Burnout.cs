@@ -149,7 +149,11 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 await FinishBattle(game); Assert.Equal(7, game.State.PlayerScores["P2"]); Assert.Equal("P2", game.State.CardObjects[field].ControllerId);
                 Assert.Equal(MatchStatuses.InProgress, game.State.Status); Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "BATTLE_CLOSED");
                 Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "BATTLEFIELD_CONQUERED"); Assert.False(game.State.CardObjects[source].IsAttacking);
+                var history = Assert.Single(game.State.BattlefieldResolutions, h => h.Kind == "CONQUERED" && h.BattlefieldObjectId == field);
+                Assert.Equal(victimGeneration, Assert.Single(history.PublicObjectBindings!, b => b.ObjectId == victim).Generation);
             }
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(new ResolutionResult(true, null, game.State, [],
+                ResolutionResult.BuildSnapshots(game.State), ResolutionResult.BuildPrompts(game.State)));
             Assert.Equal(2, game.State.PlayerScores["P1"]); await game.ColdCheckpoint();
         }
         finally
