@@ -203,6 +203,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (state.PendingPayment is not null)
         {
+            if (command is LegendActCommand legendResource
+                && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
+                && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+                return Complete(ResolveLegendAct(state, intent, legendResource));
             if (command is ActivateAbilityCommand resource
                 && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
                 && definition.IsResourceSkill && definition.ReactionSpeed)
@@ -228,6 +232,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (command.CmdType == CommandTypes.AssignEffectDamage) return Complete(ResolveEffectDamageAssignment(state, intent, command));
             if (state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION")
             {
+                if (command is LegendActCommand legendResource
+                    && TryGetLegendAbility(legendResource.AbilityId, out var legendDefinition)
+                    && legendDefinition.TimingKind == LegendAbilityTimingKinds.ResourceAction)
+                    return Complete(ResolveLegendAct(state, intent, legendResource));
                 if (command is ActivateAbilityCommand resource && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var definition)
                     && definition.IsResourceSkill && definition.ReactionSpeed) return Complete(ResolveActivateAbility(state, intent, resource));
                 if (command is TapRuneCommand tap) return Complete(ResolveTapRune(state, intent, tap));

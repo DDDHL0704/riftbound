@@ -6905,7 +6905,7 @@ public sealed record ResolutionResult(
                     ? "请选择服务端允许的支付项"
                     : "等待对手支付费用",
                 string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.PayCost, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
+                    ? WithSurrender(CommandTypes.PayCost, CommandTypes.LegendAct, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
                     : WithSurrender("WAIT")));
         }
 
@@ -6936,7 +6936,7 @@ public sealed record ResolutionResult(
                     ? state.PendingCardChoice.ChoiceWindow == CoreRuleEngine.EffectDamageWindow
                         ? WithSurrender(CommandTypes.AssignEffectDamage)
                         : state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"
-                        ? WithSurrender(CommandTypes.ChooseCards, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
+                        ? WithSurrender(CommandTypes.ChooseCards, CommandTypes.LegendAct, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
                         : WithSurrender(CommandTypes.ChooseCards)
                     : WithSurrender("WAIT")));
         }
@@ -11162,6 +11162,9 @@ internal static class ActionPromptBuilder
     {
         if (ability.TimingKind == LegendActionTimingKinds.ResourceAction)
             return ResourceActionWindow.CanAct(state, playerId);
+
+        if (state.PendingPayment is not null || state.PendingEffectPlay is not null || state.PendingCardChoice is not null)
+            return false;
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
