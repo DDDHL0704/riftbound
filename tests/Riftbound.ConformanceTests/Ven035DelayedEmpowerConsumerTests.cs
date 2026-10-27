@@ -223,6 +223,86 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
         finally { await Save("generic-rejection-" + branch, initial, game, probe); }
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ResolvingAfterTheActualEndWindowKeepsTheImmediateModeWithoutSchedulingAnInverseForALaterTurn(bool remove)
+    {
+        // Rule359.3.e.16: an already-passed end window cannot become next turn's delayed trigger.
+        var initial = Position("P1");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["END-LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("END-LEGEND", "OGS·017/024", "P1") },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["END-LEGEND"] = new("P1", "LEGEND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["END-LEGEND"] } } };
+        var game = new Driver(initial);
+        try
+        {
+            var unit = await PrepareTarget(game, "P1", true); await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
+            var generation = game.State.CardObjects[unit].ObjectGeneration; var mana = game.State.RunePools["P1"].Mana;
+            await game.Act("P1", new EndTurnCommand());
+            Assert.NotNull(game.State.EndStep); Assert.Equal(MatchPhases.TurnEnd, game.State.Phase);
+            Assert.Single(game.Events(), e => e.Event.Kind == "TURN_END_STEP_STARTED");
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal("END_STEP_RUNE_TARGETS", choice.ChoiceWindow);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+            var endAbility = Assert.Single(game.State.StackItems).StackItemId;
+            await game.Act("P1", new PlayCardCommand("SPELL", No, [unit], Mode: remove ? Remove : Empower));
+            Assert.Equal(mana - 3, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); await game.Top();
+            Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(endAbility, Assert.Single(game.State.StackItems).StackItemId);
+            Assert.NotNull(game.State.EndStep); Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard);
+            await FinishEnd(game, "P1");
+            Assert.Equal("P2", game.State.TurnPlayerId); Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
+            await game.Act("P2", new EndTurnCommand()); Assert.Equal("P1", game.State.TurnPlayerId);
+            Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
+            await game.Act("P1", new EndTurnCommand());
+            choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+            await FinishEnd(game, "P1");
+            Assert.Equal("P2", game.State.TurnPlayerId); Assert.Equal(!remove, game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "TURN_END_STEP_STARTED"));
+            await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("after-actual-end-window-remove-" + remove, initial, game); }
+    }
+
+    [Fact]
+    public async Task AnActualReturnReplayAndNewEmpowerDoesNotLetTheOldTargetInverseReachItsNewGeneration()
+    {
+        var initial = Add(Position("P1"), "RETURN", "OGN·104/298");
+        for (var i = 0; i < 3; i++) initial = Add(initial, "GENERATION-RUNE-" + i, "UNL-R03", "P1", "BASE");
+        var game = new Driver(initial);
+        try
+        {
+            var unit = await PrepareTarget(game, "P1", true);
+            await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+            await TapRunes(game); Assert.Equal(12, game.State.RunePools["P1"].Mana);
+            await game.Act("P1", new RecycleRuneCommand("STATUS-RUNE-1"));
+            var generation = game.State.CardObjects[unit].ObjectGeneration; var draws = Draws(game);
+            await game.Act("P1", new PlayCardCommand("SPELL", No, [unit], Mode: Empower)); await game.Top();
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration);
+            Assert.Equal(9, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", [unit])); await game.Top();
+            Assert.Contains(unit, game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation + 1, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Act("P1", new RecycleRuneCommand("GENERATION-RUNE-0"));
+            await game.Act("P1", new PlayCardCommand(unit, UnitNo, []));
+            Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(generation + 2, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Act("P1", new ActivateAbilityCommand(unit, "EMPOWER:0:0", [])); await game.Top();
+            Assert.True(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(2, game.State.RunePools["P1"].Mana);
+            Assert.Equal(0, game.State.RunePools["P1"].TotalPower); Assert.Equal(draws, Draws(game));
+            Assert.DoesNotContain(game.Events(), e => e.Event.Kind.StartsWith("UNIT_MOVED", StringComparison.Ordinal));
+            Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("RETURN", game.State.PlayerZones["P1"].Graveyard);
+            await game.Act("P1", new EndTurnCommand()); await FinishEnd(game, "P1");
+            Assert.Equal("P2", game.State.TurnPlayerId); Assert.True(game.State.CardObjects[unit].IsEmpowered);
+            Assert.Equal(generation + 2, game.State.CardObjects[unit].ObjectGeneration);
+            await game.Replay(); Restore(game.State);
+        }
+        finally { await Save("actual-return-replay-new-generation", initial, game); }
+    }
+
     private static MatchState Position(string owner)
     {
         var state = Add(VenUnitEntryBasicTests.Position(UnitNo), "SPELL", No);
