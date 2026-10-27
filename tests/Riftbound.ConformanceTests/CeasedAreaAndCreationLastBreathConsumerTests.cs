@@ -15,12 +15,12 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
     public async Task ActualCreatedCopiedTokenKeepsEveryBaseAreaOrEmpoweredCreationSkillAfterCeasing(bool area, int copies)
     {
         var no = area ? "OGN·190/298" : "VEN·128"; var initial = Fixture.Position(no, copies);
-        if (!area) initial = Flow.Add(initial, "TOKEN-COST-RUNE-12", "UNL-R06", "P1", "BASE");
         var game = new Driver(initial);
         try
         {
             Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
-            for (var i = 0; i < (area ? 12 : 13); i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+            Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == "P1" && c.Tags.Contains(CardObjectTags.RuneCard)));
+            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
             await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
             await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
             await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
@@ -41,7 +41,15 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             Assert.False(game.State.CardObjects[token].IsEmpowered);
             if (!area)
             {
-                await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-12"));
+                Assert.Equal(new[] { "TOKEN-COST-RUNE-0", "TOKEN-COST-RUNE-1" }, game.State.PlayerZones["P1"].RuneDeck);
+                await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+                Assert.Equal("P1", game.State.TurnPlayerId); Assert.Empty(game.State.PlayerZones["P1"].RuneDeck);
+                foreach (var rune in new[] { "TOKEN-COST-RUNE-0", "TOKEN-COST-RUNE-1" })
+                { Assert.Contains(rune, game.State.PlayerZones["P1"].Base); Assert.False(game.State.CardObjects[rune].IsExhausted); }
+                Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == "P1" && c.Tags.Contains(CardObjectTags.RuneCard)));
+                Assert.Equal(0, game.State.RunePools["P1"].Mana);
+                for (var i = 0; i < 4 + copies; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+                await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
                 var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ActivateAbility);
                 var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
                 var selected = Assert.Single(requirements, row => Equals(row["sourceObjectId"], token) && Equals(row["abilityId"], "EMPOWER:0:0"));
@@ -106,9 +114,9 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
                 Assert.False(game.State.CardObjects["SECOND"].IsEmpowered); Assert.Equal(parent, game.State.StackItems[0]);
             }
             Assert.Single(game.State.StackItems); await game.Top(); Assert.True(game.State.CardObjects["SECOND"].IsEmpowered);
-            Assert.Equal(3, game.State.CardObjects["SECOND"].Power); Assert.Equal(2 - copies, game.State.RunePools["P1"].Mana);
+            Assert.Equal(3, game.State.CardObjects["SECOND"].Power); Assert.Equal(area ? 2 - copies : 0, game.State.RunePools["P1"].Mana);
             Assert.Equal(0, game.State.RunePools["P1"].TotalPower); Assert.False(game.State.CardObjects.ContainsKey(token));
-            var recycled = new[] { "TOKEN-COST-RUNE-0", "TOKEN-COST-RUNE-1" }.Concat(area ? [] : new[] { "TOKEN-COST-RUNE-12" })
+            var recycled = (area ? new[] { "TOKEN-COST-RUNE-0", "TOKEN-COST-RUNE-1" } : new[] { "TOKEN-COST-RUNE-0" })
                 .Concat(Enumerable.Range(0, copies).Select(i => "TOKEN-COST-RUNE-" + (i + 2))).ToArray();
             Assert.Equal(recycled, game.State.PlayerZones["P1"].RuneDeck);
             Assert.Empty(game.State.TriggerQueue); Assert.Empty(game.State.StackItems); await game.Replay();
