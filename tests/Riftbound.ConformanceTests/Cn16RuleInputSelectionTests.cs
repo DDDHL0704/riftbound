@@ -59,7 +59,7 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Retain the complete 1086-row No35 input and Guardian Angel profile;
+        // Retain both exact source additions and the Guardian Angel profile;
         // apply the exact CN31291 effective erratum. The VEN110 region conflict stays OPEN.
         // Registration and input identity do not certify all card semantics.
         Assert.Equal("SFD·051/221", Assert.Single(OfficialArmamentCatalog.All, a => a.ReplacesHostDestruction).CardNo);
@@ -67,9 +67,9 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
-        Assert.Equal("6747a80cd62ee7cabe3f64c75d0396ec6a181f75d676ea66984789cb0f3b7e35", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("44151ac318c8961d6bfbbc0b60e295fb149d619420dafd33835f99bfe319050f", RuleInputIdentity.Current.CatalogSha256);
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        Assert.Equal(1086, catalog.Cards.Count);
+        Assert.Equal(1087, catalog.Cards.Count);
         foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057", "VEN·035", "VEN·128" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
     }
