@@ -10,4 +10,7 @@
     <Content Include="../../data/official/armaments.json" Link="data/official/armaments.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../data/official/rule-input-scope.json" Link="data/official/rule-input-scope.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-28/radiance-disarm/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.DisarmSourceSnapshot" WithCulture="false" />
+  </ItemGroup>
 </Project>

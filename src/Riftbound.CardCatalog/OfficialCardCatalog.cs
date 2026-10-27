@@ -129,11 +129,19 @@ public static class OfficialCardCatalogLoader
         CancellationToken cancellationToken = default)
     {
         await using var stream = File.OpenRead(path);
+        return await LoadFromStreamAsync(stream, path, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal static async Task<OfficialCardCatalog> LoadFromStreamAsync(
+        Stream stream,
+        string sourceName,
+        CancellationToken cancellationToken = default)
+    {
         var raw = await JsonSerializer.DeserializeAsync<RawCatalog>(stream, JsonOptions, cancellationToken)
             .ConfigureAwait(false);
         if (raw is null)
         {
-            throw new InvalidOperationException($"Failed to load official card catalog from {path}.");
+            throw new InvalidOperationException($"Failed to load official card catalog from {sourceName}.");
         }
 
         var cards = raw.Cards
