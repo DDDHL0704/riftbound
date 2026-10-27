@@ -26868,6 +26868,7 @@ public sealed partial class FullGameEndToEndTests
         var attackerTags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId])
             .Concat([CardObjectTags.Boon])
             .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
             .ToArray();
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {

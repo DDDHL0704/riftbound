@@ -58,6 +58,8 @@ public sealed partial class FullGameEndToEndTests
         var current = AcceptedCurrentResult(initialState);
         RecordConquestFixturePrefix(source, "initial", current);
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(initialState));
+        var deserialized = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(initialState))!;
+        RecordConquestFixturePrefix(source, "initial-cold", current with { State = deserialized });
         var restored = OfficialInsightAndSpellLockTests.Restore(initialState);
         Assert.Equal(MatchStateHasher.Hash(initialState), MatchStateHasher.Hash(restored));
         var session = new MatchSession(restored, new CoreRuleEngine(), journal);
@@ -93,9 +95,11 @@ public sealed partial class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(triggered);
         OfficialInsightAndSpellLockTests.Restore(triggered.State);
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, triggered);
+        RecordConquestFixturePrefix(source, "replayed", triggered, journal, replayVerified: true);
     }
 
-    private static void RecordConquestFixturePrefix(string source, string stage, ResolutionResult result)
+    private static void RecordConquestFixturePrefix(string source, string stage, ResolutionResult result,
+        RecordingMatchJournal? journal = null, bool replayVerified = false)
     {
         var directory = Environment.GetEnvironmentVariable("RIFTBOUND_CONQUEST_FIXTURE_EVIDENCE");
         if (directory is null) return;
@@ -106,7 +110,10 @@ public sealed partial class FullGameEndToEndTests
             result.Accepted,
             result.State,
             result.Events,
-            ComponentErrors = OfficialInsightAndSpellLockTests.Errors(result.State)
+            ComponentErrors = OfficialInsightAndSpellLockTests.Errors(result.State),
+            RecoveredCommands = journal?.Entries.Select(ToRecoveredCommand).ToArray(),
+            RecoveredEvents = journal is null ? null : ToRecoveredEvents(journal.Entries),
+            PrefixReplayVerified = replayVerified
         }));
     }
 }
