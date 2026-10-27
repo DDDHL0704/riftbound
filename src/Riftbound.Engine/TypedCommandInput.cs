@@ -18,7 +18,8 @@ public sealed record TypedCommandInput(
         ["MULLIGAN"] = typeof(MulliganCommand), ["PASS_PRIORITY"] = typeof(PassPriorityCommand),
         ["PASS_FOCUS"] = typeof(PassFocusCommand), ["PASS"] = typeof(PassCommand),
         ["END_TURN"] = typeof(EndTurnCommand), ["SURRENDER"] = typeof(SurrenderCommand),
-        ["PLAY_CARD"] = typeof(PlayCardCommand), ["ACTIVATE_ABILITY"] = typeof(ActivateAbilityCommand),
+        ["PLAY_CARD"] = typeof(PlayCardCommand), [Riftbound.Contracts.CommandTypes.RefusePlayPayment] = typeof(RefusePlayPaymentCommand),
+        ["ACTIVATE_ABILITY"] = typeof(ActivateAbilityCommand),
         ["LEGEND_ACT"] = typeof(LegendActCommand), ["HIDE_CARD"] = typeof(HideCardCommand),
         ["TAP_RUNE"] = typeof(TapRuneCommand), ["RECYCLE_RUNE"] = typeof(RecycleRuneCommand),
         ["REVEAL_CARD"] = typeof(RevealCardCommand), ["MOVE_UNIT"] = typeof(MoveUnitCommand),
@@ -112,6 +113,7 @@ public sealed record TypedCommandInput(
         GameCommand normalized = command switch
         {
             PlayCardCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
+            RefusePlayPaymentCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             ActivateAbilityCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             LegendActCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
             HideCardCommand c => c with { OptionalCosts = c.OptionalCosts ?? [] },
