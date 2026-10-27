@@ -8,7 +8,7 @@ public sealed partial class CoreRuleEngine
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (!pool.HasSupportedAmounts) return false;
-        if ((long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
+        if ((long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower <= int.MaxValue) return true;
 
         // The destruction cost may pause before the gain. A replacement can
         // spend power, or its resource window can convert power first. Read the
@@ -39,7 +39,7 @@ public sealed partial class CoreRuleEngine
             // a legal zero conversion releases nothing.
             released += Math.Min((long)pool.TotalPower, (long)int.MaxValue - pool.Mana - pool.SpellOnlyMana);
         }
-        return (long)pool.TotalPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
+        return (long)pool.TotalStoredPower + P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower - released <= int.MaxValue;
     }
 
     private static ResolutionResult ResolveMalzaharResourceSkill(MatchState state, PlayerIntent intent,

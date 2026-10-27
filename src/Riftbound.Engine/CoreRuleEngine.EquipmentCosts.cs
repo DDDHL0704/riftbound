@@ -22,5 +22,5 @@ public sealed partial class CoreRuleEngine
             totalPowerCost: amounts.GenericPower + amounts.PowerByTrait.Values.Sum(),
             powerCostByTrait: amounts.PowerByTrait, experienceCost: amounts.Experience,
             optionalCostIds: costIds, paymentResourceActionIds: resourceActions,
-            reason: paymentWindow, sourceObjectId: sourceId);
+            reason: paymentWindow, sourceObjectId: sourceId, powerPurpose: PowerPaymentPurpose.Equipment);
 }

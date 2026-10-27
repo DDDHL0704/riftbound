@@ -10614,7 +10614,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     // is unrelated to the current fee. Cost authorization still checks exact traits.
     internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
         => state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
-            && pool.TotalPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && pool.TotalStoredPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
                 && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
                 .Select(id => RecycleRunePaymentOptionalCostPrefix + id)

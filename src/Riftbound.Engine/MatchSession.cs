@@ -10278,7 +10278,7 @@ internal static class ActionPromptBuilder
     private static bool IsRecycleRuneSource(MatchState state, string playerId, string objectId)
     {
         return state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
-            && pool.TotalPower < int.MaxValue
+            && pool.TotalStoredPower < int.MaxValue
             && IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
@@ -12104,6 +12104,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Equipment);
         var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId, assembleProfile);
         var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId, assembleProfile);
         var targetChoices = AssembleEquipmentTargetChoicesForSource(
@@ -12344,6 +12345,7 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null,
         int manaCost = 0)
     {
+        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Equipment);
         if (runePool.Mana < manaCost)
         {
             return false;

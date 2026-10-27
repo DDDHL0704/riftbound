@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
             {
                 if (!cards[rune].IsExhausted && CanGainSpellOnlyMana(pool, 1))
                     options.Add(new("TAP_RUNE:" + rune, "横置符文获得 1 法力，之后继续选择", [rune]));
-                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                if (pool.HasSupportedAmounts && (long)pool.TotalStoredPower + 1 <= int.MaxValue)
                     options.Add(new("RECYCLE_RUNE:" + rune, "回收符文获得 1 符能，之后继续选择", [rune]));
             }
             var resources = ReplacementResourceActions(context, player);

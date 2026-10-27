@@ -56,7 +56,7 @@ public sealed partial class CoreRuleEngine
                     || locations.GetValueOrDefault(id) is not { Zone: "BASE" } position || position.PlayerId != player) continue;
                 if (!rune.IsExhausted && CanGainSpellOnlyMana(pool, 1))
                     options.Add(new("TAP_RUNE:" + id, "横置符文获得 1 点法力，之后继续选择", [id]));
-                if (pool.HasSupportedAmounts && (long)pool.TotalPower + 1 <= int.MaxValue)
+                if (pool.HasSupportedAmounts && (long)pool.TotalStoredPower + 1 <= int.MaxValue)
                     options.Add(new("RECYCLE_RUNE:" + id, "回收符文获得 1 点符能，之后继续选择", [id]));
             }
             options.AddRange(resources.Select(r => r.Choice));

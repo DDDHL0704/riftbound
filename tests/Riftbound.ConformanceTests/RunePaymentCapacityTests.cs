@@ -34,6 +34,35 @@ public sealed class RunePaymentCapacityTests
         Assert.True(PaymentCostRules.CanPayPowerCost(eligible, 2, new Dictionary<string, int>()));
     }
 
+    [Theory]
+    [InlineData(false, 0)] [InlineData(false, 1)] [InlineData(false, 2)]
+    [InlineData(true, 0)] [InlineData(true, 1)] [InlineData(true, 2)]
+    public async Task ActualRuneRecyclingAndItsPromptRespectRestrictedStorage(bool spell, int capacity)
+    {
+        var pool = new RunePool(20, 0, spellOnlyPower: spell ? int.MaxValue - capacity : 0,
+            equipmentOnlyPower: spell ? 0 : int.MaxValue - capacity);
+        var state = WithPool(Position(capacity), pool);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(capacity > 0, (prompt.Candidates ?? []).Any(c => c.Action == CommandTypes.RecycleRune
+            && (c.Sources ?? []).Any(s => s.Id == "RUNE")));
+        var before = MatchStateHasher.Hash(state);
+        var result = await new CoreRuleEngine().ResolveAsync(state,
+            new("restricted-capacity-recycle", "P1", CommandTypes.RecycleRune), new RecycleRuneCommand("RUNE"), default);
+        Assert.Equal(capacity > 0, result.Accepted);
+        Assert.Equal(pool.SpellOnlyPower, result.State.RunePools["P1"].SpellOnlyPower);
+        Assert.Equal(pool.EquipmentOnlyPower, result.State.RunePools["P1"].EquipmentOnlyPower);
+        if (capacity > 0)
+        {
+            Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
+            Assert.Equal(int.MaxValue - capacity + 1, result.State.RunePools["P1"].TotalStoredPower);
+        }
+        else
+        {
+            Assert.Empty(result.Events);
+            Assert.Equal(before, MatchStateHasher.Hash(result.State));
+        }
+    }
+
     [Fact]
     public void JointAffordabilityMatchesAnIndependentEnumerationOfEveryRepresentableRuneSubset()
     {
