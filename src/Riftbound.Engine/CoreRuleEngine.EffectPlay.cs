@@ -186,7 +186,7 @@ public sealed partial class CoreRuleEngine
         if (CanFinishWithoutEffectPlay(state))
         {
             var choiceState = state with { PendingCardChoice = new(p.ChoiceId, "EFFECT_PLAY", p.PlayerId,
-                0, 0, [], [], p.Optional ? "放弃此次再次打出" : "当前没有合法来源或目的地，继续结算", p.Parent.SourceObjectId, p.Parent.EffectKind) };
+                0, 0, [], [], p.Optional ? "放弃此次再次打出" : "拒绝支付资源费用或无法完成此次打出，继续结算", p.Parent.SourceObjectId, p.Parent.EffectKind) };
             var decline = ActionPromptBuilder.Build(choiceState, p.PlayerId, true, "继续结算", [CommandTypes.ChooseCards]).Candidates!.Single();
             decline = decline with { Label = p.Optional ? "放弃再次打出" : "继续结算", Enabled = true,
                 SelectionSteps = [], CommandTemplate = new(CommandTypes.ChooseCards, [
@@ -217,27 +217,17 @@ public sealed partial class CoreRuleEngine
         if (p.Optional || EffectPlayDestinations(state, p.PlayerId).Count == 0) return true;
         var candidates = ActionPromptBuilder.Build(state, p.PlayerId, true, "再次打出", [CommandTypes.PlayCard]);
         if ((candidates.Candidates?.FirstOrDefault()?.Sources?.Count ?? 0) == 0) return true;
-        // Only offer an impossible-payment continuation when even an upper bound
-        // using every legal rune and temporary resource cannot cover the minimum.
-        var pool = state.RunePools.GetValueOrDefault(p.PlayerId) ?? RunePool.Empty;
-        var mana = pool.Mana;
-        var traits = pool.PowerByTrait.ToDictionary(x => x.Key, x => x.Value);
-        foreach (var id in state.PlayerZones[p.PlayerId].Base)
-            if (state.CardObjects.TryGetValue(id, out var rune) && !rune.IsFaceDown
-                && rune.Tags.Contains(CardObjectTags.RuneCard) && SourceObjectControlledByPlayerOrLegacyOwned(rune, p.PlayerId))
-            {
-                if (!rune.IsExhausted) mana++;
-                if (TryGetRuneTrait(rune, out var trait)) traits[trait] = traits.GetValueOrDefault(trait) + 1;
-            }
-        var available = pool with { Mana = mana, PowerByTrait = traits };
+        // CN445.2/445.2.a permits refusing a nonzero resource fee and
+        // withdrawing that play, even when those resources are already pooled.
+        // CN445.1.b does not permit refusing a zero fee. A legal free route
+        // therefore still has to be carried out for a mandatory instruction.
         return EffectPlaySources(state, p.PlayerId).All(id => {
             var card = state.CardObjects[id];
             return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {
                 var behavior = EffectPlayBehavior(state, p.PlayerId, b);
-                PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : b.CardNo, null, available, 0,
-                    new Dictionary<string, int>(), out var generic, out var typed);
-                return MinimumPlayManaCost(state, p.PlayerId, behavior, id).Total <= available.Mana
-                    && PaymentCostRules.PowerDeficit(available, generic, typed) == 0;
+                return MinimumPlayManaCost(state, p.PlayerId, behavior, id).Total == 0
+                    && PrintedPowerCostRules.ForPlay(behavior).Amount == 0
+                    && SourceReplayPowerCost(state, p.PlayerId) == 0;
             });
         });
     }
