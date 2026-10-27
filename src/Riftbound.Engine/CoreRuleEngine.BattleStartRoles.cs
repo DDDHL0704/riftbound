@@ -109,6 +109,39 @@ public sealed partial class CoreRuleEngine
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
+    private static MatchState FinalizeRuleChoiceBattleRoleCoordinates(MatchState before, ResolutionResult result,
+        IReadOnlyList<GameEvent> committedEvents, long completedTick)
+    {
+        // Replay still uses the original command's coordinates while choices
+        // are pending. Only its final, retained events receive journal slots.
+        var previous = before.UntilEndOfTurnEffects.ToHashSet(StringComparer.Ordinal);
+        int EventOrder(int originalOrder)
+        {
+            var roleEvent = result.Events[originalOrder];
+            if (roleEvent.Kind is "BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED")
+                for (var order = 0; order < committedEvents.Count; order++)
+                    if (ReferenceEquals(committedEvents[order], roleEvent)) return order;
+            throw new InvalidOperationException("New battle role has no retained command event.");
+        }
+        var scopes = new Dictionary<BattleLimitedScope, BattleLimitedScope>();
+        foreach (var text in result.State.UntilEndOfTurnEffects)
+            if (!previous.Contains(text) && BattleLimitedMarkers.TryScope(text, out var scope))
+                scopes.Add(scope!, scope! with { StartedAtTick = completedTick, RoleEventOrder = EventOrder(scope.RoleEventOrder) });
+        var effects = result.State.UntilEndOfTurnEffects.Select(text => {
+            // Resource children and earlier commands already have accepted
+            // coordinates; their identities must survive the parent replay.
+            if (previous.Contains(text)) return text;
+            if (BattleLimitedMarkers.TryScope(text, out var scope))
+                return BattleLimitedMarkers.ScopeId(scopes[scope!]);
+            if (BattleLimitedMarkers.TryRole(text, out var role))
+                return BattleLimitedMarkers.RoleId(role! with {
+                    Scope = scopes.GetValueOrDefault(role.Scope, role.Scope),
+                    AcquiredAtTick = completedTick, RoleEventOrder = EventOrder(role.RoleEventOrder) });
+            return text;
+        }).ToArray();
+        return result.State with { UntilEndOfTurnEffects = effects };
+    }
+
     private static ObjectBinding[] CaptureBattlePublicBindings(MatchState state, IEnumerable<string> participants)
         => participants.Distinct(StringComparer.Ordinal).Where(id => state.CardObjects.TryGetValue(id, out var card)
                 && FieldObjectTypeRules.IsVisibleUnit(card) && IsObjectOnField(state.PlayerZones, id))

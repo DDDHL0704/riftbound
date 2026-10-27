@@ -20,7 +20,7 @@ public sealed partial class CoreRuleEngine
             || !state.BattlefieldStates.ContainsKey(destinationBattlefieldId)))
             return RejectWithCorePrompts(state, "请选择服务端提供的同一个移动目的地。", ErrorCodes.InvalidTarget);
 
-        var moves = new List<(string Id, string OriginZone, string Origin, string[] Equipment)>();
+        var moves = new List<(string Id, string OriginZone, string Origin)>();
         foreach (var id in ids)
         {
             var location = FindFieldObjectLocation(state.PlayerZones, id);
@@ -38,32 +38,59 @@ public sealed partial class CoreRuleEngine
                 string.IsNullOrWhiteSpace(command.Origin) ? origin : command.Origin, destination, costs));
             if (!validation.Accepted)
                 return RejectWithCorePrompts(state, validation.ErrorMessage ?? "移动单位不合法。", validation.ErrorCode ?? ErrorCodes.InvalidTarget);
-            moves.Add((id, location.Value.Zone, origin, AttachedEquipmentObjectIds(state.CardObjects, id).ToArray()));
+            moves.Add((id, location.Value.Zone, origin));
         }
-
-        // Additional movement costs stack per opposing Patrol already at the destination.
-        var patrolCount = StandardMovementCostRules.PowerPerExtraUnit(state, intent.PlayerId, destinationBattlefieldId);
-        var powerCost = patrolCount * (ids.Length - 1);
-        var pool = state.RunePools.TryGetValue(intent.PlayerId, out var available) ? available : RunePool.Empty;
-        var noColoredCost = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (!CanPayPowerCost(pool, powerCost, noColoredCost))
-            return RejectWithCorePrompts(state, $"同时移动需要额外支付 {powerCost} 符能。", ErrorCodes.InsufficientCost);
 
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        if (powerCost > 0)
+        var bindings = ids.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration, StringComparer.Ordinal);
+        string[]? CurrentMovers(MatchState current)
         {
-            var paid = PayPowerCost(pool, powerCost, noColoredCost);
-            pools[intent.PlayerId] = pool with { Power = paid.AnyPower, PowerByTrait = paid.PowerByTrait };
-            events.Add(new("COST_PAID", "支付同时移动的额外符能费用", new Dictionary<string, object?>
+            if (!toBase && BattlefieldLocalRules.Battlefield(current, destinationBattlefieldId!) is null) return null;
+            foreach (var move in moves)
             {
-                ["playerId"] = intent.PlayerId, ["reason"] = "MAGESEEKER_PATROL_MOVE_TAX_STATIC",
-                ["manaCost"] = 0, ["powerCost"] = powerCost, ["sourceObjectIds"] = ids
-            }));
+                if (!current.CardObjects.TryGetValue(move.Id, out var unit) || unit.ObjectGeneration != bindings[move.Id]
+                    || !FieldObjectTypeRules.IsVisibleUnit(unit) || unit.IsExhausted || unit.IsAttacking || unit.IsDefending
+                    || !SourceObjectControlledByPlayerOrLegacyOwned(unit, intent.PlayerId)
+                    || !MovementRestrictionRules.CanMove(unit, intent.PlayerId)
+                    || FindFieldObjectLocation(current.PlayerZones, move.Id) is not { } origin
+                    || origin.PlayerId != intent.PlayerId || origin.Zone != move.OriginZone
+                    || current.ObjectLocations.GetValueOrDefault(move.Id) != state.ObjectLocations.GetValueOrDefault(move.Id)
+                    || toBase && BattlefieldLocalRules.PreventsMoveToBase(current, move.Id)
+                    || !toBase && move.OriginZone == MoveUnitBattlefieldZone
+                        && !HasRoamPermission(current, intent.PlayerId, move.Id, unit)
+                        && !(TryGetBaronNestMoveDestination(current, destination, out var nest)
+                            && current.CardObjects.TryGetValue(nest, out var nestCard)
+                            && SourceObjectControlledByPlayerOrLegacyOwned(nestCard, intent.PlayerId))
+                    || AttachedEquipmentObjectIds(current.CardObjects, move.Id) is { Count: > 0 } equipment
+                        && !CanMoveExplicitAttachedEquipmentWithHost(current.PlayerZones, current.CardObjects,
+                            intent.PlayerId, unit, equipment)) return null;
+            }
+            return ids;
         }
+        var payment = PayImposedMovementCost(state, intent.PlayerId, ids[0], destinationBattlefieldId, true,
+            zones, cards, locations, pools, CurrentMovers, events);
+        if (payment == ImposedMovementPaymentResult.Unfunded)
+            return RejectWithCorePrompts(state, "同时移动的施加费用无法支付。", ErrorCodes.InsufficientCost);
+        if (payment == ImposedMovementPaymentResult.Unsupported)
+            return RejectWithCorePrompts(state, "同时移动费用超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
+        if (payment == ImposedMovementPaymentResult.Declined)
+        {
+            var declined = state with { Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = pools };
+            var continued = AdvancePendingBattlefieldTasksAfterStateChange(declined, intent.PlayerId, state);
+            events.AddRange(continued.Events);
+            return new(true, null, continued.State, events, ResolutionResult.BuildSnapshots(continued.State), BuildCorePrompts(continued.State));
+        }
+        var beforeMove = state with { PlayerZones = zones.ToDictionary(p => p.Key, p => p.Value),
+            CardObjects = cards.ToDictionary(p => p.Key, p => p.Value), ObjectLocations = locations.ToDictionary(p => p.Key, p => p.Value), RunePools = pools };
+        var movementObservation = CaptureMovementBatchObservers(beforeMove, cards, moves
+            .Select(move => CaptureMovedUnitFact(beforeMove, move.Id, intent.PlayerId,
+                toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone, destinationBattlefieldId))
+            .OfType<MovedUnitFact>().ToArray());
         var destinationZone = toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone;
         foreach (var move in moves)
         {
@@ -79,13 +106,12 @@ public sealed partial class CoreRuleEngine
                     ["origin"] = move.Origin, ["destination"] = destination, ["battlefieldObjectId"] = destinationBattlefieldId,
                     ["simultaneousSourceObjectIds"] = ids
                 }));
-            events.AddRange(MoveAttachedEquipmentWithHost(zones, move.Equipment, intent.PlayerId, move.Id, destinationZone));
-            foreach (var equipment in move.Equipment) locations[equipment] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
+            var attached = AttachedEquipmentObjectIds(cards, move.Id);
+            events.AddRange(MoveAttachedEquipmentWithHost(zones, attached, intent.PlayerId, move.Id, destinationZone));
+            foreach (var equipment in attached) locations[equipment] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
         }
 
-        events.Add(CaptureMovementBatchObservers(state, cards, moves
-            .Select(move => CaptureMovedUnitFact(state, move.Id, intent.PlayerId, destinationZone, destinationBattlefieldId))
-            .OfType<MovedUnitFact>().ToArray()));
+        events.Add(movementObservation);
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards,
             new StackItemState($"move-group-{state.Tick + 1}", intent.PlayerId, ids[0], "MOVE_UNIT", targetObjectIds: ids),
             pools, objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);

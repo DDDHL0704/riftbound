@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
                     var grant = new BattleLimitedGrant(scope, item.SourceObjectId, context.SourceGeneration, item.ControllerId,
                         context, item.StackItemId, targetId, target.ObjectGeneration, keywordId, powerId, snapshot);
                     cards[targetId] = cards[targetId] with { UntilEndOfTurnEffects = cards[targetId].UntilEndOfTurnEffects
-                        .Append(BattleLimitedMarkers.GrantId(grant)).ToArray() };
+                        .Append(BattleLimitedMarkers.GrantId(grant)).OrderBy(effect => effect, StringComparer.Ordinal).ToArray() };
                 }
             }
         }

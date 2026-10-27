@@ -23207,6 +23207,7 @@ public static partial class MatchRecoveryValidator
 
         // Private checkpoint and decision transcript are validated above. Public
         // snapshots render the deterministic intermediate replacement preview.
+        var paymentPromptState = authoritativeState;
         authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
 
         foreach (var view in playerViews.Values)
@@ -23216,7 +23217,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateResourcePoolViews(view, authoritativeState, errors);
+            ValidateResourcePoolViews(view, authoritativeState, errors, paymentPromptState);
             if (view.Snapshot.Stack is null)
             {
                 errors.Add($"snapshot for {view.PlayerId} requires a stack collection");

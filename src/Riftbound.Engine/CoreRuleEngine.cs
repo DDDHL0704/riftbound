@@ -10628,7 +10628,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     // CN 430: acquiring a legal rune resource is voluntary, even when its trait
     // is unrelated to the current fee. Cost authorization still checks exact traits.
     internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
-        => state.PlayerZones.TryGetValue(playerId, out var zones)
+        => state.RunePools.GetValueOrDefault(playerId, RunePool.Empty) is { HasSupportedAmounts: true } pool
+            && pool.TotalPower < int.MaxValue && state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
                 && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
                 .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
@@ -26569,28 +26570,28 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             for (var index = 0; index < stackItem.TargetObjectIds.Count; index++)
                 MoveFieldUnitsToChosenLocation(state with { PlayerZones = playerZones, CardObjects = cardObjects, ObjectLocations = movementLocations },
-                    playerZones, cardObjects, movementLocations, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
+                    playerZones, cardObjects, movementLocations, runePools, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.TargetReferencedMovement is not null)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveTargetReferencedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
+            ResolveTargetReferencedMovement(state, playerZones, cardObjects, movementLocations, runePools, stackItem, behavior, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.CommandedMovement is not null)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
+            ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, runePools, stackItem, behavior, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.MovesTargetsToChosenLocation)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
+            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
                 stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
             // CN359.3.e.14: the following instruction refers to the moved unit;
             // if movement is ignored, its linked ready instruction is ignored.
@@ -26608,7 +26609,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.MovesWeakerEnemiesAtSelectedBattlefieldToBase)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, movementLocations, stackItem, events);
+            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, movementLocations, runePools, stackItem, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
