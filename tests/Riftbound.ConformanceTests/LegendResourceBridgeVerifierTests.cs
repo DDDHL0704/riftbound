@@ -791,7 +791,7 @@ public sealed class LegendResourceBridgeVerifierTests
         var before = MatchStateHasher.Hash(game.State); var count = game.Events().Length;
         var command = Command("SECOND-CARD"); var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
-        raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
+        raw["promptId"] = ResolutionResult.BuildPrompts(game.State)["P1"].PromptId; raw["snapshotTick"] = game.State.Tick;
         await game.ActRetained(new("P1", "spent-restricted-power-on-another-source", JsonSerializer.SerializeToElement(raw, json)), false);
         Assert.Equal(before, MatchStateHasher.Hash(game.State)); Assert.Equal(count, game.Events().Length);
         Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower); await game.Replay();
