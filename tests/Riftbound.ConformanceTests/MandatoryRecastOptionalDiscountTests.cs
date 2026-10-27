@@ -101,6 +101,7 @@ public sealed class MandatoryRecastOptionalDiscountTests
         { cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, owner); at[id] = new(owner, zone, field); }
         Put("PARENT", "OGN·198/298", "HAND"); Put("UNIT", "OGN·002/298", "GRAVEYARD");
         Put("FODDER", "OGN·096/298", "HAND"); Put("FIELD", "UNL-219/219", "BATTLEFIELD", field: "FIELD");
+        cards["FIELD"] = cards["FIELD"] with { ControllerId = "P1" };
         Put("HOST", "OGN·096/298", "BATTLEFIELD", field: "FIELD");
         Put("OTHER", "OGN·294/298", "BATTLEFIELD", "P2", "OTHER");
         var deck = Enumerable.Range(0, 3).Select(i => "DRAW" + i).ToArray();
