@@ -22,7 +22,7 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
                 "OGN·029/298", "OGN·039/298", "OGN·171/298", "OGN·180/298", "OGN·183/298", "OGN·185/298")).Take(40).ToArray();
         var decks = new Dictionary<string, OfficialDecklist> {
             ["P1"] = new("OGN·261/298", "OGN·238/298", ownerCards,
-                Enumerable.Repeat("UNL-R02", 6).Concat(Enumerable.Repeat("UNL-R04", 6)).ToArray(), fields),
+                Enumerable.Repeat("UNL-R02", 6).Concat(Enumerable.Repeat("UNL-R06", 6)).ToArray(), fields),
             ["P2"] = new("OGN·251/298", "OGN·030/298", enemyCards,
                 Enumerable.Repeat("UNL-R01", 6).Concat(Enumerable.Repeat("UNL-R05", 6)).ToArray(), fields) };
         foreach (var deck in decks.Values)
