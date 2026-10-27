@@ -203,7 +203,15 @@ public sealed class OfficialEffectReplayTests
         var pending = opened.State.PendingEffectPlay!;
         var decline = new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []);
         var engine = new CoreRuleEngine();
-        Assert.False((await engine.ResolveAsync(opened.State, new("no-skip", "P1", CommandTypes.ChooseCards), decline, default)).Accepted);
+        // Keep this original method identity. CN445.2 permits refusing the
+        // printed one-purple resource fee even when the pool can pay it.
+        var fundedPool = opened.State.RunePools["P1"];
+        var funded = await engine.ResolveAsync(opened.State, new("no-skip", "P1", CommandTypes.ChooseCards), decline, default);
+        Assert.True(funded.Accepted, funded.ErrorMessage);
+        Assert.Equal(fundedPool, funded.State.RunePools["P1"]);
+        Assert.Null(funded.State.PendingEffectPlay);
+        Assert.Contains("UNIT", funded.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("CARD", funded.State.PlayerZones["P1"].Graveyard);
         var state = opened.State with { RunePools = new Dictionary<string, RunePool>(opened.State.RunePools) { ["P1"] = RunePool.Empty } };
         Assert.Contains(CommandTypes.ChooseCards, ResolutionResult.BuildPrompts(state)["P1"].EnabledActions());
         var result = await engine.ResolveAsync(state, new("unable", "P1", CommandTypes.ChooseCards), decline, default);
@@ -211,6 +219,30 @@ public sealed class OfficialEffectReplayTests
         Assert.Null(result.State.PendingEffectPlay);
         Assert.Contains("UNIT", result.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("CARD", result.State.PlayerZones["P1"].Graveyard);
+
+        // The meaningful cannot-skip control is a legal zero fee: CN445.1.b
+        // provides no resource-payment action to refuse. It must still play.
+        var freeSetup = Position("OGN·198/298", "GRAVEYARD");
+        freeSetup = freeSetup with { CardObjects = new Dictionary<string, CardObjectState>(freeSetup.CardObjects) {
+            ["UNIT"] = OfficialGarenConquestBattlefieldCountTests.Printed("UNIT", "OGN·096/298", "P1") } };
+        var freeOpened = await ResolveParent(freeSetup, ["UNIT"]);
+        var freeState = freeOpened.State with { RunePools = new Dictionary<string, RunePool>(freeOpened.State.RunePools) { ["P1"] = RunePool.Empty } };
+        var freePlay = new PlayCardCommand("UNIT", "OGN·096/298", []);
+        var freeQuote = engine.PreviewPlayCard(freeState, "P1", PlayCostPreviewTests.Request(freeState, freePlay));
+        Assert.True(freeQuote.CanPay, freeQuote.Message);
+        Assert.Equal(0, freeQuote.Cost!.Mana + freeQuote.Cost.GenericPower + freeQuote.Cost.PowerByTrait.Values.Sum());
+        var beforeFreeRefusal = MatchStateHasher.Hash(freeState);
+        var freeDecline = new ChooseCardsCommand(freeState.PendingEffectPlay!.ChoiceId, "EFFECT_PLAY", []);
+        var noSkip = await engine.ResolveAsync(freeState, new("zero-cannot-skip", "P1", CommandTypes.ChooseCards), freeDecline, default);
+        Assert.False(noSkip.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, noSkip.ErrorCode);
+        Assert.Equal(beforeFreeRefusal, MatchStateHasher.Hash(noSkip.State)); Assert.Empty(noSkip.Events);
+        Assert.NotNull(noSkip.State.PendingEffectPlay);
+        var freePlayed = await engine.ResolveAsync(freeState, new("zero-play", "P1", CommandTypes.PlayCard), freePlay, default);
+        Assert.True(freePlayed.Accepted, freePlayed.ErrorMessage);
+        Assert.Null(freePlayed.State.PendingEffectPlay);
+        Assert.Contains("UNIT", freePlayed.State.PlayerZones["P1"].Base);
+        Assert.Contains("CARD", freePlayed.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(RunePool.Empty, freePlayed.State.RunePools["P1"]);
     }
 
     private sealed class ReplayJournal : IMatchJournal
