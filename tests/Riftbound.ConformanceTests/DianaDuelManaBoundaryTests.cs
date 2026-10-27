@@ -6,7 +6,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class DianaDuelManaBoundaryTests
+public sealed partial class DianaDuelManaBoundaryTests
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
     private const string Ability = LegendActionAbilityCatalog.DianaLegendAbilityId;
@@ -20,12 +20,20 @@ public sealed class DianaDuelManaBoundaryTests
         {
             await game.Act("P1", new LegendActCommand("LEGEND", Ability, [], []));
             Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+            Assert.Equal(RunePool.Empty with { DuelOnlyMana = 1 }, game.State.RunePools["P1"]);
             await OrdinaryRune(game);
             var command = new PlayCardCommand("GEAR", "SFD·022/221", ["HOST"]);
             quote = Quote(game, command);
-            await Reject(game, command);
+            var retained = await Reject(game, command);
             Assert.True(quote.IsValid); Assert.False(quote.CanPay); Assert.Equal(1, quote.Cost!.MissingMana);
             Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+            Assert.Equal(1, game.State.RunePools["P1"].DuelOnlyMana);
+            await OpenDuel(game);
+            await game.ActRetained(retained, false);
+            Assert.True(Quote(game, command).CanPay);
+            await game.Act("P1", command); await game.Top();
+            Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
+            Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
             await game.Replay();
         }
         finally { await Save("bank-in-main", cardNo, initial, game, quote); }
@@ -43,12 +51,16 @@ public sealed class DianaDuelManaBoundaryTests
             for (var i = 0; game.State.TimingState == TimingStates.SpellDuelOpen && i < 4; i++)
                 await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
             Assert.Equal(TimingStates.NeutralOpen, game.State.TimingState);
+            Assert.Equal(RunePool.Empty with { DuelOnlyMana = 1 }, game.State.RunePools["P1"]);
             await OrdinaryRune(game);
             var command = new PlayCardCommand("GEAR", "SFD·022/221", ["HOST"]);
             quote = Quote(game, command);
             await Reject(game, command);
             Assert.True(quote.IsValid); Assert.False(quote.CanPay); Assert.Equal(1, quote.Cost!.MissingMana);
             Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+            Assert.Equal(1, game.State.RunePools["P1"].DuelOnlyMana);
+            await game.Act("P1", new EndTurnCommand());
+            Assert.All(game.State.RunePools.Values, pool => Assert.Equal(RunePool.Empty, pool));
             await game.Replay();
         }
         finally { await Save("no-leak-after-duel", cardNo, initial, game, quote); }
@@ -67,9 +79,15 @@ public sealed class DianaDuelManaBoundaryTests
             var command = new PlayCardCommand("GEAR", "SFD·022/221", ["HOST"]);
             quote = Quote(game, command);
             Assert.True(quote.CanPay, quote.Message);
+            Assert.Equal(1, quote.Cost!.AvailableDuelOnlyMana);
+            Assert.Equal(0, quote.Cost.RemainingDuelOnlyMana);
             await game.Act("P1", command); await game.Top();
             Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
             Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
+            var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event;
+            Assert.Equal(2, paid.Payload["totalManaCost"]);
+            Assert.Equal(1, paid.Payload["duelOnlyManaSpent"]);
+            Assert.Equal(1, paid.Payload["ordinaryManaSpent"]);
             await game.Replay();
         }
         finally { await Save("pay-equipment-in-duel", cardNo, initial, game, quote); }
@@ -91,11 +109,13 @@ public sealed class DianaDuelManaBoundaryTests
     private static PlayCostQuoteDto Quote(Driver game, PlayCardCommand command)
         => new CoreRuleEngine().PreviewPlayCard(game.State, "P1", new("diana-duel-mana", Assert.IsType<string>(game.PromptFor("P1").PromptId), game.State.Tick, command));
 
-    private static async Task Reject(Driver game, GameCommand command)
+    private static async Task<ConformanceCommand> Reject(Driver game, GameCommand command, string player = "P1", string intent = "diana-outside-duel-payment")
     {
         var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
-        raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
-        await game.ActRetained(new("P1", "diana-outside-duel-payment", JsonSerializer.SerializeToElement(raw, Json)), false);
+        raw["promptId"] = game.PromptFor(player).PromptId; raw["snapshotTick"] = game.State.Tick;
+        var retained = new ConformanceCommand(player, intent, JsonSerializer.SerializeToElement(raw, Json));
+        await game.ActRetained(retained, false);
+        return retained;
     }
 
     private static MatchState Position(string cardNo)
