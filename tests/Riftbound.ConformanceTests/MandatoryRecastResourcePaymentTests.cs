@@ -65,6 +65,7 @@ public sealed class MandatoryRecastResourcePaymentTests
                     GameCommandJsonMapper.Map(wire), wire, default);
                 var accepted = unit == PaidUnit;
                 Assert.Equal(accepted, core.Accepted); Assert.Equal(accepted, native.Accepted);
+                Assert.Equal(accepted, prompt.Candidates!.Any(c => c.Action == CommandTypes.ChooseCards && c.Enabled));
                 Assert.Equal(before, MatchStateHasher.Hash(game.State));
                 if (accepted)
                 {
