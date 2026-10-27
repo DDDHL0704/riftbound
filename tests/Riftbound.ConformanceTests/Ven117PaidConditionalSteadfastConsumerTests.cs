@@ -149,7 +149,15 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
                 await act(player, new DeclareBattleCommand(current.BattleState.BattlefieldObjectId!, current.BattleState.AttackerObjectIds, current.BattleState.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
             }
         }
-        Assert.Equal(new[] { "P1", "P2" }, assigned.Order()); Assert.Single(events().Skip(prefix), e => e.Event.Kind == "BATTLE_CLOSED");
+        // A single unit on each side uses the real automatic combat path.
+        // Multi-unit cases keep both actual assignment windows and profile checks.
+        Assert.Equal(friends.Length == 0 ? Array.Empty<string>() : new[] { "P1", "P2" }, assigned.Order());
+        if (friends.Length == 0)
+        {
+            var automatic = events().Skip(prefix).Where(e => e.Event.Kind == "DAMAGE_APPLIED" && e.Event.Payload.ContainsKey("combatRole")).ToArray();
+            Assert.Equal(2, automatic.Length); Assert.All(automatic, e => Assert.False(e.Event.Payload.ContainsKey("assignmentRole")));
+        }
+        Assert.Single(events().Skip(prefix), e => e.Event.Kind == "BATTLE_CLOSED");
     }
 
     internal static void AssertCondition(MatchState state, string actor, string host, string field, int companions, bool attacking, int expected)
@@ -165,6 +173,11 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
         var dealt = events.Where(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), host) && e.Event.Payload.ContainsKey("combatRole")).ToArray();
         Assert.Equal(expected, dealt.Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
         Assert.All(dealt, e => { Assert.Equal(1, e.Event.Payload["basePower"]); Assert.Equal(expected, e.Event.Payload["combatPower"]); Assert.Equal(expected - 1, e.Event.Payload["keywordBonus"]); Assert.Equal(attacking ? "ATTACKER" : "DEFENDER", e.Event.Payload["combatRole"]); });
+        var incoming = Assert.Single(events, e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), host) && e.Event.Payload.ContainsKey("combatRole"));
+        Assert.Equal(6, incoming.Event.Payload["basePower"]); Assert.Equal(6, incoming.Event.Payload["combatPower"]);
+        Assert.Equal(generation, Convert.ToInt64(incoming.Event.Payload["targetGeneration"]));
+        if (incoming.Event.Payload.TryGetValue("targetLethalDamageThreshold", out var threshold)) Assert.Equal(expected, Convert.ToInt32(threshold));
+        else { Assert.Equal(1, expected); Assert.Equal(6, incoming.Event.Payload["damage"]); }
         Assert.Equal("GRAVEYARD", state.ObjectLocations[host].Zone); Assert.Equal(generation + 1, state.CardObjects[host].ObjectGeneration);
         Assert.Equal(1, state.CardObjects[host].Power); Assert.False(state.CardObjects[host].IsAttacking); Assert.False(state.CardObjects[host].IsDefending);
         Assert.DoesNotContain("坚守3", state.CardObjects[host].Tags); Assert.Null(state.CardObjects[host].RuleDerivedTags);
@@ -173,8 +186,13 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
     {
         Assert.True(state.CardObjects[host].IsFaceDown); Assert.Null(state.CardObjects[host].RuleDerivedTags);
         var snapshots = ResolutionResult.BuildSnapshots(state);
-        var other = JsonSerializer.SerializeToElement(snapshots[Other(actor)], Json).GetProperty("players").GetProperty(actor).GetProperty("objects").GetProperty(host);
-        Assert.True(other.GetProperty("isFaceDown").GetBoolean()); Assert.Equal(new[] { "isFaceDown", "location", "objectId" }, other.EnumerateObject().Select(p => p.Name).Order());
+        foreach (var view in new[] { snapshots[Other(actor)], ResolutionResult.BuildSpectatorSnapshot(state) })
+        {
+            var subject = JsonSerializer.SerializeToElement(view, Json).GetProperty("players").GetProperty(actor);
+            Assert.False(subject.GetProperty("objects").TryGetProperty(host, out _));
+            Assert.DoesNotContain(host, subject.GetProperty("zones").GetProperty("battlefields").EnumerateArray().Select(v => v.GetString()));
+            Assert.Equal(1, subject.GetProperty("zones").GetProperty("battlefieldHiddenStandbyCount").GetInt32());
+        }
         var own = JsonSerializer.SerializeToElement(snapshots[actor], Json).GetProperty("players").GetProperty(actor).GetProperty("objects").GetProperty(host);
         Assert.Equal(No, own.GetProperty("cardNo").GetString());
     }
