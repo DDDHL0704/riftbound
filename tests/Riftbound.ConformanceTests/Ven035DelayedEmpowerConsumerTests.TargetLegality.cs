@@ -77,7 +77,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             Assert.Equal(new Dictionary<string, int> { [RuneTrait.Green] = 1 }, quote.Cost.PowerByTrait);
             Assert.Equal(before, MatchStateHasher.Hash(game.State)); await game.Act("P1", command);
             Assert.Equal(pool.Mana - 3, game.State.RunePools["P1"].Mana); Assert.Equal(pool.TotalPower - 1, game.State.RunePools["P1"].TotalPower);
-            Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Green]);
+            Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Green));
             var item = Assert.Single(game.State.StackItems); Assert.Equal([unit], item.TargetObjectIds);
             Assert.Equal(remove ? "TEMPORARY_REMOVE_EMPOWER_UNIT" : "TEMPORARY_EMPOWER_UNIT", item.EffectKind);
             Assert.Single(game.Events().Skip(events), e => e.Event.Kind == "COST_PAID");
