@@ -107,10 +107,66 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
         finally { await Save("entry-draw-before-native-empower", initial, game); }
     }
 
-    private static MatchState Position()
+    [Theory]
+    [InlineData(1, 2, -3, 2)] [InlineData(2, 3, -4, 1)]
+    public async Task ActuallyPaidSongInstancesEachContributeTheirOwnChosenNegativeMightReplacement(
+        int copies, int contributors, int requestedDelta, int expectedPower)
+    {
+        var initial = Position(10); var cards = initial.CardObjects.ToDictionary();
+        var locations = initial.ObjectLocations.ToDictionary(); var songs = Enumerable.Range(1, copies).Select(i => "MEL-SONG-" + i).ToArray();
+        foreach (var id in songs)
+        {
+            cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "SFD·059/221", "P1");
+            locations[id] = new("P1", "BASE");
+        }
+        // Songs already exist in this midgame fixture. Text copies and the
+        // host's empowered status are acquired only through actual commands.
+        initial = initial with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
+                Base = [..initial.PlayerZones["P1"].Base, ..songs] } } };
+        var game = new Driver(initial);
+        try
+        {
+            await Play(game, 7); await game.Top(); await game.Act("P1", Activate()); await game.Top();
+            Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(0, game.State.RunePools["P1"].Mana);
+            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+            for (var i = 0; i < copies; i++)
+            {
+                var rune = "MEL-RUNE-" + (8 + i);
+                await game.Act("P1", new TapRuneCommand(rune)); await game.Act("P1", new RecycleRuneCommand(rune));
+                Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Green]);
+                await game.Act("P1", new AssembleEquipmentCommand(songs[i], "UNIT", ["ASSEMBLE_GREEN"]));
+                Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+                await game.Top(); var gear = game.State.CardObjects[songs[i]];
+                Assert.Equal("UNIT", gear.AttachedToObjectId); Assert.Equal(No, gear.AttachedRuleText!.CardNo);
+                Assert.Equal(generation, gear.AttachedRuleText.Unit.Generation); Assert.True(gear.AttachmentRevision > 0);
+                Assert.Equal(1, Draws(game)); Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
+            }
+            await game.Act("P1", new TapRuneCommand("MEL-RUNE-10"));
+            await game.Act("P1", new PlayCardCommand("DEBUFF", "OGN·095/298", ["ENEMY"])); await game.Top();
+            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            Assert.Equal(expectedPower, game.State.CardObjects["ENEMY"].Power);
+            var modifier = Assert.Single(game.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifiers);
+            Assert.Equal(requestedDelta, modifier.RequestedPowerDelta);
+            var context = Assert.IsType<ChosenNegativeMightContext>(modifier.ChosenNegativeMight);
+            Assert.Equal(-1, context.OriginalDelta); Assert.Equal(contributors, context.Contributors.Count);
+            Assert.Equal(contributors, context.Contributors.Select(c => c.InstanceId).Distinct(StringComparer.Ordinal).Count());
+            Assert.All(context.Contributors, c => {
+                Assert.Equal(No, c.CardNo); Assert.True(c.WasEmpowered); Assert.Equal("P1", c.ControllerId);
+                Assert.Equal("UNIT", c.Source.ObjectId); Assert.Equal(generation, c.Source.Generation);
+            });
+            Assert.Single(context.Contributors, c => c.Origin is null);
+            Assert.Equal(songs, context.Contributors.Where(c => c.Origin is not null).Select(c => c.Origin!.Equipment.ObjectId).Order());
+            Assert.Equal(2, Draws(game)); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+        }
+        finally { await Save("physical-paid-song-instances-" + copies, initial, game); }
+    }
+
+    private static MatchState Position(int runeCount = 8)
     {
         var state = VenUnitEntryBasicTests.Position(No); var cards = state.CardObjects.ToDictionary();
-        var locations = state.ObjectLocations.ToDictionary(); var runes = Enumerable.Range(1, 8).Select(i => "MEL-RUNE-" + i).ToArray();
+        var locations = state.ObjectLocations.ToDictionary(); var runes = Enumerable.Range(1, runeCount).Select(i => "MEL-RUNE-" + i).ToArray();
         foreach (var id in runes)
         {
             cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, id == "MEL-RUNE-1" ? "UNL-R03" : "UNL-R02", "P1");
@@ -146,7 +202,7 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
     {
         if (Environment.GetEnvironmentVariable("RIFTBOUND_VEN069_EVIDENCE") is not { Length: > 0 } root) return;
         Directory.CreateDirectory(root); await File.WriteAllTextAsync(Path.Combine(root, label + ".json"), JsonSerializer.Serialize(new {
-            scope = "Exact base CN37762 in an explicit turn-five fixture, zero starting pools and eight physical runes. Actual play/entry draw, mana-only native Empower and chosen negative Might; per-command hidden/recovery/dedup/original replay checks remain enabled. No ordinary opening, alternate-printing or whole-card/L2/L3 claim.",
+            scope = "Exact base CN37762 in an explicit turn-five fixture, zero starting pools and eight/ten physical runes. Actual play/entry draw, mana-only native Empower, zero/one/two actually paid text copies and chosen negative Might; Songs pre-exist unattached. Per-command hidden/recovery/dedup/original replay checks remain enabled. No ordinary opening, alternate-printing or whole-card/L2/L3 claim.",
             initial, final = game.State, commands = game.Commands(), events = game.Events(), ruleInputs = RuleInputIdentity.Current }, Json));
     }
 }
