@@ -7,7 +7,7 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class Ven035DelayedEmpowerConsumerTests
+public sealed partial class Ven035DelayedEmpowerConsumerTests
 {
     private const string No = "VEN·035";
     private const string UnitNo = "VEN·057";
