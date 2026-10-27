@@ -215,7 +215,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var ids = Runes(state(), player).Where(id => !state().CardObjects[id].IsExhausted).Take(count).ToArray(); Assert.Equal(count, ids.Length);
             foreach (var id in ids) await act(player, new TapRuneCommand(id));
         }
-        async Task Cast(string player, string source, string no, string[] targets, int mana, string? mode = null)
+        async Task Cast(string player, string source, string no, string[] targets, int mana, string mode = "")
         {
             await Tap(player, mana); var prefix = events().Length; await act(player, new PlayCardCommand(source, no, targets, mode));
             Arena.Cost(events().Skip(prefix), mana, 0); Assert.Equal(0, state().RunePools[player].Mana); Assert.Equal(0, state().RunePools[player].TotalPower);
