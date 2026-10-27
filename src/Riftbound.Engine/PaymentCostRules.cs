@@ -326,7 +326,9 @@ public static class PaymentCostRules
     }
 
     public static bool IsSpellDuel(MatchState? state)
-        => state?.TimingState is TimingStates.SpellDuelOpen or TimingStates.SpellDuelClosed;
+        // A closed chain can retain NEUTRAL_CLOSED while its captured stack
+        // context still belongs to a formal duel. Use the existing derived window.
+        => state?.TurnWindow.IsSpellDuel == true;
 
     public static int AvailableMana(RunePool pool, ManaPaymentPurpose purpose, MatchState? state = null)
         => !pool.HasSupportedAmounts || purpose is not (ManaPaymentPurpose.Other or ManaPaymentPurpose.PlaySpell) ? -1 : pool.Mana

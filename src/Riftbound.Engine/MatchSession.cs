@@ -11209,6 +11209,10 @@ internal static class ActionPromptBuilder
         string playerId,
         LegendActionAbilityDefinition ability)
     {
+        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+        if (ability.ManaGainAmount > 0 && !CoreRuleEngine.CanGainSpellOnlyMana(pool, ability.ManaGainAmount)) return false;
+        if (ability.PowerGainAmount > 0 && (!pool.HasSupportedAmounts
+            || (long)pool.TotalStoredPower + ability.PowerGainAmount > int.MaxValue)) return false;
         if (ability.RequiresPlayedAnotherCardThisTurn
             && (!state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var playedCount) || playedCount <= 0))
         {
