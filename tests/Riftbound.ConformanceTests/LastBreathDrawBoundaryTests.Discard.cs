@@ -82,19 +82,20 @@ public sealed partial class LastBreathDrawBoundaryTests
         var birth = Assert.IsType<LastBreathDrawContext>(choice.LastBreathDraw);
         foreach (var invalid in new[] {
             choice with { LastBreathDraw = null }, choice with { DrawCount = 1 },
-            choice with { LastBreathDraw = birth with { ControllerId = "P2" } },
+            choice with { LastBreathDraw = birth with { ControllerId = birth.ControllerId == "P1" ? "P2" : "P1" } },
             choice with { LastBreathDraw = birth with { Source = birth.Source with { Generation = state.CardObjects["UNIT"].ObjectGeneration } } }
         })
             Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with { PendingHandChoice = invalid }),
                 error => error.Contains("captured last-breath", StringComparison.Ordinal));
         var commands = game.Commands(); var events = game.Events(); var sequence = commands[^1].CompletedEventSequence;
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var observer = state.Seats.Keys.First(p => p != choice.PlayerId);
         var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
-        var payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(snapshots["P2"].Timing["pendingHandChoice"], Json), Json)!;
+        var payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(JsonSerializer.Serialize(snapshots[observer].Timing["pendingHandChoice"], Json), Json)!;
         Assert.False(payload.ContainsKey("lastBreathDraw")); Assert.False(payload.ContainsKey("legalObjectIds"));
         payload["lastBreathDraw"] = birth;
-        views["P2"] = views["P2"] with { Snapshot = snapshots["P2"] with {
-            Timing = new Dictionary<string, object?>(snapshots["P2"].Timing) { ["pendingHandChoice"] = payload } } };
+        views[observer] = views[observer] with { Snapshot = snapshots[observer] with {
+            Timing = new Dictionary<string, object?>(snapshots[observer].Timing) { ["pendingHandChoice"] = payload } } };
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
         Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, sequence, commands, events, views, state, state.Tick, spectator),
             error => error.Contains("private last-breath draw birth receipt", StringComparison.Ordinal));
