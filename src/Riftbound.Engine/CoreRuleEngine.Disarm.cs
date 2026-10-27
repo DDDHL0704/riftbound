@@ -1,4 +1,5 @@
 using Riftbound.Contracts;
+using Riftbound.CardCatalog;
 
 namespace Riftbound.Engine;
 
@@ -11,15 +12,18 @@ public sealed partial class CoreRuleEngine
     private const string DisarmKind = "DISARM";
     private static string DisarmAuraKey(StaticAuraSpec aura)
         => string.Join('|', aura.Kind, aura.TargetScope, aura.TargetFilter, aura.GrantedKeyword);
+    private static string DisarmSourceGrantKey(DisarmFriendlyGrantSource grant)
+        => "CN-SOURCE:" + grant.RequiredUnitTag + ":" + grant.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    private static int PrintedDisarmAmount(string cardNo)
+        => DisarmSourceSpecifications.TryGet(cardNo, out var spec) ? spec.PrintedValue
+            : CombatKeywordAmount(AttachedRuleTextRules.PrintedKeywords(cardNo), CardCombatKeywordNames.Disarm);
 
     private static DisarmKeywordContribution[] DisarmContributions(MatchState state, CardObjectState unit)
     {
         var contributions = new List<DisarmKeywordContribution>();
         foreach (var instance in AttachedRuleTextRules.Instances(state, unit))
         {
-            var amount = instance.Origin is null
-                ? CombatKeywordAmount(NonRuleDerivedTags(unit), CardCombatKeywordNames.Disarm)
-                : CopiedRuleTextKeywordAmount(state, unit, instance, CardCombatKeywordNames.Disarm);
+            var amount = PrintedDisarmAmount(instance.CardNo);
             if (amount > 0) contributions.Add(new(new(unit.ObjectId, unit.ObjectGeneration),
                 instance.CardNo, amount, instance.Origin));
         }
@@ -27,11 +31,20 @@ public sealed partial class CoreRuleEngine
         // different copies of the same card. Do not take a maximum or dedupe.
         foreach (var grant in CurrentPublicKeywordGrants(state, unit, CardCombatKeywordNames.Disarm))
         {
+            if (DisarmSourceSpecifications.TryGet(grant.Instance.CardNo, out var spec) && spec.FriendlyGrants.Length > 0) continue;
             var source = state.CardObjects[grant.SourceId];
             contributions.Add(new(new(source.ObjectId, source.ObjectGeneration), grant.Instance.CardNo,
                 GrantedCombatKeywordAmount(grant.Aura, CardCombatKeywordNames.Disarm),
                 grant.Instance.Origin, DisarmAuraKey(grant.Aura)));
         }
+        foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal)
+            .Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
+                && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == EffectiveFieldControllerId(state.PlayerZones, unit.ObjectId, unit)))
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
+                if (DisarmSourceSpecifications.TryGet(instance.CardNo, out var spec))
+                    foreach (var grant in spec.FriendlyGrants.Where(g => unit.Tags.Contains(g.RequiredUnitTag, StringComparer.Ordinal)))
+                        contributions.Add(new(new(source.ObjectId, source.ObjectGeneration), instance.CardNo,
+                            grant.Value, instance.Origin, DisarmSourceGrantKey(grant)));
         return contributions.ToArray();
     }
 
@@ -75,24 +88,23 @@ public sealed partial class CoreRuleEngine
         foreach (var contribution in context.Disarm!.Contributions)
         {
             var binding = contribution.Source;
-            if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration < binding.Generation
+            state.CardObjects.TryGetValue(binding.ObjectId, out var source);
+            if ((source is null ? !context.SourceCeasedToExist || binding.ObjectId != unitId || binding.Generation != context.SourceGeneration
+                    : source.ObjectGeneration < binding.Generation)
                 || !AttachedRuleTextRules.ValidCaptured(state, contribution.Origin, binding.ObjectId, binding.Generation, contribution.CardNo)) return false;
             if (contribution.AuraKey is { } key)
             {
-                if (!StaticAuraSpecRules.GetStaticAuras(contribution.CardNo).Any(a => DisarmAuraKey(a) == key
+                var retainedSourceGrant = DisarmSourceSpecifications.TryGet(contribution.CardNo, out var spec)
+                    && spec.FriendlyGrants.Any(g => DisarmSourceGrantKey(g) == key && g.Value == contribution.Amount);
+                if (!retainedSourceGrant && !StaticAuraSpecRules.GetStaticAuras(contribution.CardNo).Any(a => DisarmAuraKey(a) == key
                     && GrantedCombatKeywordAmount(a, CardCombatKeywordNames.Disarm) == contribution.Amount)) return false;
             }
             else
             {
                 if (binding.ObjectId != unitId || binding.Generation != context.SourceGeneration) return false;
-                var amount = CombatKeywordAmount(AttachedRuleTextRules.PrintedKeywords(contribution.CardNo), CardCombatKeywordNames.Disarm);
-                // Unregistered source fixtures still enter through the normal
-                // authoritative keyword layer, without granting play permission.
-                if (amount == 0 && contribution.Origin is null && AttachedRuleTextRules.Face(source) == contribution.CardNo)
-                    amount = CombatKeywordAmount(NonRuleDerivedTags(source), CardCombatKeywordNames.Disarm);
-                if (amount != contribution.Amount) return false;
+                if (PrintedDisarmAmount(contribution.CardNo) != contribution.Amount) return false;
             }
-            if (source.ObjectGeneration == binding.Generation && contribution.Origin is null
+            if (source?.ObjectGeneration == binding.Generation && contribution.Origin is null
                 && AttachedRuleTextRules.Face(source) != contribution.CardNo) return false;
         }
         return true;

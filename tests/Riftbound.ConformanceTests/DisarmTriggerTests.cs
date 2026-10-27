@@ -20,13 +20,16 @@ public sealed class DisarmTriggerTests
         Assert.NotNull(root);
         var catalog = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, source));
         var card = Assert.Single(catalog.Cards, c => c.CardNo == printing);
-        Assert.Contains(amount == 1 ? "{{缴械}}" : "{{缴械2}}", card.CardEffect);
+        if (amount > 0) Assert.Contains(amount == 1 ? "{{缴械}}" : "{{缴械2}}", card.CardEffect);
+        else Assert.StartsWith("你的“机械”具有{{缴械}}", card.CardEffect);
+        var tags = new[] { CardObjectTags.UnitCard, "COLOR:blue", card.Tag }
+            .Concat(amount > 0 ? [amount == 1 ? "缴械" : "缴械2"] : Array.Empty<string>()).ToArray();
         var state = AttackDamageDistributionTests.Position();
         state = At(At(state, "ENEMY2", "P2", "BASE"), "ENEMY3", "P2", "BASE");
         return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["HOST"] = new("HOST", cardNo: printing, power: card.Power!.Value,
                 manaCost: card.Energy!.Value, ownerId: "P1", controllerId: "P1",
-                tags: [CardObjectTags.UnitCard, "COLOR:blue", card.Tag, amount == 1 ? "缴械" : "缴械2"]),
+                tags: tags),
             ["ENEMY1"] = new("ENEMY1", cardNo: "OGN·175/298", power: 3, manaCost: 3,
                 ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard, "COLOR:purple", "海盗"])
         } };
