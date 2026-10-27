@@ -214,10 +214,12 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); Assert.Empty(game.State.TriggerQueue);
             foreach (var player in new[] { "P1", "P2" })
                 Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == player && c.Tags.Contains(CardObjectTags.RuneCard)));
-            var scores = game.State.PlayerScores.ToDictionary(); await BattleWinnerPhaseBoundaryTests.PassFocus(game);
+            var scores = game.State.PlayerScores.ToDictionary(); var closingPrefix = game.Events().Length;
+            await BattleWinnerPhaseBoundaryTests.PassFocus(game);
             Assert.False(game.State.BattleState.IsActive); Assert.False(game.State.SpellDuelState.IsActive); Assert.Null(game.State.PendingBattleResult);
             Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_NO_RESULT"); Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
-            Assert.Equal(scores, game.State.PlayerScores); Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+            Assert.Equal(scores, game.State.PlayerScores);
+            Assert.DoesNotContain(game.Events().Skip(closingPrefix), e => e.Event.Kind is "BATTLEFIELD_CONQUERED" or "SCORE_GAINED");
             Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, e => e.StartsWith("BATTLE_LIMITED_", StringComparison.Ordinal)
                 || e.StartsWith("BATTLE_ROLE_", StringComparison.Ordinal));
             await game.Replay();
