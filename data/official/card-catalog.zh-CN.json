@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1088,
+  "total": 1089,
   "cards": [
     {
       "id": 31005,
@@ -45428,6 +45428,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37824,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·124",
+      "cardName": "脱逃的灰背",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Michal Ivan",
+      "cardEffect": "{{强化}} — 摧毁一名友方单位（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2。",
+      "flavorText": "“追求自由的意志，会给你莫大的力量。”",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/c267be86d98b4cb3837386e7662b0d3e.png",
+      "backImage": "",
+      "listSort": 1862,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -46885,6 +46933,31 @@
       "printedFaceIdentity": "VEN·078/166 SC",
       "frontImageSha256": "e4067ebe00f6dea1e969fd37379ba1e88151b45e33e79cc82a3abcec93405813",
       "reason": "Exact CN normal printed unit profile for next-batch generic Empower, self might and conditional two-rune LastBreath consumers. Preserve all prior1087 rows and78 additions. Source registration and parser metadata do not certify gameplay, dates, applicability or whole-card semantics."
+    },
+    {
+      "cardNo": "VEN·124",
+      "sourceId": 37824,
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "脱逃的灰背",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAtUtc": "2026-10-27T13:27:43.599495+00:00",
+      "sourceRecordSha256": "c3e59bd25b90264dcdac5a1cdeb1ffc39374959366a2c21198a69b7f76e60cc2",
+      "sourceResponseSha256": "049a7195d85eada35c2ea19019541e04fef8faa392f5449855c7573d2b74f65f",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·124/166 SC",
+      "frontImageSha256": "3dbbd3b8342527b97ae3c87382d471c396a7485cdc1fa8e85541f7fdd3f98c3c",
+      "reason": "Exact CN normal printed unit profile for friendly-unit destruction Empower cost consumers. Preserve all prior1088 rows and79 source additions. The required nonresource cost remains closed pending its shared producer; source registration and metadata do not certify gameplay, dates, applicability or whole-card semantics."
     }
   ]
 }
