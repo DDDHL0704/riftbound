@@ -124,6 +124,97 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
         finally { await Flow.Save("created-copied-ceased-area-" + area + "-copies-" + copies, initial, game); }
     }
 
+    [Theory]
+    [InlineData(0)] [InlineData(2)]
+    public async Task ARealCreatedCopiedAndMovedTokenKeepsItsBattlefieldDamageAfterCeasing(int copies)
+    {
+        var initial = Fixture.Position("OGN·190/298", copies);
+        initial = Flow.Add(initial, "RAY", "OGN·009/298", "P2", "HAND");
+        for (var i = 0; i < 12; i++) initial = Flow.Add(initial, "AREA-P2-RUNE-" + i, "UNL-R01", "P2", "BASE");
+        var reserve = Enumerable.Range(2, 10).Select(i => "AREA-P2-RUNE-" + i).ToArray();
+        initial = initial with {
+            ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => reserve.Contains(p.Key)
+                ? new ObjectLocationState("P2", "RUNE_DECK") : p.Value),
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P2"] = initial.PlayerZones["P2"] with {
+                Base = initial.PlayerZones["P2"].Base.Except(reserve).ToArray(), RuneDeck = reserve } } };
+        var game = new Driver(initial);
+        try
+        {
+            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+            await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
+            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
+            await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
+            Assert.True(game.State.CardObjects["CARRIER"].IsEmpowered);
+            await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
+            await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [],
+                OptionalCosts: [Fixture.CostChoice(game.State, "UNIT", "CARRIER")]));
+            await game.Top(); var minions = Tokens(game.State); Assert.Equal(2, minions.Length); await game.Top();
+            var token = minions[0]; var other = minions[1]; var generation = game.State.CardObjects[token].ObjectGeneration;
+            var factory = game.State.CardObjects[token].TokenFactoryCardNo; Assert.NotNull(factory);
+            await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-1"));
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", token, ["ASSEMBLE_YELLOW"])); await game.Top();
+            var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+            await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:ALLY"]));
+            for (var i = 0; i < copies; i++)
+            {
+                await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-" + (i + 2)));
+                await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, token, ["ASSEMBLE_GREEN"])); await game.Top();
+            }
+            await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+            Assert.False(game.State.CardObjects[token].IsExhausted); Assert.False(game.State.CardObjects[other].IsExhausted);
+            await game.Act("P1", new MoveUnitCommand(token, "BASE", "BATTLEFIELD:BF", [], [token, other]));
+            await BattleWinnerPhaseBoundaryTests.PassFocus(game);
+            Assert.Equal("BF", game.State.ObjectLocations[token].BattlefieldObjectId);
+            Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
+            Assert.Equal(generation, game.State.CardObjects[token].ObjectGeneration);
+            await game.Act("P1", new EndTurnCommand());
+            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-0"));
+            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-1"));
+            await game.Act("P2", new RecycleRuneCommand("AREA-P2-RUNE-0"));
+            await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+            await game.Act("P2", new PlayCardCommand("RAY", "OGN·009/298", [token])); await game.Top();
+            Assert.False(game.State.CardObjects.ContainsKey(token)); Assert.False(game.State.ObjectLocations.ContainsKey(token));
+            Assert.DoesNotContain(token, game.State.PlayerZones["P1"].Graveyard);
+            Assert.Equal(0, game.State.CardObjects[other].Damage); Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
+            Assert.Equal(1 + copies, game.State.TriggerQueue.Count + game.State.StackItems.Count);
+            if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            var instances = new HashSet<string>();
+            for (var i = 0; i <= copies; i++)
+            {
+                var birth = Assert.IsType<LastBreathBattlefieldDamageContext>(game.State.StackItems[^1].LastBreathBattlefieldDamage);
+                Assert.Equal(new ObjectBinding(token, generation), birth.Source); Assert.Equal(factory, birth.SourceTokenFactoryCardNo);
+                Assert.Equal("P1", birth.ControllerId); Assert.Equal("BATTLEFIELD", birth.SourceZone); Assert.Equal("BF", birth.BattlefieldObjectId);
+                Assert.True(instances.Add(birth.InstanceId));
+                foreach (var view in ResolutionResult.BuildSnapshots(game.State).Values.Cast<object>().Append(ResolutionResult.BuildSpectatorSnapshot(game.State)))
+                    Assert.DoesNotContain("\"lastBreathBattlefieldDamage\"", JsonSerializer.Serialize(view), StringComparison.OrdinalIgnoreCase);
+                var prefix = game.Events().Length;
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind is "DAMAGE_APPLIED" or "UNIT_DESTROYED");
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                var effects = game.Events().Skip(prefix).Select(e => e.Event).ToArray();
+                Assert.Single(effects, e => e.Kind == "TRIGGER_RESOLVED");
+                var damage = effects.Where(e => e.Kind == "DAMAGE_APPLIED").ToArray(); Assert.Equal(i == 0 ? 2 : 0, damage.Length);
+                Assert.All(damage, e => Assert.Equal(4, Convert.ToInt32(e.Payload["damage"])));
+                foreach (var death in effects.Where(e => e.Kind == "UNIT_DESTROYED"))
+                {
+                    var cause = Assert.IsType<DestructionAttribution>(death.Payload["destructionAttribution"]);
+                    Assert.Equal(new ObjectBinding(token, generation), cause.Source); Assert.Equal("OGN·190/298", cause.CardNo);
+                    Assert.Equal("P1", cause.ControllerId); Assert.Equal("P1", cause.ResponsiblePlayerId); Assert.False(cause.FromSpell);
+                }
+                Assert.False(game.State.CardObjects.ContainsKey(token)); Assert.Equal(0, game.State.CardObjects["ALLY"].Damage);
+                Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+                Assert.Equal(copies - i, game.State.StackItems.Count);
+            }
+            Assert.False(game.State.CardObjects.ContainsKey(other)); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId); Assert.Empty(game.State.TriggerQueue);
+            foreach (var player in new[] { "P1", "P2" })
+                Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == player && c.Tags.Contains(CardObjectTags.RuneCard)));
+            await game.Replay();
+        }
+        finally { await Flow.Save("created-copied-ceased-battlefield-area-copies-" + copies, initial, game); }
+    }
+
     private static string[] Tokens(MatchState state) => state.PlayerZones["P1"].Base
         .Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.MinionTokenFamily)).Order(StringComparer.Ordinal).ToArray();
 }
