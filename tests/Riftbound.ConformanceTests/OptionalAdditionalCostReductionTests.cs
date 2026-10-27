@@ -748,7 +748,7 @@ public sealed class OptionalAdditionalCostReductionTests
         var (initial, driver) = await OpenAttachedReduction(exactMana: false);
         var oldGroup = CopiedReductionGroup(driver.State);
         var oldChoice = Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(oldGroup["choiceIds"]),
-            choice => choice.EndsWith(":MANA", StringComparison.Ordinal));
+            choice => choice.Contains(":ECHO:MANA:RULE_TEXT:", StringComparison.Ordinal));
         var oldOrigin = Assert.IsType<RuleTextInstanceBinding>(oldGroup["ruleTextOrigin"]);
         var originalGeneration = driver.State.CardObjects["GEAR"].ObjectGeneration;
         await driver.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["EZREAL", "GEAR"]));
@@ -761,7 +761,7 @@ public sealed class OptionalAdditionalCostReductionTests
             var newOrigin = Assert.IsType<RuleTextInstanceBinding>(CopiedReductionGroup(driver.State)["ruleTextOrigin"]);
             Assert.True(newOrigin.Revision > oldOrigin.Revision);
             Assert.NotEqual(oldChoice, Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"]),
-                choice => choice.EndsWith(":MANA", StringComparison.Ordinal)));
+                choice => choice.Contains(":ECHO:MANA:RULE_TEXT:", StringComparison.Ordinal)));
         }
         Assert.Equal(originalGeneration, driver.State.CardObjects["GEAR"].ObjectGeneration);
         var roundTrip = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(driver.State))!;
@@ -780,7 +780,7 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.Equal(MatchStateHasher.Hash(roundTrip), MatchStateHasher.Hash(rejected.State));
         var currentCosts = new List<string> { "ECHO", ManaReduction };
         if (reattach) currentCosts.Add(Assert.Single(Assert.IsAssignableFrom<IEnumerable<string>>(CopiedReductionGroup(driver.State)["choiceIds"]),
-            choice => choice.EndsWith(":MANA", StringComparison.Ordinal)));
+            choice => choice.Contains(":ECHO:MANA:RULE_TEXT:", StringComparison.Ordinal)));
         var valid = await driver.Act("P1", Command(currentCosts.ToArray()));
         Assert.Equal(2, Assert.Single(valid.State.StackItems).EffectRepeatCount);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
