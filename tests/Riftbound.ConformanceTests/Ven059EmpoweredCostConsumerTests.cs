@@ -16,7 +16,8 @@ public sealed class Ven059EmpoweredCostConsumerTests
     [Fact]
     public async Task ExactNewPrintingPreservesAllPriorFunctionalGroupsAndMembers()
     {
-        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var latestCatalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var catalog = latestCatalog with { Total = 1088, Cards = latestCatalog.Cards.Where(c => c.CardNo != "VEN·124").ToArray() };
         var controlCards = catalog.Cards.Where(c => c.CardNo is not ("VEN·128" or "VEN·078")).ToArray();
         var priorCards = controlCards.Where(c => c.CardNo != No).ToArray();
         Assert.Equal(1085, priorCards.Length); Assert.Equal(1086, controlCards.Length);
@@ -30,6 +31,12 @@ public sealed class Ven059EmpoweredCostConsumerTests
         Assert.Equal(868, cumulativePrior.Count); Assert.Equal(869, cumulative.Count);
         foreach (var unit in cumulativePrior) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
         foreach (var unit in current) Assert.Equal(JsonSerializer.Serialize(unit), JsonSerializer.Serialize(Assert.Single(cumulative, c => c.Id == unit.Id)));
+        Assert.Equal(1089, latestCatalog.Cards.Count);
+        var latestUnits = FunctionalUnitBuilder.Build(latestCatalog.Cards);
+        Assert.Equal(870, latestUnits.Count);
+        foreach (var unit in FunctionalUnitBuilder.Build(catalog.Cards))
+            Assert.Equal(System.Text.Json.JsonSerializer.Serialize(unit), System.Text.Json.JsonSerializer.Serialize(Assert.Single(latestUnits, c => c.Id == unit.Id)));
+        Assert.Equal("VEN·124", Assert.Single(Assert.Single(latestUnits, c => c.Cards.Any(card => card.CardNo == "VEN·124")).Cards).CardNo);
     }
 
     [Fact]

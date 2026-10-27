@@ -1,0 +1,60 @@
+{
+  "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-27T13:27:43.599495+00:00",
+  "language": "zh-CN",
+  "region": "CN",
+  "sourceRecordSha256": "c3e59bd25b90264dcdac5a1cdeb1ffc39374959366a2c21198a69b7f76e60cc2",
+  "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+  "sourceResponseSha256": "049a7195d85eada35c2ea19019541e04fef8faa392f5449855c7573d2b74f65f",
+  "frontImageSha256": "3dbbd3b8342527b97ae3c87382d471c396a7485cdc1fa8e85541f7fdd3f98c3c",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "rawApiCard": {
+    "id": 37824,
+    "cardCategoryList": [
+      "unit"
+    ],
+    "cardCategoryNameList": [
+      "单位"
+    ],
+    "cardNo": "VEN·124",
+    "cardName": "脱逃的灰背",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "yellow"
+    ],
+    "hero": "",
+    "region": "诺克萨斯",
+    "tag": "",
+    "artist": "Michal Ivan",
+    "cardEffect": "{{强化}} — 摧毁一名友方单位（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2。",
+    "flavorText": "“追求自由的意志，会给你莫大的力量。”",
+    "energy": 3,
+    "returnEnergy": null,
+    "power": 3,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/c267be86d98b4cb3837386e7662b0d3e.png",
+    "backImage": "",
+    "listSort": 1862,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  }
+}
