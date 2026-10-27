@@ -17,4 +17,6 @@
 
 当前 CN 核心规则与精确卡牌印次来源、原始输入、TRX、加载模块、编译清单及失败原件见本树 ignored `var/qa/imposed-movement-current-20261027/combined-payment-delivery-v26.json`，旧交付引用也在其中。API 未提供的出版/生效日期及后续限制适用性保持 UNKNOWN；不作整站无新增断言。
 
+机器清单 SHA256 `85a56a8e17d5a2eea081c8d6194e9ec5813e131fc6ffc7b2545f6b27fe92038e` 对应原公开 `c86007d3a0b7808022ab0a1dc80b0d137bdb30cc`，其后仅补本索引。继续使用原 PR138，目标已改为 main；所有 L1 结果仍只归上列实际测试输入，当前合并输入另走完整 L2。
+
 当前只交付定向语义修复，仍须最新 PR head/base/merge-result 的完整 L2 与实际 main 祖先核验。真实 SQL、双玩家 SignalR、进程重启及完整原日志矩阵留每日固定 main SHA 的既定 Actions L3；没有整卡或全后端认证增量。
