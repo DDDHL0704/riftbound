@@ -1280,20 +1280,37 @@ public sealed class RealTriggerQueueTests
     [Fact]
     public async Task StateBasedCleanupLoyalPoroSkipsWhenOnlyOtherFriendlyAlsoDies()
     {
+        // Historical method identity retained. CN 383.2.c.3 checks this
+        // leaving-source condition before either simultaneous unit changes zone.
         var engine = new CoreRuleEngine();
         var cleanup = await ResolveStarfallCleanupAsync(
             engine,
             BuildStarfallDestroyingLoyalPoroWithDyingAllyState(),
-            "loyal-poro-ally-also-dies");
+            "loyal-poro-ally-also-dies",
+            expectSingleLastBreath: true);
 
         Assert.Empty(cleanup.State.TriggerQueue);
-        Assert.Empty(cleanup.State.StackItems);
-        Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        var earned = Assert.Single(cleanup.State.StackItems);
+        Assert.Equal(TriggerKinds.UnitLastBreathDrawIfNotAlone, earned.EffectKind);
+        Assert.False(earned.LastBreathDraw!.SourceWasAlone);
+        Assert.Single(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
         Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.NotEqual(PromptTypes.OrderTriggers, cleanup.Prompts["P1"].View?.Type);
         Assert.Empty(cleanup.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-LOYAL-PORO-DRAW-001"], cleanup.State.PlayerZones["P1"].MainDeck);
         Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
+        var done = cleanup;
+        for (var pass = 0; pass < 2; pass++)
+        {
+            var player = done.State.PriorityPlayerId!;
+            done = await engine.ResolveAsync(done.State,
+                new PlayerIntent("loyal-poro-pre-removal-" + pass, player, CommandTypes.PassPriority),
+                new PassPriorityCommand(), CancellationToken.None);
+            Assert.True(done.Accepted, done.ErrorMessage);
+        }
+        Assert.Empty(done.State.StackItems);
+        Assert.Equal(["P1-LOYAL-PORO-DRAW-001"], done.State.PlayerZones["P1"].Hand);
+        Assert.Empty(done.State.PlayerZones["P1"].MainDeck);
     }
 
     [Fact]
@@ -2712,7 +2729,8 @@ public sealed class RealTriggerQueueTests
     private static async Task<ResolutionResult> ResolveStarfallCleanupAsync(
         CoreRuleEngine engine,
         MatchState state,
-        string label)
+        string label,
+        bool expectSingleLastBreath = false)
     {
         var hiddenFixture = state.StackItems.SelectMany(item => item.TargetObjectIds)
             .Any(id => state.CardObjects.TryGetValue(id, out var card)
@@ -2731,7 +2749,8 @@ public sealed class RealTriggerQueueTests
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Empty(p2Pass.State.StackItems);
+        if (expectSingleLastBreath) Assert.Single(p2Pass.State.StackItems);
+        else Assert.Empty(p2Pass.State.StackItems);
         Assert.Equal(hiddenFixture ? 0 : 2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
