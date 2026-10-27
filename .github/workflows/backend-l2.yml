@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: l2-${{ github.ref }}-${{ github.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -21,7 +21,7 @@ env:
 
 jobs:
   quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -42,13 +42,6 @@ jobs:
         run: python3 scripts/audit/check-project-governance.py --output var/qa/l2-quality/governance.json
       - name: Check committed formatting
         run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        with:
-          dotnet-version: |
-            8.0.x
-            10.0.x
-      - name: Compile production API
-        run: dotnet build src/Riftbound.Api -m:1 --nologo -v:q
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
@@ -56,9 +49,11 @@ jobs:
           path: var/qa/l2-quality/
           retention-days: 14
 
-  targeted:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      sdk: ${{ steps.plan.outputs.sdk }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -70,21 +65,34 @@ jobs:
             8.0.x
             10.0.x
       - name: Verify exact checkout
-        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
-      - name: Targeted and adjacent rule assertions
-        env:
-          RIFTBOUND_L2_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --base "$RIFTBOUND_L2_BASE" --output var/qa/l2-targeted/tests
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-prepared/checkout.json
+      - name: Build API and conformance once and enumerate the complete L2 input
+        id: plan
+        run: python3 scripts/l2-distributed.py prepare --commit "$GITHUB_SHA" --shards 6 --output var/qa/l2-prepared --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: l2-targeted
-          path: var/qa/l2-targeted/
+          name: l2-plan
+          path: |
+            var/qa/l2-prepared/*.json
+            var/qa/l2-prepared/*.log
+          retention-days: 30
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: l2-built-input
+          path: var/qa/l2-prepared/bundle.tar.gz
+          compression-level: 0
           retention-days: 14
 
   rule_suite:
-    runs-on: ubuntu-latest
+    needs: [prepare]
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -93,45 +101,98 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
-            10.0.x
+            ${{ needs.prepare.outputs.sdk }}
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-plan
+          path: var/qa/l2-prepared
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-built-input
+          path: var/qa/l2-prepared
       - name: Verify exact checkout
-        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-rule-suite/checkout.json
-      - name: Mechanism rule suite and both original complete-game smokes
-        run: python3 scripts/test-rules.py l2 --jobs 2 --output var/qa/l2-rule-suite/tests
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-shards/${{ matrix.shard }}/checkout.json
+      - name: Execute assigned methods from the shared built assemblies without rebuilding
+        run: python3 scripts/l2-distributed.py shard --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --shard '${{ matrix.shard }}' --output var/qa/l2-shards/${{ matrix.shard }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: l2-rule-suite
-          path: var/qa/l2-rule-suite/
+          name: l2-${{ matrix.shard }}
+          path: var/qa/l2-shards/${{ matrix.shard }}/
           retention-days: 14
 
-  l2_required:
-    name: L2 required
-    needs: [quality, targeted, rule_suite]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
+  targeted:
+    needs: [prepare, rule_suite]
+    if: ${{ always() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
+      - name: Verify exact checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-plan
+          path: var/qa/l2-prepared
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          pattern: l2-shard-*
+          path: var/qa/l2-shards
+      - name: Restore original shard names
+        run: |
+          python3 -c "from pathlib import Path; p=Path('var/qa/l2-shards'); [(x.rename(p/x.name.removeprefix('l2-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('l2-shard-')]"
+      - name: Derive targeted coverage from the original execution TRX; no second execution
+        run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --inputs var/qa/l2-shards --output var/qa/l2-targeted
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-targeted
+          path: var/qa/l2-targeted/
+          retention-days: 30
+
+  l2_required:
+    name: L2 required
+    needs: [quality, prepare, rule_suite, targeted]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify exact aggregate checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-gate/checkout.json
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-plan
+          path: var/qa/l2-prepared
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          pattern: l2-shard-*
+          path: var/qa/l2-shards
+      - name: Restore original shard names
+        run: |
+          python3 -c "from pathlib import Path; p=Path('var/qa/l2-shards'); [(x.rename(p/x.name.removeprefix('l2-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('l2-shard-')]"
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: l2-targeted
-          path: var/qa/l2-inputs/targeted
+          path: var/qa/l2-targeted
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
-          name: l2-rule-suite
-          path: var/qa/l2-inputs/rule_suite
-      - name: Require successful children and actual fixed-input TRX coverage
+          name: l2-quality
+          path: var/qa/l2-quality
+      - name: Require all children, fixed identities and exact original case coverage
         env:
           RIFTBOUND_QUALITY: ${{ needs.quality.result }}
-          RIFTBOUND_TARGETED: ${{ needs.targeted.result }}
+          RIFTBOUND_PREPARE: ${{ needs.prepare.result }}
           RIFTBOUND_RULE_SUITE: ${{ needs.rule_suite.result }}
+          RIFTBOUND_TARGETED: ${{ needs.targeted.result }}
         run: >-
-          python3 scripts/l2-ci-gate.py --commit "$GITHUB_SHA"
-          --quality "$RIFTBOUND_QUALITY" --targeted "$RIFTBOUND_TARGETED"
-          --rule-suite "$RIFTBOUND_RULE_SUITE" --inputs var/qa/l2-inputs
+          python3 scripts/l2-distributed.py aggregate --commit "$GITHUB_SHA"
+          --prepared var/qa/l2-prepared --inputs var/qa/l2-shards
+          --targeted var/qa/l2-targeted --quality var/qa/l2-quality
           --output var/qa/l2-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
