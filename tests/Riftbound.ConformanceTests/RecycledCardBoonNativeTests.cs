@@ -33,7 +33,9 @@ public sealed class RecycledCardBoonNativeTests
             for (var i = 0; i < 2; i++) await Submit("parent-pass-" + i, current.PriorityPlayerId!, new PassPriorityCommand());
             var deck = current.PendingCardChoice!;
             await Submit("recycle", "P1", new ChooseCardsCommand(deck.ChoiceId, deck.ChoiceWindow, ["HOOK_TOP"]));
-            Assert.NotNull(current.PendingEffectPlay); Assert.Single(current.TriggerQueue);
+            Assert.NotNull(current.PendingEffectPlay); Assert.Equal(2, current.TriggerQueue.Count);
+            Assert.Single(current.TriggerQueue, t => t.SourceObjectId == "HOST" && t.LastBreathDraw is not null);
+            Assert.Single(current.TriggerQueue, t => t.SourceObjectId == "KARMA" && t.FieldContext?.Kind == "RECYCLE_BOON");
             await Submit("play", "P1", new PlayCardCommand("HOOK_TOP", "OGN·096/298", [], OptionalCosts: []));
             Assert.Contains("HOOK_TOP", current.PlayerZones["P1"].Base);
         } else {
@@ -47,7 +49,18 @@ public sealed class RecycledCardBoonNativeTests
         Assert.DoesNotContain(CardObjectTags.Boon, current.CardObjects[target].Tags);
         await Submit("target", "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
         for (var i = 0; i < 2; i++) await Submit("boon-pass-" + i, current.PriorityPlayerId!, new PassPriorityCommand());
-        Assert.Contains(CardObjectTags.Boon, current.CardObjects[target].Tags); Assert.Empty(current.StackItems); Assert.Empty(current.TriggerQueue);
+        Assert.Contains(CardObjectTags.Boon, current.CardObjects[target].Tags);
+        if (hook)
+        {
+            Assert.NotNull(Assert.Single(current.StackItems).LastBreathDraw);
+            var hand = current.PlayerZones["P1"].Hand.ToArray();
+            await Submit("death-pass-0", current.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.Equal(hand, current.PlayerZones["P1"].Hand);
+            await Submit("death-pass-1", current.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.Equal(hand.Length + 1, current.PlayerZones["P1"].Hand.Count);
+            Assert.Contains(CardObjectTags.Boon, current.CardObjects[target].Tags);
+        }
+        Assert.Empty(current.StackItems); Assert.Empty(current.TriggerQueue);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), current, engine, default, Events());
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
         Export("steps.json", steps); Export("receipt.json", new { card, hook, native, commands = journal.Entries.Count, restores = steps.Count, events = Events().Length, replay });

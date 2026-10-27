@@ -143,8 +143,20 @@ public sealed class OfficialInformationPermissionTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["V2"] = new("P1", "BASE") } };
         var cast = await Act(s, "P1", new PlayCardCommand("C", "UNL-180/219", [])); var killed = await Top(cast.State);
         Assert.Equal(2, killed.State.TriggerQueue.Count(t => t.DeathRevealContext is not null)); Restore(killed.State);
-        var ordered = await Act(killed.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: killed.State.TriggerQueue.Select(t => t.TriggerId).Reverse().ToArray()));
-        for (var i = 0; i < 2; i++) { var open = await Top(ordered.State); ordered = await Acknowledge(open.State); Restore(ordered.State); }
+        Assert.Single(killed.State.TriggerQueue, t => t.SourceObjectId == "KEEPER" && t.LastBreathDraw is not null && t.ControllerId == "P2");
+        var legal = CoreRuleEngine.TriggerResolutionOrderIds(killed.State).ToArray();
+        var reveals = killed.State.TriggerQueue.Where(t => t.DeathRevealContext is not null).ToArray();
+        Assert.Single(reveals.Select(t => (t.ControllerId, t.EnqueuedAtTick)).Distinct());
+        var slots = Enumerable.Range(0, legal.Length).Where(i => reveals.Any(t => t.TriggerId == legal[i])).ToArray();
+        var reversed = slots.Select(i => legal[i]).Reverse().ToArray();
+        for (var i = 0; i < slots.Length; i++) legal[slots[i]] = reversed[i];
+        var ordered = await Act(killed.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: legal));
+        for (var i = 0; i < 2; i++)
+        {
+            for (var step = 0; ordered.State.StackItems[^1].DeathRevealContext is null; step++)
+            { Assert.InRange(step, 0, 4); ordered = await Top(ordered.State); Restore(ordered.State); }
+            var open = await Top(ordered.State); ordered = await Acknowledge(open.State); Restore(ordered.State);
+        }
         Assert.Equal(2, ordered.State.PlayerExperience["P1"]); Assert.Equal(2, ordered.State.FaceDownLookPermissions.Count);
         Assert.DoesNotContain(ordered.State.StackItems, item => item.DeathRevealContext is not null);
         while (ordered.State.StackItems.Count > 0) ordered = await Top(ordered.State); // The legend also triggers on the nine-mana spell.
