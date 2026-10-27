@@ -78,8 +78,10 @@ class WorkflowCandidateTests(unittest.TestCase):
 
     def test_l2_checks_the_actual_pr_merge_or_main_commit_and_has_no_l3_dependency(self):
         text = (ROOT / ".github/workflows/backend-l2.yml").read_text()
-        self.assertEqual(4, text.count("ref: ${{ github.sha }}"))
-        self.assertIn("needs: [quality, targeted, rule_suite]", text)
+        self.assertEqual(5, text.count("ref: ${{ github.sha }}"))
+        self.assertIn("needs: [quality, prepare, rule_suite, targeted]", text)
+        self.assertIn('scripts/l2-distributed.py aggregate', text)
+        self.assertIn('scripts/l2-distributed.py shard', text)
         self.assertIn("name: L2 required", text)
         for value in ['needs.postgres', 'needs.native_network', 'needs.related_network', 'continue-on-error']:
             self.assertNotIn(value, text)
