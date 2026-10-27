@@ -10973,7 +10973,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardObjectState hostState,
         IReadOnlyList<string> attachedEquipmentObjectIds)
     {
-        if (!FieldIdentityExplicitlyMatchesZone(hostState, playerId))
+        // CN718.5.e-f / 719.3: movement belongs to the host's controller.
+        // Its owner and the attached equipment's controller may be different.
+        var hostLocation = FindFieldObjectLocation(playerZones, hostState.ObjectId);
+        if (hostLocation is null || hostLocation.Value.PlayerId != playerId
+            || hostState.ControllerId != playerId || !playerZones.ContainsKey(hostState.OwnerId ?? string.Empty))
         {
             return false;
         }
@@ -10983,9 +10987,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
             if (equipmentLocation is null
                 || !string.Equals(equipmentLocation.Value.PlayerId, playerId, StringComparison.Ordinal)
+                || equipmentLocation.Value.Zone != hostLocation.Value.Zone
                 || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
                 || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-                || !FieldIdentityExplicitlyMatchesZone(equipmentState, playerId))
+                || equipmentState.IsFaceDown || equipmentState.AttachedToObjectId != hostState.ObjectId
+                || !playerZones.ContainsKey(equipmentState.OwnerId ?? string.Empty)
+                || !playerZones.ContainsKey(equipmentState.ControllerId ?? string.Empty))
             {
                 return false;
             }

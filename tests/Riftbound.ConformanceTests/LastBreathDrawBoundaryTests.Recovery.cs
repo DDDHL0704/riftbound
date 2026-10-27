@@ -117,7 +117,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         finally { await game.Save("last-breath-draw-original-birth-required"); }
     }
 
-    private static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false, bool transferControl = false, string sourceCardNo = Unit)
+    internal static async Task<(MatchState Initial, Driver Game, long Generation)> CaptureDraws(bool privateDraw = false, bool transferControl = false, string sourceCardNo = Unit)
     {
         var initial = Position(sourceCardNo);
         if (transferControl)
