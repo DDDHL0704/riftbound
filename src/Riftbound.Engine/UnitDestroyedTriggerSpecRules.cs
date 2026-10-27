@@ -129,6 +129,12 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.RuneCallCount is > 0;
     }
 
+    public static bool IsLastBreathCallRunesThenDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitLastBreathCallRunesThenDraw
+            && trigger.Timing == TriggerTimings.UnitDestroyed
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+            && trigger.RuneCallCount is > 0 && trigger.DrawCount is > 0;
+
     public static bool IsLastBreathCreateDormantGoldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal)
@@ -192,7 +198,7 @@ internal static class UnitDestroyedTriggerSpecRules
 
     internal static IReadOnlyList<TriggerSpec> LastBreathRuneCallTriggers(string? cardNo)
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
-            ? triggers.Where(IsLastBreathCallRuneOneTrigger).ToArray() : [];
+            ? triggers.Where(t => IsLastBreathCallRuneOneTrigger(t) || IsLastBreathCallRunesThenDrawTrigger(t)).ToArray() : [];
 
     public static bool IsLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
@@ -209,6 +215,14 @@ internal static class UnitDestroyedTriggerSpecRules
             && trigger.DrawCount is > 0
             && trigger.RequiresOtherFriendlyUnitAtSamePosition == true;
     }
+
+    public static bool IsSelfDrawTrigger(TriggerSpec trigger)
+        => IsLastBreathDrawOneTrigger(trigger) || IsLastBreathDrawIfAloneTrigger(trigger)
+            || IsLastBreathDrawIfNotAloneTrigger(trigger) || IsLastBreathDiscardDrawTrigger(trigger);
+
+    public static IReadOnlyList<TriggerSpec> SelfDrawTriggers(string? cardNo)
+        => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsSelfDrawTrigger).ToArray() : [];
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {

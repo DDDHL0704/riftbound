@@ -231,6 +231,8 @@ public static class TriggerKinds
         "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     public const string UnitLastBreathCallRuneOne =
         "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
+    public const string UnitLastBreathCallRunesThenDraw =
+        "UNIT_LAST_BREATH_CALL_DORMANT_RUNES_THEN_DRAW";
     public const string UnitLastBreathCreateDormantGold =
         "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
     public const string UnitLastBreathDiscardDraw =
