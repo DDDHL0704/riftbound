@@ -11,13 +11,14 @@ public sealed partial class LastBreathDrawBoundaryTests
     public async Task EachPaidAgentTextEarnsAnIndependentDiscardTwoThenDrawTwoSkill(int copies)
     {
         const string agent = "OGN·178/298";
-        var initial = Add(Position(agent), "P1-RUNE-6", "UNL-R02", "P1", "BASE");
+        var initial = Add(Position(agent), "P1-RUNE-6", "UNL-R05", "P1", "BASE");
         for (var i = 1; i <= 3; i++) initial = Add(initial, "HELD-" + i, "OGN·219/298", "P1", "HAND");
         for (var i = 4; i <= 7; i++) initial = Add(initial, "P1-DRAW-" + i, "OGN·219/298", "P1", "MAIN_DECK");
         var game = new Driver(initial);
         try
         {
-            await Tap(game, "P1"); await game.Act("P1", new PlayCardCommand("UNIT", agent, []));
+            await Tap(game, "P1"); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
+            await game.Act("P1", new PlayCardCommand("UNIT", agent, []));
             Assert.Equal(2, game.State.RunePools["P1"].Mana);
             for (var i = 0; i < copies; i++)
             {
