@@ -93,7 +93,8 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
                 Assert.Equal(frozen.TurnNumber, game.State.TurnNumber); Assert.Equal(frozen.TurnPlayerId, game.State.TurnPlayerId);
                 Assert.Equal(frozen.EndStep, game.State.EndStep);
                 Assert.Equal(JsonSerializer.Serialize(frozen.PendingCardChoice), JsonSerializer.Serialize(game.State.PendingCardChoice));
-                Assert.Equal(frozen.StackItems, game.State.StackItems); Assert.Equal(pools, JsonSerializer.Serialize(game.State.RunePools));
+                Assert.Equal(JsonSerializer.Serialize(frozen.StackItems), JsonSerializer.Serialize(game.State.StackItems));
+                Assert.Equal(pools, JsonSerializer.Serialize(game.State.RunePools));
                 Assert.Equal(runes, game.State.PlayerZones["P2"].RuneDeck); Assert.Equal(hand, game.State.PlayerZones["P2"].Hand);
                 Assert.Equal(deckAtChoice, game.State.PlayerZones["P2"].MainDeck); Assert.Equal(scores, game.State.PlayerScores);
                 Assert.Equal(generation, game.State.CardObjects[unit].ObjectGeneration); Assert.True(game.State.CardObjects[unit].IsEmpowered);
