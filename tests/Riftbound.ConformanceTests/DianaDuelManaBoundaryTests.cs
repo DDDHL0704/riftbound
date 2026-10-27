@@ -102,6 +102,7 @@ public sealed class DianaDuelManaBoundaryTests
     {
         var state = ArmamentMightTests.Position() with { Tick = 0 };
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["F"] = state.CardObjects["F"] with { ControllerId = null },
             ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", cardNo, "P1"),
             ["RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("RUNE", "UNL-R01", "P1"),
             ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", "SFD·022/221", "P1") };
@@ -110,7 +111,6 @@ public sealed class DianaDuelManaBoundaryTests
                 ["P1"] = state.PlayerZones["P1"] with { Base = ["HOST", "RUNE"], Hand = ["GEAR"], LegendZone = ["LEGEND"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
                 ["LEGEND"] = new("P1", "LEGEND"), ["RUNE"] = new("P1", "BASE"), ["GEAR"] = new("P1", "HAND") },
-            BattlefieldStates = new Dictionary<string, BattlefieldState>(state.BattlefieldStates) { ["F"] = state.BattlefieldStates["F"] with { ControllerId = null } },
             RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
     }
 
