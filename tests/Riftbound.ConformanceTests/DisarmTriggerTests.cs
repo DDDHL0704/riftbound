@@ -49,6 +49,14 @@ public sealed class DisarmTriggerTests
         => CurrentPowerTargetTests.Snapshot(state).GetProperty("players").GetProperty("P2")
             .GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
 
+    internal static async Task<ResolutionResult> Attack(MatchState initial)
+    {
+        Restore(initial); ArmamentMightTests.PublicRecovery(initial);
+        var attack = await Act(initial, "P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        Restore(attack.State); ArmamentMightTests.PublicRecovery(attack.State);
+        return attack;
+    }
+
     [Theory]
     [InlineData("RAD·054/167", 1)]
     [InlineData("RAD·050/167", 2)]
@@ -75,5 +83,140 @@ public sealed class DisarmTriggerTests
         Assert.Equal(3 - amount, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
         Assert.DoesNotContain(done.Events, e => e.Kind == "DAMAGE_APPLIED");
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
+    }
+
+    [Theory]
+    [InlineData("PAY")]
+    [InlineData("DECLINE")]
+    public async Task WardMustBePaidBeforeResponsesAndDecliningDoesNotReduceMight(string decision)
+    {
+        var initial = await Position("RAD·054/167", 1);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["ENEMY1"] = initial.CardObjects["ENEMY1"] with { Tags = [..initial.CardObjects["ENEMY1"].Tags, "法盾2"] } } };
+        var attack = await Attack(initial);
+        var selected = await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1");
+        var payment = Assert.IsType<PendingPaymentState>(selected.State.PendingPayment);
+        Assert.Equal(2, payment.PowerCost); Assert.Null(selected.State.PriorityPlayerId); Assert.Equal(3, Might(selected.State));
+        var paid = await Act(selected.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [decision]));
+        Record("ward-" + decision, "paid", paid.State, paid.Events);
+        if (decision == "PAY")
+        {
+            Assert.Equal(initial.RunePools["P1"].Power - 2, paid.State.RunePools["P1"].Power);
+            Assert.NotNull(paid.State.PriorityPlayerId); Assert.Single(paid.State.StackItems);
+            paid = await AttackDamageDistributionTests.Top(paid.State);
+            Assert.Equal(2, Might(paid.State));
+        }
+        else
+        {
+            Assert.Equal(initial.RunePools["P1"], paid.State.RunePools["P1"]);
+            Assert.Empty(paid.State.StackItems); Assert.Equal(3, Might(paid.State));
+        }
+        Assert.Equal(0, paid.State.CardObjects["ENEMY1"].Damage);
+        Record("ward-" + decision, "done", paid.State, paid.Events);
+        Restore(paid.State); ArmamentMightTests.PublicRecovery(paid.State);
+    }
+
+    [Theory]
+    [InlineData("HOST", "P1")]
+    [InlineData("ENEMY1", "P2")]
+    public async Task ActualFlashOfEitherSourceOrChosenTargetInvalidatesHereWithoutRetargeting(string movedId, string actor)
+    {
+        var initial = AttackDamageDistributionTests.Spell(await Position("RAD·050/167", 2), "FLASH", "OGS·011/024", actor);
+        var confirmed = await AttackDamageDistributionTests.Confirm((await Attack(initial)).State, "ENEMY1");
+        if (actor == "P2") confirmed = await Act(confirmed.State, "P1", new PassPriorityCommand());
+        var moved = await AttackDamageDistributionTests.Top((await Act(confirmed.State, actor,
+            new PlayCardCommand("FLASH", "OGS·011/024", [movedId]))).State);
+        Assert.Equal("BASE", moved.State.ObjectLocations[movedId].Zone);
+        Record("flash-" + movedId, "response", moved.State, moved.Events);
+        var done = await AttackDamageDistributionTests.Top(moved.State);
+        Assert.Equal(3, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
+        Assert.DoesNotContain(done.Events, e => e.Kind is "DAMAGE_APPLIED" or "POWER_MODIFIED_UNTIL_END_OF_TURN");
+        Assert.Empty(done.State.StackItems);
+        Record("flash-" + movedId, "done", done.State, done.Events);
+        Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
+    }
+
+    [Fact]
+    public async Task AppliedReductionSurvivesOrdinaryMovementAndExpiresAtActualTurnCleanup()
+    {
+        var initial = AttackDamageDistributionTests.Spell(await Position("RAD·054/167", 1), "FLASH", "OGS·011/024", "P2");
+        var confirmed = await AttackDamageDistributionTests.Confirm((await Attack(initial)).State, "ENEMY1");
+        var current = await AttackDamageDistributionTests.Top(confirmed.State);
+        Assert.Equal(2, Might(current.State));
+        if (current.State.FocusPlayerId != "P2") current = await Act(current.State, current.State.FocusPlayerId!, new PassFocusCommand());
+        current = await AttackDamageDistributionTests.Top((await Act(current.State, "P2",
+            new PlayCardCommand("FLASH", "OGS·011/024", ["ENEMY1"]))).State);
+        Assert.Equal("BASE", current.State.ObjectLocations["ENEMY1"].Zone);
+        Assert.Equal(2, Might(current.State));
+        for (var i = 0; i < 6 && current.State.FocusPlayerId is not null; i++)
+            current = await Act(current.State, current.State.FocusPlayerId, new PassFocusCommand());
+        Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
+        current = await Act(current.State, "P1", new EndTurnCommand());
+        Assert.Equal(3, Might(current.State));
+        Assert.Empty(current.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
+        Assert.Equal(0, current.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifier);
+        Record("turn-cleanup", "done", current.State, current.Events);
+        Restore(current.State); ArmamentMightTests.PublicRecovery(current.State);
+    }
+
+    [Theory]
+    [InlineData("empty")]
+    [InlineData("friendly")]
+    [InlineData("elsewhere")]
+    [InlineData("two")]
+    [InlineData("actor")]
+    public async Task InvalidTargetSelectionsCannotChangeThePendingSkill(string branch)
+    {
+        var attack = await Attack(await Position("RAD·054/167", 1));
+        var choice = Assert.IsType<PendingCardChoiceState>(attack.State.PendingCardChoice);
+        string[] selected = branch switch {
+            "empty" => [], "friendly" => ["HOST"], "elsewhere" => ["ENEMY2"],
+            "two" => ["ENEMY1", "ENEMY2"], _ => ["ENEMY1"] };
+        var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, selected);
+        var result = await new CoreRuleEngine().ResolveAsync(attack.State,
+            new("bad-disarm-target", branch == "actor" ? "P2" : "P1", command.CmdType), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(attack.State), MatchStateHasher.Hash(result.State));
+        Record("bad-target-" + branch, "rejected", result.State, result.Events, result.Accepted, result.ErrorMessage);
+    }
+
+    [Theory]
+    [InlineData("amount")]
+    [InlineData("zero")]
+    [InlineData("negative")]
+    [InlineData("duplicate")]
+    [InlineData("foreign-source")]
+    [InlineData("generation")]
+    [InlineData("field-generation")]
+    [InlineData("card")]
+    [InlineData("aura")]
+    [InlineData("missing")]
+    [InlineData("other-kind")]
+    [InlineData("location")]
+    public async Task RecoveryAndConfirmationRejectForgedDisarmContributions(string branch)
+    {
+        var attack = await Attack(await Position("RAD·054/167", 1));
+        var item = Assert.Single(attack.State.StackItems); var field = Assert.IsType<FieldTriggerContext>(item.FieldContext);
+        var contribution = Assert.Single(field.Disarm!.Contributions);
+        var changed = branch switch {
+            "amount" => contribution with { Amount = 99 }, "zero" => contribution with { Amount = 0 },
+            "negative" => contribution with { Amount = -1 },
+            "foreign-source" => contribution with { Source = new("ENEMY1", 0) },
+            "generation" => contribution with { Source = contribution.Source with { Generation = contribution.Source.Generation + 1 } },
+            "card" => contribution with { CardNo = "OGN·001/298" },
+            "aura" => contribution with { AuraKey = "FORGED" }, _ => contribution };
+        field = field with { Disarm = new(branch == "duplicate" ? [changed, changed] : [changed]) };
+        if (branch == "field-generation") field = field with { SourceGeneration = field.SourceGeneration + 1 };
+        if (branch == "missing") field = field with { Disarm = null };
+        if (branch == "other-kind") field = field with { Kind = "COMBAT_MIGHT" };
+        if (branch == "location") field = field with { SourceLocation = new("P1", "BASE") };
+        var forged = attack.State with { StackItems = [item with { FieldContext = field }] };
+        Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(forged));
+        Record("bad-context-" + branch, "forged", forged);
+        var choice = attack.State.PendingCardChoice!;
+        var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(forged, new("forged-disarm", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(forged), MatchStateHasher.Hash(rejected.State));
     }
 }
