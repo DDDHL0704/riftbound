@@ -1,5 +1,7 @@
 # VEN069 physical-resource and copied-text consumers — 2026-10-27
 
+Later submitted-deck evidence is recorded separately in [VEN069 submitted-deck opening supplement](VEN069_SUBMITTED_DECK_CONSUMERS_2026-10-27.md); it does not rebind this original execution. Refs [Issue25](https://github.com/DDDHL0704/riftbound/issues/25).
+
 Exact base CN37762 / VEN·069 梅尔 has current official record SHA256 `0d7c64df791a860e477f4144ea2d85c98142b808d58ac517abfc763e3c99eea4` and personally viewed whole face `3c36997fcd12b72aa28f22591a45a0e3582c32cd523733a9c47362b988587112`. The fresh official CN search response at2026-10-27T12:32:40Z contains base37762 and alternate37763/38298 records identical to the normal catalog. Only the base whole face was personally read. Publication/effective dates and full applicability remain UNKNOWN; source/registry/counts are unchanged.
 
 New consumers spend actual physical runes from zero pools: four mana/one blue to play, one printed entry draw, then three mana/no power to Empower. They preserve the unit's generation, reject premature activation during its entry skill, and retain an insufficient-mana intent's rejection after a real next rune provides the missing mana. Actually paid zero/one/two Song text instances contribute independent chosen-negative-Might replacement receipts; attaching them does not repeat entry draw. OGN095's own draw is counted separately. All original command recovery, privacy, dedup and action/event replay assertions remain enabled.
