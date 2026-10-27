@@ -4331,6 +4331,8 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
+        ValidateLastBreathUnitCreationViews(triggerPayloads, errors);
+
         var knownPlayerIds = view.Snapshot.Players is null
             ? null
             : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
@@ -18776,6 +18778,8 @@ public static partial class MatchRecoveryValidator
             ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
             return;
         }
+
+        ValidateLastBreathUnitCreationViews(spectatorTriggers, errors);
 
         var authoritativeTriggers = authoritativeState.TriggerQueue;
         var validateAuthoritativeParity = spectatorTriggers.Count == authoritativeTriggers.Count;
