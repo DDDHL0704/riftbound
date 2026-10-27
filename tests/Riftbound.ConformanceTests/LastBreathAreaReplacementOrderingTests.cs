@@ -47,6 +47,8 @@ public sealed class LastBreathAreaReplacementOrderingTests
             await game.Act("P2", new PlayCardCommand("RAY", "OGN·009/298", ["UNIT"])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(3, game.State.TriggerQueue.Count);
+            Assert.Equal(3, game.State.TriggerQueue.Select(t => Assert.IsType<LastBreathBattlefieldDamageContext>(t.LastBreathBattlefieldDamage).InstanceId)
+                .Distinct(StringComparer.Ordinal).Count());
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             Assert.Equal(3, game.State.StackItems.Count);
             var p1Hand = game.State.PlayerZones["P1"].Hand.ToArray(); var p1Deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
@@ -72,15 +74,17 @@ public sealed class LastBreathAreaReplacementOrderingTests
             var consumed = Assert.Single(firstEffects, e => e.Event.Kind == "EQUIPMENT_DESTROYED" && Target(e.Event) == selectedGear);
             Assert.True(consumed.Sequence < recalled.Sequence && recalled.Sequence < actualDeath.Sequence);
             Assert.Equal(2, firstEffects.Count(e => e.Event.Kind == "DAMAGE_APPLIED"));
+            Assert.All(firstEffects.Where(e => e.Event.Kind == "DAMAGE_APPLIED"), e => Assert.Equal(4, Convert.ToInt32(e.Event.Payload["damage"])));
             Assert.DoesNotContain(firstEffects, e => e.Event.Kind == "CARD_DRAWN" || e.Event.Kind == "UNIT_DESTROYED" && Target(e.Event) == "HOST");
             Assert.Contains("HOST", game.State.PlayerZones["P1"].Base); Assert.True(game.State.CardObjects["HOST"].IsExhausted);
             Assert.Equal(hostGeneration, game.State.CardObjects["HOST"].ObjectGeneration); Assert.Equal(0, game.State.CardObjects["HOST"].Damage);
-            Assert.DoesNotContain(firstEffects, e => e.Event.Kind == "UNIT_MOVED" && Target(e.Event) == "HOST");
+            Assert.DoesNotContain(firstEffects, e => e.Event.Kind is "UNIT_MOVED_TO_BASE" or "UNIT_MOVED_TO_BATTLEFIELD");
             Assert.Contains(selectedGear, game.State.PlayerZones["P1"].Graveyard);
             var otherGear = selectedGear == "GUARDIAN-0" ? "GUARDIAN-1" : "GUARDIAN-0";
             Assert.Contains(otherGear, game.State.PlayerZones["P1"].Base); Assert.Equal("HOST", game.State.CardObjects[otherGear].AttachedToObjectId);
             var cause = Assert.IsType<DestructionAttribution>(actualDeath.Event.Payload["destructionAttribution"]);
             Assert.Equal(new ObjectBinding("UNIT", sourceGeneration), cause.Source); Assert.Equal("P1", cause.ControllerId); Assert.False(cause.FromSpell);
+            Assert.Equal("OGN·190/298", cause.CardNo); Assert.Equal("P1", cause.ResponsiblePlayerId);
             Assert.Equal(p1Hand, game.State.PlayerZones["P1"].Hand); Assert.Equal(p1Deck, game.State.PlayerZones["P1"].MainDeck);
             Assert.Equal(p2Hand, game.State.PlayerZones["P2"].Hand);
             if (game.State.TriggerQueue.Count > 0)
