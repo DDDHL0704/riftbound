@@ -63,6 +63,33 @@ public sealed class RequiredEmpowerDestructionKernelTests
         finally { await Save("actual-last-breath-cost", initial, game); }
     }
 
+    [Fact]
+    public async Task ARealCreatedMinionCanPayAnotherRequiredCostAfterItCeasesToExist()
+    {
+        var initial = Add(Add(VenUnitEntryBasicTests.Position("VEN·124"), "COST", "VEN·128", "HAND"), "SECOND", "VEN·124", "HAND");
+        var game = new Driver(initial);
+        try
+        {
+            await game.Act("P1", new PlayCardCommand("COST", "VEN·128", []));
+            await game.Act("P1", new ActivateAbilityCommand("COST", "EMPOWER:0:0", [])); await game.Top();
+            await game.Act("P1", new PlayCardCommand("UNIT", "VEN·124", []));
+            await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [], OptionalCosts: ["DESTROY_FRIENDLY_UNIT:COST"]));
+            for (var i = 0; i < 4 && game.State.StackItems.Count > 0; i++) await game.Top();
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            var minions = game.State.PlayerZones["P1"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.MinionTokenFamily)).ToArray();
+            Assert.Equal(2, minions.Length); var paymentId = minions[0];
+            var generation = game.State.CardObjects[paymentId].ObjectGeneration;
+            await game.Act("P1", new PlayCardCommand("SECOND", "VEN·124", []));
+            await game.Act("P1", new ActivateAbilityCommand("SECOND", "EMPOWER:0:0", [], OptionalCosts: ["DESTROY_FRIENDLY_UNIT:" + paymentId]));
+            Assert.False(game.State.CardObjects.ContainsKey(paymentId)); Assert.False(game.State.ObjectLocations.ContainsKey(paymentId));
+            Assert.DoesNotContain(paymentId, game.State.PlayerZones["P1"].Base); Assert.DoesNotContain(paymentId, game.State.PlayerZones["P1"].Graveyard);
+            Assert.Equal(new ObjectBinding(paymentId, generation), Assert.Single(game.State.StackItems).EmpowerActivation!.DestructionCostUnit);
+            Assert.False(game.State.CardObjects["SECOND"].IsEmpowered); await game.Top();
+            Assert.True(game.State.CardObjects["SECOND"].IsEmpowered); await game.Replay();
+        }
+        finally { await Save("actual-created-token-cost", initial, game); }
+    }
+
     [Theory]
     [InlineData("missing")] [InlineData("duplicate")] [InlineData("two")] [InlineData("enemy")]
     [InlineData("gear")] [InlineData("graveyard")] [InlineData("hand-prefix")] [InlineData("target")]
