@@ -186,6 +186,10 @@ internal static class UnitDestroyedTriggerSpecRules
                 StringComparison.Ordinal);
     }
 
+    internal static IReadOnlyList<TriggerSpec> BaseUnitCreationTriggers(string? cardNo)
+        => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsLastBreathCreateBaseUnitTrigger).ToArray() : [];
+
     public static bool IsLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {
         return string.Equals(effectKind, TriggerKinds.UnitLastBreathCreateMinions, StringComparison.Ordinal)
