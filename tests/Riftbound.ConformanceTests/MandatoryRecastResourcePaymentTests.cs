@@ -56,7 +56,7 @@ public sealed class MandatoryRecastResourcePaymentTests
                     new("mandatory-resource-refusal-core", "P1", CommandTypes.ChooseCards), refusal, default);
                 // Probe the native prompt/tick path separately before asserting,
                 // retaining both actual results even when this is a red fixture.
-                var session = new MatchSession(game.State, new CoreRuleEngine());
+                var session = new MatchSession(game.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
                 var prompt = session.PromptFor("P1");
                 var raw = JsonSerializer.SerializeToNode(refusal, Json)!.AsObject();
                 raw["promptId"] = prompt.PromptId; raw["snapshotTick"] = game.State.Tick;
