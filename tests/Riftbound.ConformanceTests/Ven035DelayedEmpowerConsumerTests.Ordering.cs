@@ -66,11 +66,16 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             var queue = JsonSerializer.Deserialize<Dictionary<string, object?>[]>(JsonSerializer.Serialize(spectator.SpectatorSnapshot.Timing["triggerQueue"], Json), Json)!;
             var row = Assert.Single(queue, q => Assert.IsType<JsonElement>(q["triggerId"]).GetString() == hidden.TriggerId);
             Assert.Equal("HIDDEN", Assert.IsType<JsonElement>(row["sourceObjectId"]).GetString()); Assert.False(row.ContainsKey("delayedEmpower"));
+            var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+            var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
+            row["effectKind"] = "FORGED_PUBLIC_EFFECT";
+            var wrongTiming = new Dictionary<string, object?>(spectator.SpectatorSnapshot.Timing) { ["triggerQueue"] = queue };
+            var wrongEffect = spectator with { SpectatorSnapshot = spectator.SpectatorSnapshot with { Timing = wrongTiming } };
+            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, wrongEffect), e => e.Contains("hidden effect kind", StringComparison.Ordinal));
+            row["effectKind"] = hidden.EffectKind;
             row["sourceObjectId"] = "SPELL"; row["sourceVisibility"] = "VISIBLE";
             var timing = new Dictionary<string, object?>(spectator.SpectatorSnapshot.Timing) { ["triggerQueue"] = queue };
             var leaky = spectator with { SpectatorSnapshot = spectator.SpectatorSnapshot with { Timing = timing } };
-            var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
-            var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, sequence, snapshots[p], state.Tick, sequence, prompts[p]));
             Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, spectator));
             Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, leaky), e => e.Contains("source", StringComparison.Ordinal));
             await FinishEnd(game, "P1"); Assert.False(game.State.CardObjects["QUEUE-TARGET"].IsEmpowered);

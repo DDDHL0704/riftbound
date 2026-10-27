@@ -2487,7 +2487,7 @@ public static partial class MatchRecoveryValidator
                 "triggerQueue",
                 "trigger queue",
                 errors);
-            ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors);
+            ValidateSnapshotTimingTriggerQueuePayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
                 "battlefieldTasks",
@@ -4322,7 +4322,8 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingTriggerQueuePayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var triggerPayloads))
@@ -4436,7 +4437,8 @@ public static partial class MatchRecoveryValidator
                 sourceObjectId,
                 sourceVisibility,
                 effectKind,
-                errors);
+                errors,
+                HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 triggerLabel,
                 triggerId,
@@ -18830,6 +18832,7 @@ public static partial class MatchRecoveryValidator
                 battlefieldStateObjectIds,
                 authoritativeState.Tick,
                 authoritativeState.TurnNumber,
+                authoritativeState,
                 errors);
         }
 
@@ -19215,6 +19218,7 @@ public static partial class MatchRecoveryValidator
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
+        MatchState authoritativeState,
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
@@ -19277,7 +19281,8 @@ public static partial class MatchRecoveryValidator
             sourceObjectId,
             sourceVisibility,
             effectKind,
-            errors);
+            errors,
+            HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind));
         ValidateTriggerQueueBlueSentinelDelayedResourceContext(
             payloadLabel,
             triggerId,
@@ -19502,7 +19507,8 @@ public static partial class MatchRecoveryValidator
         string? sourceObjectId,
         string? sourceVisibility,
         string? effectKind,
-        List<string> errors)
+        List<string> errors,
+        bool publicCapturedEffect = false)
     {
         if (string.Equals(sourceVisibility, "HIDDEN", StringComparison.Ordinal))
         {
@@ -19514,7 +19520,8 @@ public static partial class MatchRecoveryValidator
             }
 
             if (effectKind is not null
-                && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal))
+                && !string.Equals(effectKind, "HIDDEN", StringComparison.Ordinal)
+                && !publicCapturedEffect)
             {
                 errors.Add(
                     $"{payloadLabel} hidden effect kind must be redacted; {FormatExpectedActualForRecovery("HIDDEN", effectKind)}");

@@ -4,6 +4,11 @@ namespace Riftbound.Engine;
 
 public static partial class MatchRecoveryValidator
 {
+    private static bool HasValidatedPublicDelayedEmpowerEffect(MatchState? state, string? triggerId, string? effectKind)
+        => state is not null && effectKind == CoreRuleEngine.DelayedEmpowerEffect
+            && state.TriggerQueue.Any(item => item.TriggerId == triggerId && item.DelayedEmpower is not null
+                && CoreRuleEngine.ValidDelayedEmpowerTrigger(state, item));
+
     private static void ValidateDelayedEmpowerState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentDelayedEmpowers(state)) errors.Add("invalid delayed empower instruction");
