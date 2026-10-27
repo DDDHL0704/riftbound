@@ -11997,7 +11997,7 @@ internal static class ActionPromptBuilder
             && string.IsNullOrWhiteSpace(state.PriorityPlayerId);
     }
 
-    private static bool CanPayManaAndAnyPower(RunePool runePool, int manaCost, int powerCost)
+    private static bool CanPayManaAndAnyPower(MatchState state, RunePool runePool, int manaCost, int powerCost)
     {
         return manaCost >= 0
             && powerCost >= 0
