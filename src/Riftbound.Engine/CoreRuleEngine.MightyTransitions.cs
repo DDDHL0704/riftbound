@@ -277,7 +277,7 @@ public sealed partial class CoreRuleEngine
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, runeIds,
             events, pending.PaymentWindow, pending.PaymentId);
         var plan = BuildPendingPaymentPlan(pending, intent.PlayerId, item.EffectKind, item.SourceObjectId, paymentResourceActions: actions);
-        var paid = PaymentCostRules.TryCommitPayment(plan, pools);
+        var paid = PaymentCostRules.TryCommitPayment(plan, pools, state: state);
         if (!paid.Accepted) return RejectWithCorePrompts(state, "符能不足，可先使用符文资源或放弃。", ErrorCodes.InsufficientCost);
         events.Add(new("COST_PAID", "支付强力技能费用", PaymentCostRules.BuildCostPaidPayload(plan, paid.RunePools, null,
             new Dictionary<string, object?> { ["reason"] = item.EffectKind, ["paymentChoiceIds"] = choices.ToArray(),

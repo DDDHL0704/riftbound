@@ -2385,7 +2385,8 @@ public sealed class ConformanceFixtureShapeTests
 
         var p1Prompt = prompts["P1"];
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PAY_COST", "ACTIVATE_ABILITY", "TAP_RUNE", "RECYCLE_RUNE", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["PAY_COST", "LEGEND_ACT", "ACTIVATE_ABILITY", "TAP_RUNE", "RECYCLE_RUNE", "SURRENDER"], p1Prompt.Actions);
+        Assert.DoesNotContain(p1Prompt.Candidates ?? [], candidate => candidate.Action == CommandTypes.LegendAct && candidate.Enabled);
         Assert.Equal(PromptTypes.PayCost, p1Prompt.View?.Type);
         Assert.NotNull(p1Prompt.PromptId);
         Assert.Equal(state.Tick, p1Prompt.SnapshotTick);

@@ -247,7 +247,7 @@ public sealed partial class CoreRuleEngine
         var plan = EquipmentPaymentPlan(TemperedAmounts(state, item, profile), profile, payment.PaymentId,
             TemperedPaymentWindow, item.ControllerId, item.SourceObjectId, [], []);
         var canPay = PaymentCostRules.AuthorizePayment(plan, state.RunePools.GetValueOrDefault(item.ControllerId, RunePool.Empty),
-            state.PlayerExperience.GetValueOrDefault(item.ControllerId)).Accepted;
+            state.PlayerExperience.GetValueOrDefault(item.ControllerId), state: state).Accepted;
         if (choices[0] == "PAY" && !canPay) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能。", ErrorCodes.InsufficientCost);
         if (choices[0] == "UNABLE_TO_PAY" && canPay) return RejectWithCorePrompts(state, "当前资源足以支付已确认技能的费用。", ErrorCodes.InvalidTarget);
         var next = state with { PendingPayment = null, StackItems = state.StackItems.Take(state.StackItems.Count - 1)
@@ -275,7 +275,7 @@ public sealed partial class CoreRuleEngine
         var payment = TemperedPayment(item, amounts);
         var plan = EquipmentPaymentPlan(amounts, profile, payment.PaymentId, TemperedPaymentWindow,
             item.ControllerId, item.SourceObjectId, [], []);
-        var commit = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
+        var commit = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
         if (!commit.Accepted) return NoopStackResolutionResult(state) with { PendingPayment = payment,
             StackItems = state.StackItems, Events = [new("PAYMENT_WINDOW_OPENED", "等待支付百炼引用的装配费用",
                 new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,

@@ -4,6 +4,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static PowerPaymentPurpose PowerPurposeForPlay(CardBehaviorDefinition behavior)
+        => IsSpellPlayBehavior(behavior) ? PowerPaymentPurpose.PlaySpell
+            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+
     public PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
     {
         state = RecomputeRuleDerivedKeywords(state);
@@ -24,12 +28,14 @@ public sealed partial class CoreRuleEngine
                 "当前选择无法打出，请检查目标、位置和支付资源。");
 
         var pool = plan.AvailablePool;
-        var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose);
+        var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, plan.Payment.PowerPurpose);
+        var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose, state: state);
         var missingMana = Math.Max(0, plan.TotalManaCost - availableMana);
-        var missingPower = PaymentCostRules.PowerDeficit(pool, plan.AnyPowerCost, plan.PowerCostByTrait);
+        var missingPower = PaymentCostRules.PowerDeficit(powerPool, plan.AnyPowerCost, plan.PowerCostByTrait);
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
-        var remaining = accepted ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
+        var remaining = accepted ? PaymentCostRules.PayPowerCost(powerPool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
+        var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state) : null;
         var adjustments = new List<PlayCostAdjustmentDto>();
         void Adjust(string label, int mana, int power = 0)
         {
@@ -65,12 +71,14 @@ public sealed partial class CoreRuleEngine
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,
-            availableMana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,
+            availableMana, powerPool.Power, powerPool.PowerByTrait, missingMana, missingPower, missingExperience,
             accepted ? availableMana - plan.TotalManaCost : null,
             accepted ? remaining.AnyPower : null, accepted ? remaining.PowerByTrait : null, adjustments) {
                 AvailableSpellOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0,
                 RemainingSpellOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlaySpell
-                    ? Math.Max(0, pool.SpellOnlyMana - plan.TotalManaCost) : 0,
+                    ? remainingMana!.SpellOnlyMana : 0,
+                AvailableDuelOnlyMana = PaymentCostRules.IsSpellDuel(state) ? pool.DuelOnlyMana : 0,
+                RemainingDuelOnlyMana = !accepted ? null : PaymentCostRules.IsSpellDuel(state) ? remainingMana!.DuelOnlyMana : 0,
                 SpellPowerReductionChoices = plan.SpellPowerReductionChoices };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",

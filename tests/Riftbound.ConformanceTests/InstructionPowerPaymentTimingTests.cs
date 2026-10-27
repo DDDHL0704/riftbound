@@ -415,7 +415,7 @@ public sealed class InstructionPowerPaymentTimingTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new("P1", "BASE") } };
     }
 
-    private static MatchState Position()
+    internal static MatchState Position()
     {
         var card = OfficialGarenConquestBattlefieldCountTests.Printed("CARD", "OGN·268/298", "P1");
         var field = OfficialGarenConquestBattlefieldCountTests.Printed("FIELD", "OGN·280/298", "P2") with { ControllerId = "P2" };
