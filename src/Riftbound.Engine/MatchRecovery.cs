@@ -4661,7 +4661,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
-            && !ceasedInsight)
+            && !ceasedInsight
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
                 sourceObjectId,
@@ -19512,7 +19513,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
-            && !ceasedInsight)
+            && !ceasedInsight
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -32376,6 +32378,10 @@ public static partial class MatchRecoveryValidator
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
+            if (HasValidatedCeasedLastBreathSource(authoritativeState, stackItemId,
+                ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
+                ReadNormalizedPayloadString(stackItem, "effectKind")))
+                sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
