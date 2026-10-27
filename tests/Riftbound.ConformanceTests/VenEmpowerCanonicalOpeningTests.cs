@@ -234,6 +234,46 @@ public sealed class VenEmpowerCanonicalOpeningTests
             await ColdCheckpoint();
         }
 
+        internal async Task RejectCoordinatedForgeryTwiceThenRecover(string label, MatchState forged)
+        {
+            var original = Frame(); var attempted = Frame(forged);
+            Assert.Empty(original.ValidationErrors); Assert.Empty(attempted.ValidationErrors);
+            Assert.Equal(MatchStateHasher.HashValue(original.Commands), MatchStateHasher.HashValue(attempted.Commands));
+            Assert.Equal(MatchStateHasher.HashValue(original.Events), MatchStateHasher.HashValue(attempted.Events));
+            var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(attempted, Json), Json)!;
+            var store = new RepairableStore(decoded); var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, store);
+            var count = entries.Count; var hash = MatchStateHasher.Hash(State); var failures = new List<string>();
+            for (var attempt = 1; attempt <= 2; attempt++) {
+                var failure = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(State.RoomId, default));
+                Assert.Equal(ErrorCodes.RecoveryInconsistent, failure.Code);
+                Assert.Contains("match recovery action-log audit failed", failure.Message, StringComparison.Ordinal);
+                Assert.Contains("replayed final state hash", failure.Message, StringComparison.Ordinal);
+                Assert.Equal(attempt, store.Loads); Assert.Equal(count, entries.Count); Assert.Equal(hash, MatchStateHasher.Hash(State));
+                failures.Add(failure.Message);
+            }
+            store.Current = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(original, Json), Json)!;
+            Session = await registry.GetOrCreateAsync(State.RoomId, default); Assert.Equal(3, store.Loads);
+            foreach (var viewer in State.Seats.Keys) {
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Snapshot), MatchStateHasher.HashValue(Session.SnapshotFor(viewer)));
+                Assert.Equal(MatchStateHasher.HashValue(original.PlayerViews[viewer].Prompt), MatchStateHasher.HashValue(Session.PromptFor(viewer)));
+            }
+            var previous = last!.Value; var duplicate = await Send(previous.Player, previous.Intent, previous.Command, previous.Raw);
+            Assert.True(duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, entries.Count);
+            Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            recoveryRejections.Add(new { label, failures, loadsAfterRepair = store.Loads, structuralErrors = attempted.ValidationErrors,
+                originalStateHash = hash, forgedStateHash = MatchStateHasher.Hash(forged),
+                commandHash = MatchStateHasher.HashValue(original.Commands), eventHash = MatchStateHasher.HashValue(original.Events),
+                rejectedFrame = decoded, repairedFrame = store.Current });
+        }
+
+        private sealed class RepairableStore(MatchRecoveryFrame current) : IMatchRecoveryStore
+        {
+            internal MatchRecoveryFrame Current { get; set; } = current;
+            internal int Loads { get; private set; }
+            public ValueTask<MatchRecoveryFrame?> LoadAsync(string room, CancellationToken token)
+            { Loads++; return ValueTask.FromResult<MatchRecoveryFrame?>(Current); }
+        }
+
         internal async Task ColdCheckpoint()
         {
             var frame = Frame(); Assert.Empty(frame.ValidationErrors);
