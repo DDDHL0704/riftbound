@@ -107,7 +107,7 @@ public sealed class Ven014And030EmpoweredCombatConsumerTests
         finally { await Save("VEN014-wrong-blue-then-real-red", initial, game); }
     }
 
-    private static MatchState Position(string no, bool attacking, bool blueFirst = false)
+    internal static MatchState Position(string no, bool attacking, bool blueFirst = false)
     {
         var state = VenUnitEntryBasicTests.Position(no);
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
