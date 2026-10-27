@@ -89,7 +89,7 @@ public sealed class DianaDuelManaBoundaryTests
     }
 
     private static PlayCostQuoteDto Quote(Driver game, PlayCardCommand command)
-        => new CoreRuleEngine().PreviewPlayCard(game.State, "P1", new("diana-duel-mana", game.PromptFor("P1").PromptId, game.State.Tick, command));
+        => new CoreRuleEngine().PreviewPlayCard(game.State, "P1", new("diana-duel-mana", Assert.IsType<string>(game.PromptFor("P1").PromptId), game.State.Tick, command));
 
     private static async Task Reject(Driver game, GameCommand command)
     {
