@@ -95,8 +95,13 @@ internal static class CombatAssignmentSqlAcceptance
                 var incoming = defenders.Select(id => new CombatDamageAssignmentDto(id, chosen,
                     conquestContinuation ? vayneDies ? 5 : 1 : 2)).ToArray();
                 var settled = await Submit("P2", new AssignCombatDamageCommand("battle:F", "F", incoming));
-                Check(!current.BattleState.IsActive && defenders.All(id => current.PlayerZones["P2"].Graveyard.Contains(id)),
-                    "All defenders receive lethal damage and battle closes.");
+                Check(defenders.All(id => current.PlayerZones["P2"].Graveyard.Contains(id)),
+                    "All defenders receive lethal simultaneous damage.");
+                if (vayne && !vayneDies)
+                    Check(current.PendingBattleResult is { Stage: "CONTROL_TRIGGERS" } && current.PendingPayment is not null
+                        && !settled.Events.Any(e => e.Kind == "BATTLE_CLOSED"),
+                        "Surviving Vayne's conquest decision must finish before battle closure.");
+                else Check(!current.BattleState.IsActive, "Battle closes after its remaining control skills finish.");
                 if (conquestContinuation)
                 {
                     Check(current.PlayerZones["P1"].Battlefields.Contains("A1"), "The other attacking unit survives.");
@@ -112,8 +117,11 @@ internal static class CombatAssignmentSqlAcceptance
                         Check(payment.ManaCost == 1 && current.RunePools["P1"].Mana == 1,
                             "Vayne cannot return or pay before the explicit decision.");
                         var decline = branch == "vayne-secondary-decline";
-                        await Submit("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
+                        var response = await Submit("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
                             [decline ? "DECLINE" : "SPEND_MANA:1"]));
+                        Check(!current.BattleState.IsActive && current.PendingBattleResult is null
+                            && response.Events.Count(e => e.Kind == "BATTLE_CLOSED") == 1,
+                            "The actual payment or decline closes the battle after the independent conquest decision.");
                         Check(current.PendingPayment is null && current.RunePools["P1"].Mana == (decline ? 1 : 0)
                             && (decline ? current.PlayerZones["P1"].Battlefields : current.PlayerZones["P1"].Hand).Contains("A2"),
                             "Independent payment decision must change only the eligible Vayne and its actual mana.");
