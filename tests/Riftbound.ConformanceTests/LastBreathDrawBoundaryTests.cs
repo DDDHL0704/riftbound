@@ -56,9 +56,37 @@ public sealed partial class LastBreathDrawBoundaryTests
         finally { await Save("actual-paid-draw-copies-" + copies, initial, game); }
     }
 
-    private static MatchState Position()
+    [Theory]
+    [InlineData("SFD·036/221", false, true)] [InlineData("SFD·036/221", true, false)]
+    [InlineData("UNL-156/219", true, true)] [InlineData("UNL-156/219", false, false)]
+    public async Task ConditionalNativeDrawIsEarnedAtDeathAndWaitsForItsOwnResponse(string no, bool hasAlly, bool earnsDraw)
     {
-        var state = VenUnitEntryBasicTests.Position(Unit) with { RoomId = "LAST-BREATH-DRAW-COPIES",
+        var initial = Position(no);
+        if (!hasAlly) initial = initial with {
+            CardObjects = initial.CardObjects.Where(p => p.Key != "ALLY").ToDictionary(p => p.Key, p => p.Value),
+            ObjectLocations = initial.ObjectLocations.Where(p => p.Key != "ALLY").ToDictionary(p => p.Key, p => p.Value),
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
+                Base = initial.PlayerZones["P1"].Base.Where(id => id != "ALLY").ToArray() } } };
+        var game = new Driver(initial);
+        try
+        {
+            await Tap(game, "P1"); await game.Act("P1", new PlayCardCommand("UNIT", no, []));
+            await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
+            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+            var prefix = game.Events().Length; var deck = game.State.PlayerZones["P1"].MainDeck.ToArray();
+            await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); Assert.Empty(game.State.PlayerZones["P1"].Hand);
+            Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind == "CARD_DRAWN" && Equals(e.Event.Payload.GetValueOrDefault("playerId"), "P1"));
+            Assert.Equal(earnsDraw ? 1 : 0, game.State.TriggerQueue.Count + game.State.StackItems.Count);
+            if (earnsDraw) { await game.Top(); Assert.Equal(deck.Take(1), game.State.PlayerZones["P1"].Hand); }
+            Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue); await game.Replay();
+        }
+        finally { await Save("conditional-native-" + no.Replace('/', '-') + "-ally-" + hasAlly, initial, game); }
+    }
+
+    private static MatchState Position(string no = Unit)
+    {
+        var state = VenUnitEntryBasicTests.Position(no) with { RoomId = "LAST-BREATH-DRAW-COPIES",
             RunePools = new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
         state = Add(state, "KILL", Kill, "P2", "HAND");
         for (var i = 0; i < 6; i++) state = Add(state, "P1-RUNE-" + i, i < 2 ? "UNL-R02" : "UNL-R06", "P1", "BASE");
