@@ -13,9 +13,7 @@ public sealed partial class LastBreathDrawBoundaryTests
     public async Task EachPaidAgentTextEarnsAnIndependentDiscardTwoThenDrawTwoSkill(int copies)
     {
         const string agent = "OGN·178/298";
-        var initial = Add(Position(agent), "P1-RUNE-6", "UNL-R05", "P1", "BASE");
-        for (var i = 1; i <= 3; i++) initial = Add(initial, "HELD-" + i, "OGN·219/298", "P1", "HAND");
-        for (var i = 4; i <= 7; i++) initial = Add(initial, "P1-DRAW-" + i, "OGN·219/298", "P1", "MAIN_DECK");
+        var initial = AgentPosition();
         var game = new Driver(initial);
         try
         {
@@ -74,6 +72,14 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.Empty(game.State.TriggerQueue); await game.Replay();
         }
         finally { await Save("actual-paid-agent-discard-draw-" + copies, initial, game); }
+    }
+
+    private static MatchState AgentPosition()
+    {
+        var state = Add(Position("OGN·178/298"), "P1-RUNE-6", "UNL-R05", "P1", "BASE");
+        for (var i = 1; i <= 3; i++) state = Add(state, "HELD-" + i, "OGN·219/298", "P1", "HAND");
+        for (var i = 4; i <= 7; i++) state = Add(state, "P1-DRAW-" + i, "OGN·219/298", "P1", "MAIN_DECK");
+        return state;
     }
 
     private static void AssertAgentChoiceBindings(Driver game)
