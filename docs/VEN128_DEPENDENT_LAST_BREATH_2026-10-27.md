@@ -48,6 +48,18 @@ Fresh exact support CN33139 SFD059 and its whole face were checked: canonical re
 
 The additional complete packet is `copied-instances-shared-gap-v13.json`, SHA256 `20b1cb791c3ea1bc2d274b8fb5973dc8b0bec5d8ae3e4b803fbda8997068a60b`, under the same physical evidence root. It links the independent native-cost packet `native-cost-boundaries-addendum-v11.json` (`ff5bb8edcb10f670b4b3957fe99d24a9c6e6720c909fbae6c92cd78874c53f57`), new five actual module records, source-to-Git verification, six complete action/event/state exports, source receipts, whole rule pages and original red packet. Shared implementation is tracked in [Issue201](https://github.com/DDDHL0704/riftbound/issues/201).
 
+## Earned source entering a private hand
+
+At `f6c52ba484b6a281505188c614176c3f5e33c899`, six new lifecycle rows execute: four actual return/replay rows pass, two proposed OGN170 responses correctly fail on timing. Swift does not supply the Reaction permission needed in that neutral closed chain. Those two are retained invalid fixtures, not new production failures.
+
+The corrected route at `0e4a99afe8f42c3d10af8042f1069a102c756ab1` uses the exact already-verified CN34844 OGN048 Reaction 冥想 (2 mana, no power), declining optional exhaust. An explicit empty-deck/graveyard initial fixture leaves only the actually destroyed VEN128 in the graveyard. Two reserved physical runes pay the response. Normal burnout refills/draws that unit into its owner's hand, adds one opponent point, and leaves its earned LastBreath pending. Both owners reach the same real failure after **24 accepted commands / 65 events each**: the unchanged original `FullGameEndToEndTests.AssertNoHiddenZoneLeak` rejects the current private `UNIT` identifier in public output. Actual TRX: **2F / zero skip**.
+
+A read-only projection probe uses the original retained Engine DLL (Info `0e4a99…`, MVID `dcd88924-dbc3-4e0d-9d60-59b36dbf53e8`, SHA256 `eb479cc5fa8472fa7c978c43fa763e62c74e1bce1ddbe7b6ba495ca2dd2f8e9e`). It confirms `stack.sourceObjectId == "UNIT"` in both the opponent and spectator projections while `UNIT` is in the owner's private hand. Historical public effect identity and current private object identity must be handled separately. The original probe's JSON naming-policy failure is also retained; it is not a gameplay result.
+
+Complete consumer `2b2f92b55d2ca260e2870bb2e1ad7088cd2be027` changes only the previously unreachable numeric counter expectation to require a fresh generation after the graveyard; it does not prescribe internal burnout counter steps or remove any privacy/lifetime assertion. That successor is not relabeled as executed. Its final source/data remain byte-identical to51a5; the shared implementation still needs the condition, per-instance capture, private-source masking and independent earned-skill resolution.
+
+`private-source-leak-delivery-v18.json`, SHA256 `5dae43f8f12a7687e184dc59ca748bdea983a6e1855875b116f71aa2303f845d`, retains both fixed lifecycle stages, all2661 measured inputs per stage matched to their exact Git blobs, five actual loaded modules/DLLs, complete original action/event/state exports, exact reused support sources and the retained-assembly projection result. Each stage remains separate. This remains a local safety failure with no L2/L3, source-applicability or whole-card completion claim.
+
 ## Retrievable evidence and remaining work
 
 Physical evidence root: `/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-cards-20261023/var/qa/cards-ven128-empowered-lastbreath-20261027/`.
