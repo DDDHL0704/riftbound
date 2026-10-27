@@ -192,7 +192,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
                 Assert.Equal(WireHash(frame.PlayerViews[player].Prompt), WireHash(session.PromptFor(player)));
             }
         }
-        async Task Act(string player, GameCommand command)
+        async Task<ResolutionResult> Act(string player, GameCommand command)
         {
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
             raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State().Tick;
@@ -207,12 +207,19 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             var count = journal.Entries.Count; var duplicate = await Send();
             Assert.True(duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
             Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State)); await Cold();
+            return result;
         }
         async Task NextOwnTurn()
         {
             Assert.Equal(actor, State().TurnPlayerId);
-            await Act(actor, new EndTurnCommand()); await Act(State().TurnPlayerId, new EndTurnCommand());
+            var otherStart = await Act(actor, new EndTurnCommand());
+            await TurnSequenceTestDriver.Complete(otherStart,
+                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+            var ownStart = await Act(State().TurnPlayerId, new EndTurnCommand());
+            await TurnSequenceTestDriver.Complete(ownStart,
+                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
             Assert.Equal(actor, State().TurnPlayerId);
+            Assert.Equal(MatchPhases.Main, State().Phase);
         }
         async Task Drain()
         {
