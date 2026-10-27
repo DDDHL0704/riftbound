@@ -23,7 +23,10 @@ public sealed class LastBreathUnitCreationBoundaryTests
         try
         {
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["ENEMY"]));
+            await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
+            Assert.Equal(PromptTypes.AssignCombatDamage, ResolutionResult.BuildPrompts(game.State)["P1"].View!.Type);
+            await game.Act("P1", new AssignCombatDamageCommand("battle:BF", "BF", [new("UNIT", "ENEMY", empowered ? 3 : 2)]));
+            await game.Act("P2", new AssignCombatDamageCommand("battle:BF", "BF", [new("ENEMY", "UNIT", 4)]));
             for (var step = 0; !game.State.PlayerZones["P1"].Graveyard.Contains("UNIT"); step++)
             {
                 Assert.InRange(step, 0, 12);

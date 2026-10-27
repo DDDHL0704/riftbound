@@ -4645,7 +4645,8 @@ public static partial class MatchRecoveryValidator
                 "player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
             var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
             if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -19487,7 +19488,8 @@ public static partial class MatchRecoveryValidator
             "authoritative state player zones",
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
-            errors);
+            errors,
+            HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
         if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -21281,8 +21283,12 @@ public static partial class MatchRecoveryValidator
         string playerBaseObjectIdsLabel,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? playerGraveyardObjectIdsByPlayer,
         string playerGraveyardObjectIdsLabel,
-        List<string> errors)
+        List<string> errors,
+        bool hasValidatedCapturedUnitCreation = false)
     {
+        // The death controller belongs to the captured skill, even after the card returns to its owner.
+        if (hasValidatedCapturedUnitCreation) return;
+
         ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
             payloadLabel,
             triggerId,
@@ -24975,7 +24981,8 @@ public static partial class MatchRecoveryValidator
             battlefieldStateObjectIds,
             authoritativeState.Tick,
             authoritativeState.TurnNumber,
-            errors);
+            errors,
+            authoritativeState);
     }
 
     private static void ValidateAuthoritativeStatePendingPaymentValues(
@@ -25404,7 +25411,8 @@ public static partial class MatchRecoveryValidator
         IReadOnlySet<string> battlefieldStateObjectIds,
         long currentTick,
         int currentTurnNumber,
-        List<string> errors)
+        List<string> errors,
+        MatchState authoritativeState)
     {
         if (triggerQueue is null)
         {
@@ -25677,7 +25685,8 @@ public static partial class MatchRecoveryValidator
                 "authoritative state player zones",
                 playerGraveyardObjectIdsByPlayer,
                 "authoritative state player zones",
-                errors);
+                errors,
+                HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind));
         }
     }
 
