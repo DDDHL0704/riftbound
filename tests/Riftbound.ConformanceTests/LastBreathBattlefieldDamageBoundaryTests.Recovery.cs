@@ -96,10 +96,11 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             "OGN·056/298", "OGN·059/298", "OGN·061/298", "OGN·065/298", "OGN·070/298", "OGN·082/298" };
         var main = new[] { Unit, Unit, Unit, "OGN·205/298" }.Concat(fillers.SelectMany(no => Enumerable.Repeat(no, 3))).ToArray();
         var ownerDeck = new OfficialDecklist("OGN·259/298", "OGN·205/298", main, Enumerable.Repeat("UNL-R05", 12).ToArray(), template.Battlefields);
-        var enemyMain = template.MainDeck.Where(no => no != "OGN·009/298").ToList();
-        while (enemyMain.Count > 37) enemyMain.RemoveAt(enemyMain.FindIndex(no => no != template.ChampionCardNo));
+        var enemyTemplate = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "kaisa-red-tempo").Decklist;
+        var enemyMain = enemyTemplate.MainDeck.Where(no => no != "OGN·009/298").ToList();
+        while (enemyMain.Count > 37) enemyMain.RemoveAt(enemyMain.FindIndex(no => no != enemyTemplate.ChampionCardNo));
         enemyMain.InsertRange(0, ["OGN·009/298", "OGN·009/298", "OGN·009/298"]);
-        var enemyDeck = template with { MainDeck = enemyMain, RuneDeck = Enumerable.Repeat("UNL-R01", 12).ToArray() };
+        var enemyDeck = enemyTemplate with { MainDeck = enemyMain, RuneDeck = Enumerable.Repeat("UNL-R01", 12).ToArray() };
         var decks = new Dictionary<string, OfficialDecklist> { ["P1"] = ownerDeck, ["P2"] = enemyDeck };
         foreach (var deck in decks.Values)
         { var legality = OfficialDeckValidator.Validate(deck, catalog); Assert.True(legality.IsValid, string.Join("; ", legality.Errors)); }
