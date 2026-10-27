@@ -92,7 +92,9 @@ public sealed class DisarmTriggerTests
     {
         var initial = await Position("RAD·054/167", 1);
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-            ["ENEMY1"] = initial.CardObjects["ENEMY1"] with { Tags = [..initial.CardObjects["ENEMY1"].Tags, "法盾2"] } } };
+            ["ENEMY1"] = initial.CardObjects["ENEMY1"] with {
+                Tags = initial.CardObjects["ENEMY1"].Tags.Append("法盾2").Order(StringComparer.Ordinal).ToArray() } } };
+        Record("ward-" + decision, "initial", initial);
         var attack = await Attack(initial);
         var selected = await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1");
         var payment = Assert.IsType<PendingPaymentState>(selected.State.PendingPayment);
