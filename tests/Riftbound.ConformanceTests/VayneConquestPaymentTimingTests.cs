@@ -90,6 +90,35 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
+    public async Task OpponentCanReturnVayneInResponseWithoutRefundingItsCost()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(opponentResponse: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
+        Assert.Equal("P2", game.State.PriorityPlayerId);
+        var visible = CurrentPowerTargetTests.Snapshot(game.State, "P2").GetProperty("players")
+            .GetProperty("P1").GetProperty("objects").GetProperty(AttackerObjectId);
+        Assert.InRange(visible.GetProperty("effectivePower").GetInt32(), 0, 3);
+        var opponentMana = game.State.RunePools["P2"].Mana;
+        Assert.True(opponentMana >= 1);
+        await game.Act("P2", new PlayCardCommand("VAYNE-RESPONSE", "OGN·169/298", [AttackerObjectId]));
+        Assert.Equal(opponentMana - 1, game.State.RunePools["P2"].Mana);
+        await game.Top();
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(initial.CardObjects[AttackerObjectId].ObjectGeneration + 1, game.State.CardObjects[AttackerObjectId].ObjectGeneration);
+        Assert.Contains(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
+        AssertVayneJsonColdFrame(initial, game);
+        var resolved = await game.Top();
+        Assert.DoesNotContain(resolved.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
+    [Fact]
     public async Task SecondPlayerPaysOwnVayneAfterFirstPlayerCannotPayForIt()
     {
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(swapSides: true);
@@ -350,7 +379,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Game, ResolutionResult Settled)>
         OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false,
             bool spellOnly = false, bool includeRune = false, bool responseCard = false, bool swapSides = false,
-            bool treeSecond = false)
+            bool treeSecond = false, bool opponentResponse = false)
     {
         var initial = SingleDefenderWireState(true) with { Tick = 0,
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
@@ -396,6 +425,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
                 [attacker] = pool with { Mana = pool.Mana + 1 } } };
         }
+        if (opponentResponse)
+            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·169/298", defender);
         var game = new StandbyDefendObserverTests.Driver(initial);
         await game.Act(attacker, new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
             [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
