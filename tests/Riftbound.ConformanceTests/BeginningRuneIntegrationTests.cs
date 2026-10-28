@@ -38,6 +38,57 @@ public sealed class BeginningRuneIntegrationTests
     }
 
     [Theory]
+    [InlineData("VEN·005", 3)]
+    [InlineData("VEN·006", 6)]
+    public async Task RealOpponentReactionChangesRuneCountWithoutCancelingTheEarnedTrigger(string cardNo, int expectedMight)
+    {
+        var initial = OfficialHoldSequenceTests.AddUnit(BeginningRuneConditionTests.Position(cardNo, 1, 2),
+            "REACTOR", "SFD·125/221", "OTHER", "P2");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["FLASH"] = new("FLASH", cardNo: "OGS·011/024", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.SpellCard]) },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["FLASH"] = new("P2", "HAND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P2"] = initial.PlayerZones["P2"] with { Hand = ["FLASH"] } },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P2"] = new(10, 10, powerByTrait: new Dictionary<string, int> { ["purple"] = 5, ["red"] = 5 }) } };
+        var engine = new CoreRuleEngine(); var journal = new Journal(); var session = new MatchSession(initial, engine, journal);
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web); var current = initial;
+        async Task<ResolutionResult> Submit(string actor, GameCommand command)
+        {
+            var result = await session.SubmitAsync(actor, "rune-reaction-" + journal.Entries.Count, command,
+                JsonSerializer.SerializeToElement(command, command.GetType(), json), default);
+            Assert.True(result.Accepted, result.ErrorMessage); current = result.State;
+            var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
+                e.RawCommand, e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) {
+                    ErrorCode = e.ErrorCode, TypedCommand = e.TypedCommand, RuleInputs = e.RuleInputs }).ToArray();
+            var events = journal.Entries.SelectMany(e => e.Events.Select((ev, index) =>
+                new RecoveredEvent(e.StartedEventSequence + index + 1, e.CompletedTick, index, ev))).ToArray();
+            var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, current, engine, default, events);
+            Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+            Restore(current); ArmamentMightTests.PublicRecovery(current);
+            return result;
+        }
+        await Submit("P1", new PassPriorityCommand());
+        Assert.Single(current.StackItems);
+        if (current.PriorityPlayerId == "P1") await Submit("P1", new PassPriorityCommand());
+        Assert.Equal("P2", current.PriorityPlayerId);
+        var cast = await Submit("P2", new PlayCardCommand("FLASH", "OGS·011/024", ["REACTOR"],
+            OptionalCosts: ["RECYCLE_RUNE:P2-CONTROLLED-RUNE-1"]));
+        Assert.Contains(cast.Events, e => e.Kind == "RUNE_RECYCLED");
+        Assert.Contains("P2-CONTROLLED-RUNE-1", current.PlayerZones["P2"].RuneDeck);
+        Assert.Single(current.PlayerZones["P1"].Base, id => id.StartsWith("P1-CONTROLLED-RUNE-", StringComparison.Ordinal));
+        Assert.Single(current.PlayerZones["P2"].Base, id => id.StartsWith("P2-CONTROLLED-RUNE-", StringComparison.Ordinal));
+        await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+        await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Contains("REACTOR", current.PlayerZones["P2"].Base);
+        Assert.Single(current.StackItems);
+        await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+        await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.Equal(expectedMight, current.CardObjects["SOURCE"].Power);
+        Assert.Equal(MatchPhases.Main, current.Phase);
+    }
+
+    [Theory]
     [InlineData("VEN·005", 2, 1)]
     [InlineData("VEN·006", 4, 2)]
     public async Task ARealAttachedTextCopyQueuesAndResolvesIndependently(string cardNo, int printedMight, int bonus)
