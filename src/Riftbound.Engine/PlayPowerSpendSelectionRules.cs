@@ -22,7 +22,9 @@ internal static class PlayPowerSpendSelectionRules
         ["maximumComponents"] = 7, ["maximumTotal"] = int.MaxValue, ["ordinalKeys"] = true,
         ["positivePowerCostOnly"] = true, ["usePreviewAvailableWallet"] = true, ["exactTotal"] = true,
         ["sourceChoicePrefix"] = SourceChoicePrefix, ["sourceKeys"] = SourceKeys,
-        ["sourceChoiceRequiresPowerSpend"] = true, ["sourceTotalEqualsWildcard"] = true };
+        ["sourceChoiceRequiresPowerSpend"] = true, ["sourceTotalEqualsWildcard"] = true,
+        ["sourceComponentFormat"] = "<key>:<positiveInt32>", ["maximumSourceComponents"] = 4,
+        ["sourceOrdinalKeys"] = true };
 
     internal static bool TryExtract(IReadOnlyList<string> costs, out IReadOnlyList<string> remaining, out Selection? selection)
     {
