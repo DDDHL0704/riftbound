@@ -70,14 +70,8 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
                 var choices = requirement.GetProperty("optionalCostChoices").EnumerateArray()
                     .Select(item => item.GetProperty("id").GetString()).ToHashSet(StringComparer.Ordinal);
                 Check(command.OptionalCosts!.All(choices.Contains), "The live prompt must expose every selected original fee and exact reducer instance.");
-                var selected = command.OptionalCosts!.Single(id => id.StartsWith("OPTIONAL_COST_REDUCTION:", StringComparison.Ordinal));
-                var group = requirement.GetProperty("optionalCostReductionGroups").EnumerateArray().Single(item =>
-                    item.GetProperty("choiceIds").EnumerateArray().Any(choice => choice.GetString() == selected));
-                Check(group.GetProperty("sourceObjectId").GetString() == root.GetProperty("reducer").GetString()
-                    && group.GetProperty("sourceGeneration").GetInt64() == root.GetProperty("reducerGeneration").GetInt64()
-                    && group.GetProperty("minSelections").GetInt32() == 0 && group.GetProperty("maxSelections").GetInt32() == 1
-                    && group.GetProperty("sourceInstanceId").GetString() is { Length: > 0 },
-                    "Live metadata must bind the instance and its independent optional cardinality.");
+                var group = OptionalCostReductionNetworkChecks.SelectedGroup(requirement, command.OptionalCosts!, kind,
+                    root.GetProperty("reducer").GetString()!, root.GetProperty("reducerGeneration").GetInt64());
                 if (kind == "copied")
                 {
                     var origin = group.GetProperty("ruleTextOrigin");

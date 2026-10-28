@@ -101,6 +101,38 @@ public sealed class SourceCombatStaticAuraProjectionTests
     }
 
     [Fact]
+    public void WaterbenderAttackingAloneReprojectsParticipantsWhenDefenderLeaves()
+    {
+        const string sourceObjectId = "P1-WATERBENDER";
+        var state = BuildBattleState(sourceObjectId, "OGN·055/298", sourcePower: 2,
+            sourceControllerId: "P1", sourceIsAttacking: true, sourceIsDefending: false);
+
+        void AssertAura(MatchState current, IReadOnlyList<string> participants)
+        {
+            var aura = Assert.Single(current.ContinuousEffects,
+                effect => string.Equals(effect.EffectKind, StaticAuraKinds.SourceLoneBattlePower, StringComparison.Ordinal));
+            AssertSourceCombatAura(aura, "STATIC_AURA:SOURCE_LONE_BATTLE_POWER:P1-WATERBENDER",
+                sourceObjectId, "OGN·055/298", "CoreRuleEngine.ResolveSourceLoneBattlePowerBonus",
+                "SOURCE_ATTACKING_OR_DEFENDING_ALONE", "RECOMPUTED_FROM_CURRENT_BATTLE_PARTICIPANT_LOCATIONS",
+                basePower: 2, powerDelta: 2, effectivePower: 4, participantObjectIds: participants);
+        }
+
+        AssertAura(state, [sourceObjectId, DefenderObjectId]);
+
+        var zones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        zones["P2"] = zones["P2"] with {
+            Battlefields = zones["P2"].Battlefields.Where(id => id != DefenderObjectId).ToArray(),
+            Graveyard = zones["P2"].Graveyard.Append(DefenderObjectId).ToArray()
+        };
+        var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cards[DefenderObjectId] = cards[DefenderObjectId] with { IsDefending = false };
+        var locations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        locations[DefenderObjectId] = new ObjectLocationState("P2", "GRAVEYARD");
+
+        AssertAura(state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations }, [sourceObjectId]);
+    }
+
+    [Fact]
     public void DuneDrakeAttackingReadyEnemyUnitProjectsSourceCombatStaticAura()
     {
         const string sourceObjectId = "P1-DUNE-DRAKE";

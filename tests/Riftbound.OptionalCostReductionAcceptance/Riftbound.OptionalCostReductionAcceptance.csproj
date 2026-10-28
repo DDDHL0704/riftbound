@@ -12,6 +12,7 @@
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.NativeNetworkSmoke/OptionalAdditionalCostReductionNetworkAcceptance.cs" Link="OptionalAdditionalCostReductionNetworkAcceptance.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/OptionalCostReductionNetworkChecks.cs" Link="OptionalCostReductionNetworkChecks.cs" />
     <Content Include="../../src/Riftbound.Persistence/Sql/*.sql" Link="Sql/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
