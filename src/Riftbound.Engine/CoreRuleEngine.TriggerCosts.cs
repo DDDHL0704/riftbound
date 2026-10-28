@@ -143,7 +143,8 @@ public sealed partial class CoreRuleEngine
             && payment.PowerCostByTrait.All(p => expected.PowerCostByTrait.GetValueOrDefault(p.Key, -1) == p.Value)
             && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(expected.LegalPaymentChoiceIds)
-            && (item.UnitConquestReturn is null || payment.Reason == expected.Reason);
+            && (item.UnitConquestReturn is null || payment.Reason == expected.Reason
+                && payment.ExperienceCost == expected.ExperienceCost);
     }
 
     internal static bool ValidTriggerCostReceipt(MatchState state, StackItemState item)
