@@ -169,6 +169,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.NotNull(pending.ResolvingStackItemId);
         var wrongCost = game.State with { PendingPayment = pending with { ManaCost = 0 } };
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(wrongCost), e => e.Contains("invalid trigger cost payment", StringComparison.Ordinal));
+        var wrongExperience = game.State with { PendingPayment = pending with { ExperienceCost = 1 } };
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(wrongExperience), e => e.Contains("invalid trigger cost payment", StringComparison.Ordinal));
         var wrongPending = game.State with { PendingPayment = pending with { ResolvingStackItemId = "missing-vayne-stack" } };
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(wrongPending));
 
