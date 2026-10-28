@@ -20,7 +20,7 @@ public sealed class VayneOptionalManaConquestOriginTests
         var first = await driver.Act("P1", new PassFocusCommand());
         driver.Export("after-first-pass.json", new { driver.State, first.Events });
         var second = await driver.Act("P2", new PassFocusCommand());
-        driver.Export("after-second-pass.json", new { driver.State, second.Events, commands = driver.Commands(), events = driver.Events() });
+        driver.Export("after-second-pass.json", new { driver.State, lastEvents = second.Events, commands = driver.Commands(), journalEvents = driver.Events() });
         Assert.IsType<PendingPaymentState>(driver.State.PendingPayment);
     }
 }
