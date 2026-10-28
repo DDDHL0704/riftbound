@@ -197,6 +197,20 @@ public sealed class RenektonRenataInlinePaymentTests
         Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
     }
 
+    [Fact]
+    public async Task UnitPlayOnlyPowerCannotPayRenataSkill()
+    {
+        var initial = Position(new RunePool(1, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 },
+            unitOrEquipmentPlayOnlyPower: 1));
+        var command = new ActivateAbilityCommand("P1-RENATA", P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, [],
+            ["POWER_SPEND:A:1", "POWER_SOURCE:UNIT_OR_EQUIPMENT_PLAY_ONLY:1"]);
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("renata-ineligible-source", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
+
     private static MatchState Position(RunePool pool)
     {
         var state = OfficialHoldSequenceTests.AddLegend(RenataActivatedAbilityTests.AffordableBlueDrawPaymentState(), "VEN·141");
