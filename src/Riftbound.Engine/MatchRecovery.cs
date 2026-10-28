@@ -1180,6 +1180,7 @@ public static partial class MatchRecoveryValidator
         if (requireAcceptedBattleHistory && authoritativeState is not null)
         {
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
         }
         ValidateSpectatorReplayFrame(
@@ -4630,6 +4631,7 @@ public static partial class MatchRecoveryValidator
                 errors);
             ValidateLastBreathMightPayload(triggerPayload, effectKind, errors);
             ValidateBattlefieldConquestMightPayload(triggerPayload, effectKind, errors);
+            ValidateBattlefieldConquestMillPayload(triggerPayload, effectKind, errors);
             ValidateMightySkillPayload(triggerPayload, effectKind, errors);
             ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
                 triggerLabel,
@@ -18898,6 +18900,7 @@ public static partial class MatchRecoveryValidator
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMillView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicBattlefieldConquestMill(authoritativeTrigger.BattlefieldConquestMill))) errors.Add("conquest mill trigger view differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(spectatorTrigger, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
@@ -19139,6 +19142,7 @@ public static partial class MatchRecoveryValidator
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMillView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicBattlefieldConquestMill(authoritativeTrigger.BattlefieldConquestMill))) errors.Add("conquest mill trigger view differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             CompareHandDiscardObserverView(triggerPayload, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
@@ -23322,6 +23326,7 @@ public static partial class MatchRecoveryValidator
             ValidateFlowPlayViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattlefieldConquestMillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23708,6 +23713,65 @@ public static partial class MatchRecoveryValidator
         }
     }
 
+    private static BattlefieldConquestMillPublicContext? ReadBattlefieldConquestMillView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("battlefieldConquestMill", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<BattlefieldConquestMillPublicContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static void ValidateBattlefieldConquestMillPayload(object? payload, string? effect, List<string> errors)
+    {
+        var context = ReadBattlefieldConquestMillView(payload);
+        var present = TryReadObjectValue(payload, "battlefieldConquestMill", out _);
+        if (effect == TriggerKinds.BattlefieldConquerMill || present)
+            if (context is null || effect != TriggerKinds.BattlefieldConquerMill
+                || !CoreRuleEngine.ValidBattlefieldConquestMillPublicFrame(context))
+                errors.Add("invalid public captured battlefield conquest mill");
+    }
+
+    private static void ValidateBattlefieldConquestMillStackViews(IReadOnlyList<object?> payloads,
+        MatchState authority, List<string> errors, string label)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            TryReadObjectString(payload, "effectKind", out var effect);
+            ValidateBattlefieldConquestMillPayload(payload, effect, errors);
+            var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMillView(payload))
+                != MatchStateHasher.HashValue(CoreRuleEngine.PublicBattlefieldConquestMill(expected?.BattlefieldConquestMill)))
+                errors.Add($"{label} captured battlefield conquest mill differs from authoritative state");
+        }
+    }
+
+    private static void ValidateBattlefieldConquestMillHistory(MatchState state,
+        IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
+    {
+        var pending = state.TriggerQueue.Select(t => t.BattlefieldConquestMill)
+            .Concat(state.StackItems.Select(i => i.BattlefieldConquestMill)).Where(c => c is not null);
+        foreach (var context in pending) {
+            var c = context!;
+            var triggerId = $"CONQUEST-MILL:{c.ConquestTick}:{c.BattlefieldObjectId}";
+            var conquests = events.Where(e => e.Tick == c.ConquestTick && e.Event.Kind == "BATTLEFIELD_CONQUERED"
+                && TryReadObjectString(e.Event.Payload, "playerId", out var player) && player == c.ControllerId
+                && TryReadObjectString(e.Event.Payload, "battlefieldId", out var battlefield) && battlefield == c.BattlefieldObjectId
+                && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var source) && source == c.ConquestSourceObjectId).Take(2).ToArray();
+            var queued = events.Where(e => e.Tick == c.ConquestTick && e.Event.Kind == "TRIGGER_QUEUED"
+                && TryReadObjectString(e.Event.Payload, "triggerId", out var id) && id == triggerId
+                && TryReadObjectString(e.Event.Payload, "controllerId", out var controller) && controller == c.ControllerId
+                && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var source) && source == c.BattlefieldObjectId
+                && TryReadObjectString(e.Event.Payload, "effectKind", out var effect) && effect == TriggerKinds.BattlefieldConquerMill
+                && TryReadObjectString(e.Event.Payload, "triggeredByEventKind", out var origin) && origin == "BATTLEFIELD_CONQUERED").Take(2).ToArray();
+            if (conquests.Length != 1 || queued.Length != 1 || queued[0].Sequence <= conquests[0].Sequence
+                || !commands.Any(cmd => cmd.Accepted && cmd.CompletedTick == c.ConquestTick
+                    && cmd.StartedEventSequence < conquests[0].Sequence && cmd.CompletedEventSequence >= queued[0].Sequence))
+                errors.Add("captured battlefield conquest mill is not bound to accepted conquest history");
+        }
+    }
+
     private static BattlefieldConquestMightContext? ReadBattlefieldConquestMightView(object? payload)
     {
         try {
@@ -23878,6 +23942,29 @@ public static partial class MatchRecoveryValidator
             && (oldReason.StartsWith(TriggerKinds.BattlefieldConquerPowerfulPayDraw + "|", StringComparison.Ordinal)
                 || oldReason.StartsWith(TriggerKinds.UnitControlledUnitPowerfulPayPowerReady + "|", StringComparison.Ordinal)))
             errors.Add("obsolete payment lacks captured conquest Might and independent ability");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.BattlefieldConquestMill is { } mill
+                ? !CoreRuleEngine.ValidBattlefieldConquestMillContext(state, mill, trigger.EffectKind,
+                    trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo)
+                    || trigger.EnqueuedAtTick != mill.ConquestTick || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                    || trigger.TriggerId != $"CONQUEST-MILL:{mill.ConquestTick}:{mill.BattlefieldObjectId}"
+                    || MatchStateHasher.HashValue(trigger) != MatchStateHasher.HashValue(new TriggerQueueItemState(
+                        trigger.TriggerId, trigger.ControllerId, trigger.SourceObjectId, trigger.EffectKind,
+                        trigger.TriggeredByEventKind, trigger.TimingContext) { EnqueuedAtTick = trigger.EnqueuedAtTick,
+                        ControllerOrderConfirmed = trigger.ControllerOrderConfirmed, SourceCardNo = trigger.SourceCardNo,
+                        BattlefieldConquestMill = mill })
+                : trigger.EffectKind == TriggerKinds.BattlefieldConquerMill)
+                errors.Add("invalid captured battlefield conquest mill queue");
+        foreach (var item in state.StackItems)
+            if (item.BattlefieldConquestMill is { } mill
+                ? !CoreRuleEngine.ValidBattlefieldConquestMillContext(state, mill, item.EffectKind,
+                    item.SourceObjectId, item.ControllerId, item.CardNo)
+                    || item.StackItemId != $"ordered-CONQUEST-MILL:{mill.ConquestTick}:{mill.BattlefieldObjectId}"
+                    || MatchStateHasher.HashValue(item) != MatchStateHasher.HashValue(new StackItemState(
+                        item.StackItemId, item.ControllerId, item.SourceObjectId, item.EffectKind, item.CardNo,
+                        timingContext: item.TimingContext) { BattlefieldConquestMill = mill })
+                : item.EffectKind == TriggerKinds.BattlefieldConquerMill)
+                errors.Add("invalid captured battlefield conquest mill stack");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.BattlefieldConquestMight is { } captured ? !CoreRuleEngine.ValidBattlefieldConquestMightContext(state,
                 captured, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
@@ -25324,7 +25411,7 @@ public static partial class MatchRecoveryValidator
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
                 || item.DeathRevealContext is not null || item.DeathObserver is not null || item.HandDiscardObserver is not null || item.MovementObserver is not null
-                || item.MightySkill is not null || item.BattlefieldConquestMight is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
+                || item.MightySkill is not null || item.BattlefieldConquestMight is not null || item.BattlefieldConquestMill is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
                 || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null
                 || item.BeginningDraw is not null || item.LocationDamage is not null || item.UnitConquest is not null
                 || item.CompletedRepeatExecutions != 0 || item.CompletedHandExecutions != 0 || item.CompletedDeckExecutions != 0
@@ -32468,6 +32555,7 @@ public static partial class MatchRecoveryValidator
         ValidateDeckPlayPendingCardViews(stackItems, authoritativeState, errors);
         ValidateFlowPlayViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateBattlefieldConquestMillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateLocationDamageViews(stackItems, authoritativeState, errors, "spectator replay frame");

@@ -157,8 +157,14 @@ public sealed class ConquestLifecycleRegressionTests
             Assert.Single(resolved.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
             Assert.Null(resolved.State.PendingCardChoice);
         }
-        else Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
-            && Equals(e.Payload.GetValueOrDefault("trigger"), triggerKind));
+        else
+        {
+            Assert.DoesNotContain(result.Events, e => e.Kind == "CARDS_MILLED");
+            Assert.Single(result.State.StackItems, item => item.EffectKind == triggerKind);
+            var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(result.State);
+            Assert.Contains(resolved.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+                && Equals(e.Payload.GetValueOrDefault("trigger"), triggerKind));
+        }
     }
 
     internal static async Task<ResolutionResult> Conquer(MatchState state)

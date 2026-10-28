@@ -86,7 +86,12 @@ public sealed partial class FullGameEndToEndTests
             case "zaun": AssertBattlefieldConquerDiscardDrawResolved(current, triggered); break;
             case "shirana": AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered); break;
             case "moonveil": AssertBattlefieldConquerReadyEquipmentResolved(current, triggered); break;
-            case "minefield": AssertBattlefieldConquerMillResolved(current, triggered); break;
+            case "minefield":
+                AssertBattlefieldConquerMillPending(current, triggered);
+                triggered = await ResolveDriverPendingEffectsAsync(session, triggered, room + "-mill-response");
+                RecordConquestFixturePrefix(source, "responded", triggered);
+                AssertBattlefieldConquerMillResolved(current, triggered);
+                break;
         }
 
         Assert.Equal("P2", previousController);

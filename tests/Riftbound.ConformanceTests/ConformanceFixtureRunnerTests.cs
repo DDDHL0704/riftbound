@@ -37349,6 +37349,13 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        var conquestTick = result.State.Tick;
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerMill);
+        var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(result.State);
+        result = resolved with { Events = result.Events.Concat(resolved.Events).ToArray() };
         Assert.Equal(["P1-BATTLEFIELD-MILL-003"], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
@@ -37361,7 +37368,8 @@ public sealed class ConformanceFixtureRunnerTests
         var conqueredResolution = Assert.Single(
             result.State.BattlefieldResolutions,
             resolution => string.Equals(resolution.Kind, "CONQUERED", StringComparison.Ordinal));
-        Assert.Equal(result.State.Tick, conqueredResolution.Tick);
+        Assert.Equal(conquestTick, conqueredResolution.Tick);
+        Assert.True(result.State.Tick > conquestTick);
         Assert.Equal("P1", conqueredResolution.PlayerId);
         Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", conqueredResolution.BattlefieldObjectId);
         Assert.Contains("P1-BATTLEFIELD-CONQUER-ATTACKER", conqueredResolution.ParticipantObjectIds);

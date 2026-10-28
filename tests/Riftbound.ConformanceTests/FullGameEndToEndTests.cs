@@ -1751,6 +1751,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-minefield-conquer");
+        AssertBattlefieldConquerMillPending(current, triggered);
+        triggered = await ResolveDriverPendingEffectsAsync(session, triggered, "b0-minefield-response");
         AssertBattlefieldConquerMillResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -7510,6 +7512,16 @@ public sealed partial class FullGameEndToEndTests
         }
 
         AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertBattlefieldConquerMillPending(ResolutionResult beforeBattle, ResolutionResult result)
+    {
+        Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+        Assert.DoesNotContain(result.Events, e => e.Kind is "CARDS_MILLED" or "BURNOUT_APPLIED");
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].Graveyard, result.State.PlayerZones["P1"].Graveyard);
+        Assert.True(result.State.StackItems.Any(i => i.EffectKind == TriggerKinds.BattlefieldConquerMill)
+            || result.State.TriggerQueue.Any(t => t.EffectKind == TriggerKinds.BattlefieldConquerMill));
     }
 
     private static void AssertBattlefieldConquerMillResolved(
@@ -15822,11 +15834,14 @@ public sealed partial class FullGameEndToEndTests
     private static async ValueTask<ResolutionResult> PassOpenBattleResponseAsync(
         MatchSession session,
         ResolutionResult current,
-        string intentPrefix)
+        string intentPrefix,
+        bool stopAtConquestMill = false)
     {
         var result = current;
         for (var index = 0; index < 8; index++)
         {
+            if (stopAtConquestMill && (result.State.StackItems.Any(i => i.EffectKind == TriggerKinds.BattlefieldConquerMill)
+                || result.State.TriggerQueue.Any(t => t.EffectKind == TriggerKinds.BattlefieldConquerMill))) return result;
             if (result.State.PendingRuleChoice is not null || !result.State.BattleState.IsActive || string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
                 return result;
@@ -15834,7 +15849,7 @@ public sealed partial class FullGameEndToEndTests
 
             if (result.State.StackItems.Count > 0)
             {
-                result = await ResolveStackPassPassAsync(session, result, $"{intentPrefix}-stack-{index}");
+                result = await ResolveStackPassPassAsync(session, result, $"{intentPrefix}-stack-{index}", stopAtConquestMill);
                 continue;
             }
 
@@ -17496,9 +17511,9 @@ public sealed partial class FullGameEndToEndTests
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
 
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response", stopAtConquestMill: true);
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
-        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment", stopAtConquestMill: true);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -21938,7 +21953,8 @@ public sealed partial class FullGameEndToEndTests
     private static async ValueTask<ResolutionResult> ResolveStackPassPassAsync(
         MatchSession session,
         ResolutionResult current,
-        string intentPrefix)
+        string intentPrefix,
+        bool stopAtConquestMill = false)
     {
         var result = current;
         var includesPlayAbility = current.State.StackItems.Any(item => item.SourceConfirmed);
@@ -21946,6 +21962,9 @@ public sealed partial class FullGameEndToEndTests
         var events = current.Events.ToList();
         for (var index = 0; index < 20; index++)
         {
+            if (stopAtConquestMill && (result.State.StackItems.Any(i => i.EffectKind == TriggerKinds.BattlefieldConquerMill)
+                || result.State.TriggerQueue.Any(t => t.EffectKind == TriggerKinds.BattlefieldConquerMill)))
+                return result with { Events = events };
             if (result.State.StackItems.Count == 0 && string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
                 return includesPlayAbility || includesCompletionTriggers ? result with { Events = events } : result;

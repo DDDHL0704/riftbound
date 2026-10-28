@@ -3258,7 +3258,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -16087,65 +16087,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || requiredKeywords.All(keyword => tokenDefinition.Tags.Contains(keyword, StringComparer.Ordinal));
     }
 
-    private static bool TryResolveBattlefieldConquerMillTwoTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string sourceObjectId,
-        List<GameEvent> events)
-    {
-        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger,
-                out var trigger)
-            || !playerZones.TryGetValue(playerId, out var zones)
-            || zones.MainDeck.Count == 0)
-        {
-            return false;
-        }
-
-        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, trigger.MillCount.GetValueOrDefault());
-        if (movedCardIds.Length == 0)
-        {
-            return false;
-        }
-
-        playerZones[playerId] = zones with
-        {
-            MainDeck = zones.MainDeck.Skip(movedCardIds.Length).ToArray(),
-            Graveyard = zones.Graveyard.Concat(movedCardIds).ToArray()
-        };
-
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 征服战场并弃置主牌堆顶牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldId"] = battlefieldId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldConquerMill,
-                ["sourceObjectId"] = sourceObjectId,
-                ["count"] = movedCardIds.Length
-            }));
-        events.Add(new GameEvent(
-            "CARDS_MILLED",
-            $"{playerId} 将主牌堆顶 {movedCardIds.Length} 张牌放入废牌堆",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["cardIds"] = movedCardIds,
-                ["count"] = movedCardIds.Length,
-                ["sourceZone"] = trigger.MillSourceZone,
-                ["destinationZone"] = trigger.MillDestinationZone
-            }));
-        return true;
-    }
-
     private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
         MatchState state, Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -23863,6 +23804,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.MightySkill is not null) return ResolveMightySkill(state, stackItem);
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
+        if (stackItem.BattlefieldConquestMill is not null) return ResolveBattlefieldConquestMill(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
         if (stackItem.BeginningDraw is not null) return ResolveBeginningDraw(state, stackItem);
