@@ -1181,6 +1181,7 @@ public static partial class MatchRecoveryValidator
         {
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
+            ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
         }
         ValidateSpectatorReplayFrame(
@@ -4386,6 +4387,7 @@ public static partial class MatchRecoveryValidator
 
             const string payloadLabel = "trigger queue item";
             var triggerLabel = $"snapshot for {view.PlayerId} timing {payloadLabel}";
+            ValidateUnitConquestReturnPrivateContextAbsent(triggerPayload, triggerLabel, errors);
             var triggerId = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "triggerId",
@@ -4449,7 +4451,8 @@ public static partial class MatchRecoveryValidator
                 HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
                     || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
                     || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
-                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicUnitConquestReturnEffect(authoritativeState, triggerId, effectKind));
             ValidateTriggerQueueBlueSentinelDelayedResourceContext(
                 triggerLabel,
                 triggerId,
@@ -4667,7 +4670,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
-            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
                 sourceObjectId,
@@ -18900,7 +18904,7 @@ public static partial class MatchRecoveryValidator
             }
 
             var authoritativeTrigger = authoritativeTriggers[index];
-            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.UnitConquestReturn is null && authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
@@ -19142,7 +19146,7 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.UnitConquestReturn is null && authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
@@ -19255,6 +19259,7 @@ public static partial class MatchRecoveryValidator
         List<string> errors)
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
+        ValidateUnitConquestReturnPrivateContextAbsent(triggerPayload, payloadLabel, errors);
         var triggerId = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "triggerId",
@@ -19318,7 +19323,8 @@ public static partial class MatchRecoveryValidator
             HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
                     || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
                     || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
-                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicUnitConquestReturnEffect(authoritativeState, triggerId, effectKind));
         ValidateTriggerQueueBlueSentinelDelayedResourceContext(
             payloadLabel,
             triggerId,
@@ -19532,7 +19538,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
             && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
-            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedUnitConquestReturnQueueSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -23949,6 +23956,7 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        ValidateUnitConquestReturnContinuations(state, errors);
         ValidateHandDiscardObservers(state, errors);
         foreach (var item in state.StackItems)
             if (item.MightySkill is { } mighty ? !CoreRuleEngine.ValidMightySkill(state, mighty,
@@ -24093,6 +24101,8 @@ public static partial class MatchRecoveryValidator
                 errors.Add("unconfirmed trigger cost");
         if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TriggerCostWindow } triggerCost
             && !CoreRuleEngine.ValidTriggerCostPayment(state, triggerCost)) errors.Add("invalid trigger cost payment");
+        if (state.PendingPayment is { } conquestReturnPayment && IsUnitConquestReturnPayment(state, conquestReturnPayment)
+            && !CoreRuleEngine.ValidTriggerCostPayment(state, conquestReturnPayment)) errors.Add("invalid trigger cost payment for unit conquest return");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidTriggerCostReceipt(state, item)) errors.Add("invalid trigger cost receipt");
         foreach (var item in state.StackItems)
@@ -24270,6 +24280,7 @@ public static partial class MatchRecoveryValidator
 
         if (state.PendingPayment is { } payment
             && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
+            && !IsUnitConquestReturnPayment(state, payment)
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.ConquestToken is { } token
@@ -25448,7 +25459,7 @@ public static partial class MatchRecoveryValidator
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
                 || item.DeathRevealContext is not null || item.DeathObserver is not null || item.HandDiscardObserver is not null || item.MovementObserver is not null
-                || item.MightySkill is not null || item.BattlefieldConquestMight is not null || item.BattlefieldConquestMill is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
+                || item.MightySkill is not null || item.BattlefieldConquestMight is not null || item.BattlefieldConquestMill is not null || item.UnitConquestReturn is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
                 || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null || item.BeginningRune is not null
                 || item.BeginningDraw is not null || item.LocationDamage is not null || item.UnitConquest is not null
                 || item.CompletedRepeatExecutions != 0 || item.CompletedHandExecutions != 0 || item.CompletedDeckExecutions != 0
@@ -27720,6 +27731,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
                     field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
                 && !(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
+                && !(stackItem.UnitConquestReturn is not null && ValidUnitConquestReturnStack(authoritativeState, stackItem))
                 && !(stackItem.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
@@ -27847,6 +27859,7 @@ public static partial class MatchRecoveryValidator
                     field, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind))
                 && !(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
                 && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
+                && !(trigger.UnitConquestReturn is not null && ValidUnitConquestReturnQueue(authoritativeState, trigger))
                 && !(trigger.HandDiscardObserver is { } discard && CoreRuleEngine.ValidHandDiscardObserver(authoritativeState, discard, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(authoritativeState,movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
@@ -32530,6 +32543,10 @@ public static partial class MatchRecoveryValidator
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { UnitConquestReturn: not null } conquestReturn
+                && ValidUnitConquestReturnStack(authoritativeState, conquestReturn)
+                && !CapturedBattleSourceIsPrivate(authoritativeState, conquestReturn))
+                sourceReferences = knownObjectIds.Append(conquestReturn.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { FieldContext: { SourceCeasedToExist: true } field } ceased
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, ceased.SourceObjectId, ceased.ControllerId, ceased.EffectKind, ceased.CardNo))
                 sourceReferences = knownObjectIds.Append(ceased.SourceObjectId).ToHashSet(StringComparer.Ordinal);
@@ -32833,6 +32850,7 @@ public static partial class MatchRecoveryValidator
         string payloadLabel,
         List<string> errors)
     {
+        ValidateUnitConquestReturnPrivateContextAbsent(stackItem, payloadLabel, errors);
         var stackItemId = ValidateSnapshotPayloadRequiredStringValue(
             stackItem,
             "stackItemId",
@@ -34131,13 +34149,13 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
+        => (item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
                 || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.UnitConquestReturn is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)
