@@ -13872,7 +13872,7 @@ public sealed partial class FullGameEndToEndTests
         var units = current.State.PlayerZones[attacker].Battlefields
             .Where(id => IsCombatUnit(current.State, id) && IsObjectLocatedAtBattlefield(current.State, id, field)).ToArray();
         Assert.NotEmpty(units);
-        // The arriving side attacks (CN 464.2.c). Stage the defenders first, then
+        // The side that contested the battlefield attacks (CN 466.2.c.1). Stage the defenders first, then
         // move the prepared attacking formation as one action (CN 144.3).
         current = await PassOpenSpellDuelAsync(session, current, $"{prefix}-initial-claim");
         for (var turn = 0; turn < 8 && (current.State.ActivePlayerId != attacker
