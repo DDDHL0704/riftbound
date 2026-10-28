@@ -233,6 +233,8 @@ public static class PaymentCostRules
             result.TryAdd("manaPurpose", "PLAY_SPELL");
         if (plan.ManaSourceSelection is { } selectedMana)
             result.TryAdd("selectedManaSources", selectedMana);
+        if (plan.PowerSourceSelection is { } selectedPower)
+            result.TryAdd("selectedPowerSources", selectedPower);
         if (plan.PowerPurpose is PowerPaymentPurpose.PlaySpell or PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment)
             result.TryAdd("powerPurpose", plan.PowerPurpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : "EQUIPMENT");
         result.TryAdd("optionalCosts", plan.OptionalCostIds.ToArray());

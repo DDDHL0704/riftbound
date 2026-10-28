@@ -32,7 +32,9 @@ public sealed partial class CoreRuleEngine
                 {
                     var baseId = $"LEGEND_RESOURCE:{id}:{abilityId}";
                     var choiceId = options.Count == 1 ? baseId : baseId + ":" + option;
-                    actions.Add(new(new(choiceId, $"支付 2 符能并横置传奇：获得 2 点单位专用法力（{option}）", [id]),
+                    var spent = string.Join("、", option[PlayPowerSpendSelectionRules.ChoicePrefix.Length..].Split(',')
+                        .Select(part => part.Split(':')).Select(pair => pair[1] + " 点" + (pair[0] == "A" ? "任意" : RuneTraitLabel(pair[0])) + "符能"));
+                    actions.Add(new(new(choiceId, $"支付{spent}并横置传奇：获得 2 点单位专用法力", [id]),
                         new LegendActCommand(id, abilityId, [], [option])));
                 }
                 continue;
