@@ -125,10 +125,17 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             Assert.Equal(1, payment.ManaCost);
             Assert.Contains(vayne, driver.State.PlayerZones["P1"].Battlefields);
             Assert.Equal(1, driver.State.RunePools["P1"].Mana);
-            await driver.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
+            var confirmed = await driver.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
                 [decline ? "DECLINE" : "SPEND_MANA:1"]));
             Assert.Null(driver.State.PendingPayment);
             Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
+            Assert.Contains(vayne, driver.State.PlayerZones["P1"].Battlefields);
+            Assert.DoesNotContain(confirmed.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+            if (!decline)
+            {
+                Assert.Contains(driver.State.StackItems, item => item.SourceObjectId == vayne);
+                await driver.Top();
+            }
             Assert.Contains(vayne, decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         }
         Assert.False(driver.State.BattleState.IsActive);
