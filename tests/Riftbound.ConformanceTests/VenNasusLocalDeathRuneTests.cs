@@ -255,10 +255,16 @@ public sealed class VenNasusLocalDeathRuneTests
             ["P1"] = new(5, 1, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }), ["P2"] = RunePool.Empty } };
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Equal(6, game.State.CardObjects["UNIT"].Power);
-        Assert.Equal(0, game.State.RunePools["P1"].Mana); await game.Replay();
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Blue)); await game.Replay();
         var unpaid = state with { RunePools = new Dictionary<string, RunePool> { ["P1"] = new(4, 1), ["P2"] = RunePool.Empty } };
         var command = new PlayCardCommand("UNIT", no, [], Destination: "BASE");
         var rejected = await new CoreRuleEngine().ResolveAsync(unpaid, new("unpaid", "P1", command.CmdType), command, default);
         Assert.False(rejected.Accepted); Assert.Empty(rejected.Events); Assert.Equal(MatchStateHasher.Hash(unpaid), MatchStateHasher.Hash(rejected.State));
+        var wrongColor = state with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }), ["P2"] = RunePool.Empty } };
+        rejected = await new CoreRuleEngine().ResolveAsync(wrongColor, new("wrong-color", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(wrongColor), MatchStateHasher.Hash(rejected.State));
     }
 }
