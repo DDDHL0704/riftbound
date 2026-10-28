@@ -7,6 +7,7 @@ namespace Riftbound.Engine;
 public sealed record BeginningRuneContext(string CardNo, ObjectBinding Source, string ControllerId,
     long CapturedTick, string RuleTextInstanceId, LastKnownMightFrame Frame,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record BeginningRunePublicContext(string CardNo, int Might, bool Ganking);
 
 public sealed partial class CoreRuleEngine
