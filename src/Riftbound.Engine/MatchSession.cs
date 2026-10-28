@@ -11650,8 +11650,20 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return PaymentCostRules.AvailableMana(runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId), state) >= ability.ManaCost
-            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+        var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId);
+        var powerCost = ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+        if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) >= ability.ManaCost)
+            return ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= powerCost;
+        if (manaPurpose != ManaPaymentPurpose.UnitAbility) return false;
+        return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+        {
+            var remaining = choice.RemainingPool with {
+                UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
+            var powerPool = PaymentCostRules.PowerPoolForPurpose(remaining, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+            return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= ability.ManaCost
+                && new RunePaymentReachability(powerPool, choice.RemainingRunePower, choice.RemainingRuneCapacity)
+                    .CanPay(powerCost, new Dictionary<string, int>());
+        });
     }
 
     private static bool IsPromptShadowStunTarget(
@@ -11935,7 +11947,8 @@ internal static class ActionPromptBuilder
     private static bool SupportsInlineRenektonAbilityPayment(P4ActivatedAbilityDefinition ability)
         => ability.AbilityId is P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
             or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId
-            or P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId or P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId;
+            or P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId or P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId
+            or P4ActivatedAbilityCatalog.ShadowStunAbilityId;
 
     private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
         MatchState state, string playerId, string reason)
@@ -16224,6 +16237,7 @@ internal static class ActionPromptBuilder
         {
             view["requiresBattlefieldSource"] = true;
             view["swift"] = true;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
             view["appliesSpellshieldTargetTax"] = true;
             view["targetScope"] = "enemy-attacking-unit-at-this-battlefield";
             view["statusEffectId"] = "STUNNED";

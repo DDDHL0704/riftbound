@@ -9593,11 +9593,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+            return RejectWithCorePrompts(state, "符能来源选择无效。", ErrorCodes.InvalidTarget);
+        var normalizedOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
+        if (!TryExtractRenektonPlayPayment(normalizedOptionalCosts, out var costsWithoutRenekton, out var renektonResourceAction))
+            return RejectWithCorePrompts(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(
                 state,
                 intent.PlayerId,
-                normalizedOptionalCosts,
+                costsWithoutRenekton,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds)
@@ -9682,6 +9686,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             command.AbilityId);
         var totalManaCost = ability.ManaCost;
+        var orderedPaymentResources = renektonResourceAction is null ? paymentResourceActions
+            : OrderedRenektonPaymentResources(normalizedOptionalCosts, paymentResourceActions, renektonResourceAction);
+        var paymentAudit = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["printedManaCost"] = ability.ManaCost,
+            ["spellshieldTaxPower"] = spellshieldTaxPower,
+            ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+            ["exhaustsSource"] = true,
+            ["targetObjectIds"] = normalizedTargets.ToArray(),
+            ["battlefieldObjectId"] = battlefieldObjectId,
+            ["statusEffectId"] = "STUNNED"
+        };
+        if (powerSpend?.Sources is { } selectedPowerSources) paymentAudit["selectedPowerSources"] = selectedPowerSources;
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             paymentId,
             paymentWindow,
@@ -9690,37 +9708,28 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             totalManaCost: totalManaCost,
             genericPowerCost: (ability.PowerCost + spellshieldTaxPower),
             totalPowerCost: (ability.PowerCost + spellshieldTaxPower),
-            paymentResourceActionIds: paymentResourceActions,
+            paymentResourceActionIds: orderedPaymentResources,
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             manaSourceSelection: command.ServerManaSourceSelection,
-            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["printedManaCost"] = ability.ManaCost,
-                ["spellshieldTaxPower"] = spellshieldTaxPower,
-                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
-                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
-                ["exhaustsSource"] = true,
-                ["targetObjectIds"] = normalizedTargets.ToArray(),
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["statusEffectId"] = "STUNNED"
-            });
+            powerPurpose: PowerPurposeForActivatedAbility(ability),
+            auditMetadata: paymentAudit);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        var runePools = ApplyRecycleRunePaymentResourceActions(
-            state.RunePools,
-            playerZones,
-            cardObjects,
-            objectLocations,
-            intent.PlayerId,
-            recycledRuneObjectIds,
-            paymentEvents,
-            paymentWindow,
-            paymentId);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (renektonResourceAction is not null)
+        {
+            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, playerZones,
+                    ref cardObjects, objectLocations, ref runePools, paymentEvents, paymentWindow, paymentId))
+                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
+        }
+        else
+            runePools = ApplyRecycleRunePaymentResourceActions(runePools, playerZones, cardObjects, objectLocations,
+                intent.PlayerId, recycledRuneObjectIds, paymentEvents, paymentWindow, paymentId);
 
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
@@ -9740,8 +9749,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        var powerPurpose = PowerPurposeForActivatedAbility(ability);
+        if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
+                PaymentCostRules.PowerPoolForPurpose(adjustedPool, powerPurpose), ability.PowerCost + spellshieldTaxPower,
+                new Dictionary<string, int>(), adjustedPool, powerPurpose))
+            return RejectWithCorePrompts(state, "技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
+        var debitPlan = powerSpend is null ? paymentPlan : PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, powerSpend);
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
@@ -9792,6 +9807,30 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
         var events = new List<GameEvent>(paymentEvents);
+        var paidPayload = PaymentCostRules.BuildCostPaidPayload(paymentPlan, runePools, playerExperience,
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["mana"] = totalManaCost,
+                ["printedManaCost"] = ability.ManaCost,
+                ["power"] = ability.PowerCost + spellshieldTaxPower,
+                ["abilityId"] = command.AbilityId,
+                ["sourceObjectId"] = command.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["targetObjectIds"] = normalizedTargets.ToArray(),
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["spellshieldTaxPower"] = spellshieldTaxPower,
+                ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
+                ["exhaustsSource"] = true
+            });
+        if (totalManaCost > 0 && (adjustedPool.UnitPlayOrUnitAbilityOnlyMana > 0 || renektonResourceAction is not null))
+        {
+            var paidPool = paymentCommit.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
+            paidPayload["ordinaryManaSpent"] = adjustedPool.Mana - paidPool.Mana;
+            paidPayload["unitPlayOrUnitAbilityOnlyManaSpent"] =
+                adjustedPool.UnitPlayOrUnitAbilityOnlyMana - paidPool.UnitPlayOrUnitAbilityOnlyMana;
+            if (adjustedPool.DuelOnlyMana > 0) paidPayload["duelOnlyManaSpent"] = adjustedPool.DuelOnlyMana - paidPool.DuelOnlyMana;
+        }
         events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
@@ -9825,25 +9864,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付黑影技能费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
-                    runePools,
-                    playerExperience,
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = intent.PlayerId,
-                        ["mana"] = totalManaCost,
-                        ["printedManaCost"] = ability.ManaCost,
-                        ["power"] = (ability.PowerCost + spellshieldTaxPower),
-                        ["abilityId"] = command.AbilityId,
-                        ["sourceObjectId"] = command.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["targetObjectIds"] = normalizedTargets.ToArray(),
-                        ["battlefieldObjectId"] = battlefieldObjectId,
-                        ["spellshieldTaxPower"] = spellshieldTaxPower,
-                        ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray(),
-                        ["exhaustsSource"] = true
-                    })),
+                paidPayload),
             new(
                 "STACK_ITEM_ADDED",
                 "黑影的技能加入结算链",

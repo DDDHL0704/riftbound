@@ -95,6 +95,35 @@ public sealed class ShadowSwiftResourcePaymentTests
         Assert.Equal(0, result.State.RunePools["P2"].TotalStoredPower);
     }
 
+    [Theory]
+    [InlineData("duplicate-legend")]
+    [InlineData("duplicate-power")]
+    [InlineData("wrong-total")]
+    [InlineData("play-only-source")]
+    [InlineData("forged-legend")]
+    [InlineData("unfunded")]
+    public async Task InvalidInlinePaymentsLeaveBothSourcesAndResourcesUnchanged(string branch)
+    {
+        var pool = new RunePool(0, branch == "unfunded" ? 2 : 3, unitOrEquipmentPlayOnlyPower: 1);
+        var game = await Focused(Position(pool));
+        var choices = branch switch {
+            "duplicate-legend" => new[] { Resource, Resource },
+            "duplicate-power" => [Resource, "POWER_SPEND:A:1", "POWER_SPEND:A:1"],
+            "wrong-total" => [Resource, "POWER_SPEND:A:2"],
+            "play-only-source" => [Resource, "POWER_SPEND:A:1", "POWER_SOURCE:UNIT_OR_EQUIPMENT_PLAY_ONLY:1"],
+            "forged-legend" => [Resource.Replace("P2-LEGEND", "NOT-A-LEGEND", StringComparison.Ordinal)],
+            _ => [Resource]
+        };
+        var command = new ActivateAbilityCommand("SHADOW", ShadowAbility, ["HOST"], choices);
+        var before = MatchStateHasher.Hash(game.State);
+        var result = await new CoreRuleEngine().ResolveAsync(game.State, new("shadow-invalid-" + branch, "P2", command.CmdType), command, default);
+        Assert.False(result.Accepted);
+        Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+        Assert.False(result.State.CardObjects["P2-LEGEND"].IsExhausted);
+        Assert.False(result.State.CardObjects["SHADOW"].IsExhausted);
+    }
+
     private static JsonElement ShadowRequirement(MatchState state)
     {
         var candidate = Assert.Single(ResolutionResult.BuildPrompts(state)["P2"].Candidates!, c => c.Action == CommandTypes.ActivateAbility);
