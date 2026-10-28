@@ -47,7 +47,11 @@ internal static class RecycledCardBoonSqlAcceptance
                 for (var pass = 0; pass < 2; pass++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
                 var deck = current.PendingCardChoice!;
                 await Submit("P1", new ChooseCardsCommand(deck.ChoiceId, deck.ChoiceWindow, ["TOP"]));
-                Check(current.PendingEffectPlay is not null && current.TriggerQueue.Count == 1, "Boon must wait for the original permanent confirmation.");
+                Check(current.PendingEffectPlay is not null && current.TriggerQueue.Count == 2, "Both earned triggers must wait for the original permanent confirmation.");
+                Check(current.TriggerQueue.Count(t => t.SourceObjectId == "KARMA" && t.FieldContext?.Kind == "RECYCLE_BOON") == 1,
+                    "Exactly one recycled-card Boon trigger must retain the original source.");
+                Check(current.TriggerQueue.Count(t => t.SourceObjectId == "HOST" && t.LastBreathDraw is not null) == 1,
+                    "The destroyed host's separately earned draw trigger must also be retained.");
                 await Submit("P1", new PlayCardCommand("TOP", "OGN·096/298", [], OptionalCosts: []));
                 Check(current.PlayerZones["P1"].Base.Contains("TOP"), "New permanent must enter before boon target confirmation.");
             } else {
@@ -61,6 +65,20 @@ internal static class RecycledCardBoonSqlAcceptance
             await RejectTamperedBoonSource();
             await Submit("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
             for (var pass = 0; pass < 2; pass++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+            if (hook) {
+                Check(current.CardObjects[target].Tags.Contains(CardObjectTags.Boon), "Boon must resolve before the host's earned draw.");
+                Check(current.StackItems.Count == 1 && current.StackItems[0].SourceObjectId == "HOST" && current.StackItems[0].LastBreathDraw is not null,
+                    "The host's earned draw must remain on the stack after Boon resolves.");
+                var handBeforeDraw = current.PlayerZones["P1"].Hand.ToArray();
+                var deckBeforeDraw = current.PlayerZones["P1"].MainDeck.ToArray();
+                Check(deckBeforeDraw.SequenceEqual(new[] { "REST" }), "The real recycled card must remain available for the earned draw.");
+                await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+                Check(current.PlayerZones["P1"].Hand.SequenceEqual(handBeforeDraw) && current.PlayerZones["P1"].MainDeck.SequenceEqual(deckBeforeDraw),
+                    "The first pass must not resolve the earned draw.");
+                await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+                Check(current.PlayerZones["P1"].Hand.SequenceEqual(handBeforeDraw.Append("REST")) && current.PlayerZones["P1"].MainDeck.Count == 0
+                    && current.ObjectLocations["REST"].Zone == "HAND", "The second pass must draw the original recycled card exactly once.");
+            }
             Check(current.StackItems.Count == 0 && current.TriggerQueue.Count == 0 && current.CardObjects[target].Tags.Contains(CardObjectTags.Boon), "Boon must resolve once after both players pass.");
             await File.WriteAllTextAsync(Path.Combine(output, "receipt.json"), JsonSerializer.Serialize(new {
                 status = "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS", room, submitted, events = sequence,
@@ -94,6 +112,7 @@ internal static class RecycledCardBoonSqlAcceptance
             var result = await session.SubmitAsync(actor, "recycle-boon-sql-" + submitted, command, JsonSerializer.SerializeToElement(fields), default);
             Check(result.Accepted, result.ErrorMessage); current = result.State; submitted++; sequence += result.Events.Count;
             var frame = await store.LoadAsync(room, default) ?? throw new InvalidOperationException("Missing SQL frame.");
+            if (hook) await File.WriteAllTextAsync(Path.Combine(output, $"prefix-{submitted:D2}-recovered-sql-frame.json"), JsonSerializer.Serialize(frame, json));
             Check(frame.IsConsistent, string.Join("; ", frame.ValidationErrors));
             Check(frame.Commands.Count == submitted && frame.Events.Count == sequence && MatchStateHasher.Hash(frame.AuthoritativeState!) == MatchStateHasher.Hash(current), "SQL history/state mismatch.");
             var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands, frame.AuthoritativeState!, engine, default, frame.Events);
