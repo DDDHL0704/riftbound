@@ -60,6 +60,13 @@ public sealed class BeginningRuneIntegrationTests
         var resolved = await Top(opened.State);
         var contexts = resolved.State.StackItems.Select(item => item.MightySkill)
             .Concat(resolved.State.TriggerQueue.Select(item => item.MightySkill)).Where(context => context is not null).ToArray();
+        if (contexts.Length == 0 && Environment.GetEnvironmentVariable("RIFTBOUND_BEGINNING_RUNE_MIGHTY_DIAGNOSTICS") is { } folder) {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "crossing.json"), JsonSerializer.Serialize(new {
+                initial = state, opened = opened.State, resolved = resolved.State, events = resolved.Events,
+                powerBefore = CurrentPowerTargetTests.Snapshot(opened.State), powerAfter = CurrentPowerTargetTests.Snapshot(resolved.State)
+            }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
         var mighty = Assert.Single(contexts)!;
         Assert.Equal("SOURCE", mighty.Unit.ObjectId);
         Assert.Equal(4, mighty.BeforeMight);
