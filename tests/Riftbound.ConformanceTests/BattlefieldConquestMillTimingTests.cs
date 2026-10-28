@@ -328,6 +328,44 @@ public sealed class BattlefieldConquestMillTimingTests
     }
 
     [Theory]
+    [InlineData("P1", 0, "DRAW1")] [InlineData("P1", 0, "DRAW2")]
+    [InlineData("P2", 1, "DRAW1")] [InlineData("P2", 1, "DRAW2")]
+    public async Task RecyclingAndMillingBackToTheOriginalZoneCreatesANewObject(string player, long seed, string cardId)
+    {
+        // Controlled position: one card in the main deck and one in the trash.
+        var initial = Position(player, 1);
+        var opponent = player == "P1" ? "P2" : "P1";
+        initial = initial with {
+            Seed = seed,
+            CardObjects = initial.CardObjects.Where(e => e.Key != "DRAW3").ToDictionary(),
+            ObjectLocations = initial.ObjectLocations.Where(e => e.Key != "DRAW3").ToDictionary(),
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                [player] = initial.PlayerZones[player] with { Graveyard = ["DRAW2"] } },
+            PlayerScores = new Dictionary<string, int> { [player] = 0, [opponent] = 5 } };
+        AssertCanonicalComponent(initial);
+        var evidence = Environment.GetEnvironmentVariable("RIFTBOUND_SFD212_IDENTITY_EVIDENCE");
+        var driver = new StandbyDefendObserverTests.Driver(initial,
+            evidence is null ? null : Path.Combine(evidence, $"single-burnout-{player}-{cardId}"));
+        await driver.Act(player, new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+        await driver.Act(player, new PassFocusCommand());
+        await driver.Act(opponent, new PassFocusCommand());
+        var resolved = await driver.Top();
+        var milled = resolved.Events.Where(e => e.Kind == "CARDS_MILLED").ToArray();
+        Assert.Equal(2, milled.Length);
+        Assert.Equal(new[] { "DRAW1" }, Assert.IsAssignableFrom<IReadOnlyList<string>>(milled[0].Payload["cardIds"]));
+        Assert.Equal(new[] { "DRAW2" }, Assert.IsAssignableFrom<IReadOnlyList<string>>(milled[1].Payload["cardIds"]));
+        Assert.Single(resolved.Events, e => e.Kind == "BURNOUT_APPLIED");
+        Assert.Equal(6, driver.State.PlayerScores[opponent]);
+        Assert.Equal(new[] { "DRAW1" }, driver.State.PlayerZones[player].MainDeck);
+        Assert.Equal(new[] { "DRAW2" }, driver.State.PlayerZones[player].Graveyard);
+        AssertCanonicalComponent(driver.State);
+        await RideTheWindCurrentMovementTests.Replay(initial, driver);
+        driver.Export("identity-diagnostic.json", new { initial, final = driver.State,
+            commands = driver.Commands(), events = driver.Events(), resolutionEvents = resolved.Events });
+        Assert.NotEqual(initial.CardObjects[cardId].ObjectGeneration, driver.State.CardObjects[cardId].ObjectGeneration);
+    }
+
+    [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
     public async Task FirstBurnoutCompletesTheMillBeforeNormalScoreVictory(string player)
