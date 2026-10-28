@@ -67,6 +67,28 @@ public sealed class RenektonRenataInlinePaymentTests
         Assert.False(rejected.State.CardObjects["LEGEND"].IsExhausted);
     }
 
+    [Theory]
+    [InlineData("exhausted")]
+    [InlineData("other-controller")]
+    [InlineData("wrong-legend")]
+    public async Task InlinePaymentRequiresThePlayersReadyRenekton(string defect)
+    {
+        var initial = Position(new RunePool(0, 2, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }));
+        var legend = initial.CardObjects["LEGEND"];
+        legend = defect switch {
+            "exhausted" => legend with { IsExhausted = true },
+            "other-controller" => legend with { ControllerId = "P2" },
+            _ => legend with { CardNo = "UNL-193/219" }
+        };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["LEGEND"] = legend } };
+        var command = new ActivateAbilityCommand("P1-RENATA", P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, [], [LegendResource]);
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("renata-invalid-" + defect, "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
+
     [Fact]
     public async Task RenataCanRecycleAfterLegendFreesCapacityButNotBefore()
     {
@@ -113,6 +135,7 @@ public sealed class RenektonRenataInlinePaymentTests
     {
         var state = OfficialHoldSequenceTests.AddLegend(RenataActivatedAbilityTests.AffordableBlueDrawPaymentState(), "VEN·141");
         return state with {
+            Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1") },
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = pool } };
