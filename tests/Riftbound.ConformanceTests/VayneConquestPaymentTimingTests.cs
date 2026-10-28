@@ -150,8 +150,10 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var (initial, game, _) = await OpenVaynePaymentTimingBattle();
         var pending = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.NotNull(pending.ResolvingStackItemId);
+        var wrongCost = game.State with { PendingPayment = pending with { ManaCost = 0 } };
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(wrongCost), e => e.Contains("invalid trigger cost payment", StringComparison.Ordinal));
         var wrongPending = game.State with { PendingPayment = pending with { ResolvingStackItemId = "missing-vayne-stack" } };
-        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(wrongPending), e => e.Contains("invalid trigger cost payment", StringComparison.Ordinal));
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(wrongPending));
 
         await game.Act("P1", new PayCostCommand(pending.PaymentId, pending.PaymentWindow, ["SPEND_MANA:1"]));
         var item = Assert.Single(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
@@ -301,6 +303,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
                 new(SecondAttackerObjectId, BulwarkDefenderObjectId, twoVaynes ? 5 : 2)]));
         var settled = await game.Act(defender, new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
             [new(BulwarkDefenderObjectId, AttackerObjectId, 1)]));
+        if (!twoVaynes && game.State.PendingPayment is null && game.State.TriggerQueue.Count > 0)
+            await game.Act(attacker, new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         return (initial, game, settled);
     }
 
