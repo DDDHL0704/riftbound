@@ -54,6 +54,14 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Equal(0, choice.RequiredCount);
         Assert.Equal(1, choice.MaxCount);
         Assert.DoesNotContain(opened.Events, e => e.Kind is "RUNES_CALLED" or "LEGEND_EXHAUSTED");
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_POWERFUL_PLAYED_DIAGNOSTICS") is { } folder) {
+            Directory.CreateDirectory(folder);
+            var raw = JsonSerializer.Serialize(opened.State);
+            var restored = JsonSerializer.Deserialize<MatchState>(raw)!;
+            var name = legend.Replace('/', '-');
+            File.WriteAllText(Path.Combine(folder, name + "-roundtrip-before.json"), raw);
+            File.WriteAllText(Path.Combine(folder, name + "-roundtrip-after.json"), JsonSerializer.Serialize(restored));
+        }
         Restore(opened.State); ArmamentMightTests.PublicRecovery(opened.State);
     }
 
