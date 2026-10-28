@@ -12,8 +12,11 @@ internal sealed class RunePaymentReachability
     internal int Capacity { get; }
     internal int MaximumTotal { get; }
     internal bool CapacityBinds => Supported && Capacity > 0 && candidateTotal > Capacity;
+    internal RunePaymentReachability(RunePool pool, IReadOnlyDictionary<string, int> powerByTrait)
+        : this(pool, powerByTrait, null) { }
+
     internal RunePaymentReachability(RunePool pool, IReadOnlyDictionary<string, int> powerByTrait,
-        int? maximumAdditionalPower = null)
+        int? maximumAdditionalPower)
     {
         current = pool;
         candidates = powerByTrait.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
