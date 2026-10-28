@@ -1,0 +1,81 @@
+using Riftbound.Contracts;
+using Riftbound.Engine;
+using Xunit;
+
+namespace Riftbound.ConformanceTests;
+
+public sealed partial class BattleDamageAssignmentLifecycleTests
+{
+    [Fact]
+    public async Task VayneRecoveryBindsSourceGenerationToAcceptedConquestHistory()
+    {
+        var (baseline, original, _) = await OpenVaynePaymentTimingBattle();
+        var initial = baseline with { CardObjects = new Dictionary<string, CardObjectState>(baseline.CardObjects) {
+            [AttackerObjectId] = baseline.CardObjects[AttackerObjectId] with { ObjectGeneration = 3 } } };
+        var game = new StandbyDefendObserverTests.Driver(initial);
+        foreach (var command in original.Commands())
+            await game.Act(command.PlayerId, GameCommandJsonMapper.Map(command.RawCommand!.Value));
+
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var item = Assert.Single(game.State.StackItems, s => s.StackItemId == payment.ResolvingStackItemId);
+        var captured = Assert.IsType<UnitConquestReturnContext>(item.UnitConquestReturn);
+        Assert.Equal(3, captured.Source.Generation);
+        var birth = Assert.Single(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), AttackerObjectId));
+        Assert.Equal(3L, birth.Event.Payload["sourceGeneration"]);
+
+        var earlier = captured with { Source = captured.Source with { Generation = 0 } };
+        var triggerId = $"UNIT-CONQUEST-RETURN:{earlier.ConquestTick}:{MatchStateHasher.HashValue(new {
+            earlier.Source, earlier.ControllerId, earlier.BattlefieldObjectId, earlier.Occurrence })}";
+        var stackId = "ordered-" + triggerId;
+        var forged = game.State with {
+            StackItems = game.State.StackItems.Select(s => s.StackItemId == item.StackItemId
+                ? s with { StackItemId = stackId, UnitConquestReturn = earlier } : s).ToArray(),
+            PendingPayment = payment with { PaymentId = "TRIGGER-COST:" + stackId, ResolvingStackItemId = stackId } };
+        var frame = VayneRecoveryFrame(initial, game, forged);
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("not bound to accepted conquest history", StringComparison.Ordinal));
+        Assert.DoesNotContain(frame.ValidationErrors, e => e.Contains("invalid captured unit conquest return stack", StringComparison.Ordinal));
+        Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), forged,
+            new CoreRuleEngine(), default, game.Events());
+        Assert.False(replay.IsMatch);
+        var changedBirth = game.Events().Select(e => e == birth ? e with { Event = e.Event with {
+            Payload = new Dictionary<string, object?>(e.Event.Payload) {
+                ["sourceGeneration"] = 0L, ["triggerId"] = triggerId } } } : e).ToArray();
+        var changedReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), forged,
+            new CoreRuleEngine(), default, changedBirth);
+        Assert.False(changedReplay.IsMatch);
+        Assert.Contains(changedReplay.Errors, e => e.Contains("payload hash", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task VaynePublicViewsRedactSourceAfterResponseReturnsIt()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
+        await game.Top();
+
+        var item = Assert.Single(game.State.StackItems, s => s.UnitConquestReturn is not null);
+        var frame = VayneRecoveryFrame(initial, game, game.State);
+        Assert.Empty(frame.ValidationErrors);
+        var ownerView = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(Assert.Single(frame.PlayerViews["P1"].Snapshot.Stack));
+        var opponentView = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(Assert.Single(frame.PlayerViews["P2"].Snapshot.Stack));
+        var spectatorView = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(Assert.Single(frame.SpectatorReplayFrame!.SpectatorSnapshot.Stack));
+        Assert.Equal(AttackerObjectId, ownerView["sourceObjectId"]);
+        Assert.Equal("HIDDEN", opponentView["sourceObjectId"]);
+        Assert.Equal("HIDDEN", spectatorView["sourceObjectId"]);
+        Assert.Equal(item.EffectKind, opponentView["effectKind"]);
+        Assert.DoesNotContain("unitConquestReturn", opponentView.Keys);
+
+        var leaked = new Dictionary<string, object?>(opponentView) { ["unitConquestReturn"] = item.UnitConquestReturn };
+        var views = new Dictionary<string, RecoveredPlayerView>(frame.PlayerViews) {
+            ["P2"] = frame.PlayerViews["P2"] with { Snapshot = frame.PlayerViews["P2"].Snapshot with { Stack = [leaked] } } };
+        var errors = MatchRecoveryValidator.Validate(frame.RoomId, frame.LastEventSequence, frame.Commands, frame.Events,
+            views, frame.AuthoritativeState, frame.CurrentTick, frame.SpectatorReplayFrame);
+        Assert.Contains(errors, e => e.Contains("must not expose the private unit conquest return binding", StringComparison.Ordinal));
+    }
+}
