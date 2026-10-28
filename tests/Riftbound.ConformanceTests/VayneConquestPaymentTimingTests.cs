@@ -81,12 +81,42 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.NotNull(rejected.State.PendingPayment);
     }
 
+    [Fact]
+    public async Task SpellOnlyManaCannotPayVayneButATappedRuneCan()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 0, spellOnly: true, includeRune: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var before = MatchStateHasher.Hash(game.State);
+        var refused = await new CoreRuleEngine().ResolveAsync(game.State, new("vayne-restricted", "P1", command.CmdType), command, default);
+        Assert.False(refused.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, refused.ErrorCode);
+        Assert.Equal(before, MatchStateHasher.Hash(refused.State));
+        Assert.Empty(refused.Events);
+
+        await game.Act("P1", new TapRuneCommand("VAYNE-RUNE"));
+        Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].SpellOnlyMana);
+        payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var paid = await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].SpellOnlyMana);
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+        await game.Top();
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(2, game.State.RunePools["P1"].SpellOnlyMana);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task TwoVayneConquerorsAndTheBattlefieldKeepIndependentPendingTriggers(bool minefield)
     {
-        var (_, game, settled) = await OpenVaynePaymentTimingBattle(twoVaynes: true, minefield: minefield);
+        var (initial, game, settled) = await OpenVaynePaymentTimingBattle(twoVaynes: true, minefield: minefield);
         var sources = game.State.TriggerQueue.Select(t => t.SourceObjectId)
             .Concat(game.State.StackItems.Select(s => s.SourceObjectId)).ToHashSet(StringComparer.Ordinal);
         if (game.State.PendingPayment?.Reason is { } reason)
@@ -103,10 +133,37 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             Assert.DoesNotContain(settled.Events, e => e.Kind == "CARDS_MILLED");
             Assert.Equal(2, game.State.PlayerZones["P2"].MainDeck.Count);
         }
+
+        var queue = game.State.TriggerQueue.ToArray();
+        Assert.All(queue, t => Assert.Equal("P1", t.ControllerId));
+        var firstIndex = Array.FindIndex(queue, t => t.SourceObjectId == AttackerObjectId);
+        var secondIndex = Array.FindIndex(queue, t => t.SourceObjectId == SecondAttackerObjectId);
+        Assert.True(firstIndex >= 0 && secondIndex >= 0);
+        (queue[firstIndex], queue[secondIndex]) = (queue[secondIndex], queue[firstIndex]);
+        var order = queue.Select(t => t.TriggerId).ToArray();
+        var ordered = await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: order));
+        Assert.Equal(order, Assert.IsType<string[]>(Assert.Single(ordered.Events, e => e.Kind == "TRIGGERS_ORDERED").Payload["orderedTriggerIds"]));
+        var first = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var paidSource = Assert.Single(game.State.StackItems, s => s.StackItemId == first.ResolvingStackItemId).SourceObjectId;
+        await game.Act("P1", new PayCostCommand(first.PaymentId, first.PaymentWindow, ["SPEND_MANA:1"]));
+        var second = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var declinedSource = Assert.Single(game.State.StackItems, s => s.StackItemId == second.ResolvingStackItemId).SourceObjectId;
+        Assert.NotEqual(paidSource, declinedSource);
+        await game.Act("P1", new PayCostCommand(second.PaymentId, second.PaymentWindow, ["DECLINE"]));
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        for (var step = 0; step < 4 && game.State.StackItems.Count > 0; step++) await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Contains(paidSource, game.State.PlayerZones["P1"].Hand);
+        Assert.Contains(declinedSource, game.State.PlayerZones["P1"].Battlefields);
+        if (minefield) Assert.Equal(2, game.State.PlayerZones["P2"].Graveyard.Count);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
     }
 
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Game, ResolutionResult Settled)>
-        OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false)
+        OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false,
+            bool spellOnly = false, bool includeRune = false)
     {
         var initial = SingleDefenderWireState(true) with { Tick = 0,
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
@@ -120,7 +177,15 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         if (twoVaynes) cards[SecondAttackerObjectId] = cards[SecondAttackerObjectId] with {
             CardNo = "OGN·035/298", Power = 2, Tags = [CardObjectTags.UnitCard, "强攻3"] };
         initial = initial with { CardObjects = cards, RunePools = new Dictionary<string, RunePool> {
-            ["P1"] = new(mana, 0), ["P2"] = new(8, 4) } };
+            ["P1"] = new(mana, 0, spellOnlyMana: spellOnly ? 2 : 0), ["P2"] = new(8, 4) } };
+        if (includeRune)
+            initial = initial with {
+                CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                    ["VAYNE-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("VAYNE-RUNE", "UNL-R05", "P1") },
+                PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                    ["P1"] = initial.PlayerZones["P1"] with { Base = [..initial.PlayerZones["P1"].Base, "VAYNE-RUNE"] } },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                    ["VAYNE-RUNE"] = new("P1", "BASE") } };
         if (minefield)
         {
             var withDeck = new Dictionary<string, CardObjectState>(initial.CardObjects) {
@@ -136,6 +201,24 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var game = new StandbyDefendObserverTests.Driver(initial);
         await game.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
             [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        // The opponent's real response card can leave a battle-focus window
+        // open before damage assignment. Pass that window with normal commands.
+        for (var step = 0; step < 4; step++)
+        {
+            var candidates = ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [];
+            if (candidates.Any(c => c.Action == CommandTypes.AssignCombatDamage)) break;
+            if (game.State.PriorityPlayerId is { } priority)
+                await game.Act(priority, new PassPriorityCommand());
+            else if (game.State.FocusPlayerId is { } focus)
+                await game.Act(focus, new PassFocusCommand());
+            else if (candidates.Any(c => c.Action == CommandTypes.DeclareBattle))
+                await game.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
+                    [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+            else
+                throw new InvalidOperationException("Battle did not expose a response or damage-assignment action.");
+        }
+        Assert.Contains(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [],
+            c => c.Action == CommandTypes.AssignCombatDamage);
         await game.Act("P1", new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
             [new(AttackerObjectId, BulwarkDefenderObjectId, 5),
                 new(SecondAttackerObjectId, BulwarkDefenderObjectId, twoVaynes ? 5 : 2)]));
