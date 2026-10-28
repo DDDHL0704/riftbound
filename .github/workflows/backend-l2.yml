@@ -88,6 +88,9 @@ jobs:
         with:
           name: l2-db-preflight
           path: var/qa/l2-db-preflight/
+          # The generated restart hook includes .NETCoreApp assembly attributes.
+          # Keep every inventoried file so the aggregate can verify the upload.
+          include-hidden-files: true
           retention-days: 30
 
   prepare:
