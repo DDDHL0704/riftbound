@@ -8,6 +8,24 @@ namespace Riftbound.ConformanceTests;
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CanonicalMixedBattlePositionSurvivesComponentRecovery(bool mixedAttacker)
+    {
+        var initial = mixedAttacker ? MixedAttackerPosition() : MixedDefenderPosition();
+        var engine = new CoreRuleEngine();
+        var opened = mixedAttacker
+            ? await engine.ResolveAsync(initial, new PlayerIntent("canonical-mixed-battle", "P1", CommandTypes.DeclareBattle),
+                new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
+                    [BulwarkDefenderObjectId, BackRowDefenderObjectId], ["COMBAT_ASSIGNMENT"]), CancellationToken.None)
+            : await DeclareAssignmentBattleAsync(initial, engine);
+        Assert.True(opened.Accepted, opened.ErrorMessage);
+        var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(opened.State))!;
+        Assert.Equal(MatchStateHasher.Hash(opened.State), MatchStateHasher.Hash(restored));
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(restored));
+    }
+
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public async Task AttackerMayAssignTheMixedKeywordTargetFirstOrLast(bool mixedFirst)
