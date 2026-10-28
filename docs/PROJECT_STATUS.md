@@ -16,6 +16,8 @@
 
 本次耗时样本为 [40433982118](https://github.com/DDDHL0704/riftbound/actions/runs/40433982118)、[40449789952](https://github.com/DDDHL0704/riftbound/actions/runs/40449789952)、[40458851676](https://github.com/DDDHL0704/riftbound/actions/runs/40458851676)、[40500054422](https://github.com/DDDHL0704/riftbound/actions/runs/40500054422) 和 [40529284886](https://github.com/DDDHL0704/riftbound/actions/runs/40529284886)。
 
+10:00 补核最近一次手动 L3：[40055102708](https://github.com/DDDHL0704/riftbound/actions/runs/40055102708) 于10月24日从标签 `backend-related-20261024-a7` 固定 `da80739bd17631e231a17dccced06d306b26fa8d`，当时 scope 为完整 L3；规则套件及规则汇总失败，四片 SQL 和相关网络成功只属于该旧输入。当前修复后的手动 L3 尚未触发。
+
 ## 历史快照 · 2026-10-27
 
 **后端规则优先；日常合入走 L2，完整后端验收仍 OPEN。**
