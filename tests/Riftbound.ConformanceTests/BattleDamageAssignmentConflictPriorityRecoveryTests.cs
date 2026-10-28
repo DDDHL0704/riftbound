@@ -15,8 +15,25 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     {
         var initial = MixedDefenderPosition();
         var driver = new StandbyDefendObserverTests.Driver(initial);
-        var opened = await driver.Act("P1", new DeclareBattleCommand(BattlefieldObjectId,
-            [AttackerObjectId], [BulwarkDefenderObjectId, BackRowDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        ResolutionResult opened;
+        try
+        {
+            opened = await driver.Act("P1", new DeclareBattleCommand(BattlefieldObjectId,
+                [AttackerObjectId], [BulwarkDefenderObjectId, BackRowDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        }
+        catch
+        {
+            if (Environment.GetEnvironmentVariable("RIFTBOUND_CONTRADICTORY_PRIORITY_DIAGNOSTICS") is { } folder)
+            {
+                Directory.CreateDirectory(folder);
+                var before = driver.State;
+                var after = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(before))!;
+                File.WriteAllText(Path.Combine(folder, $"battle-open-roundtrip-{mixedFirst}.json"), JsonSerializer.Serialize(new {
+                    before, after, beforeHash = MatchStateHasher.Hash(before), afterHash = MatchStateHasher.Hash(after),
+                    errors = MatchRecoveryValidator.ValidateComponentStateAndViews(after) }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            }
+            throw;
+        }
         var candidate = Assert.Single(opened.Prompts["P1"].Candidates ?? [], c => c.Action == CommandTypes.AssignCombatDamage);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
         var options = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<int>>>(metadata["targetPriorityOptions"]);
