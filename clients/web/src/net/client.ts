@@ -32,6 +32,8 @@ export type ClientState = {
    * so consumers read every batch newer than the last one they handled.
    */
   eventBatches: EventBatch[];
+  /** Per player, how many events of each kind this tab has seen in the current match (for the result screen). */
+  tally: Record<string, Record<string, number>>;
 };
 
 // The room seat lives in sessionStorage so two tabs can hold two different players;
@@ -139,6 +141,7 @@ export class GameClient {
       toast: null,
       connectionNote: "",
       eventBatches: [],
+      tally: {},
     };
   }
 
@@ -205,7 +208,13 @@ export class GameClient {
     });
     connection.on("Events", (m: ServerMessage<GameEvent[]>) => {
       const events = m.payload || [];
-      this.set({ eventBatches: [...this.state.eventBatches, { seq: ++seq, events }].slice(-20) });
+      const tally = { ...this.state.tally };
+      for (const e of events) {
+        const who = e.payload?.playerId;
+        if (typeof who !== "string") continue;
+        tally[who] = { ...tally[who], [e.kind]: (tally[who]?.[e.kind] ?? 0) + 1 };
+      }
+      this.set({ eventBatches: [...this.state.eventBatches, { seq: ++seq, events }].slice(-20), tally });
       this.pushLog(events.map((e) => ({ tick: m.serverTick, kind: e.kind, text: e.description, tone: "event" as const })));
     });
     connection.on("Error", (m: ServerMessage<{ code: string; message: string }>) => {
@@ -280,12 +289,12 @@ export class GameClient {
   }
 
   async joinRoom(roomId: string) {
-    this.set({ snapshot: null, prompt: null, log: [], roomId });
+    this.set({ snapshot: null, prompt: null, log: [], tally: {}, roomId });
     await this.connection!.invoke("JoinRoom", roomId, this.state.handle, null);
   }
 
   async createRoom() {
-    this.set({ snapshot: null, prompt: null, log: [] });
+    this.set({ snapshot: null, prompt: null, log: [], tally: {} });
     const result = await this.connection!.invoke<{ match: { roomId: string } } | null>(
       "CreatePublicMatch",
       this.state.handle,
@@ -313,7 +322,7 @@ export class GameClient {
 
   leaveRoom() {
     save({ server: this.state.server, handle: this.state.handle, key: this.key });
-    this.set({ phase: "lobby", roomId: "", session: null, snapshot: null, prompt: null, log: [] });
+    this.set({ phase: "lobby", roomId: "", session: null, snapshot: null, prompt: null, log: [], tally: {} });
   }
 
   /**

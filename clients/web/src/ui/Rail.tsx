@@ -53,7 +53,7 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
 
       <Preview snapshot={snapshot} objects={objects} />
       <StackView snapshot={snapshot} objects={objects} meId={meId} onHover={onHover} />
-      <Log entries={state.log} objects={objects} />
+      <Log entries={state.log} objects={objects} meId={state.handle} />
 
       <footer className="rail__foot">
         <span className="muted">房间 {state.roomId}</span>
@@ -619,26 +619,70 @@ function compact(entries: ClientState["log"]) {
   return out;
 }
 
-function Log({ entries, objects }: { entries: ClientState["log"]; objects: Record<string, GameObject> }) {
+// Bookkeeping the table already shows (mana in the pool, passes, phase steps); hidden unless the
+// player asks for the full record.
+const ROUTINE = new Set([
+  "MANA_GAINED", "RUNE_TAPPED", "POWER_GAINED", "RUNE_POOL_CLEARED", "PRIORITY_PASSED", "FOCUS_PASSED",
+  "TURN_START_BEGAN", "MAIN_PHASE_BEGAN", "OBJECTS_READIED", "TURN_END_CLEANUP_STARTED", "TURN_END_DECLARED",
+  "PERMANENT_CONFIRMED", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK", "UNTIL_END_OF_TURN_EXPIRED",
+  "CLEANUP_REPEATED", "STACK_ITEM_SUSPENDED", "COST_PAID", "RUNE_RECYCLED",
+]);
+const LOG_KEY = "riftbound.web.fullLog";
+
+function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects: Record<string, GameObject>; meId: string }) {
   const ref = useRef<HTMLOListElement>(null);
+  const [full, setFull] = useState(() => {
+    try {
+      return localStorage.getItem(LOG_KEY) === "on";
+    } catch {
+      return false;
+    }
+  });
+  const toggle = () =>
+    setFull((on) => {
+      try {
+        localStorage.setItem(LOG_KEY, on ? "off" : "on");
+      } catch {
+        /* not remembered */
+      }
+      return !on;
+    });
   const pattern = useMemo(() => {
     const ids = Object.keys(objects).filter((id) => objects[id]?.cardNo).sort((a, b) => b.length - a.length);
     if (!ids.length) return null;
     return new RegExp(ids.map((id) => id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
   }, [objects]);
+  // Player handles read as "你" for this player; the opponent keeps the name they chose.
+  const me = useMemo(() => new RegExp(`(^|[^\\w])${meId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w]) ?`, "g"), [meId]);
+  const shown = full ? entries : entries.filter((e) => !ROUTINE.has(e.kind));
   useEffect(() => {
     ref.current?.scrollTo({ top: ref.current.scrollHeight });
-  }, [entries.length]);
+  }, [shown.length, full]);
   return (
     <section className="log" aria-label="对局记录">
-      <h3 className="rail__sub">对局记录</h3>
+      <h3 className="rail__sub log__head">
+        对局记录
+        <button className="log__mode" onClick={toggle} title={full ? "隐藏横置符文、让过等例行记录" : "显示包括例行步骤在内的全部记录"}>
+          {full ? "全部" : "关键"}
+        </button>
+      </h3>
       <ol ref={ref}>
-        {compact(entries).map(({ entry, count }) => (
-          <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
-            {readable(entry.text, objects, pattern)}
-            {count > 1 && <span className="log__count">×{count}</span>}
-          </li>
-        ))}
+        {compact(shown).map(({ entry, count }) => {
+          const text = readable(entry.text, objects, pattern).replace(me, "$1你");
+          // A new turn starts a new block in the record.
+          if (entry.kind === "TURN_PLAYER_ADVANCED")
+            return (
+              <li key={entry.id} className="log__turn">
+                {text.replace(/^回合推进至\s*/, "")}的回合
+              </li>
+            );
+          return (
+            <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
+              {text}
+              {count > 1 && <span className="log__count">×{count}</span>}
+            </li>
+          );
+        })}
       </ol>
     </section>
   );
