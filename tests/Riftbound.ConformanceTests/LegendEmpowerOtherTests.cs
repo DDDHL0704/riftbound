@@ -147,6 +147,7 @@ public sealed class LegendEmpowerOtherTests
         var returned = await Top(response.State);
         Assert.Contains("LEGEND", returned.State.PlayerZones["P1"].Hand);
         Assert.DoesNotContain("LEGEND", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(returned.State)["P2"].Stack));
+        ArmamentMightTests.PublicRecovery(returned.State);
         var done = await Top(returned.State);
         Assert.DoesNotContain("\"LEGEND\"", JsonSerializer.Serialize(done.Events));
         Assert.False(done.State.CardObjects["LEGEND"].IsEmpowered);
