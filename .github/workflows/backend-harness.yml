@@ -28,8 +28,62 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
+  full_rules_preflight:
+    name: Complete rule suite preflight
+    if: ${{ github.ref == 'refs/heads/a/nightly-full-preflight' }}
+    runs-on: ubuntu-latest
+    # Each independent full job has its own six-hour budget. Run the rule
+    # suite and real SQL/network in the first wave; never remove test inputs.
+    timeout-minutes: 360
+    concurrency:
+      group: rule-suite-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: false
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify fixed nightly checkout
+        run: python3 scripts/ci-candidate.py --expected "${{ github.sha }}" --output var/qa/nightly-checkout.json
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Test runner coverage safeguards
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Record the fixed rule suite commit
+        run: |
+          mkdir -p var/qa
+          git rev-parse HEAD > var/qa/ci-rule-suite-commit.txt
+      - name: Complete rule suite with checked process shards
+        run: python3 scripts/test-rules.py full --output var/qa/ci-rules
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: conformance-results
+          path: |
+            var/qa/ci-rules/
+            var/qa/ci-rule-suite-commit.txt
+          retention-days: 90
+
   restart_harness:
     name: L3 harness smoke
+    if: ${{ github.ref != 'refs/heads/a/nightly-full-preflight' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
