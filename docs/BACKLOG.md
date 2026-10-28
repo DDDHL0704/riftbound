@@ -10,12 +10,13 @@
 
 ## P0 · 让 main 和夜间验收恢复全绿（A 线）
 
-- [ ] **P0-1 合入夜间验收的测试修正**。分支 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，基于 main `9c50c6d3`，已包含付款线的 `a79b0f32`）。只改测试：
+- [ ] **P0-1 合入夜间验收的测试修正**。进行中：分支 `a/nightly-assertions`，[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，基于 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，已包含付款线的 `a79b0f32`）。只改测试：
   - 付款重连夹具：#223 改变了可选减费的候选结构，导致 `OptionalCostReductionAcceptance` 失败，这里同步更新；
   - 修正 6 局完整对局和对应的投影测试。
 
-  本地 12/12 通过。**合入前先改一处**：卡牌线指出，修正后 SourceLone 那局的双方防守者正向断言变成了"有条件才检查"。要改为在同一局伤害结算前**无条件**检查双方参与者，死亡后再做反向断言。开 PR → L2 绿 → 合入 → 手动触发一次夜间验收确认。
+  SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 绿后合入，并手动触发一次夜间验收确认。
 - [ ] **P0-2 夜间验收连续通过**。每次失败都在这里登记"失败项 + 原因 + 修复 PR"；连续 3 晚全绿后删掉本条。
+  - [40708127555](https://github.com/DDDHL0704/riftbound/actions/runs/40708127555)（10 月 28 日手动运行）：6 局完整对局的夹具与当前战斗、触发时机及战场归属不一致；付款重连的可选减费夹具未适配候选结构变更。修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，待合入后以完整夜验验证。
 
 ## P1 · 规则缺陷与进行中的规则改动（A 线）
 
