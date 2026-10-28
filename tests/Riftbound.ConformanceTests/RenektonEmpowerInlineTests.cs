@@ -79,7 +79,8 @@ public sealed class RenektonEmpowerInlineTests
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(9, 0) } };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("HOST", "VEN·001", []));
-        await game.Top();
+        if (game.State.StackItems.Count > 0) await game.Top();
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Base);
         Assert.Equal(3, game.State.RunePools["P1"].Mana);
         var resource = "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:red:2";
         await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", [],
