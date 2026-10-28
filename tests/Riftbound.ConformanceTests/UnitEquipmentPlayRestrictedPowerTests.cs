@@ -72,7 +72,8 @@ public sealed class UnitEquipmentPlayRestrictedPowerTests
 
     private static RunePool Pool(int mana, int amount) => JsonSerializer.Deserialize<RunePool>(
         $"{{\"mana\":{mana},\"power\":0,\"{Field}\":{amount}}}", Web)!;
-    private static int Bucket(RunePool pool) => JsonSerializer.SerializeToElement(pool, Web).GetProperty(Field).GetInt32();
+    private static int Bucket(RunePool pool) => JsonSerializer.SerializeToElement(pool, Web).TryGetProperty(Field, out var value)
+        ? value.GetInt32() : 0;
     private static MatchState WithPool(MatchState state, RunePool pool) => state with {
         RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = pool } };
 }
