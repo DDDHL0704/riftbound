@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -89,8 +90,23 @@ public sealed class RenektonEmpowerInlineTests
         var activation = Assert.Single(game.State.StackItems).EmpowerActivation!;
         Assert.Equal(5, activation.ControlledRunes);
         Assert.Equal(5, activation.PaidMana);
+        var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), "EMPOWER:0:0")).Event.Payload;
+        Assert.Equal(3, Convert.ToInt32(paid["ordinaryManaSpent"]));
+        Assert.Equal(2, Convert.ToInt32(paid["unitPlayOrUnitAbilityOnlyManaSpent"]));
+        Assert.Contains(resource, Assert.IsAssignableFrom<IEnumerable<string>>(paid["paymentResourceActions"]));
         await game.Top();
         Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
         await game.Replay();
+        var commands = game.Commands();
+        var index = Array.FindIndex(commands, c => c.CommandType == CommandTypes.ActivateAbility);
+        Assert.True(index >= 0);
+        var original = commands[index];
+        var changed = JsonNode.Parse(original.RawCommand!.Value.GetRawText())!.AsObject();
+        changed["optionalCosts"]!.AsArray()[0] = "RECYCLE_RUNE:EMPOWER-RUNE-2";
+        commands[index] = original with { RawCommand = JsonSerializer.SerializeToElement(changed, Web) };
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, game.State,
+            new CoreRuleEngine(), default, game.Events());
+        Assert.False(replay.IsMatch); Assert.NotEmpty(replay.Errors);
     }
 }
