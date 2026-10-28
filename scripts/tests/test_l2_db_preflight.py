@@ -40,23 +40,47 @@ class DatabasePreflightTests(unittest.TestCase):
                 executions=[dict(id=name, status='PASSED')], runtimeAssemblies=self.modules,
                 outputFiles=[dict(path=f'{name}/original-output.json', bytes=data.stat().st_size,
                                   sha256=P.digest(data))]))
-        self.write('restart/process-restart-receipt.json', dict(
-            status='ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED',
-            checkout=dict(actualSha=self.commit, expectedSha=self.commit),
-            originalSqlHistoryEqual=True, runtimeSha256={'/runtime/Riftbound.Api.dll': '3' * 64,
-                '/runtime/Riftbound.NativeNetworkSmoke.dll': '4' * 64,
-                '/runtime/Riftbound.Engine.dll': self.built['Riftbound.Engine.dll']},
-            processes=[dict(phase='restart-prepare', processId=10, normalExitCode=0),
-                       dict(phase='restart-recover', processId=20, normalExitCode=0)]))
-        for phase in ['restart-prepare', 'restart-recover']:
-            self.write(f'restart/{phase}.json', dict(status='PASSED', actualJoinedPlayers=2))
-        history = dict.fromkeys(['command_log', 'game_events', 'snapshots', 'state_snapshots', 'action_prompts'], [1])
-        self.write('restart/sql-process-10.json', history)
-        self.write('restart/sql-process-20.json', history)
+        engine_mvid = next(x['mvid'] for x in self.modules if x['file'] == 'Riftbound.Engine.dll')
+        processes = [dict(processId=pid, normalExitCode=0, sha256=self.built['Riftbound.Engine.dll'], mvid=engine_mvid)
+                     for pid in [10, 20]]
+        self.write('payment-restart/payment-reconnect-receipt.json', dict(
+            status='DECLARED_PAYMENT_RECONNECT_STAGES_PASSED', fixedCommit=self.commit,
+            orderedCases=['restricted-mana-lux'], checkout=dict(actualSha=self.commit, expectedSha=self.commit),
+            fixedRuntimeSha256={'/api/Riftbound.Engine.dll': self.built['Riftbound.Engine.dll'],
+                                '/driver/Riftbound.Engine.dll': self.built['Riftbound.Engine.dll']},
+            cases=[dict(case='restricted-mana-lux', status='PASSED', actualApiRestart=True,
+                        sqlSelectorExecuted=True, processes=processes)]))
+        for kind in ['ogs', 'sp6']:
+            folder = 'payment-restart/restricted-mana-lux/' + kind
+            room = 'fixture-' + kind
+            self.write(folder + '/network-fixture.json', dict(room=room, controlledQaPosition=True,
+                                                              ordinaryOpeningCertified=False))
+            self.write(f'payment-restart/restricted-mana-lux/sql/sql/{kind}/sql-original-replay.json',
+                       dict(status='RESTRICTED_MANA_SQL_PASS'))
+            for mode in ['play', 'recover', 'finish']:
+                traces = [dict(method='Joined', recipient=player, message=dict(playerId=player, roomId=room,
+                          type='RECONNECT', payload=dict(playerId=player, reconnectToken='joined-' + player)))
+                          for player in ['actor', 'peer']]
+                self.write(folder + '/network-' + mode + '.json', dict(status='REAL_SIGNALR_RESTRICTED_MANA_PASS',
+                           room=room, snapshots={'actor': {}, 'peer': {}}, traces=traces))
+            for stage in ['before-restart', 'after-restart', 'final']:
+                self.write(folder + '/sql-' + stage + '.json', dict(status='RESTRICTED_MANA_SQL_ORIGINAL_REPLAY_PASS',
+                           stage=stage, room=room, fullOriginalReplay=True, stateHash='unchanged'))
+            self.write(folder + '/registry-forgery-refusals.json', dict(room=room, originalBirthReplayRestored=True,
+                       outcomes=[dict(originalSqlRestored=True, sevenTableDigestRestored=True) for _ in range(6)]))
+        for mode in ['play', 'recover', 'finish']:
+            rows = []
+            for kind in ['ogs', 'sp6']:
+                relative = kind + '/network-' + mode + '.json'
+                path = self.root / 'payment-restart/restricted-mana-lux' / relative
+                rows.append(dict(path=relative, room='fixture-' + kind, players=['actor', 'peer'],
+                                 successfulJoinedPlayers=2, sha256=P.digest(path)))
+            self.write('payment-restart/restricted-mana-lux/network-auth-' + mode + '.json',
+                       dict(status='ACTUAL_RECONNECT_JOINED_OBSERVED', traces=rows))
         self.receipt = dict(status='REAL_POSTGRES_SLICE_AND_PROCESS_RESTART_PASSED', commit=self.commit,
                             runId='123', runAttempt='1', manifestSha256=P.digest(P.MANIFEST),
                             cases=self.selected, partitionCount=len(self.identities),
-                            stages={name: dict(exitCode=0) for name in ['build', 'restart', *P.CASES]},
+                            stages={name: dict(exitCode=0) for name in ['build', 'payment-restart', *P.CASES]},
                             seconds=42.0, fullL3Certified=False)
         self.save_receipt()
 
@@ -98,12 +122,12 @@ class DatabasePreflightTests(unittest.TestCase):
             self.verify()
         record['completedCases'] = [case]
         path.write_text(json.dumps(record))
-        restart = self.root / 'restart/process-restart-receipt.json'
+        restart = self.root / 'payment-restart/payment-reconnect-receipt.json'
         record = P.read(restart)
-        record['processes'][1]['processId'] = record['processes'][0]['processId']
+        record['cases'][0]['processes'][1]['processId'] = record['cases'][0]['processes'][0]['processId']
         restart.write_text(json.dumps(record))
         self.save_receipt()
-        with self.assertRaisesRegex(ValueError, 'two-process'):
+        with self.assertRaisesRegex(ValueError, 'Two real API processes'):
             self.verify()
 
     def test_changed_original_sql_or_history_is_rejected(self):
@@ -115,9 +139,12 @@ class DatabasePreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Original SQL output'):
             self.verify()
         path.write_text('{"original": true}\n')
-        self.write('restart/sql-process-20.json', dict(command_log=[2]))
+        checkpoint = self.root / 'payment-restart/restricted-mana-lux/ogs/sql-after-restart.json'
+        changed = P.read(checkpoint)
+        changed['stateHash'] = 'changed'
+        checkpoint.write_text(json.dumps(changed))
         self.save_receipt()
-        with self.assertRaisesRegex(ValueError, 'history'):
+        with self.assertRaisesRegex(ValueError, 'SQL gameplay'):
             self.verify()
 
     def test_required_case_identity_cannot_silently_change(self):
@@ -151,12 +178,38 @@ class DatabasePreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'same module'):
             self.verify()
         case.write_text(json.dumps(original))
-        restart = self.root / 'restart/process-restart-receipt.json'
+        restart = self.root / 'payment-restart/payment-reconnect-receipt.json'
         proof = P.read(restart)
-        proof['runtimeSha256']['/runtime/Riftbound.Engine.dll'] = '5' * 64
+        proof['cases'][0]['processes'][0]['sha256'] = '5' * 64
         restart.write_text(json.dumps(proof))
         self.save_receipt()
-        with self.assertRaisesRegex(ValueError, 'two-process'):
+        with self.assertRaisesRegex(ValueError, 'Two real API processes'):
+            self.verify()
+
+    def test_joined_trace_and_tamper_restoration_cannot_be_faked_by_rehashing(self):
+        folder = self.root / 'payment-restart/restricted-mana-lux'
+        path = folder / 'ogs/network-recover.json'
+        report = P.read(path)
+        report['traces'].pop()
+        path.write_text(json.dumps(report))
+        auth_path = folder / 'network-auth-recover.json'
+        auth = P.read(auth_path)
+        next(row for row in auth['traces'] if row['path'] == 'ogs/network-recover.json')['sha256'] = P.digest(path)
+        auth_path.write_text(json.dumps(auth))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'Both original players'):
+            self.verify()
+        report['traces'].append(dict(method='Joined', recipient='peer', message=dict(playerId='peer',
+            roomId='fixture-ogs', type='RECONNECT', payload=dict(playerId='peer', reconnectToken='joined-peer'))))
+        path.write_text(json.dumps(report))
+        next(row for row in auth['traces'] if row['path'] == 'ogs/network-recover.json')['sha256'] = P.digest(path)
+        auth_path.write_text(json.dumps(auth))
+        forged_path = folder / 'sp6/registry-forgery-refusals.json'
+        forged = P.read(forged_path)
+        forged['outcomes'][0]['sevenTableDigestRestored'] = False
+        forged_path.write_text(json.dumps(forged))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'tamper checks'):
             self.verify()
 
 

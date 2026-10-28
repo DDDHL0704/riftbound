@@ -79,6 +79,32 @@ def runtime_modules(items, built):
     return modules
 
 
+def verify_joined_trace(case_dir, row):
+    path = case_dir / row['path']
+    if (not path.resolve().is_relative_to(case_dir.resolve()) or not path.is_file()
+            or digest(path) != row.get('sha256')):
+        raise ValueError('Original joined trace differs from its receipt.')
+    report = read(path)
+    players = set(report.get('snapshots', {}))
+    if len(players) != 2 or players != set(row.get('players', [])) or report.get('room') != row.get('room'):
+        raise ValueError('The joined trace must retain two original player identities.')
+    joined = set()
+    for trace in report.get('traces', []):
+        if trace.get('method') != 'Joined':
+            continue
+        message = trace.get('message', {})
+        payload = message.get('payload', {})
+        player = payload.get('playerId')
+        if (player not in players or player in joined or message.get('playerId') != player
+                or message.get('roomId') != report['room'] or message.get('type') != 'RECONNECT'
+                or not str(payload.get('reconnectToken') or '').strip()
+                or trace.get('recipient', player) != player):
+            raise ValueError('The actual joined trace has an invalid authenticated player.')
+        joined.add(player)
+    if joined != players or row.get('successfulJoinedPlayers') != 2:
+        raise ValueError('Both original players must actually reconnect.')
+
+
 def verify(folder, commit, quality, manifest_path=MANIFEST):
     receipt = read(folder / 'preflight-receipt.json')
     checkout = read(folder / 'checkout.json')
@@ -100,7 +126,7 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
             or receipt.get('files') != file_inventory(folder)):
         raise ValueError('Database preflight evidence or fixed identity is incomplete.')
     stages = receipt.get('stages', {})
-    if set(stages) != {'build', 'restart', *CASES} or any(x.get('exitCode') != 0 for x in stages.values()):
+    if set(stages) != {'build', 'payment-restart', *CASES} or any(x.get('exitCode') != 0 for x in stages.values()):
         raise ValueError('Every real database preflight stage must succeed.')
     built = read(folder / 'runtime-build.json')
     if set(built) != MODULES or any(not valid_sha(sha) for sha in built.values()):
@@ -127,36 +153,68 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
             if (not path.resolve().is_relative_to(case_dir.resolve()) or not path.is_file()
                     or path.stat().st_size != item['bytes'] or digest(path) != item['sha256']):
                 raise ValueError('Original SQL output differs from its receipt: ' + identity)
-    restart = folder / 'restart'
-    proof = read(restart / 'process-restart-receipt.json')
-    processes = proof.get('processes', [])
-    restart_modules = {Path(path).name: sha for path, sha in proof.get('runtimeSha256', {}).items()}
-    if (proof.get('status') != 'ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED'
+    restart = folder / 'payment-restart'
+    proof = read(restart / 'payment-reconnect-receipt.json')
+    cases = proof.get('cases', [])
+    if (proof.get('status') != 'DECLARED_PAYMENT_RECONNECT_STAGES_PASSED'
+            or proof.get('fixedCommit') != commit or proof.get('orderedCases') != ['restricted-mana-lux']
             or proof.get('checkout', {}).get('actualSha') != commit
             or proof.get('checkout', {}).get('expectedSha') != commit
-            or proof.get('originalSqlHistoryEqual') is not True
-            or set(restart_modules) != {'Riftbound.Api.dll', 'Riftbound.NativeNetworkSmoke.dll', 'Riftbound.Engine.dll'}
-            or len(proof.get('runtimeSha256', {})) != 3
-            or any(not valid_sha(sha) for sha in restart_modules.values())
-            or restart_modules['Riftbound.Engine.dll'] != built['Riftbound.Engine.dll']
-            or len(processes) != 2 or processes[0].get('phase') != 'restart-prepare'
-            or processes[1].get('phase') != 'restart-recover'
-            or not all(p.get('processId') and p.get('normalExitCode') in (0, -2, 130) for p in processes)
-            or processes[0]['processId'] == processes[1]['processId']):
-        raise ValueError('A genuine two-process SQL and SignalR restart is required.')
-    snapshots = []
-    for process in processes:
-        phase = read(restart / (process['phase'] + '.json'))
-        if phase.get('status') != 'PASSED' or phase.get('actualJoinedPlayers') != 2:
-            raise ValueError('Both original SignalR players must join each restart phase.')
-        snapshots.append(read(restart / ('sql-process-' + str(process['processId']) + '.json')))
-    if snapshots[0] != snapshots[1] or not all(snapshots[0].get(t) for t in
-            ['command_log', 'game_events', 'snapshots', 'state_snapshots', 'action_prompts']):
-        raise ValueError('Actual original SQL history must survive the API restart.')
+            or len(cases) != 1 or cases[0].get('case') != 'restricted-mana-lux'
+            or cases[0].get('status') != 'PASSED' or cases[0].get('actualApiRestart') is not True
+            or cases[0].get('sqlSelectorExecuted') is not True):
+        raise ValueError('The actual restricted-mana SQL and restart case must pass.')
+    processes = cases[0].get('processes', [])
+    if (len(processes) != 2 or processes[0].get('processId') == processes[1].get('processId')
+            or any(not p.get('processId') or p.get('normalExitCode') not in (0, -2, 130)
+                   or p.get('sha256') != built['Riftbound.Engine.dll']
+                   or p.get('mvid', '').lower() != original_modules['Riftbound.Engine.dll'][1]
+                   for p in processes)):
+        raise ValueError('Two real API processes must load the fixed SQL Engine module.')
+    engine_hashes = [value for path, value in proof.get('fixedRuntimeSha256', {}).items()
+                     if Path(path).name == 'Riftbound.Engine.dll']
+    if len(engine_hashes) < 2 or any(value != built['Riftbound.Engine.dll'] for value in engine_hashes):
+        raise ValueError('API and restricted-mana driver must use the fixed Engine module.')
+    case_dir = restart / 'restricted-mana-lux'
+    for mode in ['play', 'recover', 'finish']:
+        auth = read(case_dir / ('network-auth-' + mode + '.json'))
+        if auth.get('status') != 'ACTUAL_RECONNECT_JOINED_OBSERVED':
+            raise ValueError('Both original players must successfully join each game phase.')
+        traces = {row['path']: row for row in auth.get('traces', [])}
+        for kind in ['ogs', 'sp6']:
+            path = kind + '/network-' + mode + '.json'
+            if path not in traces:
+                raise ValueError('Both controlled rooms must have a fresh joined trace.')
+            verify_joined_trace(case_dir, traces[path])
+    for kind in ['ogs', 'sp6']:
+        case = case_dir / kind
+        fixture = read(case / 'network-fixture.json')
+        if fixture.get('controlledQaPosition') is not True or fixture.get('ordinaryOpeningCertified') is not False:
+            raise ValueError('The restricted-mana fixture scope must remain explicit.')
+        if read(case_dir / 'sql/sql' / kind / 'sql-original-replay.json').get('status') != 'RESTRICTED_MANA_SQL_PASS':
+            raise ValueError('The original restricted-mana SQL replay is required.')
+        for mode in ['play', 'recover', 'finish']:
+            network = read(case / ('network-' + mode + '.json'))
+            if network.get('status') != 'REAL_SIGNALR_RESTRICTED_MANA_PASS' or network.get('room') != fixture['room']:
+                raise ValueError('Actual restricted-mana gameplay and reconnect are required.')
+        checkpoints = [read(case / ('sql-' + stage + '.json')) for stage in ['before-restart', 'after-restart', 'final']]
+        if (any(row.get('status') != 'RESTRICTED_MANA_SQL_ORIGINAL_REPLAY_PASS'
+                or row.get('stage') != stage or row.get('room') != fixture['room']
+                or row.get('fullOriginalReplay') is not True
+                for row, stage in zip(checkpoints, ['before-restart', 'after-restart', 'final']))
+                or checkpoints[0].get('stateHash') != checkpoints[1].get('stateHash')):
+            raise ValueError('Original SQL gameplay must survive the real API restart and finish.')
+        forged = read(case / 'registry-forgery-refusals.json')
+        if (forged.get('room') != fixture['room'] or forged.get('originalBirthReplayRestored') is not True
+                or len(forged.get('outcomes', [])) != 6
+                or any(row.get('originalSqlRestored') is not True or row.get('sevenTableDigestRestored') is not True
+                       for row in forged['outcomes'])):
+            raise ValueError('Restricted-mana tamper checks must restore the original SQL history.')
     return dict(status=receipt['status'], commit=commit, runId=checkout['runId'],
                 runAttempt=checkout['runAttempt'], cases=list(CASES),
                 preflightReceiptSha256=digest(folder / 'preflight-receipt.json'),
-                seconds=receipt['seconds'], targetSeconds=600, fullL3Certified=False)
+                seconds=receipt['seconds'], targetSeconds=600,
+                restartScope='CONTROLLED_RESTRICTED_MANA_NOT_ORDINARY_OPENING', fullL3Certified=False)
 
 
 def run(commit, output):
@@ -176,8 +234,8 @@ def run(commit, output):
                                     stdout=log, stderr=subprocess.STDOUT, check=False)
         stages[name] = dict(exitCode=result.returncode, seconds=round(time.monotonic() - start, 3))
 
-    execute('restart', ['python3', 'scripts/run-process-restart-ci.py', '--expected', commit,
-                        '--output', str(output / 'restart')])
+    execute('payment-restart', ['python3', 'scripts/run-payment-reconnect-ci.py', '--expected', commit,
+                                '--case', 'restricted-mana-lux', '--output', str(output / 'payment-restart')])
     execute('build', ['dotnet', 'build', 'tests/Riftbound.PostgresAcceptance', '-m:1', '--nologo', '-v:q'])
     if stages['build']['exitCode'] == 0:
         try:
