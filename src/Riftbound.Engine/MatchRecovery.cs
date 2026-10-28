@@ -135,6 +135,7 @@ public static class MatchActionLogReplayer
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken)
     {
+        var profile = new L2RecoveryDiagnosticTrace("audit-detail");
         ArgumentNullException.ThrowIfNull(recovery);
         ArgumentNullException.ThrowIfNull(ruleEngine);
 
@@ -391,6 +392,7 @@ public static class MatchActionLogReplayer
             return errors;
         }
 
+        profile.Mark("prechecks", recovery.Commands.Count);
         var replay = await VerifyFinalStateAsync(
                 recovery.ReplayInitialState!,
                 recovery.Commands,
@@ -399,6 +401,7 @@ public static class MatchActionLogReplayer
                 cancellationToken,
                 recovery.Events)
             .ConfigureAwait(false);
+        profile.Mark("command-replay-and-final-hash", recovery.Commands.Count);
         return replay.IsMatch
             ? []
             : replay.Errors
@@ -603,6 +606,7 @@ public static class MatchActionLogReplayer
             .ThenBy(command => command.CompletedEventSequence)
             .ThenBy(command => command.ClientIntentId, StringComparer.Ordinal))
         {
+            var profile = new L2RecoveryDiagnosticTrace("replay-command:" + command.CommandType);
             if (TryReadRawCommandType(command.RawCommand, out var rawCommandType)
                 && !string.Equals(
                     rawCommandType,
@@ -618,6 +622,7 @@ public static class MatchActionLogReplayer
             try
             {
                 result = await ReplayCommandAsync(session, command, cancellationToken).ConfigureAwait(false);
+                profile.Mark("resolve");
             }
             catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException or JsonException)
             {
@@ -669,6 +674,7 @@ public static class MatchActionLogReplayer
             }
 
             replayedState = result.State;
+            profile.Mark("compare");
         }
 
         var replayedHash = MatchStateHasher.Hash(replayedState);

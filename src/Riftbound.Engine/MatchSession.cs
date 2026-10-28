@@ -17087,7 +17087,9 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 
     private async ValueTask<IMatchSession> CreateSessionAsync(string roomId, CancellationToken cancellationToken)
     {
+        var profile = new L2RecoveryDiagnosticTrace("registry-detail");
         var recovery = await recoveryStore.LoadAsync(roomId, cancellationToken).ConfigureAwait(false);
+        profile.Mark("load", recovery?.Commands.Count ?? 0);
         if (recovery is null)
         {
             return new MatchSession(roomId, ruleEngine, journal, playerStore, sessionOptions);
@@ -17109,6 +17111,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             recovery.AuthoritativeState,
             recovery.CurrentTick,
             recovery.SpectatorReplayFrame);
+        profile.Mark("structural-validation", recovery.Commands.Count);
         if (validationErrors.Count > 0)
         {
             throw new MatchSessionException(
@@ -17123,6 +17126,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                     ruleEngine,
                     cancellationToken)
                 .ConfigureAwait(false);
+            profile.Mark("action-log-audit", recovery.Commands.Count);
             if (replayErrors.Count > 0)
             {
                 throw new MatchSessionException(
@@ -17131,7 +17135,9 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
             }
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, sessionOptions);
+        var restored = MatchSession.Restore(recovery, ruleEngine, journal, playerStore, sessionOptions);
+        profile.Mark("restore", recovery.Commands.Count);
+        return restored;
     }
 }
 
