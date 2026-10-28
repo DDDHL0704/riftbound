@@ -116,6 +116,26 @@ public sealed class BeginningRuneIntegrationTests
         }
     }
 
+    [Fact]
+    public async Task PublicBeginningContextRejectsAnExtraPrivateFrame()
+    {
+        var opened = await Act(BeginningRuneConditionTests.Position("VEN·006", 0, 1), "P1", new PassPriorityCommand());
+        var state = opened.State;
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
+            var payload = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+            var original = payload["beginningRune"];
+            payload["beginningRune"] = new Dictionary<string, object?> {
+                ["cardNo"] = "VEN·006", ["might"] = 2, ["ganking"] = true,
+                ["frame"] = new Dictionary<string, object?> { ["privateSourceId"] = "SHOULD-NOT-BE-PUBLIC" } };
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
+            payload["beginningRune"] = original;
+        }
+    }
+
     [Theory]
     [InlineData("VEN·005", 3)]
     [InlineData("VEN·006", 6)]
