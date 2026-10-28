@@ -11,6 +11,10 @@ public sealed class ConquestLifecycleRegressionTests
     public async Task EmptyZaunConquestWaitsForChosenDiscardBeforeDrawing()
     {
         var result = await Conquer(State());
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        Assert.DoesNotContain(result.Events, e => e.Kind is "CARD_DRAWN" or "CARD_DISCARDED");
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         var choice = Assert.IsType<PendingHandChoiceState>(result.State.PendingHandChoice);
         var candidate = Assert.Single(result.Prompts["P1"].Candidates!, c => c.Action == CommandTypes.ChooseHandCards);
         Assert.NotNull(candidate.CommandTemplate);
@@ -38,6 +42,9 @@ public sealed class ConquestLifecycleRegressionTests
     {
         var result = await Conquer(State(handCount: handCount));
         Assert.Null(result.State.PendingHandChoice);
+        Assert.DoesNotContain(result.Events, e => e.Kind is "CARD_DRAWN" or "CARD_DISCARDED");
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Equal(new[] { "DRAW1" }, result.State.PlayerZones["P1"].Hand);
         Assert.Equal(handCount, result.State.PlayerZones["P1"].Graveyard.Count);
     }
@@ -58,6 +65,9 @@ public sealed class ConquestLifecycleRegressionTests
         var result = await Conquer(State() with {
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.ScoreGainedThisTurn("BF", "P2")] });
         Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.NotNull(result.State.PendingHandChoice);
     }
 
@@ -97,6 +107,10 @@ public sealed class ConquestLifecycleRegressionTests
         var result = await Resolve(state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations,
             UntilEndOfTurnEffects = [..state.UntilEndOfTurnEffects, BattlefieldTaskMarkers.SpellDuelCompleted("BF")] }, "P1",
             new DeclareBattleCommand("BF", ["UNIT"], ["DEFENDER"], ["COMBAT_ASSIGNMENT"]));
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DISCARDED");
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.NotNull(result.State.PendingHandChoice);
         Assert.Equal(3, result.State.PlayerZones["P1"].Hand.Count);
         Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DISCARDED");
@@ -106,6 +120,9 @@ public sealed class ConquestLifecycleRegressionTests
     public async Task HandChoiceRejectsOpponentIllegalAndStaleInputsWithoutChangingState()
     {
         var pending = await Conquer(State());
+        Assert.Null(pending.State.PendingHandChoice);
+        Assert.Single(pending.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        pending = await OfficialGraveyardRecastTests.Top(pending.State);
         var choice = pending.State.PendingHandChoice!;
         foreach (var (player, command) in new[] {
             ("P2", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H2"])),
