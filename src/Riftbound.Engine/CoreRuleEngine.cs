@@ -7336,7 +7336,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != ability.RequiredTargetCount
             || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)
-                || IsLegendUnitEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
+                || IsLegendUnitEffect(ability.EffectKind) || IsLegendEquipmentReadyEffect(ability.EffectKind))
+                && targetObjectIds.Count != command.TargetObjectIds.Count
+            || IsLegendEquipmentReadyEffect(ability.EffectKind)
+                && targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7409,6 +7412,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (ability.RemovesSourceEmpowerAsCost && !sourceState.IsEmpowered)
             return RejectWithCorePrompts(state, "此技能需要解除来源的强化。", ErrorCodes.InsufficientCost);
+        if (ability.RequiresSourceEmpowered && !sourceState.IsEmpowered)
+            return RejectWithCorePrompts(state, "此技能仅在来源已强化时可用。", ErrorCodes.InvalidTarget);
 
         if (ability.RequiresPlayedAnotherCardThisTurn
             && !ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId))
@@ -7467,6 +7472,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
             return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
+        if (ability.RequiresAnyEquipmentTarget && targetObjectIds.Any(id => !IsLegendEquipmentReadyTarget(state, intent.PlayerId, id)))
+            return RejectWithCorePrompts(state, "请选择符合范围的公开装备。", ErrorCodes.InvalidTarget);
 
         if (ability.RequiresArmamentSecondTarget
             && (!state.CardObjects.TryGetValue(targetObjectIds[0], out var attachmentHost)
@@ -7479,7 +7486,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var spellshieldTax = ability.RequiresAnyUnitTarget
+        var spellshieldTax = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget
             ? ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targetObjectIds, out _)
             : 0;
         var totalPowerCost = checked(ability.PowerCost + spellshieldTax);
@@ -7655,6 +7662,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (IsLegendUnitEffect(ability.EffectKind))
             return QueueLegendUnitEffect(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, spellshieldTax, events);
+
+        if (IsLegendEquipmentReadyEffect(ability.EffectKind))
+            return QueueLegendEquipmentReady(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, spellshieldTax, events);
 
@@ -7918,6 +7930,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId),
+                "未来守护者传奇装备活跃技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.ReadyEquipment, RequiresAnyEquipmentTarget: true),
+            LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId),
+                "未来守护者传奇双装备活跃技能", 1, 0, "SPEND_MANA:1", 2, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.ReadyEquipment, RequiresAnyEquipmentTarget: true, RequiresSourceEmpowered: true),
             LegendActionAbilityCatalog.MelLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.MelLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
@@ -19041,7 +19063,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null && resolvedItem.LegendEquipmentReady is null ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
@@ -24004,6 +24026,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
         if (stackItem.LegendUnitEffect is not null) return ResolveLegendUnitEffect(state, stackItem);
+        if (stackItem.LegendEquipmentReady is not null) return ResolveLegendEquipmentReady(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
@@ -34553,12 +34576,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string GrantedCombatKeyword = "",
         bool RequiresAnyUnitTarget = false,
         bool RemovesSourceEmpowerAsCost = false,
-        int PowerModifierAmount = 0);
+        int PowerModifierAmount = 0,
+        bool RequiresAnyEquipmentTarget = false,
+        bool RequiresSourceEmpowered = false);
 
     private static class LegendAbilityEffectKinds
     {
         public const string UnitPowerModifier = "LEGEND_UNIT_POWER_MODIFIER";
         public const string ReadyUnit = "LEGEND_READY_UNIT";
+        public const string ReadyEquipment = "LEGEND_READY_EQUIPMENT";
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";

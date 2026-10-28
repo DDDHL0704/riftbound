@@ -24578,6 +24578,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
             if (!CoreRuleEngine.ValidLegendUnitEffect(state, item)) errors.Add("invalid captured legend unit effect");
+            if (!CoreRuleEngine.ValidLegendEquipmentReady(state, item)) errors.Add("invalid captured legend equipment effect");
         }
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
@@ -25361,7 +25362,7 @@ public static partial class MatchRecoveryValidator
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
                 || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
-                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.EmpowerOtherObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
+                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.EmpowerOtherObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
@@ -27665,6 +27666,9 @@ public static partial class MatchRecoveryValidator
             if (stackItem.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, stackItem))
                 foreach (var unit in ready.Units)
                     targetReferences.Add(unit.ObjectId);
+            if (stackItem.LegendEquipmentReady is { TargetTokenFactories: { } equipmentTokens }
+                && CoreRuleEngine.ValidLegendEquipmentReady(authoritativeState, stackItem))
+                foreach (var id in equipmentTokens.Keys) targetReferences.Add(id);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
                 && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
             {
@@ -32478,6 +32482,9 @@ public static partial class MatchRecoveryValidator
                 if (original.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, original))
                     foreach (var unit in ready.Units)
                         targetReferences.Add(unit.ObjectId);
+                if (original.LegendEquipmentReady is { TargetTokenFactories: { } equipmentTokens }
+                    && CoreRuleEngine.ValidLegendEquipmentReady(authoritativeState, original))
+                    foreach (var id in equipmentTokens.Keys) targetReferences.Add(id);
                 if (VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN"))
                     targetReferences.Add("HIDDEN");
                 if (CardBehaviorRegistry.TryGetByEffectKind(original.EffectKind, out var behavior)
