@@ -59,6 +59,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(current.CardNo, historical.CardNo);
         Assert.Equal(current.ObjectGeneration, historical.ObjectGeneration);
         Assert.Equal(current.CopyFaceTransitions, historical.CopyFaceTransitions);
+        Assert.Empty(ComponentErrors(game.State));
         var validFrame = VayneRecoveryFrame(initial, game, game.State);
         Assert.Empty(validFrame.ValidationErrors);
         var validReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, validFrame.Commands, game.State,
@@ -75,12 +76,22 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var forged = game.State with { StackItems = game.State.StackItems.Select(i =>
             i.StackItemId == item.StackItemId ? forgedItem : i).ToArray() };
         var frame = VayneRecoveryFrame(initial, game, forged);
-        var componentErrors = MatchRecoveryValidator.ValidateComponentStateAndViews(forged, frame.PlayerViews, frame.SpectatorReplayFrame);
+        var componentErrors = ComponentErrors(forged);
         var forgedReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands, forged,
             new CoreRuleEngine(), default, JournalRoundTrip(frame.Events));
         Assert.False(forgedReplay.IsMatch);
         Assert.Contains(componentErrors, e => e.Contains("Mighty transition", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(frame.ValidationErrors, e => e.Contains("Mighty transition", StringComparison.OrdinalIgnoreCase));
         Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+
+        static IReadOnlyList<string> ComponentErrors(MatchState state)
+        {
+            var snapshots = ResolutionResult.BuildSnapshots(state);
+            var prompts = ResolutionResult.BuildPrompts(state);
+            var views = state.Seats.Keys.ToDictionary(id => id,
+                id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+            return MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator);
+        }
     }
 }
