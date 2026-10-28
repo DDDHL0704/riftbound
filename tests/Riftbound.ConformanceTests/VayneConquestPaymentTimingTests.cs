@@ -258,9 +258,10 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     {
         var (initial, game, settled) = await OpenVaynePaymentTimingBattle(mana: 2, treeSecond: true);
         Assert.DoesNotContain(settled.Events, e => e.Kind is "COST_PAID" or "UNIT_RETURNED_TO_HAND");
-        if (game.State.TriggerQueue.Count > 0)
+        if (game.State.PendingPayment is null && game.State.PendingCardChoice is null && game.State.TriggerQueue.Count > 0)
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
-        var represented = game.State.StackItems.Where(s => s.SourceObjectId == AttackerObjectId).Sum(s => s.EffectRepeatCount);
+        var represented = game.State.TriggerQueue.Count(t => t.SourceObjectId == AttackerObjectId)
+            + game.State.StackItems.Where(s => s.SourceObjectId == AttackerObjectId).Sum(s => s.EffectRepeatCount);
         if (game.State.PendingPayment is { ResolvingStackItemId: null, Reason: { } reason }
             && reason.EndsWith("|" + AttackerObjectId, StringComparison.Ordinal)) represented++;
         Assert.Equal(2, represented);
