@@ -10422,9 +10422,13 @@ internal static class ActionPromptBuilder
                 if (cost.Exhaust) costLabels.Add("横置");
                 if (requiresAdditional) costLabels.Add(cost.AdditionalCost);
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
-                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
+                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower")
+                    .Concat(PromptRenektonPaymentChoices(state, playerId)
+                        .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                            "传奇支付资源行动；其符能费用与强化费用分别核对")))
+                    .ToArray();
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
-                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, choices);
+                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
                 requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
                     mana, cost.Power, 0, cost.TypedPower, 0, 0, "无目标",
                     new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), additionalCosts, choices, byChoice,
@@ -11976,6 +11980,12 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var choices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
+        return ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
+        MatchState state, string playerId, IReadOnlyList<ActionPromptChoiceDto> choices)
+    {
         var metadata = ActivateAbilityPaymentResourcePowerByChoice(state, choices)
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         foreach (var legend in PromptRenektonPaymentChoices(state, playerId))
@@ -12058,13 +12068,15 @@ internal static class ActionPromptBuilder
         var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
         if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) < requirement.ManaCost)
         {
-            if (manaPurpose != ManaPaymentPurpose.UnitAbility || !hasAbility
-                || !SupportsInlineRenektonAbilityPayment(ability)) return false;
+            var supportsLegend = requirement.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal)
+                || hasAbility && SupportsInlineRenektonAbilityPayment(ability);
+            if (manaPurpose != ManaPaymentPurpose.UnitAbility || !supportsLegend) return false;
             return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
             {
                 var remaining = choice.RemainingPool with {
                     UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
-                var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+                var purpose = hasAbility ? CoreRuleEngine.PowerPurposeForActivatedAbility(ability) : PowerPaymentPurpose.Other;
+                var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, purpose);
                 return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= requirement.ManaCost
                     && new RunePaymentReachability(payablePower, choice.RemainingRunePower, choice.RemainingRuneCapacity)
                         .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
