@@ -20,8 +20,36 @@ public sealed record BattlefieldConquestMillPublicContext(
     [property: JsonRequired] string ControllerId,
     [property: JsonRequired] long ConquestTick);
 
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record UnitConquestReturnContext(
+    [property: JsonRequired] ObjectBinding Source,
+    [property: JsonRequired] string CardNo,
+    [property: JsonRequired] string ControllerId,
+    [property: JsonRequired] string BattlefieldObjectId,
+    [property: JsonRequired] long ConquestTick,
+    [property: JsonRequired] int Occurrence,
+    [property: JsonRequired] long FaceRevision,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null);
+
 public sealed partial class CoreRuleEngine
 {
+    internal static TriggerSpec? UnitConquestReturnSpec(string? cardNo)
+        => UnitConquestTriggerSpecRules.TryGetTrigger(cardNo,
+            UnitConquestTriggerSpecRules.IsUnitConquestPayReturnSelfToHandTrigger, out var spec) ? spec : null;
+
+    internal static bool ValidUnitConquestReturnContext(MatchState state, UnitConquestReturnContext context,
+        string effect, string source, string controller, string? cardNo)
+        => context.Source is not null && !string.IsNullOrWhiteSpace(context.Source.ObjectId)
+            && context.Source.Generation >= 0 && context.Source.ObjectId == source
+            && !string.IsNullOrWhiteSpace(context.ControllerId) && context.ControllerId == controller
+            && state.Seats.ContainsKey(controller) && !string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
+            && state.BattlefieldStates.ContainsKey(context.BattlefieldObjectId)
+            && context.ConquestTick >= 0 && context.ConquestTick <= state.Tick
+            && context.Occurrence >= 0 && context.FaceRevision >= 0 && cardNo == context.CardNo
+            && UnitConquestReturnSpec(context.CardNo) is { } spec && RuntimeTriggerEffectKind(spec) == effect
+            && PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision,
+                context.ConquestTick, context.TokenFactoryCardNo);
+
     // Both combat and unopposed control changes must dispatch the same conquest skills.
     private static MatchState ResolveConquestTriggerEffects(
         MatchState state,
