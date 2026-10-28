@@ -24200,6 +24200,8 @@ public static partial class MatchRecoveryValidator
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
                     || field.Kind == CoreRuleEngine.AttackAreaDamageKind && trigger.TriggeredByEventKind is not ("BATTLE_DECLARED" or "BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED")
+                    || field.Kind == CoreRuleEngine.EmpoweredAttackDestroyKind && (trigger.SourceCardNo != field.CardNo
+                        || trigger.TriggeredByEventKind is not ("BATTLE_DECLARED" or "BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED"))
                     || field.Kind == CoreRuleEngine.PaidUnitStunKind && (field.PaidUnitTrigger is not { CostPaid: false } paid
                         || trigger.SourceCardNo != field.CardNo || (paid.Event == "PLAY"
                             ? trigger.TriggeredByEventKind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")
@@ -24223,6 +24225,9 @@ public static partial class MatchRecoveryValidator
                             || pendingPaidUnit.ResolvingStackItemId != item.StackItemId))
                 || field.Kind == CoreRuleEngine.EmpoweredBanishKind && (!item.StackItemId.EndsWith("-" + field.EmpoweredTransition!.RuleTextInstanceId, StringComparison.Ordinal)
                     || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1 || item.Destination.Length != 0
+                    || item.TargetGenerations is null && item.TargetObjectIds.Count != 0)
+                || field.Kind == CoreRuleEngine.EmpoweredAttackDestroyKind && (item.OptionalCosts.Count != 0 || item.DamageAmount != 0
+                    || item.EffectRepeatCount != 1 || item.Destination.Length != 0
                     || item.TargetGenerations is null && item.TargetObjectIds.Count != 0)
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
                 || field.Kind is "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.StunReadyPowerKind or "BATTLE_DOUBLE_SELF_ATTACK" or "BATTLE_DOUBLE_SELF_DEFEND" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
@@ -34118,12 +34123,12 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
+                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

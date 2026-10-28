@@ -11950,6 +11950,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
             var queue = CaptureAttackDamageTriggers(attackState, attackerObjectIds, battlefieldId).ToList();
             queue.AddRange(CaptureAttackAreaDamageTriggers(attackState, attackerObjectIds, battlefieldId));
+            queue.AddRange(CaptureEmpoweredAttackDestroyTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CapturePaidUnitAttackStuns(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackDeckPlayTriggers(attackState, attackerObjectIds, battlefieldId, TimingStates.NeutralClosed)
                 .Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
@@ -19001,7 +19002,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.ConquestScore is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind)
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.ConquestScore is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or EmpoweredAttackDestroyKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -32740,6 +32741,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var removalDescription = destroyReason switch
             {
                 "DESTROY_COST" => "摧毁费用",
+                "SKILL_EFFECT" => "技能效果",
                 "EPHEMERAL_TURN_START" => "瞬息触发技能",
                 "DAMAGE_TRIGGERED_DESTROY" => "伤害触发效果",
                 _ => "致命伤害"

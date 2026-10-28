@@ -213,6 +213,7 @@ public static class TriggerKinds
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
+    public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";

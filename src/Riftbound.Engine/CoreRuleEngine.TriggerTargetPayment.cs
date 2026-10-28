@@ -17,7 +17,7 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && (field.Kind is EmpoweredBanishKind or PaidUnitStunKind || IsStunObserverKind(field.Kind)
+                || item.FieldContext is { } field && (field.Kind is EmpoweredBanishKind or EmpoweredAttackDestroyKind or PaidUnitStunKind || IsStunObserverKind(field.Kind)
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
                 ? payment.ManaCost == PaidUnitStunSpec(paid.CardNo)!.ManaCost
                     && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
                 : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0))
-            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.FieldContext?.Kind != EmpoweredBanishKind || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.FieldContext?.Kind is not (EmpoweredBanishKind or EmpoweredAttackDestroyKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
