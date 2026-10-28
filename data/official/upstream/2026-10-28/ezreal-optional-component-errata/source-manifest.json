@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "authority": "Current official CN exact-print API errata, corroborated by CN356.4.c explicit Ezreal example.",
+  "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-27T22:35:49.342844+00:00",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "伊泽瑞尔",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestSha256": "9035087262c693d63e29f919fb0c7dcf1b9ef165072ce7ed29e9e1017a297c61",
+  "responseSha256": "b4d9e3bc3831c57771f97fc5157e3601621fae56251d3bc59af46bf82ab2a735",
+  "records": [
+    {
+      "id": 33242,
+      "cardNo": "SFD·149/221",
+      "path": "data/official/upstream/2026-10-28/ezreal-optional-component-errata/33242-record.json",
+      "sha256": "e1ec54e9db895c0207af923215b954b0aef2852b74a4b6c08b20abd906a7777a",
+      "completeOfficialRecordAndPrintedTextAndErrataRetained": true,
+      "faceUrl": "https://cdn.playloltcg.com/lol/card/20251217/67e5a92502af48c7bd72112759867ead.png",
+      "faceSha256": "02484ddacef0aa9e1c2fa11c811a0496e3a0e01a40e074562818692faa1f7985"
+    },
+    {
+      "id": 33243,
+      "cardNo": "SFD·149a/221",
+      "path": "data/official/upstream/2026-10-28/ezreal-optional-component-errata/33243-record.json",
+      "sha256": "71b538e24f27a078c7a092e2a61508ac274074bd27fa744b1e292ef0f4d96a7a",
+      "completeOfficialRecordAndPrintedTextAndErrataRetained": true,
+      "faceUrl": "https://cdn.playloltcg.com/lol/card/20251217/16869728c5a1400e9c170a9c6ce70158.png",
+      "faceSha256": "3ce0a67c17fcb0fcafa7b543460d81581db728fdc82b037ded3659d37228b4fb"
+    }
+  ],
+  "coreSource": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "versionDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "physicalPage": 50,
+    "clauses": [
+      "356.4.c",
+      "356.4.c.1",
+      "356.4.c.2",
+      "356.4.f.1"
+    ]
+  },
+  "faqSource": {
+    "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+    "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+    "physicalPage": 20,
+    "scope": "Eligible optional additional fees include Haste/Echo; excludes mandatory Ward and ability activation costs."
+  },
+  "publicationDate": null,
+  "individualPrintEffectiveDate": null,
+  "individualPrintDateOrCurrentFormat": "UNKNOWN",
+  "default1089SnapshotModified": false,
+  "registryOrCardCountsChanged": false,
+  "retainedSourcePacket": {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-payment-20261023/var/qa/mandatory-optional-reductions-20261028/complete-current-mandatory-discount-gap-v5.json",
+    "sha256": "8878c923602217e3822397586675f25c3cb5c2d16263cf7ef7e5f5894e999806"
+  }
+}

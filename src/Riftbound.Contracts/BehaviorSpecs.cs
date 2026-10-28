@@ -354,6 +354,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string ControllerRuneCallExtraExhausted = "CONTROLLER_RUNE_CALL_EXTRA_EXHAUSTED";
     public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";

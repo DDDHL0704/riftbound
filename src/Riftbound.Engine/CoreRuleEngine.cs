@@ -195,6 +195,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (state.PendingEffectPlay is not null)
             return Complete(ResolveEffectPlayCommand(state, intent, command));
+        if (command is RefusePlayPaymentCommand)
+            return Complete(RejectWithCorePrompts(state, "当前没有效果要求的再次打出。", ErrorCodes.PhaseNotAllowed));
 
         if (TryResolveP0ContractCommand(state, intent, command, out var p0ContractResult))
         {
@@ -3258,7 +3260,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -18841,7 +18843,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.SourceObjectId,
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null ? resolvedItem.SourceObjectId
+                        : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
                     ["targetObjectIds"] = resolvedItem.TargetObjectIds.ToArray()
@@ -23866,6 +23869,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
+        if (stackItem.BeginningRune is not null) return ResolveBeginningRune(state, stackItem);
         if (stackItem.BeginningDraw is not null) return ResolveBeginningDraw(state, stackItem);
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
@@ -24697,7 +24701,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                         ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
                     }));
-                if (runeCallResult.CalledRuneObjectIds.Count < behavior.RuneCallCount
+                if (runeCallResult.OriginalCalledRuneObjectIds.Count < behavior.RuneCallCount
                     && behavior.DrawCountIfRuneCallFails > 0)
                 {
                     drawCountOverride = behavior.DrawCountIfRuneCallFails;
@@ -31207,42 +31211,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         int runeCallCount)
-    {
-        if (runeCallCount <= 0
-            || !playerZones.TryGetValue(playerId, out var zones))
-        {
-            return new RuneCallResult([]);
-        }
-
-        var calledRunes = TakeControlledRuneDeckPrefix(
-            cardObjects,
-            playerId,
-            zones.RuneDeck,
-            runeCallCount);
-        if (calledRunes.Length == 0)
-        {
-            return new RuneCallResult([]);
-        }
-
-        playerZones[playerId] = zones with
-        {
-            RuneDeck = zones.RuneDeck.Skip(calledRunes.Length).ToArray(),
-            Base = zones.Base.Concat(calledRunes).ToArray()
-        };
-
-        foreach (var runeObjectId in calledRunes)
-        {
-            var runeState = cardObjects.TryGetValue(runeObjectId, out var existingRuneState)
-                ? existingRuneState
-                : new CardObjectState(runeObjectId);
-            cardObjects[runeObjectId] = runeState with
-            {
-                IsExhausted = true
-            };
-        }
-
-        return new RuneCallResult(calledRunes);
-    }
+        => ApplyRuneCall(playerZones, cardObjects, playerId, runeCallCount, originalExhausted: true);
 
     private static string[] TakeControlledRuneDeckPrefix(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -34496,7 +34465,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         long RngCursor);
 
     private sealed record RuneCallResult(
-        IReadOnlyList<string> CalledRuneObjectIds);
+        IReadOnlyList<string> OriginalCalledRuneObjectIds,
+        IReadOnlyList<string> ExtraCalledRuneObjectIds)
+    {
+        public IReadOnlyList<string> CalledRuneObjectIds =>
+            OriginalCalledRuneObjectIds.Concat(ExtraCalledRuneObjectIds).ToArray();
+    }
 
     private sealed record FieldRemovalResult(
         string OwnerPlayerId,
