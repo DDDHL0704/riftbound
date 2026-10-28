@@ -11925,7 +11925,8 @@ internal static class ActionPromptBuilder
 
     private static bool SupportsInlineRenektonAbilityPayment(P4ActivatedAbilityDefinition ability)
         => ability.AbilityId is P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
-            or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId;
+            or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId
+            or P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId or P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId;
 
     private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
         MatchState state, string playerId, string reason)
