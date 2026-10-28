@@ -14,6 +14,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(1, payment.ManaCost);
+        if (payment.PaymentWindow == "TRIGGER_COST_CONFIRMATION")
+            Assert.Equal(new[] { "PAY", "DECLINE" }, payment.LegalPaymentChoiceIds);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(1, game.State.RunePools["P1"].Mana);
 
