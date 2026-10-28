@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cardInfo, cardName, COLOR_HEX, useCards } from "../game/cards";
-import { copyLimit, deckProblems, deleteDeck, exportDeck, FIELDS, fitsLegend, MAIN_CATEGORIES, MAIN_MIN, RUNES, saveDeck, type CustomDeck } from "../game/decks";
+import { copyLimit, deckProblems, deleteDeck, exportDeck, isBanned, FIELDS, fitsLegend, MAIN_CATEGORIES, MAIN_MIN, RUNES, saveDeck, type CustomDeck } from "../game/decks";
 import type { CardInfo } from "../game/types";
 
 type Tab = "legend" | "champion" | "fields" | "runes" | "main";
@@ -123,11 +123,13 @@ export function DeckBuilder({ initial, onClose }: { initial: CustomDeck; onClose
 
   const tile = (no: string, opts: { on?: boolean; count?: number; onClick: () => void; onMinus?: () => void; dim?: boolean }) => {
     const c = cardInfo(no);
+    const banned = isBanned(no);
     return (
-      <div key={no} className={`db__tile${opts.on ? " is-on" : ""}${opts.dim ? " is-dim" : ""}`} onMouseEnter={() => setPeek(no)} onMouseLeave={() => setPeek(null)}>
-        <button className="db__art" onClick={opts.onClick} onContextMenu={(e) => (e.preventDefault(), opts.onMinus?.())} title={c?.name}>
+      <div key={no} className={`db__tile${opts.on ? " is-on" : ""}${opts.dim || banned ? " is-dim" : ""}`} onMouseEnter={() => setPeek(no)} onMouseLeave={() => setPeek(null)}>
+        <button className="db__art" onClick={banned && !opts.on ? undefined : opts.onClick} onContextMenu={(e) => (e.preventDefault(), opts.onMinus?.())} title={c?.name}>
           {c?.image ? <img src={c.image} alt={c?.name ?? no} loading="lazy" /> : <span>{c?.name ?? no}</span>}
           {opts.count ? <b className="db__count">×{opts.count}</b> : null}
+          {banned && <em className="db__ban">禁卡</em>}
         </button>
         {opts.onMinus && opts.count ? (
           <button className="db__minus" onClick={opts.onMinus} aria-label={`移除一张 ${c?.name}`}>

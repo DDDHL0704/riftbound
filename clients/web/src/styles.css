@@ -633,6 +633,19 @@ button {
   font-family: var(--font-num);
   font-size: 15px;
 }
+.db__ban {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--ember);
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
 .db__minus {
   position: absolute;
   left: 6px;
@@ -2529,7 +2542,91 @@ button {
   font-weight: 600;
   color: var(--muted);
 }
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+}
+.guide__hole {
+  position: fixed;
+  border: 2px solid var(--brass);
+  border-radius: 14px;
+  /* The page outside the outlined region is dimmed by this one huge shadow. */
+  box-shadow: 0 0 0 9999px rgba(8, 6, 14, 0.72), 0 0 30px rgba(240, 181, 74, 0.5);
+  transition: all 0.25s var(--ease-out);
+  pointer-events: none;
+}
+.guide__note,
+.settings {
+  position: fixed;
+  width: 340px;
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: rgba(24, 19, 36, 0.98);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.65);
+  font-size: 13px;
+}
+.guide__note h3,
+.settings h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.guide__note p {
+  margin: 0;
+}
+.guide__step {
+  font-family: var(--font-num);
+  color: var(--brass);
+  font-size: 12px;
+}
+.guide__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.settings {
+  /* Opens just above the footer button that toggles it. */
+  position: absolute;
+  right: 12px;
+  bottom: calc(100% + 8px);
+  z-index: 110;
+}
+.settings h4 {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.settings__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.settings__row input[type="range"] {
+  flex: 1;
+  accent-color: var(--brass);
+}
+.settings__keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+.settings__keys dt {
+  font-family: var(--font-num);
+  color: var(--brass);
+}
+.settings__keys dd {
+  margin: 0;
+}
 .rail__foot {
+  grid-row: 6;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2672,6 +2769,8 @@ button {
 }
 
 .log {
+  /* The record and the footer keep the last two rows however many panels sit above them. */
+  grid-row: 5;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;

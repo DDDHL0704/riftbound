@@ -6,6 +6,7 @@ import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/ty
 import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
 import { cardInfo } from "../game/cards";
+import { guideSeen, SettingsPanel, TableGuide } from "./Guide";
 
 type RailProps = {
   state: ClientState;
@@ -28,6 +29,15 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
   const myTurn = (snapshot.timing.turnPlayerId || snapshot.activePlayerId) === meId;
   const actionable = Boolean(prompt?.actionable);
   const [confirmSurrender, setConfirmSurrender] = useState(false);
+  // The tour opens once per browser on the first table; both can be reopened from the footer.
+  // It waits until the opening hands are settled, so it never covers the mulligan.
+  const [panel, setPanel] = useState<"settings" | "guide" | null>(null);
+  const toured = useRef(guideSeen());
+  useEffect(() => {
+    if (toured.current || type === "MULLIGAN" || snapshot.timing.phase === "MULLIGAN" || snapshot.timing.roomStatus !== "IN_PROGRESS") return;
+    toured.current = true;
+    setPanel("guide");
+  }, [type, snapshot.timing.phase, snapshot.timing.roomStatus]);
 
   return (
     <aside className="rail" onClick={(e) => e.stopPropagation()}>
@@ -57,6 +67,11 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
 
       <footer className="rail__foot">
         <span className="muted">房间 {state.roomId}</span>
+        <button className="btn btn--ghost btn--small" onClick={() => setPanel(panel === "settings" ? null : "settings")} aria-expanded={panel === "settings"}>
+          设置
+        </button>
+        {panel === "settings" && <SettingsPanel onClose={() => setPanel(null)} onGuide={() => setPanel("guide")} />}
+        {panel === "guide" && <TableGuide onClose={() => setPanel(null)} />}
         {snapshot.timing.roomStatus === "IN_PROGRESS" &&
           (confirmSurrender ? (
             <span className="rail__confirm">

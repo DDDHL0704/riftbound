@@ -71,6 +71,17 @@ export function newDeckFrom(base?: PreconstructedDeck): CustomDeck {
   };
 }
 
+// China standard ban list, as enforced by the server (src/Riftbound.Engine/OfficialDeckFormat.cs,
+// CN-STANDARD-2026-07-24, official PDF published 2026-07-17). Keep the two in step.
+const BANNED_NAMES = new Set(["预判攻势", "战或逃", "废料堆", "劫掠船巷", "幻梦之树", "力量方尖碑", "隐秘追踪者", "荣耀竞技场", "攀圣长阶"]);
+
+export function isBanned(cardNo: string) {
+  const c = cardInfo(cardNo);
+  if (!c) return false;
+  const name = c.name?.trim() ?? "";
+  return BANNED_NAMES.has(name) || (name === "德莱文" && c.sub?.trim() === "血斧飞旋");
+}
+
 const isExclusive = (c?: CardInfo) => Boolean(c?.category?.startsWith("专属"));
 const isUnique = (c?: CardInfo) => c?.limit === 1 || Boolean(c?.effect?.includes("{{唯我}}"));
 export const MAIN_CATEGORIES = new Set(["单位", "英雄单位", "装备", "法术", "专属单位", "专属装备", "专属法术"]);
@@ -120,6 +131,8 @@ export function deckProblems(deck: PreconstructedDeck): string[] {
     const off = [...deck.mainDeck, ...deck.runeDeck, ...deck.battlefields].filter((no) => !fitsLegend(no, deck.legendCardNo));
     if (off.length) out.push(`有 ${new Set(off).size} 种牌的颜色不属于所选传奇。`);
   }
+  const banned = [...new Set([deck.legendCardNo, deck.championCardNo, ...deck.mainDeck, ...deck.runeDeck, ...deck.battlefields].filter((no) => no && isBanned(no)))];
+  for (const no of banned) out.push(`《${cardInfo(no)?.name}》是中国区标准赛制禁卡。`);
   const fieldNames = deck.battlefields.map((no) => cardInfo(no)?.name);
   if (new Set(fieldNames).size !== fieldNames.length) out.push("战场不能重名。");
   return out;

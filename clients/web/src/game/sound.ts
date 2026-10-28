@@ -13,6 +13,14 @@ let enabled = (() => {
     return true;
   }
 })();
+let volume = (() => {
+  try {
+    const v = Number(localStorage.getItem(KEY + ".volume"));
+    return Number.isFinite(v) && v > 0 && v <= 1 ? v : 0.8;
+  } catch {
+    return 0.8;
+  }
+})();
 const listeners = new Set<() => void>();
 
 export function soundEnabled() {
@@ -29,6 +37,31 @@ export function setSoundEnabled(on: boolean) {
   listeners.forEach((fn) => fn());
 }
 
+export function soundVolume() {
+  return volume;
+}
+
+export function setSoundVolume(v: number) {
+  volume = Math.min(1, Math.max(0.05, v));
+  if (master) master.gain.value = volume;
+  try {
+    localStorage.setItem(KEY + ".volume", String(volume));
+  } catch {
+    /* the choice just isn't remembered */
+  }
+  listeners.forEach((fn) => fn());
+}
+
+export function useSoundVolume() {
+  return useSyncExternalStore(
+    (fn) => {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+    () => volume,
+  );
+}
+
 export function useSoundEnabled() {
   return useSyncExternalStore(
     (fn) => {
@@ -40,9 +73,16 @@ export function useSoundEnabled() {
 }
 
 let ctx: AudioContext | null = null;
+// Every cue plays through this node, so the volume setting scales them all.
+let master: GainNode | null = null;
 function audio(): AudioContext | null {
   if (!enabled || typeof AudioContext === "undefined") return null;
-  ctx ??= new AudioContext();
+  if (!ctx) {
+    ctx = new AudioContext();
+    master = ctx.createGain();
+    master.gain.value = volume;
+    master.connect(ctx.destination);
+  }
   // Browsers start the context suspended until the page has seen a user gesture.
   if (ctx.state === "suspended") void ctx.resume();
   return ctx.state === "running" ? ctx : null;
@@ -58,7 +98,7 @@ function tone(a: AudioContext, at: number, freq: number, dur: number, gain: numb
   env.gain.setValueAtTime(0.0001, at);
   env.gain.exponentialRampToValueAtTime(gain, at + 0.01);
   env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-  osc.connect(env).connect(a.destination);
+  osc.connect(env).connect(master ?? a.destination);
   osc.start(at);
   osc.stop(at + dur + 0.02);
 }
@@ -75,7 +115,7 @@ function noise(a: AudioContext, at: number, dur: number, gain: number, freq: num
   filter.frequency.value = freq;
   const env = a.createGain();
   env.gain.value = gain;
-  src.connect(filter).connect(env).connect(a.destination);
+  src.connect(filter).connect(env).connect(master ?? a.destination);
   src.start(at);
 }
 

@@ -34,6 +34,12 @@ const STEP = async () => {
   const title = document.querySelector(".rail__title")?.textContent ?? "";
   const turn = document.querySelector(".rail__turn")?.textContent ?? "";
   if (document.querySelector(".result")) return "RESULT";
+  // The first table in a fresh browser opens a tour; a player would read it and skip it.
+  const skipGuide = [...document.querySelectorAll(".guide button")].find((b) => b.textContent === "跳过");
+  if (skipGuide) {
+    skipGuide.click();
+    return "guide:skip";
+  }
 
   // 1. A half-built selection on the board.
   const bar = document.querySelector(".pickbar:not(.pickbar--leaving)");
