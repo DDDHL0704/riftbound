@@ -42,11 +42,20 @@ public sealed class MoonveilHiddenTargetResponseTests
             var retained = Assert.Single(changed.StackItems, i => i.StackItemId == pending.StackItemId);
             Assert.Equal(generation, retained.TargetGenerations!["EQUIP"]);
             var opponent = ThreeBattlefieldTimingProbe.Other(player);
-            var view = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(changed)[opponent],
-                new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            var row = Assert.Single(view.GetProperty("stack").EnumerateArray(),
-                e => e.GetProperty("stackItemId").GetString() == pending.StackItemId);
-            Assert.Equal("HIDDEN", Assert.Single(row.GetProperty("targetObjectIds").EnumerateArray()).GetString());
+            var snapshots = ResolutionResult.BuildSnapshots(changed);
+            var prompts = ResolutionResult.BuildPrompts(changed);
+            var views = changed.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id,
+                changed.Tick, 0, snapshots[id], changed.Tick, 0, prompts[id]));
+            var spectator = MatchReplayRedactor.BuildSpectatorFrame(changed.RoomId, changed.Tick, 0, [], changed);
+            var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(changed, views, spectator);
+            Assert.True(errors.Count == 0, string.Join("; ", errors));
+            foreach (var snapshot in new[] { snapshots[opponent], spectator.SpectatorSnapshot })
+            {
+                var view = JsonSerializer.SerializeToElement(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                var row = Assert.Single(view.GetProperty("stack").EnumerateArray(),
+                    e => e.GetProperty("stackItemId").GetString() == pending.StackItemId);
+                Assert.Equal("HIDDEN", Assert.Single(row.GetProperty("targetObjectIds").EnumerateArray()).GetString());
+            }
             var after = new ThreeBattlefieldTimingProbe.Trace(changed, "moonveil-hidden-after-" + player);
             try
             {
