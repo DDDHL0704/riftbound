@@ -133,6 +133,9 @@ public sealed partial class CoreRuleEngine
         recastTriggers = recastTriggers.Concat(CaptureConquestTokens(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureUnitConquestReturns(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -308,21 +311,6 @@ public sealed partial class CoreRuleEngine
             winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
             rngCursor = drawApplication.RngCursor;
         }
-        foreach (var conqueringUnitId in conqueringUnitObjectIds.Distinct(StringComparer.Ordinal))
-        {
-            if (pendingPayment is not null) break;
-            if (TryOpenUnitConquestPayReturnSelfToHandPaymentWindow(
-                playerZones,
-                cardObjects,
-                playerId,
-                battlefieldId,
-                conqueringUnitId,
-                resolutionTick,
-                events,
-                out var unitConquestPayReturnSelfToHandPendingPayment))
-                pendingPayment = unitConquestPayReturnSelfToHandPendingPayment;
-        }
-
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         foreach (var objectId in cardObjects.Keys.Where(id => !originalObjectIds.Contains(id)))
         {
@@ -359,6 +347,62 @@ public sealed partial class CoreRuleEngine
         {
             SourceCardNo = battlefield.CardNo, EnqueuedAtTick = tick, BattlefieldConquestMill = context
         }];
+    }
+
+    internal static string UnitConquestReturnTriggerId(UnitConquestReturnContext context)
+        => $"UNIT-CONQUEST-RETURN:{context.ConquestTick}:{MatchStateHasher.HashValue(new {
+            context.Source, context.ControllerId, context.BattlefieldObjectId, context.Occurrence })}";
+
+    private static IEnumerable<TriggerQueueItemState> CaptureUnitConquestReturns(MatchState state, string controller,
+        string battlefield, IReadOnlyList<string> units, long tick)
+    {
+        foreach (var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        {
+            if (!TryGetUnitConquestPayReturnSelfToHandSource(state.CardObjects, state.PlayerZones, controller, id, out var source)
+                || string.IsNullOrWhiteSpace(source.CardNo)
+                || BattlefieldLocalRules.AtUnit(state, id)?.ObjectId != battlefield
+                || UnitConquestReturnSpec(source.CardNo) is not { } spec) continue;
+            var repeats = ResolveUnitConquestEffectRepeatCount(state.PlayerZones, state.CardObjects,
+                state.ObjectLocations, controller, battlefield, "BATTLEFIELD_CONQUERED");
+            for (var occurrence = 0; occurrence < repeats; occurrence++)
+            {
+                var context = new UnitConquestReturnContext(new(id, source.ObjectGeneration), source.CardNo,
+                    controller, battlefield, tick, occurrence, source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo);
+                yield return new TriggerQueueItemState(UnitConquestReturnTriggerId(context), controller, id,
+                    RuntimeTriggerEffectKind(spec), "BATTLEFIELD_CONQUERED") {
+                    SourceCardNo = source.CardNo, EnqueuedAtTick = tick, UnitConquestReturn = context };
+            }
+        }
+    }
+
+    private static StackResolutionResult ResolveUnitConquestReturn(MatchState state, StackItemState item)
+    {
+        var context = item.UnitConquestReturn!;
+        if (!ValidUnitConquestReturnContext(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)
+            || item.TriggerCost is null || !ValidTriggerCostReceipt(state, item))
+            throw new InvalidOperationException("Invalid confirmed unit conquest return.");
+        var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var ownerId = string.Empty;
+        var returned = cards.TryGetValue(context.Source.ObjectId, out var current)
+            && current.ObjectGeneration == context.Source.Generation && IsObjectOnField(zones, context.Source.ObjectId)
+            && TryReturnTargetToHand(zones, cards, context.Source.ObjectId, out ownerId, out _);
+        var events = new List<GameEvent>();
+        if (returned)
+        {
+            var payment = TriggerCostPayment(item);
+            events.Add(new("BATTLEFIELD_TRIGGER_RESOLVED", $"{item.ControllerId} 的征服回手来源单位返回手牌",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                    ["battlefieldId"] = context.BattlefieldObjectId, ["battlefieldObjectId"] = context.BattlefieldObjectId,
+                    ["trigger"] = item.EffectKind, ["sourceObjectId"] = item.SourceObjectId,
+                    ["returnedObjectId"] = item.SourceObjectId, ["ownerPlayerId"] = ownerId,
+                    ["paymentId"] = payment.PaymentId, ["paymentWindow"] = payment.PaymentWindow }));
+            events.Add(new("UNIT_RETURNED_TO_HAND", $"{item.SourceObjectId} 返回手牌",
+                new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
+                    ["targetObjectId"] = item.SourceObjectId, ["ownerPlayerId"] = ownerId, ["reason"] = item.EffectKind }));
+        }
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
     }
 
     internal static BattlefieldConquestMillPublicContext? PublicBattlefieldConquestMill(BattlefieldConquestMillContext? context)

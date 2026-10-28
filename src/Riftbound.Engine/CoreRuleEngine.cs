@@ -585,6 +585,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
             return ResolveTriggerTargetPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
+        if (pendingPayment.PaymentWindow == TriggerPaymentWindow && pendingPayment.ResolvingStackItemId is { } conquestItem
+            && state.StackItems.Any(item => item.StackItemId == conquestItem && item.UnitConquestReturn is not null))
+            return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.ResolvingStackItemId is not null)
             return ResolveInsightPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal))
@@ -5110,6 +5113,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         if (trigger.BattlefieldConquestMill is { } conquestMill)
             payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
+        if (trigger.UnitConquestReturn is { } conquestReturn)
+        {
+            payload["sourceGeneration"] = conquestReturn.Source.Generation;
+            payload["sourceFaceRevision"] = conquestReturn.FaceRevision;
+            payload["sourceCardNo"] = conquestReturn.CardNo;
+            payload["battlefieldObjectId"] = conquestReturn.BattlefieldObjectId;
+            payload["occurrence"] = conquestReturn.Occurrence;
+            if (conquestReturn.TokenFactoryCardNo is not null)
+                payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
+        }
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
         {
@@ -23807,6 +23820,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.MightySkill is not null) return ResolveMightySkill(state, stackItem);
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
         if (stackItem.BattlefieldConquestMill is not null) return ResolveBattlefieldConquestMill(state, stackItem);
+        if (stackItem.UnitConquestReturn is not null) return ResolveUnitConquestReturn(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
         if (stackItem.BeginningDraw is not null) return ResolveBeginningDraw(state, stackItem);
