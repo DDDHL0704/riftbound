@@ -10422,7 +10422,7 @@ internal static class ActionPromptBuilder
                 if (cost.Exhaust) costLabels.Add("横置");
                 if (requiresAdditional) costLabels.Add(cost.AdditionalCost);
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
-                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower")
+                var choices = RenektonAwareRecycleRuneChoices(state, playerId, "payment resource action: recycle rune for empower")
                     .Concat(PromptRenektonPaymentChoices(state, playerId)
                         .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
                             "传奇支付资源行动；其符能费用与强化费用分别核对")))
@@ -11908,15 +11908,18 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+        var acceptsLegend = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0);
+        var legendChoices = acceptsLegend ? PromptRenektonPaymentChoices(state, playerId) : [];
+        var hasLegend = legendChoices.Count > 0;
         var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
             || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
-                ? RecycleRunePaymentResourceChoices(state, playerId,
-                    "payment resource action: recycle rune while activating ability") : [];
-        var legends = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0)
-            ? PromptRenektonPaymentChoices(state, playerId)
-                .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
-                    "传奇支付资源行动；其符能费用与技能费用分别核对"))
-            : [];
+            || hasLegend
+                ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
+                    "payment resource action: recycle rune while activating ability")
+                : RecycleRunePaymentResourceChoices(state, playerId,
+                    "payment resource action: recycle rune while activating ability")) : [];
+        var legends = legendChoices.Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+            "传奇支付资源行动；其符能费用与技能费用分别核对"));
         return runes.Concat(legends).ToArray();
     }
 
@@ -11935,6 +11938,19 @@ internal static class ActionPromptBuilder
                 return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
             })
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> RenektonAwareRecycleRuneChoices(
+        MatchState state, string playerId, string reason)
+    {
+        var current = RecycleRunePaymentResourceChoices(state, playerId, reason);
+        if (PromptRenektonPaymentChoices(state, playerId).Count == 0) return current;
+        return current.Concat(CoreRuleEngine.RenektonRecyclableRuneActionIds(state, playerId).Select(actionId =>
+        {
+            var objectId = actionId[RecycleRunePaymentOptionalCostPrefix.Length..];
+            var choice = ObjectChoice(state, objectId, reason);
+            return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
+        })).DistinctBy(choice => choice.Id, StringComparer.Ordinal).ToArray();
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
@@ -14904,7 +14920,7 @@ internal static class ActionPromptBuilder
     {
         if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
             || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
-        return RecycleRunePaymentResourceChoices(state, playerId,
+        return RenektonAwareRecycleRuneChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .Concat(PromptRenektonPaymentChoices(state, playerId)
@@ -16048,6 +16064,8 @@ internal static class ActionPromptBuilder
             view["additionalCostChoices"] = requirement.AdditionalCostChoices;
             view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
         }
+        if (requirement.PaymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
+            view["paymentResourceOrderMatters"] = true;
         if (requirement.AbilityInstanceId is not null)
         {
             view["abilityInstanceId"] = requirement.AbilityInstanceId;
@@ -16445,6 +16463,8 @@ internal static class ActionPromptBuilder
         };
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
+        if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
+            requirement["paymentResourceOrderMatters"] = true;
         if (manaCost.EmpoweredSpellReduction > 0) requirement["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
         if (showPowerSources) requirement["availableWildcardSources"] = sourceBalances;
         if (reductionGroups.Count > 0)

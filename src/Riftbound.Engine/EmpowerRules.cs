@@ -175,24 +175,25 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         var runes = EmpowerRules.ControlledRunes(state, intent.PlayerId); var mana = EmpowerRules.Mana(ability.Spec, ability.Cost, runes);
         var cost = ability.Cost; var totalPower = cost.Power + cost.TypedPower.Values.Sum();
+        var orderedPaymentResources = renektonResourceAction is null ? resources
+            : OrderedRenektonPaymentResources(requestedCosts, resources, renektonResourceAction);
         var plan = new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId,
             source.ObjectId, ability.Id), "ACTIVATE_ABILITY", intent.PlayerId, cost.Mana, mana, cost.Power, totalPower, cost.TypedPower,
-            paymentResourceActionIds: resources.Concat(renektonResourceAction is null ? [] : [renektonResourceAction]).ToArray(),
+            paymentResourceActionIds: orderedPaymentResources,
             reason: EmpowerRules.Effect, sourceObjectId: source.ObjectId, abilityId: ability.Id,
             manaPurpose: ManaPurposeForActivatedAbility(state, source.ObjectId), manaSourceSelection: command.ServerManaSourceSelection);
         var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>(); var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
-        var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, recycled, events,
-            "ACTIVATE_ABILITY", plan.PaymentId);
+        var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            var resourceContext = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
-            if (!TryResolveRenektonPlayPayment(resourceContext, intent.PlayerId, renektonResourceAction, out var legendPayment))
-                return RejectWithCorePrompts(state, "传奇支付资源行动或其符能来源无效。", ErrorCodes.InvalidTarget);
-            pools = legendPayment.State.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            cards = legendPayment.State.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            events.AddRange(legendPayment.Events);
+            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, zones,
+                    ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", plan.PaymentId))
+                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
+        else
+            pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations, intent.PlayerId,
+                recycled, events, "ACTIVATE_ABILITY", plan.PaymentId);
         var beforeManaPayment = pools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，无法支付强化费用。", ErrorCodes.InsufficientCost);
