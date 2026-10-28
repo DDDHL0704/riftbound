@@ -21,8 +21,10 @@ public sealed partial class CoreRuleEngine
             return new(new(sourceId, context.SourceGeneration), context.SourceTokenFactoryCardNo!, result.State.Tick,
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
-        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
+        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context)
+        {
+            context = FinalizeDisarmContributionDepartures(before, result.State, departed, context);
+            return context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, EmpoweredTransition = birth with {
@@ -40,6 +42,7 @@ public sealed partial class CoreRuleEngine
                 : context is { Kind: "ENEMY_ATTACK_MIGHT", AffectedUnit: { } affected }
                 && departed.Contains(affected.ObjectId) && before.CardObjects[affected.ObjectId].ObjectGeneration == affected.Generation
                 ? context with { AffectedUnitCeasedToExist = true } : context;
+        }
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
             StackItems = result.State.StackItems.Select(i => i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.SourceObjectId, i.FieldContext) }).ToArray(),

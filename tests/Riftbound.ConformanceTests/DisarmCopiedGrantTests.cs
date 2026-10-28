@@ -56,4 +56,79 @@ public sealed class DisarmCopiedGrantTests
             return departed;
         }
     }
+
+    [Theory]
+    [InlineData("capture-future")]
+    [InlineData("capture-negative")]
+    [InlineData("face-revision-mismatch")]
+    [InlineData("factory-missing")]
+    [InlineData("factory-unknown")]
+    [InlineData("ceased-missing")]
+    [InlineData("ceased-source")]
+    [InlineData("ceased-generation")]
+    [InlineData("ceased-factory")]
+    [InlineData("ceased-face")]
+    [InlineData("ceased-face-revision")]
+    [InlineData("ceased-capture-tick")]
+    [InlineData("ceased-early")]
+    [InlineData("ceased-future")]
+    [InlineData("source-present")]
+    public async Task ColdRecoveryRejectsContradictoryCopiedGrantDepartureProof(string change)
+    {
+        const string tokenId = "COPY-TOKEN-001";
+        var row = "copied-grant-proof-" + change;
+        var initial = OfficialCopyIdentityTests.AddSpell(await Position("RAD·055/167", 0), "COPY", "UNL-200/219");
+        initial = AttackDamageDistributionTests.Spell(initial, "SOUL", "SFD·163/221", "P1");
+        var copied = await OfficialCopyIdentityTests.Copy(initial, "HOST", "COPY");
+        var token = copied.State.CardObjects[tokenId];
+        var confirmed = await AttackDamageDistributionTests.Confirm((await Attack(copied.State)).State, "ENEMY1");
+        var cast = await Act(confirmed.State, "P1", new PlayCardCommand("SOUL", "SFD·163/221", [tokenId, "HOST"]));
+        var departed = await TopWithReceipt(cast.State, row + "-settle");
+        Assert.False(departed.State.CardObjects.ContainsKey(tokenId));
+        var item = Assert.Single(departed.State.StackItems);
+        var context = item.FieldContext!;
+        var disarm = context.Disarm!;
+        var contribution = Assert.Single(disarm.Contributions, c => c.Source.ObjectId == tokenId);
+        var ceased = Assert.IsType<CeasedDisarmSource>(contribution.CeasedSource);
+        Assert.Equal(new ObjectBinding(tokenId, token.ObjectGeneration), ceased.Source);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, ceased.FactoryCardNo);
+        Assert.Equal("RAD·055/167", ceased.CardNo);
+        Record(row, "original", departed.State, departed.Events);
+
+        var changed = change switch
+        {
+            "face-revision-mismatch" => contribution with { FaceRevision = contribution.FaceRevision + 1 },
+            "factory-missing" => contribution with { SourceTokenFactoryCardNo = null },
+            "factory-unknown" => contribution with { SourceTokenFactoryCardNo = "UNKNOWN-FACTORY",
+                CeasedSource = ceased with { FactoryCardNo = "UNKNOWN-FACTORY" } },
+            "ceased-missing" => contribution with { CeasedSource = null },
+            "ceased-source" => contribution with { CeasedSource = ceased with { Source = new("HOST", ceased.Source.Generation) } },
+            "ceased-generation" => contribution with { CeasedSource = ceased with { Source = ceased.Source with { Generation = ceased.Source.Generation + 1 } } },
+            "ceased-factory" => contribution with { CeasedSource = ceased with { FactoryCardNo = "OGN·273/298" } },
+            "ceased-face" => contribution with { CeasedSource = ceased with { CardNo = "RAD·054/167" } },
+            "ceased-face-revision" => contribution with { CeasedSource = ceased with { FaceRevision = ceased.FaceRevision + 1 } },
+            "ceased-capture-tick" => contribution with { CeasedSource = ceased with { CapturedTick = ceased.CapturedTick + 1 } },
+            "ceased-early" => contribution with { CeasedSource = ceased with { Tick = disarm.CapturedTick - 1 } },
+            "ceased-future" => contribution with { CeasedSource = ceased with { Tick = departed.State.Tick + 1 } },
+            "capture-future" => contribution with { CeasedSource = ceased with {
+                CapturedTick = departed.State.Tick + 1, Tick = departed.State.Tick + 1 } },
+            _ => contribution
+        };
+        var changedContext = disarm with { Contributions = disarm.Contributions.Select(c => c == contribution ? changed : c).ToArray() };
+        if (change == "capture-future") changedContext = changedContext with { CapturedTick = departed.State.Tick + 1 };
+        if (change == "capture-negative") changedContext = changedContext with { CapturedTick = -1 };
+        var forged = departed.State with { StackItems = [item with { FieldContext = context with { Disarm = changedContext } }] };
+        if (change == "source-present")
+        {
+            forged = forged with {
+                CardObjects = new Dictionary<string, CardObjectState>(forged.CardObjects) { [tokenId] = token },
+                PlayerZones = new Dictionary<string, PlayerZones>(forged.PlayerZones) {
+                    ["P1"] = forged.PlayerZones["P1"] with { Base = [..forged.PlayerZones["P1"].Base, tokenId] } },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(forged.ObjectLocations) { [tokenId] = new("P1", "BASE") }
+            };
+        }
+        Record(row, "forged", forged);
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), e => e.Contains("field trigger stack context", StringComparison.Ordinal));
+        Restore(departed.State); ArmamentMightTests.PublicRecovery(departed.State);
+    }
 }
