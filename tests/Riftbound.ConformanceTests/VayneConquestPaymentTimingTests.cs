@@ -156,7 +156,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         {
             Assert.Contains(BattlefieldObjectId, sources);
             Assert.DoesNotContain(settled.Events, e => e.Kind == "CARDS_MILLED");
-            Assert.Equal(2, game.State.PlayerZones["P2"].MainDeck.Count);
+            Assert.Equal(2, game.State.PlayerZones["P1"].MainDeck.Count);
         }
 
         var queue = game.State.TriggerQueue.ToArray();
@@ -182,9 +182,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains(declinedSource, game.State.PlayerZones["P1"].Battlefields);
         if (minefield)
         {
-            Assert.Empty(game.State.PlayerZones["P2"].MainDeck);
-            Assert.Contains("VAYNE-DECK-1", game.State.PlayerZones["P2"].Graveyard);
-            Assert.Contains("VAYNE-DECK-2", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Empty(game.State.PlayerZones["P1"].MainDeck);
+            Assert.Contains("VAYNE-DECK-1", game.State.PlayerZones["P1"].Graveyard);
+            Assert.Contains("VAYNE-DECK-2", game.State.PlayerZones["P1"].Graveyard);
         }
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
@@ -219,13 +219,13 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         if (minefield)
         {
             var withDeck = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                ["VAYNE-DECK-1"] = OfficialGarenConquestBattlefieldCountTests.Printed("VAYNE-DECK-1", "OGN·096/298", "P2"),
-                ["VAYNE-DECK-2"] = OfficialGarenConquestBattlefieldCountTests.Printed("VAYNE-DECK-2", "OGN·096/298", "P2") };
+                ["VAYNE-DECK-1"] = OfficialGarenConquestBattlefieldCountTests.Printed("VAYNE-DECK-1", "OGN·096/298", "P1"),
+                ["VAYNE-DECK-2"] = OfficialGarenConquestBattlefieldCountTests.Printed("VAYNE-DECK-2", "OGN·096/298", "P1") };
             initial = initial with { CardObjects = withDeck,
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
-                    ["P2"] = initial.PlayerZones["P2"] with { MainDeck = ["VAYNE-DECK-1", "VAYNE-DECK-2"] } },
+                    ["P1"] = initial.PlayerZones["P1"] with { MainDeck = ["VAYNE-DECK-1", "VAYNE-DECK-2"] } },
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
-                    ["VAYNE-DECK-1"] = new("P2", "MAIN_DECK"), ["VAYNE-DECK-2"] = new("P2", "MAIN_DECK") } };
+                    ["VAYNE-DECK-1"] = new("P1", "MAIN_DECK"), ["VAYNE-DECK-2"] = new("P1", "MAIN_DECK") } };
         }
         if (swapSides) initial = SwapVaynePlayers(initial);
         var attacker = swapSides ? "P2" : "P1";
