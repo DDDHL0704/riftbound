@@ -7,6 +7,34 @@ namespace Riftbound.ConformanceTests;
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
     [Fact]
+    public async Task VayneForgedPaidReceiptWithoutPaymentHistoryCannotRestore()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle();
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var simulated = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("vayne-not-journalled-payment", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]), default);
+        Assert.True(simulated.Accepted, simulated.ErrorMessage);
+        Assert.NotNull(Assert.Single(simulated.State.StackItems, s => s.SourceObjectId == AttackerObjectId).TriggerCost);
+
+        // Keep the original journal and unspent resources; forge the paid continuation,
+        // its tick, and all player/spectator views consistently.
+        var forged = simulated.State with { Tick = game.State.Tick, RunePools = game.State.RunePools };
+        Assert.Null(forged.PendingPayment);
+        Assert.Equal(1, forged.RunePools["P1"].Mana);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("paymentId"), payment.PaymentId));
+        var frame = VayneRecoveryFrame(initial, game, forged);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands, forged,
+            new CoreRuleEngine(), default, JournalRoundTrip(frame.Events));
+        Assert.False(replay.IsMatch);
+        Assert.DoesNotContain(frame.ValidationErrors, e => e.Contains("invalid trigger cost receipt", StringComparison.Ordinal));
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("payment", StringComparison.OrdinalIgnoreCase)
+            && e.Contains("history", StringComparison.OrdinalIgnoreCase));
+        Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+    }
+
+    [Fact]
     public async Task VayneRecoveryBindsSourceGenerationToAcceptedConquestHistory()
     {
         var (baseline, original, _) = await OpenVaynePaymentTimingBattle();
