@@ -4,6 +4,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static ManaPaymentPurpose ManaPurposeForPlay(CardBehaviorDefinition behavior)
+        => IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell
+            : behavior.PlaysSourceToBaseAsUnit ? ManaPaymentPurpose.PlayUnit : ManaPaymentPurpose.Other;
+
     internal static PowerPaymentPurpose PowerPurposeForPlay(CardBehaviorDefinition behavior)
         => IsSpellPlayBehavior(behavior) ? PowerPaymentPurpose.PlaySpell
             : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.PlayEquipment
@@ -84,6 +88,10 @@ public sealed partial class CoreRuleEngine
                     ? remainingMana!.SpellOnlyMana : 0,
                 AvailableDuelOnlyMana = PaymentCostRules.IsSpellDuel(state) ? pool.DuelOnlyMana : 0,
                 RemainingDuelOnlyMana = !accepted ? null : PaymentCostRules.IsSpellDuel(state) ? remainingMana!.DuelOnlyMana : 0,
+                AvailableUnitPlayOrUnitAbilityOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlayUnit
+                    ? pool.UnitPlayOrUnitAbilityOnlyMana : 0,
+                RemainingUnitPlayOrUnitAbilityOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlayUnit
+                    ? remainingMana!.UnitPlayOrUnitAbilityOnlyMana : 0,
                 SpellPowerReductionChoices = plan.SpellPowerReductionChoices,
                 AvailableWildcardSources = showSources ? sourceBalances : null,
                 RemainingWildcardSources = remainingPool is null ? null

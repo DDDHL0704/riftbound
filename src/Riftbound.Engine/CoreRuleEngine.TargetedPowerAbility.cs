@@ -43,6 +43,7 @@ public sealed partial class CoreRuleEngine
         var plan = new PaymentCostRules.PaymentPlan(paymentId, window, intent.PlayerId, 0, 0, tax, tax,
             paymentResourceActionIds: resources, reason: ability.EffectKind, sourceObjectId: command.SourceObjectId,
             abilityId: ability.AbilityId, powerPurpose: PowerPurposeForActivatedAbility(ability),
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?> {
                 ["spellshieldTaxPower"] = tax, ["spellshieldTaxTargetObjectIds"] = taxedTargets.ToArray(),
                 ["recycledRuneObjectIds"] = recycledRunes.ToArray(), ["exhaustsSource"] = true,

@@ -5324,6 +5324,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
@@ -5562,6 +5563,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
@@ -5874,6 +5876,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6122,6 +6125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6401,6 +6405,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6641,6 +6646,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6895,6 +6901,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -8819,6 +8826,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["spellshieldTaxPower"] = spellshieldTaxPower,
@@ -9088,6 +9096,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["spellshieldTaxPower"] = spellshieldTaxPower,
@@ -9325,6 +9334,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["exhaustsSource"] = true,
@@ -9595,6 +9605,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
+            manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["printedManaCost"] = ability.ManaCost,
@@ -18442,7 +18453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: behavior.EffectKind,
             sourceObjectId: command.SourceObjectId,
             auditMetadata: paymentAudit,
-            manaPurpose: IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other,
+            manaPurpose: ManaPurposeForPlay(behavior),
             powerPurpose: powerPurpose);
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with

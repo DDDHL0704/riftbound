@@ -218,8 +218,7 @@ public sealed partial class CoreRuleEngine
             IReadOnlyList<string> costs = sacrifice is null ? normalized : normalized.Append(sacrifice).ToArray();
             var total = CalculatePlayManaCost(state, player, behavior, price.Mana, optionalReduction,
                 costs, sourceObjectId: source, componentEchoReduction: echoReduction);
-            if (PaymentCostRules.AvailableMana(availablePool, IsSpellPlayBehavior(behavior)
-                    ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state) < total.Total) continue;
+            if (PaymentCostRules.AvailableMana(availablePool, ManaPurposeForPlay(behavior), state: state) < total.Total) continue;
             var extraGeneric = (long)price.GenericPower + SourceReplayPowerCost(state, player);
             if (extraGeneric > int.MaxValue) continue;
             var reachable = powerReachability ?? new RunePaymentReachability(availablePool, new Dictionary<string, int>());

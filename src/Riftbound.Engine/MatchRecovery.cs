@@ -9367,6 +9367,7 @@ public static partial class MatchRecoveryValidator
         foreach (var (property, expectedAmount, name) in new[] {
             ("spellOnlyMana", expectedRunePool.SpellOnlyMana, "spell-only mana"),
             ("duelOnlyMana", expectedRunePool.DuelOnlyMana, "duel-only mana"),
+            ("unitPlayOrUnitAbilityOnlyMana", expectedRunePool.UnitPlayOrUnitAbilityOnlyMana, "unit-play-or-ability-only mana"),
             ("spellOnlyPower", expectedRunePool.SpellOnlyPower, "spell-only power"),
             ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power"),
             ("unitOrEquipmentPlayOnlyPower", expectedRunePool.UnitOrEquipmentPlayOnlyPower, "unit-or-equipment-play-only power") })

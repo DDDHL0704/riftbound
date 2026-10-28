@@ -11,7 +11,7 @@ public static partial class MatchRecoveryValidator
             var expected = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
             if (!TryReadObjectValue(payload, "runePool", out var pool))
             {
-                if (expected.SpellOnlyMana != 0 || expected.DuelOnlyMana != 0 || expected.SpellOnlyPower != 0 || expected.EquipmentOnlyPower != 0 || expected.UnitOrEquipmentPlayOnlyPower != 0)
+                if (expected.SpellOnlyMana != 0 || expected.DuelOnlyMana != 0 || expected.UnitPlayOrUnitAbilityOnlyMana != 0 || expected.SpellOnlyPower != 0 || expected.EquipmentOnlyPower != 0 || expected.UnitOrEquipmentPlayOnlyPower != 0)
                     errors.Add($"snapshot for {view.PlayerId} player {player} is missing its restricted resource pool");
                 continue;
             }
@@ -21,6 +21,7 @@ public static partial class MatchRecoveryValidator
             foreach (var (property, amount, name) in new[] {
                 ("spellOnlyMana", expected.SpellOnlyMana, "spell-only mana"),
                 ("duelOnlyMana", expected.DuelOnlyMana, "duel-only mana"),
+                ("unitPlayOrUnitAbilityOnlyMana", expected.UnitPlayOrUnitAbilityOnlyMana, "unit-play-or-ability-only mana"),
                 ("spellOnlyPower", expected.SpellOnlyPower, "spell-only power"),
                 ("equipmentOnlyPower", expected.EquipmentOnlyPower, "equipment-only power"),
                 ("unitOrEquipmentPlayOnlyPower", expected.UnitOrEquipmentPlayOnlyPower, "unit-or-equipment-play-only power") })

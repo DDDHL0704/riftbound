@@ -1,6 +1,6 @@
 namespace Riftbound.Engine;
 
-public enum ManaPaymentPurpose { Other, PlaySpell }
+public enum ManaPaymentPurpose { Other, PlaySpell, PlayUnit, UnitAbility }
 // Equipment includes equipment abilities; the play-only purposes distinguish
 // a resource that can be spent to play a unit or equipment, but not an ability.
 public enum PowerPaymentPurpose { Other, PlaySpell, Equipment, PlayUnit, PlayEquipment }
@@ -138,7 +138,7 @@ public static class PaymentCostRules
         }
 
         if (!currentPool.HasSupportedAmounts
-            || plan.ManaPurpose is not (ManaPaymentPurpose.Other or ManaPaymentPurpose.PlaySpell)
+            || !SupportedManaPurpose(plan.ManaPurpose)
             || !SupportedPowerPurpose(plan.PowerPurpose))
             return new(false, "INVALID_PAYMENT_PLAN", "Unsupported resource amount or mana payment purpose.");
 
@@ -191,7 +191,8 @@ public static class PaymentCostRules
             plan.PowerSourceSelection);
         var paidMana = SpendMana(currentPool, plan.TotalManaCost, plan.ManaPurpose, state);
         runePools[plan.PlayerId] = paidPower with {
-            Mana = paidMana.Mana, SpellOnlyMana = paidMana.SpellOnlyMana, DuelOnlyMana = paidMana.DuelOnlyMana };
+            Mana = paidMana.Mana, SpellOnlyMana = paidMana.SpellOnlyMana, DuelOnlyMana = paidMana.DuelOnlyMana,
+            UnitPlayOrUnitAbilityOnlyMana = paidMana.UnitPlayOrUnitAbilityOnlyMana };
 
         if (plan.ExperienceCost > 0)
         {
@@ -270,6 +271,7 @@ public static class PaymentCostRules
         result.TryAdd("remainingMana", remainingPool.Mana);
         if (remainingPool.SpellOnlyMana > 0) result.TryAdd("remainingSpellOnlyMana", remainingPool.SpellOnlyMana);
         if (remainingPool.DuelOnlyMana > 0) result.TryAdd("remainingDuelOnlyMana", remainingPool.DuelOnlyMana);
+        if (remainingPool.UnitPlayOrUnitAbilityOnlyMana > 0) result.TryAdd("remainingUnitPlayOrUnitAbilityOnlyMana", remainingPool.UnitPlayOrUnitAbilityOnlyMana);
         result.TryAdd("remainingPower", remainingPool.Power);
         result.TryAdd("remainingPowerByTrait", remainingPool.PowerByTrait);
 
@@ -341,9 +343,13 @@ public static class PaymentCostRules
         // context still belongs to a formal duel. Use the existing derived window.
         => state?.TurnWindow.IsSpellDuel == true;
 
+    private static bool SupportedManaPurpose(ManaPaymentPurpose purpose)
+        => purpose is ManaPaymentPurpose.Other or ManaPaymentPurpose.PlaySpell or ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility;
+
     public static int AvailableMana(RunePool pool, ManaPaymentPurpose purpose, MatchState? state = null)
-        => !pool.HasSupportedAmounts || purpose is not (ManaPaymentPurpose.Other or ManaPaymentPurpose.PlaySpell) ? -1 : pool.Mana
+        => !pool.HasSupportedAmounts || !SupportedManaPurpose(purpose) ? -1 : pool.Mana
             + (purpose == ManaPaymentPurpose.PlaySpell ? pool.SpellOnlyMana : 0)
+            + (purpose is ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility ? pool.UnitPlayOrUnitAbilityOnlyMana : 0)
             + (IsSpellDuel(state) ? pool.DuelOnlyMana : 0);
 
     // The current authoritative window enables this bucket; a caller without
@@ -356,8 +362,11 @@ public static class PaymentCostRules
             throw new InvalidOperationException("Not enough eligible mana for this payment.");
         var duel = IsSpellDuel(state) ? Math.Min(pool.DuelOnlyMana, amount) : 0;
         var spell = purpose == ManaPaymentPurpose.PlaySpell ? Math.Min(pool.SpellOnlyMana, amount - duel) : 0;
-        return pool with { Mana = pool.Mana - (amount - duel - spell),
-            SpellOnlyMana = pool.SpellOnlyMana - spell, DuelOnlyMana = pool.DuelOnlyMana - duel };
+        var unit = purpose is ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility
+            ? Math.Min(pool.UnitPlayOrUnitAbilityOnlyMana, amount - duel - spell) : 0;
+        return pool with { Mana = pool.Mana - (amount - duel - spell - unit),
+            SpellOnlyMana = pool.SpellOnlyMana - spell, DuelOnlyMana = pool.DuelOnlyMana - duel,
+            UnitPlayOrUnitAbilityOnlyMana = pool.UnitPlayOrUnitAbilityOnlyMana - unit };
     }
 
     public static bool CanPayPowerCost(
