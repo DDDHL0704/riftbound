@@ -314,6 +314,39 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
     }
 
+    [Fact]
+    public async Task CrimsonTreantPaidVayneTriggersKeepBothCostsAfterSourceReturns()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 2, treeSecond: true);
+        if (game.State.PendingPayment is null && game.State.TriggerQueue.Count > 0)
+            await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+
+        for (var index = 0; index < 2; index++)
+        {
+            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+            var item = Assert.Single(game.State.StackItems, s => s.StackItemId == payment.ResolvingStackItemId);
+            Assert.Equal(AttackerObjectId, item.SourceObjectId);
+            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+        }
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), AttackerObjectId)));
+        AssertVayneJsonColdFrame(initial, game);
+
+        for (var step = 0; step < 6 && game.State.StackItems.Count > 0; step++)
+            await game.Top();
+        Assert.Empty(game.State.StackItems);
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_RETURNED_TO_HAND"
+            && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), AttackerObjectId));
+        AssertVayneJsonColdFrame(initial, game);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Game, ResolutionResult Settled)>
         OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false,
             bool spellOnly = false, bool includeRune = false, bool responseCard = false, bool swapSides = false,
