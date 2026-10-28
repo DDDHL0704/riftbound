@@ -60,6 +60,16 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(current.ObjectGeneration, historical.ObjectGeneration);
         Assert.Equal(current.CopyFaceTransitions, historical.CopyFaceTransitions);
         Assert.Empty(ComponentErrors(game.State));
+
+        // Component-only projection: the live object later copies away and
+        // back while the already-captured Mighty context stays on the stack.
+        var continuedHistory = current.CopyFaceTransitions!.Concat([
+            new CopyFaceTransition(game.State.Tick, current.ObjectGeneration, current.CardNo!, "UNL-092/219"),
+            new CopyFaceTransition(game.State.Tick, current.ObjectGeneration, "UNL-092/219", current.CardNo!) ]).ToArray();
+        var continued = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+            ["HOST"] = current with { CopyFaceTransitions = continuedHistory } } };
+        Assert.Empty(ComponentErrors(continued));
+
         var validFrame = VayneRecoveryFrame(initial, game, game.State);
         Assert.Empty(validFrame.ValidationErrors);
         var validReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, validFrame.Commands, game.State,
