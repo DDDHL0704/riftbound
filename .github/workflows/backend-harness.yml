@@ -18,6 +18,12 @@ on:
       - 'tests/Riftbound.InstructionPaymentAcceptance/Program.cs'
       - 'tests/Riftbound.InstructionPaymentAcceptance/Riftbound.InstructionPaymentAcceptance.csproj'
   workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Preflight to run'
+        type: choice
+        options: [rules, payment]
+        default: rules
 
 permissions:
   contents: read
@@ -30,7 +36,7 @@ env:
 jobs:
   full_rules_preflight:
     name: Complete rule suite preflight
-    if: ${{ github.ref == 'refs/heads/a/nightly-full-preflight' }}
+    if: ${{ github.ref == 'refs/heads/a/nightly-full-preflight' && inputs.suite == 'rules' }}
     runs-on: ubuntu-latest
     # Each independent full job has its own six-hour budget. Run the rule
     # suite and real SQL/network in the first wave; never remove test inputs.
@@ -79,6 +85,54 @@ jobs:
           path: |
             var/qa/ci-rules/
             var/qa/ci-rule-suite-commit.txt
+          retention-days: 90
+
+  full_payment_preflight:
+    name: Full payment and restart preflight
+    if: ${{ github.ref == 'refs/heads/a/nightly-full-preflight' && inputs.suite == 'payment' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ github.sha }}
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+      PGPASSWORD: riftbound_ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Real PostgreSQL and two-player SignalR with actual API process restart
+        run: python3 scripts/run-process-restart-ci.py --expected "${{ github.sha }}" --output var/qa/ci-process-restart
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: process-restart-results
+          path: var/qa/ci-process-restart/
+          retention-days: 90
+      - name: Declared payment SQL and authenticated reconnect stages
+        if: ${{ !cancelled() }}
+        run: python3 scripts/run-payment-reconnect-ci.py --expected "${{ github.sha }}" --output var/qa/ci-payment-reconnect
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: payment-reconnect-results
+          path: var/qa/ci-payment-reconnect/
           retention-days: 90
 
   restart_harness:
