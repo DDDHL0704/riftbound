@@ -11904,15 +11904,21 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
-        if (ability.PowerCost <= 0 && powerCostByTrait.Count == 0
-            && ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
-        {
-            return [];
-        }
-
-        return RecycleRunePaymentResourceChoices(state, playerId,
-            "payment resource action: recycle rune while activating ability");
+        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
+            || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                ? RecycleRunePaymentResourceChoices(state, playerId,
+                    "payment resource action: recycle rune while activating ability") : [];
+        var legends = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0)
+            ? PromptRenektonPaymentChoices(state, playerId)
+                .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                    "传奇支付资源行动；其符能费用与技能费用分别核对"))
+            : [];
+        return runes.Concat(legends).ToArray();
     }
+
+    private static bool SupportsInlineRenektonAbilityPayment(P4ActivatedAbilityDefinition ability)
+        => ability.AbilityId is P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
+            or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId;
 
     private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
         MatchState state, string playerId, string reason)
@@ -11970,7 +11976,20 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var choices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
-        return ActivateAbilityPaymentResourcePowerByChoice(state, choices);
+        var metadata = ActivateAbilityPaymentResourcePowerByChoice(state, choices)
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        foreach (var legend in PromptRenektonPaymentChoices(state, playerId))
+        {
+            if (!metadata.ContainsKey(legend.Id)) continue;
+            metadata[legend.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["mana"] = 2, ["unitPlayOrUnitAbilityOnly"] = true, ["powerCost"] = 2,
+                ["powerSpend"] = legend.PowerSpend, ["sourceObjectId"] = legend.SourceObjectId,
+                ["requiredRecycleRunePowerByTrait"] = legend.RequiredRunePower,
+                ["resourceLifecycle"] = "rune-pool"
+            };
+        }
+        return metadata;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
@@ -12027,11 +12046,6 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (PaymentCostRules.AvailableMana(runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId), state) < requirement.ManaCost)
-        {
-            return false;
-        }
-
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -12040,7 +12054,23 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var powerPool = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability)
+        var hasAbility = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability);
+        var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
+        if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) < requirement.ManaCost)
+        {
+            if (manaPurpose != ManaPaymentPurpose.UnitAbility || !hasAbility
+                || !SupportsInlineRenektonAbilityPayment(ability)) return false;
+            return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+            {
+                var remaining = choice.RemainingPool with {
+                    UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
+                var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+                return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= requirement.ManaCost
+                    && new RunePaymentReachability(payablePower, choice.RemainingRunePower, choice.RemainingRuneCapacity)
+                        .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
+            });
+        }
+        var powerPool = hasAbility
             ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability)) : runePool;
         return new RunePaymentReachability(powerPool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
             .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);

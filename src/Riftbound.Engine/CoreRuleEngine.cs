@@ -5286,10 +5286,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!TryExtractRenektonPlayPayment(normalizedOptionalCosts,
+                out var costsWithoutRenekton, out var renektonResourceAction))
+            return RejectWithCorePrompts(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(
                 state,
                 intent.PlayerId,
-                normalizedOptionalCosts,
+                costsWithoutRenekton,
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds)
@@ -5344,7 +5347,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost,
             totalPowerCost: ability.PowerCost,
-            paymentResourceActionIds: paymentResourceActions,
+            paymentResourceActionIds: paymentResourceActions
+                .Concat(renektonResourceAction is null ? [] : [renektonResourceAction]).ToArray(),
             reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
@@ -5370,6 +5374,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentWindow,
             paymentId);
 
+        if (renektonResourceAction is not null)
+        {
+            var context = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = objectLocations, RunePools = runePools };
+            if (!TryResolveRenektonPlayPayment(context, intent.PlayerId, renektonResourceAction, out var legendPayment))
+                return RejectWithCorePrompts(state, "传奇支付资源行动或其符能来源无效。", ErrorCodes.InvalidTarget);
+            runePools = legendPayment.State.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            cardObjects = legendPayment.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            paymentEvents.AddRange(legendPayment.Events);
+        }
         var adjustedPool = runePools.TryGetValue(intent.PlayerId, out var paymentAdjustedPool)
             ? paymentAdjustedPool
             : RunePool.Empty;
