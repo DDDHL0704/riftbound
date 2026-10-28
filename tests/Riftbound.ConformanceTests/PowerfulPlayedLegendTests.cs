@@ -29,12 +29,11 @@ public sealed class PowerfulPlayedLegendTests
                     new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         }
         Capture("play", played);
-        var engine = new CoreRuleEngine();
-        var first = await engine.ResolveAsync(played.State, new("first-pass", played.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), default);
-        Capture("first", first); Assert.True(first.Accepted, first.ErrorMessage);
-        var second = await engine.ResolveAsync(first.State, new("second-pass", first.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), default);
-        Capture("second", second); Assert.True(second.Accepted, second.ErrorMessage);
-        return second;
+        var own = Assert.Single(played.State.TriggerQueue, t => t.SourceObjectId == "PLAYED");
+        var legendTrigger = Assert.Single(played.State.TriggerQueue, t => t.SourceObjectId == "LEGEND");
+        var ordered = await Act(played.State, "P1", new OrderTriggersCommand([legendTrigger.TriggerId, own.TriggerId]));
+        Capture("ordered", ordered);
+        return ordered;
     }
 
     [Theory]
@@ -65,8 +64,13 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Equal(3, selected.State.PlayerZones["P1"].RuneDeck.Count);
         Assert.DoesNotContain(selected.Events, e => e.Kind == "RUNES_CALLED");
         Restore(selected.State); ArmamentMightTests.PublicRecovery(selected.State);
-        if (!accept) { Assert.Empty(selected.State.StackItems); return; }
-        Assert.Single(selected.State.StackItems);
+        if (!accept) {
+            Assert.Equal("PLAYED", Assert.Single(selected.State.StackItems).SourceObjectId);
+            var own = await Top(selected.State);
+            Assert.DoesNotContain(own.Events, e => e.Kind == "RUNES_CALLED");
+            Restore(own.State); ArmamentMightTests.PublicRecovery(own.State); return;
+        }
+        Assert.Equal(2, selected.State.StackItems.Count);
         var resolved = await Top(selected.State);
         Assert.Equal(2, resolved.State.PlayerZones["P1"].RuneDeck.Count);
         var rune = Assert.Single(resolved.Events, e => e.Kind == "RUNES_CALLED");
@@ -74,5 +78,8 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Contains(id, resolved.State.PlayerZones["P1"].Base);
         Assert.True(resolved.State.CardObjects[id].IsExhausted);
         Restore(resolved.State); ArmamentMightTests.PublicRecovery(resolved.State);
+        var ownResolved = await Top(resolved.State);
+        Assert.Empty(ownResolved.State.StackItems);
+        Restore(ownResolved.State); ArmamentMightTests.PublicRecovery(ownResolved.State);
     }
 }
