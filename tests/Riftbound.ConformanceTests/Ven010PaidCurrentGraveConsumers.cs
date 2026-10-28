@@ -66,15 +66,19 @@ public sealed class Ven010PaidCurrentGraveConsumers
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-010-CURRENT-GRAVE-" + actor + "-" + add,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
         var game = new CanonicalGame(initial);
-        async Task Act(string player, GameCommand command)
+        async Task Act(string player, GameCommand command) => await ActCore(player, command,
+            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+        async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
-            await game.Act(player, command); await game.ColdCheckpoint();
+            await game.Act(player, command);
+            if (checkpoint) await game.ColdCheckpoint();
             if (game.State.Phase != MatchPhases.TurnStart) return;
             for (var step = 0; step < 12 && game.State.Phase == MatchPhases.TurnStart; step++)
             {
                 Assert.Null(game.State.PendingCardChoice); var trigger = Assert.Single(game.State.StackItems);
                 Assert.Equal("CAPTURED_BEGINNING_DRAW", trigger.EffectKind); Assert.Equal("OGN·251/298", trigger.CardNo);
-                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await game.ColdCheckpoint();
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                if (checkpoint) await game.ColdCheckpoint();
             }
             Assert.Equal(MatchPhases.Main, game.State.Phase);
         }
@@ -85,7 +89,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
                 Assert.Equal(MatchPhases.Main, game.State.Phase);
                 if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
                     && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
-                await Act(game.State.TurnPlayerId!, new EndTurnCommand());
+                await ActCore(game.State.TurnPlayerId!, new EndTurnCommand(), checkpoint: false);
             }
             Assert.Fail("Required cards must be naturally drawn within the fixed legal deck and bounded turns.");
         }
@@ -100,6 +104,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             await Act(game.State.ActivePlayerId, new MulliganCommand([])); await Act(game.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             await WaitFor(actor, add ? [Unit, Curse, Curse, Curse, Moon] : [Unit, Curse, Curse, Curse]);
             await WaitFor(enemy, add ? [Curse] : [Curse, Dispose]); await WaitFor(actor);
+            await game.ColdCheckpoint();
             var unit = game.Hand(actor, Unit).First(); var curses = game.Hand(actor, Curse).Take(3).ToArray();
             var enemyCurse = game.Hand(enemy, Curse).First(); var moon = add ? game.Hand(actor, Moon).First() : "unused-moon";
             var dispose = add ? "unused-disposal" : game.Hand(enemy, Dispose).First();
@@ -137,15 +142,19 @@ public sealed class Ven010PaidCurrentGraveConsumers
         var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
         var run = new CopiedDuelInsightOpeningTests.Opening(10010 + (actor == "P1" ? 0 : 2) + (add ? 0 : 1), OfficialDeckFormat.ChinaStandard20260724);
         string[] forgeryErrors = [];
-        async Task Act(string player, GameCommand command)
+        async Task Act(string player, GameCommand command) => await ActCore(player, command,
+            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+        async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
-            await run.Submit(player, command); await run.Cold();
+            await run.Submit(player, command);
+            if (checkpoint) await run.Cold();
             if (run.State.Phase != MatchPhases.TurnStart) return;
             for (var step = 0; step < 12 && run.State.Phase == MatchPhases.TurnStart; step++)
             {
                 Assert.Null(run.State.PendingCardChoice); var trigger = Assert.Single(run.State.StackItems);
                 Assert.Equal("CAPTURED_BEGINNING_DRAW", trigger.EffectKind); Assert.Equal("OGN·251/298", trigger.CardNo);
-                await run.Submit(run.State.PriorityPlayerId!, new PassPriorityCommand()); await run.Cold();
+                await run.Submit(run.State.PriorityPlayerId!, new PassPriorityCommand());
+                if (checkpoint) await run.Cold();
             }
             Assert.Equal(MatchPhases.Main, run.State.Phase);
         }
@@ -157,7 +166,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
                 Assert.Equal(MatchPhases.Main, run.State.Phase);
                 if (run.State.TurnPlayerId == player && Runes(run.State, player).Length == 12
                     && cards.GroupBy(no => no).All(g => Hand(player, g.Key).Count() >= g.Count())) return;
-                await Act(run.State.TurnPlayerId!, new EndTurnCommand());
+                await ActCore(run.State.TurnPlayerId!, new EndTurnCommand(), checkpoint: false);
             }
             Assert.Fail("The explicit frozen China Standard decks must naturally draw the required cards within the bounded turns.");
         }
@@ -172,6 +181,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             await Act(run.State.ActivePlayerId, new MulliganCommand([])); await Act(run.State.OpeningSecondActionPlayerId!, new MulliganCommand([]));
             await WaitFor(actor, add ? [Unit, Curse, Curse, Curse, Moon] : [Unit, Curse, Curse, Curse]);
             await WaitFor(enemy, add ? [Curse] : [Curse, Dispose]); await WaitFor(actor);
+            await run.Cold();
             var unit = Hand(actor, Unit).First(); var curses = Hand(actor, Curse).Take(3).ToArray();
             var enemyCurse = Hand(enemy, Curse).First(); var moon = add ? Hand(actor, Moon).First() : "unused-moon";
             var dispose = add ? "unused-disposal" : Hand(enemy, Dispose).First();
