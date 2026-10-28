@@ -19,6 +19,7 @@ public static class VendettaCardSources
         return new[] { (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),
             (Id: 37707L, CardNo: "VEN·021"), (Id: 37708L, CardNo: "VEN·021a"),
             (Id: 37778L, CardNo: "VEN·084"), (Id: 37779L, CardNo: "VEN·084a"),
+            (Id: 37808L, CardNo: "VEN·110a"), (Id: 37891L, CardNo: "VEN·188"),
             (Id: 37726L, CardNo: "VEN·038"), (Id: 37727L, CardNo: "VEN·038a"),
             (Id: 37730L, CardNo: "VEN·041"), (Id: 37874L, CardNo: "VEN·171"),
             (Id: 37835L, CardNo: "VEN·135"), (Id: 37836L, CardNo: "VEN·135a"),

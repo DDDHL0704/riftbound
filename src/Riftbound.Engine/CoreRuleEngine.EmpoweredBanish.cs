@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
     private const string EmpoweredBanishCaptureKey = "empoweredBanishSources";
     private sealed record CapturedEmpoweredBanish(string InstanceId, FieldTriggerContext Context);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> EmpoweredBanishFaces = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Select(card => (card.CardNo, Match: Regex.Match(card.CardEffect,
                 @"(?:^|\n)当我变为\{\{已强化\}\}时，放逐战场上一名不高于(?<might>[0-9]+)\{\{S\}\}的敌方单位。(?:$|\r?\n)")))
             .Where(row => row.Match.Success).ToDictionary(row => row.CardNo, row => int.Parse(row.Match.Groups["might"].Value)));
