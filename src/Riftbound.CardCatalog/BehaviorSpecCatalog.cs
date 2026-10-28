@@ -380,7 +380,8 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "VEN·147" or "VEN·193" or "VEN·193*"
             or "VEN·151" or "VEN·195" or "VEN·195*"
             or "VEN·153" or "VEN·196" or "VEN·196*"
-            or "VEN·149" or "VEN·194" or "VEN·194*";
+            or "VEN·149" or "VEN·194" or "VEN·194*"
+            or "VEN·155" or "VEN·155a" or "VEN·197" or "VEN·197*";
     }
 
     public static bool IsImplementedBattlefieldRuleCard(OfficialCard card)
