@@ -372,7 +372,10 @@ internal sealed class PromptInteractionController
                 else if (window.GetString() == "TRIGGER_COST_CONFIRMATION")
                 {
                     var discard = metadata.TryGetProperty("effectKind", out var effect) && effect.GetString() == "HOLD_LEBLANC_DISCARD";
-                    summary = selected.Length == 0 ? discard ? "放弃创建映像 · 不弃牌、不横置传奇" : "放弃触发技能 · 不横置传奇"
+                    var consumeBoon = effect.ValueKind == JsonValueKind.String && effect.GetString() == "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW";
+                    summary = consumeBoon ? selected.Length == 0 ? "放弃触发技能 · 不消耗增益"
+                        : "消耗增益：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 双方响应后抽牌"
+                        : selected.Length == 0 ? discard ? "放弃创建映像 · 不弃牌、不横置传奇" : "放弃触发技能 · 不横置传奇"
                         : discard ? "弃置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 横置传奇，先等待响应；进场后再选复制对象"
                         : "横置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 先支付费用，双方响应后结算";
                 }

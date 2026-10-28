@@ -1182,6 +1182,7 @@ public static partial class MatchRecoveryValidator
             ValidateBattleLimitedHistory(authoritativeState, commands, events, errors);
             ValidateBattlefieldConquestMillHistory(authoritativeState, commands, events, errors);
             ValidateUnitConquestReturnHistory(authoritativeState, commands, events, errors);
+            ValidateBattlefieldConquestChoiceHistory(authoritativeState, commands, events, errors);
             errors.AddRange(BattleResultRecoveryRules.ValidateClosedCleanupRecalls(authoritativeState, commands, events));
         }
         ValidateSpectatorReplayFrame(
@@ -4388,6 +4389,7 @@ public static partial class MatchRecoveryValidator
             const string payloadLabel = "trigger queue item";
             var triggerLabel = $"snapshot for {view.PlayerId} timing {payloadLabel}";
             ValidateUnitConquestReturnPrivateContextAbsent(triggerPayload, triggerLabel, errors);
+            ValidateBattlefieldConquestChoiceView(triggerPayload, authoritativeState, false, triggerLabel, errors);
             var triggerId = ValidateSnapshotPayloadRequiredStringValue(
                 triggerPayload,
                 "triggerId",
@@ -19260,6 +19262,7 @@ public static partial class MatchRecoveryValidator
     {
         const string payloadLabel = "spectator replay frame timing trigger queue item";
         ValidateUnitConquestReturnPrivateContextAbsent(triggerPayload, payloadLabel, errors);
+        ValidateBattlefieldConquestChoiceView(triggerPayload, authoritativeState, false, payloadLabel, errors);
         var triggerId = ValidateSnapshotPayloadRequiredStringValue(
             triggerPayload,
             "triggerId",
@@ -22420,6 +22423,9 @@ public static partial class MatchRecoveryValidator
     {
         if (TryReadObjectValue(choicePayload, "lastBreathDraw", out _))
             errors.Add("public hand choice exposes a private last-breath draw birth receipt");
+        if (EnumerateSnapshotPayloadObjectPropertyNames(choicePayload)
+            .Any(name => string.Equals(name, "battlefieldConquestDiscardDraw", StringComparison.OrdinalIgnoreCase)))
+            errors.Add("public hand choice exposes a private battlefield conquest binding");
         ValidateSnapshotPayloadRequiredStringValue(
             choicePayload,
             "choiceId",
@@ -23340,6 +23346,7 @@ public static partial class MatchRecoveryValidator
             ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldConquestMillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattlefieldConquestChoiceStackViews(view.Snapshot.Stack, authoritativeState, $"snapshot for {view.PlayerId}", errors);
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23957,6 +23964,7 @@ public static partial class MatchRecoveryValidator
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
         ValidateUnitConquestReturnContinuations(state, errors);
+        ValidateBattlefieldConquestChoiceContinuations(state, errors);
         ValidateHandDiscardObservers(state, errors);
         foreach (var item in state.StackItems)
             if (item.MightySkill is { } mighty ? !CoreRuleEngine.ValidMightySkill(state, mighty,
@@ -27759,6 +27767,9 @@ public static partial class MatchRecoveryValidator
             if (stackItem.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, stackItem))
                 foreach (var unit in ready.Units)
                     targetReferences.Add(unit.ObjectId);
+            if (stackItem.BattlefieldConquestReadyEquipment is { TargetTokenFactoryCardNo: not null }
+                && ValidBattlefieldConquestStack(authoritativeState, stackItem))
+                foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
                 && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
             {
@@ -32577,6 +32588,9 @@ public static partial class MatchRecoveryValidator
                 if (original.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, original))
                     foreach (var unit in ready.Units)
                         targetReferences.Add(unit.ObjectId);
+                if (original.BattlefieldConquestReadyEquipment is { TargetTokenFactoryCardNo: not null }
+                    && ValidBattlefieldConquestStack(authoritativeState, original))
+                    foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
                 if (VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN"))
                     targetReferences.Add("HIDDEN");
                 if (CardBehaviorRegistry.TryGetByEffectKind(original.EffectKind, out var behavior)
@@ -32619,6 +32633,7 @@ public static partial class MatchRecoveryValidator
         ValidateFlowPlayViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateBattlefieldConquestMillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateBattlefieldConquestChoiceStackViews(stackItems, authoritativeState, "spectator replay frame", errors);
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateLocationDamageViews(stackItems, authoritativeState, errors, "spectator replay frame");

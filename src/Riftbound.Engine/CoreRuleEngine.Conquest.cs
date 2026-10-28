@@ -130,6 +130,15 @@ public sealed partial class CoreRuleEngine
             playerId,battlefieldId,resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestMill(playerZones, cardObjects,
             playerId, battlefieldId, sourceObjectId, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestDiscardDraw(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, sourceObjectId, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestReadyEquipment(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, sourceObjectId, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestConsumeBoon(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, sourceObjectId, resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureConquestTokens(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
@@ -174,44 +183,6 @@ public sealed partial class CoreRuleEngine
             rngCursor);
         rngCursor = battlefieldRecycleRuneTrigger.RngCursor;
         events.AddRange(battlefieldRecycleRuneTrigger.Events);
-        if (TryResolveBattlefieldConquerDiscardDrawTrigger(
-                state,
-                playerZones,
-                cardObjects,
-                playerScores,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                rngCursor,
-                events,
-                out var battlefieldDiscardDrawApplication,
-                out var battlefieldDiscardedObjectIds,
-                    out pendingHandChoice))
-        {
-            playerScores = battlefieldDiscardDrawApplication.PlayerScores;
-            winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId ?? winnerPlayerId;
-            rngCursor = battlefieldDiscardDrawApplication.RngCursor;
-            untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
-                untilEndOfTurnEffects,
-                playerId,
-                battlefieldDiscardedObjectIds);
-        }
-        if (TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
-                state,
-                playerZones,
-                cardObjects,
-                playerScores,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                rngCursor,
-                events,
-                out var battlefieldBoonDrawApplication))
-        {
-            playerScores = battlefieldBoonDrawApplication.PlayerScores;
-            winnerPlayerId = battlefieldBoonDrawApplication.WinnerPlayerId ?? winnerPlayerId;
-            rngCursor = battlefieldBoonDrawApplication.RngCursor;
-        }
         if (TryOpenBattlefieldConquerPayReadyLegendPaymentWindow(
                 playerZones,
                 cardObjects,
@@ -248,13 +219,6 @@ public sealed partial class CoreRuleEngine
         {
             pendingPayment = battlefieldSandSoldierPendingPayment;
         }
-        TryResolveBattlefieldConquerReadyEquipmentTrigger(
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId,
-            events);
         if (TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
                 state,
                 playerZones,

@@ -44,4 +44,39 @@ public sealed partial class CoreRuleEngine
                     && r.SourceObjectId == context.ConquestSourceObjectId)
                 || state.BattlefieldResolutions.Count == 12
                     && state.BattlefieldResolutions.All(r => r.Tick > context.ConquestTick));
+
+    private static IReadOnlyList<TriggerQueueItemState> CaptureBattlefieldConquestConsumeBoon(
+        MatchState state, string controller, string battlefield, string conquestSourceObjectId, long tick)
+    {
+        if (!TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefield, out var id, out var card)
+            || BattlefieldConquestConsumeBoonDefinition(card.CardNo) is not { } spec) return [];
+        var context = new BattlefieldConquestConsumeBoonContext(new(id, card.ObjectGeneration), card.CardNo!,
+            controller, conquestSourceObjectId, tick);
+        return [new($"CONQUEST-BOON-DRAW:{tick}:{id}", controller, id, spec.Kind, "BATTLEFIELD_CONQUERED") {
+            SourceCardNo = card.CardNo, EnqueuedAtTick = tick, BattlefieldConquestConsumeBoon = context }];
+    }
+
+    private static string VisibleCapturedConquestReference(MatchState state, string objectId)
+        => state.PlayerZones.Values.Any(z => z.Hand.Contains(objectId) || z.MainDeck.Contains(objectId) || z.RuneDeck.Contains(objectId))
+            || state.CardObjects.TryGetValue(objectId, out var card) && card.IsFaceDown ? "HIDDEN" : objectId;
+
+    private static StackResolutionResult ResolveBattlefieldConquestConsumeBoon(MatchState state, StackItemState item)
+    {
+        var context = item.BattlefieldConquestConsumeBoon!;
+        if (!ValidBattlefieldConquestConsumeBoonContext(state, context, item.EffectKind, item.SourceObjectId,
+                item.ControllerId, item.CardNo)
+            || BattlefieldConquestConsumeBoonDefinition(context.CardNo) is not { } spec
+            || item.TriggerCost?.ConsumedBoon is not { } paid || !ValidTriggerCostReceipt(state, item))
+            throw new InvalidOperationException("Invalid confirmed battlefield conquest boon cost.");
+        var zones = NormalizeZonesForSeats(state);
+        var events = new List<GameEvent> { new("BATTLEFIELD_TRIGGER_RESOLVED", "征服战场的增益费用技能结算抽牌",
+            new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["battlefieldId"] = context.Source.ObjectId,
+                ["battlefieldObjectId"] = context.Source.ObjectId, ["battlefieldCardNo"] = context.CardNo,
+                ["trigger"] = item.EffectKind, ["sourceObjectId"] = VisibleCapturedConquestReference(state, context.ConquestSourceObjectId),
+                ["targetObjectId"] = VisibleCapturedConquestReference(state, paid.ObjectId), ["drawCount"] = spec.DrawCount!.Value }) };
+        var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
+            spec.DrawCount!.Value, state.RngCursor, events, deferNormalVictory: true);
+        return new(zones, state.CardObjects, draw.PlayerScores, NormalizeExperienceForSeats(state), state.RunePools,
+            state.UntilEndOfTurnEffects, draw.WinnerPlayerId, events, [], null, [], null, [], draw.RngCursor);
+    }
 }
