@@ -18,7 +18,7 @@ public sealed class UnitManaSourceSelectionTests
         var before = MatchStateHasher.Hash(initial);
         var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
         Assert.True(quote.CanPay, quote.Message);
-        Assert.Equal(ordinaryAfter, quote.Cost!.RemainingMana);
+        Assert.Equal(ordinaryAfter, quote.Cost!.RemainingOrdinaryMana);
         Assert.Equal(restrictedAfter, quote.Cost.RemainingUnitPlayOrUnitAbilityOnlyMana);
         Assert.Equal(before, MatchStateHasher.Hash(initial));
         var game = new Driver(initial);

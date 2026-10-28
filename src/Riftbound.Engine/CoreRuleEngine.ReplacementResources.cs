@@ -109,7 +109,8 @@ public sealed partial class CoreRuleEngine
                 ? costs.Length == 1 ? 1 : 0 : ability.GeneratedMana;
             power += ability.GeneratedPower + P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability).Values.Sum(v => (long)v);
         }
-        return mana >= 0 && mana + pool.SpellOnlyMana <= int.MaxValue && power is >= 0 and <= int.MaxValue;
+        return mana >= 0 && mana + pool.SpellOnlyMana + pool.UnitPlayOrUnitAbilityOnlyMana <= int.MaxValue
+            && power is >= 0 and <= int.MaxValue;
     }
 
     private static MatchState ReplacementResourceContext(MatchState state, Dictionary<string, PlayerZones> zones,

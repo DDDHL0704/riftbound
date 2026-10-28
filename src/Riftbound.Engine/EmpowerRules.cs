@@ -176,7 +176,7 @@ public sealed partial class CoreRuleEngine
         var plan = new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick + 1, "ACTIVATE_ABILITY", intent.PlayerId,
             source.ObjectId, ability.Id), "ACTIVATE_ABILITY", intent.PlayerId, cost.Mana, mana, cost.Power, totalPower, cost.TypedPower,
             paymentResourceActionIds: resources, reason: EmpowerRules.Effect, sourceObjectId: source.ObjectId, abilityId: ability.Id,
-            manaPurpose: ManaPurposeForActivatedAbility(state, source.ObjectId));
+            manaPurpose: ManaPurposeForActivatedAbility(state, source.ObjectId), manaSourceSelection: command.ServerManaSourceSelection);
         var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>(); var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations, intent.PlayerId, recycled, events,

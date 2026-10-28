@@ -115,5 +115,5 @@ internal static class PlayPowerSpendSelectionRules
             paymentResourceActionIds: fee.PaymentResourceActionIds, legalPaymentChoiceIds: fee.LegalPaymentChoiceIds,
             reason: fee.Reason, sourceObjectId: fee.SourceObjectId, abilityId: fee.AbilityId,
             auditMetadata: fee.AuditMetadata, manaPurpose: fee.ManaPurpose, powerPurpose: fee.PowerPurpose,
-            powerSourceSelection: selection.Sources);
+            powerSourceSelection: selection.Sources, manaSourceSelection: fee.ManaSourceSelection);
 }

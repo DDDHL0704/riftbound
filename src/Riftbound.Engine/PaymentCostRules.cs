@@ -31,7 +31,8 @@ public static class PaymentCostRules
             IReadOnlyDictionary<string, object?>? auditMetadata = null,
             ManaPaymentPurpose manaPurpose = ManaPaymentPurpose.Other,
             PowerPaymentPurpose? powerPurpose = null,
-            IReadOnlyDictionary<string, int>? powerSourceSelection = null)
+            IReadOnlyDictionary<string, int>? powerSourceSelection = null,
+            IReadOnlyDictionary<string, int>? manaSourceSelection = null)
         {
             PaymentId = NormalizeOptionalText(paymentId) ?? "UNKNOWN";
             PaymentWindow = NormalizeOptionalText(paymentWindow) ?? "UNKNOWN";
@@ -56,6 +57,7 @@ public static class PaymentCostRules
             PowerPurpose = powerPurpose ?? (manaPurpose == ManaPaymentPurpose.PlaySpell
                 ? PowerPaymentPurpose.PlaySpell : PowerPaymentPurpose.Other);
             PowerSourceSelection = powerSourceSelection?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            ManaSourceSelection = manaSourceSelection?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             AuditMetadata = (auditMetadata ?? new Dictionary<string, object?>(StringComparer.Ordinal))
                 .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
                 .ToDictionary(entry => entry.Key.Trim(), entry => entry.Value, StringComparer.Ordinal);
@@ -98,6 +100,8 @@ public static class PaymentCostRules
         public PowerPaymentPurpose PowerPurpose { get; }
 
         public IReadOnlyDictionary<string, int>? PowerSourceSelection { get; }
+
+        public IReadOnlyDictionary<string, int>? ManaSourceSelection { get; }
 
         public IReadOnlyDictionary<string, object?> AuditMetadata { get; }
     }
@@ -153,6 +157,10 @@ public static class PaymentCostRules
                 || plan.PowerCostByTrait.Any(cost => cost.Value > currentPool.PowerByTrait.GetValueOrDefault(cost.Key))))
             return new(false, "INVALID_PAYMENT_PLAN", "The selected wildcard power sources cannot pay this plan.");
 
+        if (plan.ManaSourceSelection is { } selectedMana
+            && !CanSpendManaSources(currentPool, plan.ManaPurpose, selectedMana, plan.TotalManaCost, state))
+            return new(false, "INVALID_PAYMENT_PLAN", "The selected mana sources cannot pay this plan.");
+
         if (currentExperience < plan.ExperienceCost)
         {
             return new(false, "INSUFFICIENT_COST", "Not enough experience to pay the payment plan.");
@@ -189,7 +197,7 @@ public static class PaymentCostRules
             plan.PowerCostByTrait,
             plan.PowerPurpose,
             plan.PowerSourceSelection);
-        var paidMana = SpendMana(currentPool, plan.TotalManaCost, plan.ManaPurpose, state);
+        var paidMana = SpendMana(currentPool, plan.TotalManaCost, plan.ManaPurpose, state, plan.ManaSourceSelection);
         runePools[plan.PlayerId] = paidPower with {
             Mana = paidMana.Mana, SpellOnlyMana = paidMana.SpellOnlyMana, DuelOnlyMana = paidMana.DuelOnlyMana,
             UnitPlayOrUnitAbilityOnlyMana = paidMana.UnitPlayOrUnitAbilityOnlyMana };
@@ -223,6 +231,8 @@ public static class PaymentCostRules
         result.TryAdd("experienceCost", plan.ExperienceCost);
         if (plan.ManaPurpose == ManaPaymentPurpose.PlaySpell)
             result.TryAdd("manaPurpose", "PLAY_SPELL");
+        if (plan.ManaSourceSelection is { } selectedMana)
+            result.TryAdd("selectedManaSources", selectedMana);
         if (plan.PowerPurpose is PowerPaymentPurpose.PlaySpell or PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment)
             result.TryAdd("powerPurpose", plan.PowerPurpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : "EQUIPMENT");
         result.TryAdd("optionalCosts", plan.OptionalCostIds.ToArray());
@@ -352,14 +362,44 @@ public static class PaymentCostRules
             + (purpose is ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility ? pool.UnitPlayOrUnitAbilityOnlyMana : 0)
             + (IsSpellDuel(state) ? pool.DuelOnlyMana : 0);
 
+    public static bool CanSpendManaSources(RunePool pool, ManaPaymentPurpose purpose,
+        IReadOnlyDictionary<string, int> selected, int amount, MatchState? state = null)
+    {
+        if (!pool.HasSupportedAmounts || !SupportedManaPurpose(purpose) || amount <= 0 || selected.Count == 0) return false;
+        long total = 0;
+        foreach (var (key, value) in selected)
+        {
+            var available = key switch {
+                "UNRESTRICTED" => pool.Mana,
+                "SPELL_ONLY" when purpose == ManaPaymentPurpose.PlaySpell => pool.SpellOnlyMana,
+                "DUEL_ONLY" when IsSpellDuel(state) => pool.DuelOnlyMana,
+                "UNIT_PLAY_OR_UNIT_ABILITY_ONLY" when purpose is ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility
+                    => pool.UnitPlayOrUnitAbilityOnlyMana,
+                _ => 0 };
+            if (value <= 0 || value > available) return false;
+            total += value;
+        }
+        return total == amount;
+    }
+
     // The current authoritative window enables this bucket; a caller without
     // that context cannot spend it. Spend temporary-window mana before pools
     // which remain usable after the duel. Never relabel the remaining balance.
     public static RunePool SpendMana(RunePool pool, int amount,
-        ManaPaymentPurpose purpose = ManaPaymentPurpose.Other, MatchState? state = null)
+        ManaPaymentPurpose purpose = ManaPaymentPurpose.Other, MatchState? state = null,
+        IReadOnlyDictionary<string, int>? selected = null)
     {
         if (amount < 0 || AvailableMana(pool, purpose, state) < amount)
             throw new InvalidOperationException("Not enough eligible mana for this payment.");
+        if (selected is not null)
+        {
+            if (!CanSpendManaSources(pool, purpose, selected, amount, state))
+                throw new InvalidOperationException("The selected mana sources cannot pay this payment.");
+            return pool with { Mana = pool.Mana - selected.GetValueOrDefault("UNRESTRICTED"),
+                SpellOnlyMana = pool.SpellOnlyMana - selected.GetValueOrDefault("SPELL_ONLY"),
+                DuelOnlyMana = pool.DuelOnlyMana - selected.GetValueOrDefault("DUEL_ONLY"),
+                UnitPlayOrUnitAbilityOnlyMana = pool.UnitPlayOrUnitAbilityOnlyMana - selected.GetValueOrDefault("UNIT_PLAY_OR_UNIT_ABILITY_ONLY") };
+        }
         var duel = IsSpellDuel(state) ? Math.Min(pool.DuelOnlyMana, amount) : 0;
         var spell = purpose == ManaPaymentPurpose.PlaySpell ? Math.Min(pool.SpellOnlyMana, amount - duel) : 0;
         var unit = purpose is ManaPaymentPurpose.PlayUnit or ManaPaymentPurpose.UnitAbility

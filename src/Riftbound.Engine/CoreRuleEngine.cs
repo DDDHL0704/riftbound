@@ -3578,6 +3578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
         var duelOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).DuelOnlyMana;
+        var unitOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).UnitPlayOrUnitAbilityOnlyMana;
         var permanentPlayOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).UnitOrEquipmentPlayOnlyPower;
         var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
@@ -3730,7 +3731,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["spellOnlyManaSpent"] = spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana,
                     ["duelOnlyManaSpent"] = duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana,
                     ["ordinaryManaSpent"] = plan.TotalManaCost - (spellOnlyBeforePayment - runePools[intent.PlayerId].SpellOnlyMana)
-                        - (duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana),
+                        - (duelOnlyBeforePayment - runePools[intent.PlayerId].DuelOnlyMana)
+                        - (unitOnlyBeforePayment - runePools[intent.PlayerId].UnitPlayOrUnitAbilityOnlyMana),
                     ["power"] = plan.TotalPowerCost,
                     ["powerByTrait"] = plan.PowerCostByTrait,
                     ["experience"] = plan.TotalExperienceCost,
@@ -3753,6 +3755,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["luxSpellOnlyConsumedMana"] = plan.LuxSpellOnlyConsumedMana,
                     ["luxSpellOnlyRemainingMana"] = plan.LuxSpellOnlyRemainingMana
                 });
+        if (unitOnlyBeforePayment > 0)
+            playPaidPayload["unitPlayOrUnitAbilityOnlyManaSpent"] = unitOnlyBeforePayment - runePools[intent.PlayerId].UnitPlayOrUnitAbilityOnlyMana;
         if (permanentPlayOnlyBeforePayment > 0)
         {
             var remaining = runePools[intent.PlayerId].UnitOrEquipmentPlayOnlyPower;
@@ -5146,10 +5150,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         ActivateAbilityCommand command)
     {
+        if (!ManaSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutManaSelection, out var selectedMana))
+            return RejectWithCorePrompts(state, "法力来源选择无效。", ErrorCodes.InvalidTarget);
+        // Never trust a caller-supplied in-process derived property. The raw
+        // OptionalCosts are the only source of this selection on every replay.
+        command = command with { OptionalCosts = costsWithoutManaSelection, ServerManaSourceSelection = selectedMana };
         if (command.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal))
             return ResolveEmpowerActivation(state, intent, command);
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
         {
+            if (selectedMana is not null)
+                return RejectWithCorePrompts(state, "此技能没有可选择的法力费用。", ErrorCodes.InvalidTarget);
             if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId))
                 return RejectWithCorePrompts(state, "此技能没有所选复制实例。", ErrorCodes.InvalidTarget);
             return ResolveBattlefieldUnitGainExperienceAbility(state, intent, command);
@@ -5162,6 +5173,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "当前启动技能路径尚未由服务端开放。",
                 ErrorCodes.UnsupportedCommand);
         }
+        if (selectedMana is not null && ability.IsResourceSkill)
+            return RejectWithCorePrompts(state, "此资源技能没有可选择的法力费用。", ErrorCodes.InvalidTarget);
         if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
@@ -5325,6 +5338,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
@@ -5564,6 +5578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             powerPurpose: PowerPurposeForActivatedAbility(ability),
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
@@ -5877,6 +5892,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6126,6 +6142,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6406,6 +6423,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6647,6 +6665,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -6902,6 +6921,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
@@ -8827,6 +8847,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["spellshieldTaxPower"] = spellshieldTaxPower,
@@ -9097,6 +9118,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["spellshieldTaxPower"] = spellshieldTaxPower,
@@ -9335,6 +9357,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["exhaustsSource"] = true,
@@ -9606,6 +9629,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["printedManaCost"] = ability.ManaCost,
@@ -18080,7 +18104,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+        if (!ManaSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutManaSpend, out var manaSpend))
+        {
+            rejection = Reject(state, "Invalid actual mana source selection.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!PlayPowerSpendSelectionRules.TryExtract(costsWithoutManaSpend, out var costsWithoutPowerSpend, out var powerSpend))
         {
             rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
             return false;
@@ -18454,7 +18483,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceObjectId: command.SourceObjectId,
             auditMetadata: paymentAudit,
             manaPurpose: ManaPurposeForPlay(behavior),
-            powerPurpose: powerPurpose);
+            powerPurpose: powerPurpose,
+            manaSourceSelection: manaSpend);
         var authorizationRunePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         authorizationRunePools[intent.PlayerId] = paymentAdjustedPool with
         {

@@ -44,6 +44,7 @@ public sealed partial class CoreRuleEngine
             paymentResourceActionIds: resources, reason: ability.EffectKind, sourceObjectId: command.SourceObjectId,
             abilityId: ability.AbilityId, powerPurpose: PowerPurposeForActivatedAbility(ability),
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
+            manaSourceSelection: command.ServerManaSourceSelection,
             auditMetadata: new Dictionary<string, object?> {
                 ["spellshieldTaxPower"] = tax, ["spellshieldTaxTargetObjectIds"] = taxedTargets.ToArray(),
                 ["recycledRuneObjectIds"] = recycledRunes.ToArray(), ["exhaustsSource"] = true,

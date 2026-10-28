@@ -15849,7 +15849,8 @@ internal static class ActionPromptBuilder
             ["abilityPolicy"] = "source-specific-server-filtered-abilities",
             ["targetPolicy"] = "source-specific-server-filtered-targets",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
-            ["sourceRequirements"] = sourceRequirements
+            ["sourceRequirements"] = sourceRequirements,
+            ["manaSpendSelection"] = ManaSpendSelectionRules.Metadata
         };
     }
 
@@ -16326,6 +16327,7 @@ internal static class ActionPromptBuilder
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,
+            ["manaSpendSelection"] = ManaSpendSelectionRules.Metadata,
             ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
             ["dragonUnitCostReductionMana"] = manaCost.UnitReduction,

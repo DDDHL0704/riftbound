@@ -208,6 +208,11 @@ public sealed record ActivateAbilityCommand(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? AbilityInstanceId { get; init; }
+
+    // Rebuilt by the engine from OptionalCosts on every submission and replay.
+    // This field is never accepted from or emitted to the wire.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyDictionary<string, int>? ServerManaSourceSelection { get; init; }
 }
 
 public sealed record LegendActCommand(

@@ -40,7 +40,8 @@ public sealed partial class CoreRuleEngine
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
         var remaining = accepted ? PaymentCostRules.PayPowerCost(powerPool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
-        var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state) : null;
+        var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state,
+            plan.Payment.ManaSourceSelection) : null;
         var sourceBalances = PaymentCostRules.AvailablePowerSources(pool, plan.Payment.PowerPurpose);
         var showSources = pool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1 || debit.PowerSourceSelection is not null;
         var remainingPool = accepted && showSources ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost,
@@ -92,6 +93,8 @@ public sealed partial class CoreRuleEngine
                     ? pool.UnitPlayOrUnitAbilityOnlyMana : 0,
                 RemainingUnitPlayOrUnitAbilityOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlayUnit
                     ? remainingMana!.UnitPlayOrUnitAbilityOnlyMana : 0,
+                RemainingOrdinaryMana = accepted && (pool.UnitPlayOrUnitAbilityOnlyMana > 0 || plan.Payment.ManaSourceSelection is not null)
+                    ? remainingMana!.Mana : null,
                 SpellPowerReductionChoices = plan.SpellPowerReductionChoices,
                 AvailableWildcardSources = showSources ? sourceBalances : null,
                 RemainingWildcardSources = remainingPool is null ? null
