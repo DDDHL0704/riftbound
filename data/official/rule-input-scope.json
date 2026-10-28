@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "region": "CN",
   "language": "zh-CN",
-  "applicabilityDate": "2026-10-16",
+  "applicabilityDate": "2026-10-28",
   "primaryCoreId": "DOC-01",
   "adoptedSources": [
     {
@@ -302,6 +302,82 @@
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
       "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
+    },
+    {
+      "id": "DOC-17",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-27/11f18b9662b74c8bae842f47be3142de.pdf",
+      "sha256": "82b17be790f5c60a231a88bc276f6fffe847b25c35a9eb88032cf1ae3153362c",
+      "versionDate": "2026-10-27",
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN",
+      "role": "REGIONAL_JUDGE_FAQ_OFFICIAL_FAQ_PREVAILS",
+      "applicability": "REGIONAL_OFFICIAL_SOURCE_VERSION_LISTED_2026_10_27_NO_EXPLICIT_EFFECTIVE_DATE_NOT_SEMANTIC_CERTIFICATION"
+    },
+    {
+      "id": "DOC-18",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-27/b15bce203a434d26b5ef7974b9b3f5b8.pdf",
+      "sha256": "ff7d4e8db970c343eca84238232dcf3b36440e9cb24b5d94ccaff97a3270ee36",
+      "versionDate": "2026-10-27",
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN",
+      "role": "REGIONAL_OFFICIAL_FAQ_NEWER_CORE_PREVAILS",
+      "applicability": "REGIONAL_OFFICIAL_SOURCE_VERSION_LISTED_2026_10_27_NO_EXPLICIT_EFFECTIVE_DATE_NOT_SEMANTIC_CERTIFICATION"
+    },
+    {
+      "id": "GLOBAL-SUPPLEMENT-13",
+      "url": "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+      "sha256": "666ae2800998100b12d0224cc63a5f4d510f0811eae85fec38f26eb85b85bb8d",
+      "hashFormat": "UTF-8 exact retrieved rich-text-html inner HTML",
+      "publishedAt": "2026-10-09T16:00:00.000Z",
+      "effectiveDate": "2026-10-16",
+      "region": "GLOBAL",
+      "language": "en-US",
+      "role": "SUPPLEMENTAL_CN_PREVAILS",
+      "applicability": "OFFICIAL_GLOBAL_SUPPLEMENT_RETRIEVED_2026_10_28_CN_PREVAILS_SOURCE_VERSION_NOT_SEMANTIC_CERTIFICATION",
+      "localizedCompanion": {
+        "url": "https://playriftbound.com/zh-cn/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+        "sha256": "f9c930e96a0f09df6000b43c049bd04e3c7fc84e5f7ec46d21d5c34f004f05c9",
+        "language": "zh-CN",
+        "role": "OFFICIAL_GLOBAL_TRANSLATION_NOT_REGIONAL_OVERRIDE"
+      }
+    },
+    {
+      "id": "GLOBAL-SUPPLEMENT-14",
+      "url": "https://playriftbound.com/en-us/news/announcements/radiance-errata-updates/",
+      "sha256": "3bbdd5e2e876f193ce4d02bb616a0d7bf9a66848c4403a2f6c2bfbcbe708c664",
+      "hashFormat": "UTF-8 exact retrieved rich-text-html inner HTML",
+      "publishedAt": "2026-10-09T16:00:00.000Z",
+      "effectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "role": "SUPPLEMENTAL_CN_PREVAILS",
+      "applicability": "OFFICIAL_GLOBAL_SUPPLEMENT_RETRIEVED_2026_10_28_CN_PREVAILS_SOURCE_VERSION_NOT_SEMANTIC_CERTIFICATION",
+      "localizedCompanion": {
+        "url": "https://playriftbound.com/zh-cn/news/announcements/radiance-errata-updates/",
+        "sha256": "6fe7069b673e55a77c865776962e0694d51bd7ad155f085fc6eb8bb0a9d904e9",
+        "language": "zh-CN",
+        "role": "OFFICIAL_GLOBAL_TRANSLATION_NOT_REGIONAL_OVERRIDE"
+      }
+    },
+    {
+      "id": "GLOBAL-SUPPLEMENT-15",
+      "url": "https://playriftbound.com/en-us/news/organizedplay/radiance-rules-faq-and-clarifications/",
+      "sha256": "6efbdc0389654c3ea4d8db42506e2816cc99352b454fcbc3775e1c40eec6401a",
+      "hashFormat": "UTF-8 exact retrieved rich-text-html inner HTML",
+      "publishedAt": "2026-10-26T16:00:00.000Z",
+      "effectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "role": "SUPPLEMENTAL_CN_PREVAILS",
+      "applicability": "OFFICIAL_GLOBAL_SUPPLEMENT_RETRIEVED_2026_10_28_CN_PREVAILS_SOURCE_VERSION_NOT_SEMANTIC_CERTIFICATION",
+      "localizedCompanion": {
+        "url": "https://playriftbound.com/zh-cn/news/organizedplay/radiance-rules-faq-and-clarifications/",
+        "sha256": "c7a11d4043f1f601d693afea75f24b5232bf7352047dc951fc68f056ae92a5c3",
+        "language": "zh-CN",
+        "role": "OFFICIAL_GLOBAL_TRANSLATION_NOT_REGIONAL_OVERRIDE"
+      }
     }
   ],
   "cardQa": {
@@ -319,5 +395,10 @@
   "supersededSourceIds": {
     "DOC-04": "DOC-01",
     "DOC-05": "DOC-02"
+  },
+  "supplementSnapshot": {
+    "path": "data/official/upstream/2026-10-28/radiance-rule-authorities/source-snapshot.json",
+    "sha256": "f73cbe2efcca701cc48f59e790487640cb1b72d82b70f9a97bbd49a6cef0c7d9",
+    "status": "SOURCE_VERSION_ONLY_NOT_COMPLETE_SEMANTIC_CERTIFICATION"
   }
 }

@@ -3,10 +3,10 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal sealed record OptionalSacrificePlayCost(string? Choice, PlayManaCost Mana,
-        int GenericPower, IReadOnlyDictionary<string, int> TypedPower, bool SpellPlay)
+        int GenericPower, IReadOnlyDictionary<string, int> TypedPower, ManaPaymentPurpose ManaPurpose)
     {
         internal bool CanPay(RunePool pool, MatchState? state = null) => PaymentCostRules.AvailableMana(pool,
-            SpellPlay ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state) >= Mana.Total
+            ManaPurpose, state: state) >= Mana.Total
             && PaymentCostRules.CanPayPowerCost(pool, GenericPower, TypedPower);
     }
 
@@ -66,7 +66,7 @@ public sealed partial class CoreRuleEngine
             TrySelectPlayPowerCost(state, player, behavior, null, pool,
                 SourceReplayPowerCost(state, player) + (additionalTrait.Length == 0 ? additionalPower : 0), extraTyped,
                 out var generic, out var typed);
-            return new OptionalSacrificePlayCost(choice, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), IsSpellPlayBehavior(behavior));
+            return new OptionalSacrificePlayCost(choice, mana, generic, ApplySacrificePowerReduction(typed, reduction.Power), ManaPurposeForPlay(behavior));
         }).ToArray();
     }
 }

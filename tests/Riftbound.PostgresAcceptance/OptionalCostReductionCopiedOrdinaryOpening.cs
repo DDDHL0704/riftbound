@@ -77,19 +77,34 @@ internal static class OptionalCostReductionCopiedOrdinaryOpening
                         var candidate = session.PromptFor(actor).Candidates!.Single(item => item.Action == CommandTypes.PlayCard);
                         var metadata = JsonSerializer.SerializeToElement(candidate.Metadata, json);
                         var row = metadata.GetProperty("sourceRequirements").EnumerateArray().Single(item => item.GetProperty("sourceObjectId").GetString() == target);
-                        var group = row.GetProperty("optionalCostReductionGroups").EnumerateArray().Single(item => item.GetProperty("ruleTextOrigin").ValueKind != JsonValueKind.Null);
-                        var choice = group.GetProperty("choiceIds").EnumerateArray().Single().GetString()!;
+                        var groups = row.GetProperty("optionalCostReductionGroups").EnumerateArray().ToArray();
+                        var group = groups.Single(item => item.GetProperty("ruleTextOrigin").ValueKind != JsonValueKind.Null);
                         var generation = state.CardObjects[reducer].ObjectGeneration;
                         var instance = group.GetProperty("sourceInstanceId").GetString()!;
+                        // The source can also offer a mana reduction. This opening
+                        // pays the optional green power fee with the copied rule.
+                        var expectedChoice = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":"
+                            + generation.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + ":ADDITIONAL:POWER-green:RULE_TEXT:" + Uri.EscapeDataString(instance);
+                        var choice = group.GetProperty("choiceIds").EnumerateArray()
+                            .Single(item => item.GetString() == expectedChoice).GetString()!;
+                        // The original printed instance also applies. Assign it
+                        // to the zero-mana part so the copied instance remains
+                        // the one that removes the green power fee.
+                        var printedGroup = groups.Single(item => item.GetProperty("ruleTextOrigin").ValueKind == JsonValueKind.Null);
+                        var printedChoiceId = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":"
+                            + generation.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":ADDITIONAL:MANA";
+                        var printedChoice = printedGroup.GetProperty("choiceIds").EnumerateArray()
+                            .Single(item => item.GetString() == printedChoiceId).GetString()!;
                         var forged = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":" + (generation + 1)
                             + ":ADDITIONAL:POWER-green:RULE_TEXT:" + Uri.EscapeDataString(instance);
-                        var command = new PlayCardCommand(target, "OGN·044/298", [], OptionalCosts: ["SPEND_POWER:green:1", choice]);
+                        var command = new PlayCardCommand(target, "OGN·044/298", [], OptionalCosts: ["SPEND_POWER:green:1", printedChoice, choice]);
                         var quote = new CoreRuleEngine().PreviewPlayCard(state, actor,
                             new("ordinary-copied-reduction-quote", session.PromptFor(actor).PromptId!, state.Tick, command));
                         Check(quote.CanPay && quote.Cost?.Mana == 2 && quote.Cost.GenericPower + quote.Cost.PowerByTrait.Values.Sum() == 0,
-                            "The actual copied instance must fund the entire optional green draw fee.");
+                            "The actual copied instance must fund the entire optional green draw fee: " + quote.Message);
                         return new(state, actor, reducer, generation, submitted, command,
-                            command with { OptionalCosts = ["SPEND_POWER:green:1", forged] });
+                            command with { OptionalCosts = ["SPEND_POWER:green:1", printedChoice, forged] });
                     }
                 }
             }

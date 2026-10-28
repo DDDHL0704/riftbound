@@ -83,7 +83,9 @@ public sealed record RunePool
         int spellOnlyMana = 0,
         int spellOnlyPower = 0,
         int equipmentOnlyPower = 0,
-        int duelOnlyMana = 0)
+        int duelOnlyMana = 0,
+        int unitOrEquipmentPlayOnlyPower = 0,
+        int unitPlayOrUnitAbilityOnlyMana = 0)
     {
         // Preserve malformed input for recovery validation instead of washing
         // negative or unrepresentable resource amounts into a legal pool.
@@ -94,6 +96,8 @@ public sealed record RunePool
         SpellOnlyPower = spellOnlyPower;
         EquipmentOnlyPower = equipmentOnlyPower;
         DuelOnlyMana = duelOnlyMana;
+        UnitOrEquipmentPlayOnlyPower = unitOrEquipmentPlayOnlyPower;
+        UnitPlayOrUnitAbilityOnlyMana = unitPlayOrUnitAbilityOnlyMana;
     }
 
     public static RunePool Empty { get; } = new(0, 0);
@@ -109,6 +113,10 @@ public sealed record RunePool
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int DuelOnlyMana { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public int UnitPlayOrUnitAbilityOnlyMana { get; init; }
+
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int Power { get; init; }
 
@@ -119,6 +127,10 @@ public sealed record RunePool
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public int EquipmentOnlyPower { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonNumberHandling(JsonNumberHandling.Strict)]
+    public int UnitOrEquipmentPlayOnlyPower { get; init; }
 
     [JsonNumberHandling(JsonNumberHandling.Strict)]
     public IReadOnlyDictionary<string, int> PowerByTrait { get; init; }
@@ -132,19 +144,19 @@ public sealed record RunePool
     // eligible restricted power; all stored power shares the representation limit.
     [JsonIgnore]
     public int TotalStoredPower => PowerByTrait is not null
-        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower is >= 0 and <= int.MaxValue
-            ? (int)((long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower) : -1;
+        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower + UnitOrEquipmentPlayOnlyPower is >= 0 and <= int.MaxValue
+            ? (int)((long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower + UnitOrEquipmentPlayOnlyPower) : -1;
 
     [JsonIgnore]
-    public int TotalStoredMana => (long)Mana + SpellOnlyMana + DuelOnlyMana is >= 0 and <= int.MaxValue
-        ? (int)((long)Mana + SpellOnlyMana + DuelOnlyMana) : -1;
+    public int TotalStoredMana => (long)Mana + SpellOnlyMana + DuelOnlyMana + UnitPlayOrUnitAbilityOnlyMana is >= 0 and <= int.MaxValue
+        ? (int)((long)Mana + SpellOnlyMana + DuelOnlyMana + UnitPlayOrUnitAbilityOnlyMana) : -1;
 
     [JsonIgnore]
-    public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && DuelOnlyMana >= 0 && Power >= 0
-        && SpellOnlyPower >= 0 && EquipmentOnlyPower >= 0
-        && (long)Mana + SpellOnlyMana + DuelOnlyMana <= int.MaxValue
+    public bool HasSupportedAmounts => PowerByTrait is not null && Mana >= 0 && SpellOnlyMana >= 0 && DuelOnlyMana >= 0 && UnitPlayOrUnitAbilityOnlyMana >= 0 && Power >= 0
+        && SpellOnlyPower >= 0 && EquipmentOnlyPower >= 0 && UnitOrEquipmentPlayOnlyPower >= 0
+        && (long)Mana + SpellOnlyMana + DuelOnlyMana + UnitPlayOrUnitAbilityOnlyMana <= int.MaxValue
         && PowerByTrait.Values.All(value => value >= 0)
-        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower <= int.MaxValue;
+        && (long)Power + PowerByTrait.Values.Sum(value => (long)value) + SpellOnlyPower + EquipmentOnlyPower + UnitOrEquipmentPlayOnlyPower <= int.MaxValue;
 
     public bool Equals(RunePool? other)
     {
@@ -157,9 +169,11 @@ public sealed record RunePool
             && Mana == other.Mana
             && SpellOnlyMana == other.SpellOnlyMana
             && DuelOnlyMana == other.DuelOnlyMana
+            && UnitPlayOrUnitAbilityOnlyMana == other.UnitPlayOrUnitAbilityOnlyMana
             && Power == other.Power
             && SpellOnlyPower == other.SpellOnlyPower
             && EquipmentOnlyPower == other.EquipmentOnlyPower
+            && UnitOrEquipmentPlayOnlyPower == other.UnitOrEquipmentPlayOnlyPower
             && PowerByTrait.Count == other.PowerByTrait.Count
             && PowerByTrait.All(entry =>
                 other.PowerByTrait.TryGetValue(entry.Key, out var otherValue)
@@ -172,9 +186,11 @@ public sealed record RunePool
         hash.Add(Mana);
         hash.Add(SpellOnlyMana);
         hash.Add(DuelOnlyMana);
+        hash.Add(UnitPlayOrUnitAbilityOnlyMana);
         hash.Add(Power);
         hash.Add(SpellOnlyPower);
         hash.Add(EquipmentOnlyPower);
+        hash.Add(UnitOrEquipmentPlayOnlyPower);
         foreach (var entry in PowerByTrait.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
             hash.Add(entry.Key);
@@ -883,6 +899,8 @@ public sealed record StackItemState
     public BattlefieldStartContext? BattlefieldStart { get; init; }
     public EphemeralStartContext? EphemeralStart { get; init; }
     public BeginningRecycleContext? BeginningRecycle { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BeginningRuneContext? BeginningRune { get; init; }
     public BeginningDrawContext? BeginningDraw { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LocationDamageContext? LocationDamage { get; init; }
@@ -1056,6 +1074,8 @@ public sealed record TriggerQueueItemState
     public BattlefieldStartContext? BattlefieldStart { get; init; }
     public EphemeralStartContext? EphemeralStart { get; init; }
     public BeginningRecycleContext? BeginningRecycle { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BeginningRuneContext? BeginningRune { get; init; }
     public BeginningDrawContext? BeginningDraw { get; init; }
 
     public UnitConquestContext? UnitConquest { get; init; }
@@ -4557,7 +4577,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4571,7 +4591,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { ControllerOrderConfirmed = item.ControllerOrderConfirmed, EnqueuedAtTick = item.EnqueuedAtTick, PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { ControllerOrderConfirmed = item.ControllerOrderConfirmed, EnqueuedAtTick = item.EnqueuedAtTick, PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, BattlefieldConquestMill = item.BattlefieldConquestMill, UnitConquestReturn = item.UnitConquestReturn, BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4954,7 +4974,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.UnitConquestReturn is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.UnitConquestReturn is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -5578,7 +5598,7 @@ public sealed record ResolutionResult(
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitConquestReturn is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
-            || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
+            || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
@@ -5670,6 +5690,10 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.Tempered is not null) view["abilityLabel"] = "百炼：双方响应后支付装配费用并贴附武装";
         if (!hiddenSource && item.LegendAttachment is not null) view["abilityLabel"] = "传奇技能：双方响应后贴附武装";
         if (!hiddenSource && item.Equip is not null) view["abilityLabel"] = "装配：结算时贴附至目标单位";
+        if (item.BeginningRune is not null) {
+            view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
+            view["abilityLabel"] = "开始阶段：符文较少时获得战力";
+        }
         if (item.BeginningRecycle is not null) {
             view["beginningRecycle"] = item.BeginningRecycle;
             view["abilityLabel"] = "开始阶段：从废牌堆回收三张牌";
@@ -5809,6 +5833,7 @@ public sealed record ResolutionResult(
             ["battlefieldStart"] = item.BattlefieldStart,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
+        if (item.BeginningRune is not null) view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
         if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
         if (!hiddenSource && item.HandDiscardObserver is { } discard) {
             view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
@@ -6407,8 +6432,10 @@ public sealed record ResolutionResult(
             ["untypedPower"] = pool.Power, ["powerByTrait"] = pool.PowerByTrait };
         if (pool.SpellOnlyMana != 0) view["spellOnlyMana"] = pool.SpellOnlyMana;
         if (pool.DuelOnlyMana != 0) view["duelOnlyMana"] = pool.DuelOnlyMana;
+        if (pool.UnitPlayOrUnitAbilityOnlyMana != 0) view["unitPlayOrUnitAbilityOnlyMana"] = pool.UnitPlayOrUnitAbilityOnlyMana;
         if (pool.SpellOnlyPower != 0) view["spellOnlyPower"] = pool.SpellOnlyPower;
         if (pool.EquipmentOnlyPower != 0) view["equipmentOnlyPower"] = pool.EquipmentOnlyPower;
+        if (pool.UnitOrEquipmentPlayOnlyPower != 0) view["unitOrEquipmentPlayOnlyPower"] = pool.UnitOrEquipmentPlayOnlyPower;
         return view;
     }
 
@@ -7352,7 +7379,8 @@ internal static class ActionPromptBuilder
         bool ExhaustsSource,
         bool ResolvesImmediately,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason,
+        int PowerCost = 0);
 
     private sealed record DeclareBattlePromptRequirement(
         string SourceObjectId,
@@ -7405,7 +7433,8 @@ internal static class ActionPromptBuilder
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
-        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
+        int PowerCost = 0);
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -7423,6 +7452,7 @@ internal static class ActionPromptBuilder
     private const string DianaLegendAbilityId = LegendActionAbilityCatalog.DianaLegendAbilityId;
     private const string KaisaLegendAbilityId = LegendActionAbilityCatalog.KaisaLegendAbilityId;
     private const string OrnnLegendAbilityId = LegendActionAbilityCatalog.OrnnLegendAbilityId;
+    private const string RenektonLegendAbilityId = LegendActionAbilityCatalog.RenektonLegendAbilityId;
     private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
     private const string IreliaLegendAbilityId = LegendActionAbilityCatalog.IreliaLegendAbilityId;
     private const string TeemoLegendAbilityId = LegendActionAbilityCatalog.TeemoLegendAbilityId;
@@ -10438,9 +10468,13 @@ internal static class ActionPromptBuilder
                 if (cost.Exhaust) costLabels.Add("横置");
                 if (requiresAdditional) costLabels.Add(cost.AdditionalCost);
                 var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
-                var choices = RecycleRunePaymentResourceChoices(state, playerId, "payment resource action: recycle rune for empower");
+                var choices = RenektonAwareRecycleRuneChoices(state, playerId, "payment resource action: recycle rune for empower")
+                    .Concat(PromptRenektonPaymentChoices(state, playerId)
+                        .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                            "传奇支付资源行动；其符能费用与强化费用分别核对")))
+                    .ToArray();
                 var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
-                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, choices);
+                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
                 requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
                     mana, cost.Power, 0, cost.TypedPower, 0, 0, "无目标",
                     new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), additionalCosts, choices, byChoice,
@@ -10791,7 +10825,8 @@ internal static class ActionPromptBuilder
                 true,
                 !CoreRuleEngine.IsLegendAttachmentEffect(ability.EffectKind),
                 unsupportedReason is null,
-                unsupportedReason);
+                unsupportedReason,
+                ability.PowerCost);
 
             if (CanPayLegendActionRequirement(state, playerId, requirement))
             {
@@ -10975,6 +11010,12 @@ internal static class ActionPromptBuilder
                 PowerGainAmount: 1,
                 TimingKind: LegendActionTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            new(
+                RenektonLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
+                "荒漠屠夫传奇单位法力技能",
+                0, 0, string.Empty, 0, false, "GAIN_UNIT_ONLY_MANA",
+                ManaGainAmount: 2, TimingKind: LegendActionTimingKinds.ResourceAction, PowerCost: 2),
             new(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -11361,6 +11402,7 @@ internal static class ActionPromptBuilder
         {
             return false;
         }
+        if (!PaymentCostRules.CanPayPowerCost(runePool, requirement.PowerCost, new Dictionary<string, int>())) return false;
 
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -11394,6 +11436,7 @@ internal static class ActionPromptBuilder
             DianaLegendAbilityId => "法术对决横置：获得 1 法力",
             KaisaLegendAbilityId => "法术反应横置：获得 1 符能",
             OrnnLegendAbilityId => "装备反应横置：获得 1 符能",
+            RenektonLegendAbilityId => "支付 2 符能并横置：获得仅用于打出单位或单位主动技能的 2 法力",
             EzrealLegendAbilityId => "反应横置：抽 1 张",
             IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
             TeemoLegendAbilityId => "支付 1 并横置：召回己方提莫单位",
@@ -11525,7 +11568,7 @@ internal static class ActionPromptBuilder
         {
             var choices = PublicBoardObjects(state)
                 .Where(objectId => IsPromptShadowStunTarget(state, playerId, sourceObjectId, objectId))
-                .Where(objectId => CanPayShadowTargetCost(state, playerId, ability, objectId))
+                .Where(objectId => CanPayShadowTargetCost(state, playerId, sourceObjectId, ability, objectId))
                 .Select(objectId => ObjectChoice(
                     state,
                     objectId,
@@ -11637,13 +11680,14 @@ internal static class ActionPromptBuilder
     private static bool CanPayShadowTargetCost(
         MatchState state,
         string playerId,
+        string sourceObjectId,
         P4ActivatedAbilityDefinition ability,
         string targetObjectId)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) >= ability.ManaCost
+        return PaymentCostRules.AvailableMana(runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId), state) >= ability.ManaCost
             && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
@@ -11910,15 +11954,25 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
-        if (ability.PowerCost <= 0 && powerCostByTrait.Count == 0
-            && ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
-        {
-            return [];
-        }
-
-        return RecycleRunePaymentResourceChoices(state, playerId,
-            "payment resource action: recycle rune while activating ability");
+        var acceptsLegend = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0);
+        var legendChoices = acceptsLegend ? PromptRenektonPaymentChoices(state, playerId) : [];
+        var hasLegend = legendChoices.Count > 0;
+        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
+            || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            || hasLegend
+                ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
+                    "payment resource action: recycle rune while activating ability")
+                : RecycleRunePaymentResourceChoices(state, playerId,
+                    "payment resource action: recycle rune while activating ability")) : [];
+        var legends = legendChoices.Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+            "传奇支付资源行动；其符能费用与技能费用分别核对"));
+        return runes.Concat(legends).ToArray();
     }
+
+    private static bool SupportsInlineRenektonAbilityPayment(P4ActivatedAbilityDefinition ability)
+        => ability.AbilityId is P4ActivatedAbilityCatalog.ViDoublePowerAbilityId
+            or P4ActivatedAbilityCatalog.NextSpellEchoAbilityId or P4ActivatedAbilityCatalog.ScryingBlossomAbilityId
+            or P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId or P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId;
 
     private static IReadOnlyList<ActionPromptChoiceDto> RecycleRunePaymentResourceChoices(
         MatchState state, string playerId, string reason)
@@ -11931,6 +11985,19 @@ internal static class ActionPromptBuilder
                 return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
             })
             .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> RenektonAwareRecycleRuneChoices(
+        MatchState state, string playerId, string reason)
+    {
+        var current = RecycleRunePaymentResourceChoices(state, playerId, reason);
+        if (PromptRenektonPaymentChoices(state, playerId).Count == 0) return current;
+        return current.Concat(CoreRuleEngine.RenektonRecyclableRuneActionIds(state, playerId).Select(actionId =>
+        {
+            var objectId = actionId[RecycleRunePaymentOptionalCostPrefix.Length..];
+            var choice = ObjectChoice(state, objectId, reason);
+            return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
+        })).DistinctBy(choice => choice.Id, StringComparer.Ordinal).ToArray();
     }
 
     private static IReadOnlyDictionary<string, int> ActivateAbilityPaymentResourcePowerByTrait(
@@ -11976,7 +12043,26 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var choices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
-        return ActivateAbilityPaymentResourcePowerByChoice(state, choices);
+        return ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
+        MatchState state, string playerId, IReadOnlyList<ActionPromptChoiceDto> choices)
+    {
+        var metadata = ActivateAbilityPaymentResourcePowerByChoice(state, choices)
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        foreach (var legend in PromptRenektonPaymentChoices(state, playerId))
+        {
+            if (!metadata.ContainsKey(legend.Id)) continue;
+            metadata[legend.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["mana"] = 2, ["unitPlayOrUnitAbilityOnly"] = true, ["powerCost"] = 2,
+                ["powerSpend"] = legend.PowerSpend, ["sourceObjectId"] = legend.SourceObjectId,
+                ["requiredRecycleRunePowerByTrait"] = legend.RequiredRunePower,
+                ["resourceLifecycle"] = "rune-pool"
+            };
+        }
+        return metadata;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> ActivateAbilityPaymentResourcePowerByChoice(
@@ -12033,11 +12119,6 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < requirement.ManaCost)
-        {
-            return false;
-        }
-
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -12046,7 +12127,25 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var powerPool = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability)
+        var hasAbility = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability);
+        var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
+        if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) < requirement.ManaCost)
+        {
+            var supportsLegend = requirement.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal)
+                || hasAbility && SupportsInlineRenektonAbilityPayment(ability);
+            if (manaPurpose != ManaPaymentPurpose.UnitAbility || !supportsLegend) return false;
+            return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+            {
+                var remaining = choice.RemainingPool with {
+                    UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
+                var purpose = hasAbility ? CoreRuleEngine.PowerPurposeForActivatedAbility(ability) : PowerPaymentPurpose.Other;
+                var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, purpose);
+                return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= requirement.ManaCost
+                    && new RunePaymentReachability(payablePower, choice.RemainingRunePower, choice.RemainingRuneCapacity)
+                        .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
+            });
+        }
+        var powerPool = hasAbility
             ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability)) : runePool;
         return new RunePaymentReachability(powerPool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
             .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
@@ -12668,7 +12767,7 @@ internal static class ActionPromptBuilder
         var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
                 additionalMana, additionalPower, additionalTrait)
-            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.SpellPlay ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state) >= cost.Mana.Total
+            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.ManaPurpose, state: state) >= cost.Mana.Total
                 && reachability.CanPay(cost.GenericPower, cost.TypedPower)).ToArray();
     }
 
@@ -14783,7 +14882,13 @@ internal static class ActionPromptBuilder
     }
 
     private static int AvailablePlayMana(MatchState state, RunePool pool, CardBehaviorDefinition behavior)
-        => PaymentCostRules.AvailableMana(pool, IsPromptSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other, state: state);
+        => PaymentCostRules.AvailableMana(pool, CoreRuleEngine.ManaPurposeForPlay(behavior), state: state);
+
+    private static IReadOnlyList<CoreRuleEngine.RenektonPaymentChoice> PromptRenektonPaymentChoices(
+        MatchState state, string playerId)
+        => CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
+            state.RunePools.GetValueOrDefault(playerId, RunePool.Empty),
+            CoreRuleEngine.RenektonRecyclablePower(state, playerId));
 
     private static int PromptAvailableManaWithLuxSpellOnlyResource(
         MatchState state,
@@ -14795,7 +14900,13 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
-        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+        var available = AvailablePlayMana(state, runePool, behavior)
+            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+        if (behavior.PlaysSourceToBaseAsUnit && PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+                CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, choice.RemainingRunePower,
+                    behavior, 0, "", choice.RemainingRuneCapacity)))
+            available += 2;
+        return available;
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -14856,9 +14967,12 @@ internal static class ActionPromptBuilder
     {
         if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
             || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
-        return RecycleRunePaymentResourceChoices(state, playerId,
+        return RenektonAwareRecycleRuneChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
+            .Concat(PromptRenektonPaymentChoices(state, playerId)
+                .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                    "传奇支付资源行动；其符能费用与打出牌的费用分别核对")))
             .ToArray();
     }
 
@@ -14924,7 +15038,7 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
-        CardBehaviorDefinition behavior, int amount, string trait)
+        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null)
     {
         pool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
@@ -14933,7 +15047,7 @@ internal static class ActionPromptBuilder
             + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
         if (extraGeneric > int.MaxValue) return false;
         return CoreRuleEngine.CanReachPlayPowerCost(state, playerId, behavior,
-            new RunePaymentReachability(pool, resources), (int)extraGeneric, extraTyped);
+            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped);
     }
 
     private static bool CanPayHasteReadyPowerCost(
@@ -15171,7 +15285,8 @@ internal static class ActionPromptBuilder
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
             || HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0;
+            || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0
+            || PromptRenektonPaymentChoices(state, playerId).Count > 0;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardLuxSpellOnlyResourceChoicesForBehavior(
@@ -15867,7 +15982,8 @@ internal static class ActionPromptBuilder
             ["abilityPolicy"] = "source-specific-server-filtered-abilities",
             ["targetPolicy"] = "source-specific-server-filtered-targets",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
-            ["sourceRequirements"] = sourceRequirements
+            ["sourceRequirements"] = sourceRequirements,
+            ["manaSpendSelection"] = ManaSpendSelectionRules.Metadata
         };
     }
 
@@ -15946,6 +16062,12 @@ internal static class ActionPromptBuilder
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
 
+        if (requirement.PowerCost > 0)
+        {
+            view["powerCost"] = requirement.PowerCost;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
+        }
+
         return view;
     }
 
@@ -15989,6 +16111,8 @@ internal static class ActionPromptBuilder
             view["additionalCostChoices"] = requirement.AdditionalCostChoices;
             view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
         }
+        if (requirement.PaymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
+            view["paymentResourceOrderMatters"] = true;
         if (requirement.AbilityInstanceId is not null)
         {
             view["abilityInstanceId"] = requirement.AbilityInstanceId;
@@ -16047,6 +16171,7 @@ internal static class ActionPromptBuilder
         {
             view["requiresBattlefieldSource"] = true;
             view["drawCount"] = 1;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-draw";
             view["paymentPolicy"] = "payment-plan-typed-blue";
@@ -16056,6 +16181,7 @@ internal static class ActionPromptBuilder
         {
             view["requiresBattlefieldSource"] = true;
             view["scoreAmount"] = 1;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-score";
             view["paymentPolicy"] = "payment-plan-typed-blue-exhaust-as-cost";
@@ -16252,8 +16378,14 @@ internal static class ActionPromptBuilder
     private static IEnumerable<IReadOnlyDictionary<string, object?>> PlayCardSourceRequirements(
         MatchState state,
         string playerId)
+        => PlayCardChoices(state, playerId)
+            .Select(choice => PlayCardSourceRequirement(state, playerId, choice.SourceObjectId, choice.Behavior));
+
+    internal static IEnumerable<(string SourceObjectId, CardBehaviorDefinition Behavior)> PlayCardChoices(
+        MatchState state,
+        string playerId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.ContainsKey(playerId))
         {
             return [];
         }
@@ -16262,7 +16394,7 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
                 .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
-                .Select(behavior => PlayCardSourceRequirement(state, playerId, objectId, behavior)));
+                .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
     private static IReadOnlyDictionary<string, object?> PlayCardSourceRequirement(
@@ -16283,7 +16415,10 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForPlay(behavior));
+        var powerPurpose = CoreRuleEngine.PowerPurposeForPlay(behavior);
+        var sourceBalances = PaymentCostRules.AvailablePowerSources(runePool, powerPurpose);
+        var showPowerSources = runePool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1;
+        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, powerPurpose);
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior, sourceObjectId);
@@ -16335,6 +16470,7 @@ internal static class ActionPromptBuilder
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata,
+            ["manaSpendSelection"] = ManaSpendSelectionRules.Metadata,
             ["availableRainbowPower"] = runePool.Power,
             ["battlefieldEquipmentCostReductionMana"] = manaCost.EquipmentReduction,
             ["dragonUnitCostReductionMana"] = manaCost.UnitReduction,
@@ -16362,8 +16498,9 @@ internal static class ActionPromptBuilder
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = AvailablePlayMana(state, runePool, behavior),
             ["availableSpellOnlyMana"] = IsPromptSpellPlayBehavior(behavior) ? runePool.SpellOnlyMana : 0,
-            ["availableManaWithPaymentResources"] = AvailablePlayMana(state, runePool, behavior) + luxSpellOnlyGeneratedMana,
-            ["paymentResourceMana"] = luxSpellOnlyGeneratedMana,
+            ["availableManaWithPaymentResources"] = PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId),
+            ["paymentResourceMana"] = PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId)
+                - AvailablePlayMana(state, runePool, behavior),
             ["availablePower"] = runePool.TotalPower,
             ["availablePowerByTrait"] = availablePowerByTrait,
             ["availablePowerWithPaymentResources"] = new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal,
@@ -16375,14 +16512,17 @@ internal static class ActionPromptBuilder
         };
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
+        if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
+            requirement["paymentResourceOrderMatters"] = true;
         if (manaCost.EmpoweredSpellReduction > 0) requirement["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
+        if (showPowerSources) requirement["availableWildcardSources"] = sourceBalances;
         if (reductionGroups.Count > 0)
             requirement["optionalCostReductionGroups"] = reductionGroups
                 .GroupBy(group => (group.SourceObjectId, group.SourceGeneration, group.SourceInstanceId, group.ComponentId))
                 .Select(group => new Dictionary<string, object?> {
                     ["sourceObjectId"] = group.Key.SourceObjectId, ["sourceGeneration"] = group.Key.SourceGeneration,
                     ["sourceInstanceId"] = group.Key.SourceInstanceId, ["ruleTextOrigin"] = group.First().RuleTextOrigin,
-                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 0, ["maxSelections"] = 1,
+                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 1, ["maxSelections"] = 1,
                     ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
                     ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
                         .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
@@ -16433,8 +16573,24 @@ internal static class ActionPromptBuilder
                 },
                 StringComparer.Ordinal);
 
+        var legendChoices = PromptRenektonPaymentChoices(state, playerId);
         foreach (var choice in paymentResourceChoices)
         {
+            var legend = legendChoices.SingleOrDefault(candidate => candidate.Id == choice.Id);
+            if (legend is not null)
+            {
+                metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["mana"] = 2,
+                    ["unitPlayOrUnitAbilityOnly"] = true,
+                    ["powerCost"] = 2,
+                    ["powerSpend"] = legend.PowerSpend,
+                    ["sourceObjectId"] = legend.SourceObjectId,
+                    ["requiredRecycleRunePowerByTrait"] = legend.RequiredRunePower,
+                    ["resourceLifecycle"] = "rune-pool"
+                };
+                continue;
+            }
             if (!TryParseLuxSpellOnlyResourceActionId(choice.Id, out var luxSourceObjectId))
             {
                 continue;
@@ -18003,12 +18159,15 @@ public sealed partial class MatchSession : IMatchSession
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
             // persist the request, including stale-prompt rejections.
-            if (command is PlayCardCommand
+            if (command is (PlayCardCommand or RefusePlayPaymentCommand)
                 && rawCommand is { ValueKind: JsonValueKind.Object } playRaw
                 && !HasCanonicalRequiredStringArray(playRaw, "targetObjectIds"))
                 return ResolutionResult.Rejected(state, "出牌目标格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (!HasCanonicalOptionalCosts(command, rawCommand))
                 return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+            if (command is RefusePlayPaymentCommand && rawCommand is { ValueKind: JsonValueKind.Object } refusalRaw
+                && (!HasCanonicalRequiredText(refusalRaw, "sourceObjectId") || !HasCanonicalRequiredText(refusalRaw, "cardNo")))
+                return ResolutionResult.Rejected(state, "拒付的出牌来源格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (command is DeclareBattleCommand
                 && rawCommand is { ValueKind: JsonValueKind.Object } raw
                 && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
@@ -18108,6 +18267,10 @@ public sealed partial class MatchSession : IMatchSession
             || tick.ValueKind == JsonValueKind.Number && tick.TryGetInt64(out var number) && number >= 0;
     }
 
+    private static bool HasCanonicalRequiredText(JsonElement raw, string field)
+        => raw.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String
+            && value.GetString() is { Length: > 0 } text && !string.IsNullOrWhiteSpace(text) && text == text.Trim();
+
     private static bool HasCanonicalRequiredStringArray(JsonElement raw, string field)
     {
         return raw.TryGetProperty(field, out var value)
@@ -18117,7 +18280,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static bool HasCanonicalOptionalCosts(GameCommand command, JsonElement? rawCommand)
     {
-        if (command is not (PlayCardCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
+        if (command is not (PlayCardCommand or RefusePlayPaymentCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
                 or RevealCardCommand or MoveUnitCommand or AssembleEquipmentCommand or DeclareBattleCommand)
             || rawCommand is not { ValueKind: JsonValueKind.Object } raw)
             return true;
@@ -18456,7 +18619,7 @@ public sealed partial class MatchSession : IMatchSession
         await OfficialCatalogGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            officialCatalog ??= await OfficialCardCatalog.LoadDefaultAsync(cancellationToken)
+            officialCatalog ??= await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken)
                 .ConfigureAwait(false);
             return officialCatalog;
         }

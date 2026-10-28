@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_IDENTITIES_RETAINED_RUNTIME_AND_REGISTRY_ADOPTION_PENDING",
+  "snapshotPath": "data/official/upstream/2026-10-28/radiance-disarm/card-catalog.zh-CN.json",
+  "snapshotSha256": "9cd6f83fc4061b2f83f36ff4607d344d9f7caefa72280de055f642e1f80c7340",
+  "fetchedAtUtc": "2026-10-27T21:51:23.629299+00:00",
+  "reviewedAtUtc": "2026-10-27T22:29:39.639414+00:00",
+  "language": "zh-CN",
+  "region": "CN",
+  "cardEntries": [
+    {
+      "id": 40126,
+      "cardNo": "RAD·054/167",
+      "sourceRecordSha256": "c1182699832e29541821a2a99eacafa1728b810c9dafd09cbe7516219e2bc683",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "饰品商贩",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceResponseSha256": "3cfca3ea3dda28a3d8e8bf4ea9029946079ec8fc986cfb10562ba19f55be06a1",
+      "printedFaceIdentity": "RAD·054/167 SC",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/4749fc8ccb364c10bf270dc785b28063.png",
+      "frontImageSha256": "0e52e283b469177ed8a0ebedea2b5015c8481b40950acb79bddb047a605b8363",
+      "language": "zh-CN",
+      "region": "CN",
+      "isPreview": false,
+      "publicationDate": null,
+      "effectiveDate": null,
+      "currentIndividualReleaseOrFormatApplicability": "UNKNOWN",
+      "wholeCardSemanticCertification": false
+    },
+    {
+      "id": 40127,
+      "cardNo": "RAD·055/167",
+      "sourceRecordSha256": "c4d0b6c58e18f588175b76c86e5e470081711d3c961bdec6a33d9c231615cf1d",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "叮响巡警",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceResponseSha256": "3f1c8d141cacb52fba9037eac9636419c5607417b6aef401502b7c5ef00507fd",
+      "printedFaceIdentity": "RAD·055/167 SC",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b4e6b90a92ce4e1393dba45a2a2925a5.png",
+      "frontImageSha256": "f58c0bd7f145a7340685cc66d4b46596c9297c0c56048604cdecc95b827b6734",
+      "language": "zh-CN",
+      "region": "CN",
+      "isPreview": false,
+      "publicationDate": null,
+      "effectiveDate": null,
+      "currentIndividualReleaseOrFormatApplicability": "UNKNOWN",
+      "wholeCardSemanticCertification": false
+    },
+    {
+      "id": 40122,
+      "cardNo": "RAD·050/167",
+      "sourceRecordSha256": "af3da6cdef1f7010b159212d24f19018e6e47fe18c66614b62ebed240a6e3dae",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "神秘的时间法师",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceResponseSha256": "fcc9d314f6699dc6d78861183a1fe2e4b63644024f36f458abd8be44353952a7",
+      "printedFaceIdentity": "RAD·050/167 SC",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e527800671fc4bb2af9857818b3fced1.png",
+      "frontImageSha256": "bd0f464920c6306dac17e5eb30dc262b16bca73fefa2c085d870e8a31a2ab048",
+      "language": "zh-CN",
+      "region": "CN",
+      "isPreview": false,
+      "publicationDate": null,
+      "effectiveDate": null,
+      "currentIndividualReleaseOrFormatApplicability": "UNKNOWN",
+      "wholeCardSemanticCertification": false
+    }
+  ],
+  "coreSource": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "versionDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "clauses": [
+      "831.1.c.3",
+      "831.1.d",
+      "831.1.d.1",
+      "831.2",
+      "383.4.e.2.a"
+    ],
+    "reviewedPhysicalPages": [
+      65,
+      127,
+      128
+    ],
+    "scope": "CN_RULE_SOURCE_VERSION_ONLY_NOT_CURRENT_COMPLETE_BACKEND_CERTIFICATION"
+  },
+  "retainedSourceReceipt": {
+    "path": "/Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-combat-20261023/var/qa/radiance-disarm-intake-20261028/complete-source-intake-v3.json",
+    "sha256": "5f594c8ce87bfc4235de0bc7ac95de41f545f575c5c5761edd5442641318148b"
+  },
+  "runtimeCatalogPath": "data/official/card-catalog.zh-CN.json",
+  "runtimeCatalogModified": false,
+  "runtimeEntriesRetained": 1089,
+  "existingScopedAdditionsRetained": 80,
+  "registryModified": false,
+  "semanticTestsRun": false,
+  "semanticCertificationIncrement": 0,
+  "applicabilityBoundary": "Runtime rule-input-scope applicabilityDate 2026-10-16 remains unchanged. Current individual CN print release/effective/format applicability is UNKNOWN; API isPreview=false and a retained source record do not establish automated gameplay or standard-format legality.",
+  "producerAndConsumers": "Combat owns shared Disarm producer/recovery. Source/payment line owns eventual cumulative catalog/registry/count adoption after an explicit tested producer dependency. RAD050 additionally requires its on-play Insight2 branch. This upstream snapshot does not enable any card or replace existing executable assertions.",
+  "sourceUniverse": "All historical source identities, 1089 current runtime rows, 80 existing scoped additions and the observed 1504-row/current419 raw-number delta remain retained; this three-card snapshot is not a narrowed full-backend scope."
+}

@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 internal static class OfficialCardSourceIdentityGroups
 {
     private static readonly Lazy<IReadOnlyDictionary<string, string>> Names = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(
             card => NormalizeCardNo(card.CardNo),
             card => string.IsNullOrWhiteSpace(card.SubTitle) ? card.CardName : card.CardName + " - " + card.SubTitle,
             StringComparer.Ordinal));
@@ -21,7 +21,7 @@ internal static class OfficialCardSourceIdentityGroups
     public static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildByRepresentativeCardNo(
         IEnumerable<string?> representativeCardNos)
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var representatives = representativeCardNos
             .Select(NormalizeCardNo)
             .Where(cardNo => !string.IsNullOrWhiteSpace(cardNo))
