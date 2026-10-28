@@ -322,6 +322,13 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var attackWeaponDamage = Regex.Match(text,
+            @"当我进攻时[，,]\s*选择此处的一名敌方单位[。.]\s*我身上每贴附一件武装[，,]\s*便对其造成(?<amount>[0-9一两二三四五六七八九十]+)点伤害[。.]?",
+            RegexOptions.CultureInvariant);
+        if (attackWeaponDamage.Success)
+            triggers.Add(new(TriggerKinds.UnitAttackDamagePerAttachedWeapon, TriggerTimings.UnitAttack,
+                attackWeaponDamage.Value, "Choose one local enemy on confirmation; deal one damage event scaled by attached weapons at resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, DamageAmount: ParseChineseNumber(attackWeaponDamage.Groups["amount"].Value)));
         var paidStun = Regex.Match(text,
             @"当你打出我时[，,]\s*或当我进攻时[，,]\s*你可以选择支付\{\{(?<mana>[0-9一两二三四五六七八九十]+)\}\}[，,]\s*以此\{\{眩晕\}\}一名单位[。.]?",
             RegexOptions.CultureInvariant);

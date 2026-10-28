@@ -456,6 +456,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·041", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
+        new("VEN·171", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
         new("VEN·136", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("VEN·136a", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
