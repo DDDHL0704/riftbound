@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../data/official/upstream/2026-10-28/radiance-disarm-reviewed-universe/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.DisarmSourceSnapshot" WithCulture="false" />
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-28/reviewed-rune-source-universe/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.ReviewedRuneSourceSnapshot" WithCulture="false" />
   </ItemGroup>
 </Project>
