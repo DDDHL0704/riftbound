@@ -8,11 +8,13 @@ internal static class BattlefieldLocalRules
 {
     public static CardObjectState? Battlefield(MatchState state, string? id)
     {
+        // Reconciled and older battlefield cards may have no self-reference.
         if (string.IsNullOrWhiteSpace(id) || !state.CardObjects.TryGetValue(id, out var card)
             || card.IsFaceDown || !card.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
             || !state.PlayerZones.Values.Any(z => z.Battlefields.Contains(id, StringComparer.Ordinal))
             || (state.ObjectLocations.TryGetValue(id, out var location)
-                && (location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId != id))) return null;
+                && (location.Zone != "BATTLEFIELD"
+                    || location.BattlefieldObjectId is not null && location.BattlefieldObjectId != id))) return null;
         return card;
     }
 
