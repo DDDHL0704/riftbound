@@ -3578,6 +3578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
         var duelOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).DuelOnlyMana;
+        var permanentPlayOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).UnitOrEquipmentPlayOnlyPower;
         var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             debitPlan,
@@ -3718,11 +3719,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldObjectId"] = behavior.StandbyPlayFrom.Battlefield.ObjectId } };
         }
         events.AddRange(paymentEvents);
-        events.Add(
-            new GameEvent(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
-                PaymentCostRules.BuildCostPaidPayload(
+        var playPaidPayload = PaymentCostRules.BuildCostPaidPayload(
                     paymentPlan,
                     runePools,
                     playerExperience,
@@ -3755,7 +3752,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["luxSpellOnlyGeneratedMana"] = plan.LuxSpellOnlyGeneratedMana,
                     ["luxSpellOnlyConsumedMana"] = plan.LuxSpellOnlyConsumedMana,
                     ["luxSpellOnlyRemainingMana"] = plan.LuxSpellOnlyRemainingMana
-                })));
+                });
+        if (permanentPlayOnlyBeforePayment > 0)
+        {
+            var remaining = runePools[intent.PlayerId].UnitOrEquipmentPlayOnlyPower;
+            playPaidPayload["unitOrEquipmentPlayOnlyPowerSpent"] = permanentPlayOnlyBeforePayment - remaining;
+            playPaidPayload["remainingUnitOrEquipmentPlayOnlyPower"] = remaining;
+        }
+        events.Add(new GameEvent("COST_PAID", $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用", playPaidPayload));
         if (battlefieldNextSpellEchoConsumed)
         {
             events.Add(new GameEvent(

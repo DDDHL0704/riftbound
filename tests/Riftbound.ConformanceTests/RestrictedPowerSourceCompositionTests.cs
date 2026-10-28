@@ -31,7 +31,10 @@ public sealed class RestrictedPowerSourceCompositionTests
         var remaining = game.State.RunePools["P1"];
         Assert.Equal(0, remaining.Power); Assert.Equal(1, remaining.EquipmentOnlyPower);
         Assert.Equal(1, remaining.TotalStoredPower);
-        var eventSources = JsonSerializer.SerializeToElement(Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event.Payload["selectedPowerSources"], Web);
+        var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID").Event;
+        Assert.Equal(1, paid.Payload["unitOrEquipmentPlayOnlyPowerSpent"]);
+        Assert.Equal(0, paid.Payload["remainingUnitOrEquipmentPlayOnlyPower"]);
+        var eventSources = JsonSerializer.SerializeToElement(paid.Payload["selectedPowerSources"], Web);
         Assert.Equal(1, eventSources.GetProperty("UNRESTRICTED").GetInt32());
         Assert.Equal(1, eventSources.GetProperty("UNIT_OR_EQUIPMENT_PLAY_ONLY").GetInt32());
         await game.Replay();
