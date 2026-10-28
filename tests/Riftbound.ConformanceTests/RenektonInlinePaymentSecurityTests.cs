@@ -113,6 +113,42 @@ public sealed class RenektonInlinePaymentSecurityTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RecycledRunesCanFundTheLegendAndTheUnitInOnePayment(bool fundLegendFromRunes)
+    {
+        var initial = UnitPosition(new(2, fundLegendFromRunes ? 0 : 2));
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Purple, "PURPLE");
+        var costs = new List<string> { "RECYCLE_RUNE:PURPLE", Mana, "POWER_SPEND:purple:1" };
+        var legendSpend = "POWER_SPEND:A:2";
+        if (fundLegendFromRunes)
+        {
+            initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Red, "RED-1");
+            initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Red, "RED-2");
+            costs.Add("RECYCLE_RUNE:RED-1"); costs.Add("RECYCLE_RUNE:RED-2");
+            legendSpend = "POWER_SPEND:red:2";
+        }
+        var resource = "LEGEND_RESOURCE:LEGEND:" + Ability + ":" + legendSpend;
+        costs.Add(resource);
+        var command = new PlayCardCommand("CARD", "SFD·143/221", [], OptionalCosts: costs, Destination: "BASE");
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        var play = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var metadata = JsonSerializer.SerializeToElement(play.Metadata, Web);
+        var unit = Assert.Single(metadata.GetProperty("sourceRequirements").EnumerateArray(),
+            r => r.GetProperty("sourceObjectId").GetString() == "CARD");
+        Assert.Contains(unit.GetProperty("paymentResourceChoices").EnumerateArray(),
+            c => c.GetProperty("id").GetString() == resource);
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalStoredMana);
+        Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower);
+        await game.Replay();
+    }
+
     private static MatchState UnitPosition(RunePool pool)
     {
         var state = WithLegend(RestrictedPowerPlayTests.Position("SFD·143/221", false));
