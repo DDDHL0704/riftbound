@@ -9,6 +9,16 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class BeginningRuneIntegrationTests
 {
+    private static MatchState StartWithAnOpponentRune(MatchState state)
+        => state with {
+            Phase = MatchPhases.TurnStart, TimingState = TimingStates.NeutralClosed, TurnStartStep = null,
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["OPP-RUNE"] = new("OPP-RUNE", cardNo: "OGN·007/298", ownerId: "P2", controllerId: "P2",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"]) },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["OPP-RUNE"] = new("P2", "BASE") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P2"] = state.PlayerZones["P2"] with { Base = state.PlayerZones["P2"].Base.Append("OPP-RUNE").ToArray() } } };
+
     [Theory]
     [InlineData("VEN·005", 2)]
     [InlineData("VEN·006", 4)]
@@ -95,14 +105,7 @@ public sealed class BeginningRuneIntegrationTests
     {
         var state = ArmamentMightTests.Position("SFD·059/221", cardNo, printedMight);
         state = (await AttachedRuleTextTests.Attach(state)).State;
-        state = state with {
-            Phase = MatchPhases.TurnStart, TimingState = TimingStates.NeutralClosed, TurnStartStep = null,
-            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["OPP-RUNE"] = new("OPP-RUNE", cardNo: "OGN·007/298", ownerId: "P2", controllerId: "P2",
-                    tags: [CardObjectTags.RuneCard, "COLOR:red"]) },
-            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["OPP-RUNE"] = new("P2", "BASE") },
-            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                ["P2"] = state.PlayerZones["P2"] with { Base = state.PlayerZones["P2"].Base.Append("OPP-RUNE").ToArray() } } };
+        state = StartWithAnOpponentRune(state);
         var opened = await Act(state, "P1", new PassPriorityCommand());
         Assert.Equal(2, opened.State.TriggerQueue.Count);
         Assert.Single(opened.State.TriggerQueue, trigger => trigger.BeginningRune!.Origin is not null);
@@ -117,6 +120,58 @@ public sealed class BeginningRuneIntegrationTests
         Assert.Equal(cardNo == "VEN·006", second.State.CardObjects["HOST"].UntilEndOfTurnEffects.Contains("ROAM"));
         Restore(second.State);
         ArmamentMightTests.PublicRecovery(second.State);
+    }
+
+    [Theory]
+    [InlineData("VEN·005", 2, 1)]
+    [InlineData("VEN·006", 4, 2)]
+    public async Task CopiedTriggerSurvivesAnActualEquipmentDetachInResponse(string cardNo, int printedMight, int bonus)
+    {
+        var state = ArmamentMightTests.Position("SFD·059/221", cardNo, printedMight);
+        state = (await AttachedRuleTextTests.Attach(state)).State;
+        state = StartWithAnOpponentRune(AttachedRuleTextTests.WithSpell(state, "P1", "SFD·011/221"));
+        var opened = await Act(state, "P1", new PassPriorityCommand());
+        var copied = Assert.Single(opened.State.TriggerQueue, trigger => trigger.BeginningRune?.Origin is not null);
+        var printed = Assert.Single(opened.State.TriggerQueue, trigger => trigger.BeginningRune?.Origin is null);
+        var ordered = await Act(opened.State, "P1", new OrderTriggersCommand([copied.TriggerId, printed.TriggerId]));
+        Assert.NotNull(ordered.State.StackItems.Last().BeginningRune!.Origin);
+        var spell = await Act(ordered.State, "P1", new PlayCardCommand("SPELL", "SFD·011/221", ["HOST", "GEAR"]));
+        var detached = await Top(spell.State);
+        Assert.Null(detached.State.CardObjects["GEAR"].AttachedToObjectId);
+        Assert.Null(detached.State.CardObjects["GEAR"].AttachedRuleText);
+        ArmamentMightTests.PublicRecovery(detached.State);
+        var first = await Top(detached.State);
+        Assert.Equal(printedMight + bonus, first.State.CardObjects["HOST"].Power);
+        var second = await Top(first.State);
+        Assert.Equal(printedMight + 2 * bonus, second.State.CardObjects["HOST"].Power);
+        Restore(second.State); ArmamentMightTests.PublicRecovery(second.State);
+    }
+
+    [Theory]
+    [InlineData("VEN·005", 2, 1, false)]
+    [InlineData("VEN·005", 2, 1, true)]
+    [InlineData("VEN·006", 4, 2, false)]
+    [InlineData("VEN·006", 4, 2, true)]
+    public async Task ActualImageAndItsEphemeralTriggerKeepIndependentOrders(
+        string cardNo, int printedMight, int bonus, bool runeFirst)
+    {
+        var copied = await OfficialCopyIdentityTests.Copy(OfficialCopyIdentityTests.Position(cardNo));
+        const string image = "C-TOKEN-001";
+        Assert.Equal(cardNo, copied.State.CardObjects[image].CardNo);
+        Assert.Equal(printedMight, copied.State.CardObjects[image].Power);
+        var opened = await Act(StartWithAnOpponentRune(copied.State), "P1", new PassPriorityCommand());
+        var rune = Assert.Single(opened.State.TriggerQueue, trigger => trigger.BeginningRune is not null);
+        var ephemeral = Assert.Single(opened.State.TriggerQueue, trigger => trigger.EphemeralStart is not null);
+        var order = runeFirst ? new[] { rune.TriggerId, ephemeral.TriggerId } : [ephemeral.TriggerId, rune.TriggerId];
+        var ordered = await Act(opened.State, "P1", new OrderTriggersCommand(order));
+        Assert.Equal(runeFirst, ordered.State.StackItems.Last().BeginningRune is not null);
+        var first = await Top(ordered.State);
+        if (runeFirst) Assert.Equal(printedMight + bonus, first.State.CardObjects[image].Power);
+        else Assert.False(first.State.CardObjects.ContainsKey(image));
+        Restore(first.State); ArmamentMightTests.PublicRecovery(first.State);
+        var second = await Top(first.State);
+        Assert.False(second.State.CardObjects.ContainsKey(image));
+        Restore(second.State); ArmamentMightTests.PublicRecovery(second.State);
     }
 
     [Theory]
