@@ -7,6 +7,8 @@ public sealed record PlayCostPreviewRequestDto(
     PlayCardCommand Command);
 
 public sealed record PlayCostAdjustmentDto(string Label, int Mana, int Power = 0);
+public sealed record PlayPaymentResourceActionQuoteDto(
+    string ActionId, int PowerCost, int UnitPlayOrUnitAbilityOnlyManaGained);
 
 public sealed record PlayCostBreakdownDto(
     int PrintedMana,
@@ -46,6 +48,8 @@ public sealed record PlayCostBreakdownDto(
     public IReadOnlyDictionary<string, int>? AvailableWildcardSources { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyDictionary<string, int>? RemainingWildcardSources { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PlayPaymentResourceActionQuoteDto>? PaymentResourceActions { get; init; }
 }
 
 // A quote is informational. Submission always rebuilds and authorizes its plan.

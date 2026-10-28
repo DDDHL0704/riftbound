@@ -98,7 +98,9 @@ public sealed partial class CoreRuleEngine
                 SpellPowerReductionChoices = plan.SpellPowerReductionChoices,
                 AvailableWildcardSources = showSources ? sourceBalances : null,
                 RemainingWildcardSources = remainingPool is null ? null
-                    : PaymentCostRules.AvailablePowerSources(remainingPool, debit.PowerPurpose) };
+                    : PaymentCostRules.AvailablePowerSources(remainingPool, debit.PowerPurpose),
+                PaymentResourceActions = plan.RenektonResourceAction is { } action
+                    ? [new(action, 2, 2)] : null };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);

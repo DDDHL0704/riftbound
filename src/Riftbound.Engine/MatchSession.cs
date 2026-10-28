@@ -14779,6 +14779,12 @@ internal static class ActionPromptBuilder
     private static int AvailablePlayMana(MatchState state, RunePool pool, CardBehaviorDefinition behavior)
         => PaymentCostRules.AvailableMana(pool, CoreRuleEngine.ManaPurposeForPlay(behavior), state: state);
 
+    private static IReadOnlyList<CoreRuleEngine.RenektonPaymentChoice> PromptRenektonPaymentChoices(
+        MatchState state, string playerId)
+        => CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
+            state.RunePools.GetValueOrDefault(playerId, RunePool.Empty),
+            CoreRuleEngine.RenektonRecyclablePower(state, playerId));
+
     private static int PromptAvailableManaWithLuxSpellOnlyResource(
         MatchState state,
         string playerId,
@@ -14791,9 +14797,9 @@ internal static class ActionPromptBuilder
         var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
         var available = AvailablePlayMana(state, runePool, behavior)
             + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
-        if (behavior.PlaysSourceToBaseAsUnit && available < requiredMana
-            && CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId, runePool).Any(choice =>
-                CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, new Dictionary<string, int>(), behavior, 0, "")))
+        if (behavior.PlaysSourceToBaseAsUnit && PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+                CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, choice.RemainingRunePower,
+                    behavior, 0, "", choice.RemainingRuneCapacity)))
             available += 2;
         return available;
     }
@@ -14859,8 +14865,7 @@ internal static class ActionPromptBuilder
         return RecycleRunePaymentResourceChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
-            .Concat(CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
-                    state.RunePools.GetValueOrDefault(playerId, RunePool.Empty))
+            .Concat(PromptRenektonPaymentChoices(state, playerId)
                 .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
                     "传奇支付资源行动；其符能费用与打出牌的费用分别核对")))
             .ToArray();
@@ -14928,7 +14933,7 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
-        CardBehaviorDefinition behavior, int amount, string trait)
+        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null)
     {
         pool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
@@ -14937,7 +14942,7 @@ internal static class ActionPromptBuilder
             + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
         if (extraGeneric > int.MaxValue) return false;
         return CoreRuleEngine.CanReachPlayPowerCost(state, playerId, behavior,
-            new RunePaymentReachability(pool, resources), (int)extraGeneric, extraTyped);
+            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped);
     }
 
     private static bool CanPayHasteReadyPowerCost(
@@ -15176,8 +15181,7 @@ internal static class ActionPromptBuilder
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
             || HasSourceStealEnemyEquipmentOptionalCost(behavior)
             || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0
-            || CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
-                state.RunePools.GetValueOrDefault(playerId, RunePool.Empty)).Count > 0;
+            || PromptRenektonPaymentChoices(state, playerId).Count > 0;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardLuxSpellOnlyResourceChoicesForBehavior(
@@ -16458,10 +16462,10 @@ internal static class ActionPromptBuilder
                 },
                 StringComparer.Ordinal);
 
+        var legendChoices = PromptRenektonPaymentChoices(state, playerId);
         foreach (var choice in paymentResourceChoices)
         {
-            var legend = CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId, runePool)
-                .SingleOrDefault(candidate => candidate.Id == choice.Id);
+            var legend = legendChoices.SingleOrDefault(candidate => candidate.Id == choice.Id);
             if (legend is not null)
             {
                 metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
@@ -16471,6 +16475,7 @@ internal static class ActionPromptBuilder
                     ["powerCost"] = 2,
                     ["powerSpend"] = legend.PowerSpend,
                     ["sourceObjectId"] = legend.SourceObjectId,
+                    ["requiredRecycleRunePowerByTrait"] = legend.RequiredRunePower,
                     ["resourceLifecycle"] = "rune-pool"
                 };
                 continue;
