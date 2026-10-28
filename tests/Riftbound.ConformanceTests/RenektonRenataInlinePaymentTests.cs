@@ -131,6 +131,69 @@ public sealed class RenektonRenataInlinePaymentTests
         Assert.NotEmpty(replay.Errors);
     }
 
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    public async Task RenataCanChooseEitherEligiblePowerForItsPrintedBlueCost(bool score, bool useWildcard)
+    {
+        var amount = score ? 4 : 1;
+        var ability = score ? P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId : P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId;
+        var initial = Position(new RunePool(amount, amount, new Dictionary<string, int> { [RuneTrait.Blue] = amount }));
+        var spend = useWildcard ? $"POWER_SPEND:A:{amount}" : $"POWER_SPEND:blue:{amount}";
+        var command = new ActivateAbilityCommand("P1-RENATA", ability, [], [spend]);
+        var result = await new CoreRuleEngine().ResolveAsync(initial, new("renata-source-choice", "P1", command.CmdType), command, default);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(useWildcard ? 0 : amount, result.State.RunePools["P1"].Power);
+        Assert.Equal(useWildcard ? amount : 0, result.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Blue));
+        var cost = Assert.Single(result.Events, e => e.Kind == "COST_PAID" && Equals(e.Payload.GetValueOrDefault("abilityId"), ability)).Payload;
+        Assert.Equal(amount, Convert.ToInt32(cost["totalPowerCost"]));
+        Assert.Equal(amount, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(cost["powerByTrait"])[RuneTrait.Blue]);
+
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        var candidate = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.ActivateAbility);
+        var requirements = JsonSerializer.SerializeToElement(candidate.Metadata, Web).GetProperty("sourceRequirements");
+        var requirement = Assert.Single(requirements.EnumerateArray(), r => r.GetProperty("abilityId").GetString() == ability);
+        Assert.Equal("POWER_SPEND:", requirement.GetProperty("powerSpendSelection").GetProperty("choicePrefix").GetString());
+    }
+
+    [Fact]
+    public async Task RenataPowerChoiceComposesWithLegendCostAndIsBoundToReplay()
+    {
+        var initial = Position(new RunePool(0, 3, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }));
+        var game = new Driver(initial);
+        var command = new ActivateAbilityCommand("P1-RENATA", P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, [],
+            [LegendResource, "POWER_SPEND:A:1"]);
+        await game.Act("P1", command);
+        Assert.Equal(0, game.State.RunePools["P1"].Power);
+        Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        var commands = game.Commands();
+        var original = Assert.Single(commands);
+        var changed = JsonNode.Parse(original.RawCommand!.Value.GetRawText())!.AsObject();
+        changed["optionalCosts"] = JsonSerializer.SerializeToNode(new[] { LegendResource, "POWER_SPEND:blue:1" }, Web);
+        commands[0] = original with { RawCommand = JsonSerializer.SerializeToElement(changed, Web) };
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, game.State,
+            new CoreRuleEngine(), default, game.Events());
+        Assert.False(replay.IsMatch);
+        Assert.NotEmpty(replay.Errors);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task InvalidOrDuplicateRenataPowerChoiceIsAtomic(bool duplicate)
+    {
+        var initial = Position(new RunePool(1, 1, new Dictionary<string, int> { [RuneTrait.Blue] = 1, [RuneTrait.Red] = 1 }));
+        var choices = duplicate ? new[] { "POWER_SPEND:A:1", "POWER_SPEND:blue:1" } : new[] { "POWER_SPEND:red:1" };
+        var command = new ActivateAbilityCommand("P1-RENATA", P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, [], choices);
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("renata-invalid-power", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
+
     private static MatchState Position(RunePool pool)
     {
         var state = OfficialHoldSequenceTests.AddLegend(RenataActivatedAbilityTests.AffordableBlueDrawPaymentState(), "VEN·141");
