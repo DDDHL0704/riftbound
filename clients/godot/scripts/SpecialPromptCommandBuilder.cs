@@ -787,7 +787,9 @@ public static class SpecialPromptCommandBuilder
                 targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel, threshold,
                     targetPriority.GetValueOrDefault(targetObjectId, 1), suggestedDamage,
                     metadata.TryGetProperty("damageImmuneTargetIds", out var immuneIds) && immuneIds.ValueKind == JsonValueKind.Array
-                    && immuneIds.EnumerateArray().Any(id => id.ValueKind == JsonValueKind.String && id.GetString() == targetObjectId)));
+                    && immuneIds.EnumerateArray().Any(id => id.ValueKind == JsonValueKind.String && id.GetString() == targetObjectId),
+                    metadata.TryGetProperty("targetPriorityOptions", out var options)
+                    && CombatDamagePriorityOptions.AllowsFirstOrLast(options, targetObjectId)));
             }
 
             parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, poolDamage, targets));

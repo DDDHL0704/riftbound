@@ -134,7 +134,8 @@ public partial class DamageAssignmentOverlay : Control
                 preview.Activated += selected => CardInspectionRequested?.Invoke(selected);
             }
             var labels = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-            var priority = target.Priority switch { 0 => "壁垒 · 优先分配", 2 => "后排 · 最后分配", _ => "普通单位" };
+            var priority = target.HasConflictingPriority ? "壁垒 + 后排 · 可先或最后分配"
+                : target.Priority switch { 0 => "壁垒 · 优先分配", 2 => "后排 · 最后分配", _ => "普通单位" };
             var heading = new Label { Text = target.Label };
             heading.AddThemeFontSizeOverride("font_size", 18);
             labels.AddChild(heading);

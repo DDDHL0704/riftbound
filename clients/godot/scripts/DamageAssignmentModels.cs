@@ -1,12 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace Riftbound.GodotClient;
 
-public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold, int Priority = 1, long SuggestedDamage = 0, bool CannotTakeDamage = false);
+public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold, int Priority = 1, long SuggestedDamage = 0, bool CannotTakeDamage = false, bool HasConflictingPriority = false);
 public sealed record DamageAssignmentPromptItem(string SourceObjectId, string SourceLabel, int DamagePool, IReadOnlyList<DamageTargetPromptItem> Targets);
 public sealed record DamageAssignmentSelection(string SourceObjectId, string TargetObjectId, int Damage);
+
+public static class CombatDamagePriorityOptions
+{
+    public static bool AllowsFirstOrLast(JsonElement options, string targetObjectId)
+    {
+        if (options.ValueKind != JsonValueKind.Object || !options.TryGetProperty(targetObjectId, out var values)
+            || values.ValueKind != JsonValueKind.Array || values.GetArrayLength() != 2) return false;
+        var priorities = values.EnumerateArray().ToArray();
+        return priorities.All(value => value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out _))
+            && priorities.Select(value => value.GetInt32()).OrderBy(value => value).SequenceEqual([0, 2]);
+    }
+}
 
 public static class PooledDamageSelection
 {
