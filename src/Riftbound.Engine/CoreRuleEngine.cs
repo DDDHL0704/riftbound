@@ -19000,7 +19000,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,

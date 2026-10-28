@@ -10,13 +10,19 @@ namespace Riftbound.ConformanceTests;
 public sealed class AkaliSubmittedDeckTests
 {
     [Theory]
+    [InlineData("VEN·139", "VEN·021")]
+    [InlineData("VEN·139", "VEN·021a")]
+    [InlineData("VEN·189", "VEN·021")]
+    [InlineData("VEN·189", "VEN·021a")]
+    [InlineData("VEN·189*", "VEN·021")]
+    [InlineData("VEN·189*", "VEN·021a")]
     [InlineData("VEN·139", "VEN·038")]
     [InlineData("VEN·139", "VEN·038a")]
     [InlineData("VEN·189", "VEN·038")]
     [InlineData("VEN·189", "VEN·038a")]
     [InlineData("VEN·189*", "VEN·038")]
     [InlineData("VEN·189*", "VEN·038a")]
-    public async Task ChinaStandardDeckSubmitsAndOpensWithBothImplementedAkaliPrints(string legendNo, string championNo)
+    public async Task ChinaStandardDeckSubmitsAndOpensWithImplementedAkaliPrints(string legendNo, string championNo)
     {
         const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();

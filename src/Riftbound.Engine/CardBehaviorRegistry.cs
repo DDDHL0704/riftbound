@@ -456,6 +456,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·021", "阿卡丽 · 游离之刃", 3, "VEN_AKALI_MOVEMENT_DAMAGE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·021a", "阿卡丽 · 游离之刃", 3, "VEN_AKALI_MOVEMENT_DAMAGE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

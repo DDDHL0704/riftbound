@@ -341,6 +341,14 @@ public static class TriggerParser
         if (nextDamageDestroy.Success)
             triggers.Add(new(TriggerKinds.SpellNextDamageOrInspiredDestroy, "UNIT_DAMAGED", nextDamageDestroy.Value,
                 "Confirmed Inspire destroys immediately; otherwise bind the original target's next damage this turn.", Duration: TriggerDurations.UntilEndOfTurn));
+        var movedOriginDamage = Regex.Match(text,
+            @"当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成(?<normal>[0-9一两二三四五六七八九十]+)点伤害。\s*如果我\{\{已强化\}\}，则改为造成(?<empowered>[0-9一两二三四五六七八九十]+)点伤害。?",
+            RegexOptions.CultureInvariant);
+        if (movedOriginDamage.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedDamageAtOriginOrDestination, TriggerTimings.UnitMoved,
+                movedOriginDamage.Value, "Choose a unit at the recorded movement origin or destination battlefield; damage uses the source's current empowerment.",
+                TargetScope: TriggerTargetScopes.UnitAtMovementEndpointBattlefield, DamageAmount: ParseChineseNumber(movedOriginDamage.Groups["normal"].Value),
+                Optional: true, EmpoweredDamageAmount: ParseChineseNumber(movedOriginDamage.Groups["empowered"].Value)));
         var movedTypedDiscard = Regex.Match(text,
             @"当我移动时，抽一张牌，然后弃置一张手牌。\s*随后，根据被弃置卡牌的类型，执行以下效果：\s*\*法术\s*—\s*抽一张牌。\s*\*装备\s*—\s*让最多两枚符文变为活跃状态。\s*\*单位\s*—\s*让我本回合内\{\{S\}\}\+3。?",
             RegexOptions.CultureInvariant);
