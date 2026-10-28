@@ -366,6 +366,27 @@ public sealed class BattlefieldConquestMillTimingTests
     }
 
     [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task ARegularMillChangesOnlyTheMovedCardsIdentities(string player)
+    {
+        var initial = Position(player, 3);
+        var opponent = player == "P1" ? "P2" : "P1";
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act(player, new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+        await driver.Act(player, new PassFocusCommand());
+        await driver.Act(opponent, new PassFocusCommand());
+        var resolved = await driver.Top();
+        Assert.DoesNotContain(resolved.Events, e => e.Kind == "BURNOUT_APPLIED");
+        Assert.Equal(new[] { "DRAW3" }, driver.State.PlayerZones[player].MainDeck);
+        Assert.Equal(new[] { "DRAW1", "DRAW2" }, driver.State.PlayerZones[player].Graveyard);
+        foreach (var id in new[] { "DRAW1", "DRAW2" })
+            Assert.NotEqual(initial.CardObjects[id].ObjectGeneration, driver.State.CardObjects[id].ObjectGeneration);
+        Assert.Equal(initial.CardObjects["DRAW3"].ObjectGeneration, driver.State.CardObjects["DRAW3"].ObjectGeneration);
+        AssertCanonicalComponent(driver.State);
+        await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
+    [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
     public async Task FirstBurnoutCompletesTheMillBeforeNormalScoreVictory(string player)
