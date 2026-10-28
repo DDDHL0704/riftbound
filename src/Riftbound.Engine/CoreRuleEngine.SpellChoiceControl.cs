@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
                 countered.Add(target.StackItemId); events.Add(counterEvent);
             }
         }
-        CompleteSpellSource(zones, cards, item, behavior);
+        CompleteSpellSource(zones, cards, item, behavior, events);
         return new(zones, cards, state.PlayerScores, state.PlayerExperience, pools, effects,
             null, events, [], stack, countered, null, triggers, state.RngCursor,
             ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, zones));

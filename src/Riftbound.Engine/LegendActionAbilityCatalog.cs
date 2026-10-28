@@ -5,6 +5,14 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string ZedLegendAbilityId = "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_DISCARD_DRAW";
+    public const string KennenLegendAbilityId = "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_GRANT_ASSAULT_TWO";
+    public const string JayceLegendReadyOneAbilityId = "LEGEND_PAY_1_EXHAUST_READY_ONE_EQUIPMENT";
+    public const string JayceLegendReadyTwoAbilityId = "LEGEND_EMPOWERED_PAY_1_EXHAUST_READY_TWO_EQUIPMENT";
+    public const string MelLegendAbilityId = "LEGEND_REMOVE_EMPOWER_EXHAUST_BATTLEFIELD_UNIT_MINUS_TWO";
+    public const string AmbessaLegendAbilityId = "LEGEND_REMOVE_EMPOWER_PAY_ONE_POWER_EXHAUST_READY_UNIT";
+    public const string AkaliLegendAbilityId = "LEGEND_QUICK_EXHAUST_MOVE_DUEL_UNIT";
+    public const string ShenLegendAbilityId = "LEGEND_QUICK_EXHAUST_GRANT_BULWARK";
     public const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
     public const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
     public const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
@@ -52,6 +60,36 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> ZedSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "影流之主" && card.Hero == "劫"
+            && card.CardEffect.Contains("{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> KennenSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "狂暴之心" && card.Hero == "凯南"
+            && card.CardEffect.Contains("{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> ShenSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards()
+            .Where(card => card.CardName == "暮光之眼" && card.Hero == "慎"
+                && card.CardEffect.StartsWith("{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> AkaliSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "离群之刺" && card.Hero == "阿卡丽"
+            && card.CardEffect.Contains("{{迅捷>}}{{横置}}：如果这是你的回合", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> MelSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "流光镜影" && card.Hero == "梅尔"
+            && card.CardEffect.Contains("解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> JayceSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "未来守护者" && card.Hero == "杰斯"
+            && card.CardEffect.Contains("支付{{1}}，{{横置}}：让一件装备变为活跃状态。", StringComparison.Ordinal)
+            && card.CardEffect.Contains("{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> AmbessaSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "铁血狼母" && card.Hero == "安蓓萨"
+            && card.CardEffect.Contains("解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> RenektonSourceCardNos = new(() =>
         ReviewedResourceLegendSources.GetPhysicalPrints()
             .Where(card => card.CardName == "荒漠屠夫" && card.Hero == "雷克顿"
@@ -60,6 +98,15 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, ZedLegendAbilityId, StringComparison.Ordinal)) return ZedSourceCardNos.Value;
+        if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
+        if (abilityId is JayceLegendReadyOneAbilityId or JayceLegendReadyTwoAbilityId) return JayceSourceCardNos.Value;
+        if (string.Equals(abilityId, MelLegendAbilityId, StringComparison.Ordinal)) return MelSourceCardNos.Value;
+        if (string.Equals(abilityId, AmbessaLegendAbilityId, StringComparison.Ordinal)) return AmbessaSourceCardNos.Value;
+        if (string.Equals(abilityId, AkaliLegendAbilityId, StringComparison.Ordinal))
+            return AkaliSourceCardNos.Value;
+        if (string.Equals(abilityId, ShenLegendAbilityId, StringComparison.Ordinal))
+            return ShenSourceCardNos.Value;
         if (string.Equals(abilityId, RenektonLegendAbilityId, StringComparison.Ordinal))
             return RenektonSourceCardNos.Value;
         return !string.IsNullOrWhiteSpace(abilityId)

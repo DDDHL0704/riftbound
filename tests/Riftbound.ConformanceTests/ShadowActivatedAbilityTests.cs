@@ -658,6 +658,28 @@ public sealed class ShadowActivatedAbilityTests
     }
 
     [Fact]
+    public async Task ShadowStunQueuesTheControllersObserverAfterTheAbilityResolves()
+    {
+        var initial = BuildShadowState(mana: 1, power: 1);
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["WATCH"] = new("WATCH", cardNo: "OGN·059/298", ownerId: "P1", controllerId: "P1",
+                    power: 7, isExhausted: true, tags: [CardObjectTags.UnitCard]) },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Base = ["WATCH"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["WATCH"] = new("P1", "BASE") } };
+        var activated = await ActivateShadowAsync(initial);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        var stunned = await OfficialGraveyardRecastTests.Top(activated.State);
+        Assert.Contains("STUNNED", stunned.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
+        Assert.True(stunned.State.CardObjects["WATCH"].IsExhausted);
+        Assert.Equal("ENEMY_STUNNED_SOURCE_READY_POWER", Assert.Single(stunned.State.StackItems).FieldContext!.Kind);
+        var done = await OfficialGraveyardRecastTests.Top(stunned.State);
+        Assert.False(done.State.CardObjects["WATCH"].IsExhausted);
+        Assert.Equal(8, done.State.CardObjects["WATCH"].Power);
+    }
+
+    [Fact]
     public async Task ShadowResolutionNoEffectsWhenTargetStopsAttacking()
     {
         var engine = new CoreRuleEngine();

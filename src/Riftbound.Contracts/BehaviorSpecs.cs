@@ -56,6 +56,10 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
+    public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
+    public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
+    public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
@@ -155,6 +159,8 @@ public static class TriggerKinds
         "UNIT_CONQUEST_OVERKILL_CREATE_DORMANT_GOLD";
     public const string UnitConquestAttackOverkillGainScore =
         "UNIT_CONQUEST_ATTACK_OVERKILL_GAIN_SCORE";
+    public const string UnitConquestEmpoweredGainScore =
+        "UNIT_CONQUEST_EMPOWERED_GAIN_SCORE";
     public const string UnitConquestPlayedUnitEquipmentSpellGainScore =
         "UNIT_CONQUEST_PLAYED_NON_TOKEN_UNIT_EQUIPMENT_AND_SPELL_GAIN_SCORE";
     public const string UnitConquestPayReturnSelfToHand =
@@ -168,6 +174,7 @@ public static class TriggerKinds
     public const string SourceUnitPlayedOtherEquipmentDraw = "SOURCE_UNIT_PLAYED_OTHER_EQUIPMENT_DRAW";
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
+    public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
@@ -206,6 +213,10 @@ public static class TriggerKinds
     public const string UnitAttackPayPowerModifier =
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
+    public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
+    public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
+    public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
+    public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
@@ -221,6 +232,8 @@ public static class TriggerKinds
         "LEGEND_HIGH_COST_SPELL_BANISH_COMPLETION";
     public const string UnitFriendlyDestroyedGainExperience =
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
+    public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
+        "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =
@@ -270,6 +283,7 @@ public static class TriggerTimings
     public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
     public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
     public const string UnitAttack = "UNIT_ATTACK";
+    public const string SourceUnitPlayedOrAttack = "SOURCE_UNIT_PLAYED_OR_ATTACK";
     public const string UnitAttackOrDefend = "UNIT_ATTACK_OR_DEFEND";
     public const string EnemyAttacksControlledBattlefield = "ENEMY_ATTACKS_CONTROLLED_BATTLEFIELD";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
@@ -281,6 +295,7 @@ public static class TriggerTimings
 public static class TriggerTargetScopes
 {
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
+    public const string AllEnemyUnitsHere = "ALL_ENEMY_UNITS_HERE";
     public const string TriggeringAttacker = "TRIGGERING_ATTACKER";
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
@@ -293,12 +308,15 @@ public static class TriggerTargetScopes
     public const string SourceLegend = "SOURCE_LEGEND";
     public const string ExhaustedUnitOnField = "EXHAUSTED_UNIT_ON_FIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
+    public const string UnitAtMovementEndpointBattlefield = "UNIT_AT_MOVEMENT_ENDPOINT_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
+    public const string AnyFieldRune = "ANY_FIELD_RUNE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
+    public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
@@ -405,6 +423,7 @@ public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
+    public const string SourceObjectPowerWithSameLocationEnemy = "SOURCE_OBJECT_POWER_WITH_SAME_LOCATION_ENEMY";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
     public const string SameLocationEnemyFilteredPower = "SAME_LOCATION_ENEMY_FILTERED_POWER";
@@ -636,7 +655,11 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? RequiredOtherControlledEquipment = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? RequiresSourceEmpowered = null);
+    bool? RequiresSourceEmpowered = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MaximumControlledRunes = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? EmpoweredDamageAmount = null);
 
 public sealed record ReplacementSpec(
     string Kind,
@@ -689,7 +712,8 @@ public sealed record StaticAbilitySpec(
     bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
-    bool? RequiresSameNameCardInControllerGraveyard = null);
+    bool? RequiresSameNameCardInControllerGraveyard = null,
+    bool? RequiresSourceOutsideBattle = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

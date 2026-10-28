@@ -32,7 +32,7 @@ internal static class EmpowerRules
     internal static bool SupportedCost(EmpowerCostSpec cost)
         => cost.SupportedResources || RequiresHandDiscard(cost) || RequiresFriendlyUnitDestruction(cost);
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
     private static readonly Lazy<IReadOnlyDictionary<string, (IReadOnlyList<EmpowerSpec> Specs, EmpoweredSelfSpec Self, IReadOnlyList<EmpoweredSpellSpec> Spells, IReadOnlyList<EmpoweredSpellCostReductionSpec> CostReductions)>> Profiles = new(() =>
         Cards.Value.ToDictionary(p => p.Key, p => (EmpowerParser.Parse(p.Value.CardEffect), EmpowerParser.Self(p.Value.CardEffect), EmpowerParser.SpellEffects(p.Value.CardEffect), EmpowerParser.SpellCostReductions(p.Value.CardEffect))));
     internal static IReadOnlyList<EmpowerSpec> Specs(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Specs : [];
@@ -63,8 +63,10 @@ internal static class EmpowerRules
             - (spec.ReduceManaPerRune ? runes : 0));
     internal static bool CanActivate(MatchState state, string actor, CardObjectState source)
         => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && !source.IsEmpowered && !source.IsFaceDown && source.ControllerId == actor
-            && source.Tags.Contains(CardObjectTags.UnitCard)
-            && state.PlayerZones.TryGetValue(actor, out var z) && (z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId));
+            && state.PlayerZones.TryGetValue(actor, out var z)
+            && (z.LegendZone.Contains(source.ObjectId)
+                || (source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.EquipmentCard))
+                    && (z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId)));
     internal static bool Valid(MatchState state, StackItemState item)
     {
         if (item.EmpowerActivation is not { } c) return item.EffectKind != Effect;
@@ -271,16 +273,18 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveEmpowerStack(MatchState state, StackItemState item)
     {
         if (!EmpowerRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured empower activation.");
-        return ApplyEmpowerAction(state, item.EmpowerActivation!.Source);
+        return ApplyEmpowerAction(state, item.EmpowerActivation!.Source, item.ControllerId);
     }
 
-    private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding)
-        => ApplyEmpowerStatusAction(state, binding, true);
+    private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding, string actor)
+        => ApplyEmpowerStatusAction(state, binding, true, actor);
 
-    private static StackResolutionResult ApplyEmpowerStatusAction(MatchState state, ObjectBinding binding, bool empowered)
+    private static StackResolutionResult ApplyEmpowerStatusAction(MatchState state, ObjectBinding binding, bool empowered, string actor)
     {
         if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration != binding.Generation
-            || !IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsEmpowered == empowered) return NoopStackResolutionResult(state);
+            || !(IsObjectOnField(state.PlayerZones, source.ObjectId)
+                || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(source.ObjectId)))
+            || source.IsEmpowered == empowered) return NoopStackResolutionResult(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = empowered };
         var payload = new Dictionary<string, object?> {
             ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration };
@@ -291,6 +295,8 @@ public sealed partial class CoreRuleEngine
             if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
             var banish = CaptureEmpoweredBanish(state, cards, cards[source.ObjectId]);
             if (banish.Length > 0) payload[EmpoweredBanishCaptureKey] = banish;
+            var observers = CaptureEmpowerOtherObservers(state, cards, cards[source.ObjectId], actor);
+            if (observers.Length > 0) payload[EmpowerOtherCaptureKey] = observers;
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards,
             Events = [new(empowered ? "OBJECT_EMPOWERED" : "OBJECT_EMPOWER_REMOVED", empowered ? source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态" : "解除物体的强化状态", payload)] };

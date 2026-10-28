@@ -22,7 +22,20 @@ public sealed partial class CoreRuleEngine
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
+            context is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, PaidUnitTrigger = paid with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], paid.FaceRevision, paid.CapturedTick) ?? string.Empty) } }
+                : context is { StunObserver: { } stun }
+                && IsStunObserverKind(context.Kind) && departed.Contains(sourceId)
+                && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, StunObserver = stun with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], stun.SourceFaceRevision, stun.CapturedTick) ?? string.Empty) } }
+                : context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, EmpoweredTransition = birth with {
@@ -33,7 +46,7 @@ public sealed partial class CoreRuleEngine
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, RecycledBoon = origin with {
                     CeasedSource = CaptureBoonSource(sourceId, context, origin) } }
-                : context is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
+                : context is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == (before.CardObjects[sourceId].TokenFactoryCardNo ?? before.CardObjects[sourceId].CardNo)
                 ? context with { SourceCeasedToExist = true }

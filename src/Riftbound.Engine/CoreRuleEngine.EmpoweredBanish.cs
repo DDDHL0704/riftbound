@@ -110,10 +110,10 @@ public sealed partial class CoreRuleEngine
             && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal)
             && TryRemoveFieldTargetCore(zones, cards, target, true, out var removal)) {
             // Banish is an ordinary departure, not destruction or a destruction replacement (CN 428.2).
-            events.Add(new("UNIT_BANISHED", "放逐目标单位", new Dictionary<string, object?> {
+            events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", "放逐目标单位", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target,
                 ["playerId"] = removal.OwnerPlayerId, ["destinationZone"] = removal.DestinationZone,
-                ["detachedEquipmentObjectIds"] = removal.DetachedEquipmentObjectIds.ToArray() }));
+                ["detachedEquipmentObjectIds"] = removal.DetachedEquipmentObjectIds.ToArray() }), zones, cards, item.ControllerId, [target]));
         }
         events.Add(new("TRIGGER_RESOLVED", "触发技能结算完成", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId }));
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
