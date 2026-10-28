@@ -70,14 +70,7 @@ public sealed class ShadowSwiftResourcePaymentTests
     [Fact]
     public async Task RecycledRuneCanFundTheLegendOnlyWhenAcquiredFirst()
     {
-        var initial = Position(new RunePool(0, 2));
-        initial = initial with {
-            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                ["P2-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-RUNE", "UNL-R01", "P2") },
-            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
-                ["P2"] = initial.PlayerZones["P2"] with { Base = [..initial.PlayerZones["P2"].Base, "P2-RUNE"] } },
-            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["P2-RUNE"] = new("P2", "BASE") }
-        };
+        var initial = WithP2Rune(Position(new RunePool(0, 2)));
         var game = await Focused(initial);
         var legend = "LEGEND_RESOURCE:P2-LEGEND:" + LegendAbility + ":POWER_SPEND:A:1,red:1";
         var command = new ActivateAbilityCommand("SHADOW", ShadowAbility, ["HOST"], ["RECYCLE_RUNE:P2-RUNE", legend]);
@@ -99,6 +92,32 @@ public sealed class ShadowSwiftResourcePaymentTests
         var legendPaid = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), LegendAbility));
         var skillPaid = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), ShadowAbility));
         Assert.True(recycled >= 0 && recycled < legendPaid && legendPaid < skillPaid);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task LegendCanFreePowerCapacityBeforeARecycledRunePaysTheSkill()
+    {
+        var initial = WithP2Rune(Position(new RunePool(0, 2, unitOrEquipmentPlayOnlyPower: int.MaxValue - 2)));
+        var game = await Focused(initial);
+        var command = new ActivateAbilityCommand("SHADOW", ShadowAbility, ["HOST"], [Resource, "RECYCLE_RUNE:P2-RUNE"]);
+        var wrongOrder = command with { OptionalCosts = ["RECYCLE_RUNE:P2-RUNE", Resource] };
+        var before = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("shadow-capacity-order", "P2", wrongOrder.CmdType), wrongOrder, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+
+        await game.Act("P2", command);
+        Assert.Equal(int.MaxValue - 2, game.State.RunePools["P2"].UnitOrEquipmentPlayOnlyPower);
+        Assert.Equal("RUNE_DECK", game.State.ObjectLocations["P2-RUNE"].Zone);
+        Assert.Equal(1, game.State.RunePools["P2"].UnitPlayOrUnitAbilityOnlyMana);
+        var events = game.Events();
+        var legendPaid = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), LegendAbility));
+        var recycled = Array.FindIndex(events, e => e.Event.Kind == "RUNE_RECYCLED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "P2-RUNE"));
+        Assert.True(legendPaid >= 0 && recycled > legendPaid);
         await game.Top();
         Assert.Contains("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         await game.Replay();
@@ -202,6 +221,14 @@ public sealed class ShadowSwiftResourcePaymentTests
         Assert.True(game.State.BattleState.IsActive);
         return game;
     }
+
+    private static MatchState WithP2Rune(MatchState state) => state with {
+        CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["P2-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-RUNE", "UNL-R01", "P2") },
+        PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+            ["P2"] = state.PlayerZones["P2"] with { Base = [..state.PlayerZones["P2"].Base, "P2-RUNE"] } },
+        ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["P2-RUNE"] = new("P2", "BASE") }
+    };
 
     private static MatchState Position(RunePool pool, bool spellshield = false)
     {
