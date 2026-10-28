@@ -194,7 +194,7 @@ public sealed class PowerfulPlayedLegendTests
         await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["LEGEND"])); await Replay();
         await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand()); await Replay();
         await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand()); await Replay();
-        Assert.Equal(1, driver.State.PlayerZones["P1"].RuneDeck.Count);
+        Assert.Single(driver.State.PlayerZones["P1"].RuneDeck);
         await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand()); await Replay();
         await driver.Act(driver.State.PriorityPlayerId!, new PassPriorityCommand()); await Replay();
         Assert.Empty(driver.State.StackItems);
