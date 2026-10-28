@@ -87,8 +87,7 @@ internal static class PlayPowerSpendSelectionRules
             => !string.IsNullOrWhiteSpace(cost) && cost.Trim().StartsWith(SourceChoicePrefix, StringComparison.Ordinal);
     }
 
-    internal static bool CanPay(Selection selection, RunePool available, int generic, IReadOnlyDictionary<string, int> typed,
-        RunePool originalPool, PowerPaymentPurpose purpose)
+    internal static bool CanPay(Selection selection, RunePool available, int generic, IReadOnlyDictionary<string, int> typed)
     {
         if (!available.HasSupportedAmounts || generic < 0 || selection.Total <= 0
             || selection.Wildcard > available.Power || typed.Values.Any(value => value < 0)
@@ -98,9 +97,13 @@ internal static class PlayPowerSpendSelectionRules
         // Wildcards must cover every missing required trait. All remaining
         // selected resources can then pay the generic part, by the exact total.
         return required <= int.MaxValue && selection.Total == required
-            && (selection.Sources is null || PaymentCostRules.CanSpendPowerSources(originalPool, purpose, selection.Sources, selection.Wildcard))
             && typed.Sum(pair => Math.Max(0L, (long)pair.Value - selection.ByTrait.GetValueOrDefault(pair.Key))) <= selection.Wildcard;
     }
+
+    internal static bool CanPayWithSources(Selection selection, RunePool available, int generic,
+        IReadOnlyDictionary<string, int> typed, RunePool originalPool, PowerPaymentPurpose purpose)
+        => CanPay(selection, available, generic, typed)
+            && (selection.Sources is null || PaymentCostRules.CanSpendPowerSources(originalPool, purpose, selection.Sources, selection.Wildcard));
 
     internal static PaymentCostRules.PaymentPlan DebitPlan(PaymentCostRules.PaymentPlan fee, Selection selection)
         => new(fee.PaymentId, fee.PaymentWindow, fee.PlayerId,

@@ -18365,7 +18365,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
             .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower,
+                || PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower,
                     paymentAdjustedPool, powerPurpose))
             .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
