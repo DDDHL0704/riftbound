@@ -155,14 +155,17 @@ public sealed partial class CoreRuleEngine
     private static bool ValidHistoricalMightyFace(MatchState state, CardObjectState current, CardObjectState captured)
     {
         if (current.ObjectGeneration < captured.ObjectGeneration) return false;
-        if (current.ObjectGeneration > captured.ObjectGeneration || current.CardNo == captured.CardNo) return true;
+        if (current.ObjectGeneration > captured.ObjectGeneration) return true;
 
         // Copying changes a face without creating a new object. Accept a prior
-        // face only when the saved timeline proves the exact historical prefix.
-        if (!CopyFaceTimeline.Valid(state, current) || current.CopyFaceTransitions is not { Count: > 0 } history)
-            return false;
+        // face only when the saved timeline proves the exact historical prefix,
+        // including when a later copy has returned to the same face.
+        if (!CopyFaceTimeline.Valid(state, current)) return false;
+        if (current.CopyFaceTransitions is not { } history)
+            return captured.CopyFaceTransitions is null && current.CardNo == captured.CardNo;
+        if (captured.CopyFaceTransitions is { Count: 0 }) return false;
         var prior = captured.CopyFaceTransitions ?? [];
-        if (prior.Count >= history.Count || !prior.SequenceEqual(history.Take(prior.Count))) return false;
+        if (prior.Count > history.Count || !prior.SequenceEqual(history.Take(prior.Count))) return false;
         var capturedTick = prior.Count == 0 ? 0 : prior[^1].Tick;
         return CopyFaceTimeline.FaceAt(current, prior.Count, capturedTick) == captured.CardNo;
     }
