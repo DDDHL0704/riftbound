@@ -11,7 +11,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     [InlineData("PAY")]
     public async Task VaynePaysAtConfirmationButReturnsOnlyAfterResponses(string choice)
     {
-        var (initial, game, _) = await OpenVaynePaymentTimingBattle();
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(1, payment.ManaCost);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
@@ -163,7 +163,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Game, ResolutionResult Settled)>
         OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false,
-            bool spellOnly = false, bool includeRune = false)
+            bool spellOnly = false, bool includeRune = false, bool responseCard = false)
     {
         var initial = SingleDefenderWireState(true) with { Tick = 0,
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
@@ -197,7 +197,8 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                     ["VAYNE-DECK-1"] = new("P2", "MAIN_DECK"), ["VAYNE-DECK-2"] = new("P2", "MAIN_DECK") } };
         }
-        initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", "P2");
+        if (responseCard)
+            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", "P2");
         var game = new StandbyDefendObserverTests.Driver(initial);
         await game.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
             [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
