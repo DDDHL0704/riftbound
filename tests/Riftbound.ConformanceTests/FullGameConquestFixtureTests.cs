@@ -80,8 +80,11 @@ public sealed partial class FullGameEndToEndTests
                 AssertVayneConquestReturnPaymentOpened(triggered);
                 var paid = await PayVayneConquestReturnPaymentAsync(session, triggered, "P1", room + "-pay");
                 RecordConquestFixturePrefix(source, "paid", paid);
-                AssertVayneConquestReturnPaid(triggered, paid);
-                triggered = paid;
+                AssertVayneConquestReturnPendingAfterPayment(triggered, paid);
+                var returned = await ResolveDriverPendingEffectsAsync(session, paid, room + "-vayne-response");
+                RecordConquestFixturePrefix(source, "responded", returned);
+                AssertVayneConquestReturnPaid(triggered, returned);
+                triggered = returned;
                 break;
             case "zaun": AssertBattlefieldConquerDiscardDrawResolved(current, triggered); break;
             case "shirana": AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered); break;
