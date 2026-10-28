@@ -134,10 +134,18 @@ public sealed class RenektonRenataInlinePaymentTests
     private static MatchState Position(RunePool pool)
     {
         var state = OfficialHoldSequenceTests.AddLegend(RenataActivatedAbilityTests.AffordableBlueDrawPaymentState(), "VEN·141");
-        return state with {
+        var complete = state with {
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1") },
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1"),
+                ["P1-MAIN"] = new("P1-MAIN", cardNo: "OGN·278/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1", controllerId: "P1") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { Battlefields = ["P1-MAIN", "P1-RENATA"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+                ["P1-MAIN"] = new("P1", "BATTLEFIELD", "P1-MAIN") },
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = pool } };
+        ArmamentMightTests.PublicRecovery(complete);
+        return complete;
     }
 }
