@@ -33,8 +33,24 @@ internal static class OptionalCostReductionNetworkChecks
             Check(requirements.Length == 1 && requirements[0].EnumerateArray().Select(id => id.GetString()).SequenceEqual([fee]),
                 "The allocation must be required only for the declared optional fee.");
             var copied = origin.ValueKind == JsonValueKind.Object;
+            var generationText = generation.ToString(CultureInfo.InvariantCulture);
+            if (copied)
+            {
+                var unit = origin.GetProperty("unit");
+                var equipment = origin.GetProperty("equipment");
+                var equipmentId = equipment.GetProperty("objectId").GetString();
+                var equipmentGeneration = equipment.GetProperty("generation").GetInt64();
+                var revision = origin.GetProperty("revision").GetInt64();
+                var capturedInstance = "ATTACHED:" + equipmentId + ":"
+                    + equipmentGeneration.ToString(CultureInfo.InvariantCulture) + ":" + revision.ToString(CultureInfo.InvariantCulture);
+                Check(unit.GetProperty("objectId").GetString() == reducer && unit.GetProperty("generation").GetInt64() == generation
+                    && equipmentId is { Length: > 0 } && equipmentGeneration >= 0 && revision > 0 && instance == capturedInstance,
+                    "The copied origin must bind the source and the exact equipment attachment revision.");
+            }
+            else Check(instance == "PRINTED:" + reducer + ":" + generationText,
+                "The printed instance must bind the source generation.");
             var expected = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":"
-                + generation.ToString(CultureInfo.InvariantCulture) + ":" + component + ":"
+                + generationText + ":" + component + ":"
                 + (copied ? "POWER-green:RULE_TEXT:" + Uri.EscapeDataString(instance!) : "MANA");
             Check(choice == expected, "The allocation must match this source instance and resource dimension.");
             matched.Add((group, copied, instance!));

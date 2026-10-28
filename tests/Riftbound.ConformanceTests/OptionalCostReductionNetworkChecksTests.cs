@@ -28,6 +28,12 @@ public sealed class OptionalCostReductionNetworkChecksTests
     [InlineData("wrong-generation")]
     [InlineData("wrong-component")]
     [InlineData("stale-instance")]
+    [InlineData("wrong-origin-unit")]
+    [InlineData("wrong-origin-generation")]
+    [InlineData("wrong-equipment")]
+    [InlineData("wrong-equipment-generation")]
+    [InlineData("wrong-revision")]
+    [InlineData("wrong-printed-instance")]
     [InlineData("missing-allocation")]
     [InlineData("duplicate-allocation")]
     [InlineData("duplicate-group")]
@@ -45,6 +51,12 @@ public sealed class OptionalCostReductionNetworkChecksTests
             case "wrong-generation": copy["sourceGeneration"] = Generation + 1; break;
             case "wrong-component": copy["componentId"] = "ECHO"; break;
             case "stale-instance": copy["sourceInstanceId"] = "ATTACHED:gear:0:old"; break;
+            case "wrong-origin-unit": copy["ruleTextOrigin"]!["unit"]!["objectId"] = "other"; break;
+            case "wrong-origin-generation": copy["ruleTextOrigin"]!["unit"]!["generation"] = Generation + 1; break;
+            case "wrong-equipment": copy["ruleTextOrigin"]!["equipment"]!["objectId"] = "other-gear"; break;
+            case "wrong-equipment-generation": copy["ruleTextOrigin"]!["equipment"]!["generation"] = 1; break;
+            case "wrong-revision": copy["ruleTextOrigin"]!["revision"] = 3; break;
+            case "wrong-printed-instance": groups[0]!["sourceInstanceId"] = "PRINTED:other:0"; break;
             case "missing-allocation": costs.RemoveAt(costs.Count - 1); break;
             case "duplicate-allocation": costs.Add(costs[^1]); break;
             case "duplicate-group": groups.Add(copy.DeepClone()); break;
@@ -69,7 +81,7 @@ public sealed class OptionalCostReductionNetworkChecksTests
         object Group(bool isCopy, string instance, string choice) => new {
             sourceObjectId = Reducer, sourceGeneration = Generation, sourceInstanceId = instance,
             componentId = component, minSelections = 1, maxSelections = 1,
-            ruleTextOrigin = isCopy ? new { revision = 2, unit = new { objectId = Reducer }, equipment = new { objectId = "gear" } } : null,
+            ruleTextOrigin = isCopy ? new { revision = 2, unit = new { objectId = Reducer, generation = Generation }, equipment = new { objectId = "gear", generation = 0 } } : null,
             choiceIds = new[] { choice }, requiresOneOfOptionalCostSelections = new[] { new[] { fee } }
         };
         var groups = new List<object> { Group(false, printedInstance, printedChoice) };
