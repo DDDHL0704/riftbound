@@ -350,22 +350,44 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         if (game.State.PendingPayment is null && game.State.TriggerQueue.Count > 0)
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
 
-        for (var index = 0; index < 2; index++)
+        var decisions = 0;
+        for (var step = 0; step < 8 && decisions < 2; step++)
         {
-            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
-            var item = Assert.Single(game.State.StackItems, s => s.StackItemId == payment.ResolvingStackItemId);
-            Assert.Equal(AttackerObjectId, item.SourceObjectId);
-            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+            if (game.State.PendingPayment is { } payment)
+            {
+                var item = Assert.Single(game.State.StackItems, s => s.StackItemId == payment.ResolvingStackItemId);
+                Assert.Equal(AttackerObjectId, item.SourceObjectId);
+                await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
+                decisions++;
+            }
+            else if (game.State.PendingCardChoice is { } choice)
+                await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                    choice.LegalObjectIds.Take(choice.RequiredCount).ToArray()));
+            else
+                throw new InvalidOperationException("Both Vayne confirmations must be handled before responses.");
         }
+        Assert.Equal(2, decisions);
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "COST_PAID"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), AttackerObjectId)));
         AssertVayneJsonColdFrame(initial, game);
 
-        for (var step = 0; step < 6 && game.State.StackItems.Count > 0; step++)
-            await game.Top();
+        for (var step = 0; step < 10 && (game.State.StackItems.Count > 0 || game.State.TriggerQueue.Count > 0); step++)
+        {
+            if (game.State.TriggerQueue.Count > 0)
+                await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+            else if (game.State.PendingCardChoice is { } choice)
+                await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                    choice.LegalObjectIds.Take(choice.RequiredCount).ToArray()));
+            else
+            {
+                Assert.Null(game.State.PendingPayment);
+                await game.Top();
+            }
+        }
         Assert.Empty(game.State.StackItems);
+        Assert.Empty(game.State.TriggerQueue);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Hand);
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
         Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_RETURNED_TO_HAND"
