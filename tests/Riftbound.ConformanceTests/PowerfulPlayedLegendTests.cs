@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class PowerfulPlayedLegendTests
 {
-    private static async Task<ResolutionResult> Open(string legend)
+    private static MatchState Position(string legend)
     {
         var state = OfficialCopyIdentityTests.AddSpell(ArmamentMightTests.Position(), "PLAYED", "SFD·175/221");
         state = state with {
@@ -18,7 +18,12 @@ public sealed class PowerfulPlayedLegendTests
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
                 ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
-        state = PrintedCostFixture.Add(state, "P1", "SFD·175/221");
+        return PrintedCostFixture.Add(state, "P1", "SFD·175/221");
+    }
+
+    private static async Task<ResolutionResult> Open(string legend)
+    {
+        var state = Position(legend);
         var played = await Act(state, "P1", new PlayCardCommand("PLAYED", "SFD·175/221", []));
         void Capture(string step, ResolutionResult result)
         {
@@ -81,5 +86,30 @@ public sealed class PowerfulPlayedLegendTests
         var ownResolved = await Top(resolved.State);
         Assert.Empty(ownResolved.State.StackItems);
         Restore(ownResolved.State); ArmamentMightTests.PublicRecovery(ownResolved.State);
+    }
+
+    [Theory]
+    [InlineData("history")] [InlineData("source-generation")] [InlineData("unit-generation")]
+    [InlineData("might")] [InlineData("queue-tick")]
+    public async Task TriggerOrderRejectsForgedPlayEvidenceWithoutMutation(string field)
+    {
+        var played = await Act(Position("OGN·249/298"), "P1", new PlayCardCommand("PLAYED", "SFD·175/221", []));
+        var state = played.State;
+        var trigger = Assert.Single(state.TriggerQueue, t => t.SourceObjectId == "LEGEND");
+        var context = Assert.IsType<MightySkillContext>(trigger.MightySkill);
+        var forged = field switch {
+            "source-generation" => trigger with { MightySkill = context with { Source = context.Source with { Generation = context.Source.Generation + 1 } } },
+            "unit-generation" => trigger with { MightySkill = context with { Unit = context.Unit with { Generation = context.Unit.Generation + 1 } } },
+            "might" => trigger with { MightySkill = context with { AfterMight = context.AfterMight + 1 } },
+            "queue-tick" => trigger with { EnqueuedAtTick = state.Tick + 1 },
+            _ => trigger };
+        state = state with { TriggerQueue = state.TriggerQueue.Select(t => t.TriggerId == trigger.TriggerId ? forged : t).ToArray() };
+        if (field == "history") state = state with { CardPlays = state.CardPlays with { Resolved = [] } };
+        var command = new OrderTriggersCommand(state.TriggerQueue.Select(t => t.TriggerId).ToArray());
+        var before = MatchStateHasher.Hash(state);
+        var result = await new CoreRuleEngine().ResolveAsync(state, new("forged-order", "P1", command.CmdType), command, default);
+        Assert.False(result.Accepted);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+        Assert.Empty(result.Events);
     }
 }
