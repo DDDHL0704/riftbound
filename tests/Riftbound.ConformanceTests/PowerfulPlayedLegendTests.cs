@@ -364,5 +364,15 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Equal(2, triggers.Length);
         Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
         await BanishEffectPlayTests.Replay(initial, driver);
+        await driver.Act("P1", new OrderTriggersCommand(driver.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["LEGEND"]));
+        Assert.True(driver.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Null(driver.State.PendingCardChoice);
+        Assert.Single(driver.State.StackItems);
+        await driver.Top();
+        Assert.Equal(2, driver.State.PlayerZones["P1"].RuneDeck.Count);
+        Assert.Contains("DYING", driver.State.PlayerZones["P1"].Graveyard);
+        await BanishEffectPlayTests.Replay(initial, driver);
     }
 }

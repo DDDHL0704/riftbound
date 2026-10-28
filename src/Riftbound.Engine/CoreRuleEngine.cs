@@ -27198,7 +27198,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         IReadOnlyList<string> turnEffects)
     {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
+        if (!playerZones.ContainsKey(stackItem.ControllerId)
             || trigger.CreatedTokenCount is not > 0
             || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
             || trigger.CreatedTokenPower is not > 0
@@ -27224,7 +27224,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             tokenTags).ToArray();
         tokenTags = ApplyMinionTokenFamilyTag(tokenName, tokenTags).ToArray();
 
-        var tokenObjectIds = new List<string>();
         var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem);
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -27233,7 +27232,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem.SourceObjectId,
                 tokenIndex + 1);
-            tokenObjectIds.Add(tokenObjectId);
             var tokenState = hasTokenDefinition
                 ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId, isExhausted: trigger.CreatedTokenExhausted ?? true)
                 : new CardObjectState(
@@ -27269,6 +27267,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out entryStaticAbility);
             }
             cardObjects[tokenObjectId] = tokenState;
+            var zones = playerZones[stackItem.ControllerId];
+            playerZones[stackItem.ControllerId] = zones with
+            {
+                Base = zones.Base.Append(tokenObjectId).ToArray()
+            };
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = stackItem.ControllerId,
@@ -27296,11 +27299,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 $"{stackItem.SourceObjectId} 打出{tokenName}",
                 payload), playerZones, cardObjects, turnEffects));
         }
-
-        playerZones[stackItem.ControllerId] = zones with
-        {
-            Base = zones.Base.Concat(tokenObjectIds).ToArray()
-        };
     }
 
     private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
