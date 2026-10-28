@@ -1,8 +1,0 @@
-{
-  "status": "ONE_OFF_EXCERPT_LOCATOR_PREMISE_CORRECTED_BEFORE_PUBLICATION",
-  "reason": "Python splitlines also splits form-feed pagination. Prior physical-LF line numbers cannot index splitlines output.",
-  "priorAttemptStoppedByClause7191Assertion": true,
-  "noSourceFileOrPreviousEvidenceOverwritten": true,
-  "correctedLocator": "Exact clause719 start through before720, with character offsets, hash and physical LF line numbers.",
-  "productionCodeOrTestsChanged": false
-}

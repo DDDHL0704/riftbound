@@ -30,7 +30,7 @@
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "Independent play ability confirmation; current source power modifier",
       "note": "The play ability is already queued at permanent confirmation; its resolution reports TRIGGER_RESOLVED and the power change without fabricating a second queue event. Original fixture and card identities retained."
     }

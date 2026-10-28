@@ -15,7 +15,7 @@
       "note": "Current official text requires an occupied battlefield; this fixture declines only the optional enemy move and retains all unit power expectations."
     },
     {
-      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "source": "docs/legacy/evidence/rules-reaudit-2026-10-11/official-corpus.json",
       "locator": "DOC-04-P043-B007/B008/B010; DOC-04-P050-B005/B006/B011/B014; DOC-04-P017-B004/B005",
       "note": "从手牌支付费用打出法术、加入结算链，双方让过后按卡面施加本回合内战力修正；回合结束特殊清理移除期限效果。"
     }

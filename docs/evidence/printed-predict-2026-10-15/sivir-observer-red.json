@@ -1,9 +1,0 @@
-{
-  "failure": [
-    {
-      "method": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirCreatesDormantGoldWhenControllerRecyclesRune",
-      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
-    }
-  ],
-  "scope": "Original golden-token assertions retained after migrating only the printed Predict choice window."
-}

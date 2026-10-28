@@ -1,7 +1,0 @@
-{
-  "status": "MALFORMED_PARENT_COLD_RECOVERY_THROW_REPRODUCED",
-  "case": "RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
-  "throwingPath": "ObservedRemainingDeckCards -> ValidateSpellContinuations",
-  "trxSha256": "816052ecc5791f5f7e4d6010072d27938c050b9650d10f6a21c4271b16d9bdf3",
-  "fix": "Shared observation-shape guard protects enumeration; strict parent/order/history validation still rejects malformed context."
-}

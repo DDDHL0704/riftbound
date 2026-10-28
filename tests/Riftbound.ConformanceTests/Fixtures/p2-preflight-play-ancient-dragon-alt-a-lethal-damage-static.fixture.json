@@ -30,7 +30,7 @@
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     },
     {
-      "source": "docs/ELDER_DRAGON_AUDIT_2026-10-11.md",
+      "source": "docs/legacy/ELDER_DRAGON_AUDIT_2026-10-11.md",
       "locator": "DOC04 142.4.c; DOC11 p19-20; unit confirmation and optional target selection",
       "note": "No enemy targets: the optional play ability is not confirmed, so no priority passes or empty ability resolution occur. Retains source placement, costs, exhausted entry, power and Dragon tags. Passive and target behavior now covered separately by ElderDragonTests."
     }

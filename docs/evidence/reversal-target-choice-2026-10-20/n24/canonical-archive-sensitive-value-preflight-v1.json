@@ -1,9 +1,0 @@
-{
-  "observedAtUtc": "2026-10-20T12:15:12.442291+00:00",
-  "status": "PASS_SELECTED_ORIGINAL_EVIDENCE_PREFLIGHT_NO_PRIVATE_PROFILE_VALUE_DISCLOSURE",
-  "candidateFilesVisited": 1890,
-  "eightKnownPrivateValuesScanned": true,
-  "noCanonicalFilesWrittenDuringActiveCheck": true,
-  "runtimeInstallSdkDatabaseAndPrivateProfilesExcluded": true,
-  "documentedOriginalEmptyDownloadPreservedAsFailedBytes": true
-}

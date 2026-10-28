@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-20T15:56:51.003191+00:00",
-  "originalRoom": "N27-RETARGET-A843ED44AB",
-  "independentReadOnlyHistoryAndFullReplayPass": true,
-  "actualReaderReceiptSha256": "8d12ca72121cb72c626db5ef7f3069c564a5f890fbbdbd5d3fc7ed4f3c341b54",
-  "originalV1TickOnlyIdentityFailureRetained": true,
-  "newV2UsesActualTickAndJournalSequenceWithoutChangingOriginalState": true
-}

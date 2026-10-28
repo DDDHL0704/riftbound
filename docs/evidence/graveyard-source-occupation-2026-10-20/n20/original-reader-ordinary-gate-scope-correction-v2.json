@@ -1,9 +1,0 @@
-{
-  "status": "ORIGINAL_ORDINARY_GATE_FAILURE_RETAINED_NOT_RELABELLED_PASS",
-  "originalReaderLogSha256": "1b8ea6888dc442b4e5c7180d221d3cd5897e45db026fd0549700ebabbe220ad2",
-  "cause": "Original ordinary frame validator requires a blank opening; declared controlled turn5 initial position is intentionally inapplicable to that gate.",
-  "v2Policy": "Keep exact12 ordinary-gate rejections as independent expected negatives; separately use the existing controlled VerifyFinalStateAsync path for all original accepted/rejected commands, events and final state.",
-  "noAcceptedHistoryOrStateRewrite": true,
-  "originalNineCommandRawJournalRetainedExact": true,
-  "ordinarySqlNativeAcceptanceRemainsOpen": true
-}

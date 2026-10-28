@@ -1,8 +1,0 @@
-{
-  "status": "FIRST_WRAPPER_MAPPED_COMMANDS_MATCH_BUT_RAW_EMPTY_COST_ARRAYS_DIFFER",
-  "firstOrdinaryRedEvidenceValidForMappedCommands": true,
-  "rawByteIdentityNotClaimedForFirstWrapper": true,
-  "retainedProductionRedCoreUnchanged": true,
-  "correction": "Submit exact original raw fields, rebinding only per-room prompt identity. Record every actual difference.",
-  "oldWrapperSourceSha256": "212ac4093001f0e1807538f7ac50084a5e1b505872e1e92f47f4f61c27c45247"
-}

@@ -1,7 +1,0 @@
-{
-  "Properties": {
-    "NuGetAuditMode": "all",
-    "NuGetAudit": "true",
-    "TargetFramework": "net8.0"
-  }
-}

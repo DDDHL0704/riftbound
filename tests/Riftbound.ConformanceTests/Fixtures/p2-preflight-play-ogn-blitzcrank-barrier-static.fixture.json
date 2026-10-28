@@ -30,7 +30,7 @@
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
     },
     {
-      "source": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+      "source": "docs/legacy/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
       "locator": "CN current exact printing; core effective 2026-10-16, 359.2 / 383.2.a / 383.2.c / 383.3",
       "note": "Current scope is ordinary hand-to-base entry only: the battlefield-only printed trigger does not occur, so no response passes are available. Removes the two obsolete fake-ability passes and their events/ticks. Original seed, initial state, payment, units, tags, exhaustion, scores, empty chain and actionable/wait assertions remain exact. Historical version/status fields and older evidence remain historical; battlefield effects and whole-card certification are OPEN."
     }

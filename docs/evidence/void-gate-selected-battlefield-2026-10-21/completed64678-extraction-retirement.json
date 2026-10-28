@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-21T07:13:48.907400+00:00",
-  "status": "ONLY_COMPLETED_CI64678_DUPLICATE_SQL_EXTRACTION_RETIRED_AFTER_EXACT_MEMBER_AND_INDEPENDENT_GATE_VERIFICATION",
-  "retiredFiles": 405,
-  "retiredLogicalBytes": 6360454,
-  "originalMemberManifest": "var/qa/void-gate-current-erratum-20261021/ci-64678-completed-duplicate-extraction-exact-original-member-manifest-v1.json.gz",
-  "allNineOriginalArtifactArchivesAndStandaloneFixedManifestRetained": true,
-  "physicalBytesRecoveredNotInferred": true
-}

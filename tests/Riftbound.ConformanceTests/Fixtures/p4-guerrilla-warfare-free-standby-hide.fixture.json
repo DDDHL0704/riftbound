@@ -25,7 +25,7 @@
       "note": "待命关键词使用正面朝下对象；游击战的本回合 permission 只替代暗置费用，不替代待命反应打出、待命触发或完整隐藏区规则。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b / 811.1.c",
       "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }

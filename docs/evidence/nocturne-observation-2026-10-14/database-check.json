@@ -1,9 +1,0 @@
-{
-  "status": "OWNED_DATABASE_STOPPED_AFTER_ACTUAL_CHECK",
-  "port": 55439,
-  "sqlSmokeCases": 5,
-  "testProfile": "check-corrected",
-  "stop": "pg_ctl -m fast -w stop: server stopped",
-  "authorityTrxSha256": "07ebea65f856d79bc37ec687973ca16622f88282febe85be23493cc5a20ad5a0",
-  "userDefaultPostgresTouched": false
-}

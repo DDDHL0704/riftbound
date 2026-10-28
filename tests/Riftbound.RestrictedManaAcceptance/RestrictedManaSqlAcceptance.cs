@@ -54,10 +54,25 @@ internal static partial class RestrictedManaSqlAcceptance
                 "The authorized mixed quote must preserve one ordinary and one restricted mana.");
             await Act(actor, first); await Act(actor, new PassPriorityCommand());
             await Act(peer, new ActivateAbilityCommand("QA-PEER-LUX", P4ActivatedAbilityCatalog.LuxResourceAbilityId, []));
-            await Act(peer, new PassPriorityCommand()); await DecideResource();
-            var pending = (await Load(source, room)).AuthoritativeState!;
-            Check(pending.RunePools[actor].SpellOnlyMana == 1 && pending.PendingRuleChoice!.Request.Preview!.RunePools[actor].SpellOnlyMana == 3,
-                "Retain the real frozen board and independently replayed resource preview.");
+            await Act(peer, new PassPriorityCommand());
+            var beforeResourceFrame = await Load(source, room);
+            await Save(folder, "sql-before-instruction-resource-frame.json", beforeResourceFrame);
+            var beforeResource = beforeResourceFrame.AuthoritativeState!;
+            Check(beforeResource.RunePools[actor] is { Mana: 1, SpellOnlyMana: 1 }
+                && beforeResource.PendingRuleChoice is { Answers.Count: 0, Request.Kind: "INSTRUCTION_POWER_PAYMENT" }
+                && beforeResource.PendingRuleChoice.Request.Preview!.RunePools[actor].SpellOnlyMana == 1
+                && beforeResourceFrame.Events.Count(e => e.Event.Kind == "MANA_GAINED") == 2,
+                "Before the resource child, retain the original one restricted mana and two committed gains.");
+            await DecideResource();
+            var pendingFrame = await Load(source, room);
+            // Persist the actual SQL-loaded frame before any checkpoint assertion.
+            await Save(folder, "sql-instruction-resource-checkpoint.json", pendingFrame);
+            var pending = pendingFrame.AuthoritativeState!;
+            Check(pending.PendingRuleChoice is { Origin: { } origin, Request.Preview: { } preview }
+                && origin.RunePools[actor].SpellOnlyMana == 1 && preview.RunePools[actor].SpellOnlyMana == 3
+                && pending.RunePools[actor] is { Mana: 1, SpellOnlyMana: 3 }
+                && pendingFrame.Events.Count(e => e.Event.Kind == "MANA_GAINED") == 3,
+                "Retain the original frozen balance and the confirmed resource in both live state and preview.");
             await Decide("SPEND_POWER:0");
             await Act(actor, new PlayCardCommand("QA-SECOND", "OGN·268/298", ["QA-FIELD"]));
             await Act(actor, new PassPriorityCommand()); await Act(peer, new PassPriorityCommand()); await Decide("SPEND_POWER:0");
@@ -113,17 +128,26 @@ internal static partial class RestrictedManaSqlAcceptance
             var root = fixture.RootElement; var room = root.GetProperty("room").GetString()!;
             var actor = root.GetProperty("actor").GetString()!; var peer = root.GetProperty("peer").GetString()!;
             var frame = await Load(source, room); var state = frame.AuthoritativeState!;
+            await Save(folder, "sql-" + stage + "-input-frame.json", frame);
             Check(frame.Commands.Take(2).All(c => c.CommandType == "ROOM_SEAT") && frame.Commands[2].CommandType.StartsWith("DEV_SEED_SCENARIO:"),
                 "The restart must use original room birth rather than a fabricated seed snapshot.");
             Check(frame.Commands.Count(c => !c.Accepted) == (stage == "final" ? 3 : 2), "Keep every rejection and exclude duplicate/spoof journal writes.");
             if (stage != "final")
             {
-                Check(state.RunePools[actor] is { Mana: 1, SpellOnlyMana: 1 } && state.RunePools[peer].SpellOnlyMana == 2,
-                    "Keep ordinary and restricted resources distinct in the uncommitted original board.");
-                Check(state.PendingRuleChoice is { Answers.Count: 1, Request.Kind: "INSTRUCTION_POWER_PAYMENT" }
+                Check(state.RunePools[actor] is { Mana: 1, SpellOnlyMana: 3 } && state.RunePools[peer].SpellOnlyMana == 2,
+                    "Keep ordinary and independently confirmed restricted resources distinct in the live board.");
+                Check(state.PendingRuleChoice is { Answers.Count: 1, Request.Kind: "INSTRUCTION_POWER_PAYMENT", Origin: { } origin }
+                    && origin.RunePools[actor] is { Mana: 1, SpellOnlyMana: 1 }
                     && state.PendingRuleChoice.Request.Preview!.RunePools[actor] is { Mana: 1, SpellOnlyMana: 3, TotalPower: 0 },
                     "Validate the instruction resource transcript and projected balance across process restart.");
-                Check(frame.Events.Count(e => e.Event.Kind == "MANA_GAINED") == 2, "The second Lux gain is not committed before the instruction finishes.");
+                var resource = frame.Commands.Single(c => c.ClientIntentId == "restricted-instruction-resource");
+                Check(resource.Accepted && resource.PlayerId == actor && resource.CommandType == CommandTypes.PayCost,
+                    "The original actor's resource child must be accepted once.");
+                Check(frame.Events.Count(e => e.Sequence <= resource.StartedEventSequence && e.Event.Kind == "MANA_GAINED") == 2
+                    && frame.Events.Count(e => e.Sequence > resource.StartedEventSequence
+                        && e.Sequence <= resource.CompletedEventSequence && e.Event.Kind == "MANA_GAINED") == 1
+                    && frame.Events.Count(e => e.Event.Kind == "MANA_GAINED") == 3,
+                    "Retain the two gains before the child and exactly one confirmed gain from it.");
             }
             else
             {

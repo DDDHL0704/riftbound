@@ -1,7 +1,0 @@
-{
-  "recordedAtUtc": "2026-10-17T09:04:32.653100+00:00",
-  "status": "COLLECTOR_ASSUMPTION_FAILED_NOT_SQL_FAILURE",
-  "cause": "Prefix-only REAL_POSTGRES_ classification omitted four existing created-token-ready acceptance receipts whose retained status is PASS. All four actual files existed and reported the original PASS.",
-  "executionExitCode": 0,
-  "repair": "Enumerate every original independently verified receipt path, preserve its exact expected status, then include the one new registered family receipt. No family is removed and no SQL run is repeated."
-}

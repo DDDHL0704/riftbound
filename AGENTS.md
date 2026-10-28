@@ -1,89 +1,90 @@
-# Riftbound Project Agent Guide
+# 符文战场项目开发指南（Codex / Claude 通用）
 
-Current phase: [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). All applicable official backend rules remain in scope. The two replaced chats have paused Goals, not completed Goals. Integration works on delivery events without an automatic continuation Goal; the three development chats continue their assigned backend goals. Client development, packaging iteration, visible desktop pairs and Windows hardware acceptance remain OPEN for the later client phase; retain existing tests and CI.
+2026-10-29 起采用快速迭代模式。旧的五窗协作、治理台账和 L2/L3 证据流程已退役；历史文档在 Git 标签 `archive/pre-reset-20261029` 中可找回，不再作为任务、准入或认证依据。
 
-Current collaboration: four authorized chats own integration/acceptance, combat/triggers/victory, costs/resources/action legality, and card effects/mechanism consumers. Exact chat IDs, branches, worktrees and method ownership are in the backend goal. Integration maintains governance, certification summaries and CI tools. Each development line may implement its owned methods, open a PR and merge after the current L2 check passes; no blanket human-review requirement. Only concurrent edits to the same method require integration to assign ownership/order. Interface dependencies use explicit commit dependencies. Send one complete deliverable, actual method conflict or blocker; no acknowledgement loops or per-helper/expression approvals. Stopped chats remain read-only.
+## 目标与分工
 
-2026-10-26 backlog drain completed: PR165 ordinary-merged as main `645a045e435dbb4521eca5e5318c10ffcee36511`. All 12 original/current heads are main ancestors, all 12 PRs are actually merged, and open PRs were verified 22→10. The prerequisite freeze on new feature PRs is released. Keep latest complete L2, strict Actions15368/admin enforcement, zero skips, serial main publication and nightly L3 unchanged. Integration has no Goal or monitor and continues the already assigned finite S3/P7 acceptance wiring task. Never close undelivered work merely to lower a count.
+- **目标**：尽快把服务端规则开发完毕——全部已接入卡牌的效果正确，剩余官方卡牌接入，夜间完整验收稳定通过。随后由 Claude 适配前端。
+- **服务端**：Codex 两条线并行，从 [待办清单](docs/BACKLOG.md) 领任务。
+  - **A 线 · 规则与机制**：共享流程（战斗、触发、费用与资源、行动合法性、胜负、投影、恢复与持久化）、夜间验收修复、CI 与工具。
+  - **B 线 · 卡牌**：卡牌行为接入与修正、新卡（VEN/RAD）、逐卡测试。
+- **前端**：Claude 负责 `clients/web`；只在用户要求时参与服务端。
+- 只有两条线要同时改**同一个方法**时才需要协调：先合入的一方优先，另一方同步 main 后再改。其余情况各自开发、各自合入，不需要审批或确认往返。
 
-Storage: retain source as Git commits plus necessary patches. Execution trees contain only build/test inputs, excluding nested var/.git/bin/obj, large documentation/evidence and client resources. Use verified local `cp -c` (or filtered `cp -cR`) for necessary large copies; each line adds only its current execution tree and necessary failure comparison while preserving named unique evidence. Below 20 GiB free, defer new large copies, report once and continue source/remote work. Do not bulk-delete another line's files; heavy full/SQL/network/restart runs stay in Actions.
+## 每个任务的流程
 
-## Current scope and entry points
+1. 从 `origin/main` 新建分支：`a/<主题>` 或 `b/<主题>`（前端用 `web/<主题>`）。一个分支只做一件事。
+2. 实现并补测试；本地只跑相关测试（见下）。
+3. 推送并开 PR，PR 描述写清改了什么、依据哪条官方规则或卡牌文本、跑了哪些测试。
+4. `L2 required` 通过后**直接合入**：`gh pr merge <号> --merge --delete-branch`；仓库开启自动合并后可以改用 `--auto`。PR 不要求先同步最新 main；有冲突时再同步。
+5. 合入后在 [BACKLOG](docs/BACKLOG.md) 勾掉对应条目，或把新发现的问题追加进去。这是唯一需要维护的状态文档。
 
-- Use the assigned /Volumes/ExternalSSD/MyProjects/.worktrees/riftbound-{integration,combat,payment,cards}-20261023 worktree with an explicit workdir for every Git/source operation. MyProjects itself is not a Git repository. The original /Volumes/ExternalSSD/MyProjects/riftbound checkout is for read-only checks and necessary integration publication; old card and frozen check trees are not development trees. Preserve their source, bin, untracked evidence and databases.
-- Read docs/PROJECT_STATUS.md, docs/PROJECT_GOVERNANCE.md and the relevant part of docs/RULE_TEST_WORKFLOW.md first. Then read only the source manifest, scoped audit and tests relevant to the change.
-- Old CURRENT_*, P-stage and coordination documents are historical records, not active tasks, write locks or rule certification. Do not load giant cumulative lists to recover current work.
-- The 2026-10-24 human authorization supersedes the old sole-publisher and fixed-candidate admission policies. Daily merges require targeted tests and the rule suite (L2). L3 runs once nightly on one fixed main starting SHA; unrelated packages do not wait for it. Old B1/source queues are migration inventories, not admission gates. Development chats continue their assigned goals until closure or an explicit pause. The finite 2026-10-26 backlog drain reached 22→10; integration now continues the assigned acceptance-wiring task without a Goal or monitor, and otherwise works on actual delivery/review events. The current local-four mapping and unchanged coordinator are in the backend goal; replaced chats remain read-only.
+小步快跑：一个 PR 最好在一天内合入；大改动拆成几个可以各自合入的 PR。不要再写阶段报告、证据台账或逐卡审计文档。确有长期价值的设计决定，写一段到 `docs/adr/`。
 
-## Development lifecycle
+## 本地运行与测试
 
-- Intermediate development versions are not compatibility targets. Replace obsolete implementations rather than adding migrations/fallbacks for old development matches or protocols.
-- Keep current-version reconnect, persistence validation, hidden-information protection and server authority. Never rewrite accepted action history to make a new engine pass.
-- Delete only with evidence of an obsolete purpose or unused runtime path; account for tests and references. Date, file length, duplicate bytes or zero incoming links alone are insufficient.
+需要 .NET 10 SDK；Python 3 仅用于脚本。
 
-## Rule authority and trust
+```sh
+# 内存模式后端（前端联调用）
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5088 \
+ConnectionStrings__Riftbound="" dotnet run --project src/Riftbound.Api
 
-- Official regional card text, rules, FAQ/QA, errata and restriction documents are authorities. Record URL, content hash, publication/effective dates, language, region and exact scope.
-- Downloaded data/official is a snapshot, not proof that the live site is unchanged. Reuse verified source identity and applicability when unchanged; check relevant new announcements/errata and final effective boundaries. Mark inaccessible or unverified applicability UNKNOWN; never infer RAD is future-effective.
-- September and earlier rule implementations and green/coverage claims have no default trust. Re-certify the exact scope against current applicable official sources. Keep October scoped evidence within its stated scope.
-- Community platforms, TTS, old Java and generated planning documents are references only. Registration, implemented, RepresentativeRulePass, counts and CI green do not certify whole-card semantics.
-- Generic keywords, timing, costs, zones/information, lifecycle and triggers belong in shared engine flow. Avoid card-specific bypasses.
-- Preserve the full source universe and unresolved items. Complete backend certification needs every applicable card/rule/QA item, source gaps, executable evidence and required backend gates closed; later client gates retain their OPEN identity.
-- The latest source coverage is linked from docs/PROJECT_STATUS.md. The 2026-10-11 checker remains a check of that historical rule/index baseline, not proof that later live-source deltas are absent.
+# 构建与定向测试（按类名或方法名过滤）
+dotnet build tests/Riftbound.ConformanceTests
+dotnet test tests/Riftbound.ConformanceTests --no-build --filter "FullyQualifiedName~Teemo"
 
-## Project map
+# 按领域的快速回归：combat / payment / recast / recovery / triggers
+python3 scripts/test-rules.py focus combat
+python3 scripts/test-rules.py focus --match Teemo
 
-- src/Riftbound.Contracts: shared commands, events, snapshots and prompts.
-- src/Riftbound.CardCatalog: official catalog and parsed metadata; metadata is not certification.
-- src/Riftbound.Engine: legality, shared gameplay flow, serialized commands, projection, replay and recovery.
-- src/Riftbound.Persistence: PostgreSQL journal and recovery adapters.
-- src/Riftbound.Api: HTTP/SignalR, rooms, matchmaking and process composition.
-- clients/godot: native rendering, command adapters and packaging.
-- src/Riftbound.DevUi: debug/protocol rendering and browser verification.
-- tests/Riftbound.*, scripts/tests: behavioral and verification guardrails.
-- data/official, docs/evidence: source snapshots and bounded evidence.
+# 脚本自身的测试
+python3 -m unittest discover -s scripts/tests
+```
 
-## Engine and client contracts
+本机 10 核 / 24 GB 内存，本地测试用 `--jobs 1` 或 `2`。完整规则套件、真实 PostgreSQL、SignalR 和进程重启只在 GitHub Actions 里跑。
 
-- Trace protocol -> shared rule -> event/snapshot -> real command test. Keep rejection-state invariance and action/event/state replay evidence.
-- Prompts expose legal, safe choices; clients submit intent with prompt/tick identity. Clients never decide payment, damage, control, trigger order or victory.
-- Protect opponent hand/deck order, unrevealed rune identities and face-down standby identities in every projection, prompt and log.
-- Distinguish legacy fixtures from official expected behavior. Preserve meaningful assertions and Theory rows during refactors.
-- Recovery security tests retain independent expected checks; reusing production derivation as the expected value is insufficient.
+## CI
 
-## Validation and delivery
+- **`Backend L2`**（PR 与 main）：构建一次，全部规则测试分 6 片并行，外加两局完整对局。检查名 `L2 required` 是合入的唯一门槛。同一 PR 推送新提交会取消旧的运行。
+- **`Backend L3 nightly`**：每天北京时间 02:00 对 main 跑完整验收（全部规则、PostgreSQL 分区、SignalR、进程重启、回放）。失败时由 A 线在 BACKLOG 的 P0 里登记并修复；它不阻塞无关的合入。
+- 改了 `.github/workflows` 或 CI 脚本时，`backend-harness` 会额外检查验收驱动。
 
-- Daily L2 builds one exact candidate once and runs six duration-balanced shards from the same built bundle. Targeted is a checked view of those original TRX rows, not a second execution. Preserve the complete method/case union, required smokes and every negative identity/skip/counter guard; unknown impact uses full coverage. See docs/CI_L2_SINGLE_PASS_2026-10-27.md. The original L1/full entry points and nightly L3 remain.
+## 规则依据
 
-- Apply L1/L2/L3 in docs/RULE_TEST_WORKFLOW.md. L1 is focused development feedback. Every PR/main input runs L2: targeted/adjacent semantic assertions, the mechanism rule suite and both original full-game smokes; exact full-opening/cold-journal acceptance methods are declared in scripts/l3-rule-acceptance-methods.json and remain in nightly full. The required aggregate is `L2 required`; failed, cancelled, skipped, missing or wrong-SHA execution cannot pass. SQL/native/related-network and their aggregates are not L2 dependencies.
-- Each line commits its own coherent package, opens a PR and may merge after the newest PR merge-result SHA passes L2. Use branch protection where available; otherwise mechanically verify the latest head/base/merge SHA and L2 immediately before merging. Do not force/reset. Integration is not the sole rule-package publisher; ordinary private helpers, complete packages and single expressions need no extra approval.
-- Coordinate only actual same-method overlap. One main package per development line keeps work bounded; waiting for CI does not block an independent package. Known production-rule, hidden-information or recovery failures go once to the owning line with the minimal reproduction and assertion. Fix those in independent PRs; do not freeze unrelated packages or relabel all failures as tooling faults.
-- Local focused/affected tests use --jobs 1 or 2 on this 10-core/24-GiB host. New heavy full/matrices/complete SQL/SignalR restart acceptance run in Actions. Minimal isolated failure debugging is allowed. Preserve existing N54/N55 fixed source/bin and databases; do not stop another line's process. No new cloud chat, idle polling Goal or Codex polling automation.
-- `.github/workflows/backend-l2.yml` handles PR/main/manual L2. `.github/workflows/native-desktop.yml` handles one 02:00 Asia/Shanghai nightly L3 and explicit manual investigation. L3 fixes main once, then uses that complete SHA for full rules, all SQL partitions, SignalR, real process restart and original replay. Retain meaningful running candidates (including A7) as historical evidence; do not retarget/cancel/retry them merely because HEAD moved. Do not launch A8/A9 acceptance for each rule package.
-- A failed nightly prevents a complete-acceptance claim and blocks changes related to the known defect; it does not block unrelated daily L2-green merges. Backend stage completion still requires applicable source/semantic scope and complete fixed-input L3 evidence. A green L2 is not whole-card or product certification.
-- Preserve all original methods/Theory rows, 143 full-game methods/151 cases, 110 ordered pairs, 11 decks, seed 424242 and victory/replay assertions. Source-corrected expectations retain original failures and rationale.
-- Reuse results only for identical verified fixed inputs; integration adds actual differences. Do not edit running frozen source/bin. A previous full is a baseline, not current certification.
-- Put new large logs/TRX/SQL output/binaries in ignored local output or CI artifacts, not Git. Git keeps source/tests, compact provenance/results and retrievable paths/run IDs. Preserve committed historical evidence and useful original failures. A hash alone is not an accessible artifact.
-- Whole-card certification covers every effect/keyword/applicable branch and mechanism interaction with official evidence and executable semantic assertions. Registry/test counts and old obligation totals are not completion rates.
-- Run git diff --check and appropriate checks; commit/push coherent batches under existing authorization. Do not repeat unchanged full verification or generate cumulative evidence copies for every batch.
-- Only the latest fixed candidate with all applicable source/semantic/backend gates closed can finish the backend stage. Never infer READY from a local batch or green CI, or mark the replaced paused Goals complete.
+- 官方来源快照在 `data/official/`：中文卡牌目录 `card-catalog.zh-CN.json`，以及 `upstream/` 下按日期保存的官方规则、FAQ 和勘误抓取。中国区官方中文规则、FAQ、勘误和禁卡表是依据；社区站点、TTS 和旧 Java 实现只能作参考。
+- 拿不准的规则先查官方规则或 FAQ 原文，在 PR 描述里写明条款号。查不到依据时，在 BACKLOG 里标 `待确认`，不要凭猜测实现。
+- 关键词、时机、费用、区域、触发等通用机制必须在共享流程里实现，不要为单张卡写绕过逻辑。
 
-## Future page design
+## 必须守住的底线
 
-- Future page design uses frontend-design and Product Design. Audit current screenshots first; preserve existing product styles for scoped maintenance.
-- Use Rift Atlas, Untap.in and Riftbound TTS as design references; refresh relevant screenshots before comparison. They are not rule authorities.
-- This round does not modify game pages. References and requirements are in docs/PROJECT_GOVERNANCE.md.
+- 服务端权威：客户端只提交意图；付款、伤害、控制权、触发顺序和胜负都由服务端裁定。
+- 隐藏信息：任何投影、提示和日志都不能泄露对手手牌、牌库顺序、未公开符文和背面待命牌。
+- 被拒绝的命令不能改变状态；同一命令重复提交结果一致。
+- 断线重连、持久化恢复和回放必须和实时对局得到同样的结果。不要为了让新代码通过而改写已接受的历史记录。
+- 开发中的旧版本对局和协议不需要兼容，直接替换旧实现即可。
+- 删除代码前确认没有调用方，并同步删除或改写对应测试。
 
-## Agent skills
+## 项目结构
 
-### Issue tracker
+| 路径 | 内容 |
+|---|---|
+| `src/Riftbound.Contracts` | 命令、事件、快照、提示 |
+| `src/Riftbound.CardCatalog` | 官方卡池加载与解析 |
+| `src/Riftbound.Engine` | 规则引擎：合法性、结算、投影、回放、恢复（`MatchSession.cs` 是主入口） |
+| `src/Riftbound.Persistence` | PostgreSQL 日志与恢复 |
+| `src/Riftbound.Api` | HTTP / SignalR、房间、匹配、战绩 |
+| `clients/web` | 网页对战前端（Claude 维护，见其 README） |
+| `clients/godot`、`src/Riftbound.DevUi` | 原生客户端与调试界面（暂停迭代） |
+| `tests/Riftbound.ConformanceTests` | 规则与卡牌测试（主测试项目） |
+| `tests/Riftbound.*Acceptance` | 夜间验收用的真实数据库与网络测试 |
+| `scripts/` | 测试与 CI 工具 |
+| `data/official/` | 官方来源快照 |
+| `docs/BACKLOG.md` | 唯一的待办与状态 |
+| `docs/legacy/` | 仍被测试按路径读取的旧证据，只读，不要新增 |
 
-Track audit problems, changes and specs in GitHub Issues for DDDHL0704/riftbound. See `docs/agents/issue-tracker.md`.
+## 工作环境
 
-### Triage labels
-
-Use the five canonical triage labels with one category and one state per triaged issue. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context: root `GLOSSARY.md` and `docs/adr/`, created when terms or decisions are resolved. See `docs/agents/domain.md`.
+- 每条线在自己的工作树里开发：`git worktree add ../.worktrees/riftbound-<线名> -b <分支> origin/main`。用完就删，不要保留冻结树或大体积产物。
+- 本地产物放在被忽略的 `var/` 下；Git 里只放源码、测试和必要的小数据。
+- 外接盘可用空间低于 20 GB 时，先清理 `var/` 和不用的工作树。

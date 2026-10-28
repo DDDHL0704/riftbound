@@ -1,8 +1,0 @@
-{
-  "observedAt": "2026-10-18T19:11:58.866731+00:00",
-  "caffeinatePid": 88402,
-  "ownCheckRunnerPid": 88242,
-  "macLocked": true,
-  "scope": "PreventUserIdleSystemSleep only while own one-check runner is alive; auto expires with that process",
-  "priorSqlCaffeinatePid81844AlreadyExited": true
-}

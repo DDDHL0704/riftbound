@@ -1,6 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:03:45.392066+00:00",
-  "returnCode": 0,
-  "defaultMainBootMarker": true,
-  "scope": "Recheck ordinary exported Main after additive global runtime patch; separate from experimental external SceneTree driver."
-}

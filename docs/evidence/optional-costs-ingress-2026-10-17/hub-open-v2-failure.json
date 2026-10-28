@@ -1,8 +1,0 @@
-{
-  "status": "FAILED_BEFORE_OPTIONAL_COSTS_PROBE",
-  "recordedAtUtc": "2026-10-17T05:47:42.928855+00:00",
-  "reason": "Probe reused ActivePlayerId for second mulligan; the actual server correctly rejected ordinary-hub-5. The second legal player must come from the current actionable MULLIGAN prompt.",
-  "roomRetained": "hub-optional-costs-20261017-v2",
-  "legitimateRejectedHistoryRetained": true,
-  "nextStep": "Resume the same room and original journal; do not delete or rewrite the rejected MULLIGAN."
-}

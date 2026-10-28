@@ -20,7 +20,7 @@
       "note": "从手牌支付费用打出法术、加入结算链、双方让过后结算；法术需要合法目标，伤害记录到单位对象并保留到清理。"
     },
     {
-      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "source": "docs/legacy/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
       "locator": "CN current exact OGN268 OGN250 UNL072",
       "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived."
     }

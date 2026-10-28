@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T14:58:52.511065+00:00",
-  "status": "PASS_PARSER_ONLY_NATIVE_EDIT_COLD_CONFIRM_AND_BOTH_PRIORITY_BUTTONS",
-  "actualExitCode": 0,
-  "scriptSha256": "8e04bb06d38e15cec8ed98fbe6b26e3361b9021af6f5887e14e242a5a5a09c78",
-  "sceneSha256": "b638e42088bac8e6b1e6fca9d4d82053ab362b067d0754d745244e737f483b35",
-  "actualGameDatabaseAndLiveButtonsNotYetExecuted": true,
-  "allPriorSourceAndParserAttemptsPreserved": true
-}

@@ -1,6 +1,0 @@
-{
-  "status": "OWNED_TEST_CLUSTER_STOPPED_AFTER_TERMINAL_CHECK",
-  "port": 55439,
-  "realSmokeCases": 5,
-  "hostDefaultPortTouched": false
-}

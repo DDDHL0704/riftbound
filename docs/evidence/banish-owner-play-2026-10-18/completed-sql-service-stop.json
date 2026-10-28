@@ -1,8 +1,0 @@
-{
-  "stoppedAtUtc": "2026-10-17T16:38:28.883732+00:00",
-  "port": 55486,
-  "smartStopVerified": true,
-  "originalDatabaseRetained": "/Users/dinghaolin/MyProjects/riftbound/var/qa/permanent-play-here-base-20261017/postgres",
-  "publishedApiAndSqlInputsRetained": true,
-  "output": "waiting for server to shut down.... done\nserver stopped\n"
-}
