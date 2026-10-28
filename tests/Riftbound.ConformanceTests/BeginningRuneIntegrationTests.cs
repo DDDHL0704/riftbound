@@ -167,7 +167,15 @@ public sealed class BeginningRuneIntegrationTests
         Assert.Equal(runeFirst, ordered.State.StackItems.Last().BeginningRune is not null);
         var first = await Top(ordered.State);
         if (runeFirst) Assert.Equal(printedMight + bonus, first.State.CardObjects[image].Power);
-        else Assert.False(first.State.CardObjects.ContainsKey(image));
+        else {
+            Assert.False(first.State.CardObjects.ContainsKey(image));
+            var remaining = Assert.Single(first.State.StackItems);
+            var captured = remaining.BeginningRune!;
+            var fakeFrame = captured.Frame with { CardObjects = new Dictionary<string, CardObjectState>(captured.Frame.CardObjects) {
+                [image] = captured.Frame.CardObjects[image] with { TokenFactoryCardNo = "FORGED-TOKEN" } } };
+            var forged = first.State with { StackItems = [remaining with { BeginningRune = captured with { Frame = fakeFrame } }] };
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged));
+        }
         var componentErrors = OfficialInsightAndSpellLockTests.Errors(first.State);
         if (componentErrors.Count > 0 && Environment.GetEnvironmentVariable("RIFTBOUND_BEGINNING_RUNE_DIAGNOSTICS") is { } folder) {
             Directory.CreateDirectory(folder);

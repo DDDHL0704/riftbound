@@ -27,6 +27,17 @@ public sealed partial class CoreRuleEngine
         return new(context.CardNo, ability.Might, ability.Ganking);
     }
 
+    private static bool HasKnownHistoricalTokenFactory(CardObjectState card)
+        => card.TokenFactoryCardNo is { } factory ? P6TokenFactoryCatalog.IsTokenFactory(factory)
+            : P6TokenFactoryCatalog.IsTokenFactory(card.CardNo);
+
+    internal static bool ValidCeasedBeginningRuneSource(MatchState state, BeginningRuneContext? context,
+        string effect, string controller, string source, string? cardNo = null)
+        => !state.CardObjects.ContainsKey(source) && context is { Frame.CardObjects: { } cards }
+            && cards.TryGetValue(source, out var captured) && HasKnownHistoricalTokenFactory(captured)
+            && CopyCharacteristics.HasFace(context.CardNo)
+            && ValidBeginningRune(state, context, effect, controller, source, cardNo);
+
     private static bool HasFewerControlledRunes(MatchState state, string controller)
     {
         var own = EmpowerRules.ControlledRunes(state, controller);
@@ -89,7 +100,7 @@ public sealed partial class CoreRuleEngine
                 .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
             if (frame.CardObjects.Any(p => p.Value is null || p.Key != p.Value.ObjectId || p.Value.IsFaceDown
                     || !publicIds.Contains(p.Key) || (state.CardObjects.TryGetValue(p.Key, out var current)
-                        ? current.ObjectGeneration < p.Value.ObjectGeneration : !IsTokenObject(p.Value)))
+                        ? current.ObjectGeneration < p.Value.ObjectGeneration : !HasKnownHistoricalTokenFactory(p.Value)))
                 || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))) return false;
             return HasFewerControlledRunes(MightFrameState(frame), controller);
         } catch (Exception error) when (error is ArgumentException or InvalidOperationException or KeyNotFoundException
@@ -115,7 +126,8 @@ public sealed partial class CoreRuleEngine
             if (ganking) GrantLegendRoam(cards, source.ObjectId, item.ControllerId, item.SourceObjectId, item.StackItemId, events);
         }
         events.Add(new("TRIGGER_RESOLVED", "开始阶段符文数量技能结算", new Dictionary<string, object?> {
-            ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId, ["stackItemId"] = item.StackItemId }));
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+            ["controllerId"] = item.ControllerId, ["stackItemId"] = item.StackItemId }));
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
 }
