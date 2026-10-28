@@ -22135,6 +22135,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var echoCosts = EchoCostRules.Selected(state, playerId, behavior, normalizedOptionalCosts);
+        var exhaustCosts = normalizedOptionalCosts.Where(cost =>
+            cost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+        if (behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0
+            && echoCosts.Count > 0 && exhaustCosts.Length == 1
+            && echoCosts.Count + 1 == normalizedOptionalCosts.Count
+            && TryParseExhaustFriendlyUnitOptionalCost(exhaustCosts[0], out var exhaustedUnit))
+        {
+            extraManaCost = echoCosts.Sum(cost => cost.Mana);
+            extraPowerCost = echoCosts.Sum(cost => cost.GenericPower);
+            extraPowerCostByTrait = echoCosts.Aggregate(extraPowerCostByTrait,
+                (typed, cost) => PrintedPowerCostRules.Combine(typed, cost.TypedPower));
+            effectRepeatCount = 1 + echoCosts.Count;
+            exhaustedOptionalCostTargetObjectIds = [exhaustedUnit];
+            return true;
+        }
+
         if (echoCosts.Count > 0 && echoCosts.Count == normalizedOptionalCosts.Count)
         {
             extraManaCost = echoCosts.Sum(cost => cost.Mana);
@@ -22599,9 +22615,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && !targetState.IsExhausted;
+    }
+
+    internal static IReadOnlyList<string> ExhaustFriendlyUnitOptionalCostCandidates(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+        return zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal)
+            .Where(id => CanExhaustFriendlyUnitAsOptionalCost(state, playerId, id))
+            .OrderBy(id => id, StringComparer.Ordinal).ToArray();
     }
 
     private static bool CanDestroyFriendlyPowerfulUnitAsAdditionalCost(
@@ -23798,7 +23822,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
+    private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false, int additionalDrawRepeats = 0)
     {
         if (stackItem.TurnUnitPlayBoon is not null) return ResolveTurnUnitPlayBoon(state, stackItem);
         if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem);
@@ -26233,7 +26257,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     playerZones,
                     playerScores,
                     drawPlayerId,
-                    drawCount * stackItem.EffectRepeatCount,
+                    drawCount * (stackItem.EffectRepeatCount + additionalDrawRepeats),
                     rngCursor,
                     events,
                     deferNormalVictory: true);

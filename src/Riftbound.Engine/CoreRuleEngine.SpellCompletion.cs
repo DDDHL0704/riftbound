@@ -17,13 +17,13 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState item,
         bool confirmPermanent = false, bool deferCompletion = false,
-        HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
+        HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false, int additionalDrawRepeats = 0)
     {
         var frame = RuleChoices.Value!;
         var previousState = frame.ResolutionState; var previousItem = frame.ResolutionItem;
         frame.ResolutionState = state; frame.ResolutionItem = item;
         try {
-        var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight);
+        var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight, additionalDrawRepeats);
         result = FinishRecycledPlays(state, item, result, deferCompletion);
         if (result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null
             || result.PendingCardChoice is not null || result.PendingEffectPlay is not null

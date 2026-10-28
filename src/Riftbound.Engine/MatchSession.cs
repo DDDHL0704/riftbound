@@ -14451,6 +14451,11 @@ internal static class ActionPromptBuilder
                 if (reductionChoiceIds.Add(reduction.Id)) choices.Add(reduction);
         }
         var echoReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait);
+        if (behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0)
+            choices.AddRange(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostCandidates(state, playerId).Select(id => {
+                var unit = ObjectChoice(state, id, "可选额外费用；不是法术目标");
+                return new ActionPromptChoiceDto($"EXHAUST_FRIENDLY_UNIT:{id}", $"休眠友方单位：{unit.Label}", unit.Reason);
+            }));
         if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
             choices.AddRange(CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).Select(cost => {
                 var parts = cost.Split(':', 2);

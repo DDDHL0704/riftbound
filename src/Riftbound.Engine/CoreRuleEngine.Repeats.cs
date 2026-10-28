@@ -96,7 +96,15 @@ public sealed partial class CoreRuleEngine
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
                 SourceReplayDecisionCompleted = false,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
-            result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
+            // Meditation's exhausted-unit cost adds one draw to the original
+            // instruction. Echo repeats the base effect, not that paid bonus.
+            var paidDrawRepeats = index == 0
+                && original.OptionalCosts.Any(EchoCostRules.IsEcho)
+                && original.OptionalCosts.Any(cost => TryParseExhaustFriendlyUnitOptionalCost(cost, out _))
+                && CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var drawBehavior)
+                ? Math.Max(0, drawBehavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost - 1) : 0;
+            result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1,
+                repeatDamageDestroyTargets: damageDestroyTargets, additionalDrawRepeats: paidDrawRepeats);
             events.AddRange(result.Events);
             triggers.AddRange(result.TriggerQueue);
             destroyed.AddRange(result.DestroyedUnitOwnerIds);
