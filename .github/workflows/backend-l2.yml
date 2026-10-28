@@ -1,4 +1,4 @@
-name: Backend L2
+name: Diagnostic PostgreSQL and gameplay restart (not L2)
 
 on:
   push:
@@ -21,6 +21,7 @@ env:
 
 jobs:
   quality:
+    if: ${{ false }} # Diagnostic branch only; never a required L2 result.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -94,6 +95,7 @@ jobs:
           retention-days: 30
 
   prepare:
+    if: ${{ false }} # Do not enqueue the full rule suite for this diagnostic.
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
@@ -209,7 +211,7 @@ jobs:
   l2_required:
     name: L2 required
     needs: [quality, prepare, rule_suite, targeted, db_preflight]
-    if: ${{ always() }}
+    if: ${{ false }} # An intentionally skipped check cannot satisfy L2.
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -263,4 +265,33 @@ jobs:
         with:
           name: l2-required-result
           path: var/qa/l2-gate/
+          retention-days: 30
+
+  diagnostic_artifact_roundtrip:
+    name: Verify diagnostic upload and download
+    needs: [db_preflight]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Verify the same diagnostic checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/diagnostic/checkout.json
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-db-preflight
+          path: var/qa/l2-db-preflight
+      - name: Verify uploaded original evidence against the fixed checkout
+        env:
+          DIAGNOSTIC_RESULT: ${{ needs.db_preflight.result }}
+        run: |
+          test "$DIAGNOSTIC_RESULT" = success
+          python3 scripts/l2-db-preflight.py verify --commit "$GITHUB_SHA" --output var/qa/l2-db-preflight --quality var/qa/diagnostic/checkout.json > var/qa/diagnostic/result.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: diagnostic-roundtrip
+          path: var/qa/diagnostic/
           retention-days: 30
