@@ -8,7 +8,7 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class BeginningRuneConditionTests
 {
-    private static MatchState Position(string cardNo, int ownRunes, int opposingRunes)
+    internal static MatchState Position(string cardNo, int ownRunes, int opposingRunes)
     {
         var state = OfficialHoldSequenceTests.AddUnit(
             OfficialHoldSequenceTests.State("OGN·294/298"), "SOURCE", cardNo, "F", "P1");
