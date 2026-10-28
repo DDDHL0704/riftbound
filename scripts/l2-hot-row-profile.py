@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Select and validate one diagnostic row; never a substitute for L2/L3."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+import l2_case_selection as selection
+
+METHOD = ('Riftbound.ConformanceTests.CanonicalDelayedAuraDeathOpeningTests.'
+          'LegalLeonaAndJinxOpeningsKeepTheChosenInverseOrderAndConditionalDeathThroughColdRecovery')
+CASE = METHOD + '(auraFirst: True)'
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def settings(path):
+    selection.write_settings(path, {'selectors': [{'kind': 'case', 'method': METHOD, 'case': CASE}]})
+
+
+def verify(folder, commit, assembly):
+    results = ET.parse(folder / 'results.trx').getroot().findall('.//{*}UnitTestResult')
+    if len(results) != 1 or results[0].get('testName') != CASE or results[0].get('outcome') != 'Passed':
+        raise ValueError('The diagnostic must execute exactly the selected original row and pass.')
+    records = [json.loads(line) for line in (folder / 'profile.ndjson').read_text().splitlines()]
+    phases = {r.get('phase') for r in records if r.get('scope') == 'cold-checkpoint'}
+    required = {'frame', 'serialize-and-decode', 'registry-recovery', 'views-and-privacy', 'duplicate'}
+    if (not records or not required.issubset(phases)
+            or any(not isinstance(r.get('elapsedMs'), (int, float)) or r['elapsedMs'] < 0 for r in records)):
+        raise ValueError('The selected row did not emit complete measured checkpoint phases.')
+    result = {'status': 'DIAGNOSTIC_ROW_PASSED', 'commit': commit, 'case': CASE,
+              'testAssemblySha256': sha(assembly), 'trxSha256': sha(folder / 'results.trx'),
+              'profileSha256': sha(folder / 'profile.ndjson'), 'records': len(records),
+              'instrumentedDiagnosticOnly': True, 'fullL2OrL3Certified': False}
+    (folder / 'receipt.json').write_text(json.dumps(result, indent=2) + '\n')
+    return result
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', choices=['settings', 'verify'])
+    parser.add_argument('--folder', type=Path, required=True)
+    parser.add_argument('--commit')
+    parser.add_argument('--assembly', type=Path)
+    args = parser.parse_args()
+    args.folder.mkdir(parents=True, exist_ok=True)
+    if args.action == 'settings':
+        settings(args.folder / 'execution.runsettings')
+    else:
+        if not args.commit or not args.assembly:
+            parser.error('verify requires --commit and --assembly')
+        print(json.dumps(verify(args.folder, args.commit, args.assembly)))
