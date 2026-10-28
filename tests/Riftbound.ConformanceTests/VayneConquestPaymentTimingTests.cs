@@ -180,7 +180,12 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Empty(game.State.StackItems);
         Assert.Contains(paidSource, game.State.PlayerZones["P1"].Hand);
         Assert.Contains(declinedSource, game.State.PlayerZones["P1"].Battlefields);
-        if (minefield) Assert.Equal(2, game.State.PlayerZones["P2"].Graveyard.Count);
+        if (minefield)
+        {
+            Assert.Empty(game.State.PlayerZones["P2"].MainDeck);
+            Assert.Contains("VAYNE-DECK-1", game.State.PlayerZones["P2"].Graveyard);
+            Assert.Contains("VAYNE-DECK-2", game.State.PlayerZones["P2"].Graveyard);
+        }
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
