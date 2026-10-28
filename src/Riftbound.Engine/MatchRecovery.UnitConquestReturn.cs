@@ -1,3 +1,5 @@
+using Riftbound.Contracts;
+
 namespace Riftbound.Engine;
 
 public static partial class MatchRecoveryValidator
@@ -102,6 +104,34 @@ public static partial class MatchRecoveryValidator
                 || !commands.Any(cmd => cmd.Accepted && cmd.CompletedTick == context.ConquestTick
                     && cmd.StartedEventSequence < conquests[0].Sequence && cmd.CompletedEventSequence >= queued[0].Sequence))
                 errors.Add("captured unit conquest return is not bound to accepted conquest history");
+        }
+
+        foreach (var item in state.StackItems.Where(i => i.UnitConquestReturn is not null && i.TriggerCost is not null))
+        {
+            var receipt = item.TriggerCost!;
+            var paymentId = "TRIGGER-COST:" + item.StackItemId;
+            var payments = events.Where(e => e.Event.Kind == "COST_PAID" && e.Tick >= item.UnitConquestReturn!.ConquestTick
+                && TryReadObjectString(e.Event.Payload, "paymentId", out var id) && id == paymentId
+                && TryReadObjectString(e.Event.Payload, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
+                && TryReadObjectString(e.Event.Payload, "playerId", out var player) && player == item.ControllerId
+                && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var source) && source == item.SourceObjectId
+                && TryReadObjectString(e.Event.Payload, "reason", out var reason) && reason == item.EffectKind
+                && TryReadObjectLong(e.Event.Payload, "totalManaCost", out var mana) && mana == receipt.Mana
+                && TryReadObjectLong(e.Event.Payload, "totalPowerCost", out var power) && power == receipt.Power
+                && TryReadObjectLong(e.Event.Payload, "experienceCost", out var experience) && experience == 0
+                && TryReadObjectStringList(e.Event.Payload, "paymentChoiceIds", out var choices)
+                && choices.Count == 1 && (choices[0] == "PAY" || choices[0] == $"SPEND_MANA:{receipt.Mana}"))
+                .Take(2).ToArray();
+            if (payments.Length != 1 || !commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
+                && command.CommandType == CommandTypes.PayCost && command.CompletedTick == payments[0].Tick
+                && command.StartedEventSequence < payments[0].Sequence && command.CompletedEventSequence >= payments[0].Sequence
+                && (command.RawCommand ?? command.TypedCommand?.Value) is { } input
+                && TryReadObjectString(input, "paymentId", out var id) && id == paymentId
+                && TryReadObjectString(input, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
+                && TryReadObjectStringList(input, "paymentChoiceIds", out var choices)
+                && TryReadObjectStringList(payments[0].Event.Payload, "paymentChoiceIds", out var paidChoices)
+                && choices.SequenceEqual(paidChoices)))
+                errors.Add("captured unit conquest return receipt is not bound to accepted payment history");
         }
     }
 }
