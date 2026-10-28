@@ -54,6 +54,7 @@ public sealed partial class CoreRuleEngine
                     state = QueueBattlefieldStartAbilities(state, events);
                     state = QueueBeginningDrawAbilities(state, events);
                     state = QueueBeginningRecycleAbilities(state, events);
+                    state = QueueBeginningRuneAbilities(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);
