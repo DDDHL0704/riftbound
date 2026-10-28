@@ -313,6 +313,12 @@ public sealed class PowerfulPlayedLegendTests
         var snapshot = CurrentPowerTargetTests.Snapshot(driver.State).GetProperty("players").GetProperty("P1").GetProperty("objects");
         Assert.All(tokens, id => Assert.Equal(5, snapshot.GetProperty(id).GetProperty("effectivePower").GetInt32()));
         var triggers = driver.State.TriggerQueue.Where(t => t.MightySkill?.Kind == "POWERFUL_PLAYED_LEGEND_CHANNEL").ToArray();
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_POWERFUL_PLAYED_DIAGNOSTICS") is { } folder) {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "spell-token-result.json"), JsonSerializer.Serialize(new {
+                initial, final = driver.State, commands = driver.Commands(), events = driver.Events(), tokens, triggerCount = triggers.Length
+            }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
         Assert.Equal(2, triggers.Length);
         Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
         await BanishEffectPlayTests.Replay(initial, driver);
@@ -349,6 +355,12 @@ public sealed class PowerfulPlayedLegendTests
         var snapshot = CurrentPowerTargetTests.Snapshot(driver.State).GetProperty("players").GetProperty("P1").GetProperty("objects");
         Assert.All(tokens, id => Assert.Equal(5, snapshot.GetProperty(id).GetProperty("effectivePower").GetInt32()));
         var triggers = driver.State.TriggerQueue.Where(t => t.MightySkill?.Kind == "POWERFUL_PLAYED_LEGEND_CHANNEL").ToArray();
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_POWERFUL_PLAYED_DIAGNOSTICS") is { } folder) {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "last-breath-token-result.json"), JsonSerializer.Serialize(new {
+                initial, final = driver.State, commands = driver.Commands(), events = driver.Events(), tokens, triggerCount = triggers.Length
+            }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
         Assert.Equal(2, triggers.Length);
         Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
         await BanishEffectPlayTests.Replay(initial, driver);
