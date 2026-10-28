@@ -321,6 +321,12 @@ public sealed class PowerfulPlayedLegendTests
         }
         Assert.Equal(2, triggers.Length);
         Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
+        var firstFrame = Assert.Single(triggers, t => t.MightySkill!.Unit.ObjectId == tokens[0]).MightySkill!.After;
+        var secondFrame = Assert.Single(triggers, t => t.MightySkill!.Unit.ObjectId == tokens[1]).MightySkill!.After;
+        Assert.Contains(tokens[0], firstFrame.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(tokens[1], firstFrame.PlayerZones["P1"].Base);
+        Assert.Contains(tokens[0], secondFrame.PlayerZones["P1"].Base);
+        Assert.Contains(tokens[1], secondFrame.PlayerZones["P1"].Base);
         await BanishEffectPlayTests.Replay(initial, driver);
         await driver.Act("P1", new OrderTriggersCommand(driver.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
@@ -363,6 +369,12 @@ public sealed class PowerfulPlayedLegendTests
         }
         Assert.Equal(2, triggers.Length);
         Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
+        var firstFrame = Assert.Single(triggers, t => t.MightySkill!.Unit.ObjectId == tokens[0]).MightySkill!.After;
+        var secondFrame = Assert.Single(triggers, t => t.MightySkill!.Unit.ObjectId == tokens[1]).MightySkill!.After;
+        Assert.Contains(tokens[0], firstFrame.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(tokens[1], firstFrame.PlayerZones["P1"].Base);
+        Assert.Contains(tokens[0], secondFrame.PlayerZones["P1"].Base);
+        Assert.Contains(tokens[1], secondFrame.PlayerZones["P1"].Base);
         await BanishEffectPlayTests.Replay(initial, driver);
         await driver.Act("P1", new OrderTriggersCommand(driver.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
