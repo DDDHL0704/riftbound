@@ -12,7 +12,7 @@ The adopted [CN core snapshot, updated 2026-10-10](https://cdn.playloltcg.com/lo
 
 The five builders now assign P2 control. The common controlled-midgame helper clears the cards-played counter to an empty dictionary, matching the engine's existing representation for no cards played. Its old two zero-valued entries fail current component recovery validation. Shirana's appended Boon tags are sorted ordinally, matching card-object constructor normalization and preserving snapshot hash equality.
 
-The five original complete-game methods, consumer/payment assertions, victory continuations and original action/event replay remain. Production rules, catalog, registry, source/profile and CI are unchanged. All original test bytes through the last public test body in the root full-game file remain identical to main `1a8edcfc`; every other original test file is unchanged. The original 143-method/151-case policy, 110 ordered deck pairs, eleven decks and seed 424242 remain in place.
+At focused commit `2cf2ac096d6bad73bea2592bce472c224cbf6d63`, the five original complete-game methods, consumer/payment assertions, victory continuations and original action/event replay remain. Relative to `1a8edcfc`, that focused change touched only the root full-game test file and the new controlled fixture file; production rules, catalog, registry, source/profile and CI were unchanged at that input. The combined nightly test repair also changes other SQL and restricted-mana acceptance tests and L2 scheduling, so the focused change's file-scope statement does not apply to the whole repair. The original 143-method/151-case policy, 110 ordered deck pairs, eleven decks and seed 424242 remain in place.
 
 ## Actual focused evidence
 
