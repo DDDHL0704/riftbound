@@ -5460,6 +5460,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var events = new List<GameEvent>(paymentEvents);
         events.AddRange(destructionEvents);
+        var paidPayload = PaymentCostRules.BuildCostPaidPayload(
+            paymentPlan,
+            runePools,
+            playerExperience,
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["mana"] = ability.ManaCost,
+                ["power"] = ability.PowerCost,
+                ["abilityId"] = command.AbilityId
+            });
+        if (ability.ManaCost > 0 && (adjustedPool.UnitPlayOrUnitAbilityOnlyMana > 0 || renektonResourceAction is not null))
+        {
+            var paidPool = paymentCommit.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
+            paidPayload["ordinaryManaSpent"] = adjustedPool.Mana - paidPool.Mana;
+            paidPayload["unitPlayOrUnitAbilityOnlyManaSpent"] =
+                adjustedPool.UnitPlayOrUnitAbilityOnlyMana - paidPool.UnitPlayOrUnitAbilityOnlyMana;
+            if (adjustedPool.DuelOnlyMana > 0)
+                paidPayload["duelOnlyManaSpent"] = adjustedPool.DuelOnlyMana - paidPool.DuelOnlyMana;
+        }
         events.AddRange([
             new(
                 "ABILITY_ACTIVATED",
@@ -5474,17 +5494,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付启动技能费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
-                    runePools,
-                    playerExperience,
-                    new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["mana"] = ability.ManaCost,
-                    ["power"] = ability.PowerCost,
-                    ["abilityId"] = command.AbilityId
-                })),
+                paidPayload),
             new(
                 "STACK_ITEM_ADDED",
                 "该技能加入结算链",
