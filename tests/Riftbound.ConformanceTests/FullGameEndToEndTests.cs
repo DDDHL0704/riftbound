@@ -25801,6 +25801,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[vayneObjectId] = cardObjects[vayneObjectId] with
         {
             Damage = 0,
@@ -26774,7 +26775,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -26863,10 +26864,11 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         var attackerTags = ApplyRegisteredSourceUnitTags(cardObjects[attackerObjectId])
             .Concat([CardObjectTags.Boon])
             .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
             .ToArray();
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
@@ -27064,7 +27066,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -27271,7 +27273,7 @@ public sealed partial class FullGameEndToEndTests
         objectLocations[defenderObjectId] = new ObjectLocationState("P2", "BATTLEFIELD", battlefieldId);
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P1" };
+        cardObjects[battlefieldId] = cardObjects[battlefieldId] with { ControllerId = "P2" };
         cardObjects[attackerObjectId] = cardObjects[attackerObjectId] with
         {
             Damage = 0,
@@ -32710,7 +32712,7 @@ public sealed partial class FullGameEndToEndTests
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             PlayerScores = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
-            PlayerCardsPlayedThisTurn = state.Seats.Keys.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal)
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
         };
     }
 
