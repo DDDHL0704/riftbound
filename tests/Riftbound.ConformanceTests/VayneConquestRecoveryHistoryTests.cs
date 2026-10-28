@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -32,6 +33,15 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains(frame.ValidationErrors, e => e.Contains("payment", StringComparison.OrdinalIgnoreCase)
             && e.Contains("history", StringComparison.OrdinalIgnoreCase));
         Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var persisted = JsonSerializer.Deserialize<MatchRecoveryFrame>(
+            JsonSerializer.Serialize(frame with { ValidationErrors = [] }, options), options)!;
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
+            new ConquestContinuationRecoveryStore(persisted));
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(forged.RoomId, default));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("payment history", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(await registry.FindAsync(forged.RoomId, default));
     }
 
     [Fact]
