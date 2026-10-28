@@ -243,7 +243,7 @@ jobs:
           DB_PREFLIGHT_RESULT: ${{ needs.db_preflight.result }}
         run: |
           test "$DB_PREFLIGHT_RESULT" = success
-          python3 scripts/l2-db-preflight.py verify --commit "$GITHUB_SHA" --output var/qa/l2-db-preflight --quality var/qa/l2-quality/checkout.json
+          python3 scripts/l2-db-preflight.py verify --commit "$GITHUB_SHA" --output var/qa/l2-db-preflight --quality var/qa/l2-quality/checkout.json > var/qa/l2-gate/db-preflight.json
       - name: Require all children, fixed identities and exact original case coverage
         env:
           RIFTBOUND_QUALITY: ${{ needs.quality.result }}

@@ -153,7 +153,9 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
     if snapshots[0] != snapshots[1] or not all(snapshots[0].get(t) for t in
             ['command_log', 'game_events', 'snapshots', 'state_snapshots', 'action_prompts']):
         raise ValueError('Actual original SQL history must survive the API restart.')
-    return dict(status=receipt['status'], commit=commit, cases=list(CASES),
+    return dict(status=receipt['status'], commit=commit, runId=checkout['runId'],
+                runAttempt=checkout['runAttempt'], cases=list(CASES),
+                preflightReceiptSha256=digest(folder / 'preflight-receipt.json'),
                 seconds=receipt['seconds'], targetSeconds=600, fullL3Certified=False)
 
 

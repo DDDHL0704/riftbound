@@ -76,6 +76,8 @@ class DatabasePreflightTests(unittest.TestCase):
         result = self.verify()
         self.assertEqual(list(P.CASES), result['cases'])
         self.assertFalse(result['fullL3Certified'])
+        self.assertEqual(('123', '1'), (result['runId'], result['runAttempt']))
+        self.assertEqual(P.digest(self.root / 'preflight-receipt.json'), result['preflightReceiptSha256'])
         changed = copy.deepcopy(self.checkout)
         changed['runAttempt'] = '2'
         with self.assertRaisesRegex(ValueError, 'workflow attempt'):
