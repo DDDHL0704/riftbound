@@ -9368,7 +9368,8 @@ public static partial class MatchRecoveryValidator
             ("spellOnlyMana", expectedRunePool.SpellOnlyMana, "spell-only mana"),
             ("duelOnlyMana", expectedRunePool.DuelOnlyMana, "duel-only mana"),
             ("spellOnlyPower", expectedRunePool.SpellOnlyPower, "spell-only power"),
-            ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power") })
+            ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power"),
+            ("unitOrEquipmentPlayOnlyPower", expectedRunePool.UnitOrEquipmentPlayOnlyPower, "unit-or-equipment-play-only power") })
         {
             var present = TryReadObjectValue(runePoolPayload, property, out _);
             var numeric = TryReadObjectInt(runePoolPayload, property, out var restrictedAmount);

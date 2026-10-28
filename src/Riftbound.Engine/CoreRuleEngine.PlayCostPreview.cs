@@ -6,7 +6,8 @@ public sealed partial class CoreRuleEngine
 {
     internal static PowerPaymentPurpose PowerPurposeForPlay(CardBehaviorDefinition behavior)
         => IsSpellPlayBehavior(behavior) ? PowerPaymentPurpose.PlaySpell
-            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.PlayEquipment
+            : behavior.PlaysSourceToBaseAsUnit ? PowerPaymentPurpose.PlayUnit : PowerPaymentPurpose.Other;
 
     public PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
     {

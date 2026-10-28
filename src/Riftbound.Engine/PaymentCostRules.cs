@@ -1,8 +1,9 @@
 namespace Riftbound.Engine;
 
 public enum ManaPaymentPurpose { Other, PlaySpell }
-// Equipment means playing an equipment card or paying for an equipment ability.
-public enum PowerPaymentPurpose { Other, PlaySpell, Equipment }
+// Equipment includes equipment abilities; the play-only purposes distinguish
+// a resource that can be spent to play a unit or equipment, but not an ability.
+public enum PowerPaymentPurpose { Other, PlaySpell, Equipment, PlayUnit, PlayEquipment }
 
 public static class PaymentCostRules
 {
@@ -212,7 +213,8 @@ public static class PaymentCostRules
         if (plan.ManaPurpose == ManaPaymentPurpose.PlaySpell)
             result.TryAdd("manaPurpose", "PLAY_SPELL");
         if (plan.PowerPurpose != PowerPaymentPurpose.Other)
-            result.TryAdd("powerPurpose", plan.PowerPurpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : "EQUIPMENT");
+            result.TryAdd("powerPurpose", plan.PowerPurpose switch {
+                PowerPaymentPurpose.PlaySpell => "PLAY_SPELL", PowerPaymentPurpose.PlayUnit => "PLAY_UNIT", _ => "EQUIPMENT" });
         result.TryAdd("optionalCosts", plan.OptionalCostIds.ToArray());
         result.TryAdd("extraCosts", plan.ExtraCostIds.ToArray());
         result.TryAdd("paymentResourceActions", plan.PaymentResourceActionIds.ToArray());
@@ -368,32 +370,41 @@ public static class PaymentCostRules
             : pool.TotalPower + RestrictedPowerAvailable(pool, purpose);
 
     private static bool SupportedPowerPurpose(PowerPaymentPurpose purpose)
-        => purpose is PowerPaymentPurpose.Other or PowerPaymentPurpose.PlaySpell or PowerPaymentPurpose.Equipment;
+        => purpose is PowerPaymentPurpose.Other or PowerPaymentPurpose.PlaySpell or PowerPaymentPurpose.Equipment
+            or PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment;
 
     private static int RestrictedPowerAvailable(RunePool pool, PowerPaymentPurpose purpose)
         => purpose switch {
             PowerPaymentPurpose.PlaySpell => pool.SpellOnlyPower,
             PowerPaymentPurpose.Equipment => pool.EquipmentOnlyPower,
+            PowerPaymentPurpose.PlayUnit => pool.UnitOrEquipmentPlayOnlyPower,
+            PowerPaymentPurpose.PlayEquipment => pool.EquipmentOnlyPower + pool.UnitOrEquipmentPlayOnlyPower,
             _ => 0 };
 
     public static RunePool PowerPoolForPurpose(RunePool pool, PowerPaymentPurpose purpose)
         => !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose) ? pool : pool with {
             Power = pool.Power + RestrictedPowerAvailable(pool, purpose),
             SpellOnlyPower = purpose == PowerPaymentPurpose.PlaySpell ? 0 : pool.SpellOnlyPower,
-            EquipmentOnlyPower = purpose == PowerPaymentPurpose.Equipment ? 0 : pool.EquipmentOnlyPower };
+            EquipmentOnlyPower = purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment ? 0 : pool.EquipmentOnlyPower,
+            UnitOrEquipmentPlayOnlyPower = purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment ? 0 : pool.UnitOrEquipmentPlayOnlyPower };
 
     public static RunePool PayPowerCost(RunePool pool, int anyPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait, PowerPaymentPurpose purpose)
     {
-        var available = RestrictedPowerAvailable(pool, purpose);
         var view = PowerPoolForPurpose(pool, purpose);
         var paid = PayPowerCost(view, anyPowerCost, powerCostByTrait);
         var spent = view.Power - paid.AnyPower;
-        var restrictedSpent = Math.Min(available, spent);
+        var spellSpent = purpose == PowerPaymentPurpose.PlaySpell ? Math.Min(pool.SpellOnlyPower, spent) : 0;
+        var equipmentSpent = purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment
+            ? Math.Min(pool.EquipmentOnlyPower, spent - spellSpent) : 0;
+        var permanentSpent = purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment
+            ? Math.Min(pool.UnitOrEquipmentPlayOnlyPower, spent - spellSpent - equipmentSpent) : 0;
+        var restrictedSpent = spellSpent + equipmentSpent + permanentSpent;
         return pool with {
             Power = pool.Power - (spent - restrictedSpent), PowerByTrait = paid.PowerByTrait,
-            SpellOnlyPower = pool.SpellOnlyPower - (purpose == PowerPaymentPurpose.PlaySpell ? restrictedSpent : 0),
-            EquipmentOnlyPower = pool.EquipmentOnlyPower - (purpose == PowerPaymentPurpose.Equipment ? restrictedSpent : 0) };
+            SpellOnlyPower = pool.SpellOnlyPower - spellSpent,
+            EquipmentOnlyPower = pool.EquipmentOnlyPower - equipmentSpent,
+            UnitOrEquipmentPlayOnlyPower = pool.UnitOrEquipmentPlayOnlyPower - permanentSpent };
     }
 
     public static int PowerDeficit(RunePool pool, int anyPowerCost, IReadOnlyDictionary<string, int> powerCostByTrait)
