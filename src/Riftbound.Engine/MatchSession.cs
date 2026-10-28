@@ -18582,7 +18582,7 @@ public sealed partial class MatchSession : IMatchSession
         await OfficialCatalogGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            officialCatalog ??= await OfficialCardCatalog.LoadDefaultAsync(cancellationToken)
+            officialCatalog ??= await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken)
                 .ConfigureAwait(false);
             return officialCatalog;
         }

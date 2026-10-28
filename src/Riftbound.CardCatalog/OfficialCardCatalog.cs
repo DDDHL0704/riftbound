@@ -17,6 +17,7 @@ public sealed record OfficialCardCatalog(
 {
     private static readonly Lazy<string> DefaultPath = new(ResolveDefaultCatalogPath);
     private static readonly Lazy<Task<OfficialCardCatalog>> DefaultSnapshot = new(LoadDefaultSnapshotAsync);
+    private static readonly Lazy<Task<OfficialCardCatalog>> RuntimeSnapshot = new(LoadRuntimeSnapshotAsync);
 
     private static async Task<OfficialCardCatalog> LoadDefaultSnapshotAsync()
     {
@@ -34,6 +35,29 @@ public sealed record OfficialCardCatalog(
         cancellationToken.ThrowIfCancellationRequested();
         return await DefaultSnapshot.Value.WaitAsync(cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private static async Task<OfficialCardCatalog> LoadRuntimeSnapshotAsync()
+    {
+        var original = await LoadDefaultAsync().ConfigureAwait(false);
+        var reviewed = ReviewedRuneCardSources.GetAll();
+        var admitted = new[] { (Id: 37690L, CardNo: "VEN·005"), (Id: 37691L, CardNo: "VEN·006") }
+            .Select(identity => reviewed.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            .ToArray();
+        if (admitted.Any(card => original.Cards.Any(existing => existing.Id == card.Id || existing.CardNo == card.CardNo)))
+            throw new InvalidDataException("The reviewed runtime card already exists in the original catalog.");
+        var cards = original.Cards.Concat(admitted).ToImmutableArray();
+        return original with {
+            Source = original.Source + "; reviewed additions: " + ReviewedRuneCardSources.SnapshotPath,
+            Total = cards.Length,
+            Cards = cards
+        };
+    }
+
+    public static async Task<OfficialCardCatalog> LoadRuntimeAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return await RuntimeSnapshot.Value.WaitAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public static string DefaultCatalogPath() => DefaultPath.Value;

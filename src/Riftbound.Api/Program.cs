@@ -113,7 +113,7 @@ app.MapGet("/metrics", (IConfiguration configuration, IHostEnvironment environme
 
 app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
 {
-    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var summary = FunctionalUnitBuilder.Summarize(units);
     var schema = OfficialCardSchemaValidator.Validate(catalog);
@@ -140,7 +140,7 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
 
 app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
 {
-    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var summary = FunctionalUnitBuilder.Summarize(units);
     var schema = OfficialCardSchemaValidator.Validate(catalog);
@@ -167,7 +167,7 @@ app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
 
 app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken cancellationToken) =>
 {
-    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     if (string.IsNullOrWhiteSpace(cardNo))
@@ -183,7 +183,7 @@ app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken c
 
 app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationToken) =>
 {
-    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     return Results.Ok(KeywordCoverageReporter.Build(specs));
@@ -191,7 +191,7 @@ app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationTok
 
 app.MapGet("/decks/preconstructed", async (CancellationToken cancellationToken) =>
 {
-    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var catalog = await OfficialCardCatalog.LoadRuntimeAsync(cancellationToken);
     var decks = PreconstructedDeckCatalog.Build(catalog, OfficialDeckFormat.ChinaStandard20260724).Select(deck => new
     {
         deck.Id,

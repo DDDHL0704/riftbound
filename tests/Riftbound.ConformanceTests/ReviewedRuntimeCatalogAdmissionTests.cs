@@ -11,6 +11,37 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
     private const string PreviousCatalogIdentity = "e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682";
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
+    [Fact]
+    public async Task RuntimeSnapshotAddsOnlyTheTwoExactReviewedPrintsAndKeepsTheOriginalImmutable()
+    {
+        var original = await OfficialCardCatalog.LoadDefaultAsync();
+        var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
+        Assert.Same(runtime, await OfficialCardCatalog.LoadRuntimeAsync());
+        Assert.Equal(1089, original.Total);
+        Assert.Equal(1089, original.Cards.Count);
+        Assert.Equal(1091, runtime.Total);
+        Assert.Equal(1091, runtime.Cards.Count);
+        Assert.Contains(ReviewedRuneCardSources.SnapshotPath, runtime.Source);
+        var originalNos = original.Cards.Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(["VEN·005", "VEN·006"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
+            .Select(card => card.CardNo).Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal(37690, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·005").Id);
+        Assert.Equal(37691, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·006").Id);
+        Assert.DoesNotContain(runtime.Cards, card => card.CardNo is "VEN·005/166" or "VEN·006/166" or "RAD·092/167");
+        var mutable = Assert.IsAssignableFrom<IList<OfficialCard>>(runtime.Cards);
+        Assert.Throws<NotSupportedException>(() => mutable[0] = mutable[0] with { CardEffect = "changed" });
+        var schema = OfficialCardSchemaValidator.Validate(runtime);
+        Assert.True(schema.IsValid, string.Join("; ", schema.Violations.Select(v => $"{v.CardNo}:{v.Field}:{v.Reason}")));
+        var units = FunctionalUnitBuilder.Build(runtime.Cards);
+        var play = CardBehaviorRegistry.GetAll().Select(definition => new ImplementedCardBehavior(
+            definition.CardNo, definition.EffectKind, definition.DisplayName, CardBehaviorRegistry.TriggerEffectKinds(definition))).ToArray();
+        var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(runtime.Cards, play);
+        var specs = BehaviorSpecCatalogBuilder.Build(runtime.Cards, units, implemented);
+        Assert.Equal(1091, specs.Count);
+        Assert.Single(specs, spec => spec.CardNo == "VEN·005");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·006");
+    }
+
     [Theory]
     [InlineData("VEN·005", OfficialDeckFormat.CoreRules)]
     [InlineData("VEN·006", OfficialDeckFormat.CoreRules)]
@@ -67,6 +98,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         var result = await session.SubmitDeckAsync("P1", "bad-deck", command, JsonSerializer.SerializeToElement(command, Web), default);
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
+        Assert.Contains("未知牌号 " + cardNo, result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
     }

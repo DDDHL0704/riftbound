@@ -6,8 +6,8 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-// Exact official source facts and shared physical/resource paths only. These
-// controlled cases do not register the cards or certify their behavior.
+// Exact official source facts and shared physical/resource paths. VEN·005/006
+// also have reviewed consumers; the separate RAD print remains source-only.
 public sealed class ReviewedRuneCardSourcesTests
 {
     [Theory]
@@ -30,7 +30,8 @@ public sealed class ReviewedRuneCardSourcesTests
         Assert.Equal(no, physical.CardNo); Assert.Equal(mana, physical.ManaCost); Assert.Equal(might, physical.Power);
         Assert.Contains(CardObjectTags.UnitCard, physical.Tags); Assert.Contains("COLOR:" + trait, physical.Tags);
         var cost = PrintedPowerCostRules.ForCard(no); Assert.Equal(0, cost.Amount); Assert.Equal([trait], cost.Traits);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        var admitted = no is "VEN·005" or "VEN·006";
+        Assert.Equal(admitted, CardBehaviorRegistry.TryGetByCardNo(no, out _));
         var state = new MatchState("REVIEWED-RUNE-SOURCE-ONLY", 0, 3, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(100, 100), ["P2"] = RunePool.Empty },
@@ -39,8 +40,16 @@ public sealed class ReviewedRuneCardSourcesTests
             objectLocations: new Dictionary<string, ObjectLocationState> { ["CARD"] = new("P1", "HAND") });
         var result = await new CoreRuleEngine().ResolveAsync(state, new("unregistered", "P1", CommandTypes.PlayCard),
             new PlayCardCommand("CARD", no, []), default);
-        Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Empty(result.Events); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+        if (admitted)
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Contains("CARD", result.State.PlayerZones["P1"].Base);
+        }
+        else
+        {
+            Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+            Assert.Empty(result.Events); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+        }
     }
 
     [Fact]
@@ -69,9 +78,10 @@ public sealed class ReviewedRuneCardSourcesTests
     {
         var current = RuleInputIdentity.Current;
         Assert.Equal("d0164efbc531aa9879094ea0a6bd7b891b4a5e3f3f184ae517bfadb231d7aa7f", current.AuthoritySha256);
-        Assert.Equal("e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682", current.CatalogSha256);
+        Assert.Equal(ReviewedRuntimeCatalogAdmissionTests.ExpectedEffectiveCatalogHash(await OfficialCardCatalog.LoadDefaultAsync()), current.CatalogSha256);
         // Captured from the actual cb56 source31 test host; never rewrite its history.
-        var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256, current.CatalogSha256,
+        var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
+            "e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682",
             "d03e3d1558db94b23e33ba80c1953393287c0f8c5a0a56331bf1ad296d567152");
         Assert.Equal("49d14bbcba740dbf64cbe2b541e1a0c7877e23573f9bfcd01cccf6856297c09d", prior.IdentitySha256);
         Assert.NotEqual(prior.ImplementationSha256, current.ImplementationSha256);
