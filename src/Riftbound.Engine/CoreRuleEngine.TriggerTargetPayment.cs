@@ -8,7 +8,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
-            && (item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
+            && (item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
+                || item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
                 || item.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(item) && ValidCreatedTokenReadyStack(state, item)
                 || item.DamageDistribution is not null && ValidDistributionStack(state, item)
                 || item.LocationDamage is not null && ValidLocationDamageStack(state,item)
@@ -21,7 +22,8 @@ public sealed partial class CoreRuleEngine
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
                 || item.PermanentPlayTargetsPending && ValidPermanentPlayTargetStack(state, item))
-            && (item.CreatedTokenReady is not null || item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
+            && (item.HighCostPlayObserver is not null ? item.TargetObjectIds.Count <= (HighCostPlaySpec(item.CardNo!)!.RuneReadyCount ?? 0)
+                : item.CreatedTokenReady is not null || item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
             && item.TargetGenerations is { } generations && generations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => generations.TryGetValue(id, out var generation) && generation >= 0)
             && payment.PaymentId == "TRIGGER-WARD:" + item.StackItemId && payment.PlayerId == item.ControllerId
@@ -29,8 +31,8 @@ public sealed partial class CoreRuleEngine
             && (item.FieldContext is { Kind: PaidUnitStunKind, PaidUnitTrigger.CostPaid: false } paid
                 ? payment.ManaCost == PaidUnitStunSpec(paid.CardNo)!.ManaCost
                     && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
-                : payment.ManaCost == 0 && payment.PowerCost > 0)
-            && (item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.FieldContext?.Kind != EmpoweredBanishKind || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+                : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0))
+            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.FieldContext?.Kind != EmpoweredBanishKind || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
@@ -42,7 +44,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "请选择支付法盾费用或放弃技能。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
-        var legal = item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)
+        var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
+            : item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)
             : item.CreatedTokenReady is not null ? CreatedTokenReadyTargets(state, item)
             : item.PermanentPlayTargetsPending ? PermanentPlayTargetChoices(state, item)
             : item.DamageDistribution is not null ? DistributionTargets(state, item)

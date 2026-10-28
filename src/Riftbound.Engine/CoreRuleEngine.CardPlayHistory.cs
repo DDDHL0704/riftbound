@@ -28,7 +28,7 @@ public sealed partial class CoreRuleEngine
         => confirmed is not null && (confirmed.OriginOutsideHands
             || (confirmed.OriginHandPlayerId ?? confirmed.PlayerId) != completed.PlayerId);
     private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone,
-        OutsideHandPlayObserverCandidate[] Observers);
+        OutsideHandPlayObserverCandidate[] Observers, HighCostPlayObserverCandidate[] HighCostObservers);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
             c => (c.CardCategoryNameList.Any(n => n.Contains("单位", StringComparison.Ordinal)) ? 1 : 0)
@@ -46,7 +46,8 @@ public sealed partial class CoreRuleEngine
         payload[CardPlayHistoryObservationKey] = new CardPlayHistoryObservation(
             new(playId ?? "", player, new(card.ObjectId, card.ObjectGeneration), no, types, 0,
                 card.CopyFaceTransitions?.Count ?? 0, originHandPlayerId, originOutsideHands), resolved, zone,
-            resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : []);
+            resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : [],
+            resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : []);
         return ev with { Payload = payload };
     }
 
@@ -87,6 +88,21 @@ public sealed partial class CoreRuleEngine
                 entry = entry with { OriginHandPlayerId = confirmed?.OriginHandPlayerId,
                     OriginOutsideHands = confirmed?.OriginOutsideHands ?? false };
                 resolved.Add(entry);
+                if ((entry.Types & 3) != 0 && PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
+                {
+                    foreach (var (observer, ordinal) in observation.HighCostObservers.Select((value, ordinal) => (value, ordinal)))
+                    {
+                        if (mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
+                        var context = observer.ToContext(result.State.Tick, entry, null);
+                        var trigger = new TriggerQueueItemState($"high-cost-play-{result.State.Tick}-{index}-{ordinal}",
+                            entry.PlayerId, context.Source.ObjectId, HighCostPlayEffect, "CARD_PLAY_COMPLETED")
+                            { HighCostPlayObserver = context, SourceCardNo = context.CardNo };
+                        queue.Add(trigger);
+                        var queued = BuildTriggerQueuedEvent(trigger);
+                        events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                    }
+                }
                 if (CompletedPlayFromOutsideHand(confirmed, entry) && result.State.Status == MatchStatuses.InProgress)
                 {
                     foreach (var (observer, ordinal) in observation.Observers.Select((value, ordinal) => (value, ordinal)))
