@@ -1,0 +1,26 @@
+{
+  "sourceReview": "var/qa/renekton-unit-mana-source-review-v1/source-review-v2.json",
+  "sourceReviewSha256": "c45321dbe9f37ef6b82a9f2215dcf28aee06915afd1f17b84fefeae70ecf35ba",
+  "snapshotSha256": "77c2e7046f37110c6ce35c116a0af0b82478aa316dd4852553bd4681bdc9d252",
+  "reviewedPrints": [
+    {
+      "id": 37844,
+      "apiCardNo": "VEN·141",
+      "physicalLabel": "VEN·141/166",
+      "faceSha256": "698c049e29e455fa87e75ff6a81307804149c19159c4a1586bf427208a067eb9"
+    },
+    {
+      "id": 37894,
+      "apiCardNo": "VEN·190",
+      "physicalLabel": "VEN·190/166",
+      "faceSha256": "5fe6ab3167fb8e4a76f3b10f48dd6a4affd946bbc140735f155641de87c1a4e3"
+    },
+    {
+      "id": 37895,
+      "apiCardNo": "VEN·190*",
+      "physicalLabel": "VEN·190*/166",
+      "faceSha256": "5d184cbbcb7328b3a18a73c4064a479a9f6f16566b0770c67b60fa232b247627"
+    }
+  ],
+  "scope": "Exact source and physical prints only; no aliases, normal legend ability registration, format or full-card certification."
+}

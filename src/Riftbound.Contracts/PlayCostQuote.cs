@@ -7,6 +7,8 @@ public sealed record PlayCostPreviewRequestDto(
     PlayCardCommand Command);
 
 public sealed record PlayCostAdjustmentDto(string Label, int Mana, int Power = 0);
+public sealed record PlayPaymentResourceActionQuoteDto(
+    string ActionId, int PowerCost, int UnitPlayOrUnitAbilityOnlyManaGained);
 
 public sealed record PlayCostBreakdownDto(
     int PrintedMana,
@@ -34,8 +36,20 @@ public sealed record PlayCostBreakdownDto(
     public int AvailableDuelOnlyMana { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? RemainingDuelOnlyMana { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int AvailableUnitPlayOrUnitAbilityOnlyMana { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? RemainingUnitPlayOrUnitAbilityOnlyMana { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? RemainingOrdinaryMana { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? AvailableWildcardSources { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? RemainingWildcardSources { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PlayPaymentResourceActionQuoteDto>? PaymentResourceActions { get; init; }
 }
 
 // A quote is informational. Submission always rebuilds and authorizes its plan.

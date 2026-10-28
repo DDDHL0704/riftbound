@@ -1,0 +1,45 @@
+{
+  "snapshotSha256": "a86e10ea59a9ddd8b2794a41f1dd8dce946f0b032ae1976532bf518e7c6d8054",
+  "sourceScope": "EXACT_SCOPED_SOURCE_FACTS_ONLY_NO_NORMAL_PLAY_REGISTRY_OR_WHOLE_CARD_CERTIFICATION",
+  "physicalReview": "API and linked official full printed faces reviewed independently. Preserve the literal printed fraction separately; no alias is inferred.",
+  "apiRecords": [
+    {
+      "id": 37690,
+      "apiCardNo": "VEN·005",
+      "printedFaceNumber": "VEN·005/166",
+      "responseSha256": "7d6f6aa026c56b4d1269b626b578d02fd1683760de70cc86c30e171f4f47a5e6",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/7a6da320ece44e189bda84010dd8ea47.png",
+      "faceSha256": "6c105671a12c7689b86e04d2727148284023ee58f89d912fd41d02ab8ddd5b7d"
+    },
+    {
+      "id": 37691,
+      "apiCardNo": "VEN·006",
+      "printedFaceNumber": "VEN·006/166",
+      "responseSha256": "eaf0dbaf6fe715121cdd2bda41ebfc1e12af3ab721bf5ddfbc8633712a1f8d28",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/10f8f819bafd47eba7c01ab77be2540d.png",
+      "faceSha256": "cb79dd51fd3ce0474d4c2857b538f3903ee33f7568c8bf595fc79d64c31d44a6"
+    },
+    {
+      "id": 40170,
+      "apiCardNo": "RAD·092/167",
+      "printedFaceNumber": "RAD·092/167",
+      "responseSha256": "e69af33181359700badf172f1c7a5a372233e0eb31b93c48f7945f29936fa198",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b9d6dc3ff7634315bf0266c86b74d270.png",
+      "faceSha256": "cb605e8baedce20f970c71cc1506b818633a5df44f0a10a623b1f9bd7894ab3c"
+    }
+  ],
+  "regionalStandardFormatSource": "DOC-02 601.3.c.5 lists VEN; event-specific restrictions and future changes not certified.",
+  "officialCnSources": "DOC-01 and DOC-17/18 remain authoritative; no new effective date invented.",
+  "reviewedEvidenceRefs": [
+    {
+      "path": "var/qa/ven005-006-source-review-20261028/source-format-review-v1.json",
+      "sha256": "bc7ca6c463fac3c7dd4b9c4bca74efa9591c7ce8be1b0fe58170d0c6bd179274"
+    },
+    {
+      "path": "var/qa/radiance-resource-sources-20261028/complete-resource-source-correction-v2.json",
+      "sha256": "7a39412773359d3a217a6f7dff48002fb8a62c219987d64da01da2abcdec8be5"
+    }
+  ],
+  "doesNotReplacePrior14OrDefaultCatalog": true,
+  "doesNotAuthorizeCardBehavior": true
+}

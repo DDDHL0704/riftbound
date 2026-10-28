@@ -2,6 +2,10 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static ManaPaymentPurpose ManaPurposeForActivatedAbility(MatchState state, string sourceId)
+        => state.CardObjects.TryGetValue(sourceId, out var source) && IsFaceUpNonStandbyUnit(source)
+            && IsObjectOnField(state.PlayerZones, sourceId) ? ManaPaymentPurpose.UnitAbility : ManaPaymentPurpose.Other;
+
     internal static PowerPaymentPurpose PowerPurposeForActivatedAbility(P4ActivatedAbilityDefinition ability)
         => ability.RequiresBaseEquipmentSource || ability.SourceRequiredTag == CardObjectTags.EquipmentCard
             ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;

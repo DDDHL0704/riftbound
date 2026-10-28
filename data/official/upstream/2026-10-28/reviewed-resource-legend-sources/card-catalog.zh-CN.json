@@ -1,0 +1,169 @@
+{
+  "source": "Exact regional official API records with independent full printed-face review; scoped source evidence only.",
+  "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAt": "2026-10-28",
+  "total": 3,
+  "reviewedPhysicalPrints": [
+    {
+      "id": 37844,
+      "cardNo": "VEN·141"
+    },
+    {
+      "id": 37894,
+      "cardNo": "VEN·190"
+    },
+    {
+      "id": 37895,
+      "cardNo": "VEN·190*"
+    }
+  ],
+  "cards": [
+    {
+      "id": 37844,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "VEN·141",
+      "cardName": "荒漠屠夫",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "orange"
+      ],
+      "hero": "雷克顿",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/4ea47acb7e9446b6a40701bb0be0b0a4.png",
+      "backImage": "",
+      "listSort": 1842,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37894,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "VEN·190",
+      "cardName": "荒漠屠夫",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "orange"
+      ],
+      "hero": "雷克顿",
+      "region": "",
+      "tag": "",
+      "artist": "Edgardo Monteon",
+      "cardEffect": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/85994c166a894b0f968a75ad351b325b.png",
+      "backImage": "",
+      "listSort": 1791,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37895,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "VEN·190*",
+      "cardName": "荒漠屠夫",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "orange"
+      ],
+      "hero": "雷克顿",
+      "region": "",
+      "tag": "",
+      "artist": "Edgardo Monteon",
+      "cardEffect": "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "runemaster_mark",
+      "extendRarityName": "签名超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/bd944596f7064f05bde07bf2d8350093.png",
+      "backImage": "",
+      "listSort": 1792,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ]
+}

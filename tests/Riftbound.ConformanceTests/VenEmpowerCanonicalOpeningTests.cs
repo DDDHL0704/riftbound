@@ -118,7 +118,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
 
     internal static async Task<CanonicalGame> Open(string actor, string templateId, string rune, string[] additions, IReadOnlyList<string>? runeDeck = null, IReadOnlyList<string>? battlefields = null, CanonicalDeckInput? opponent = null)
     {
-        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var templates = PreconstructedDeckCatalog.Build(catalog);
         OfficialDecklist BuildDeck(string id, string runeNo, string[] added, IReadOnlyList<string>? runes, IReadOnlyList<string>? fields = null)
         {

@@ -1,0 +1,180 @@
+{
+  "source": "Exact regional official API records with independent full printed-face review; scoped source evidence only.",
+  "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAt": "2026-10-28",
+  "total": 3,
+  "reviewedPhysicalPrints": [
+    {
+      "id": 37690,
+      "cardNo": "VEN·005"
+    },
+    {
+      "id": 37691,
+      "cardNo": "VEN·006"
+    },
+    {
+      "id": 40170,
+      "cardNo": "RAD·092/167"
+    }
+  ],
+  "reviewedResourceCostPrints": [
+    {
+      "id": 37690,
+      "cardNo": "VEN·005"
+    },
+    {
+      "id": 37691,
+      "cardNo": "VEN·006"
+    },
+    {
+      "id": 40170,
+      "cardNo": "RAD·092/167"
+    }
+  ],
+  "cards": [
+    {
+      "id": 37690,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·005",
+      "cardName": "巴凯遗民",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+1。",
+      "flavorText": "在奈瑞玛桀那枚失效太阳圆盘的暗影之中，巴凯隐藏身形，谋划着走向荣光的道路。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/7a6da320ece44e189bda84010dd8ea47.png",
+      "backImage": "",
+      "listSort": 1996,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37691,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·006",
+      "cardName": "绿洲劫掠者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "JiHun Lee",
+      "cardEffect": "在你的开始阶段开始时，如果你控制的符文数量少于任一对手，则给予我在本回合内{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "“冷知识！它的咬合力很强，但人类只需单手就能压住它的嘴——”\n——莫名常见的遗言",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/10f8f819bafd47eba7c01ab77be2540d.png",
+      "backImage": "",
+      "listSort": 1995,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 40170,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "RAD·092/167",
+      "cardName": "天界双足龙",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "巨神峰龙",
+      "tag": "龙",
+      "artist": "Mogi",
+      "cardEffect": "如果你将召出符文，则改为召出同等数量的符文，外加一枚休眠的符文。",
+      "flavorText": "星灵的恩赐，总是叫人难以参透。",
+      "energy": 7,
+      "returnEnergy": null,
+      "power": 7,
+      "productCodeList": [
+        "RAD(进阶补充包)",
+        "RAD(标准补充包)"
+      ],
+      "productNameList": [
+        "辉耀群星 进阶补充包",
+        "辉耀群星 标准补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b9d6dc3ff7634315bf0266c86b74d270.png",
+      "backImage": "",
+      "listSort": 2797,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ]
+}

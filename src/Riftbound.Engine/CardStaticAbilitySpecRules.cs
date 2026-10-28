@@ -117,11 +117,23 @@ internal static class CardStaticAbilitySpecRules
             catalog.Cards,
             playCardBehaviors);
 
-        return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
+        var result = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .Where(spec => spec.StaticAbilities.Count > 0)
             .ToDictionary(
                 spec => spec.CardNo,
                 spec => (IReadOnlyList<StaticAbilitySpec>)spec.StaticAbilities,
                 StringComparer.Ordinal);
+        // Reviewed physical prints are deliberately independent of playable-card
+        // registration. Their parsed text can still participate in shared rules.
+        foreach (var card in ReviewedRuneCardSources.GetAll())
+        {
+            var abilities = StaticAbilityParser.Parse(card.CardEffect ?? string.Empty, []);
+            if (abilities.Count > 0)
+            {
+                result.Add(card.CardNo, abilities);
+            }
+        }
+
+        return result;
     }
 }

@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "status": "EXACT14_METADATA_AND_RESOURCE_COST_FACTS_PHYSICAL13_ONE_MIGHT_CONFLICT",
+  "snapshotPath": "data/official/upstream/2026-10-28/radiance-disarm-reviewed-universe/card-catalog.zh-CN.json",
+  "snapshotSha256": "6f60dcf82b29b3b0914bd8e26e3de8f3d30e05846f0a44050b4269604246a555",
+  "reviewedAtUtc": "2026-10-28T00:01:21.437667+00:00",
+  "originalThreeSnapshotPath": "data/official/upstream/2026-10-28/radiance-disarm/card-catalog.zh-CN.json",
+  "originalThreeSnapshotSha256": "9cd6f83fc4061b2f83f36ff4607d344d9f7caefa72280de055f642e1f80c7340",
+  "language": "zh-CN",
+  "region": "CN",
+  "observedSourceDiscoverySha256": "85630161a785608d9ccc00cedd4e0cbbd84a175a428b1cb1d7c537a26c5c859b",
+  "freshApiReceiptSha256": "d369cb209433c1f6683a3b1981792fa9228a78321273a51c19109e88d85e64e1",
+  "scope": "Exact14 keyword matches observed in the non-atomic1504-row source scan; fresh individual searches, not a new full-source snapshot.",
+  "cardEntries": [
+    {
+      "id": 40107,
+      "cardNo": "RAD·038/167",
+      "sourceRecordSha256": "e4a9f2fa9aaa452d9aa778add922d498f0c4607cc284b7499dfa02840e83e3b5",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/eb9caa40e6104075be71f869cb3bbd9c.png",
+      "frontImageSha256": "9a18203b82e958e9f669ebaa53a56f3c4773c3fb2a7f3168e228a4697999da5c",
+      "requestSha256": "6665471d0b9a73e13e39329ef92785aa8d69ab8262103e189008c8dd1a5624b7",
+      "responseSha256": "9adc5d83239e93e3b5ea5176babca8927f8662e3ab9a586b06753c88fd36b6b7",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "green"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40122,
+      "cardNo": "RAD·050/167",
+      "sourceRecordSha256": "387ab66827e8fc81ca10f9b814338de25b5e79c93e39a9fa91d2a1b628b7f0b2",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e527800671fc4bb2af9857818b3fced1.png",
+      "frontImageSha256": "bd0f464920c6306dac17e5eb30dc262b16bca73fefa2c085d870e8a31a2ab048",
+      "requestSha256": "9667fdbf649aaea309d19afa300a9c1a7bc09d51554477df1ae29a9b1b172c5a",
+      "responseSha256": "5d3c0583d2dc2688945a30023d48420c7244723b2172f9dab67cb86f091b656d",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 5,
+      "reviewedPrintedPowerCost": 0,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40126,
+      "cardNo": "RAD·054/167",
+      "sourceRecordSha256": "dd600fd134dc67722aca37d67c484dd4694d1528633759abe515af22f21eaf27",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/4749fc8ccb364c10bf270dc785b28063.png",
+      "frontImageSha256": "0e52e283b469177ed8a0ebedea2b5015c8481b40950acb79bddb047a605b8363",
+      "requestSha256": "ed090cdd2541952cad9980a6e9c8492c443c19ee899a4383263d67d108955a6d",
+      "responseSha256": "308494bccbe5a35ba4aec159fe261096db35ff4654d920a3304c44b313a40598",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 3,
+      "reviewedPrintedPowerCost": 0,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 3,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40127,
+      "cardNo": "RAD·055/167",
+      "sourceRecordSha256": "8f25611127ba3b901e42821a3cc2c4188d2942d06bb6116c109b69a197401c84",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b4e6b90a92ce4e1393dba45a2a2925a5.png",
+      "frontImageSha256": "f58c0bd7f145a7340685cc66d4b46596c9297c0c56048604cdecc95b827b6734",
+      "requestSha256": "fe5d88e30c74f217c9470b35a00c5117c421331ee618cd2844d0169fab406f6b",
+      "responseSha256": "7db40c63727e7534a4b2418a0655b1ead0701678411a9e86ce09c0012d09f363",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 3,
+      "reviewedPrintedPowerCost": 0,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 2,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40136,
+      "cardNo": "RAD·063/167",
+      "sourceRecordSha256": "0157f84afa03adf179f8c1c5cd44ad6f03e3c25e5854704cf2f45f306a8db8e2",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/5c52aebe8d26432e91ed2d0fc6082d63.png",
+      "frontImageSha256": "8871120d03506fdc8dbc36876ec247710fec521d7dfb3d262b5a7568ab9daa4a",
+      "requestSha256": "a6733e2a4492563f32d943bad2b15d060da4e2711e7a6b46d1d54e214aafb052",
+      "responseSha256": "c5cf592c6517fa8726f0bc4e7cf5995666d5c6cecd921a5bbcd0a9b755e62f37",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 5,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 5,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40138,
+      "cardNo": "RAD·065/167",
+      "sourceRecordSha256": "bc5f713e5abd4ce0ea56ae20c7fa3d06d97dae7995790d2c08e38f4d44820863",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/6aed42fd4f2c4a189d7841caf44a31bf.png",
+      "frontImageSha256": "75e2a6a721d11bddbabe13e1400fa68f5c8de42cb73f319dcd9314b77cb2b3bd",
+      "requestSha256": "7cabd98aff94918ae1b3eaa09287b5c65aa9fa407f4a709ce7505f824006ccfb",
+      "responseSha256": "aa099a4e75cc5a70d17070185bdb702b4ab5033689a7d02d231fe6de50b5ce80",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 3,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40139,
+      "cardNo": "RAD·065a/167",
+      "sourceRecordSha256": "b92faca6d8a79649462d63093b38d2afc49761cf3f9f0fb1f64de6a1cd9c992c",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/c933ba39ceba43e2956543b8fbbb2da6.png",
+      "frontImageSha256": "8edcf954bc70fd5f76aa6b7093f54bbf07c3c3b591ce5128d799c9d2277a09a9",
+      "requestSha256": "7cabd98aff94918ae1b3eaa09287b5c65aa9fa407f4a709ce7505f824006ccfb",
+      "responseSha256": "aa099a4e75cc5a70d17070185bdb702b4ab5033689a7d02d231fe6de50b5ce80",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 3,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40171,
+      "cardNo": "RAD·093/167",
+      "sourceRecordSha256": "5a9c6457f7f060849cd0be37d34057f1c99f5236741c22d2a1ff5135c70c1231",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/2736dd2acd014065ac7b9e59fdce0d11.png",
+      "frontImageSha256": "1464bc9c3649469f3dda4d7cd1a1419b9ac98610f0764419426fd93a8f92458a",
+      "requestSha256": "3bb095dde3a43653e08d0e440c9bc99698b6a10e6e808506cb2c1ff916bbc6d0",
+      "responseSha256": "6b1493ec1eb96af2b3274a0d1d1aec25269bf8a3cb2aa35cd383b92b87b88a8a",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 0,
+      "reviewedResourceCostTraits": [
+        "purple"
+      ],
+      "personallyReadFaceMight": 3,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40175,
+      "cardNo": "RAD·097/167",
+      "sourceRecordSha256": "164e76c3eae5d9edff0b7a03b21d7873686aa3c0eb865bf8d4384ff1996bedba",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/825ab011e0024dc0b54b2f0d6dc7b08c.png",
+      "frontImageSha256": "5363cf2b4d70fe8ed9f1ab9b2f87a36969765ba37d9dd14bf716b395ac1ccc0f",
+      "requestSha256": "6ed0eea74c610f9730803f8ff1193a387ec8450327832ecae5f62cc8370da618",
+      "responseSha256": "c60dfa176e186154a00bac93dec0876a279a7a833de8ae2275614b1cb5526e72",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 2,
+      "reviewedPrintedPowerCost": 0,
+      "reviewedResourceCostTraits": [
+        "purple"
+      ],
+      "personallyReadFaceMight": 1,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40187,
+      "cardNo": "RAD·109/167",
+      "sourceRecordSha256": "afd3023c45b0440c6fe9be56329490dfab65f25189e82587e874e8e3f2c20867",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/2953dfbc93dc406194cb0b446d2d8749.png",
+      "frontImageSha256": "d12005979bd37525b775ac9cd676375f3fd3ccd62be33429e743fe447809a4d9",
+      "requestSha256": "ce48981ac4785d918af73d2ee6df49761dc8fd5c712196351b49ac3ff515cce4",
+      "responseSha256": "08abb0223dde1c13218839b77f45f3cf5920d1be7c989df53be188b3b57d0476",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "purple"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40188,
+      "cardNo": "RAD·109a/167",
+      "sourceRecordSha256": "06c4fe0b95d3c1078a7850c024d6d771a0c28a71b79cedf056c388b9dc1360ca",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e2f5135b9b984e6296ec9f77cd459a16.png",
+      "frontImageSha256": "214e1b23c4fac0798232b1f617f7f54b45d0c61429bb14f860d0d0ab35190d96",
+      "requestSha256": "ce48981ac4785d918af73d2ee6df49761dc8fd5c712196351b49ac3ff515cce4",
+      "responseSha256": "08abb0223dde1c13218839b77f45f3cf5920d1be7c989df53be188b3b57d0476",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "purple"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40296,
+      "cardNo": "RAD·SP1/005",
+      "sourceRecordSha256": "0491234985c9568d4fbaf803747df602dfa64b6a06cba9d97d01c2c256ff5832",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/808450f5e5344248bfc9a974e1fd047c.png",
+      "frontImageSha256": "927ee4580380617199e15e803d8338c11cae1f573ffc81393227a6f6cc0e3f3d",
+      "requestSha256": "6665471d0b9a73e13e39329ef92785aa8d69ab8262103e189008c8dd1a5624b7",
+      "responseSha256": "9adc5d83239e93e3b5ea5176babca8927f8662e3ab9a586b06753c88fd36b6b7",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "green"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40298,
+      "cardNo": "RAD·SP3/005",
+      "sourceRecordSha256": "bf4b5b15396afaf03dffd93650bdca283d62ecdd5068c39915f0be2b7e104226",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/3cc1a88eeb2f41ad865bfe0a87cb9794.png",
+      "frontImageSha256": "5cb4972a1602d3a435fbb82c24aae266efcc42506b6afb74c30c7856e242edbb",
+      "requestSha256": "ce48981ac4785d918af73d2ee6df49761dc8fd5c712196351b49ac3ff515cce4",
+      "responseSha256": "08abb0223dde1c13218839b77f45f3cf5920d1be7c989df53be188b3b57d0476",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 4,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "purple"
+      ],
+      "personallyReadFaceMight": 4,
+      "physicalIdentity": "REVIEWED_EXACT_API_AND_FACE",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    },
+    {
+      "id": 40299,
+      "cardNo": "RAD·SP4/005",
+      "sourceRecordSha256": "2ea72ce94db18c3f52ac16db7d8910da57c47fa62a37341d3b7822d31f1b2361",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e5c3a083face434cbaaf9e94f65f7e95.png",
+      "frontImageSha256": "99089aa9d0fa118930e0c0c1138e84df4d397db60da6e8e6de093c463eb7861a",
+      "requestSha256": "a6733e2a4492563f32d943bad2b15d060da4e2711e7a6b46d1d54e214aafb052",
+      "responseSha256": "c5cf592c6517fa8726f0bc4e7cf5995666d5c6cecd921a5bbcd0a9b755e62f37",
+      "personallyViewedCompleteFace": true,
+      "reviewedPrintedMana": 5,
+      "reviewedPrintedPowerCost": 1,
+      "reviewedResourceCostTraits": [
+        "blue"
+      ],
+      "personallyReadFaceMight": 5,
+      "physicalIdentity": "OPEN_API4_VS_FACE5_MIGHT_CONFLICT",
+      "individualPublicationOrEffectiveDate": null,
+      "currentFormatApplicability": "UNKNOWN",
+      "wholeCardCertified": false
+    }
+  ],
+  "physicalIdentitiesReviewed": 13,
+  "resourceCostIdentitiesReviewed": 14,
+  "unresolvedPhysicalPrints": [
+    {
+      "id": 40299,
+      "cardNo": "RAD·SP4/005",
+      "field": "power",
+      "apiValue": 4,
+      "personallyReadFaceValue": 5,
+      "faceSha256": "99089aa9d0fa118930e0c0c1138e84df4d397db60da6e8e6de093c463eb7861a",
+      "errata": "",
+      "resolution": "OPEN_PRIMARY_SOURCE_CONFLICT_DO_NOT_ALIAS_OR_ADOPT_POWER4"
+    }
+  ],
+  "reviewedFieldBoundary": "API power means Might. ReturnEnergy is the printed power resource cost. SP4 has agreed5mana/1blue resource cost but unresolved4vs5 Might; resource facts never admit its physical identity. Null printed power cost of the five ordinary units agrees with the absence of vertical power symbols on their complete official faces.",
+  "coreSource": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "clauses": [
+      "124.1",
+      "131.1",
+      "131.2",
+      "131.3",
+      "135.2.e.6",
+      "143.2.a"
+    ]
+  },
+  "cohortRelease": {
+    "date": "2026-10-23",
+    "languages": [
+      "English",
+      "French",
+      "Chinese"
+    ],
+    "source": "https://playriftbound.com/en-us/news/announcements/the-radiance-overview/",
+    "sourceUpdated": "2026-10-16"
+  },
+  "individualPrintDatesAndCurrentFormat": "UNKNOWN",
+  "defaultCatalogEntries": 1089,
+  "defaultFunctionalUnits": 870,
+  "originalScopedAdditions": 80,
+  "registryOrDefaultCatalogModified": false,
+  "sourceOrPhysicalIdentityIsWholeCardCertification": false,
+  "admission": "Each reviewed field list uses exact id+cardNo positive identities. Unknown or unresolved physical entries are not physical factory candidates; no name or regular-print alias."
+}

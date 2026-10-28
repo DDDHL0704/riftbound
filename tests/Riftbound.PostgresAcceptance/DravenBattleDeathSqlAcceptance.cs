@@ -98,8 +98,18 @@ internal static class DravenBattleDeathSqlAcceptance
                     "Nonwinning result continues through actual control and one battle close.");
                 if (branch == "altar-pay") Check(state.PlayerZones["alice"].Base.Contains("P1-UNIT")
                     && !events.Any(e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload.GetValueOrDefault("effectKind"), Effect)), "Recall replacement does not create a death skill.");
-                if (mixed) Check(Array.IndexOf(events, events.Single(e => e.Kind == "CARD_DRAWN")) < Array.IndexOf(events, scores[0]),
-                    "Later battle-result trigger is confirmed after death and resolves before death's score.");
+                if (mixed)
+                {
+                    await Save("original-before-order-check-frame.json.gz", (await store.LoadAsync(room, default))!);
+                    await SaveRows("original-before-order-check-seven-tables.json.gz");
+                    var deathScoreIndex = Array.IndexOf(events, scores[0]);
+                    var resultIndex = Array.IndexOf(events, events.Single(e => e.Kind == "BATTLE_RESULT_DETERMINED"));
+                    var drawIndex = Array.IndexOf(events, events.Single(e => e.Kind == "CARD_DRAWN"));
+                    var conquestIndex = Array.IndexOf(events, events.Single(e => e.Kind == "BATTLEFIELD_CONQUERED"));
+                    var closeIndex = Array.IndexOf(events, events.Single(e => e.Kind == "BATTLE_CLOSED"));
+                    Check(deathScoreIndex < resultIndex && resultIndex < drawIndex && drawIndex < conquestIndex && conquestIndex < closeIndex,
+                        "CN468.2 completes death skills before the result; result skills complete before control, conquest and battle close.");
+                }
                 await Save("original-final-frame.json.gz", (await store.LoadAsync(room, default))!); await SaveRows("original-final-seven-tables.json.gz");
             }
             Check(cold == journal.Entries.Count, "Every accepted prefix independently replayed and cold restored.");
