@@ -122,6 +122,20 @@ public sealed class LegendEmpowerSpentEffectTests
         Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
     }
 
+    [Theory]
+    [InlineData("VEN·151")]
+    [InlineData("VEN·153")]
+    public async Task EnemyAkaliOutsideCombatCannotBeTargetedAndNoCostIsPaid(string cardNo)
+    {
+        var state = EnemyPosition(cardNo);
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["ENEMY"] = state.CardObjects["ENEMY"] with { CardNo = "VEN·038" } } };
+        var cmd = new LegendActCommand("LEGEND", Ability(cardNo), ["ENEMY"], []);
+        var result = await new CoreRuleEngine().ResolveAsync(state, new("untargetable", "P1", cmd.CmdType), cmd, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+    }
+
     [Fact]
     public async Task ReadyInstructionRespectsAUnitsCannotBecomeActiveText()
     {
