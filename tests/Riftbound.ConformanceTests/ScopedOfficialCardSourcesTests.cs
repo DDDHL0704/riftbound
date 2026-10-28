@@ -31,11 +31,11 @@ public sealed class ScopedOfficialCardSourcesTests
     [Fact]
     public void TheSharedPhysicalAndKeywordSourcesRetainTheSameFrozenIdentity()
     {
-        Assert.Equal("9cd6f83fc4061b2f83f36ff4607d344d9f7caefa72280de055f642e1f80c7340",
+        Assert.Equal("6f60dcf82b29b3b0914bd8e26e3de8f3d30e05846f0a44050b4269604246a555",
             ScopedOfficialCardSources.SnapshotSha256);
         Assert.Equal(DisarmSourceSpecifications.SnapshotPath, ScopedOfficialCardSources.SnapshotPath);
         Assert.Equal(DisarmSourceSpecifications.SnapshotSha256, ScopedOfficialCardSources.SnapshotSha256);
-        Assert.Equal(3, ScopedOfficialCardSources.GetAll().Count);
+        Assert.Equal(14, ScopedOfficialCardSources.GetAll().Count);
         foreach (var card in ScopedOfficialCardSources.GetAll())
         {
             Assert.True(DisarmSourceSpecifications.TryGet(card.CardNo, out var keyword));
@@ -50,12 +50,13 @@ public sealed class ScopedOfficialCardSourcesTests
     {
         var cards = ScopedOfficialCardSources.GetAll();
         var original = cards[0];
+        var originalColors = original.CardColorList.ToArray();
         var list = Assert.IsAssignableFrom<IList<OfficialCard>>(cards);
         Assert.Throws<NotSupportedException>(() => list[0] = original with { CardName = "FORGED" });
         var colors = Assert.IsAssignableFrom<IList<string>>(original.CardColorList);
         Assert.Throws<NotSupportedException>(() => colors[0] = "red");
         Assert.Equal(original.CardName, ScopedOfficialCardSources.GetAll()[0].CardName);
-        Assert.Equal(["blue"], ScopedOfficialCardSources.GetAll()[0].CardColorList);
+        Assert.Equal(originalColors, ScopedOfficialCardSources.GetAll()[0].CardColorList);
     }
 
     [Fact]

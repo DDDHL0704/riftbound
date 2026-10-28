@@ -10,7 +10,8 @@ public static class PrintedPowerCostRules
     public sealed record Cost(int Amount, IReadOnlyList<string> Traits);
     internal sealed record Allocation(int GenericPower, IReadOnlyDictionary<string, int> TypedPower);
     private static readonly Lazy<IReadOnlyDictionary<string, Cost>> Costs = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(
+        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+            .Concat(ScopedOfficialCardSources.GetPrintedResourceCostPrints()).ToDictionary(
             card => card.CardNo,
             card => new Cost(Math.Max(0, card.ReturnEnergy ?? 0), card.CardColorList
                 .Select(RuneTrait.Normalize).Where(trait => trait is RuneTrait.Red or RuneTrait.Green or RuneTrait.Blue or RuneTrait.Yellow or RuneTrait.Orange or RuneTrait.Purple)
