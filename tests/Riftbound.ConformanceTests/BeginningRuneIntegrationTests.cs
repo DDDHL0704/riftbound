@@ -47,6 +47,27 @@ public sealed class BeginningRuneIntegrationTests
         Restore(result.State);
     }
 
+    [Fact]
+    public async Task BeginningMightCrossingQueuesTheExistingMightyConsumer()
+    {
+        var state = BeginningRuneConditionTests.Position("VEN·006", 0, 1);
+        state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["MIGHTY-LEGEND"] = new("MIGHTY-LEGEND", cardNo: "SFD·205/221", ownerId: "P1", controllerId: "P1", tags: ["CARD_TYPE:LEGEND"]) },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["MIGHTY-LEGEND"] = new("P1", "LEGEND") },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["MIGHTY-LEGEND"] } } };
+        var opened = await Act(state, "P1", new PassPriorityCommand());
+        var resolved = await Top(opened.State);
+        var contexts = resolved.State.StackItems.Select(item => item.MightySkill)
+            .Concat(resolved.State.TriggerQueue.Select(item => item.MightySkill)).Where(context => context is not null).ToArray();
+        var mighty = Assert.Single(contexts)!;
+        Assert.Equal("SOURCE", mighty.Unit.ObjectId);
+        Assert.Equal(4, mighty.BeforeMight);
+        Assert.Equal(6, mighty.AfterMight);
+        Assert.Contains(resolved.Events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload.GetValueOrDefault("effectKind"), "MIGHTY_TRANSITION_CHANNEL"));
+        Restore(resolved.State); ArmamentMightTests.PublicRecovery(resolved.State);
+    }
+
     [Theory]
     [InlineData("VEN·005", 3)]
     [InlineData("VEN·006", 6)]
