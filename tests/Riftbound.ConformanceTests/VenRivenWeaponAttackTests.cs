@@ -57,14 +57,16 @@ public sealed class VenRivenWeaponAttackTests
     }
 
     [Theory]
-    [InlineData("VEN·041", 0, 2)] [InlineData("VEN·041", 3, 8)]
-    [InlineData("VEN·171", 0, 2)] [InlineData("VEN·171", 3, 8)]
-    public async Task ExtraDamageAppliesOnceIncludingWhenWeaponCountIsZero(string no, int weapons, int expected)
+    [InlineData("VEN·041", 0, 0)] [InlineData("VEN·041", 3, 8)]
+    [InlineData("VEN·171", 0, 0)] [InlineData("VEN·171", 3, 8)]
+    public async Task ExtraDamageAppliesOnceOnlyWhenWeaponDamageOccurs(string no, int weapons, int expected)
     {
         var game = new Driver(Position(no, weapons, bonus: true)); await AttackAndChoose(game); await game.Top();
         Assert.Equal(expected, game.State.CardObjects["ENEMY1"].Damage);
-        var damage = Assert.Single(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY1"));
-        Assert.Equal(expected, damage.Event.Payload["damage"]); await game.Replay();
+        var damage = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY1")).ToArray();
+        Assert.Equal(expected == 0 ? 0 : 1, damage.Length);
+        if (expected != 0) Assert.Equal(expected, damage[0].Event.Payload["damage"]);
+        await game.Replay();
     }
 
     [Theory]

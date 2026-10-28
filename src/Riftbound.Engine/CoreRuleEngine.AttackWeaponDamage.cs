@@ -65,6 +65,8 @@ public sealed partial class CoreRuleEngine
         var count = state.CardObjects.Values.Count(gear => !gear.IsFaceDown
             && gear.AttachedToObjectId == item.SourceObjectId && IsObjectOnField(state.PlayerZones, gear.ObjectId)
             && gear.Tags.Contains(CardObjectTags.EquipmentCard) && gear.Tags.Contains(CardEquipmentKeywordNames.Weapon));
+        // CN 715.4: if no weapon yields a damage action, extra damage does not apply.
+        if (count == 0) return result with { Events = events };
         var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target,
             checked(count * AttackWeaponDamageSpec(context.CardNo)!.DamageAmount!.Value));
         if (amount <= 0) return result with { Events = events };
