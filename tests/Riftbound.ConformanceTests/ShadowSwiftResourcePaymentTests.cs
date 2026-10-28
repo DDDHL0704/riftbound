@@ -67,6 +67,43 @@ public sealed class ShadowSwiftResourcePaymentTests
         Assert.Equal(0, result.State.RunePools["P2"].PowerByTrait.GetValueOrDefault(RuneTrait.Red));
     }
 
+    [Fact]
+    public async Task RecycledRuneCanFundTheLegendOnlyWhenAcquiredFirst()
+    {
+        var initial = Position(new RunePool(0, 2));
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["P2-RUNE"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-RUNE", "UNL-R01", "P2") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { Base = [..initial.PlayerZones["P2"].Base, "P2-RUNE"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["P2-RUNE"] = new("P2", "BASE") }
+        };
+        var game = await Focused(initial);
+        var legend = "LEGEND_RESOURCE:P2-LEGEND:" + LegendAbility + ":POWER_SPEND:A:1,red:1";
+        var command = new ActivateAbilityCommand("SHADOW", ShadowAbility, ["HOST"], ["RECYCLE_RUNE:P2-RUNE", legend]);
+        var wrongOrder = command with { OptionalCosts = [legend, "RECYCLE_RUNE:P2-RUNE"] };
+        var before = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("shadow-wrong-order", "P2", wrongOrder.CmdType), wrongOrder, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+
+        var requirement = ShadowRequirement(game.State);
+        Assert.Contains(requirement.GetProperty("paymentResourceChoices").EnumerateArray(), c => c.GetProperty("id").GetString() == legend);
+        await game.Act("P2", command);
+        Assert.Equal("RUNE_DECK", game.State.ObjectLocations["P2-RUNE"].Zone);
+        Assert.Equal(0, game.State.RunePools["P2"].TotalStoredPower);
+        Assert.Equal(1, game.State.RunePools["P2"].UnitPlayOrUnitAbilityOnlyMana);
+        var events = game.Events();
+        var recycled = Array.FindIndex(events, e => e.Event.Kind == "RUNE_RECYCLED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "P2-RUNE"));
+        var legendPaid = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), LegendAbility));
+        var skillPaid = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), ShadowAbility));
+        Assert.True(recycled >= 0 && recycled < legendPaid && legendPaid < skillPaid);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData(3, false)]
     [InlineData(4, true)]
