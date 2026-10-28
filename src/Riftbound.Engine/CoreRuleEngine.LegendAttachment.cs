@@ -9,7 +9,7 @@ public sealed record LegendAttachmentContext(string AbilityId, long SourceGenera
 public sealed partial class CoreRuleEngine
 {
     private static readonly Lazy<HashSet<string>> OfficialLegendCardNos = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(c => c.CardCategoryList.Contains("legendary", StringComparer.Ordinal))
             .Select(c => c.CardNo).ToHashSet(StringComparer.Ordinal));
 

@@ -1337,6 +1337,13 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedPower.Groups[1].Value),
                 Duration: TriggerDurations.UntilEndOfTurn, MovementOriginZone: "BATTLEFIELD");
 
+        var movedToBattlefieldPower = Regex.Match(segment,
+            @"^(?:每当|当)我移动到一处战场时，给予我在本回合内\{\{S\}\}\+(?<amount>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedToBattlefieldPower.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedToBattlefieldPower.Groups["amount"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
+
         var unitMovedCreateDormantGoldMatch = Regex.Match(
             segment,
             @"每当(?:我|其)移动时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
@@ -1447,6 +1454,17 @@ public static class TriggerParser
                 "Confirm one local enemy before responses; capture current Might reduction at resolution until turn end.",
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
+
+        var attackAreaDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚[，,]\s*则)?\s*对此处的所有敌方单位各造成(?<damage>[0-9一两二三四五六七八九十]+)点伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackAreaDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackDamageAllEnemyUnitsHere, TriggerTimings.UnitAttack, segment,
+                "Check the rune condition when the unit first attacks; damage all enemies at the source's current location on resolution.",
+                TargetScope: TriggerTargetScopes.AllEnemyUnitsHere,
+                DamageAmount: ParseChineseNumber(attackAreaDamage.Groups["damage"].Value),
+                MaximumControlledRunes: attackAreaDamage.Groups["runes"].Success
+                    ? ParseChineseNumber(attackAreaDamage.Groups["runes"].Value) : null);
 
         var attackDistributedDamage = Regex.Match(segment,
             @"当我进攻时，对此处的敌方单位造成共计([0-9]+)点伤害，可在多名敌方单位之间分摊。?$",
@@ -2849,6 +2867,15 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
+                continue;
+            }
+
+            if (Regex.IsMatch(segment, @"^除非我处于战斗中，否则我无法被敌方法术和技能选作目标。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Enemy spell and skill target protection applies while the source is outside combat.",
+                    RequiresSourceOutsideBattle: true));
                 continue;
             }
 

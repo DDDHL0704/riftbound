@@ -206,6 +206,7 @@ public static class TriggerKinds
     public const string UnitAttackPayPowerModifier =
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
+    public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
@@ -281,6 +282,7 @@ public static class TriggerTimings
 public static class TriggerTargetScopes
 {
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
+    public const string AllEnemyUnitsHere = "ALL_ENEMY_UNITS_HERE";
     public const string TriggeringAttacker = "TRIGGERING_ATTACKER";
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
@@ -636,7 +638,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? RequiredOtherControlledEquipment = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? RequiresSourceEmpowered = null);
+    bool? RequiresSourceEmpowered = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MaximumControlledRunes = null);
 
 public sealed record ReplacementSpec(
     string Kind,
@@ -689,7 +693,8 @@ public sealed record StaticAbilitySpec(
     bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
-    bool? RequiresSameNameCardInControllerGraveyard = null);
+    bool? RequiresSameNameCardInControllerGraveyard = null,
+    bool? RequiresSourceOutsideBattle = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
