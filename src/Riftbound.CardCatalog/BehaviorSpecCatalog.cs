@@ -375,7 +375,8 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "OGN·310*/298"
             or "UNL-191/219"
             or "UNL-231/219"
-            or "UNL-231*/219";
+            or "UNL-231*/219"
+            or "VEN·141" or "VEN·190" or "VEN·190*";
     }
 
     public static bool IsImplementedBattlefieldRuleCard(OfficialCard card)

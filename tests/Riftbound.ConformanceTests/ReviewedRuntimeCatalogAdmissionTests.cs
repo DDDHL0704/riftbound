@@ -47,6 +47,8 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         Assert.Single(specs, spec => spec.CardNo == "VEN·141");
         Assert.Single(specs, spec => spec.CardNo == "VEN·190");
         Assert.Single(specs, spec => spec.CardNo == "VEN·190*");
+        Assert.All(specs.Where(spec => spec.CardNo is "VEN·019" or "VEN·019a" or "VEN·141" or "VEN·190" or "VEN·190*"),
+            spec => Assert.Equal(BehaviorImplementationStatuses.Implemented, spec.Status));
     }
 
     [Theory]
