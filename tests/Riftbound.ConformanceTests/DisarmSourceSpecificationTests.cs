@@ -32,9 +32,9 @@ public sealed class DisarmSourceSpecificationTests
     [Fact]
     public void MetadataRetainsTheExactSnapshotAndDoesNotInferOtherPrintsOrNames()
     {
-        Assert.Equal("9cd6f83fc4061b2f83f36ff4607d344d9f7caefa72280de055f642e1f80c7340",
+        Assert.Equal("6f60dcf82b29b3b0914bd8e26e3de8f3d30e05846f0a44050b4269604246a555",
             DisarmSourceSpecifications.SnapshotSha256);
-        Assert.Equal(3, DisarmSourceSpecifications.GetAll().Count);
+        Assert.Equal(14, DisarmSourceSpecifications.GetAll().Count);
         foreach (var unknown in new[] { "RAD·054", "RAD·054a/167", "RAD·050a/167", "RAD·055a/167",
             "饰品商贩", "OGN·010/298", " RAD·054/167", "RAD·054/167 " })
             Assert.False(DisarmSourceSpecifications.TryGet(unknown, out _));
