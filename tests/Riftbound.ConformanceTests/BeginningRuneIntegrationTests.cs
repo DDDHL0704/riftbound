@@ -168,6 +168,13 @@ public sealed class BeginningRuneIntegrationTests
         var first = await Top(ordered.State);
         if (runeFirst) Assert.Equal(printedMight + bonus, first.State.CardObjects[image].Power);
         else Assert.False(first.State.CardObjects.ContainsKey(image));
+        var componentErrors = OfficialInsightAndSpellLockTests.Errors(first.State);
+        if (componentErrors.Count > 0 && Environment.GetEnvironmentVariable("RIFTBOUND_BEGINNING_RUNE_DIAGNOSTICS") is { } folder) {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, $"{cardNo.Replace('·', '-')}-{runeFirst}.json"),
+                JsonSerializer.Serialize(new { state = first.State, componentErrors }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
+        Assert.True(componentErrors.Count == 0, string.Join("; ", componentErrors));
         Restore(first.State); ArmamentMightTests.PublicRecovery(first.State);
         var second = await Top(first.State);
         Assert.False(second.State.CardObjects.ContainsKey(image));

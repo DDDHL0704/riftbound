@@ -136,6 +136,9 @@ public sealed class BeginningRuneConditionTests
             Assert.DoesNotContain("SOURCE", JsonSerializer.Serialize(view));
         }
         Restore(state);
-        await Top(state);
+        var resolved = await Top(state);
+        Assert.DoesNotContain("SOURCE", JsonSerializer.Serialize(resolved.Events));
+        var replay = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, resolved.State.Tick, 0, resolved.Events, resolved.State);
+        Assert.DoesNotContain("SOURCE", JsonSerializer.Serialize(replay.Events));
     }
 }
