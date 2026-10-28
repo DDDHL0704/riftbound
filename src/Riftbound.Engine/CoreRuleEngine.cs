@@ -24698,7 +24698,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                         ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
                     }));
-                if (runeCallResult.CalledRuneObjectIds.Count < behavior.RuneCallCount
+                if (runeCallResult.OriginalCalledRuneObjectIds.Count < behavior.RuneCallCount
                     && behavior.DrawCountIfRuneCallFails > 0)
                 {
                     drawCountOverride = behavior.DrawCountIfRuneCallFails;
@@ -31208,42 +31208,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         int runeCallCount)
-    {
-        if (runeCallCount <= 0
-            || !playerZones.TryGetValue(playerId, out var zones))
-        {
-            return new RuneCallResult([]);
-        }
-
-        var calledRunes = TakeControlledRuneDeckPrefix(
-            cardObjects,
-            playerId,
-            zones.RuneDeck,
-            runeCallCount);
-        if (calledRunes.Length == 0)
-        {
-            return new RuneCallResult([]);
-        }
-
-        playerZones[playerId] = zones with
-        {
-            RuneDeck = zones.RuneDeck.Skip(calledRunes.Length).ToArray(),
-            Base = zones.Base.Concat(calledRunes).ToArray()
-        };
-
-        foreach (var runeObjectId in calledRunes)
-        {
-            var runeState = cardObjects.TryGetValue(runeObjectId, out var existingRuneState)
-                ? existingRuneState
-                : new CardObjectState(runeObjectId);
-            cardObjects[runeObjectId] = runeState with
-            {
-                IsExhausted = true
-            };
-        }
-
-        return new RuneCallResult(calledRunes);
-    }
+        => ApplyRuneCall(playerZones, cardObjects, playerId, runeCallCount, originalExhausted: true);
 
     private static string[] TakeControlledRuneDeckPrefix(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -34497,7 +34462,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         long RngCursor);
 
     private sealed record RuneCallResult(
-        IReadOnlyList<string> CalledRuneObjectIds);
+        IReadOnlyList<string> OriginalCalledRuneObjectIds,
+        IReadOnlyList<string> ExtraCalledRuneObjectIds)
+    {
+        public IReadOnlyList<string> CalledRuneObjectIds =>
+            OriginalCalledRuneObjectIds.Concat(ExtraCalledRuneObjectIds).ToArray();
+    }
 
     private sealed record FieldRemovalResult(
         string OwnerPlayerId,
