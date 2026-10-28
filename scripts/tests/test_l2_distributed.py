@@ -135,6 +135,57 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual([self.fact], [row['method'] for row in result['sourceGuardCaseMapping']])
         self.assertNotIn(self.plan['sourceGuardNightlyMethods'][0], self.plan['methods'])
 
+    def test_bounded_conquest_prefix_has_all_five_rows_once_in_distributed_plan_and_filter(self):
+        method = next(iter(D.RULES.L2_BOUNDED_GAMES))
+        names = [method + '(source: "' + value + '")'
+                 for value in ('vayne', 'zaun', 'shirana', 'moonveil', 'minefield')]
+        text = self.text + ''.join('    ' + name + '\n' for name in names)
+        scope = copy.deepcopy(self.scope)
+        scope.update(discoverySha256=hashlib.sha256(text.encode()).hexdigest(),
+                     discoveredMethods=len(D.RULES.discover(text)),
+                     declaredTestMethods=len(D.RULES.discover(text)))
+        plan = D.make_plan(text, self.inventory, scope, {}, 6)
+        self.assertEqual(names, plan['cases'][method])
+        selected = [(shard, unit) for shard in plan['shards'] for unit in shard['selectors']
+                    if unit['method'] == method]
+        self.assertEqual(1, len(selected))
+        shard, unit = selected[0]
+        self.assertEqual('method', unit['kind'])
+        self.assertIn('FullyQualifiedName=' + method, D.SELECT.expression(shard))
+        actual = [case for s in plan['shards'] for case in D.SELECT.case_names(s, plan['cases'])
+                  if D.RULES.method(case) == method]
+        self.assertCountEqual(names, actual)
+        self.assertEqual(5, len(actual))
+        for changed in (names[:-1], names + [names[0]]):
+            broken = copy.deepcopy(plan)
+            broken['cases'][method] = changed
+            with self.subTest(changed=changed), self.assertRaisesRegex(ValueError, 'discovery parameter rows'):
+                D.validate_plan(broken, text)
+
+        # Exercise the aggregate with the five original row identities, then
+        # prove that removing one from the shard fails even with matching counters.
+        plan.update({key: self.plan[key] for key in ('commit', 'sdkVersion', 'runId', 'runAttempt',
+                    'testAssemblySha256', 'bundleManifestSha256', 'caseInventorySha256', 'rowProbeSha256')})
+        (self.prepared / 'discovery.log').write_text(text)
+        self.put(self.prepared / 'source-scope/source-guard-methods.json', scope)
+        plan['discoverySha256'] = D.digest(self.prepared / 'discovery.log')
+        plan['sourceScopeSha256'] = D.digest(self.prepared / 'source-scope/source-guard-methods.json')
+        self.plan = plan
+        self.materialize()
+        result = self.verify()
+        mapped = [row['name'] for row in result['rawCaseMapping'] if row['method'] == method]
+        self.assertCountEqual(names, mapped)
+        self.assertEqual(5, len(mapped))
+        folder = self.inputs / shard['name']
+        retained = [case for case in D.SELECT.case_names(shard, plan['cases']) if case != names[0]]
+        self.trx(folder / 'results.trx', retained)
+        receipt = D.read(folder / 'receipt.json')
+        receipt.update(trxSha256=D.digest(folder / 'results.trx'),
+                       counters=dict(total=len(retained), passed=len(retained), failed=0, notExecuted=0))
+        self.put(folder / 'receipt.json', receipt)
+        with self.assertRaisesRegex(ValueError, 'parameter rows'):
+            self.verify()
+
     def test_targeted_cli_derives_original_rows_without_executing_a_test_runner(self):
         output = self.root / 'cli-targeted'
         result = subprocess.run([sys.executable, '-B', str(ROOT / 'scripts/run-l2-targeted.py'), '--commit', self.commit,

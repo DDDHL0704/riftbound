@@ -70,7 +70,7 @@ internal static class RestrictedManaNetworkAcceptance
                     "An old resource prompt cannot be reused under another intent.");
                 Check(!Choices().Any(id => id.StartsWith("SPEND_MANA:") || id == "SPEND_POWER:1"), "Restricted mana cannot pay the power instruction.");
                 Check(PoolAmount(actor, "spellOnlyMana") == 3 && PoolAmount(peer, "spellOnlyMana") == 2,
-                    "Both visible balances are positive; the actor balance includes the validated uncommitted preview.");
+                    "Both visible balances are positive; the actor's resource child is confirmed while the instruction remains pending.");
                 await Save(folder, "network-resume.json", new { rawResource, tick = receipt.ServerTick, snapshots, prompts, quote, bad, forbidden, stale });
             }
             else if (mode == "recover")
@@ -91,7 +91,7 @@ internal static class RestrictedManaNetworkAcceptance
             else
             {
                 await Submit(actor, "restricted-first-zero", Payment("SPEND_POWER:0"));
-                Check(PoolAmount(actor, "mana") == 1 && PoolAmount(actor, "spellOnlyMana") == 3, "Commit the instruction's resource once and spend zero power.");
+                Check(PoolAmount(actor, "mana") == 1 && PoolAmount(actor, "spellOnlyMana") == 3, "Spend zero power while retaining the already confirmed resource.");
                 var second = new PlayCardCommand("QA-SECOND", "OGN·268/298", ["QA-FIELD"]); var quote = await Quote(second);
                 Check(quote.CanPay && quote.Cost is { AvailableMana: 4, AvailableSpellOnlyMana: 3, RemainingMana: 3, RemainingSpellOnlyMana: 2 },
                     "The next spell must spend actual retained restricted mana.");

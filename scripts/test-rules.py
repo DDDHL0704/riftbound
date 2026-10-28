@@ -29,6 +29,9 @@ DOMAINS = {
 }
 SMOKE = ['OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts',
          'OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash']
+# This controlled prefix shares the full-game class, but is not a full-game
+# acceptance. Include it when present without requiring it on older inputs.
+L2_BOUNDED_GAMES = {FULL_CLASS + 'ControlledConquestFixturesChangeEnemyControlAndReplayConsumerPrefix'}
 L3_POLICY = ROOT / 'scripts/l3-rule-acceptance-methods.json'
 
 
@@ -51,7 +54,10 @@ def l2_rule_methods(methods):
     smoke = {name for name in methods if name.startswith(FULL_CLASS) and name.rsplit('.', 1)[-1] in SMOKE}
     if len(smoke) != len(SMOKE):
         raise ValueError('A required smoke test was renamed or removed; update the checked plan.')
-    return {name for name in methods if not name.startswith(FULL_CLASS)} - deferred | smoke
+    bounded = L2_BOUNDED_GAMES & methods
+    if bounded & deferred:
+        raise ValueError('A required bounded L2 method is also declared as deferred L3.')
+    return {name for name in methods if not name.startswith(FULL_CLASS)} - deferred | smoke | bounded
 
 
 def method(name):
@@ -111,7 +117,8 @@ def plan(methods, profile, jobs, tokens, weights, include_games=False, l2_only=F
         if len(smoke) != len(SMOKE):
             raise ValueError('A required smoke test was renamed or removed; update the checked plan.')
         selected = l2_rule_methods(methods) if profile == 'l2' else ordinary | smoke
-        expression = '(FullyQualifiedName!~' + FULL_CLASS + '|' + '|'.join('FullyQualifiedName=' + n for n in sorted(smoke)) + ')'
+        included_games = {name for name in selected if name.startswith(FULL_CLASS)}
+        expression = '(FullyQualifiedName!~' + FULL_CLASS + '|' + '|'.join('FullyQualifiedName=' + n for n in sorted(included_games)) + ')'
         return [{'name': profile, 'methods': selected, 'filter': expression + exclude}]
     games = sorted(methods - ordinary, key=lambda n: (-weights.get(n, 1), n))
     bins = [[] for _ in range(min(jobs, len(games)))]
