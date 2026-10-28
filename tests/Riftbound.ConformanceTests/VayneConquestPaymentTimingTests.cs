@@ -64,6 +64,31 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
     }
 
+    [Fact]
+    public async Task SecondPlayerPaysOwnVayneAfterFirstPlayerCannotPayForIt()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(swapSides: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal("P2", payment.PlayerId);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        var before = MatchStateHasher.Hash(game.State);
+        var wrongPlayer = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("vayne-wrong-payer", "P1", command.CmdType), command, default);
+        Assert.False(wrongPlayer.Accepted);
+        Assert.Empty(wrongPlayer.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(wrongPlayer.State));
+        var paid = await game.Act("P2", command);
+        Assert.Equal(0, game.State.RunePools["P2"].Mana);
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P2"].Battlefields);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+        await game.Top();
+        Assert.Contains(AttackerObjectId, game.State.PlayerZones["P2"].Hand);
+        Assert.Equal(0, game.State.RunePools["P2"].Mana);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     [Theory]
     [InlineData("SPEND_MANA:1")]
     [InlineData("PAY")]
@@ -163,7 +188,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Game, ResolutionResult Settled)>
         OpenVaynePaymentTimingBattle(int mana = 1, bool twoVaynes = false, bool minefield = false,
-            bool spellOnly = false, bool includeRune = false, bool responseCard = false)
+            bool spellOnly = false, bool includeRune = false, bool responseCard = false, bool swapSides = false)
     {
         var initial = SingleDefenderWireState(true) with { Tick = 0,
             Seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" } };
@@ -197,34 +222,53 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
                     ["VAYNE-DECK-1"] = new("P2", "MAIN_DECK"), ["VAYNE-DECK-2"] = new("P2", "MAIN_DECK") } };
         }
+        if (swapSides) initial = SwapVaynePlayers(initial);
+        var attacker = swapSides ? "P2" : "P1";
+        var defender = swapSides ? "P1" : "P2";
         if (responseCard)
-            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", "P2");
+            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", defender);
         var game = new StandbyDefendObserverTests.Driver(initial);
-        await game.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
+        await game.Act(attacker, new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
             [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
         // The opponent's real response card can leave a battle-focus window
         // open before damage assignment. Pass that window with normal commands.
         for (var step = 0; step < 4; step++)
         {
-            var candidates = ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [];
+            var candidates = ResolutionResult.BuildPrompts(game.State)[attacker].Candidates ?? [];
             if (candidates.Any(c => c.Action == CommandTypes.AssignCombatDamage)) break;
             if (game.State.PriorityPlayerId is { } priority)
                 await game.Act(priority, new PassPriorityCommand());
             else if (game.State.FocusPlayerId is { } focus)
                 await game.Act(focus, new PassFocusCommand());
             else if (candidates.Any(c => c.Action == CommandTypes.DeclareBattle))
-                await game.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
+                await game.Act(attacker, new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
                     [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
             else
                 throw new InvalidOperationException("Battle did not expose a response or damage-assignment action.");
         }
-        Assert.Contains(ResolutionResult.BuildPrompts(game.State)["P1"].Candidates ?? [],
+        Assert.Contains(ResolutionResult.BuildPrompts(game.State)[attacker].Candidates ?? [],
             c => c.Action == CommandTypes.AssignCombatDamage);
-        await game.Act("P1", new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
+        await game.Act(attacker, new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
             [new(AttackerObjectId, BulwarkDefenderObjectId, 5),
                 new(SecondAttackerObjectId, BulwarkDefenderObjectId, twoVaynes ? 5 : 2)]));
-        var settled = await game.Act("P2", new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
+        var settled = await game.Act(defender, new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
             [new(BulwarkDefenderObjectId, AttackerObjectId, 1)]));
         return (initial, game, settled);
+    }
+
+    private static MatchState SwapVaynePlayers(MatchState state)
+    {
+        static string? Swap(string? id) => id switch { "P1" => "P2", "P2" => "P1", _ => id };
+        static Dictionary<string, T> SwapKeys<T>(IReadOnlyDictionary<string, T> values)
+            => values.ToDictionary(pair => Swap(pair.Key)!, pair => pair.Value, StringComparer.Ordinal);
+        return state with {
+            ActivePlayerId = "P2", TurnPlayerId = "P2",
+            PlayerZones = SwapKeys(state.PlayerZones), RunePools = SwapKeys(state.RunePools),
+            PlayerScores = SwapKeys(state.PlayerScores), PlayerExperience = SwapKeys(state.PlayerExperience),
+            PlayerCardsPlayedThisTurn = SwapKeys(state.PlayerCardsPlayedThisTurn),
+            CardObjects = state.CardObjects.ToDictionary(pair => pair.Key,
+                pair => pair.Value with { OwnerId = Swap(pair.Value.OwnerId), ControllerId = Swap(pair.Value.ControllerId) }, StringComparer.Ordinal),
+            ObjectLocations = state.ObjectLocations.ToDictionary(pair => pair.Key,
+                pair => pair.Value with { PlayerId = Swap(pair.Value.PlayerId)! }, StringComparer.Ordinal) };
     }
 }
