@@ -140,6 +140,54 @@ public sealed class BattlefieldConquestMillTimingTests
     }
 
     [Fact]
+    public async Task RecoveryRejectsEarlierBattlefieldGenerationEvenWhenEveryViewIsConsistentlyForged()
+    {
+        var initial = Position("P1", 3);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["BF"] = initial.CardObjects["BF"] with { ObjectGeneration = 3 } } };
+        AssertCanonicalComponent(initial);
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
+        await driver.Act("P1", new PassFocusCommand());
+        await driver.Act("P2", new PassFocusCommand());
+        var original = driver.State;
+        var item = Assert.Single(original.StackItems, i => i.EffectKind == TriggerKinds.BattlefieldConquerMill);
+        var captured = Assert.IsType<BattlefieldConquestMillContext>(item.BattlefieldConquestMill);
+        Assert.Equal(3, captured.BattlefieldGeneration);
+        var forged = original with { StackItems = original.StackItems.Select(i => i == item
+            ? i with { BattlefieldConquestMill = captured with { BattlefieldGeneration = 0 } } : i).ToArray() };
+        var sequence = driver.Commands().Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(forged);
+        var prompts = ResolutionResult.BuildPrompts(forged);
+        var views = forged.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id,
+            forged.Tick, sequence, snapshots[id], forged.Tick, sequence, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, sequence, [], forged);
+        var errors = MatchRecoveryValidator.Validate(forged.RoomId, sequence, driver.Commands(), driver.Events(),
+            views, forged, forged.Tick, spectator);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), forged,
+            new CoreRuleEngine(), default, driver.Events());
+        Assert.False(replay.IsMatch);
+        var restoreAccepted = false;
+        if (errors.Count == 0)
+        {
+            var frame = new MatchRecoveryFrame(forged.RoomId, forged.Tick, sequence, driver.Commands(), driver.Events(),
+                views, errors, forged, initial, spectator) { OpeningSeed = initial.Seed };
+            _ = MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance);
+            restoreAccepted = true;
+        }
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_SFD212_DIAGNOSTICS") is { } root)
+        {
+            Directory.CreateDirectory(root);
+            File.WriteAllText(Path.Combine(root, "forged-lower-generation.json"), JsonSerializer.Serialize(new {
+                initial, genuine = original, forged, commands = driver.Commands(), events = driver.Events(),
+                views, spectator, errors, replay, restoreAccepted
+            }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
+        Assert.Contains(errors, e => e.Contains("not bound to accepted conquest history", StringComparison.Ordinal));
+        Assert.False(restoreAccepted);
+    }
+
+    [Fact]
     public async Task ExpiredPublicResolutionProjectionStillRequiresAcceptedBirthHistory()
     {
         var pending = (await Conquer(Position("P1", 3), "P1")).State;
