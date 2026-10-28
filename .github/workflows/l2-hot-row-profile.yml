@@ -1,0 +1,55 @@
+name: L2 slow-row diagnostic only
+
+on:
+  push:
+    branches: ['codex/l2-profile-*']
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    name: Profile one original L2 row (not a required check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      SourceRevisionId: ${{ github.sha }}
+      RIFTBOUND_L2_PROFILE_LOG: ${{ github.workspace }}/var/qa/l2-hot-row/profile.ndjson
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.403
+      - name: Fix diagnostic input and exact selector
+        run: |
+          python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-hot-row/checkout.json
+          python3 scripts/l2-hot-row-profile.py settings --folder var/qa/l2-hot-row
+          git show --format=fuller --stat "$GITHUB_SHA" > var/qa/l2-hot-row/diagnostic-commit.txt
+          dotnet --info > var/qa/l2-hot-row/dotnet-info.txt
+      - name: Build the instrumented diagnostic assembly once
+        run: dotnet build tests/Riftbound.ConformanceTests -m:1 --nologo -v:q
+      - name: Execute the exact row with every original assertion
+        run: |
+          set -o pipefail
+          assembly=tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll
+          /usr/bin/time -v -o var/qa/l2-hot-row/process-time.txt dotnet vstest "$assembly" \
+            --Settings:var/qa/l2-hot-row/execution.runsettings \
+            --TestAdapterPath:tests/Riftbound.ConformanceTests/bin/Debug/net10.0 \
+            --ResultsDirectory:var/qa/l2-hot-row '--logger:trx;LogFileName=results.trx' \
+            2>&1 | tee var/qa/l2-hot-row/test.log
+      - name: Verify the actual row and recorded timing evidence
+        run: >-
+          python3 scripts/l2-hot-row-profile.py verify --folder var/qa/l2-hot-row --commit "$GITHUB_SHA"
+          --assembly tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-slow-row-diagnostic
+          path: var/qa/l2-hot-row/
+          retention-days: 30

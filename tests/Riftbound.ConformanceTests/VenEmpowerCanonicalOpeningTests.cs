@@ -154,6 +154,22 @@ public sealed class VenEmpowerCanonicalOpeningTests
         private readonly List<object> recoveryRejections = [];
         private (string Player, string Intent, GameCommand Command, JsonElement Raw)? last;
 
+        // Diagnostic branch only: these timings do not change the action or recovery checks.
+        private sealed class Profile(string scope, string? path)
+        {
+            private long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            internal void Mark(string phase, int commands, long events, long tick)
+            {
+                if (string.IsNullOrWhiteSpace(path)) return;
+                var elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                File.AppendAllText(path, JsonSerializer.Serialize(new { scope, phase, commands, events, tick, elapsedMs = elapsed }) + "\n");
+                started = System.Diagnostics.Stopwatch.GetTimestamp();
+            }
+        }
+        private Profile Timing(string scope) => new(scope, Environment.GetEnvironmentVariable("RIFTBOUND_L2_PROFILE_LOG"));
+        private void Mark(Profile profile, string phase) => profile.Mark(phase, entries.Count,
+            entries.Count == 0 ? 0 : entries[^1].CompletedEventSequence, State.Tick);
+
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken token)
         { entries.Add(entry); return ValueTask.CompletedTask; }
 
@@ -164,6 +180,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
 
         internal async Task Act(string player, GameCommand command)
         {
+            var profile = Timing("action:" + command.GetType().Name);
             Session ??= new MatchSession(initial, new CoreRuleEngine(), this);
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
             node["promptId"] = Session.PromptFor(player).PromptId;
@@ -173,6 +190,7 @@ public sealed class VenEmpowerCanonicalOpeningTests
             var intent = "canonical-empower-" + entries.Count;
             last = (player, intent, command, raw);
             var result = await Send(player, intent, command, raw);
+            Mark(profile, "send");
             Assert.True(result.Accepted, command.GetType().Name + ": " + result.ErrorMessage);
             State = result.State;
             foreach (var location in State.ObjectLocations.Where(e => e.Value.Zone is "BASE" or "BATTLEFIELD" or "GRAVEYARD" or "BANISHED" or "LEGEND" or "CHAMPION"))
@@ -279,11 +297,15 @@ public sealed class VenEmpowerCanonicalOpeningTests
 
         internal async Task ColdCheckpoint()
         {
+            var profile = Timing("cold-checkpoint");
             var frame = Frame(); Assert.Empty(frame.ValidationErrors);
+            Mark(profile, "frame");
             Assert.DoesNotContain(frame.Commands, command => command.CommandType.Contains("SCENARIO", StringComparison.Ordinal));
             var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
+            Mark(profile, "serialize-and-decode");
             var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), this, new Store(decoded));
             Session = await registry.GetOrCreateAsync(State.RoomId, default);
+            Mark(profile, "registry-recovery");
             foreach (var viewer in State.Seats.Keys)
             {
                 Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Snapshot, Json), JsonSerializer.SerializeToNode(Session.SnapshotFor(viewer), Json)));
@@ -294,10 +316,12 @@ public sealed class VenEmpowerCanonicalOpeningTests
             }
             var publicReplay = JsonSerializer.Serialize(frame.SpectatorReplayFrame, Json);
             foreach (var id in State.Seats.Keys.SelectMany(Hidden).Where(id => !publicObjects.Contains(id))) Assert.DoesNotContain(id, publicReplay, StringComparison.Ordinal);
+            Mark(profile, "views-and-privacy");
             var previous = last!.Value; var count = entries.Count; var hash = MatchStateHasher.Hash(State);
             var duplicate = await Send(previous.Player, previous.Intent, previous.Command, previous.Raw);
             Assert.True(duplicate.Accepted); Assert.Empty(duplicate.Events); Assert.Equal(count, entries.Count);
             Assert.Equal(hash, MatchStateHasher.Hash(duplicate.State));
+            Mark(profile, "duplicate");
         }
 
         private IEnumerable<string> Hidden(string player)
