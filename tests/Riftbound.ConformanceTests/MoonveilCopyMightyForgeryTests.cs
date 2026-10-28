@@ -80,6 +80,12 @@ public sealed class MoonveilCopyMightyForgeryTests
         Assert.Equal(2, mighty.BeforeMight);
         Assert.Equal(5, mighty.AfterMight);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
+        var normalSnapshots = ResolutionResult.BuildSnapshots(driver.State);
+        var normalPrompts = ResolutionResult.BuildPrompts(driver.State);
+        var normalViews = driver.State.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id,
+            driver.State.Tick, 0, normalSnapshots[id], driver.State.Tick, 0, normalPrompts[id]));
+        var normalSpectator = MatchReplayRedactor.BuildSpectatorFrame(driver.State.RoomId, driver.State.Tick, 0, [], driver.State);
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(driver.State, normalViews, normalSpectator));
         var oldHost = mighty.Before.CardObjects["HOST"];
         Assert.Equal("UNL-092/219", oldHost.CardNo);
         Assert.NotEmpty(oldHost.CopyFaceTransitions!);
@@ -100,10 +106,13 @@ public sealed class MoonveilCopyMightyForgeryTests
         var sequence = driver.Commands().Last().CompletedEventSequence;
         var snapshots = ResolutionResult.BuildSnapshots(forged);
         var prompts = ResolutionResult.BuildPrompts(forged);
+        var componentViews = forged.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id,
+            forged.Tick, 0, snapshots[id], forged.Tick, 0, prompts[id]));
+        var componentSpectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, 0, [], forged);
+        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(forged, componentViews, componentSpectator);
         var views = forged.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id,
             forged.Tick, sequence, snapshots[id], forged.Tick, sequence, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, sequence, [], forged);
-        var errors = MatchRecoveryValidator.ValidateComponentStateAndViews(forged, views, spectator);
         var fullErrors = MatchRecoveryValidator.Validate(forged.RoomId, sequence, driver.Commands(), driver.Events(),
             views, forged, forged.Tick, spectator);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), forged,
