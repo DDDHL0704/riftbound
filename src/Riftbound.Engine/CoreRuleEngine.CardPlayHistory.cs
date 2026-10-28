@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Riftbound.Engine;
 
 // Confirmation belongs to the player who finalized the card. Successful
-// resolution belongs to its controller at resolution (CN 419.4 / Vendetta FAQ).
+// resolution belongs to its controller at resolution (CN 420.4 / Vendetta FAQ).
 public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, ObjectBinding Source,
     string CardNo, int Types, long Tick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? OriginHandPlayerId = null,
