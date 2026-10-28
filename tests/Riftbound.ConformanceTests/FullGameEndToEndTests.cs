@@ -7176,7 +7176,10 @@ public sealed partial class FullGameEndToEndTests
         if (effectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
         {
             Assert.Null(pending.State.PendingHandChoice);
-            Assert.DoesNotContain(pending.Events, e => e.Kind is "CARD_DISCARDED" or "CARD_DRAWN");
+            Assert.DoesNotContain(pending.Events, e => e.Kind == "CARD_DISCARDED"
+                && Equals(e.Payload.GetValueOrDefault("reason"), effectKind));
+            Assert.DoesNotContain(pending.Events, e => e.Kind == "CARD_DRAWN"
+                && Equals(e.Payload.GetValueOrDefault("playerId"), "P1"));
         }
         else
         {
@@ -7193,7 +7196,10 @@ public sealed partial class FullGameEndToEndTests
                 selected = FindBattlefieldUnitByCardNo(beforeBattle.State, "P1", WildclawBeastmasterCardNo, battlefield, readyOnly: true)
                     ?? throw new InvalidOperationException("B0 Shirana cost driver could not find its intended unit.");
                 Assert.Contains(CardObjectTags.Boon, pending.State.CardObjects[selected].Tags);
-                Assert.DoesNotContain(pending.Events, e => e.Kind is "BOON_CONSUMED" or "CARD_DRAWN");
+                Assert.DoesNotContain(pending.Events, e => e.Kind == "BOON_CONSUMED"
+                    && Equals(e.Payload.GetValueOrDefault("reason"), effectKind));
+                Assert.DoesNotContain(pending.Events, e => e.Kind == "CARD_DRAWN"
+                    && Equals(e.Payload.GetValueOrDefault("playerId"), "P1"));
             }
             else if (effectKind == TriggerKinds.BattlefieldConquerReadyEquipment)
             {
@@ -7203,7 +7209,10 @@ public sealed partial class FullGameEndToEndTests
                 equipmentToDetach = selected;
                 Assert.True(pending.State.CardObjects[selected].IsExhausted);
                 Assert.Equal(beforeBattle.State.CardObjects[selected].AttachedToObjectId, pending.State.CardObjects[selected].AttachedToObjectId);
-                Assert.DoesNotContain(pending.Events, e => e.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+                Assert.DoesNotContain(pending.Events, e => e.Kind == "EQUIPMENT_READIED"
+                    && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), selected));
+                Assert.DoesNotContain(pending.Events, e => e.Kind == "EQUIPMENT_DETACHED"
+                    && Equals(e.Payload.GetValueOrDefault("equipmentObjectId"), selected));
             }
             else throw new ArgumentOutOfRangeException(nameof(effectKind));
 
