@@ -430,11 +430,13 @@ public sealed partial class FullGameEndToEndTests
             "P1",
             "b0-vayne-conquest-pay");
 
-        AssertVayneConquestReturnPaid(paymentOpened, paid);
+        AssertVayneConquestReturnPendingAfterPayment(paymentOpened, paid);
+        var returned = await ResolveDriverPendingEffectsAsync(session, paid, "b0-vayne-conquest-response");
+        AssertVayneConquestReturnPaid(paymentOpened, returned);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
-            paid,
+            returned,
             "b0-vayne-score");
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
@@ -6093,6 +6095,26 @@ public sealed partial class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
+    }
+
+    private static void AssertVayneConquestReturnPendingAfterPayment(
+        ResolutionResult paymentOpened,
+        ResolutionResult paid)
+    {
+        var opened = Assert.Single(paymentOpened.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestPayReturnSelfToHand, StringComparison.Ordinal));
+        var vayneObjectId = Assert.IsType<string>(opened.Payload["sourceObjectId"]);
+        Assert.Null(paid.State.PendingPayment);
+        Assert.Equal(paymentOpened.State.RunePools["P1"].Mana - 1, paid.State.RunePools["P1"].Mana);
+        Assert.Contains(vayneObjectId, paid.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain(vayneObjectId, paid.State.PlayerZones["P1"].Hand);
+        Assert.Contains(paid.State.StackItems, item => item.EffectKind == TriggerKinds.UnitConquestPayReturnSelfToHand
+            && item.SourceObjectId == vayneObjectId);
+        Assert.NotNull(paid.State.PriorityPlayerId);
+        Assert.DoesNotContain(paid.Events, gameEvent => gameEvent.Kind == "UNIT_RETURNED_TO_HAND"
+            && Equals(gameEvent.Payload.GetValueOrDefault("targetObjectId"), vayneObjectId));
+        AssertNoHiddenZoneLeak(paid);
     }
 
     private static void AssertVayneConquestReturnPaid(
