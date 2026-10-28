@@ -8,7 +8,7 @@ public sealed record DeckChoiceContext(string StackItemId, int ExecutionIndex);
 public sealed partial class CoreRuleEngine
 {
     private static readonly Lazy<IReadOnlyDictionary<string, string>> DeckCardNames = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(card => card.CardNo, card => card.CardName));
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(card => card.CardNo, card => card.CardName));
     internal static string DeckChoiceLabel(MatchState state, string id)
     {
         var number = state.CardObjects.GetValueOrDefault(id)?.CardNo ?? "";
