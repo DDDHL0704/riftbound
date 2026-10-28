@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -69,6 +70,62 @@ public sealed class RenektonUnitAbilityInlineTests
         Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower);
         Assert.Equal(0, game.State.RunePools["P1"].TotalStoredMana);
         Assert.Equal(3, game.Events().Count(e => e.Event.Kind == "RUNE_RECYCLED"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AbilityReceiptReportsTheActualRestrictedAndOrdinaryManaSpent()
+    {
+        var game = new Driver(Position(new(0, 3)));
+        await game.Act("P1", new ActivateAbilityCommand("HOST", P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, [], [Resource]));
+        var paid = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), P4ActivatedAbilityCatalog.ViDoublePowerAbilityId)).Event.Payload;
+        Assert.Equal(0, Convert.ToInt32(paid["ordinaryManaSpent"]));
+        Assert.Equal(2, Convert.ToInt32(paid["unitPlayOrUnitAbilityOnlyManaSpent"]));
+        Assert.Contains(Resource, Assert.IsAssignableFrom<IEnumerable<string>>(paid["paymentResourceActions"]));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ChangedLegendWalletChoiceCannotReplayTheOriginalAbility()
+    {
+        var initial = Position(new RunePool(0, 2, new Dictionary<string, int> { ["red"] = 1, ["purple"] = 1 }));
+        var selected = "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:A:1,red:1";
+        var game = new Driver(initial);
+        await game.Act("P1", new ActivateAbilityCommand("HOST", P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, [],
+            [selected, Mana]));
+        var commands = game.Commands();
+        var original = Assert.Single(commands);
+        var changed = JsonNode.Parse(original.RawCommand!.Value.GetRawText())!.AsObject();
+        changed["optionalCosts"] = JsonSerializer.SerializeToNode(new[] {
+            "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:A:1,purple:1", Mana }, Web);
+        commands[0] = original with { RawCommand = JsonSerializer.SerializeToElement(changed, Web) };
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, commands, game.State,
+            new CoreRuleEngine(), default, game.Events());
+        Assert.False(replay.IsMatch); Assert.NotEmpty(replay.Errors);
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    public async Task EquipmentAbilityCannotSpendTheManaButCanBankIt(int ordinaryMana, bool succeeds)
+    {
+        var state = ArmamentMightTests.Position("UNL-136/219") with { Tick = 0 };
+        state = OfficialHoldSequenceTests.AddLegend(state, "VEN·141");
+        var initial = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", "UNL-136/219", "P1"),
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1") },
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(ordinaryMana, 2) } };
+        var command = new ActivateAbilityCommand("GEAR", P4ActivatedAbilityCatalog.ScryingBlossomAbilityId, [], [Resource]);
+        var before = MatchStateHasher.Hash(initial);
+        var direct = await new CoreRuleEngine().ResolveAsync(initial, new("equipment-inline-" + ordinaryMana, "P1", command.CmdType), command, default);
+        Assert.Equal(succeeds, direct.Accepted);
+        if (!succeeds) { Assert.Empty(direct.Events); Assert.Equal(before, MatchStateHasher.Hash(direct.State)); return; }
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].UnitPlayOrUnitAbilityOnlyMana);
         await game.Replay();
     }
 
