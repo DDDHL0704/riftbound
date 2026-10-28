@@ -416,6 +416,10 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             CardNo = "OGN·035/298", Power = 2, Tags = [CardObjectTags.UnitCard, "强攻3"] };
         if (treeSecond) cards[SecondAttackerObjectId] = cards[SecondAttackerObjectId] with {
             CardNo = "UNL-029/219", Power = 4, Tags = [CardObjectTags.UnitCard] };
+        if (opponentResponse)
+            // An existing -2 this-turn modifier keeps printed base power at 2;
+            // Assault 3 then leaves Vayne at 3 while the opponent may use Gust.
+            cards[AttackerObjectId] = cards[AttackerObjectId] with { Power = 0, UntilEndOfTurnPowerModifier = -2 };
         initial = initial with { CardObjects = cards, RunePools = new Dictionary<string, RunePool> {
             ["P1"] = new(mana, 0, spellOnlyMana: spellOnly ? 2 : 0), ["P2"] = new(8, 4) } };
         if (includeRune)
@@ -471,7 +475,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains(ResolutionResult.BuildPrompts(game.State)[attacker].Candidates ?? [],
             c => c.Action == CommandTypes.AssignCombatDamage);
         await game.Act(attacker, new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
-            [new(AttackerObjectId, BulwarkDefenderObjectId, 5),
+            [new(AttackerObjectId, BulwarkDefenderObjectId, opponentResponse ? 3 : 5),
                 new(SecondAttackerObjectId, BulwarkDefenderObjectId, twoVaynes ? 5 : treeSecond ? 4 : 2)]));
         var settled = await game.Act(defender, new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
             [new(BulwarkDefenderObjectId, AttackerObjectId, 1)]));
