@@ -158,6 +158,12 @@ public sealed class KennenPaidStunTests
         var game = new VenBasicFlowSpellTests.Driver(state);
         await game.Act("P1", new PlayCardCommand("UNIT", "VEN·135", [], Destination: "BASE"));
         await Select(game, "ENEMY"); await Pay(game, "PAY"); await game.Top();
+        Assert.True(game.State.CardObjects["ALLY"].IsExhausted);
+        Assert.Equal(state.CardObjects["ALLY"].Power, game.State.CardObjects["ALLY"].Power);
+        if (!alreadyStunned) {
+            Assert.Equal("ENEMY_STUNNED_SOURCE_READY_POWER", Assert.Single(game.State.StackItems).FieldContext!.Kind);
+            await game.Top();
+        }
         Assert.Equal(alreadyStunned, game.State.CardObjects["ALLY"].IsExhausted);
         Assert.Equal(state.CardObjects["ALLY"].Power + (alreadyStunned ? 0 : 1), game.State.CardObjects["ALLY"].Power);
         await game.Replay();
@@ -239,6 +245,61 @@ public sealed class KennenPaidStunTests
         state = (await AttackDamageDistributionTests.Top(state)).State;
         Assert.All(new[] { "ENEMY1", "ENEMY2" }, id => Assert.Contains("STUNNED", state.CardObjects[id].UntilEndOfTurnEffects));
         ArmamentMightTests.PublicRecovery(state);
+    }
+
+    [Fact]
+    public async Task StunFromTheHeroQueuesTheLegendBoonAsASeparateRespondableSkill()
+    {
+        var state = VenUnitEntryBasicTests.Position("VEN·135");
+        state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["LEGEND"] = new("LEGEND", cardNo: "OGN·261/298", ownerId: "P1", controllerId: "P1", tags: ["传奇"]) },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
+        var game = new VenBasicFlowSpellTests.Driver(state);
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·135", [], Destination: "BASE"));
+        await Select(game, "ENEMY"); await Pay(game, "PAY"); await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        await game.Top();
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnEnemyProtectedFromSkillsOutsideCombatCannotBeChosen()
+    {
+        var state = VenUnitEntryBasicTests.Position("VEN·135");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["ENEMY"] = state.CardObjects["ENEMY"] with { CardNo = "VEN·038", Power = 4 } } };
+        var played = await Act(state, "P1", new PlayCardCommand("UNIT", "VEN·135", [], Destination: "BASE"));
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.DoesNotContain("ENEMY", choice.LegalObjectIds);
+        var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(played.State, new("protected", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(played.State), MatchStateHasher.Hash(rejected.State));
+    }
+
+    [Fact]
+    public async Task ARealAttackStunTurnsOnTheSameLocationPowerBonus()
+    {
+        var state = AttackDamageDistributionTests.Position("VEN·135");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["HOST"] = state.CardObjects["HOST"] with { Power = 2 } } };
+        var attacked = await AttackDamageDistributionTests.Attack(state);
+        var choice = attacked.State.PendingCardChoice!;
+        var selected = await Act(attacked.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]));
+        var payment = selected.State.PendingPayment!;
+        var paid = await Act(selected.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.Equal(2, ArmamentMightTests.Might(paid.State));
+        var done = await AttackDamageDistributionTests.Top(paid.State);
+        Assert.Contains("STUNNED", done.State.CardObjects["ENEMY1"].UntilEndOfTurnEffects);
+        Assert.Equal(4, ArmamentMightTests.Might(done.State)); Assert.Equal(2, done.State.CardObjects["HOST"].Power);
+        ArmamentMightTests.PublicRecovery(done.State);
     }
 
 }

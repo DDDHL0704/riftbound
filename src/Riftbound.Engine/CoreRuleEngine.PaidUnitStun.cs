@@ -133,10 +133,10 @@ public sealed partial class CoreRuleEngine
             && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal) && CanExecuteStun(cards[target])) {
             cards[target] = cards[target] with { UntilEndOfTurnEffects = cards[target].UntilEndOfTurnEffects
                 .Append("STUNNED").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
-            events.Add(new("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
+            var applied = new GameEvent("STATUS_EFFECT_APPLIED", "眩晕目标单位", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = visibleSource, ["targetObjectId"] = target,
-                ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" }));
-            events.AddRange(ResolveEclipseVanguardStunTriggers(zones, cards, item, events));
+                ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN" });
+            events.Add(CaptureStunObservers(applied, zones, cards, item, target));
         }
         events.Add(new("TRIGGER_RESOLVED", "触发技能结算完成", new Dictionary<string, object?> { ["sourceObjectId"] = visibleSource }));
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
