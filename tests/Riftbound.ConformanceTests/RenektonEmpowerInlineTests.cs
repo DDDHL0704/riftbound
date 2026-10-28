@@ -67,4 +67,29 @@ public sealed class RenektonEmpowerInlineTests
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         Assert.False(result.State.CardObjects["LEGEND"].IsExhausted);
     }
+
+    [Fact]
+    public async Task RealUnitPlayThenEmpowerKeepsTheOriginalRuneCountThroughRecovery()
+    {
+        var state = EmpowerTests.Runes(EmpowerTests.Position("VEN·001"), 5) with { Tick = 0 };
+        state = OfficialHoldSequenceTests.AddLegend(state, "VEN·141");
+        var initial = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1") },
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(9, 0) } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("HOST", "VEN·001", []));
+        await game.Top();
+        Assert.Equal(3, game.State.RunePools["P1"].Mana);
+        var resource = "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:red:2";
+        await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", [],
+            ["RECYCLE_RUNE:EMPOWER-RUNE-0", "RECYCLE_RUNE:EMPOWER-RUNE-1", resource,
+             "MANA_SOURCE:UNIT_PLAY_OR_UNIT_ABILITY_ONLY:2,UNRESTRICTED:3"]));
+        var activation = Assert.Single(game.State.StackItems).EmpowerActivation!;
+        Assert.Equal(5, activation.ControlledRunes);
+        Assert.Equal(5, activation.PaidMana);
+        await game.Top();
+        Assert.True(game.State.CardObjects["HOST"].IsEmpowered);
+        await game.Replay();
+    }
 }
