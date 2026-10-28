@@ -78,9 +78,15 @@ internal static class OptionalCostReductionCopiedOrdinaryOpening
                         var metadata = JsonSerializer.SerializeToElement(candidate.Metadata, json);
                         var row = metadata.GetProperty("sourceRequirements").EnumerateArray().Single(item => item.GetProperty("sourceObjectId").GetString() == target);
                         var group = row.GetProperty("optionalCostReductionGroups").EnumerateArray().Single(item => item.GetProperty("ruleTextOrigin").ValueKind != JsonValueKind.Null);
-                        var choice = group.GetProperty("choiceIds").EnumerateArray().Single().GetString()!;
                         var generation = state.CardObjects[reducer].ObjectGeneration;
                         var instance = group.GetProperty("sourceInstanceId").GetString()!;
+                        // The source can also offer a mana reduction. This opening
+                        // pays the optional green power fee with the copied rule.
+                        var expectedChoice = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":"
+                            + generation.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + ":ADDITIONAL:POWER-green:RULE_TEXT:" + Uri.EscapeDataString(instance);
+                        var choice = group.GetProperty("choiceIds").EnumerateArray()
+                            .Single(item => item.GetString() == expectedChoice).GetString()!;
                         var forged = "OPTIONAL_COST_REDUCTION:" + Uri.EscapeDataString(reducer) + ":" + (generation + 1)
                             + ":ADDITIONAL:POWER-green:RULE_TEXT:" + Uri.EscapeDataString(instance);
                         var command = new PlayCardCommand(target, "OGN·044/298", [], OptionalCosts: ["SPEND_POWER:green:1", choice]);
