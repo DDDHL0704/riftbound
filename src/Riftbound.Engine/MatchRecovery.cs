@@ -24480,7 +24480,9 @@ public static partial class MatchRecoveryValidator
         foreach (var resolution in state.BattlefieldResolutions)
             if (resolution.PublicObjectBindings is { } publicRefs && (publicRefs.Any(b => b is null || b.Generation < 0
                 || string.IsNullOrWhiteSpace(b.ObjectId) || !resolution.ParticipantObjectIds.Contains(b.ObjectId)
-                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && b.Generation > current.ObjectGeneration)
+                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && (b.Generation > current.ObjectGeneration
+                    || b.Generation == current.ObjectGeneration && state.PlayerZones.Values.Any(z => z.Hand.Contains(b.ObjectId)
+                        || z.MainDeck.Contains(b.ObjectId) || z.RuneDeck.Contains(b.ObjectId))))
                 || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count))
                 errors.Add("invalid captured public battlefield history reference");
         foreach (var resolution in state.BattleResolutions)
