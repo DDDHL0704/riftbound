@@ -28,7 +28,19 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(2, game.State.RunePools["P1"].Mana);
         AssertVayneJsonColdFrame(initial, game);
 
-        var paid = await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]));
+        var paidChoice = choice;
+        if (choice == "PAY")
+        {
+            var before = MatchStateHasher.Hash(game.State);
+            var alias = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]);
+            var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("vayne-alias", "P1", alias.CmdType), alias, default);
+            Assert.False(rejected.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
+            Assert.Empty(rejected.Events);
+            Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+            paidChoice = "SPEND_MANA:1";
+        }
+        var paid = await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [paidChoice]));
         var cost = Assert.Single(paid.Events, e => e.Kind == "COST_PAID");
         Assert.Equal(payment.PaymentId, cost.Payload["paymentId"]);
         Assert.Equal(payment.PaymentWindow, cost.Payload["paymentWindow"]);
@@ -36,7 +48,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(1, Convert.ToInt32(cost.Payload["mana"]));
         Assert.Equal(AttackerObjectId, cost.Payload["sourceObjectId"]);
         Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, cost.Payload["reason"]);
-        Assert.Equal(new[] { choice }, Assert.IsType<string[]>(cost.Payload["paymentChoiceIds"]));
+        Assert.Equal(new[] { paidChoice }, Assert.IsType<string[]>(cost.Payload["paymentChoiceIds"]));
         var closed = Assert.Single(paid.Events, e => e.Kind == "PAYMENT_WINDOW_CLOSED").Payload;
         Assert.Equal(payment.PaymentId, closed["paymentId"]);
         Assert.Equal(AttackerObjectId, closed["sourceObjectId"]);
@@ -151,7 +163,18 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var (_, game, _) = await OpenVaynePaymentTimingBattle(mana: 0);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         var before = MatchStateHasher.Hash(game.State);
-        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]);
+        var paidChoice = choice;
+        if (choice == "PAY")
+        {
+            var alias = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]);
+            var invalid = await new CoreRuleEngine().ResolveAsync(game.State, new("vayne-unfunded-alias", "P1", alias.CmdType), alias, default);
+            Assert.False(invalid.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, invalid.ErrorCode);
+            Assert.Empty(invalid.Events);
+            Assert.Equal(before, MatchStateHasher.Hash(invalid.State));
+            paidChoice = "SPEND_MANA:1";
+        }
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [paidChoice]);
         var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("vayne-unfunded", "P1", command.CmdType), command, default);
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);

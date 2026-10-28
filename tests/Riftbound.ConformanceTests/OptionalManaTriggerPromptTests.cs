@@ -37,6 +37,13 @@ public sealed class OptionalManaTriggerPromptTests
         Assert.Null(driver.State.PendingPayment);
         Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
         Assert.Contains(done.Events, e => e.Kind == (decline ? "TRIGGER_PAYMENT_DECLINED" : "COST_PAID"));
+        if (branch == "vayne" && !decline)
+        {
+            Assert.Contains("UNIT", driver.State.PlayerZones["P1"].Battlefields);
+            Assert.DoesNotContain(done.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+            Assert.Single(driver.State.StackItems, item => item.UnitConquestReturn?.Source.ObjectId == "UNIT");
+            await driver.Top();
+        }
         if (branch is "vayne" or "sand")
             Assert.Contains("UNIT", decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         if (branch == "legend") Assert.Equal(decline, driver.State.CardObjects["LEGEND"].IsExhausted);
