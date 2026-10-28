@@ -51,6 +51,45 @@ jobs:
           path: var/qa/l2-quality/
           retention-days: 14
 
+  db_preflight:
+    name: Real PostgreSQL slice and API restart
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
+      PGPASSWORD: riftbound_ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.403
+      - name: Verify exact database preflight checkout
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-db-preflight/checkout.json
+      - name: Run original SQL identities and restart controlled gameplay
+        run: python3 scripts/l2-db-preflight.py run --commit "$GITHUB_SHA" --output var/qa/l2-db-preflight
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: l2-db-preflight
+          path: var/qa/l2-db-preflight/
+          retention-days: 30
+
   prepare:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -166,7 +205,7 @@ jobs:
 
   l2_required:
     name: L2 required
-    needs: [quality, prepare, rule_suite, targeted]
+    needs: [quality, prepare, rule_suite, targeted, db_preflight]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -195,6 +234,16 @@ jobs:
         with:
           name: l2-quality
           path: var/qa/l2-quality
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-db-preflight
+          path: var/qa/l2-db-preflight
+      - name: Require the real database preflight for this workflow attempt
+        env:
+          DB_PREFLIGHT_RESULT: ${{ needs.db_preflight.result }}
+        run: |
+          test "$DB_PREFLIGHT_RESULT" = success
+          python3 scripts/l2-db-preflight.py verify --commit "$GITHUB_SHA" --output var/qa/l2-db-preflight --quality var/qa/l2-quality/checkout.json > var/qa/l2-gate/db-preflight.json
       - name: Require all children, fixed identities and exact original case coverage
         env:
           RIFTBOUND_QUALITY: ${{ needs.quality.result }}
