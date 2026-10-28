@@ -79,14 +79,16 @@ def runtime_modules(items, built):
     return modules
 
 
-def verify_joined_trace(case_dir, row):
+def verify_joined_trace(case_dir, row, fixture):
     path = case_dir / row['path']
     if (not path.resolve().is_relative_to(case_dir.resolve()) or not path.is_file()
             or digest(path) != row.get('sha256')):
         raise ValueError('Original joined trace differs from its receipt.')
     report = read(path)
     players = set(report.get('snapshots', {}))
-    if len(players) != 2 or players != set(row.get('players', [])) or report.get('room') != row.get('room'):
+    if (len(players) != 2 or players != {fixture['actor'], fixture['peer']}
+            or players != set(row.get('players', [])) or report.get('room') != row.get('room')
+            or report.get('room') != fixture['room']):
         raise ValueError('The joined trace must retain two original player identities.')
     joined = set()
     for trace in report.get('traces', []):
@@ -97,7 +99,8 @@ def verify_joined_trace(case_dir, row):
         player = payload.get('playerId')
         if (player not in players or player in joined or message.get('playerId') != player
                 or message.get('roomId') != report['room'] or message.get('type') != 'RECONNECT'
-                or not str(payload.get('reconnectToken') or '').strip()
+                or not isinstance(payload.get('reconnectToken'), str)
+                or not payload['reconnectToken'].strip()
                 or trace.get('recipient', player) != player):
             raise ValueError('The actual joined trace has an invalid authenticated player.')
         joined.add(player)
@@ -176,33 +179,51 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
     if len(engine_hashes) < 2 or any(value != built['Riftbound.Engine.dll'] for value in engine_hashes):
         raise ValueError('API and restricted-mana driver must use the fixed Engine module.')
     case_dir = restart / 'restricted-mana-lux'
+    fixtures = {kind: read(case_dir / kind / 'network-fixture.json') for kind in ['ogs', 'sp6']}
+    for fixture in fixtures.values():
+        if (fixture.get('controlledQaPosition') is not True or fixture.get('ordinaryOpeningCertified') is not False
+                or not all(isinstance(fixture.get(key), str) and fixture[key].strip()
+                           for key in ['room', 'actor', 'peer']) or fixture['actor'] == fixture['peer']):
+            raise ValueError('The restricted-mana fixture scope and players must remain explicit.')
+    if len({fixture['room'] for fixture in fixtures.values()}) != len(fixtures):
+        raise ValueError('The controlled fixtures must use distinct rooms.')
     for mode in ['play', 'recover', 'finish']:
         auth = read(case_dir / ('network-auth-' + mode + '.json'))
         if auth.get('status') != 'ACTUAL_RECONNECT_JOINED_OBSERVED':
             raise ValueError('Both original players must successfully join each game phase.')
-        traces = {row['path']: row for row in auth.get('traces', [])}
+        rows = auth.get('traces', [])
+        traces = {row['path']: row for row in rows}
+        if len(traces) != len(rows):
+            raise ValueError('The joined trace receipt contains duplicate paths.')
         for kind in ['ogs', 'sp6']:
             path = kind + '/network-' + mode + '.json'
             if path not in traces:
                 raise ValueError('Both controlled rooms must have a fresh joined trace.')
-            verify_joined_trace(case_dir, traces[path])
+            verify_joined_trace(case_dir, traces[path], fixtures[kind])
     for kind in ['ogs', 'sp6']:
         case = case_dir / kind
-        fixture = read(case / 'network-fixture.json')
-        if fixture.get('controlledQaPosition') is not True or fixture.get('ordinaryOpeningCertified') is not False:
-            raise ValueError('The restricted-mana fixture scope must remain explicit.')
-        if read(case_dir / 'sql/sql' / kind / 'sql-original-replay.json').get('status') != 'RESTRICTED_MANA_SQL_PASS':
+        fixture = fixtures[kind]
+        original_sql = read(case_dir / 'sql/sql' / kind / 'sql-original-replay.json')
+        if (original_sql.get('status') != 'RESTRICTED_MANA_SQL_PASS'
+                or original_sql.get('fullOriginalReplay') is not True
+                or original_sql.get('birth') != ['ROOM_SEAT', 'ROOM_SEAT', 'DEV_SEED_SCENARIO:restricted-mana-lux-' + kind]
+                or original_sql.get('commands', 0) <= 3 or original_sql.get('events', 0) <= 0
+                or original_sql.get('actualColdRestores', 0) <= 0 or not valid_sha(original_sql.get('sevenTableDigest'))):
             raise ValueError('The original restricted-mana SQL replay is required.')
         for mode in ['play', 'recover', 'finish']:
             network = read(case / ('network-' + mode + '.json'))
-            if network.get('status') != 'REAL_SIGNALR_RESTRICTED_MANA_PASS' or network.get('room') != fixture['room']:
+            if (network.get('status') != 'REAL_SIGNALR_RESTRICTED_MANA_PASS'
+                    or network.get('room') != fixture['room'] or network.get('mode') != mode):
                 raise ValueError('Actual restricted-mana gameplay and reconnect are required.')
         checkpoints = [read(case / ('sql-' + stage + '.json')) for stage in ['before-restart', 'after-restart', 'final']]
         if (any(row.get('status') != 'RESTRICTED_MANA_SQL_ORIGINAL_REPLAY_PASS'
                 or row.get('stage') != stage or row.get('room') != fixture['room']
-                or row.get('fullOriginalReplay') is not True
+                or row.get('fullOriginalReplay') is not True or not valid_sha(row.get('stateHash'))
+                or not valid_sha(row.get('sevenTableDigest')) or row.get('commands', 0) <= 3
+                or row.get('events', 0) <= 0
                 for row, stage in zip(checkpoints, ['before-restart', 'after-restart', 'final']))
-                or checkpoints[0].get('stateHash') != checkpoints[1].get('stateHash')):
+                or checkpoints[0].get('stateHash') != checkpoints[1].get('stateHash')
+                or checkpoints[2].get('commands', 0) <= checkpoints[1].get('commands', 0)):
             raise ValueError('Original SQL gameplay must survive the real API restart and finish.')
         forged = read(case / 'registry-forgery-refusals.json')
         if (forged.get('room') != fixture['room'] or forged.get('originalBirthReplayRestored') is not True

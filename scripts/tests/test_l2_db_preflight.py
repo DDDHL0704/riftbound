@@ -53,19 +53,22 @@ class DatabasePreflightTests(unittest.TestCase):
         for kind in ['ogs', 'sp6']:
             folder = 'payment-restart/restricted-mana-lux/' + kind
             room = 'fixture-' + kind
-            self.write(folder + '/network-fixture.json', dict(room=room, controlledQaPosition=True,
+            self.write(folder + '/network-fixture.json', dict(room=room, actor='actor', peer='peer', controlledQaPosition=True,
                                                               ordinaryOpeningCertified=False))
             self.write(f'payment-restart/restricted-mana-lux/sql/sql/{kind}/sql-original-replay.json',
-                       dict(status='RESTRICTED_MANA_SQL_PASS'))
+                       dict(status='RESTRICTED_MANA_SQL_PASS', fullOriginalReplay=True,
+                            birth=['ROOM_SEAT', 'ROOM_SEAT', 'DEV_SEED_SCENARIO:restricted-mana-lux-' + kind],
+                            commands=16, events=45, actualColdRestores=13, sevenTableDigest='a' * 64))
             for mode in ['play', 'recover', 'finish']:
                 traces = [dict(method='Joined', recipient=player, message=dict(playerId=player, roomId=room,
                           type='RECONNECT', payload=dict(playerId=player, reconnectToken='joined-' + player)))
                           for player in ['actor', 'peer']]
                 self.write(folder + '/network-' + mode + '.json', dict(status='REAL_SIGNALR_RESTRICTED_MANA_PASS',
-                           room=room, snapshots={'actor': {}, 'peer': {}}, traces=traces))
+                           room=room, mode=mode, snapshots={'actor': {}, 'peer': {}}, traces=traces))
             for stage in ['before-restart', 'after-restart', 'final']:
                 self.write(folder + '/sql-' + stage + '.json', dict(status='RESTRICTED_MANA_SQL_ORIGINAL_REPLAY_PASS',
-                           stage=stage, room=room, fullOriginalReplay=True, stateHash='unchanged'))
+                           stage=stage, room=room, fullOriginalReplay=True, stateHash='b' * 64,
+                           sevenTableDigest='c' * 64, commands=18 if stage == 'final' else 11, events=45))
             self.write(folder + '/registry-forgery-refusals.json', dict(room=room, originalBirthReplayRestored=True,
                        outcomes=[dict(originalSqlRestored=True, sevenTableDigestRestored=True) for _ in range(6)]))
         for mode in ['play', 'recover', 'finish']:
@@ -210,6 +213,46 @@ class DatabasePreflightTests(unittest.TestCase):
         forged_path.write_text(json.dumps(forged))
         self.save_receipt()
         with self.assertRaisesRegex(ValueError, 'tamper checks'):
+            self.verify()
+
+    def test_duplicate_or_invalid_reconnect_evidence_is_rejected(self):
+        folder = self.root / 'payment-restart/restricted-mana-lux'
+        auth_path = folder / 'network-auth-recover.json'
+        auth = P.read(auth_path)
+        auth['traces'].append(copy.deepcopy(auth['traces'][0]))
+        auth_path.write_text(json.dumps(auth))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'duplicate paths'):
+            self.verify()
+        auth['traces'].pop()
+        path = folder / 'ogs/network-recover.json'
+        report = P.read(path)
+        report['traces'][0]['message']['payload']['reconnectToken'] = 123
+        path.write_text(json.dumps(report))
+        next(row for row in auth['traces'] if row['path'] == 'ogs/network-recover.json')['sha256'] = P.digest(path)
+        auth_path.write_text(json.dumps(auth))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'invalid authenticated player'):
+            self.verify()
+
+    def test_sql_replay_and_restart_checkpoints_cannot_be_empty(self):
+        folder = self.root / 'payment-restart/restricted-mana-lux'
+        path = folder / 'sql/sql/ogs/sql-original-replay.json'
+        original = P.read(path)
+        changed = copy.deepcopy(original)
+        changed['fullOriginalReplay'] = False
+        path.write_text(json.dumps(changed))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'original restricted-mana SQL replay'):
+            self.verify()
+        path.write_text(json.dumps(original))
+        for stage in ['before-restart', 'after-restart']:
+            path = folder / 'ogs' / ('sql-' + stage + '.json')
+            checkpoint = P.read(path)
+            checkpoint.pop('stateHash')
+            path.write_text(json.dumps(checkpoint))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'SQL gameplay'):
             self.verify()
 
 
