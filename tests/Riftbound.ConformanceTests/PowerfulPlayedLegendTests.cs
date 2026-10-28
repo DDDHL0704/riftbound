@@ -1,5 +1,6 @@
 using Riftbound.Contracts;
 using Riftbound.Engine;
+using System.Text.Json;
 using Xunit;
 using static Riftbound.ConformanceTests.OfficialGraveyardRecastTests;
 
@@ -19,7 +20,21 @@ public sealed class PowerfulPlayedLegendTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["LEGEND"] = new("P1", "LEGEND") } };
         state = PrintedCostFixture.Add(state, "P1", "SFD·175/221");
         var played = await Act(state, "P1", new PlayCardCommand("PLAYED", "SFD·175/221", []));
-        return await Top(played.State);
+        void Capture(string step, ResolutionResult result)
+        {
+            if (Environment.GetEnvironmentVariable("RIFTBOUND_POWERFUL_PLAYED_DIAGNOSTICS") is not { } folder) return;
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, legend.Replace('/', '-') + "-" + step + ".json"),
+                JsonSerializer.Serialize(new { result.Accepted, result.ErrorCode, result.ErrorMessage, result.State, result.Events },
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
+        Capture("play", played);
+        var engine = new CoreRuleEngine();
+        var first = await engine.ResolveAsync(played.State, new("first-pass", played.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), default);
+        Capture("first", first); Assert.True(first.Accepted, first.ErrorMessage);
+        var second = await engine.ResolveAsync(first.State, new("second-pass", first.State.PriorityPlayerId!, "PASS_PRIORITY"), new PassPriorityCommand(), default);
+        Capture("second", second); Assert.True(second.Accepted, second.ErrorMessage);
+        return second;
     }
 
     [Theory]
