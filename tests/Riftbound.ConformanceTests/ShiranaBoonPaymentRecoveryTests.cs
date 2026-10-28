@@ -9,6 +9,38 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
+    public async Task ShiranaRejectsOpponentBoonAndWrongPayerWithoutMutation(string player)
+    {
+        var (_, game, choice) = await OpenShiranaBoonChoice(player);
+        var engine = new CoreRuleEngine();
+        var before = MatchStateHasher.Hash(game.State);
+        var enemyCost = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY-BOON"]);
+        var rejected = await engine.ResolveAsync(game.State,
+            new("shirana-enemy-boon", player, enemyCost.CmdType), enemyCost, default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+
+        var friendlyCost = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]);
+        var wrongPayer = await engine.ResolveAsync(game.State,
+            new("shirana-wrong-payer", ThreeBattlefieldTimingProbe.Other(player), friendlyCost.CmdType), friendlyCost, default);
+        Assert.False(wrongPayer.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, wrongPayer.ErrorCode);
+        Assert.Empty(wrongPayer.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(wrongPayer.State));
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ENEMY-BOON"].Tags);
+
+        var paid = await game.Act(player, friendlyCost);
+        Assert.Single(paid.Events, e => e.Kind == "BOON_CONSUMED");
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ENEMY-BOON"].Tags);
+    }
+
+    [Theory]
+    [InlineData("P1")]
+    [InlineData("P2")]
     public async Task ShiranaConsumedUnitCanLeaveDuringResponseWithoutRefund(string player)
     {
         var (initial, game, choice) = await OpenShiranaBoonChoice(player);
