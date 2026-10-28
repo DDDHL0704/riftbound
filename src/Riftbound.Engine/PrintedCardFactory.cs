@@ -10,6 +10,7 @@ internal static class PrintedCardFactory
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
             .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
+            .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal));
 
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)
