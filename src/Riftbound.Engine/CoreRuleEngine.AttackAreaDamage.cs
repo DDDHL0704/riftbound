@@ -92,7 +92,8 @@ public sealed partial class CoreRuleEngine
             var amount = checked(spec.DamageAmount!.Value + DistributionBonuses(state, item.ControllerId, null).Sum(bonus => bonus.Amount));
             foreach (var id in targets)
             {
-                var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, amount, destroyed,
+                var targetDamage = ApplyBattlefieldTargetSpellSkillDamageBonus(state, id, amount);
+                var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, targetDamage, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "进攻技能对同处敌方单位造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));
             }

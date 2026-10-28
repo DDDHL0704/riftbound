@@ -103,6 +103,23 @@ public sealed class AttackAreaDamageTests
     }
 
     [Theory]
+    [InlineData("VEN·019", 4, 4)]
+    [InlineData("VEN·019a", 4, 4)]
+    [InlineData("OGN·148/298", 5, 5)]
+    public async Task UntargetedAttackDamageIncludesControllerAndBattlefieldDamageBonuses(string cardNo, int runes, int expected)
+    {
+        var initial = Position(cardNo, runes);
+        initial = LocalDestructionRecallTests.At(OfficialHoldSequenceTests.AddUnit(initial, "ANNIE", "OGS·001/024", "F", "P1"),
+            "ANNIE", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["F"] = initial.CardObjects["F"] with { CardNo = "OGN·296/298" } } };
+        var attack = await AttackDamageDistributionTests.Attack(initial);
+        var resolved = await AttackDamageDistributionTests.Top(attack.State);
+        Assert.All(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, id => Assert.Equal(expected, resolved.State.CardObjects[id].Damage));
+        ArmamentMightTests.PublicRecovery(resolved.State);
+    }
+
+    [Theory]
     [InlineData("VEN·019")]
     [InlineData("VEN·019a")]
     public async Task MoreThanFourRunesAtTheFirstAttackDoesNotQueueTheSkill(string cardNo)
