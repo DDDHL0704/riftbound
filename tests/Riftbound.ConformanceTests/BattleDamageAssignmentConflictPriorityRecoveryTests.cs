@@ -58,6 +58,35 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     }
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task DefendingPlayerMixedPrioritySurvivesColdRestoreAndReplay(bool mixedFirst)
+    {
+        var initial = MixedAttackerPosition() with { Tick = 0 };
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act("P1", new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
+            [BulwarkDefenderObjectId, BackRowDefenderObjectId], ["COMBAT_ASSIGNMENT"]));
+        var first = await driver.Act("P1", new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId,
+            [new(AttackerObjectId, BulwarkDefenderObjectId, 2), new(SecondAttackerObjectId, BulwarkDefenderObjectId, 2),
+             new(SecondAttackerObjectId, BackRowDefenderObjectId, 2)]));
+        var candidate = Assert.Single(first.Prompts["P2"].Candidates ?? [], c => c.Action == CommandTypes.AssignCombatDamage);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var options = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<int>>>(metadata["targetPriorityOptions"]);
+        Assert.Equal([0, 2], options[AttackerObjectId]);
+        Assert.Equal([1], options[SecondAttackerObjectId]);
+        CombatDamageAssignmentDto[] assignments = mixedFirst
+            ? [new(BulwarkDefenderObjectId, AttackerObjectId, 2), new(BulwarkDefenderObjectId, SecondAttackerObjectId, 2),
+               new(BackRowDefenderObjectId, SecondAttackerObjectId, 1)]
+            : [new(BulwarkDefenderObjectId, SecondAttackerObjectId, 4), new(BackRowDefenderObjectId, AttackerObjectId, 1)];
+        var resolved = await driver.Act("P2", new AssignCombatDamageCommand($"battle:{BattlefieldObjectId}", BattlefieldObjectId, assignments));
+        var damage = Assert.Single(resolved.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), AttackerObjectId));
+        Assert.Equal(mixedFirst ? "BULWARK_FIRST" : "BACK_ROW_LAST", damage.Payload["assignmentRole"]);
+        Assert.Equal(mixedFirst ? 1 : 2, damage.Payload["assignmentIndex"]);
+        await BanishEffectPlayTests.Replay(initial, driver);
+    }
+
+    [Theory]
     [InlineData("{\"U\":[0,2]}", true)]
     [InlineData("{\"U\":[2,0]}", true)]
     [InlineData("{\"U\":[0]}", false)]
