@@ -74,6 +74,29 @@ public sealed class RenektonUnitAbilityInlineTests
     }
 
     [Fact]
+    public async Task AbilityPaymentCanRecycleAfterTheLegendFreesCapacity()
+    {
+        var initial = Position(new RunePool(0, 2, unitOrEquipmentPlayOnlyPower: int.MaxValue - 2));
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Red, "RED");
+        var command = new ActivateAbilityCommand("HOST", P4ActivatedAbilityCatalog.ViDoublePowerAbilityId, [],
+            [Resource, "RECYCLE_RUNE:RED", Mana]);
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.Equal(int.MaxValue - 2, game.State.RunePools["P1"].UnitOrEquipmentPlayOnlyPower);
+        var events = game.Events();
+        var legend = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), Ability));
+        var recycled = Array.FindIndex(events, e => e.Event.Kind == "RUNE_RECYCLED");
+        Assert.True(legend >= 0 && recycled > legend);
+        await game.Replay();
+
+        var reversed = command with { OptionalCosts = ["RECYCLE_RUNE:RED", Resource, Mana] };
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("ability-rune-before-capacity", "P1", reversed.CmdType), reversed, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
+
+    [Fact]
     public async Task AbilityReceiptReportsTheActualRestrictedAndOrdinaryManaSpent()
     {
         var game = new Driver(Position(new(0, 3)));

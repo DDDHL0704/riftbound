@@ -109,4 +109,37 @@ public sealed class RenektonEmpowerInlineTests
             new CoreRuleEngine(), default, game.Events());
         Assert.False(replay.IsMatch); Assert.NotEmpty(replay.Errors);
     }
+
+    [Fact]
+    public async Task EmpowerCanRecycleAfterLegendPaymentOpensCapacity()
+    {
+        var state = EmpowerTests.Runes(await EmpowerTests.Enter("VEN·001"), 5) with { Tick = 0 };
+        state = OfficialHoldSequenceTests.AddLegend(state, "VEN·141");
+        var initial = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["LEGEND"] = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "VEN·141", "P1") },
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+                ["P1"] = new(3, 2, unitOrEquipmentPlayOnlyPower: int.MaxValue - 2) } };
+        var resource = "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:A:2";
+        var mana = "MANA_SOURCE:UNIT_PLAY_OR_UNIT_ABILITY_ONLY:2,UNRESTRICTED:3";
+        var command = new ActivateAbilityCommand("HOST", "EMPOWER:0:0", [],
+            [resource, "RECYCLE_RUNE:EMPOWER-RUNE-0", mana]);
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        var activation = Assert.Single(game.State.StackItems).EmpowerActivation!;
+        Assert.Equal(5, activation.ControlledRunes);
+        Assert.Equal(5, activation.PaidMana);
+        Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        var events = game.Events();
+        var legend = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), Ability));
+        var recycled = Array.FindIndex(events, e => e.Event.Kind == "RUNE_RECYCLED");
+        Assert.True(legend >= 0 && recycled > legend);
+        await game.Replay();
+
+        var reversed = command with { OptionalCosts = ["RECYCLE_RUNE:EMPOWER-RUNE-0", resource, mana] };
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("empower-rune-before-capacity", "P1", reversed.CmdType), reversed, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
 }
