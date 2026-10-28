@@ -14,7 +14,8 @@ public sealed class RenektonEmpowerInlineTests
     [Fact]
     public async Task RecycledRunesDoNotRetroactivelyReduceTheEmpowerPrice()
     {
-        var state = EmpowerTests.Runes(await EmpowerTests.Enter("VEN·001"), 5);
+        // This controlled midgame becomes the journal's opening frame.
+        var state = EmpowerTests.Runes(await EmpowerTests.Enter("VEN·001"), 5) with { Tick = 0 };
         state = OfficialHoldSequenceTests.AddLegend(state, "VEN·141");
         var initial = state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
@@ -51,7 +52,7 @@ public sealed class RenektonEmpowerInlineTests
     [Fact]
     public async Task MissingPowerCannotExhaustTheLegendOrStartEmpower()
     {
-        var state = EmpowerTests.Runes(await EmpowerTests.Enter("VEN·001"), 5);
+        var state = EmpowerTests.Runes(await EmpowerTests.Enter("VEN·001"), 5) with { Tick = 0 };
         state = OfficialHoldSequenceTests.AddLegend(state, "VEN·141");
         var initial = state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
