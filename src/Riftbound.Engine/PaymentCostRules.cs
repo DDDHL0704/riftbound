@@ -222,9 +222,8 @@ public static class PaymentCostRules
         result.TryAdd("experienceCost", plan.ExperienceCost);
         if (plan.ManaPurpose == ManaPaymentPurpose.PlaySpell)
             result.TryAdd("manaPurpose", "PLAY_SPELL");
-        if (plan.PowerPurpose != PowerPaymentPurpose.Other)
-            result.TryAdd("powerPurpose", plan.PowerPurpose switch {
-                PowerPaymentPurpose.PlaySpell => "PLAY_SPELL", PowerPaymentPurpose.PlayUnit => "PLAY_UNIT", _ => "EQUIPMENT" });
+        if (plan.PowerPurpose is PowerPaymentPurpose.PlaySpell or PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment)
+            result.TryAdd("powerPurpose", plan.PowerPurpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : "EQUIPMENT");
         result.TryAdd("optionalCosts", plan.OptionalCostIds.ToArray());
         result.TryAdd("extraCosts", plan.ExtraCostIds.ToArray());
         result.TryAdd("paymentResourceActions", plan.PaymentResourceActionIds.ToArray());
@@ -404,9 +403,9 @@ public static class PaymentCostRules
         if (!pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose)) return sources;
         if (pool.Power > 0) sources["UNRESTRICTED"] = pool.Power;
         if (purpose == PowerPaymentPurpose.PlaySpell && pool.SpellOnlyPower > 0) sources["SPELL_ONLY"] = pool.SpellOnlyPower;
-        if (purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment && pool.EquipmentOnlyPower > 0)
+        if ((purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment) && pool.EquipmentOnlyPower > 0)
             sources["EQUIPMENT_ONLY"] = pool.EquipmentOnlyPower;
-        if (purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment && pool.UnitOrEquipmentPlayOnlyPower > 0)
+        if ((purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment) && pool.UnitOrEquipmentPlayOnlyPower > 0)
             sources["UNIT_OR_EQUIPMENT_PLAY_ONLY"] = pool.UnitOrEquipmentPlayOnlyPower;
         return sources;
     }
