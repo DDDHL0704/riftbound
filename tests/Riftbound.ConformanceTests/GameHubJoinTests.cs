@@ -9418,14 +9418,29 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-mill", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = EventsFor(battleClients).ToList();
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        var beforeResponses = SnapshotFor(battleClients, "P1");
+        Assert.Contains(beforeResponses.Stack, item => JsonSerializer.Serialize(item).Contains("BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
+        var match = await registry.GetOrCreateAsync(roomId, default);
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        var responseClients = battleClients;
+        for (var index = 0; index < 2; index++)
+        {
+            var actor = Assert.IsType<string>(match.SnapshotFor("P1").Timing["priorityPlayerId"]);
+            responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2",
+                registry, authenticatedHandle: actor).SubmitIntent(roomId, actor, $"minefield-response-{index}", pass);
+            Assert.Empty(responseClients.CallerClient.Errors);
+            battleEvents.AddRange(EventsFor(responseClients));
+        }
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(responseClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Equal(1, Assert.IsType<int>(p1Zones["mainDeckCount"]));

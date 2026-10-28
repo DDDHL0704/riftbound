@@ -1,6 +1,24 @@
+using System.Text.Json.Serialization;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record BattlefieldConquestMillContext(
+    [property: JsonRequired] string BattlefieldObjectId,
+    [property: JsonRequired] long BattlefieldGeneration,
+    [property: JsonRequired] string CardNo,
+    [property: JsonRequired] string ControllerId,
+    [property: JsonRequired] string ConquestSourceObjectId,
+    [property: JsonRequired] long ConquestTick);
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record BattlefieldConquestMillPublicContext(
+    [property: JsonRequired] string BattlefieldObjectId,
+    [property: JsonRequired] long BattlefieldGeneration,
+    [property: JsonRequired] string CardNo,
+    [property: JsonRequired] string ControllerId,
+    [property: JsonRequired] long ConquestTick);
 
 public sealed partial class CoreRuleEngine
 {
@@ -82,6 +100,8 @@ public sealed partial class CoreRuleEngine
             playerId,battlefieldId,resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestLook(playerZones,cardObjects,
             playerId,battlefieldId,resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestMill(playerZones, cardObjects,
+            playerId, battlefieldId, sourceObjectId, resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureConquestTokens(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
@@ -114,13 +134,6 @@ public sealed partial class CoreRuleEngine
             pendingPayment ??= naturalUnitConquestPendingPayment;
         }
 
-        TryResolveBattlefieldConquerMillTwoTrigger(
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId,
-            events);
         var battlefieldRecycleRuneTrigger = ResolveBattlefieldConquerRecycleRuneTrigger(
             playerZones,
             cardObjects,
@@ -302,5 +315,118 @@ public sealed partial class CoreRuleEngine
             WinnerPlayerId = winnerPlayerId,
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished
         };
+    }
+
+    private static IReadOnlyList<TriggerQueueItemState> CaptureBattlefieldConquestMill(
+        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        string controller, string battlefieldId, string conquestSource, long tick)
+    {
+        if (!TryGetBattlefieldCardObject(zones, cards, battlefieldId, out var id, out var battlefield)
+            || string.IsNullOrWhiteSpace(battlefield.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(battlefield.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out var spec)) return [];
+        var context = new BattlefieldConquestMillContext(id, battlefield.ObjectGeneration, battlefield.CardNo,
+            controller, conquestSource, tick);
+        return [new($"CONQUEST-MILL:{tick}:{id}", controller, id, spec.Kind, "BATTLEFIELD_CONQUERED")
+        {
+            SourceCardNo = battlefield.CardNo, EnqueuedAtTick = tick, BattlefieldConquestMill = context
+        }];
+    }
+
+    internal static BattlefieldConquestMillPublicContext? PublicBattlefieldConquestMill(BattlefieldConquestMillContext? context)
+        => context is null ? null : new(context.BattlefieldObjectId, context.BattlefieldGeneration,
+            context.CardNo, context.ControllerId, context.ConquestTick);
+
+    internal static bool ValidBattlefieldConquestMillPublicFrame(BattlefieldConquestMillPublicContext context)
+        => !string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
+            && !string.IsNullOrWhiteSpace(context.ControllerId)
+            && !string.IsNullOrWhiteSpace(context.CardNo)
+            && context.BattlefieldGeneration >= 0 && context.ConquestTick >= 0
+            && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out _);
+
+    internal static bool ValidBattlefieldConquestMillFrame(BattlefieldConquestMillContext context)
+        => !string.IsNullOrWhiteSpace(context.ConquestSourceObjectId)
+            && ValidBattlefieldConquestMillPublicFrame(PublicBattlefieldConquestMill(context)!);
+
+    internal static bool ValidBattlefieldConquestMillContext(MatchState state, BattlefieldConquestMillContext context,
+        string effect, string source, string controller, string? cardNo)
+        => ValidBattlefieldConquestMillFrame(context)
+            && effect == TriggerKinds.BattlefieldConquerMill && source == context.BattlefieldObjectId
+            && controller == context.ControllerId && cardNo == context.CardNo
+            && state.Seats.ContainsKey(controller) && context.ConquestTick <= state.Tick
+            && state.CardObjects.TryGetValue(source, out var battlefield)
+            && (battlefield.CardNo == context.CardNo || ReplacedBattlefieldCard(state, battlefield)?.CardNo == context.CardNo)
+            && battlefield.ObjectGeneration >= context.BattlefieldGeneration
+            && (state.BattlefieldResolutions.Any(r => r.Kind == "CONQUERED" && r.Tick == context.ConquestTick
+                    && r.BattlefieldObjectId == source && r.PlayerId == controller
+                    && r.SourceObjectId == context.ConquestSourceObjectId)
+                // The public resolution list retains only 12 entries. A pending
+                // older skill can outlive that projection; full recovery still
+                // requires its accepted conquest and enqueue events in the journal.
+                || state.BattlefieldResolutions.Count == 12
+                    && state.BattlefieldResolutions.All(r => r.Tick > context.ConquestTick));
+
+    private static StackResolutionResult ResolveBattlefieldConquestMill(MatchState state, StackItemState item)
+    {
+        var context = item.BattlefieldConquestMill!;
+        if (!ValidBattlefieldConquestMillContext(state, context, item.EffectKind, item.SourceObjectId,
+                item.ControllerId, item.CardNo)
+            || !BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger, out var spec))
+            throw new InvalidOperationException("Invalid captured battlefield conquest mill.");
+
+        var zones = NormalizeZonesForSeats(state);
+        var playerZones = zones[item.ControllerId];
+        IReadOnlyDictionary<string, int> scores = state.PlayerScores;
+        var rng = state.RngCursor;
+        var burnouts = 0;
+        string? winner = null;
+        var moved = new List<string>();
+        var batch = new List<string>();
+        var events = new List<GameEvent>();
+        void FlushMoved()
+        {
+            if (batch.Count == 0) return;
+            events.Add(new GameEvent("CARDS_MILLED", $"{item.ControllerId} 将主牌堆顶 {batch.Count} 张牌放入废牌堆",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                    ["sourceObjectId"] = context.BattlefieldObjectId, ["cardIds"] = batch.ToArray(),
+                    ["count"] = batch.Count, ["sourceZone"] = spec.MillSourceZone,
+                    ["destinationZone"] = spec.MillDestinationZone }));
+            batch.Clear();
+        }
+        for (var i = 0; i < spec.MillCount.GetValueOrDefault() && winner is null; i++)
+        {
+            // Move each card before the next attempt so an intervening burnout
+            // recycles the graveyard as it exists at that exact point.
+            var draw = DrawOne(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts);
+            if (draw.Burnouts.Count > 0) FlushMoved();
+            foreach (var burnout in draw.Burnouts)
+                events.Add(new GameEvent("BURNOUT_APPLIED", $"{item.ControllerId} 执行燃尽",
+                    new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                        ["scoredPlayerId"] = burnout.ScoredPlayerId, ["scoredPlayerScore"] = burnout.ScoredPlayerScore,
+                        ["burnoutIndex"] = ++burnouts }));
+            scores = draw.PlayerScores;
+            rng = draw.RngCursor;
+            winner = draw.WinnerPlayerId;
+            playerZones = playerZones with { MainDeck = draw.MainDeck,
+                Graveyard = draw.Graveyard.Concat(draw.DrawnCards).ToArray() };
+            moved.AddRange(draw.DrawnCards);
+            batch.AddRange(draw.DrawnCards);
+            if (draw.DrawnCards.Count == 0) break;
+        }
+        FlushMoved();
+        zones[item.ControllerId] = playerZones;
+        var hiddenConquestSource = state.PlayerZones.Values.Any(z => z.Hand.Contains(context.ConquestSourceObjectId)
+            || z.MainDeck.Contains(context.ConquestSourceObjectId) || z.RuneDeck.Contains(context.ConquestSourceObjectId))
+            || state.CardObjects.TryGetValue(context.ConquestSourceObjectId, out var conquestSource) && conquestSource.IsFaceDown;
+        events.Insert(0, new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", $"{item.ControllerId} 征服战场并弃置主牌堆顶牌",
+            new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                ["battlefieldId"] = context.BattlefieldObjectId, ["battlefieldObjectId"] = context.BattlefieldObjectId,
+                ["battlefieldCardNo"] = context.CardNo, ["trigger"] = item.EffectKind,
+                ["sourceObjectId"] = hiddenConquestSource ? "HIDDEN" : context.ConquestSourceObjectId, ["count"] = moved.Count }));
+        if (winner is not null) events.Add(BuildScoreVictoryEvent(winner, EffectiveWinningScore(state)));
+        return new(zones, state.CardObjects, scores, NormalizeExperienceForSeats(state), state.RunePools,
+            state.UntilEndOfTurnEffects, winner, events, [], null, [], null, [], rng);
     }
 }
