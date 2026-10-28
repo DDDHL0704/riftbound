@@ -1,0 +1,154 @@
+{
+  "source": "https://playloltcg.com/card.html",
+  "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAt": "2026-10-28",
+  "fetchedAtUtc": "2026-10-27T21:51:23.629299+00:00",
+  "scope": "THREE_EXACT_CN_PRINTS_ONLY_NOT_THE_FULL_CATALOG_OR_RUNTIME_ADOPTION",
+  "total": 3,
+  "cards": [
+    {
+      "id": 40126,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "RAD·054/167",
+      "cardName": "饰品商贩",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "班德尔城",
+      "tag": "约德尔人",
+      "artist": "Alessandro Poli",
+      "cardEffect": "{{缴械}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-1。）",
+      "flavorText": "“这绝对是好货！呃，起码绝对是个东西。”",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "RAD(进阶补充包)",
+        "RAD(标准补充包)"
+      ],
+      "productNameList": [
+        "辉耀群星 进阶补充包",
+        "辉耀群星 标准补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/4749fc8ccb364c10bf270dc785b28063.png",
+      "backImage": "",
+      "listSort": 2841,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 40127,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "RAD·055/167",
+      "cardName": "叮响巡警",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "皮尔特沃夫",
+      "tag": "机械",
+      "artist": "Kudos Productions",
+      "cardEffect": "你的“机械”具有{{缴械}}。（当每个此类单位进攻时，给予该处的一名敌方单位在本回合内{{S}}-1。）",
+      "flavorText": "“诸位居民请当心！这里有罪案发生！”",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "RAD(进阶补充包)",
+        "RAD(标准补充包)"
+      ],
+      "productNameList": [
+        "辉耀群星 进阶补充包",
+        "辉耀群星 标准补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b4e6b90a92ce4e1393dba45a2a2925a5.png",
+      "backImage": "",
+      "listSort": 2840,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 40122,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "RAD·050/167",
+      "cardName": "神秘的时间法师",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "当你打出我时，{{洞察2}}。（查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）\n{{缴械2}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-2。）",
+      "flavorText": "",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "RAD(进阶补充包)",
+        "RAD(标准补充包)"
+      ],
+      "productNameList": [
+        "辉耀群星 进阶补充包",
+        "辉耀群星 标准补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e527800671fc4bb2af9857818b3fced1.png",
+      "backImage": "",
+      "listSort": 2845,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ]
+}

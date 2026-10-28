@@ -181,13 +181,13 @@ public sealed class CompoundOptionalCostTests
         if (branch == "underfunded") initial = initial with {
             RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(3, 0, new Dictionary<string, int> { [RuneTrait.Green] = 1 }) } };
         var driver = new StandbyDefendObserverTests.Driver(initial); await Open(driver, false);
-        var costs = new List<string> { HasteOptionalCostNames.HasteReady, OwnFee(card) };
+        var costs = new List<string> { HasteOptionalCostNames.HasteReady, OwnFee(card),
+            Reduction("EZREAL", "HASTE_READY", "MANA"), Reduction("EZREAL", "ADDITIONAL", "MANA") };
         if (branch == "duplicate-haste") costs.Add(HasteOptionalCostNames.HasteReady);
         if (branch == "duplicate-own") costs.Add(OwnFee(card));
         if (branch == "unknown") costs.Add("SPEND_MANA:999");
         if (branch == "wrong-trait") costs[1] = "SPEND_POWER:blue:1";
-        if (branch == "duplicate-reducer") costs.AddRange([
-            Reduction("EZREAL", "HASTE_READY", "MANA"), Reduction("EZREAL", "HASTE_READY", "POWER-green")]);
+        if (branch == "duplicate-reducer") costs.Add(Reduction("EZREAL", "HASTE_READY", "POWER-green"));
         if (branch == "missing-fee") { costs.Remove(OwnFee(card)); costs.Add(Reduction("EZREAL", "ADDITIONAL", "POWER-green")); }
         if (branch == "foreign-component") costs.Add(Reduction("EZREAL", "ECHO", "MANA"));
         if (branch == "stale-generation") costs.Add("OPTIONAL_COST_REDUCTION:EZREAL:1:HASTE_READY:MANA");
@@ -305,7 +305,9 @@ public sealed class CompoundOptionalCostTests
     [InlineData("SFD·109/221", true)]
     public async Task TargetedAndEquipmentFeesComposeWithHasteAsOneIndependentPrintedFee(string card, bool reduce)
     {
-        var initial = WithReducer(Position(card), "EZREAL");
+        // The unreduced control has no passive; omitting a mandatory active
+        // reducer is separately rejected by the allocation regressions.
+        var initial = reduce ? WithReducer(Position(card), "EZREAL") : Position(card);
         const string gear = "ENEMY-GEAR";
         if (card == "SFD·109/221") initial = initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {

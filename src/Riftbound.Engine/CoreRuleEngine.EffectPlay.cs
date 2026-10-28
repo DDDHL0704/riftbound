@@ -182,11 +182,22 @@ public sealed partial class CoreRuleEngine
                     { ["viewedCardsPublic"] = TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayRevealsCards,
                       ["viewedCards"] = p.ViewedCardIds.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state, id), IsPubliclyRevealedDeckCard(state, id) ? "已公开展示" : "仅你可见")).ToArray(),
                       ["reason"] = EffectPlayReason(p) } }).ToArray() };
+        // The fee depends on the selected source/mode/optional costs. Reuse the
+        // ordinary play composer; the server validates the completed declaration.
+        if (!p.IgnoreAllCosts && own.Candidates!.Single(c => c.Action == CommandTypes.PlayCard) is { Enabled: true } play)
+        {
+            var refuse = play with { Action = CommandTypes.RefusePlayPayment, Label = "拒绝所选打出的资源费用",
+                Reason = "选择来源、模式和额外费用；只有最终法力或符能费用非零时才可拒付。",
+                CommandTemplate = play.CommandTemplate! with { CmdType = CommandTypes.RefusePlayPayment },
+                Presentation = play.Presentation! with { Intent = "refuse-play-payment" } };
+            own = own with { Actions = own.Actions.Append(CommandTypes.RefusePlayPayment).ToArray(),
+                Candidates = own.Candidates!.Append(refuse).ToArray() };
+        }
         // A decline is a zero-card choice, using the existing native card-choice composer.
         if (CanFinishWithoutEffectPlay(state))
         {
             var choiceState = state with { PendingCardChoice = new(p.ChoiceId, "EFFECT_PLAY", p.PlayerId,
-                0, 0, [], [], p.Optional ? "放弃此次再次打出" : "当前没有合法来源或目的地，继续结算", p.Parent.SourceObjectId, p.Parent.EffectKind) };
+                0, 0, [], [], p.Optional ? "放弃此次再次打出" : "拒绝支付资源费用或无法完成此次打出，继续结算", p.Parent.SourceObjectId, p.Parent.EffectKind) };
             var decline = ActionPromptBuilder.Build(choiceState, p.PlayerId, true, "继续结算", [CommandTypes.ChooseCards]).Candidates!.Single();
             decline = decline with { Label = p.Optional ? "放弃再次打出" : "继续结算", Enabled = true,
                 SelectionSteps = [], CommandTemplate = new(CommandTypes.ChooseCards, [
@@ -215,30 +226,26 @@ public sealed partial class CoreRuleEngine
     {
         var p = state.PendingEffectPlay!;
         if (p.Optional || EffectPlayDestinations(state, p.PlayerId).Count == 0) return true;
-        var candidates = ActionPromptBuilder.Build(state, p.PlayerId, true, "再次打出", [CommandTypes.PlayCard]);
-        if ((candidates.Candidates?.FirstOrDefault()?.Sources?.Count ?? 0) == 0) return true;
-        // Only offer an impossible-payment continuation when even an upper bound
-        // using every legal rune and temporary resource cannot cover the minimum.
-        var pool = state.RunePools.GetValueOrDefault(p.PlayerId) ?? RunePool.Empty;
-        var mana = pool.Mana;
-        var traits = pool.PowerByTrait.ToDictionary(x => x.Key, x => x.Value);
-        foreach (var id in state.PlayerZones[p.PlayerId].Base)
-            if (state.CardObjects.TryGetValue(id, out var rune) && !rune.IsFaceDown
-                && rune.Tags.Contains(CardObjectTags.RuneCard) && SourceObjectControlledByPlayerOrLegacyOwned(rune, p.PlayerId))
-            {
-                if (!rune.IsExhausted) mana++;
-                if (TryGetRuneTrait(rune, out var trait)) traits[trait] = traits.GetValueOrDefault(trait) + 1;
-            }
-        var available = pool with { Mana = mana, PowerByTrait = traits };
-        return EffectPlaySources(state, p.PlayerId).All(id => {
-            var card = state.CardObjects[id];
-            return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {
-                var behavior = EffectPlayBehavior(state, p.PlayerId, b);
-                PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : b.CardNo, null, available, 0,
-                    new Dictionary<string, int>(), out var generic, out var typed);
-                return MinimumPlayManaCost(state, p.PlayerId, behavior, id).Total <= available.Mana
-                    && PaymentCostRules.PowerDeficit(available, generic, typed) == 0;
-            });
+        var choices = ActionPromptBuilder.PlayCardChoices(state, p.PlayerId)
+            .Where(choice => EffectPlayAllowsBehavior(state, p.PlayerId, choice.Behavior)).ToArray();
+        if (choices.Length == 0) return true;
+        // CN445.2/445.2.a permits refusing a nonzero resource fee and
+        // withdrawing that play, even when those resources are already pooled.
+        // CN445.1.b does not permit refusing a zero fee. But the player can
+        // choose a different, nonzero route and refuse that payment; the mere
+        // presence of a free candidate cannot force that candidate to be played.
+        // Optional discard, experience or sacrifice reductions are not assumed:
+        // the player can decline those choices and refuse the default fee.
+        return choices.Any(choice => {
+            var behavior = choice.Behavior;
+            var pool = PaymentCostRules.PowerPoolForPurpose(state.RunePools.GetValueOrDefault(p.PlayerId) ?? RunePool.Empty,
+                PowerPurposeForPlay(behavior));
+            // Compulsory total-power reductions also apply to a waived-base
+            // play. A printed pip alone is not proof of a nonzero final fee.
+            var hasPowerPrice = TrySelectPlayPowerCost(state, p.PlayerId, behavior, null, pool,
+                SourceReplayPowerCost(state, p.PlayerId), new Dictionary<string, int>(), out var generic, out var typed);
+            return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
+                || hasPowerPrice && (generic > 0 || typed.Values.Any(amount => amount > 0));
         });
     }
 
@@ -306,6 +313,8 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "当前选择不能放弃或已经过期。", ErrorCodes.InvalidTarget);
             return FinishEffectPlay(state with { Tick = state.Tick + 1 }, intent, pending, []);
         }
+        if (command is RefusePlayPaymentCommand refusal)
+            return ResolveRefusePlayPayment(state, intent, pending, refusal);
         if (command is PlayCardCommand play)
         {
             if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)

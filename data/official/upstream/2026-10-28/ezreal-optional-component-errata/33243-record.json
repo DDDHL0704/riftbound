@@ -1,0 +1,48 @@
+{
+  "id": 33243,
+  "cardCategoryList": [
+    "hero_unit"
+  ],
+  "cardCategoryNameList": [
+    "英雄单位"
+  ],
+  "cardNo": "SFD·149a/221",
+  "cardName": "伊泽瑞尔",
+  "subTitle": "奥法逸才",
+  "extendType": null,
+  "extendTypeName": "",
+  "cardColorList": [
+    "purple"
+  ],
+  "hero": "伊泽瑞尔",
+  "region": "皮尔特沃夫",
+  "tag": "",
+  "artist": "League Splash Team",
+  "cardEffect": "当你打出我时，弃置一张手牌，然后抽两张牌。\n你可以将其他卡牌的可选额外费用减少{{1}}或{{A}}后支付。",
+  "flavorText": "“谁要地图啊？”",
+  "energy": 3,
+  "returnEnergy": 1,
+  "power": 3,
+  "productCodeList": [
+    "SFD(标准补充包)",
+    "SFD(进阶补充包)"
+  ],
+  "productNameList": [
+    "铸魂淬炼 标准补充包",
+    "铸魂淬炼 进阶补充包"
+  ],
+  "cardQaList": null,
+  "craftLevel": 0,
+  "rarity": "rune_legend",
+  "rarityName": "异画",
+  "extendRarity": "legacy_etching",
+  "extendRarityName": "异画",
+  "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/16869728c5a1400e9c170a9c6ce70158.png",
+  "backImage": "",
+  "listSort": 830,
+  "status": 1,
+  "cardGroupLimit": null,
+  "isPreview": false,
+  "errata": "当你打出我时，弃置一张手牌，然后抽两张牌。\n你支付的可选额外费用，其费用减少{{1}}或{{A}}。",
+  "otherDesc": 0
+}

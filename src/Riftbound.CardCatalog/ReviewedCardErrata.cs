@@ -25,5 +25,11 @@ internal static class ReviewedCardErrata
         : id == 31291 && cardNo == "OGN·077/298"
             ? "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n"
                 + "如果一名友方单位被摧毁，则改为将此牌摧毁。移除该单位所受伤害，让其进入休眠状态，并将其召回。（把该单位送回基地，此行动不算作移动。）"
+        // Exact CN33242/33243 official API errata read back 2026-10-28;
+        // record SHA256 e1ec54e9db895c0207af923215b954b0aef2852b74a4b6c08b20abd906a7777a /
+        // 71b538e24f27a078c7a092e2a61508ac274074bd27fa744b1e292ef0f4d96a7a.
+        // CN356.4.c quotes the same mandatory component reduction.
+        : (id == 33242 && cardNo == "SFD·149/221" || id == 33243 && cardNo == "SFD·149a/221")
+            ? "当你打出我时，弃置一张手牌，然后抽两张牌。\n你支付的可选额外费用，其费用减少{{1}}或{{A}}。"
             : printedText;
 }

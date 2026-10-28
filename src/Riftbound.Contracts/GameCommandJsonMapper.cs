@@ -31,6 +31,7 @@ public static class GameCommandJsonMapper
             "END_TURN" => new EndTurnCommand(),
             "SURRENDER" => new SurrenderCommand(),
             "PLAY_CARD" => MapPlayCard(cmd),
+            CommandTypes.RefusePlayPayment => MapPlayCard(cmd, refusePayment: true),
             "ACTIVATE_ABILITY" => new ActivateAbilityCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "abilityId"),
@@ -95,7 +96,7 @@ public static class GameCommandJsonMapper
         };
     }
 
-    private static GameCommand MapPlayCard(JsonElement cmd)
+    private static GameCommand MapPlayCard(JsonElement cmd, bool refusePayment = false)
     {
         static bool ValidMoves(JsonElement value) => !value.TryGetProperty("movementDestinations", out var moves)
             || moves.ValueKind == JsonValueKind.Null
@@ -121,8 +122,10 @@ public static class GameCommandJsonMapper
             }
             choices = list.ToArray();
         }
-        return new PlayCardCommand(Text(cmd, "sourceObjectId"), Text(cmd, "cardNo"), TextArray(cmd, "targetObjectIds"),
+        var play = new PlayCardCommand(Text(cmd, "sourceObjectId"), Text(cmd, "cardNo"), TextArray(cmd, "targetObjectIds"),
             Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices, Moves(cmd));
+        return refusePayment ? new RefusePlayPaymentCommand(play.SourceObjectId, play.CardNo, play.TargetObjectIds,
+            play.Mode, play.OptionalCosts, play.Destination, play.RepeatChoices, play.MovementDestinations) : play;
     }
 
     private static string Text(JsonElement cmd, string propertyName)

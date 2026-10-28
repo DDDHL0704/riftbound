@@ -16215,8 +16215,14 @@ internal static class ActionPromptBuilder
     private static IEnumerable<IReadOnlyDictionary<string, object?>> PlayCardSourceRequirements(
         MatchState state,
         string playerId)
+        => PlayCardChoices(state, playerId)
+            .Select(choice => PlayCardSourceRequirement(state, playerId, choice.SourceObjectId, choice.Behavior));
+
+    internal static IEnumerable<(string SourceObjectId, CardBehaviorDefinition Behavior)> PlayCardChoices(
+        MatchState state,
+        string playerId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.ContainsKey(playerId))
         {
             return [];
         }
@@ -16225,7 +16231,7 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
             .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
                 .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
-                .Select(behavior => PlayCardSourceRequirement(state, playerId, objectId, behavior)));
+                .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
     private static IReadOnlyDictionary<string, object?> PlayCardSourceRequirement(
@@ -16345,7 +16351,7 @@ internal static class ActionPromptBuilder
                 .Select(group => new Dictionary<string, object?> {
                     ["sourceObjectId"] = group.Key.SourceObjectId, ["sourceGeneration"] = group.Key.SourceGeneration,
                     ["sourceInstanceId"] = group.Key.SourceInstanceId, ["ruleTextOrigin"] = group.First().RuleTextOrigin,
-                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 0, ["maxSelections"] = 1,
+                    ["componentId"] = group.Key.ComponentId, ["minSelections"] = 1, ["maxSelections"] = 1,
                     ["choiceIds"] = group.SelectMany(item => item.ChoiceIds).Distinct(StringComparer.Ordinal).ToArray(),
                     ["requiresOneOfOptionalCostSelections"] = group.Select(item => item.RequiredOptionalCosts)
                         .DistinctBy(costs => JsonSerializer.Serialize(costs)).ToArray() }).ToArray();
@@ -17966,12 +17972,15 @@ public sealed partial class MatchSession : IMatchSession
             // Both accepted and rejected journal rows undergo independent raw
             // recovery validation. Reject malformed arrays before any path can
             // persist the request, including stale-prompt rejections.
-            if (command is PlayCardCommand
+            if (command is (PlayCardCommand or RefusePlayPaymentCommand)
                 && rawCommand is { ValueKind: JsonValueKind.Object } playRaw
                 && !HasCanonicalRequiredStringArray(playRaw, "targetObjectIds"))
                 return ResolutionResult.Rejected(state, "出牌目标格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (!HasCanonicalOptionalCosts(command, rawCommand))
                 return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+            if (command is RefusePlayPaymentCommand && rawCommand is { ValueKind: JsonValueKind.Object } refusalRaw
+                && (!HasCanonicalRequiredText(refusalRaw, "sourceObjectId") || !HasCanonicalRequiredText(refusalRaw, "cardNo")))
+                return ResolutionResult.Rejected(state, "拒付的出牌来源格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
             if (command is DeclareBattleCommand
                 && rawCommand is { ValueKind: JsonValueKind.Object } raw
                 && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
@@ -18071,6 +18080,10 @@ public sealed partial class MatchSession : IMatchSession
             || tick.ValueKind == JsonValueKind.Number && tick.TryGetInt64(out var number) && number >= 0;
     }
 
+    private static bool HasCanonicalRequiredText(JsonElement raw, string field)
+        => raw.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String
+            && value.GetString() is { Length: > 0 } text && !string.IsNullOrWhiteSpace(text) && text == text.Trim();
+
     private static bool HasCanonicalRequiredStringArray(JsonElement raw, string field)
     {
         return raw.TryGetProperty(field, out var value)
@@ -18080,7 +18093,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static bool HasCanonicalOptionalCosts(GameCommand command, JsonElement? rawCommand)
     {
-        if (command is not (PlayCardCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
+        if (command is not (PlayCardCommand or RefusePlayPaymentCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
                 or RevealCardCommand or MoveUnitCommand or AssembleEquipmentCommand or DeclareBattleCommand)
             || rawCommand is not { ValueKind: JsonValueKind.Object } raw)
             return true;

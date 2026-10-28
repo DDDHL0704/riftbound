@@ -124,9 +124,10 @@ public sealed partial class CoreRuleEngine
         foreach (var source in sources)
         foreach (var component in components.Where(component => component.CanReduce))
         {
-            if (component.Mana > 0)
-                choices.Add(new(OptionalCostReductionId(source, component.Id, "MANA"), source, component.Id, "MANA", ""));
-            if (component.GenericPower > 0)
+            // Either resource dimension may be chosen, even when it is zero.
+            // Generic power is not a substitute for an existing typed cost.
+            choices.Add(new(OptionalCostReductionId(source, component.Id, "MANA"), source, component.Id, "MANA", ""));
+            if (component.GenericPower > 0 || component.PrintedCardNo is null && !component.TypedPower.Any(p => p.Value > 0))
                 choices.Add(new(OptionalCostReductionId(source, component.Id, "POWER-any"), source, component.Id, "POWER", ""));
             var allocations = component.PrintedCardNo is { } card
                 ? PrintedPowerCostRules.Allocations(card) : [new Dictionary<string, int>()];
@@ -157,10 +158,12 @@ public sealed partial class CoreRuleEngine
             prices.Values.Max(price => price.Mana + price.GenericPower + price.TypedPower.Values.Sum()));
         for (var step = 0; step < steps; step++)
         {
-            foreach (var price in prices.Values.ToArray())
+            var next = new Dictionary<string, OptionalCostAmounts>(StringComparer.Ordinal);
+            foreach (var price in prices.Values)
             {
-                if (price.Mana > 0) Add(price with { Mana = price.Mana - 1 });
+                Add(price with { Mana = Math.Max(0, price.Mana - 1) });
                 if (price.GenericPower > 0) Add(price with { GenericPower = price.GenericPower - 1 });
+                if (price.GenericPower == 0 && !price.TypedPower.Any(p => p.Value > 0)) Add(price);
                 foreach (var trait in price.TypedPower.Where(p => p.Value > 0).Select(p => p.Key))
                 {
                     var typed = price.TypedPower.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
@@ -168,9 +171,10 @@ public sealed partial class CoreRuleEngine
                     Add(price with { TypedPower = typed });
                 }
             }
+            prices = next;
+            void Add(OptionalCostAmounts price) => next.TryAdd(price.Key, price);
         }
         return prices.Values.ToArray();
-        void Add(OptionalCostAmounts price) => prices.TryAdd(price.Key, price);
     }
 
     internal static bool CanOfferOptionalCostWithReductions(
@@ -230,7 +234,7 @@ public sealed partial class CoreRuleEngine
                     + (choice.PrintedAllocation is null ? "" : "（回响原符能："
                         + string.Join("＋", choice.PrintedAllocation.OrderBy(p => p.Key, StringComparer.Ordinal)
                             .Select(p => p.Value + RuneTraitLabel(p.Key))) + "）"),
-                "选择后仅减免该额外费用；同一技能实例对每项费用最多选一种，不选则保留原费。",
+                "选择支付该项额外费用时，每个技能实例必须选择一种减免；仅减免该项费用，最低为零。",
                 choice.Source.Origin is null ? [choice.Source.ObjectId]
                     : [choice.Source.ObjectId, choice.Source.Origin.Equipment.ObjectId])).ToArray();
             if (reductionGroups is not null)
@@ -249,8 +253,7 @@ public sealed partial class CoreRuleEngine
     {
         result = new(mana, generic, typed, [], 0, 0, 0, [], []);
         var components = OptionalCostComponents(state, player, behavior, behaviorCosts, mana, generic, typed);
-        var available = choiceIds.Count == 0 ? []
-            : OptionalCostReductionChoices(OptionalCostReducers(state, player, playedObjectId), components);
+        var available = OptionalCostReductionChoices(OptionalCostReducers(state, player, playedObjectId), components);
         var byId = available.ToDictionary(choice => choice.Id, StringComparer.Ordinal);
         var selected = new List<OptionalCostReductionChoice>();
         var used = new HashSet<(string Source, string Component)>();
@@ -259,6 +262,9 @@ public sealed partial class CoreRuleEngine
             if (!byId.TryGetValue(id, out var choice) || !used.Add((choice.Source.InstanceId, choice.ComponentId))) return false;
             selected.Add(choice);
         }
+        // CN356.4.c applies every passive as its component is added. Missing
+        // an allocation must never authorize the unreduced component price.
+        if (available.Any(choice => !used.Contains((choice.Source.InstanceId, choice.ComponentId)))) return false;
 
         var extraMana = 0;
         var extraGeneric = 0;
