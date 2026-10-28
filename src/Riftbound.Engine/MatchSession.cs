@@ -14789,7 +14789,13 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
-        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+        var available = AvailablePlayMana(state, runePool, behavior)
+            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+        if (behavior.PlaysSourceToBaseAsUnit && available < requiredMana
+            && CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId, runePool).Any(choice =>
+                CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, new Dictionary<string, int>(), behavior, 0, "")))
+            available += 2;
+        return available;
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -14853,6 +14859,10 @@ internal static class ActionPromptBuilder
         return RecycleRunePaymentResourceChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
+            .Concat(CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
+                    state.RunePools.GetValueOrDefault(playerId, RunePool.Empty))
+                .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                    "传奇支付资源行动；其符能费用与打出牌的费用分别核对")))
             .ToArray();
     }
 
@@ -15165,7 +15175,9 @@ internal static class ActionPromptBuilder
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
             || HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0;
+            || PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId).Count > 0
+            || CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
+                state.RunePools.GetValueOrDefault(playerId, RunePool.Empty)).Count > 0;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardLuxSpellOnlyResourceChoicesForBehavior(
@@ -16373,8 +16385,9 @@ internal static class ActionPromptBuilder
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = AvailablePlayMana(state, runePool, behavior),
             ["availableSpellOnlyMana"] = IsPromptSpellPlayBehavior(behavior) ? runePool.SpellOnlyMana : 0,
-            ["availableManaWithPaymentResources"] = AvailablePlayMana(state, runePool, behavior) + luxSpellOnlyGeneratedMana,
-            ["paymentResourceMana"] = luxSpellOnlyGeneratedMana,
+            ["availableManaWithPaymentResources"] = PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId),
+            ["paymentResourceMana"] = PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId)
+                - AvailablePlayMana(state, runePool, behavior),
             ["availablePower"] = runePool.TotalPower,
             ["availablePowerByTrait"] = availablePowerByTrait,
             ["availablePowerWithPaymentResources"] = new RunePaymentReachability(runePool, paymentResourcePowerByTrait).MaximumTotal,
@@ -16447,6 +16460,21 @@ internal static class ActionPromptBuilder
 
         foreach (var choice in paymentResourceChoices)
         {
+            var legend = CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId, runePool)
+                .SingleOrDefault(candidate => candidate.Id == choice.Id);
+            if (legend is not null)
+            {
+                metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["mana"] = 2,
+                    ["unitPlayOrUnitAbilityOnly"] = true,
+                    ["powerCost"] = 2,
+                    ["powerSpend"] = legend.PowerSpend,
+                    ["sourceObjectId"] = legend.SourceObjectId,
+                    ["resourceLifecycle"] = "rune-pool"
+                };
+                continue;
+            }
             if (!TryParseLuxSpellOnlyResourceActionId(choice.Id, out var luxSourceObjectId))
             {
                 continue;

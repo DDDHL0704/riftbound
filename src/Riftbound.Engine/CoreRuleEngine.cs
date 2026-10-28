@@ -3569,6 +3569,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentEvents,
             paymentWindow,
             paymentId);
+        if (plan.RenektonResourceAction is { } legendAction)
+        {
+            var context = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = objectLocations, RunePools = runePools };
+            if (!TryResolveRenektonPlayPayment(context, intent.PlayerId, legendAction, out var legendPayment))
+                return RejectWithCorePrompts(state, "传奇支付资源行动或其符能来源无效。", ErrorCodes.InvalidTarget);
+            runePools = legendPayment.State.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            cardObjects = legendPayment.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            paymentEvents.AddRange(legendPayment.Events);
+        }
         runePools = ApplyLuxSpellOnlyResourceActions(
             runePools,
             cardObjects,
@@ -18171,8 +18181,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts
             .Where(cost => !cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
+        if (!TryExtractRenektonPlayPayment(normalizedCommandOptionalCosts,
+                out var costsWithoutRenekton, out var renektonResourceAction))
+        {
+            rejection = Reject(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         if (!TryExtractLuxSpellOnlyResourceActions(
-                normalizedCommandOptionalCosts,
+                costsWithoutRenekton,
                 out var optionalCostsWithoutLuxResources,
                 out var luxSpellOnlyResourceActions,
                 out var luxSpellOnlyResourceSourceObjectIds))
@@ -18200,6 +18216,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var paymentResourceActions = nonLuxPaymentResourceActions
+            .Concat(renektonResourceAction is null ? [] : [renektonResourceAction])
             .Concat(luxSpellOnlyResourceActions)
             .ToArray();
 
@@ -18429,6 +18446,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
+        if (renektonResourceAction is not null)
+        {
+            var simulatedPools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            simulatedPools[intent.PlayerId] = paymentAdjustedPool;
+            if (!TryResolveRenektonPlayPayment(state with { RunePools = simulatedPools }, intent.PlayerId,
+                    renektonResourceAction, out var legendPayment))
+            {
+                rejection = Reject(state, "传奇支付资源行动或其符能来源无效。", ErrorCodes.InvalidTarget);
+                return false;
+            }
+            paymentAdjustedPool = legendPayment.State.RunePools[intent.PlayerId];
+        }
         var powerPurpose = PowerPurposeForPlay(behavior);
         var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
         var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
@@ -18568,7 +18597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
-                PowerSpend = powerSpend };
+                PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -34542,6 +34571,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public int EmpoweredSpellCostReductionPower { get; init; }
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
         public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
+        public string? RenektonResourceAction { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(
