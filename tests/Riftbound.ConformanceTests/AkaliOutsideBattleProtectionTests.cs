@@ -113,14 +113,44 @@ public sealed class AkaliOutsideBattleProtectionTests
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { Hand = [], ChampionZone = ["UNIT"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "CHAMPION") },
-            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new RunePool(4, 0) } };
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new RunePool(4, 0, new Dictionary<string, int> { [RuneTrait.Green] = 1 }) } };
         var game = new VenBasicFlowSpellTests.Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", cardNo, [], Destination: "BASE"));
         Assert.Empty(game.State.PlayerZones["P1"].ChampionZone);
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Green));
         await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("VEN·038")]
+    [InlineData("VEN·038a")]
+    public async Task HeroRejectsWrongPrintedPowerWithoutChangingState(string cardNo)
+    {
+        var initial = VenUnitEntryBasicTests.Position(cardNo);
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+            ["P1"] = new RunePool(4, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }) } };
+        var command = new PlayCardCommand("UNIT", cardNo, [], Destination: "BASE");
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("wrong-power", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(rejected.State));
+    }
+
+    [Fact]
+    public async Task EveryAdmittedRuntimeCardUsesItsOfficialPrintedPowerCost()
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        foreach (var card in catalog.Cards)
+        {
+            var cost = PrintedPowerCostRules.ForCard(card.CardNo);
+            var traits = card.CardColorList.Select(RuneTrait.Normalize)
+                .Where(trait => trait is RuneTrait.Red or RuneTrait.Green or RuneTrait.Blue or RuneTrait.Yellow or RuneTrait.Orange or RuneTrait.Purple)
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+            Assert.Equal(Math.Max(0, card.ReturnEnergy ?? 0), cost.Amount);
+            Assert.Equal(traits, cost.Traits);
+        }
     }
 
     [Theory]
