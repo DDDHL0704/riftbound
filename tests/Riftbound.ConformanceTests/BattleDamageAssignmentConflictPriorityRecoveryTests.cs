@@ -13,7 +13,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     [InlineData(false)]
     public async Task MixedPriorityPromptAndDamageEventsSurviveColdRestoreAndReplay(bool mixedFirst)
     {
-        var initial = MixedDefenderPosition();
+        var initial = MixedDefenderPosition() with { Tick = 0 };
         var driver = new StandbyDefendObserverTests.Driver(initial);
         ResolutionResult opened;
         try
