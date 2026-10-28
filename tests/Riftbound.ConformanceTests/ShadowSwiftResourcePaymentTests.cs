@@ -132,6 +132,31 @@ public sealed class ShadowSwiftResourcePaymentTests
         Assert.Equal(0, result.State.RunePools["P2"].TotalStoredPower);
     }
 
+    [Fact]
+    public async Task ExplicitPowerSelectionMustIncludeTheSpellshieldTax()
+    {
+        var initial = Position(new RunePool(1, 1, new Dictionary<string, int> { [RuneTrait.Red] = 1 }), spellshield: true);
+        var game = await Focused(initial);
+        var incomplete = new ActivateAbilityCommand("SHADOW", ShadowAbility, ["HOST"], ["POWER_SPEND:A:1"]);
+        var before = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("shadow-missing-tax", "P2", incomplete.CmdType), incomplete, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+
+        var paid = incomplete with { OptionalCosts = ["POWER_SPEND:A:1,red:1", "POWER_SOURCE:UNRESTRICTED:1"] };
+        await game.Act("P2", paid);
+        Assert.Equal(0, game.State.RunePools["P2"].TotalStoredPower);
+        var receipt = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), ShadowAbility)).Event.Payload;
+        Assert.Equal(1, Convert.ToInt32(receipt["spellshieldTaxPower"]));
+        Assert.Equal(2, Convert.ToInt32(receipt["totalPowerCost"]));
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(receipt["selectedPowerSources"])["UNRESTRICTED"]);
+        await game.Top();
+        Assert.Contains("STUNNED", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData("duplicate-legend")]
     [InlineData("duplicate-power")]
