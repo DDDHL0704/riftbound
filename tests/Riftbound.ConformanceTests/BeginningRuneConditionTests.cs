@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -109,5 +110,32 @@ public sealed class BeginningRuneConditionTests
         Assert.Equal(printedMight, resolved.State.CardObjects["SOURCE"].Power);
         Assert.DoesNotContain("ROAM", resolved.State.CardObjects["SOURCE"].UntilEndOfTurnEffects);
         Restore(resolved.State);
+    }
+
+    [Theory]
+    [InlineData("VEN·005")]
+    [InlineData("VEN·006")]
+    public async Task EarnedAbilityDoesNotExposeTheSourcesNewPrivateIncarnation(string cardNo)
+    {
+        var opened = await Act(Position(cardNo, 0, 1), "P1", new PassPriorityCommand());
+        Assert.Single(opened.State.StackItems);
+        var state = opened.State;
+        state = state with {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with {
+                    Battlefields = state.PlayerZones["P1"].Battlefields.Where(id => id != "SOURCE").ToArray(),
+                    Hand = state.PlayerZones["P1"].Hand.Append("SOURCE").ToArray() } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["SOURCE"] = new("P1", "HAND") },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["SOURCE"] = state.CardObjects["SOURCE"] with { ObjectGeneration = state.CardObjects["SOURCE"].ObjectGeneration + 1 } } };
+        var opponent = ResolutionResult.BuildSnapshots(state)["P2"];
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state).SpectatorSnapshot;
+        foreach (var view in new[] { opponent, spectator }) {
+            var stack = JsonSerializer.SerializeToElement(Assert.Single(view.Stack));
+            Assert.Equal("HIDDEN", stack.GetProperty("sourceObjectId").GetString());
+            Assert.DoesNotContain("SOURCE", JsonSerializer.Serialize(view));
+        }
+        Restore(state);
+        await Top(state);
     }
 }
