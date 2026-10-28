@@ -160,6 +160,16 @@ class DatabasePreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'identity'):
             P.selected_cases(manifest)
 
+    def test_inventoried_hidden_hook_file_must_survive_the_artifact(self):
+        path = self.root / 'payment-restart/startup-hook/obj/Debug/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs'
+        path.parent.mkdir(parents=True)
+        path.write_text('// generated hook build input\n')
+        self.save_receipt()
+        self.verify()
+        path.unlink()
+        with self.assertRaisesRegex(ValueError, 'evidence'):
+            self.verify()
+
     def test_wrong_missing_or_cross_case_modules_cannot_pass_by_rehashing(self):
         case = self.root / 'sql/recycled-card-boon/partition-receipt.json'
         original = P.read(case)

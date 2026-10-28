@@ -29,6 +29,7 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertIn('services:', jobs['db_preflight'])
         self.assertIn('postgres:16.13@sha256:', jobs['db_preflight'])
         self.assertIn('scripts/l2-db-preflight.py run', jobs['db_preflight'])
+        self.assertIn('include-hidden-files: true', jobs['db_preflight'])
         self.assertIn('scripts/l2-db-preflight.py verify', jobs['l2_required'])
         self.assertIn('needs.db_preflight.result', jobs['l2_required'])
         self.assertIn('test "$DB_PREFLIGHT_RESULT" = success', jobs['l2_required'])
