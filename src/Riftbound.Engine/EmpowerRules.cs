@@ -186,8 +186,8 @@ public sealed partial class CoreRuleEngine
             "ACTIVATE_ABILITY", plan.PaymentId);
         if (renektonResourceAction is not null)
         {
-            var context = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
-            if (!TryResolveRenektonPlayPayment(context, intent.PlayerId, renektonResourceAction, out var legendPayment))
+            var resourceContext = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
+            if (!TryResolveRenektonPlayPayment(resourceContext, intent.PlayerId, renektonResourceAction, out var legendPayment))
                 return RejectWithCorePrompts(state, "传奇支付资源行动或其符能来源无效。", ErrorCodes.InvalidTarget);
             pools = legendPayment.State.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             cards = legendPayment.State.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
