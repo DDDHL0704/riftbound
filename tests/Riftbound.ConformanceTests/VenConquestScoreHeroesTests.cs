@@ -50,10 +50,24 @@ public sealed class VenConquestScoreHeroesTests
             ["P1"] = new(16, 20, new Dictionary<string, int> { [RuneTrait.Green] = 3 }), ["P2"] = new(20, 20) } };
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Equal(8, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Green));
         Assert.Contains("法盾2", game.State.CardObjects["UNIT"].Tags);
         await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
         Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(0, game.State.RunePools["P1"].Mana);
         await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("VEN·046")] [InlineData("VEN·046a")]
+    [InlineData("VEN·065")] [InlineData("VEN·173")]
+    public async Task HeroesRejectWrongPrintedPowerWithoutChangingState(string no)
+    {
+        var state = VenUnitEntryBasicTests.Position(no) with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }), ["P2"] = RunePool.Empty } };
+        var command = new PlayCardCommand("UNIT", no, [], Destination: "BASE");
+        var rejected = await new CoreRuleEngine().ResolveAsync(state, new("wrong-power", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(rejected.State));
     }
 
     [Fact]
@@ -295,6 +309,7 @@ public sealed class VenConquestScoreHeroesTests
         var state = VenUnitEntryBasicTests.Position(no) with { RunePools = new Dictionary<string, RunePool> {
             ["P1"] = new(20, 20, new Dictionary<string, int> { [RuneTrait.Blue] = 3 }), ["P2"] = new(20, 20) } };
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Blue));
         Assert.Single(game.State.StackItems, i => i.InsightContext?.Kind == "PRINTED_PREDICT");
         await game.Top(); var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [])); await game.Replay();
