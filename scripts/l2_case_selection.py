@@ -33,18 +33,30 @@ def selectors(discovery, cases, weights):
     return result
 
 
-def partition(units, cases, weights, count):
+def partition(units, cases, weights, count, case_weights=None):
     if not 1 <= count <= 8 or len(units) < count:
         raise ValueError('Require 1..8 nonempty L2 shards.')
-    if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values()):
+    case_weights = case_weights or {}
+    if (any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values())
+            or any(not isinstance(k, str) or not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0
+                   for k, v in case_weights.items())):
         raise ValueError('Invalid duration history; it never controls membership.')
     def weight(unit):
+        if unit['kind'] == 'case' and unit['case'] in case_weights:
+            return case_weights[unit['case']]
         return weights.get(unit['method'], 1) / (len(cases[unit['method']]) if unit['kind'] == 'case' else 1)
     key = lambda unit: (unit['method'], unit.get('case', ''))
     bins = [dict(name=f'shard-{i + 1}', selectors=[], estimatedSeconds=0.0) for i in range(count)]
+    assigned_methods = {item['name']: set() for item in bins}
     for unit in sorted(units, key=lambda item: (-weight(item), key(item))):
-        shard = min(bins, key=lambda item: (item['estimatedSeconds'], len(item['selectors']), item['name']))
+        # Distinct runners can execute independent rows from one heavy theory
+        # concurrently; reuse a runner only after each has one of those rows.
+        available = ([item for item in bins if unit['method'] not in assigned_methods[item['name']]]
+                     if unit['kind'] == 'case' else [])
+        candidates = available if unit['kind'] == 'case' and available else bins
+        shard = min(candidates, key=lambda item: (item['estimatedSeconds'], len(item['selectors']), item['name']))
         shard['selectors'].append(unit)
+        assigned_methods[shard['name']].add(unit['method'])
         shard['estimatedSeconds'] += weight(unit)
     for shard in bins:
         shard['selectors'].sort(key=key)

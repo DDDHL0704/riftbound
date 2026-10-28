@@ -269,6 +269,39 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual(2, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.theory}))
         self.assertEqual(1, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.dynamic}))
 
+    def test_measured_heavy_rows_balance_independently_without_losing_cases(self):
+        method = D.RULES.PREFIX + 'HeavyTests.LongTheory'
+        rows = [method + '(value: 1)', method + '(value: 2)']
+        cases = {method: rows, 'OtherTests.Long': ['OtherTests.Long'], 'OtherTests.Short': ['OtherTests.Short']}
+        units = [dict(kind='case', method=method, case=name) for name in rows]
+        units += [dict(kind='method', method=name) for name in ['OtherTests.Long', 'OtherTests.Short']]
+        weights = {method: 3050, 'OtherTests.Long': 2000, 'OtherTests.Short': 1000}
+        baseline = D.SELECT.partition(units, cases, weights, 2)
+        changed = D.SELECT.partition(units, cases, weights, 2, {rows[0]: 3000, rows[1]: 50, 'old-row': 9999})
+        self.assertEqual(3050, max(shard['estimatedSeconds'] for shard in changed))
+        self.assertLess(max(shard['estimatedSeconds'] for shard in changed),
+                        max(shard['estimatedSeconds'] for shard in baseline))
+        D.SELECT.validate(changed, cases, rows + ['OtherTests.Long', 'OtherTests.Short'])
+        self.assertEqual(2, len({shard['name'] for shard in changed
+                                 if any(unit['method'] == method for unit in shard['selectors'])}))
+        self.assertCountEqual([*rows, 'OtherTests.Long', 'OtherTests.Short'],
+                              [name for shard in changed for name in D.SELECT.case_names(shard, cases)])
+        for bad in [-1, float('nan'), 'invalid']:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'duration history'):
+                D.SELECT.partition(units, cases, weights, 2, {rows[0]: bad})
+
+    def test_six_independent_heavy_rows_use_six_distinct_shards(self):
+        method = D.RULES.PREFIX + 'HeavyTests.SixRows'
+        rows = [method + f'(value: {i})' for i in range(6)]
+        cases = {method: rows}
+        cases.update({f'OtherTests.Case{i}': [f'OtherTests.Case{i}'] for i in range(6)})
+        weights = {method: 6000, **{f'OtherTests.Case{i}': 5000 + i for i in range(6)}}
+        discovery = [*rows, *(f'OtherTests.Case{i}' for i in range(6))]
+        units = D.SELECT.selectors(discovery, cases, weights)
+        shards = D.SELECT.partition(units, cases, weights, 6, {row: 1000 for row in rows})
+        D.SELECT.validate(shards, cases, discovery)
+        self.assertTrue(all(sum(unit['method'] == method for unit in shard['selectors']) == 1 for shard in shards))
+
     def test_partial_rows_never_overlap_a_whole_method_or_repeat_in_another_shard(self):
         plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400}, 6)
         row_shard = next(s for s in plan['shards'] if any(u['kind'] == 'case' for u in s['selectors']))
