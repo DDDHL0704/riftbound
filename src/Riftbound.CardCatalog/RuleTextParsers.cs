@@ -322,6 +322,10 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
+        if (otherEmpowered.Success)
+            triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,
+                "When this controller empowers another object, the source becomes empowered on resolution."));
         var graveyardPlay = Regex.Match(text,
             @"当你使用法术摧毁一名单位时，你可以选择支付\{\{(?<mana>[0-9]+)\}\}和\{\{红色\}\}，以此从废牌堆中将我打出。",
             RegexOptions.CultureInvariant);

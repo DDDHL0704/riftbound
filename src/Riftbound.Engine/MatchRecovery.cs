@@ -24047,6 +24047,10 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (!RengarPlayRecoveryRules.ValidQueued(state, trigger))
                 errors.Add("invalid unit play might trigger");
+        foreach (var trigger in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidEmpowerOtherTrigger(state, trigger)) errors.Add("invalid empower observer trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidEmpowerOtherStack(state, item)) errors.Add("invalid empower observer stack");
         foreach (var item in state.StackItems)
             if (!RengarPlayRecoveryRules.ValidStack(state, item)) errors.Add("invalid unit play might stack");
         foreach (var trigger in state.TriggerQueue)
@@ -24573,6 +24577,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
+            if (!CoreRuleEngine.ValidLegendUnitEffect(state, item)) errors.Add("invalid captured legend unit effect");
         }
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
@@ -25356,7 +25361,7 @@ public static partial class MatchRecoveryValidator
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
                 || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
-                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
+                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.EmpowerOtherObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null

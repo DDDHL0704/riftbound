@@ -5,6 +5,8 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string MelLegendAbilityId = "LEGEND_REMOVE_EMPOWER_EXHAUST_BATTLEFIELD_UNIT_MINUS_TWO";
+    public const string AmbessaLegendAbilityId = "LEGEND_REMOVE_EMPOWER_PAY_ONE_POWER_EXHAUST_READY_UNIT";
     public const string AkaliLegendAbilityId = "LEGEND_QUICK_EXHAUST_MOVE_DUEL_UNIT";
     public const string ShenLegendAbilityId = "LEGEND_QUICK_EXHAUST_GRANT_BULWARK";
     public const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
@@ -63,6 +65,14 @@ public static class LegendActionAbilityCatalog
         VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "离群之刺" && card.Hero == "阿卡丽"
             && card.CardEffect.Contains("{{迅捷>}}{{横置}}：如果这是你的回合", StringComparison.Ordinal))
             .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> MelSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "流光镜影" && card.Hero == "梅尔"
+            && card.CardEffect.Contains("解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> AmbessaSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "铁血狼母" && card.Hero == "安蓓萨"
+            && card.CardEffect.Contains("解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> RenektonSourceCardNos = new(() =>
         ReviewedResourceLegendSources.GetPhysicalPrints()
             .Where(card => card.CardName == "荒漠屠夫" && card.Hero == "雷克顿"
@@ -71,6 +81,8 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, MelLegendAbilityId, StringComparison.Ordinal)) return MelSourceCardNos.Value;
+        if (string.Equals(abilityId, AmbessaLegendAbilityId, StringComparison.Ordinal)) return AmbessaSourceCardNos.Value;
         if (string.Equals(abilityId, AkaliLegendAbilityId, StringComparison.Ordinal))
             return AkaliSourceCardNos.Value;
         if (string.Equals(abilityId, ShenLegendAbilityId, StringComparison.Ordinal))
