@@ -30,9 +30,12 @@ public sealed class ReviewedScopedPrintUniverseTests
     ];
 
     public static IEnumerable<object[]> AllRows => Sources;
-    public static IEnumerable<object[]> PhysicalRows => Sources.Where(row => (long)row[0] != 40299);
+    public static IEnumerable<object[]> PhysicalRows => Sources.Where(row => (long)row[0] != 40299)
+        .Select(row => new[] { row[0], row[1], row[2], row[3], row[4], row[6], row[7] });
     public static IEnumerable<object[]> ResetRows => PhysicalRows.SelectMany(row =>
         new[] { "HAND", "GRAVEYARD" }.Select(zone => row.Append(zone).ToArray()));
+    public static IEnumerable<object[]> ResourceCostRows => Sources.Select(row => new[] { row[0], row[1], row[4], row[5] });
+    public static IEnumerable<object[]> PlayRows => Sources.Select(row => new[] { row[0], row[1] });
 
     [Theory]
     [MemberData(nameof(AllRows))]
@@ -62,7 +65,7 @@ public sealed class ReviewedScopedPrintUniverseTests
     [Theory]
     [MemberData(nameof(PhysicalRows))]
     public void EveryUnconflictedPrintCreatesItsOwnReviewedPhysicalIdentity(
-        long id, string no, int mana, int might, string color, int power, string tag, bool hero, int disarm)
+        long id, string no, int mana, int might, string color, string tag, bool hero)
     {
         var accepted = Create(no, out var card);
         Keep("create-" + id, new { no, accepted, card });
@@ -74,7 +77,7 @@ public sealed class ReviewedScopedPrintUniverseTests
     [Theory]
     [MemberData(nameof(ResetRows))]
     public void SharedResetRetainsEachUnconflictedPrintAndClearsItsPreviousCharacteristics(
-        long id, string no, int mana, int might, string color, int power, string tag, bool hero, int disarm, string zone)
+        long id, string no, int mana, int might, string color, string tag, bool hero, string zone)
     {
         var before = new CardObjectState("CARD", power: 99, manaCost: 99, cardNo: no,
             ownerId: "P1", controllerId: "P2", tags: [CardObjectTags.UnitCard, "COLOR:red", "TEMPORARY"])
@@ -90,9 +93,9 @@ public sealed class ReviewedScopedPrintUniverseTests
     }
 
     [Theory]
-    [MemberData(nameof(AllRows))]
+    [MemberData(nameof(ResourceCostRows))]
     public void ReviewedPrintedResourceCostSelectsAndDebitsOnlyItsActualDomain(
-        long id, string no, int mana, int might, string color, int power, string tag, bool hero, int disarm)
+        long id, string no, string color, int power)
     {
         var cost = PrintedPowerCostRules.ForCard(no);
         Keep("cost-definition-" + id, new { no, cost });
@@ -115,9 +118,8 @@ public sealed class ReviewedScopedPrintUniverseTests
     }
 
     [Theory]
-    [MemberData(nameof(AllRows))]
-    public async Task SourceAndCostKnowledgeCannotAuthorizeAnIncompleteWholeCard(
-        long id, string no, int mana, int might, string color, int power, string tag, bool hero, int disarm)
+    [MemberData(nameof(PlayRows))]
+    public async Task SourceAndCostKnowledgeCannotAuthorizeAnIncompleteWholeCard(long id, string no)
     {
         // SP4 has no admitted physical form; the unknown placeholder exercises
         // the unsupported-play boundary without selecting either disputed Might.
