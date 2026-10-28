@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -24,6 +25,10 @@ class DatabasePreflightTests(unittest.TestCase):
         self.manifest = P.read(P.MANIFEST)
         self.selected = P.selected_cases(self.manifest)
         self.identities = [x['id'] for x in self.manifest['cases']]
+        self.built = {name: hashlib.sha256(name.encode()).hexdigest() for name in P.MODULES}
+        self.modules = [dict(file=name, sha256=sha, mvid=f'00000000-0000-0000-0000-{i:012x}')
+                        for i, (name, sha) in enumerate(sorted(self.built.items()), 1)]
+        self.write('runtime-build.json', self.built)
         for name, ordinal in self.selected.items():
             data = self.root / 'sql' / name / name / 'original-output.json'
             data.parent.mkdir(parents=True, exist_ok=True)
@@ -32,13 +37,15 @@ class DatabasePreflightTests(unittest.TestCase):
                 status='REAL_POSTGRES_PARTITION_COMPLETE', fixedCommit=self.commit,
                 partitionIndex=ordinal, partitionCount=len(self.identities), manifestSha256=P.digest(P.MANIFEST),
                 orderedDefaultCases=self.identities, expectedCases=[name], completedCases=[name],
-                executions=[dict(id=name, status='PASSED')], runtimeAssemblies=[dict(file='original.dll')],
+                executions=[dict(id=name, status='PASSED')], runtimeAssemblies=self.modules,
                 outputFiles=[dict(path=f'{name}/original-output.json', bytes=data.stat().st_size,
                                   sha256=P.digest(data))]))
         self.write('restart/process-restart-receipt.json', dict(
             status='ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED',
             checkout=dict(actualSha=self.commit, expectedSha=self.commit),
-            originalSqlHistoryEqual=True, runtimeSha256={'actual.dll': '3' * 64},
+            originalSqlHistoryEqual=True, runtimeSha256={'/runtime/Riftbound.Api.dll': '3' * 64,
+                '/runtime/Riftbound.NativeNetworkSmoke.dll': '4' * 64,
+                '/runtime/Riftbound.Engine.dll': self.built['Riftbound.Engine.dll']},
             processes=[dict(phase='restart-prepare', processId=10, normalExitCode=0),
                        dict(phase='restart-recover', processId=20, normalExitCode=0)]))
         for phase in ['restart-prepare', 'restart-recover']:
@@ -116,6 +123,39 @@ class DatabasePreflightTests(unittest.TestCase):
         manifest['cases'][self.selected['combat-assignment']]['sourceType'] = 'DifferentAcceptance'
         with self.assertRaisesRegex(ValueError, 'identity'):
             P.selected_cases(manifest)
+
+    def test_wrong_missing_or_cross_case_modules_cannot_pass_by_rehashing(self):
+        case = self.root / 'sql/recycled-card-boon/partition-receipt.json'
+        original = P.read(case)
+        for changed in ([dict(file='wrong.dll', sha256='0' * 64,
+                              mvid='00000000-0000-0000-0000-000000000000')],
+                        original['runtimeAssemblies'][:-1]):
+            record = copy.deepcopy(original)
+            record['runtimeAssemblies'] = changed
+            case.write_text(json.dumps(record))
+            self.save_receipt()
+            with self.subTest(changed=changed), self.assertRaisesRegex(ValueError, 'module'):
+                self.verify()
+        record = copy.deepcopy(original)
+        record['runtimeAssemblies'][0]['sha256'] = '5' * 64
+        case.write_text(json.dumps(record))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'recorded build'):
+            self.verify()
+        record = copy.deepcopy(original)
+        record['runtimeAssemblies'][0]['mvid'] = '10000000-0000-0000-0000-000000000000'
+        case.write_text(json.dumps(record))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'same module'):
+            self.verify()
+        case.write_text(json.dumps(original))
+        restart = self.root / 'restart/process-restart-receipt.json'
+        proof = P.read(restart)
+        proof['runtimeSha256']['/runtime/Riftbound.Engine.dll'] = '5' * 64
+        restart.write_text(json.dumps(proof))
+        self.save_receipt()
+        with self.assertRaisesRegex(ValueError, 'two-process'):
+            self.verify()
 
 
 if __name__ == '__main__':

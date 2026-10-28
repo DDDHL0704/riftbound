@@ -16,7 +16,7 @@
 
 [backend-l2.yml](../.github/workflows/backend-l2.yml) 对每个 PR 合并结果 SHA、main push SHA 和手动输入执行 L2，不用路径豁免关闭规则测试。定向入口包含 payment/combat/triggers/recovery/recast 相邻域及本次变化的普通测试类；`l2` 实时发现并执行机制规则及两条原完整对局冒烟；[精确L3方法清单](../scripts/l3-rule-acceptance-methods.json)中的18个完整合法开局/冷恢复/全原日志方法留在夜间 `full`，原方法、Theory行、夹具与断言均保留，按源码用途分层，不按耗时自动豁免。未知或新增方法继续在L2执行。未知路径或目录新增同样执行 L2，其完整矩阵在夜间运行，不再强制每包发 A8/A9。
 
-`L2 required` 必须取得 quality、prepare、targeted、全部 rule_suite 片和 db_preflight 的成功结果，并复核对应 SHA、同一次运行及 attempt、程序集、非空计划、实际 TRX 方法覆盖、全部通过与零跳过。数据库预检在独立 PostgreSQL 服务运行原清单中的 recycled-card-boon、combat-assignment、room-seat-journal 和 draven-battle-death，逐一保留原分片收据及输出哈希；另运行原有双玩家 SignalR、真实 API 换进程与 SQL 原历史比较。它以约10分钟为目标，实际耗时以每次 Actions 回执为准。失败、取消、跳过、未执行、缺产物、错版或零测试均失败；不允许 `continue-on-error` 或删语义断言换绿。该切片与重启通过只证明对应输入，不认证 L3 全部 SQL/网络/完整矩阵。
+`L2 required` 必须取得 quality、prepare、targeted、全部 rule_suite 片和 db_preflight 的成功结果，并复核对应 SHA、同一次运行及 attempt、程序集、非空计划、实际 TRX 方法覆盖、全部通过与零跳过。数据库预检在独立 PostgreSQL 服务运行原清单中的 recycled-card-boon、combat-assignment、room-seat-journal 和 draven-battle-death，逐一保留原分片收据及输出哈希；另运行原有双玩家 SignalR、真实 API 换进程与 SQL 原历史比较。预检检查五个实际加载模块的 SHA/MVID 在各 SQL 身份间一致，并对照构建时的 DLL 哈希和 API 进程使用的 Engine 哈希；默认不归档 DLL 字节，因此不能把摘要当成已保存原 DLL。它以约10分钟为目标，实际耗时以每次 Actions 回执为准。失败、取消、跳过、未执行、缺产物、错版或零测试均失败；不允许 `continue-on-error` 或删语义断言换绿。该切片与重启通过只证明对应输入，不认证 L3 全部 SQL/网络/完整矩阵。
 
 各线可自行提 PR/合并所属方法。合并前必须重新取得最新 PR head/base/merge-result SHA，并机械确认该最新合并输入的 `L2 required` 成功；PR 更新、base 前移或 merge SHA 变化即使旧检查绿也不能复用。优先用 main 分支保护要求该检查、要求分支跟上 main，不设置所有 PR 必须人工批准；若无管理权限，保留同样的逐次机械核验。合并后 main 自身也执行 L2，失败应立即修复，不绕过红灯继续相关交付。
 

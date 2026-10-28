@@ -5,8 +5,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import time
+import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json'
@@ -16,6 +18,8 @@ CASES = {
     'room-seat-journal': 'RoomSeatJournalSqlAcceptance',
     'draven-battle-death': 'DravenBattleDeathSqlAcceptance',
 }
+MODULES = {'Riftbound.PostgresAcceptance.dll', 'Riftbound.Engine.dll', 'Riftbound.Contracts.dll',
+           'Riftbound.CardCatalog.dll', 'Riftbound.Persistence.dll'}
 
 
 def digest(path):
@@ -51,6 +55,30 @@ def selected_cases(manifest):
     return selected
 
 
+def valid_sha(value):
+    return isinstance(value, str) and re.fullmatch(r'[0-9a-f]{64}', value) is not None and value != '0' * 64
+
+
+def runtime_modules(items, built):
+    if not isinstance(items, list) or len(items) != len(MODULES):
+        raise ValueError('The exact SQL runtime module set is required.')
+    modules = {}
+    for item in items:
+        name, sha, mvid = item.get('file'), item.get('sha256'), item.get('mvid')
+        if name not in MODULES or name in modules or not valid_sha(sha) or sha != built.get(name):
+            raise ValueError('SQL runtime module differs from the recorded build.')
+        try:
+            parsed = uuid.UUID(mvid)
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError('SQL runtime module MVID is missing or invalid.') from None
+        if parsed.int == 0:
+            raise ValueError('SQL runtime module MVID must identify a real module.')
+        modules[name] = (sha, str(parsed))
+    if set(modules) != MODULES:
+        raise ValueError('The exact SQL runtime module set is required.')
+    return modules
+
+
 def verify(folder, commit, quality, manifest_path=MANIFEST):
     receipt = read(folder / 'preflight-receipt.json')
     checkout = read(folder / 'checkout.json')
@@ -74,6 +102,10 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
     stages = receipt.get('stages', {})
     if set(stages) != {'build', 'restart', *CASES} or any(x.get('exitCode') != 0 for x in stages.values()):
         raise ValueError('Every real database preflight stage must succeed.')
+    built = read(folder / 'runtime-build.json')
+    if set(built) != MODULES or any(not valid_sha(sha) for sha in built.values()):
+        raise ValueError('The exact built SQL module hashes are required.')
+    original_modules = None
     for identity, index in selected.items():
         case_dir = folder / 'sql' / identity
         sql = read(case_dir / 'partition-receipt.json')
@@ -84,9 +116,12 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
                 or sql.get('expectedCases') != [identity] or sql.get('completedCases') != [identity]
                 or len(sql.get('executions', [])) != 1
                 or sql['executions'][0].get('id') != identity
-                or sql['executions'][0].get('status') != 'PASSED'
-                or not sql.get('runtimeAssemblies') or not sql.get('outputFiles')):
+                or sql['executions'][0].get('status') != 'PASSED' or not sql.get('outputFiles')):
             raise ValueError('Original SQL partition receipt is incomplete: ' + identity)
+        modules = runtime_modules(sql.get('runtimeAssemblies'), built)
+        if original_modules is not None and modules != original_modules:
+            raise ValueError('SQL identities did not load the same module hashes and MVIDs.')
+        original_modules = modules
         for item in sql['outputFiles']:
             path = case_dir / item['path']
             if (not path.resolve().is_relative_to(case_dir.resolve()) or not path.is_file()
@@ -95,10 +130,15 @@ def verify(folder, commit, quality, manifest_path=MANIFEST):
     restart = folder / 'restart'
     proof = read(restart / 'process-restart-receipt.json')
     processes = proof.get('processes', [])
+    restart_modules = {Path(path).name: sha for path, sha in proof.get('runtimeSha256', {}).items()}
     if (proof.get('status') != 'ACTUAL_SQL_SIGNALR_PROCESS_RESTART_PASSED'
             or proof.get('checkout', {}).get('actualSha') != commit
             or proof.get('checkout', {}).get('expectedSha') != commit
-            or proof.get('originalSqlHistoryEqual') is not True or not proof.get('runtimeSha256')
+            or proof.get('originalSqlHistoryEqual') is not True
+            or set(restart_modules) != {'Riftbound.Api.dll', 'Riftbound.NativeNetworkSmoke.dll', 'Riftbound.Engine.dll'}
+            or len(proof.get('runtimeSha256', {})) != 3
+            or any(not valid_sha(sha) for sha in restart_modules.values())
+            or restart_modules['Riftbound.Engine.dll'] != built['Riftbound.Engine.dll']
             or len(processes) != 2 or processes[0].get('phase') != 'restart-prepare'
             or processes[1].get('phase') != 'restart-recover'
             or not all(p.get('processId') and p.get('normalExitCode') in (0, -2, 130) for p in processes)
@@ -137,6 +177,15 @@ def run(commit, output):
     execute('restart', ['python3', 'scripts/run-process-restart-ci.py', '--expected', commit,
                         '--output', str(output / 'restart')])
     execute('build', ['dotnet', 'build', 'tests/Riftbound.PostgresAcceptance', '-m:1', '--nologo', '-v:q'])
+    if stages['build']['exitCode'] == 0:
+        try:
+            binary_dir = ROOT / 'tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0'
+            built = {name: digest(binary_dir / name) for name in sorted(MODULES)}
+            with (output / 'runtime-build.json').open('x') as stream:
+                json.dump(built, stream, indent=2)
+                stream.write('\n')
+        except OSError as error:
+            stages['build'].update(exitCode=-1, error=str(error))
     if stages['build']['exitCode'] == 0:
         for identity, index in selected.items():
             case_env = dict(env, RIFTBOUND_POSTGRES_EVIDENCE=str(output / 'sql' / identity))
