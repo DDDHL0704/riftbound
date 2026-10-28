@@ -54,6 +54,11 @@ public sealed class RuneCallReplacementRecoveryTests
         var initial = AttachedRuleTextTests.Position(graveCount: 0);
         var cards = initial.CardObjects.ToDictionary();
         var positions = initial.ObjectLocations.ToDictionary();
+        foreach (var id in initial.PlayerZones["P1"].RuneDeck)
+        {
+            cards.Remove(id);
+            positions.Remove(id);
+        }
         cards["HOST"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", Wyvern, "P1");
         cards["SPELL"] = OfficialGarenConquestBattlefieldCountTests.Printed("SPELL", Mobilize, "P1");
         positions["SPELL"] = new("P1", "HAND");
