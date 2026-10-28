@@ -1,5 +1,0 @@
-{
-  "originalRunnerSha256": "7540047eebbdd18eacedd5fa75e6363ec4dd5cb03144c378bb6009544592a4c6",
-  "currentRunnerSha256": "472391e54ea37a3241f0ad2a92452d8edc24c1facb95bd5d0c68547836542e0e",
-  "changes": "Separate output, own explicit current-case reader runtime/dependency graph, all original raw frames and seven-table read-only invariance retained; no gameplay stage repeated."
-}

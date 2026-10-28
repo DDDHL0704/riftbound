@@ -1,9 +1,0 @@
-{
-  "recordedAtUtc": "2026-10-19T06:59:18.076806+00:00",
-  "originalTrx": "var/qa/paka-move-reveal-20261019/native-observation-window-first/focus/results.trx",
-  "originalTrxSha256": "e57e75bcb975d1619aa13c6f859e1ce351f9326f10c0e523e9fe3a4ac28722b0",
-  "actualResult": "9 basic cases passed;4 new journal cases failed at first command: starts at tick1 but previous journal state tick0.",
-  "classification": "New test fixture was derived after an accepted play, but the journal did not include that prefix. Existing journal validation correctly rejected it. No production recovery failure inferred.",
-  "correction": "Use a separately constructed controlled tick0 board before the journal starts. The actual-play basic cases remain unchanged. No accepted history, seed, journal validator, production runtime or database row is rebased or migrated.",
-  "ordinaryBlankOpeningEvidence": "Still pending as a separate gate."
-}

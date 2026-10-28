@@ -20,7 +20,7 @@
       "note": "待命关键词使用正面朝下对象；P4 当前以基地对象承载最小隐藏信息状态，公开事件不暴露卡号、战力、标签或费用。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b / 811.1.c",
       "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }

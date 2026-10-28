@@ -1,9 +1,0 @@
-{
-  "status": "PYTHON_VERIFICATION_TOOLS_PASS",
-  "tests": 55,
-  "seconds": 3.504,
-  "failed": 0,
-  "logPath": "var/qa/cn16-runtime-adoption-20261016/python-tools.log",
-  "logSha256": "350f37b63a3eab1c2550b5fec896d54e6380810d610468ef4d7e4fd307b8ae85",
-  "noNewMirroredImplementationTests": true
-}

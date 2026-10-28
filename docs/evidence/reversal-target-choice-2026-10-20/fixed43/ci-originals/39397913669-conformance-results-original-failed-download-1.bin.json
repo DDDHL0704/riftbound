@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T12:48:49.901057+00:00",
-  "exitCode": 1,
-  "rawBytes": 0,
-  "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "originalFailedBytesGzip": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-conformance-results-original-failed-download-1.bin.gz",
-  "stderr": "Get \"https://productionresultssa8.blob.core.windows.net/actions-results/0fd9c939-274b-852e-b358-7bd06fcb33e2/workflow-job-run-2f78e71e-538e-564b-9361-43d692d440a9/artifacts/f93a4eef81e7aa98b34d9471d36f047d9aa8c9154f27c1bf84d2dab146f9f535.zip?rscd=attachment%3B+filename%3D%22conformance-results.zip%22&rsct=application%2Fzip&se=2026-10-20T12%3A58%3A46Z&sig=AJ6ECgOdtJHRERqYbj0cVD9vx9pKcz2nJjlipobyBCo%3D&ske=2026-10-20T16%3A11%3A25Z&skoid=ca7593d4-ee42-46cd-af88-8b886a2f84eb&sks=b&skt=2026-10-20T12%3A11%3A25Z&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skv=2025-11-05&sp=r&spr=https&sr=b&st=2026-10-20T12%3A48%3A41Z&sv=2025-11-05\": EOF\n",
-  "notAValidResultArtifact": true
-}

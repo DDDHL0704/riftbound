@@ -1,6 +1,0 @@
-{
-  "count": 2024,
-  "manifestSha256": "e536270ec0cce5cdd7330a13eec7d13da9a03490e01c71633b2cfa247191ec6d",
-  "localManifest": "var/qa/standby-fullgame-20261013/frozen-inputs.json",
-  "scope": "frozen src/tests/data inputs before coherent check"
-}

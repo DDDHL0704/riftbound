@@ -1,1 +1,0 @@
-{"cmdType":"ASSIGN_EFFECT_DAMAGE","stackItemId":"ordered-attack-damage-4-HOST-PRINTED:HOST:0","assignments":[{"sourceObjectId":"HOST","targetObjectId":"ENEMY1","damage":2},{"sourceObjectId":"HOST","targetObjectId":"ENEMY2","damage":2},{"sourceObjectId":"HOST","targetObjectId":"ENEMY3","damage":1}],"promptId":"HOLD-TEST:7:P1:ASSIGN_EFFECT_DAMAGE,SURRENDER","snapshotTick":7}

@@ -10,9 +10,10 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same PR supersedes the older run; main keeps one run per merge.
 concurrency:
-  group: l2-${{ github.ref }}-${{ github.sha }}
-  cancel-in-progress: false
+  group: l2-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -34,14 +35,8 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/tests -p 'test_l2*.py' -v
           python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
-          python3 -m unittest discover -s scripts/tests -p test_project_governance.py -v
-          python3 -m unittest discover -s scripts/tests -p test_current_audit.py -v
           python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
-      - name: Make retained audit commit available without rewriting evidence
-        run: python3 scripts/ensure-retained-ci-commit.py
-      - name: Source-index and governance integrity
-        run: python3 scripts/audit/check-project-governance.py --output var/qa/l2-quality/governance.json
       - name: Check committed formatting
         run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

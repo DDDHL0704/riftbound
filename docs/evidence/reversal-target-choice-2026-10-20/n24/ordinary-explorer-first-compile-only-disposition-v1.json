@@ -1,7 +1,0 @@
-{
-  "observedAtUtc": "2026-10-20T10:55:54.703895+00:00",
-  "status": "COMPILE_ONLY_REJECTED_BEFORE_ANY_MATCH_OR_DATABASE_EXECUTION",
-  "error": "Helper assumed PendingMulliganPlayerIds; actual public API is ResolutionResult.OpeningMulliganPlayerId and MatchState.Phase.",
-  "originalSourceSha256": "91529570fa058d87219dc233968128e32bd131e400c5bb103e8644320070e460",
-  "correctedWithoutProductionChanges": true
-}

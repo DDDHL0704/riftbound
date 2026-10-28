@@ -1,7 +1,0 @@
-{
-  "status": "EXACT_INDEX_PARITY",
-  "trackedTestedInputs": 2070,
-  "ignoredLocalDependencies": 187,
-  "totalFrozenInputs": 2257,
-  "missingOrChanged": []
-}

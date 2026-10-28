@@ -1,6 +1,0 @@
-{
-  "atUtc": "2026-10-20T06:35:35.739688+00:00",
-  "purpose": "Continue the existing focus if desktop locks; temporary idle system-sleep assertion only.",
-  "screenLockAndPersistentPowerConfigurationNotChanged": true,
-  "focusAlreadyFinishedBeforeBinding": true
-}

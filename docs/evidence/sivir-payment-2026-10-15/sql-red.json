@@ -1,7 +1,0 @@
-{
-  "status": "REAL_SQL_SHARED_TRIGGER_WARD_EVENT_DEFECT",
-  "recordedAtUtc": "2026-10-14T20:03:58.912684+00:00",
-  "error": "accepted command sivir-payment-sql-3 advances tick 3->4 without events",
-  "cause": "ResolveTriggerTargetConfirmation opens an actual Ward payment and binds targets, but returns an empty event list. The existing independent SQL recovery validator correctly rejects the history.",
-  "fixScope": "Emit PAYMENT_WINDOW_OPENED at this shared transition; keep independent recovery requirements."
-}

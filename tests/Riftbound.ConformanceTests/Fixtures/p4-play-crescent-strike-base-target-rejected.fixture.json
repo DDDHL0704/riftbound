@@ -20,7 +20,7 @@
       "note": "打出法术需要合法目标和足够费用，并作为结算链项目结算；伤害在结算时处理。基地单位不满足《新月打击》战场敌方单位目标契约，应在支付费用、入栈和伤害结算前拒绝。"
     },
     {
-      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "source": "docs/legacy/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
       "locator": "CN current exact OGN268 OGN250 UNL072",
       "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived."
     }

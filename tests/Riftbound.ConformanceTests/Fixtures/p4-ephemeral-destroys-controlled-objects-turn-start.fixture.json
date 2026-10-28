@@ -20,7 +20,7 @@
       "note": "开始阶段包含开始阶段开始、召出符文和抽牌等流程；瞬息在控制者的开始阶段开始时、结算得分之前摧毁自身。"
     },
     {
-      "source": "docs/evidence/ephemeral-start-2026-10-11/sources.json",
+      "source": "docs/legacy/evidence/ephemeral-start-2026-10-11/sources.json",
       "locator": "DOC-04 816.1-816.3",
       "note": "瞬息是触发技能；两项技能由玩家排序并分别经双方响应后摧毁，最后继续召符文和通常抽牌。"
     }

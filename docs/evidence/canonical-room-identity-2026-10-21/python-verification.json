@@ -1,7 +1,0 @@
-{
-  "atUtc": "2026-10-20T22:40:04.195517+00:00",
-  "status": "PASS_ALL73_ORIGINAL_PYTHON_VERIFICATION_TESTS",
-  "command": "python3 -m unittest discover -s scripts/tests -v",
-  "originalLogSha256": "910909fa633663a07d901e30640f1e30e5bbe573fa5b610c975cdf719c85f149",
-  "sourceChangesMadeForThisResult": false
-}

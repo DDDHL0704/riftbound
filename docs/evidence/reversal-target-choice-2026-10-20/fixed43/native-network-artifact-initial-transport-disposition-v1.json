@@ -1,7 +1,0 @@
-{
-  "atUtc": "2026-10-20T09:23:23.506401+00:00",
-  "attempt1": "GitHub artifact API returned EOF before any byte. No CI or product failure inferred.",
-  "originalZeroByteOutputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "originalZeroByteOutputRetained": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-native-network-results.zip",
-  "sameArtifactRetryOnly": true
-}

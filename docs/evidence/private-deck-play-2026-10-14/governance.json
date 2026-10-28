@@ -1,9 +1,0 @@
-{
-  "status": "GOVERNANCE_REFERENCES_ONLY_PASS",
-  "scopedReviews": 79,
-  "semanticCoverageCertified": false,
-  "checkerHistoricalSnapshotDate": "2026-10-11",
-  "rawReceiptSha256": "6116afa6b187015336dbd2491cda1caca294fa21e2cb5d9336b9c766a4d3427f",
-  "errors": [],
-  "laterCardUniverse": "1738 identities retained; this checker is historical1711 reference integrity only"
-}

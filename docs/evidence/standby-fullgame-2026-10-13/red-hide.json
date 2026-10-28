@@ -1,7 +1,0 @@
-{
-  "commit": "32b7b5819a4e481b97203d4adbda1ed2302e419f",
-  "status": "REPRODUCED_FAILURE",
-  "testName": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
-  "message": "System.InvalidOperationException : B0 standby driver could not find a deterministic official-deck hide/reveal score path. 424242: B0 standby driver could not find HIDE_CARD for P2. | 7: B0 standby driver could not find HIDE_CARD for P1. | 11: B0 standby driver could not find HIDE_CARD for P2. | 17: B0 standby driver could not find HIDE_CARD for P1. | 23: B0 standby driver could not find HIDE_CARD for P1. | 31: B0 standby driver could not find HIDE_CARD for P1. | 42: B0 standby driver could not find HIDE_CARD for P2. | 101: B0 standby driver could not find HIDE_CARD for P1. | 404: B0 standby driver could not find HIDE_CARD for P2. | 20260624: B0 standby driver could not find HIDE_CARD for P2.",
-  "trxSha256": "b5026acdeafb3ec8145ce29bd3884e7382f6c753e7d77532e4c54ac58ef2f719"
-}

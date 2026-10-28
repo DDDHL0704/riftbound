@@ -1,9 +1,0 @@
-{
-  "status": "SCOPED_FOCUS_PASS",
-  "cases": 269,
-  "methods": 132,
-  "seconds": 16.79,
-  "assemblySha256": "aca234a33574e1716ecc1bfa7093dcab9211e4e79561d24819cfb59474467808",
-  "profile": "focus",
-  "fullExecutionCertified": false
-}

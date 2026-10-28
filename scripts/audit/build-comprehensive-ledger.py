@@ -18,7 +18,7 @@ parser.add_argument('--date', required=True)
 args = parser.parse_args()
 DAY = date.fromisoformat(args.date).isoformat()
 source = ROOT / 'data/official/upstream' / DAY
-output = ROOT / 'docs/evidence' / f'rules-reaudit-{DAY}'
+output = ROOT / 'docs/legacy/evidence' / f'rules-reaudit-{DAY}'
 output.mkdir(parents=True, exist_ok=True)
 
 def read(path):

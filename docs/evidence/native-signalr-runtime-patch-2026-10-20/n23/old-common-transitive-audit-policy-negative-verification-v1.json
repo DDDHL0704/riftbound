@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T07:12:50.984376+00:00",
-  "status": "PASS_REAL_RESTORE_OF_OLD_NATIVE_COMMON8_FAILS_ON_EXACT_HIGH_ADVISORY_UNDER_NEW_REPOSITORY_TRANSITIVE_AUDIT",
-  "exitCode": 1,
-  "logSha256": "c0c67684c49d45484f04c49b15ff2851abe69460ac027e3f30c9482960e13c49",
-  "actualOldNativeNet8DirectPackageRestoredAgainstCurrentRepositoryPolicy": true,
-  "noNuGetAuditOrWarningSuppression": true,
-  "noProductionOrGameInputsMutated": true
-}

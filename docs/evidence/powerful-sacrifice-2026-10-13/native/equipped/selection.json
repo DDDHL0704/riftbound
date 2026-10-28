@@ -1,8 +1,0 @@
-{
-  "sourceObjectId": "SPELL",
-  "cardNo": "UNL-173/219",
-  "targetObjectIds": [],
-  "optionalCosts": [
-    "DESTROY_FRIENDLY_POWERFUL_UNIT:HOST"
-  ]
-}

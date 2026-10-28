@@ -1,9 +1,0 @@
-{
-  "recordedAt": "2026-10-19T17:22:50.043717+00:00",
-  "status": "BUILD_FAILED_BEFORE_TEST_EXECUTION",
-  "reason": "A context-free patch appended the using directive after the type declaration. Move it to the existing import block.",
-  "source": "var/qa/hwei-move-discard-types-20261020/recovery-v6-before-import-correction.cs.txt",
-  "sha256": "7fcbe94cfa231a8b366043d6cb0a8b49bc87f891453545b2bb7724b7515d1194",
-  "log": "focus-v6/build.log",
-  "testMethodsOrTheoryRowsRemoved": false
-}

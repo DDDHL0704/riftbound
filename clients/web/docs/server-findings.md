@@ -225,8 +225,8 @@
 ## 五、规则来源
 
 - **获取时间**：2026-10-23 09:05 UTC。
-- **获取方式**：通过中国区官网的规则列表接口 `https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList`（`pageNum=1, pageSize=1000`）。接口共返回 14 份文档，和项目 `docs/evidence/cn-effective-2026-10-16/rules-api-receipt.json` 记录的 14 份相同，没有新增、移除或改动。
-- **版本比对**：下面全部文件的 SHA-256 都与项目 10-16 快照（`docs/evidence/cn-effective-2026-10-16/source-manifest.json`、`cn-source-receipts.json`）记录的哈希一致。也就是说，截至获取时间，官网的中文规则自 10-16 起没有变化。
+- **获取方式**：通过中国区官网的规则列表接口 `https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList`（`pageNum=1, pageSize=1000`）。接口共返回 14 份文档，和项目 `docs/legacy/evidence/cn-effective-2026-10-16/rules-api-receipt.json` 记录的 14 份相同，没有新增、移除或改动。
+- **版本比对**：下面全部文件的 SHA-256 都与项目 10-16 快照（`docs/legacy/evidence/cn-effective-2026-10-16/source-manifest.json`、`cn-source-receipts.json`）记录的哈希一致。也就是说，截至获取时间，官网的中文规则自 10-16 起没有变化。
 - **语言和地区**：zh-CN，中国区。
 - **生效日期**：这里只记录官网标注的"更新日期"。各文档的精确生效时刻，以项目规则审计文档为准。
 

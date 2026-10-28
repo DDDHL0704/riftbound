@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-19T20:54:25.919276+00:00",
-  "runnerPid": 40573,
-  "status": "INCOMPLETE_NOT_ACCEPTANCE",
-  "reason": "One new opponent-damage lifecycle case already failed. Preserve completed ordinary leading-payment and delayed-destruction original frames; obtain that focused failure before continuing this long matrix. Code inspection also found new no-op damage observer rebuilding all snapshots/prompts even when there is no instruction; repair before complete regression.",
-  "allSavedOriginalFramesRetained": true,
-  "notTheBatchCheck": true
-}

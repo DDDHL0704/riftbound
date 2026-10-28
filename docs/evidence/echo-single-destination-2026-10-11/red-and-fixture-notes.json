@@ -1,8 +1,0 @@
-{
-  "red": "All four initial cases failed: one valid independent destination was ignored, three invalid later destinations were accepted because mapper ignored the field.",
-  "newFixtureCorrections": [
-    "Response invalidation still queues both unconditional embedded triggers, requiring ordering before target confirmation.",
-    "Commanded-movement fixture needed to create its second friendly anchor before placing it."
-  ],
-  "legacyTests": "No existing tests or assertions changed."
-}

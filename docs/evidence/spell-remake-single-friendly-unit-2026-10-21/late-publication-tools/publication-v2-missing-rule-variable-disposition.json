@@ -1,7 +1,0 @@
-{
-  "status": "PREPARATION_NAME_ERROR_BEFORE_ROOT_MANIFEST_OR_REVIEW_MUTATION",
-  "actualError": "NameError: rule was not defined in the resumed publisher prefix.",
-  "correction": "Bind the exact existing canonical sourceManifest.exactClauseRecord; preserve the prior failure record and partial canonical originals.",
-  "rootManifestAndAll149ReviewsByteExactPrior": true,
-  "sqlOrRuleTestsOrCiRerun": false
-}

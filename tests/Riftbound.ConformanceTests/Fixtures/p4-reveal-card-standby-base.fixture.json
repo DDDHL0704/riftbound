@@ -20,7 +20,7 @@
       "note": "待命关键词使用正面朝下对象；P4.71 只验证从隐藏对象到公开对象的状态转换，不创建结算链项目。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b/c/d and current printed play ability",
       "note": "Explicit preparation executes actual commands; finalTick counts fixture commands after preparation. Original fixture identity and card identity retained; obsolete base flip and fake pending source removed."
     }

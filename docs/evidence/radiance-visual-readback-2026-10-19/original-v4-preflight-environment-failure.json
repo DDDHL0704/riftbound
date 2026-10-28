@@ -1,8 +1,0 @@
-{
-  "observedAtUtc": "2026-10-19T12:03:52.886310+00:00",
-  "status": "FAILED_BEFORE_ANY_NETWORK_OR_OUTPUT_MANIFEST",
-  "scriptSha256": "bc393f98e081d589a901a20e79c46ad66d8fbdf61dc365493eb9814dd9569677",
-  "error": "ModuleNotFoundError: No module named PIL",
-  "requestedImagesNotAttempted": true,
-  "correction": "v5 uses standard-library image signature check; actual decoding remains pending visual inspection. Explicit urllib.parse import also corrected before requests."
-}

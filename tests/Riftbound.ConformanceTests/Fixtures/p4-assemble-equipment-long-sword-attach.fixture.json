@@ -20,7 +20,7 @@
       "note": "装配会让装备贴附到单位上；P4.388 仅用当前 rune pool 的 1 power 表达长剑的红色装配费用，并写入 attachedToObjectId。灵便打出自动贴附、通用装配费用、owner/controller、装备随动和未激活文本模型仍 deferred。"
     },
     {
-      "source": "docs/evidence/equip-chain-2026-10-11/sources.json",
+      "source": "docs/legacy/evidence/equip-chain-2026-10-11/sources.json",
       "locator": "DOC04 377.3 / 818.1",
       "note": "Activation and payment precede both players response passes; original attachment/cost/identity assertions remain after actual stack resolution."
     }

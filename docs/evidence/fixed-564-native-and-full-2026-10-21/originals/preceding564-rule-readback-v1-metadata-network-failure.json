@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-20T17:50:28.444529+00:00",
-  "stage": "gh_artifact_index_before_any_download",
-  "actualExitCode": 1,
-  "stderr": "Get \"https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/artifacts?per_page=100\": EOF",
-  "noArtifactCreatedOrTestResultInferred": true,
-  "originalScriptAndCompletedRuleStatusReceiptRetained": true
-}

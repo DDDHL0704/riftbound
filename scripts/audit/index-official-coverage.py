@@ -19,7 +19,7 @@ args = parser.parse_args()
 DATE = date.fromisoformat(args.date).isoformat()
 source = ROOT / "data/official/upstream" / DATE
 manifest = json.loads((source / "rules-manifest.json").read_text())
-destination = ROOT / "docs/evidence" / f"rules-reaudit-{DATE}"
+destination = ROOT / "docs/legacy/evidence" / f"rules-reaudit-{DATE}"
 destination.mkdir(parents=True, exist_ok=True)
 documents, records = [], []
 clause_start = re.compile(r"^\s*(\d{3}(?:\.(?:\d+|[a-z]))*)\.\s+")
