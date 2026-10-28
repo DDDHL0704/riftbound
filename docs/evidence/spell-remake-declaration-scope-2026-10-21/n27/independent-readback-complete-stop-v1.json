@@ -1,8 +1,0 @@
-{
-  "independentReadbackPassed": true,
-  "atUtc": "2026-10-20T17:18:43.448813+00:00",
-  "receipt": "independent-current-eight-and-clair-originals-result-v2.json",
-  "receiptSha256": "fd112a267ace4df447051d5212374d3521dac10820584b640e2cda7bd3b10d24",
-  "readerActualExitCode": 0,
-  "firstReaderFailureAndActualPriorPaymentVersusEditCorrectionRetained": true
-}

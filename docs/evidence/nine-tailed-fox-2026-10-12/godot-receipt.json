@@ -1,9 +1,0 @@
-{
-  "recordedAtUtc": "2026-10-12T11:56:40.450430+00:00",
-  "version": "4.7.2.stable.mono.official.ed1daf0bf",
-  "exitCode": 0,
-  "stdout": "ENEMY_ATTACK_MIGHT_PASS: 6 production movement and response commands",
-  "commands": 6,
-  "mode": "headless",
-  "visiblePairedAcceptance": false
-}

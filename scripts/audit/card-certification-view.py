@@ -102,7 +102,7 @@ def build(root, ledger):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', type=Path, default=ROOT)
-    p.add_argument('--ledger', type=Path, default=Path('docs/audit/card-certification-ledger.json'))
+    p.add_argument('--ledger', type=Path, default=Path('docs/legacy/audit/card-certification-ledger.json'))
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     result = build(a.root, json.loads((a.root/a.ledger).read_text()))

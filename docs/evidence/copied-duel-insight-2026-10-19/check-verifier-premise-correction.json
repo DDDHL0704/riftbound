@@ -1,7 +1,0 @@
-{
-  "recordedAtUtc": "2026-10-18T22:16:02.594570+00:00",
-  "originalReaderSourceSha256": "ecdc7227a71af145e12237a4e2ce52e981ea356ee50d72a09f3a2818f614ebe3",
-  "originalReaderSourceRetained": "var/qa/copied-duel-insight-20261019/verify-check-diagnostic-failures-v1-original-source.py.gz",
-  "observedError": "AssertionError at line50 assumed all4 TRX errors contain complete diagnostic strings. Actual1 is complete and3 are xUnit truncated collection errors.",
-  "correction": "Read exact raw message limits; record1directpre-rejection and3truncated requiring postrepair unchanged-body focus. No functional test rerun, original TRX/log/source untouched, no fake full errors."
-}

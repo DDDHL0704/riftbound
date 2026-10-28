@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-20T14:39:23.803747+00:00",
-  "status": "FAILED_V2_SCRIPT_PARSE_DESPITE_ACTUAL_EXIT_ZERO",
-  "originalReceiptAndLogUnmodified": true,
-  "actualError": "Cannot infer owner_control_ok type from Variant button property",
-  "gameNetworkOrDatabaseNotExecuted": true,
-  "subsequentChecksRequireExitZeroAndNoScriptOrNativeError": true
-}

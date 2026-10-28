@@ -10,7 +10,7 @@
   "seed": 2603302145,
   "rulesEvidence": [
     {
-      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "source": "docs/legacy/evidence/rules-reaudit-2026-10-11/official-corpus.json",
       "locator": "DOC-01-P044-B022/B023; CN core effective 2026-10-16; exact API31581 OGS·002/024 read back 2026-10-21T05:26:27Z",
       "note": "当前限定分支选择一处真实战场，受影响单位不作为目标。原旧版本标签、夹具、种子和完整断言已另存原件；下方旧手工来源只保留历史依据，不作当前整卡认证。"
     },

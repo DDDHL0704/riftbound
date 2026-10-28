@@ -1,9 +1,0 @@
-{
-  "status": "ONLY_OWN_DISPOSABLE_FIXTURE_POSTGRES_STOPPED_DATA_RETAINED",
-  "atUtc": "2026-10-15T10:40:32.304149+00:00",
-  "port": 55442,
-  "cluster": "/Users/dinghaolin/MyProjects/riftbound/var/qa/combat-event-replay-20261015/postgres/cluster",
-  "remainingOwnFixtureMatches": 0,
-  "originalFailed9eCluster55441Untouched": true,
-  "allEarlierClustersUntouched": true
-}

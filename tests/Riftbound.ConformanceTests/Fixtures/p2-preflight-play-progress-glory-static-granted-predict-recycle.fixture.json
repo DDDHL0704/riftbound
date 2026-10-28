@@ -310,7 +310,7 @@
   },
   "ruleCorrections": [
     {
-      "source": "docs/evidence/nocturne-observation-2026-10-14/source-current.json",
+      "source": "docs/legacy/evidence/nocturne-observation-2026-10-14/source-current.json",
       "locator": "CN current core817/320/337;Nocturne static observation",
       "note": "Predict looks and chooses on resolution, after a normal response. Preserve original selected-card, cost, final-zone and keyword expectations; add a real CHOOSE_CARDS command without rewriting accepted history."
     }

@@ -1,7 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:41:56.152283+00:00",
-  "originalV2SourceSha256": "babf22da2d64626eec19243ead0337cb7c8c71ac6684c893bee9afaf5e28c9d6",
-  "normalScoreReaderSourceSha256": "f65407a08af36d90c3f442a48667f144d61d2b691f33eaab4d8a73f2ef7ea321",
-  "scope": "Extends immutable 87-command payment checkpoint with exact 18 observed native commands and ordinary score victory; all typed history/null and complete replay assertions retained. References only frozen candidate DLLs; root active check inputs not built or edited.",
-  "rootProjectReferences": false
-}

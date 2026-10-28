@@ -1,5 +1,0 @@
-{
-  "status": "FAILED_BEFORE_CAPTURE",
-  "cause": "Probe expected six new inputs; actual complete list is five. Two fixture copies succeeded; no source snapshot was created. Subsequent publish reported a missing project.",
-  "newInputCount": 5
-}

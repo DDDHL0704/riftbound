@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T02:01:31.596338+00:00",
-  "originalFirstReaderExit": 0,
-  "originalFirstFourCommandsTenEventsFullReplayPassed": true,
-  "originalOuterPrettyPrinterThenRaisedKeyErrorPhaseBecausePromptHasNoPhaseProperty": true,
-  "originalFrameFile": "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/05-before-first-mulligan-original-frame.json.gz",
-  "originalFrameSha256": "6e974ea4bcef99a47995347fd1264a847daa45b44216a55189035db3316615d5",
-  "correction": "Only metadata display now reads documented candidate actions, no second gameplay attempt or original frame rewrite."
-}

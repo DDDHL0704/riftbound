@@ -20,7 +20,7 @@
       "note": "对象拥有者/控制者和装备贴附关系是独立规则面；本 fixture 只锁定同一控制者基地中长剑贴附友方单位时，owner/controller 不因 attachedToObjectId 写入而丢失。"
     },
     {
-      "source": "docs/evidence/equip-chain-2026-10-11/sources.json",
+      "source": "docs/legacy/evidence/equip-chain-2026-10-11/sources.json",
       "locator": "DOC04 377.3 / 818.1",
       "note": "Activation and payment precede both players response passes; original attachment/cost/identity assertions remain after actual stack resolution."
     }

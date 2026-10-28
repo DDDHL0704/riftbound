@@ -1,9 +1,0 @@
-{
-  "repo": "actions/download-artifact",
-  "tag": "v7",
-  "actualResolvedCommit": "37930b1c2abaa49bbe596cd826c3c89aef350131",
-  "primaryApi": "https://api.github.com/repos/actions/download-artifact/contents/action.yml?ref=37930b1c2abaa49bbe596cd826c3c89aef350131",
-  "actionYamlSha256": "834f2e0884ebc4b61150ecb61b3538786ee2f9e9910740a74463246268db3bd2",
-  "patternAndMergeMultipleInputsVerified": true,
-  "newerMainReadmeUsesV8NotSilentlyUsedAsV7Code": true
-}

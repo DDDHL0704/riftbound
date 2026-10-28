@@ -14,7 +14,7 @@ public sealed class EmpowerParserTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(root.FullName,
-            "docs/evidence/empower-2026-10-13/source-readback.json")));
+            "docs/legacy/evidence/empower-2026-10-13/source-readback.json")));
         var records = json.RootElement.GetProperty("empowerRecords").EnumerateArray().ToArray();
         Assert.Equal(84, records.Length);
         var keywordRecords = records.Where(r => Regex.IsMatch(r.GetProperty("record").GetProperty("cardEffect").GetString()!, @"\{\{强化[^}]*\}\}")).ToArray();

@@ -25,7 +25,7 @@
       "note": "基地和战场均为公开区域；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；本回合内效果和伤害属于场上对象状态。"
     },
     {
-      "source": "docs/evidence/banish-owner-play-2026-10-18/source-manifest.json",
+      "source": "docs/legacy/evidence/banish-owner-play-2026-10-18/source-manifest.json",
       "locator": "CN UNL-184/219; core effective2026-10-16,355-359 and356.1.b.1-3",
       "note": "2026-10-18: original seed and first three commands retained; add actual owner PLAY_CARD, printed5 Might identity and two real battlefield identities. Previous coarse model/version labels above are historical evidence only."
     }

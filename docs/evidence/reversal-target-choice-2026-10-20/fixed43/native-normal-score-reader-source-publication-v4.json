@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T10:21:27.292840+00:00",
-  "originalSourceSha256": "f65407a08af36d90c3f442a48667f144d61d2b691f33eaab4d8a73f2ef7ea321",
-  "currentSourceSha256": "5f2e2c4241bcaadd794836055b6a11c254a3fba78e6813b978f0ade4b4cda569",
-  "actualFixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
-  "adjustedExactObservedInputs": "55 ordinary prefix +4 actual native payment/pass +21 native rune/unit/move/focus/end actions;59-command/344-event immutable payment checkpoint;80/533 finished at48 byone conquest andseven held points, both decks nonempty.",
-  "allOriginalEveryFieldNullHistoryPrefixAndCompleteReplayAssertionsRetained": true,
-  "newCasesOrProductionSourceNotEdited": true
-}

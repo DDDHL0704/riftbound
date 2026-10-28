@@ -1,6 +1,6 @@
 {
   "scope": "CN2026-10-16 frozen applicability; current2026-10-18 source reconfirmation; exact SFD215 put-into-hand action classification. Fresh ordinary seed0 matches, both-format legal ordered deck planning. Recipe logical commands are rebound to each new session current prompt/tick; not a migrated or rewritten development log. Original producer frames and version-specific rule inputs retained separately.",
-  "sourceManifestToPublish": "docs/evidence/ravenbloom-put-hand-2026-10-18/source-manifest.json",
+  "sourceManifestToPublish": "docs/legacy/evidence/ravenbloom-put-hand-2026-10-18/source-manifest.json",
   "seed": 0,
   "validatedFormats": [
     "CoreRules",

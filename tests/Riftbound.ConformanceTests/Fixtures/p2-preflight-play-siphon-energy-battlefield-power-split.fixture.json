@@ -15,7 +15,7 @@
       "note": "官方卡面选择一个战场；此fixture保留原六个单位的战力断言，并以真实进场和明确战场目标验证局部范围。其他战场、光环最低战力与恢复由独立用例覆盖。"
     },
     {
-      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "source": "docs/legacy/evidence/rules-reaudit-2026-10-11/official-corpus.json",
       "locator": "DOC-04-P043-B010; DOC-04-P017-B004/B005; Spiritforged FAQ Cards that Reduce Might",
       "note": "从手牌支付费用打出法术、加入结算链，双方让过后按卡面施加本回合内战力修正；回合结束特殊清理移除期限效果。"
     }

@@ -10,7 +10,7 @@
   "seed": 2603304126,
   "rulesEvidence": [
     {
-      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "source": "docs/legacy/evidence/rules-reaudit-2026-10-11/official-corpus.json",
       "locator": "DOC-01-P044-B022/B023; CN core effective 2026-10-16; exact API31581 OGS·002/024 read back 2026-10-21T05:26:27Z",
       "note": "当前限定分支选择战场而非单位，原非法单位目标、种子、状态和拒绝断言全部保留。原旧版本标签和夹具另存，下方旧手工来源仅为历史依据。"
     },

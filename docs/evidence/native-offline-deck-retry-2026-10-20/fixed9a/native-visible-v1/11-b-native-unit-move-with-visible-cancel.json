@@ -1,8 +1,0 @@
-{
-  "observedAtUtc": "2026-10-20T02:10:28.787Z",
-  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
-  "backendRuleInputIdentity": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e",
-  "source": "cua real native screenshot",
-  "screenshotSha256": "95baca86fa78fa9ed811d48e4d7450b3445fe3866ce60a8ad0f5e43fe5da1475",
-  "scope": "Actual B turn3, source unit selected with visible Cancel Esc and disabled End Turn; no command submitted yet."
-}

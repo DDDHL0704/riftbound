@@ -1,7 +1,0 @@
-{
-  "status": "UNCHANGED_DURING_CHECK",
-  "count": 2024,
-  "manifestSha256": "688714d5e28b54c75947b4302ec2f7cc1275bbce1b0551a4af25021abb43cf2f",
-  "localManifest": "var/qa/battle-history-sql-20261013/frozen-inputs.json",
-  "changed": []
-}

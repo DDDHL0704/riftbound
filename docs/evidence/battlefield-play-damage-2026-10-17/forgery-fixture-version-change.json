@@ -1,8 +1,0 @@
-{
-  "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
-  "oldSha256": "18bd3f46598f3e89c92073e5d733d3434a16dcb2b3e14e2c6cd623c7a8db6d21",
-  "newSha256": "30a333defda40a95ecd248295c21d42652cd3d0fd16e5c959ed385b17b097e90",
-  "onlySemanticChange": "forgedPrimaryItem.permanentPlaySource",
-  "allOriginalAcceptedCommandsExactlyUnchanged": true,
-  "reason": "Keep the original structurally plausible battlefield-origin forgery well formed under the new source incarnation binding, so the production original-log audit remains the rejecting layer."
-}

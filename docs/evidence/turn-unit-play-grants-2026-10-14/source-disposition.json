@@ -1,8 +1,0 @@
-{
-  "status": "SCOPED_CURRENT_SOURCE_CHECKED",
-  "cn": { "region": "CN", "language": "zh-CN", "subjects": ["SFD·166/221", "OGN·129/298"], "ids": [33260, 31353], "preview": false },
-  "en": { "region": "international", "language": "en-US", "subjects": ["sfd-166-221", "ogn-129-298"], "scope": "Independent current text comparison, not merging regional identities" },
-  "core": { "publicationUpdatedDate": "2026-07-17", "effectiveDate": null, "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64", "future2026October16Applied": false },
-  "faq": { "lookupOnly": true, "wholeImageOrDocumentCertified": false },
-  "wholeSourceUniverseCertified": false
-}

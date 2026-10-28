@@ -1,7 +1,0 @@
-{
-  "originalPrefixSourceSha256": "53c5e4f22c599e8777559faab8e3f49459457e6cce63abdec13dc5736dcef68e",
-  "originalInitialStateConstructorByteExact": true,
-  "originalCommandJournalSha256": "bccd8496906914bd5ea99e08d0a691ca70fab0f35ac0313d5f3d24834dd4295d",
-  "noOriginalCommandOrStateRewrite": true,
-  "noNewGameCommandsToOriginalPrefix": true
-}

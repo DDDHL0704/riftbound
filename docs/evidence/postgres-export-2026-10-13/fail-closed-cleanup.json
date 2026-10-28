@@ -1,7 +1,0 @@
-{
-  "missingConnectionFailed": true,
-  "testRoomsRemaining": 0,
-  "scope": "Dedicated SQL mandatory gate; cleanup verified against actual database",
-  "missingConnectionExitCode": -6,
-  "cleanupQueryExitCode": 0
-}

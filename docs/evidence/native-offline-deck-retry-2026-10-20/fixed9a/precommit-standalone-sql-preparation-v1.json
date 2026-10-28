@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-20T00:57:29.121636+00:00",
-  "status": "DRAFT_NOT_BUILT_OR_EXECUTED_WAITING_SOLE_CHECK_AND_NEW_FIXED_COMMIT",
-  "purpose": "Add actual two-format sibling scenario through production PostgreSQL journal/store/registry without changing original45 default identities or active check inputs. Publish exact fixed API first; freeze and verify source and actual five module identities before any database writes.",
-  "usesExistingDatabaseOnly": true,
-  "noRootSourceRuntimeMutationOrNewDatabaseOrCheckout": true,
-  "newSqlEvidence": "OPEN"
-}

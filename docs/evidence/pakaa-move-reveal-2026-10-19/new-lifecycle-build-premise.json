@@ -1,8 +1,0 @@
-{
-  "status": "NEW_TEST_BUILD_PREMISE_CORRECTED",
-  "failedExecution": "lifecycle-first",
-  "actualError": "PowerModifierLedgerEntry has no AppliedPowerDelta property",
-  "correction": "Assert the existing PowerDelta ledger member; expected +2 and all lifecycle assertions retained.",
-  "productionChange": false,
-  "rulesNotExecutedInFailedBuild": true
-}

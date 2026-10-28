@@ -1,4 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:46:00.220205+00:00",
-  "reason": "Both actual native score-end windows, lobby returns, graceful owned-client exits and independent full original replay completed; stop only owned API/PG/assertion and retain original histories."
-}

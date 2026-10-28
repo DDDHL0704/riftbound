@@ -1,9 +1,0 @@
-{
-  "red": "Three initial cases failed because no battlefield start ability was placed on stack, including empty fields controlled by either player.",
-  "legacyAssertions": "No legacy test methods removed or renamed. Four recovery diagnostic assertions retain their purposes with TURN_START_BEGAN added to the shared constant. Two old immediate-damage fixtures now pass the actual response window before their original damage/destroy/event-order assertions. Conformance fixture uses real battlefield IDs and a registered unrelated battlefield. Its dirty-control negative case now asserts control-task rejection and atomic state instead of pretending the invalid control state can end turn; original no-damage/no-destruction assertions retained. Legitimate opponent-controlled source behavior is independently covered by FrostHoldTests. Full-game opening driver now drains actual start triggers after second mulligan before asserting Main; original Frost damage/score/replay assertions remain. Focus profile always excludes FullGameEndToEndTests even when tokens match; targeted full-game execution is separately retained from direct dotnet test, and final full2 includes all methods.",
-  "scopeBoundaries": [
-    "Incoming target/source replacement tests reconstruct response state to isolate resolution-time semantics; not actual movement/replacement card execution.",
-    "Native scenario uses a real reaction Flash to move target out before actual battlefield damage; actual native command outputs are sent to server and replayed.",
-    "Other simultaneous start-trigger families are not certified."
-  ]
-}

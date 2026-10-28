@@ -10,12 +10,12 @@
   "seed": 2603302197,
   "rulesEvidence": [
     {
-      "source": "docs/evidence/deck-play-consumers-2026-10-14/source-current.json",
+      "source": "docs/legacy/evidence/deck-play-consumers-2026-10-14/source-current.json",
       "locator": "CN SFD188 ID33286 current errata",
       "note": "Reveal two; optional banish, normal play with two mana reduction, draw only unbanished. This original fixture explicitly declines and retains its two-card draw, fees and final state."
     },
     {
-      "source": "docs/evidence/deck-play-consumers-2026-10-14/faq-current.json",
+      "source": "docs/legacy/evidence/deck-play-consumers-2026-10-14/faq-current.json",
       "locator": "Cards that Tell You to Play Other Cards from Your Deck; Void Rush",
       "note": "Current applicable errata reconciled with CN core 329/337/427; pending confirmation and source completion are separate."
     }
