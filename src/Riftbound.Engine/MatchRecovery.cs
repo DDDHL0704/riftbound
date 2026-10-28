@@ -23724,8 +23724,7 @@ public static partial class MatchRecoveryValidator
     private static bool HasPowerfulPlayedRuneView(object? payload)
     {
         var json = JsonSerializer.SerializeToElement(payload);
-        return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("powerfulPlayedRune", out var raw)
-            && raw.ValueKind != JsonValueKind.Null;
+        return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("powerfulPlayedRune", out _);
     }
 
     private static void CompareMightySkillView(object? payload, MightySkillContext? expected, List<string> errors, string label)

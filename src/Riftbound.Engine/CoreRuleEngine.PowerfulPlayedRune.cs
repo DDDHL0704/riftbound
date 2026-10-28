@@ -4,7 +4,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record PowerfulPlayedRunePublicContext(string CardNo, bool Confirmed);
+public sealed record PowerfulPlayedRunePublicContext([property: JsonRequired] string CardNo, [property: JsonRequired] bool Confirmed);
 
 public sealed partial class CoreRuleEngine
 {
@@ -28,7 +28,19 @@ public sealed partial class CoreRuleEngine
                 .Where(instance => HasPowerfulPlayedRuneAbility(instance.CardNo))
                 .Select(instance => (Source: cards[id], Instance: instance))).ToArray();
         if (sources.Length == 0 || (RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin) is not { } state) return ev;
-        var frame = CapturePublicMightFrame(state, zones, cards);
+        var locations = state.ObjectLocations.ToDictionary();
+        if (EventPayloadString(ev, "destinationZone") == "BATTLEFIELD") {
+            var destination = EventPayloadString(ev, "destination");
+            var field = destination is not null && NormalizeMoveUnitLocation(destination).StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                ? PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(destination))
+                : EventPayloadString(ev, "battlefieldObjectId") ?? EventPayloadString(ev, "battlefieldId");
+            if (field is null && EventPayloadString(ev, "sourceObjectId") is { } sourceId
+                && cards.TryGetValue(sourceId, out var candidate) && IsBattlefieldCardObject(candidate)) field = sourceId;
+            if (!string.IsNullOrWhiteSpace(field) && cards.TryGetValue(field, out var battlefield)
+                && IsBattlefieldCardObject(battlefield) && zones.Values.Any(z => z.Battlefields.Contains(field)))
+                locations[entered.ObjectId] = new(player, "BATTLEFIELD", field);
+        }
+        var frame = CapturePublicMightFrame(state, zones, cards, locations);
         if (!frame.CardObjects.TryGetValue(entered.ObjectId, out var target)
             || !IsFaceUpNonStandbyUnit(target) || !IsObjectOnField(frame.PlayerZones, target.ObjectId)) return ev;
         var might = ResolveCurrentFieldUnitPower(MightFrameState(frame), target);

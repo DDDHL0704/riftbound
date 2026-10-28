@@ -241,7 +241,7 @@ public sealed class PowerfulPlayedLegendTests
     }
 
     [Theory]
-    [InlineData("card")] [InlineData("confirmed")] [InlineData("extra")]
+    [InlineData("card")] [InlineData("confirmed")] [InlineData("extra")] [InlineData("missing")]
     public async Task RecoveryRejectsForgedPublicSkillProjection(string field)
     {
         var opened = await Open("OGN·249/298"); var state = opened.State;
@@ -256,6 +256,7 @@ public sealed class PowerfulPlayedLegendTests
             var forged = new Dictionary<string, object?> { ["cardNo"] = field == "card" ? "FND-249/298" : "OGN·249/298",
                 ["confirmed"] = field == "confirmed" };
             if (field == "extra") forged["privateObject"] = "PLAYED";
+            if (field == "missing") forged.Remove("confirmed");
             payload["powerfulPlayedRune"] = forged;
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
             payload["powerfulPlayedRune"] = original;
