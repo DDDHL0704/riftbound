@@ -7334,7 +7334,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
-        if (targetObjectIds.Count != ability.RequiredTargetCount)
+        if (targetObjectIds.Count != ability.RequiredTargetCount
+            || IsLegendUnitKeywordEffect(ability.EffectKind) && targetObjectIds.Count != command.TargetObjectIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7622,6 +7623,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
 
+        if (IsLegendUnitKeywordEffect(ability.EffectKind))
+            return QueueLegendUnitKeyword(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, events);
+
         if (IsLegendAttachmentEffect(ability.EffectKind))
             return QueueLegendAttachment(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
@@ -7811,6 +7817,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (ability.TimingKind == LegendAbilityTimingKinds.ResourceAction)
             return ResourceActionWindow.CanAct(state, playerId);
+        if (ability.TimingKind == LegendAbilityTimingKinds.QuickOpen)
+            return CanActivateSwiftAbility(state, playerId);
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -7880,6 +7888,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.ShenLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.ShenLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ShenLegendAbilityId),
+                "暮光之眼传奇壁垒技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantUnitKeyword, TimingKind: LegendAbilityTimingKinds.QuickOpen,
+                GrantedCombatKeyword: CardCombatKeywordNames.Bulwark),
             YasuoLegendAbilityId => new LegendAbilityDefinition(
                 YasuoLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(YasuoLegendAbilityId),
@@ -8193,6 +8207,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || IsLegendUnitKeywordEffect(ability.EffectKind) && !IsFaceUpNonStandbyUnit(targetState)
             || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
         {
             return false;
@@ -18976,7 +18991,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendUnitKeyword is null ? resolvedItem.TargetObjectIds.ToArray()
+                        : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
             events.AddRange(postStackCleanupEvents);
@@ -23935,6 +23951,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.Tempered is not null) return ResolveTempered(state, stackItem);
         if (stackItem.AzirMovement is not null) return ResolveAzirMovement(state, stackItem);
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
+        if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
@@ -34477,10 +34494,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
         PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
-        int PowerCost = 0);
+        int PowerCost = 0,
+        string GrantedCombatKeyword = "");
 
     private static class LegendAbilityEffectKinds
     {
+        public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";
         public const string GrantBoon = "GRANT_BOON";
@@ -34502,6 +34521,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static class LegendAbilityTimingKinds
     {
         public const string MainOpen = "MAIN_OPEN";
+        public const string QuickOpen = "QUICK_OPEN";
         public const string PriorityWindow = "PRIORITY_WINDOW";
         public const string ResourceAction = "RESOURCE_ACTION";
         public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";

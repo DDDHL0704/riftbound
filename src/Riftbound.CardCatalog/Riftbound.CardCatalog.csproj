@@ -16,4 +16,7 @@
     <EmbeddedResource Include="../../data/official/upstream/2026-10-28/reviewed-rune-source-universe/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.ReviewedRuneSourceSnapshot" WithCulture="false" />
     <EmbeddedResource Include="../../data/official/upstream/2026-10-28/reviewed-resource-legend-sources/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.ReviewedResourceLegendSnapshot" WithCulture="false" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.VendettaLegendSnapshot" WithCulture="false" />
+  </ItemGroup>
 </Project>
