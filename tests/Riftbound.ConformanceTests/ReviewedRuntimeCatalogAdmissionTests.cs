@@ -12,18 +12,20 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
     private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
     [Fact]
-    public async Task RuntimeSnapshotAddsOnlyTheTwoExactReviewedPrintsAndKeepsTheOriginalImmutable()
+    public async Task RuntimeSnapshotAddsTheImplementedReviewedPrintsAndKeepsTheOriginalImmutable()
     {
         var original = await OfficialCardCatalog.LoadDefaultAsync();
         var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
         Assert.Same(runtime, await OfficialCardCatalog.LoadRuntimeAsync());
         Assert.Equal(1089, original.Total);
         Assert.Equal(1089, original.Cards.Count);
-        Assert.Equal(1091, runtime.Total);
-        Assert.Equal(1091, runtime.Cards.Count);
+        Assert.Equal(1096, runtime.Total);
+        Assert.Equal(1096, runtime.Cards.Count);
         Assert.Contains(ReviewedRuneCardSources.SnapshotPath, runtime.Source);
+        Assert.Contains(VendettaCardSources.SnapshotPath, runtime.Source);
+        Assert.Contains(ReviewedResourceLegendSources.SnapshotPath, runtime.Source);
         var originalNos = original.Cards.Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
-        Assert.Equal(["VEN·005", "VEN·006"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
+        Assert.Equal(["VEN·005", "VEN·006", "VEN·019", "VEN·019a", "VEN·141", "VEN·190", "VEN·190*"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
             .Select(card => card.CardNo).Order(StringComparer.Ordinal).ToArray());
         Assert.Equal(37690, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·005").Id);
         Assert.Equal(37691, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·006").Id);
@@ -37,9 +39,14 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
             definition.CardNo, definition.EffectKind, definition.DisplayName, CardBehaviorRegistry.TriggerEffectKinds(definition))).ToArray();
         var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(runtime.Cards, play);
         var specs = BehaviorSpecCatalogBuilder.Build(runtime.Cards, units, implemented);
-        Assert.Equal(1091, specs.Count);
+        Assert.Equal(1096, specs.Count);
         Assert.Single(specs, spec => spec.CardNo == "VEN·005");
         Assert.Single(specs, spec => spec.CardNo == "VEN·006");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·019");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·019a");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·141");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·190");
+        Assert.Single(specs, spec => spec.CardNo == "VEN·190*");
     }
 
     [Theory]
@@ -131,7 +138,8 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         var reviewed = ReviewedRuneCardSources.GetAll().Where(card => (card.Id, card.CardNo) is
             (37690, "VEN·005") or (37691, "VEN·006")).ToArray();
         Assert.Equal(2, reviewed.Length);
-        var cards = original.Cards.Concat(reviewed).OrderBy(card => card.CardNo, StringComparer.Ordinal).Select(c => new {
+        var cards = original.Cards.Concat(reviewed).Concat(VendettaCardSources.GetAdmittedCards()).Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal).Select(c => new {
             c.Id,c.CardNo,c.CardName,c.SubTitle,c.CardCategory,c.CardCategoryName,c.CardCategoryList,c.CardCategoryNameList,
             c.CardColorList,c.Hero,c.Region,c.Tag,c.CardEffect,c.Energy,c.ReturnEnergy,c.Power,c.ExtendType,c.ExtendTypeName,
             c.CardGroupLimit,c.Status,c.ListSort,c.ProductCodeList,c.ProductNameList,c.Rarity,c.RarityName,c.ExtendRarity,c.ExtendRarityName });

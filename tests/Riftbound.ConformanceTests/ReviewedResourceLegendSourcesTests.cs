@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -24,6 +25,7 @@ public sealed class ReviewedResourceLegendSourcesTests
         Assert.Equal(Text, source.CardEffect); Assert.Null(source.Energy); Assert.Null(source.ReturnEnergy); Assert.Null(source.Power);
         Assert.Contains(ReviewedResourceLegendSources.GetPhysicalPrints(), card => card.Id == id && card.CardNo == no);
         Assert.DoesNotContain((await OfficialCardCatalog.LoadDefaultAsync()).Cards, card => card.CardNo == no);
+        Assert.Equal(source, Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, card => card.CardNo == no));
         Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
         foreach (var field in typeof(LegendActionAbilityCatalog).GetFields(BindingFlags.Public | BindingFlags.Static))
             if (field.IsLiteral && field.FieldType == typeof(string) && field.GetRawConstantValue() is string ability)
@@ -34,6 +36,30 @@ public sealed class ReviewedResourceLegendSourcesTests
         Assert.Equal(no, physical.CardNo); Assert.Equal("P1", physical.OwnerId); Assert.Equal("P1", physical.ControllerId);
         Assert.Contains("CARD_TYPE:LEGEND", physical.Tags); Assert.Contains("HERO:雷克顿", physical.Tags);
         Assert.Contains("COLOR:red", physical.Tags); Assert.Contains("COLOR:orange", physical.Tags);
+    }
+
+    [Theory]
+    [InlineData("VEN·141")]
+    [InlineData("VEN·190")]
+    [InlineData("VEN·190*")]
+    public async Task RuntimeRecognizesEachLegendButRejectsAnUnmatchedChampionWithoutChangingTheLobby(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
+        var deck = PreconstructedDeckCatalog.Build(catalog).Single(d => d.Id == "jhin-lowcurve").Decklist with { LegendCardNo = cardNo };
+        var initial = MatchReplayInitialStateBuilder.FromSeats("renekton-legend-invalid-champion-" + cardNo,
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" });
+        var session = new MatchSession(initial, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields);
+        var raw = JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        var result = await session.SubmitDeckAsync("P1", "invalid-champion", command, raw, default);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
+        Assert.Contains("英雄牌的英雄标签必须与所选传奇一致", result.ErrorMessage);
+        Assert.DoesNotContain("未知牌号 " + cardNo, result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(initial), MatchStateHasher.Hash(result.State));
     }
 
     [Fact]
