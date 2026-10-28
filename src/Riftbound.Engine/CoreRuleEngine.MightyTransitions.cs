@@ -167,7 +167,7 @@ public sealed partial class CoreRuleEngine
                 && state.PlayerZones[item.ControllerId].LegendZone.Contains(source.ObjectId) ? new[] { source.ObjectId } : [];
             if (legal.Length == 0) return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             state = state with { PendingCardChoice = new("MIGHTY-COST:" + item.StackItemId, MightyChoiceWindow, item.ControllerId,
-                0, 1, legal, context.Kind == PowerfulPlayedRuneEffect ? [] : [context.Unit.ObjectId], "横置此传奇以确认召出符文；不选则放弃。确认后双方响应。", item.SourceObjectId,
+                0, 1, legal, context.Kind == PowerfulPlayedRuneEffect ? [item.SourceObjectId] : [context.Unit.ObjectId], "横置此传奇以确认召出符文；不选则放弃。确认后双方响应。", item.SourceObjectId,
                 item.EffectKind) { ResolvingStackItemId = item.StackItemId }, PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         } else {
             var costs = new Dictionary<string, int> { [spec!.PowerCostTrait!] = spec.PowerCost!.Value };
@@ -222,7 +222,7 @@ public sealed partial class CoreRuleEngine
         return choice.ChoiceWindow == MightyChoiceWindow && choice.ChoiceId == "MIGHTY-COST:" + item.StackItemId
             && choice.PlayerId == item.ControllerId && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == 0 && choice.MaxCount == 1 && choice.LegalObjectIds.SequenceEqual(new[] { item.SourceObjectId })
-            && choice.ContextObjectIds.SequenceEqual(context.Kind == PowerfulPlayedRuneEffect ? [] : new[] { context.Unit.ObjectId });
+            && choice.ContextObjectIds.SequenceEqual(context.Kind == PowerfulPlayedRuneEffect ? [item.SourceObjectId] : new[] { context.Unit.ObjectId });
     }
 
     private static ResolutionResult ConfirmMightySkill(MatchState state, StackItemState item, bool confirm,
