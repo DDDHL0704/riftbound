@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -8,6 +9,34 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class BeginningRuneIntegrationTests
 {
+    [Theory]
+    [InlineData("VEN·005", 2)]
+    [InlineData("VEN·006", 4)]
+    public async Task TemporaryMightAndGankingExpireAtTheEndOfTheTurn(string cardNo, int printedMight)
+    {
+        var opened = await Act(BeginningRuneConditionTests.Position(cardNo, 0, 1), "P1", new PassPriorityCommand());
+        var resolved = await Top(opened.State);
+        var ended = await Act(resolved.State, "P1", new EndTurnCommand());
+        Assert.Equal(printedMight, ended.State.CardObjects["SOURCE"].Power);
+        Assert.DoesNotContain("ROAM", ended.State.CardObjects["SOURCE"].UntilEndOfTurnEffects);
+        Restore(ended.State);
+    }
+
+    [Theory]
+    [InlineData("VEN·005", false)]
+    [InlineData("VEN·006", true)]
+    public async Task OnlyTheGrantedGankingPermitsMovingBetweenBattlefields(string cardNo, bool allowed)
+    {
+        var opened = await Act(BeginningRuneConditionTests.Position(cardNo, 0, 1), "P1", new PassPriorityCommand());
+        var resolved = await Top(opened.State);
+        var command = new MoveUnitCommand("SOURCE", "BATTLEFIELD:F", "BATTLEFIELD:OTHER", ["ROAM"]);
+        var result = await new CoreRuleEngine().ResolveAsync(resolved.State, new("roam", "P1", command.CmdType), command, default);
+        Assert.Equal(allowed, result.Accepted);
+        if (allowed) Assert.Equal("OTHER", result.State.ObjectLocations["SOURCE"].BattlefieldObjectId);
+        else Assert.Equal(MatchStateHasher.Hash(resolved.State), MatchStateHasher.Hash(result.State));
+        Restore(result.State);
+    }
+
     [Theory]
     [InlineData("VEN·005", 2, 1)]
     [InlineData("VEN·006", 4, 2)]
@@ -97,7 +126,17 @@ public sealed class BeginningRuneIntegrationTests
         var journal = new Journal();
         var session = new MatchSession(initial, engine, journal);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var evidence = Environment.GetEnvironmentVariable("RIFTBOUND_BEGINNING_RUNE_EVIDENCE");
+        var prefix = cardNo == "VEN·005" ? "ven005" : "ven006";
         var current = initial;
+        void Export(string name, object value)
+        {
+            if (string.IsNullOrWhiteSpace(evidence)) return;
+            Directory.CreateDirectory(evidence);
+            using var file = File.Open(Path.Combine(evidence, prefix + "-" + name + ".json.gz"), FileMode.CreateNew);
+            using var zip = new GZipStream(file, CompressionLevel.Optimal);
+            JsonSerializer.Serialize(zip, value, value.GetType(), json);
+        }
         async Task<ResolutionResult> Submit(string player, GameCommand command)
         {
             var result = await session.SubmitAsync(player, "beginning-rune-" + journal.Entries.Count, command,
@@ -115,6 +154,11 @@ public sealed class BeginningRuneIntegrationTests
                 OpeningSeed = initial.Seed };
             Assert.True(frame.IsConsistent, string.Join("; ", errors));
             session = MatchSession.Restore(frame, engine, journal);
+            foreach (var id in current.Seats.Keys) {
+                Assert.Equal(MatchStateHasher.HashValue(result.Snapshots[id]), MatchStateHasher.HashValue(session.SnapshotFor(id)));
+                Assert.Equal(MatchStateHasher.HashValue(result.Prompts[id]), MatchStateHasher.HashValue(session.PromptFor(id)));
+            }
+            Export($"original-prefix-{commands.Length:D2}", new { initial, frame, replay, originalCommands = journal.Entries.Count });
             return result;
         }
         RecoveredCommand[] Commands() => journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType,
@@ -133,6 +177,7 @@ public sealed class BeginningRuneIntegrationTests
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(forged));
         var rejectedReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), forged, engine, default, Events());
         Assert.False(rejectedReplay.IsMatch);
+        Export("forged-frame", new { original = opened.State, forged, rejectedReplay, componentValidatorAccepts = true });
         await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
         await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
         Assert.Equal(finalMight, current.CardObjects["SOURCE"].Power);
