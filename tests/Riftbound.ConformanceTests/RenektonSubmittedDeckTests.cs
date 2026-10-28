@@ -4,11 +4,50 @@ using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
+using static Riftbound.ConformanceTests.ArmamentMightTests;
+using static Riftbound.ConformanceTests.OfficialGraveyardRecastTests;
 
 namespace Riftbound.ConformanceTests;
 
 public sealed class RenektonSubmittedDeckTests
 {
+    [Theory]
+    [InlineData("HERO")]
+    [InlineData("ALT")]
+    public async Task ChosenChampionReturnRecognizesBothImplementedHeroPrintings(string target)
+    {
+        var state = OfficialChosenChampionReturnTests.Position();
+        state = state with {
+            PlayerDecklists = new Dictionary<string, OfficialDecklist>(state.PlayerDecklists) {
+                ["P1"] = state.PlayerDecklists["P1"] with { ChampionCardNo = "VEN·019" } },
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["HERO"] = state.CardObjects["HERO"] with { CardNo = "VEN·019" },
+                ["ALT"] = state.CardObjects["ALT"] with { CardNo = "VEN·019a" } } };
+        var opened = await Act(state, "P1", new PassPriorityCommand());
+        Assert.Equal(new[] { "ALT", "HERO" }, opened.State.PendingCardChoice!.LegalObjectIds);
+        var confirmed = await OfficialHeldConfirmationTests.Choose(opened.State, target);
+        var returned = await Top(confirmed.State);
+        Assert.Equal(new[] { target }, returned.State.PlayerZones["P1"].ChampionZone);
+        PublicRecovery(returned.State);
+    }
+
+    [Theory]
+    [InlineData("VEN·141")]
+    [InlineData("VEN·190")]
+    [InlineData("VEN·190*")]
+    public async Task ExistingBattlefieldGrantedLegendAbilityAcceptsTheRuntimeLegend(string legendNo)
+    {
+        var state = LegendAttachmentTests.ForgePosition();
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["LEGEND"] = state.CardObjects["LEGEND"] with { CardNo = legendNo } } };
+        var activated = await Act(state, "P1", LegendAttachmentTests.Command(LegendAttachmentTests.Forge));
+        Assert.Single(activated.State.StackItems, item => item.LegendAttachment is not null);
+        PublicRecovery(activated.State);
+        var done = await Top(activated.State);
+        Assert.Equal("HOST", done.State.CardObjects["GEAR"].AttachedToObjectId);
+        PublicRecovery(done.State);
+    }
+
     [Theory]
     [InlineData("VEN·141", "VEN·019")]
     [InlineData("VEN·141", "VEN·019a")]

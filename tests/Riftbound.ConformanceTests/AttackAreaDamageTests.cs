@@ -49,6 +49,26 @@ public sealed class AttackAreaDamageTests
     [Theory]
     [InlineData("VEN·019")]
     [InlineData("VEN·019a")]
+    public async Task EachHeroPrintingCanPayAndEnterFromTheChampionZone(string cardNo)
+    {
+        var initial = VenUnitEntryBasicTests.Position(cardNo);
+        initial = initial with {
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Hand = [], ChampionZone = ["UNIT"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "CHAMPION") },
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new RunePool(6, 0) } };
+        var game = new VenBasicFlowSpellTests.Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", cardNo, [], Destination: "BASE"));
+        Assert.Empty(game.State.PlayerZones["P1"].ChampionZone);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("VEN·019")]
+    [InlineData("VEN·019a")]
     public async Task HasteRejectsTheWrongPowerWithoutPayingOrMovingTheCard(string cardNo)
     {
         var initial = VenUnitEntryBasicTests.Position(cardNo);
