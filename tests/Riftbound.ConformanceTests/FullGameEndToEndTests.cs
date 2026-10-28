@@ -1557,6 +1557,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-zaun-sump-conquer");
+        triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+            TriggerKinds.BattlefieldConquerDiscardDraw, "b0-zaun-sump-response");
         AssertBattlefieldConquerDiscardDrawResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -1595,6 +1597,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-shirana-monastery-conquer");
+        triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+            TriggerKinds.BattlefieldConquerConsumeBoonDraw, "b0-shirana-monastery-response");
         AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -1671,6 +1675,8 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-moonveil-altar-conquer");
+        triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+            TriggerKinds.BattlefieldConquerReadyEquipment, "b0-moonveil-altar-response");
         AssertBattlefieldConquerReadyEquipmentResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -7153,6 +7159,75 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal("RUNE_DECK", result.State.ObjectLocations[expectedRuneObjectId].Zone);
         Assert.DoesNotContain(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
         AssertNoHiddenZoneLeak(result);
+    }
+
+    private static async ValueTask<ResolutionResult> ResolveBattlefieldConquestFixtureAsync(
+        MatchSession session, ResolutionResult beforeBattle, ResolutionResult pending, string effectKind, string intentPrefix)
+    {
+        Assert.Contains(pending.Events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+        Assert.True(HasPendingConquestEffect(pending.State, effectKind));
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck, pending.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].Hand, pending.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(pending.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && Equals(e.Payload["trigger"], effectKind));
+
+        var result = pending;
+        string? equipmentToDetach = null;
+        if (effectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
+        {
+            Assert.Null(pending.State.PendingHandChoice);
+            Assert.DoesNotContain(pending.Events, e => e.Kind is "CARD_DISCARDED" or "CARD_DRAWN");
+        }
+        else
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(pending.State.PendingCardChoice);
+            Assert.Equal("P1", choice.PlayerId);
+            Assert.Equal(effectKind, choice.EffectKind);
+            Assert.Equal(0, choice.RequiredCount);
+            Assert.Equal(1, choice.MaxCount);
+            string selected;
+            if (effectKind == TriggerKinds.BattlefieldConquerConsumeBoonDraw)
+            {
+                Assert.Equal("TRIGGER_COST_CONFIRMATION", choice.ChoiceWindow);
+                var battlefield = BattlefieldObjectIdForCardNo(beforeBattle.State, "P1", ShiranaMonasteryBattlefieldConquerConsumeBoonDrawCardNo);
+                selected = FindBattlefieldUnitByCardNo(beforeBattle.State, "P1", WildclawBeastmasterCardNo, battlefield, readyOnly: true)
+                    ?? throw new InvalidOperationException("B0 Shirana cost driver could not find its intended unit.");
+                Assert.Contains(CardObjectTags.Boon, pending.State.CardObjects[selected].Tags);
+                Assert.DoesNotContain(pending.Events, e => e.Kind is "BOON_CONSUMED" or "CARD_DRAWN");
+            }
+            else if (effectKind == TriggerKinds.BattlefieldConquerReadyEquipment)
+            {
+                Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+                selected = beforeBattle.State.PlayerZones["P1"].Base.Single(id =>
+                    beforeBattle.State.CardObjects[id].CardNo == LongSwordEquipmentCardNo);
+                equipmentToDetach = selected;
+                Assert.True(pending.State.CardObjects[selected].IsExhausted);
+                Assert.Equal(beforeBattle.State.CardObjects[selected].AttachedToObjectId, pending.State.CardObjects[selected].AttachedToObjectId);
+                Assert.DoesNotContain(pending.Events, e => e.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+            }
+            else throw new ArgumentOutOfRangeException(nameof(effectKind));
+
+            Assert.Contains(selected, choice.LegalObjectIds);
+            var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [selected]);
+            var confirmed = await session.SubmitAsync(choice.PlayerId, intentPrefix + "-confirm", command, RawCommand(command), CancellationToken.None);
+            AssertAccepted(confirmed);
+            AssertNoHiddenZoneLeak(confirmed);
+            result = confirmed with { Events = pending.Events.Concat(confirmed.Events).ToArray() };
+            Assert.True(HasPendingConquestEffect(result.State, effectKind));
+            Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+            Assert.DoesNotContain(confirmed.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+                && Equals(e.Payload["trigger"], effectKind));
+            if (effectKind == TriggerKinds.BattlefieldConquerConsumeBoonDraw)
+                Assert.DoesNotContain(CardObjectTags.Boon, result.State.CardObjects[selected].Tags);
+            else Assert.True(result.State.CardObjects[selected].IsExhausted);
+        }
+
+        Assert.NotNull(result.State.PriorityPlayerId);
+        var priorEvents = result.Events.Count;
+        var resolved = await ResolveDriverPendingEffectsAsync(session, result, intentPrefix,
+            conquestEquipmentToDetach: equipmentToDetach);
+        Assert.True(resolved.Events.Skip(priorEvents).Count(e => e.Kind == "PRIORITY_PASSED") >= 2);
+        return resolved;
     }
 
     private static void AssertBattlefieldConquerDiscardDrawResolved(
@@ -15857,13 +15932,14 @@ public sealed partial class FullGameEndToEndTests
         MatchSession session,
         ResolutionResult current,
         string intentPrefix,
-        bool stopAtConquestMill = false)
+        bool stopAtConquestMill = false,
+        string? stopAtConquestEffect = null)
     {
         var result = current;
+        var stopEffect = stopAtConquestMill ? TriggerKinds.BattlefieldConquerMill : stopAtConquestEffect;
         for (var index = 0; index < 8; index++)
         {
-            if (stopAtConquestMill && (result.State.StackItems.Any(i => i.EffectKind == TriggerKinds.BattlefieldConquerMill)
-                || result.State.TriggerQueue.Any(t => t.EffectKind == TriggerKinds.BattlefieldConquerMill))) return result;
+            if (HasPendingConquestEffect(result.State, stopEffect)) return result;
             if (result.State.PendingRuleChoice is not null || !result.State.BattleState.IsActive || string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
                 return result;
@@ -15871,7 +15947,7 @@ public sealed partial class FullGameEndToEndTests
 
             if (result.State.StackItems.Count > 0)
             {
-                result = await ResolveStackPassPassAsync(session, result, $"{intentPrefix}-stack-{index}", stopAtConquestMill);
+                result = await ResolveStackPassPassAsync(session, result, $"{intentPrefix}-stack-{index}", stopAtConquestMill, stopAtConquestEffect);
                 continue;
             }
 
@@ -15888,6 +15964,10 @@ public sealed partial class FullGameEndToEndTests
 
         throw new InvalidOperationException("B0 shadow-response driver exceeded battle response pass guard.");
     }
+
+    private static bool HasPendingConquestEffect(MatchState state, string? effectKind)
+        => effectKind is not null && (state.StackItems.Any(i => i.EffectKind == effectKind)
+            || state.TriggerQueue.Any(t => t.EffectKind == effectKind));
 
     private static void AssertAllBattlefieldParticipants(MatchState before, GameEvent declaration)
     {
@@ -17197,10 +17277,11 @@ public sealed partial class FullGameEndToEndTests
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
 
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerDiscardDraw);
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
-        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
-        result = await ResolveDriverPendingEffectsAsync(session, result, intentId);
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerDiscardDraw);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -17265,9 +17346,11 @@ public sealed partial class FullGameEndToEndTests
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
 
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerConsumeBoonDraw);
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
-        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerConsumeBoonDraw);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -17399,9 +17482,11 @@ public sealed partial class FullGameEndToEndTests
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
 
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerReadyEquipment);
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
-        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment",
+            stopAtConquestEffect: TriggerKinds.BattlefieldConquerReadyEquipment);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -21976,16 +22061,17 @@ public sealed partial class FullGameEndToEndTests
         MatchSession session,
         ResolutionResult current,
         string intentPrefix,
-        bool stopAtConquestMill = false)
+        bool stopAtConquestMill = false,
+        string? stopAtConquestEffect = null)
     {
         var result = current;
+        var stopEffect = stopAtConquestMill ? TriggerKinds.BattlefieldConquerMill : stopAtConquestEffect;
         var includesPlayAbility = current.State.StackItems.Any(item => item.SourceConfirmed);
         var includesCompletionTriggers = false;
         var events = current.Events.ToList();
         for (var index = 0; index < 20; index++)
         {
-            if (stopAtConquestMill && (result.State.StackItems.Any(i => i.EffectKind == TriggerKinds.BattlefieldConquerMill)
-                || result.State.TriggerQueue.Any(t => t.EffectKind == TriggerKinds.BattlefieldConquerMill)))
+            if (HasPendingConquestEffect(result.State, stopEffect))
                 return result with { Events = events };
             if (result.State.StackItems.Count == 0 && string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
@@ -22267,7 +22353,8 @@ public sealed partial class FullGameEndToEndTests
     }
 
     private static async ValueTask<ResolutionResult> ResolveDriverPendingEffectsAsync(
-        MatchSession session, ResolutionResult current, string intentPrefix, bool declineEffectPlay = true)
+        MatchSession session, ResolutionResult current, string intentPrefix, bool declineEffectPlay = true,
+        string? conquestEquipmentToDetach = null)
     {
         var result = current;
         for (var index = 0; index < 40; index++)
@@ -22300,6 +22387,11 @@ public sealed partial class FullGameEndToEndTests
                     command = new AssignEffectDamageCommand(metadata.GetProperty("stackItemId").GetString()!, targets.Select((id, n) =>
                         new CombatDamageAssignmentDto(requirement.GetProperty("sourceObjectId").GetString()!, id,
                             n == 0 ? requirement.GetProperty("damage").GetInt32() - targets.Length + 1 : 1)).ToArray());
+                }
+                else if (cardChoice.ChoiceWindow == "BATTLEFIELD_CONQUEST_EQUIPMENT_DETACH" && conquestEquipmentToDetach is not null)
+                {
+                    Assert.Contains(conquestEquipmentToDetach, cardChoice.LegalObjectIds);
+                    command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow, [conquestEquipmentToDetach]);
                 }
                 else command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow,
                     cardChoice.LegalObjectIds.Take(cardChoice.ChoiceWindow == "END_STEP_RUNE_TARGETS" ? cardChoice.MaxCount : cardChoice.RequiredCount).ToArray());
