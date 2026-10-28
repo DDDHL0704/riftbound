@@ -251,9 +251,14 @@ def run(commit, output):
     def execute(name, command, extra_env=None):
         start = time.monotonic()
         with (output / (name + '.log')).open('xb') as log:
-            result = subprocess.run(command, cwd=ROOT, env=extra_env or env,
-                                    stdout=log, stderr=subprocess.STDOUT, check=False)
-        stages[name] = dict(exitCode=result.returncode, seconds=round(time.monotonic() - start, 3))
+            try:
+                result = subprocess.run(command, cwd=ROOT, env=extra_env or env,
+                                        stdout=log, stderr=subprocess.STDOUT, check=False)
+                code = result.returncode
+            except OSError as error:
+                log.write(('Could not start stage: ' + str(error) + '\n').encode())
+                code = -1
+        stages[name] = dict(exitCode=code, seconds=round(time.monotonic() - start, 3))
 
     execute('payment-restart', ['python3', 'scripts/run-payment-reconnect-ci.py', '--expected', commit,
                                 '--case', 'restricted-mana-lux', '--output', str(output / 'payment-restart')])

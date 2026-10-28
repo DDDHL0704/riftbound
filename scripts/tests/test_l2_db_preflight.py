@@ -1,10 +1,14 @@
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest import mock
+from contextlib import redirect_stdout
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('preflight', ROOT / 'scripts/l2-db-preflight.py')
@@ -254,6 +258,39 @@ class DatabasePreflightTests(unittest.TestCase):
         self.save_receipt()
         with self.assertRaisesRegex(ValueError, 'SQL gameplay'):
             self.verify()
+
+    def test_failed_restart_still_collects_sql_results_and_fails_the_gate(self):
+        source = self.root / 'fake-source'
+        binary = source / 'tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0'
+        binary.mkdir(parents=True)
+        for name in P.MODULES:
+            (binary / name).write_bytes(name.encode())
+        for failure in ['nonzero-exit', 'start-error']:
+            with self.subTest(failure=failure):
+                output = self.root / ('isolated-run-' + failure)
+                output.mkdir()
+                (output / 'checkout.json').write_text(json.dumps(self.checkout))
+                calls = []
+
+                def execute(command, **kwargs):
+                    calls.append(command)
+                    if len(calls) == 1 and failure == 'start-error':
+                        raise FileNotFoundError('test restart executable missing')
+                    kwargs['stdout'].write(('original output ' + str(len(calls))).encode())
+                    return SimpleNamespace(returncode=1 if len(calls) == 1 else 0)
+
+                with mock.patch.object(P, 'ROOT', source), mock.patch.dict(P.os.environ, {'GITHUB_ACTIONS': 'true'}), \
+                        mock.patch.object(P.subprocess, 'run', side_effect=execute), redirect_stdout(io.StringIO()):
+                    result = P.run(self.commit, output)
+                receipt = P.read(output / 'preflight-receipt.json')
+                self.assertEqual(1, result)
+                self.assertEqual('REAL_POSTGRES_SLICE_OR_PROCESS_RESTART_FAILED', receipt['status'])
+                self.assertEqual(1 if failure == 'nonzero-exit' else -1, receipt['stages']['payment-restart']['exitCode'])
+                self.assertEqual(0, receipt['stages']['build']['exitCode'])
+                self.assertEqual(set(P.CASES), {name for name in receipt['stages'] if name in P.CASES})
+                self.assertEqual(set(self.selected.values()), {int(cmd[-2]) for cmd in calls[2:]})
+                self.assertTrue(all((output / (name + '.log')).read_bytes() for name in ['payment-restart', 'build', *P.CASES]))
+                self.assertFalse(receipt['fullL3Certified'])
 
 
 if __name__ == '__main__':
