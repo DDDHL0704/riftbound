@@ -9,6 +9,41 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
+    public async Task ShiranaConsumedUnitCanLeaveDuringResponseWithoutRefund(string player)
+    {
+        var (initial, game, choice) = await OpenShiranaBoonChoice(player);
+        var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+        var paid = await game.Act(player, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["UNIT"]));
+        Assert.Single(paid.Events, e => e.Kind == "BOON_CONSUMED");
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        var item = Assert.Single(game.State.StackItems, s => s.BattlefieldConquestConsumeBoon is not null);
+        Assert.Equal(new ObjectBinding("UNIT", generation), item.TriggerCost!.ConsumedBoon);
+        Assert.Empty(item.TargetObjectIds);
+
+        var opponent = ThreeBattlefieldTimingProbe.Other(player);
+        if (game.State.PriorityPlayerId == player) await game.Act(player, new PassPriorityCommand());
+        Assert.Equal(opponent, game.State.PriorityPlayerId);
+        await game.Act(opponent, new TapRuneCommand("REACTION-RUNE"));
+        var response = await game.Act(opponent, new PlayCardCommand("GUST", "OGN·169/298", ["UNIT"]));
+        Assert.Contains(response.Events, e => e.Kind == "COST_PAID");
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones[player].Hand);
+        Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
+        Assert.Contains(game.State.StackItems, s => s.BattlefieldConquestConsumeBoon is not null);
+
+        var resolved = await game.Top();
+        Assert.Single(resolved.Events, e => e.Kind == "CARD_DRAWN");
+        Assert.Contains("DRAW1", game.State.PlayerZones[player].Hand);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        Assert.Single(game.Events(), e => e.Event.Kind == "BOON_CONSUMED");
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
+    [Theory]
+    [InlineData("P1")]
+    [InlineData("P2")]
     public async Task ShiranaPaidBoonReceiptCannotBeReboundToAnotherUnit(string player)
     {
         var (initial, game, choice) = await OpenShiranaBoonChoice(player);
