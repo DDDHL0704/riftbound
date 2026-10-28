@@ -45,11 +45,11 @@ public sealed class Cn16RuleInputSelectionTests
         var path = Path.Combine(Path.GetDirectoryName(OfficialCardCatalog.DefaultCatalogPath())!, "rule-input-scope.json");
         using var document = JsonDocument.Parse(File.ReadAllText(path)); var scope = document.RootElement;
         Assert.Equal("CN", scope.GetProperty("region").GetString());
-        Assert.Equal("2026-10-16", scope.GetProperty("applicabilityDate").GetString());
+        Assert.Equal("2026-10-28", scope.GetProperty("applicabilityDate").GetString());
         Assert.Equal("DOC-01", scope.GetProperty("primaryCoreId").GetString());
         Assert.False(scope.GetProperty("semanticCoverageCertified").GetBoolean());
         var sources = scope.GetProperty("adoptedSources").EnumerateArray().ToArray();
-        Assert.Equal(26, sources.Length);
+        Assert.Equal(31, sources.Length);
         var core = Assert.Single(sources, item => item.GetProperty("role").GetString() == "PRIMARY_CORE");
         Assert.Equal("DOC-01", core.GetProperty("id").GetString());
         Assert.Equal("d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11", core.GetProperty("sha256").GetString());
