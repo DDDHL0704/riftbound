@@ -114,6 +114,15 @@ def validate_plan(plan, text):
         raise ValueError('Distributed plan must partition the exact required L2 case inventory once.')
     if any(not rows or any(RULES.method(row) != method for row in rows) for method, rows in plan['cases'].items()):
         raise ValueError('Invalid exact parameter-row inventory.')
+    discovered = defaultdict(list)
+    for name in discovered_cases(text):
+        method = RULES.method(name)
+        if method in expected:
+            discovered[method].append(name)
+    for method, names in discovered.items():
+        # Runtime inventory is authoritative only for unexpanded discovery.
+        if names != [method] and Counter(names) != Counter(plan['cases'][method]):
+            raise ValueError('Fresh discovery parameter rows differ from the planned rows.')
     SELECT.validate(plan['shards'], plan['cases'], discovered_cases(text))
     target = plan['targeted']
     if (target.get('mode') != 'full-fallback' or set(target['methods']) != expected

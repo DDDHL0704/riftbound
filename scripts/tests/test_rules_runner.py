@@ -120,6 +120,27 @@ class RuleRunnerTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runner.plan(methods - {deferred}, 'l2', 2, [], {})
 
+    def test_l2_adds_only_the_available_bounded_conquest_prefix_to_both_plan_and_filter(self):
+        bounded = next(iter(runner.L2_BOUNDED_GAMES))
+        ordinary = runner.PREFIX + 'RecoveryTests.MechanismBoundary'
+        other_game = runner.FULL_CLASS + 'OriginalFullVictory'
+        smoke = {runner.FULL_CLASS + name for name in runner.SMOKE}
+        methods = {ordinary, other_game, bounded} | smoke
+        with patch.object(runner, 'l3_acceptance_methods', return_value=set()):
+            selected = runner.l2_rule_methods(methods)
+            self.assertEqual({ordinary, bounded} | smoke, selected)
+            l2 = runner.plan(methods, 'l2', 2, [], {})[0]
+            self.assertEqual(selected, l2['methods'])
+            self.assertIn('FullyQualifiedName=' + bounded, l2['filter'])
+            self.assertNotIn('FullyQualifiedName=' + other_game, l2['filter'])
+            self.assertNotIn(bounded, runner.plan(methods, 'check', 2, [], {})[0]['methods'])
+            self.assertEqual({ordinary} | smoke, runner.l2_rule_methods(methods - {bounded}))
+            full = runner.plan(methods, 'full', 2, [], {})
+            self.assertEqual(methods, {name for shard in full for name in shard['methods']})
+        with patch.object(runner, 'l3_acceptance_methods', return_value={bounded}):
+            with self.assertRaisesRegex(ValueError, 'bounded L2 method'):
+                runner.l2_rule_methods(methods)
+
     def test_declared_l3_methods_resolve_to_preserved_source_methods(self):
         import json
         rows = json.loads(runner.L3_POLICY.read_text())['methods']
