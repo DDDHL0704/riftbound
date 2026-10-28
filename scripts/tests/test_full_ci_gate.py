@@ -92,10 +92,12 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('python3 scripts/l2-distributed.py prepare', daily)
         self.assertIn('python3 scripts/l2-distributed.py shard', daily)
         self.assertIn('python3 scripts/l2-distributed.py aggregate', daily)
-        self.assertIn('needs: [quality, prepare, rule_suite, targeted]', daily)
+        self.assertIn('needs: [quality, prepare, rule_suite, targeted, db_preflight]', daily)
+        self.assertIn('scripts/l2-db-preflight.py verify', daily)
         self.assertIn('fail-fast: false', daily)
         self.assertNotIn('scripts/test-rules.py full', daily)
-        self.assertNotIn('services:', daily)
+        self.assertIn('services:', daily)
+        self.assertNotIn('needs.postgres', daily)
 
     def test_actual_test_and_full_gate_steps_cannot_be_conditionally_skipped(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
