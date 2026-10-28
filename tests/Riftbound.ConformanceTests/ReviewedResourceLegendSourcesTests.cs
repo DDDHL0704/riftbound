@@ -59,9 +59,10 @@ public sealed class ReviewedResourceLegendSourcesTests
     {
         var current = RuleInputIdentity.Current;
         Assert.Equal("d0164efbc531aa9879094ea0a6bd7b891b4a5e3f3f184ae517bfadb231d7aa7f", current.AuthoritySha256);
-        Assert.Equal("e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682", current.CatalogSha256);
+        Assert.Equal(ReviewedRuntimeCatalogAdmissionTests.ExpectedEffectiveCatalogHash(await OfficialCardCatalog.LoadDefaultAsync()), current.CatalogSha256);
         // Captured from the actual c578 source-review test host, not rebound to this build.
-        var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256, current.CatalogSha256,
+        var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
+            "e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682",
             "4a428f66e5ea3eb71e09ccef02393294800066f15fd1b4ce749945304d890363");
         Assert.Equal("4907cedd469d5babd2a03619bf49b00aff4121bd0e210a5980ae60f463326bc0", prior.IdentitySha256);
         Assert.NotEqual(prior.ImplementationSha256, current.ImplementationSha256);

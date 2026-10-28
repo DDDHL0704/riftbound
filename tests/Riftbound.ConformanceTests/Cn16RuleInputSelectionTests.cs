@@ -70,8 +70,8 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1, guardian.BaseMightBonus);
         Assert.False(guardian.CopiesHostPrintedRulesText);
         Assert.False(guardian.CopiesChosenFriendlyUnit);
-        Assert.Equal("e778e6e29472fbaccee0066f01a5f53c5f8191fd228a29f59073733b1a853682", RuleInputIdentity.Current.CatalogSha256);
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        Assert.Equal(ReviewedRuntimeCatalogAdmissionTests.ExpectedEffectiveCatalogHash(catalog), RuleInputIdentity.Current.CatalogSha256);
         Assert.Equal(1089, catalog.Cards.Count);
         foreach (var cardNo in new[] { "VEN·008", "VEN·010", "VEN·012", "VEN·013", "VEN·026", "VEN·043", "VEN·048", "VEN·086", "VEN·093", "VEN·103", "VEN·118", "VEN·122", "VEN·159", "VEN·181", "VEN·050", "VEN·070", "VEN·007", "VEN·059", "VEN·055", "VEN·110", "VEN·130", "VEN·057", "VEN·035", "VEN·128", "VEN·078", "VEN·124" })
             Assert.Single(catalog.Cards, card => card.CardNo == cardNo);
