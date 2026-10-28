@@ -82,6 +82,7 @@ public static class CommandTypes
     public const string EndTurn = "END_TURN";
     public const string Surrender = "SURRENDER";
     public const string PlayCard = "PLAY_CARD";
+    public const string RefusePlayPayment = "REFUSE_PLAY_PAYMENT";
     public const string ActivateAbility = "ACTIVATE_ABILITY";
     public const string LegendAct = "LEGEND_ACT";
     public const string HideCard = "HIDE_CARD";
@@ -207,6 +208,11 @@ public sealed record ActivateAbilityCommand(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? AbilityInstanceId { get; init; }
+
+    // Rebuilt by the engine from OptionalCosts on every submission and replay.
+    // This field is never accepted from or emitted to the wire.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyDictionary<string, int>? ServerManaSourceSelection { get; init; }
 }
 
 public sealed record LegendActCommand(

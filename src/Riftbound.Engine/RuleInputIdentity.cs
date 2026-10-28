@@ -59,7 +59,7 @@ public sealed record RuleInputIdentity(
         }
         ValidateSourceHash(source.RootElement.GetProperty("cardQa").GetProperty("sha256").GetString());
         var authority=MatchStateHasher.HashValue(source.RootElement);
-        var catalog=OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog=OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var cards=catalog.Cards.OrderBy(c=>c.CardNo,StringComparer.Ordinal).Select(c=>new {
             c.Id,c.CardNo,c.CardName,c.SubTitle,c.CardCategory,c.CardCategoryName,c.CardCategoryList,c.CardCategoryNameList,
             c.CardColorList,c.Hero,c.Region,c.Tag,c.CardEffect,c.Energy,c.ReturnEnergy,c.Power,c.ExtendType,c.ExtendTypeName,

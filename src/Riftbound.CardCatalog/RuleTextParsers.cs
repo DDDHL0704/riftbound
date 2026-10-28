@@ -2659,6 +2659,13 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("如果你将召出符文，则改为召出同等数量的符文，外加一枚休眠的符文", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.ControllerRuneCallExtraExhausted,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "A controller's rune-call event retains its original runes and gains one exhausted rune.", Amount: 1));
+                continue;
+            }
             if (segment.Contains("贴附在我身上的每件武装提供双倍基础战力加成", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.AttachedArmamentBaseMightMultiplier,

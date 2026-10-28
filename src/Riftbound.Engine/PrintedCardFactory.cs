@@ -8,6 +8,9 @@ internal static class PrintedCardFactory
 {
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+            .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
+            .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
+            .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal));
 
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)

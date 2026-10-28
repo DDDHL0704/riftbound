@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using Riftbound.CardCatalog;
+
 namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
@@ -16,6 +19,7 @@ public static class LegendActionAbilityCatalog
     public const string DianaLegendAbilityId = "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA";
     public const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
     public const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
+    public const string RenektonLegendAbilityId = "LEGEND_REACTION_PAY_2_POWER_EXHAUST_GAIN_2_UNIT_MANA";
     public const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
     public const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
     public const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
@@ -48,9 +52,16 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> RenektonSourceCardNos = new(() =>
+        ReviewedResourceLegendSources.GetPhysicalPrints()
+            .Where(card => card.CardName == "荒漠屠夫" && card.Hero == "雷克顿"
+                && card.CardEffect == "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。")
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, RenektonLegendAbilityId, StringComparison.Ordinal))
+            return RenektonSourceCardNos.Value;
         return !string.IsNullOrWhiteSpace(abilityId)
             && RepresentativeSourceCardNoByAbilityId.TryGetValue(abilityId.Trim(), out var representativeCardNo)
             && SourceCardNosByRepresentativeCardNo.Value.TryGetValue(
@@ -64,6 +75,8 @@ public static class LegendActionAbilityCatalog
         string? abilityId,
         string? cardNo)
     {
+        if (string.Equals(abilityId, RenektonLegendAbilityId, StringComparison.Ordinal))
+            return cardNo is not null && SourceCardNosForAbility(abilityId).Contains(cardNo, StringComparer.Ordinal);
         return !string.IsNullOrWhiteSpace(cardNo)
             && SourceCardNosForAbility(abilityId).Contains(cardNo.Trim(), StringComparer.Ordinal);
     }

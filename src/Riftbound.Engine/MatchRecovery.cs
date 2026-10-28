@@ -1698,6 +1698,7 @@ public static partial class MatchRecoveryValidator
                 ValidateRawCommandStringArray(command, rawCommand, "handObjectIds", errors);
                 break;
             case CommandTypes.PlayCard:
+            case CommandTypes.RefusePlayPayment:
                 ValidateRawCommandRequiredString(command, rawCommand, "sourceObjectId", errors);
                 ValidateRawCommandRequiredString(command, rawCommand, "cardNo", errors);
                 ValidateRawCommandStringArray(command, rawCommand, "targetObjectIds", errors);
@@ -2057,6 +2058,7 @@ public static partial class MatchRecoveryValidator
             CommandTypes.SubmitDeck
                 or CommandTypes.Mulligan
                 or CommandTypes.PlayCard
+                or CommandTypes.RefusePlayPayment
                 or CommandTypes.ActivateAbility
                 or CommandTypes.LegendAct
                 or CommandTypes.HideCard
@@ -4662,7 +4664,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
-            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
                 sourceObjectId,
@@ -9365,8 +9368,10 @@ public static partial class MatchRecoveryValidator
         foreach (var (property, expectedAmount, name) in new[] {
             ("spellOnlyMana", expectedRunePool.SpellOnlyMana, "spell-only mana"),
             ("duelOnlyMana", expectedRunePool.DuelOnlyMana, "duel-only mana"),
+            ("unitPlayOrUnitAbilityOnlyMana", expectedRunePool.UnitPlayOrUnitAbilityOnlyMana, "unit-play-or-ability-only mana"),
             ("spellOnlyPower", expectedRunePool.SpellOnlyPower, "spell-only power"),
-            ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power") })
+            ("equipmentOnlyPower", expectedRunePool.EquipmentOnlyPower, "equipment-only power"),
+            ("unitOrEquipmentPlayOnlyPower", expectedRunePool.UnitOrEquipmentPlayOnlyPower, "unit-or-equipment-play-only power") })
         {
             var present = TryReadObjectValue(runePoolPayload, property, out _);
             var numeric = TryReadObjectInt(runePoolPayload, property, out var restrictedAmount);
@@ -19522,7 +19527,8 @@ public static partial class MatchRecoveryValidator
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight
-            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -23330,6 +23336,7 @@ public static partial class MatchRecoveryValidator
             ValidateDynamicPowerAuraViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEmpoweredViews(view.Snapshot, authoritativeState, view.PlayerId, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBeginningRuneViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningDrawViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateGrantedTagViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23480,6 +23487,25 @@ public static partial class MatchRecoveryValidator
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
             foreach (var item in state.TriggerQueue)
                 Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BeginningRecycle);
+    }
+
+    private static void ValidateBeginningRuneViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        void Check(object? payload, BeginningRuneContext? expected)
+        {
+            try {
+                var json = JsonSerializer.SerializeToElement(payload);
+                var actual = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("beginningRune", out var raw)
+                    ? raw.Deserialize<BeginningRunePublicContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(CoreRuleEngine.PublicBeginningRune(expected)))
+                    errors.Add($"{label} beginning rune context differs from authoritative state");
+            } catch (JsonException) { errors.Add($"{label} malformed beginning rune context"); }
+        }
+        foreach (var item in state.StackItems)
+            Check(snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId), item.BeginningRune);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
+            foreach (var item in state.TriggerQueue)
+                Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BeginningRune);
     }
 
     private static void ValidateBeginningDrawViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
@@ -24571,6 +24597,14 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidBeginningRecycle(state, item.BeginningRecycle, item.EffectKind, item.ControllerId, item.SourceObjectId)
                 || item.BeginningRecycle is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
                 errors.Add("invalid captured beginning recycle trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidBeginningRune(state, item.BeginningRune, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                || item.BeginningRune is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
+                errors.Add("invalid captured beginning rune ability");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidBeginningRune(state, item.BeginningRune, item.EffectKind, item.ControllerId, item.SourceObjectId)
+                || item.BeginningRune is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
+                errors.Add("invalid captured beginning rune trigger");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.GraveyardRecycleWindow } recycle
             && !CoreRuleEngine.ValidGraveyardRecycleChoice(state, recycle)) errors.Add("invalid graveyard recycle choice");
         foreach (var item in state.StackItems)
@@ -25325,7 +25359,7 @@ public static partial class MatchRecoveryValidator
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
                 || item.DeathRevealContext is not null || item.DeathObserver is not null || item.HandDiscardObserver is not null || item.MovementObserver is not null
                 || item.MightySkill is not null || item.BattlefieldConquestMight is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
-                || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null
+                || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null || item.BeginningRune is not null
                 || item.BeginningDraw is not null || item.LocationDamage is not null || item.UnitConquest is not null
                 || item.CompletedRepeatExecutions != 0 || item.CompletedHandExecutions != 0 || item.CompletedDeckExecutions != 0
                 || item.DeckChoiceCompleted || item.InsightCompleted || item.PlayedAfterAnotherCardThisTurn
@@ -27588,7 +27622,9 @@ public static partial class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!(stackItem.EndAbility is not null && CoreRuleEngine.ValidEndAbility(authoritativeState, stackItem))
+            if (!HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItem.StackItemId, stackItem.ControllerId,
+                    stackItem.SourceObjectId, stackItem.EffectKind)
+                && !(stackItem.EndAbility is not null && CoreRuleEngine.ValidEndAbility(authoritativeState, stackItem))
                 && !CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, stackItem.InsightContext,
                     stackItem.SourceObjectId, stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo)
                 && !(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
@@ -27712,7 +27748,9 @@ public static partial class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.EndAbility is not null && CoreRuleEngine.ValidEndTrigger(authoritativeState, trigger))
+            if (!HasValidatedCeasedBeginningRuneSource(authoritativeState, trigger.TriggerId, trigger.ControllerId,
+                    trigger.SourceObjectId, trigger.EffectKind)
+                && !(trigger.EndAbility is not null && CoreRuleEngine.ValidEndTrigger(authoritativeState, trigger))
                 && !CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, trigger.InsightContext,
                     trigger.SourceObjectId, trigger.EffectKind, trigger.ControllerId)
                 && !(trigger.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
@@ -28549,6 +28587,7 @@ public static partial class MatchRecoveryValidator
             ValidateTurnUnitPlayBoonViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors);
             ValidateEmpoweredViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, null, errors, "spectator replay frame");
             ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateBeginningRuneViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateGrantedTagViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBattlefieldStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
@@ -32391,6 +32430,10 @@ public static partial class MatchRecoveryValidator
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
             if (HasValidatedCeasedLastBreathSource(authoritativeState, stackItemId,
+                ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
+                ReadNormalizedPayloadString(stackItem, "effectKind")))
+                sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
+            if (HasValidatedCeasedBeginningRuneSource(authoritativeState, stackItemId,
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
                 sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);

@@ -17,7 +17,7 @@ public sealed partial class CoreRuleEngine
     private const string CardPlayHistoryObservationKey = "cardPlayHistoryObservation";
     private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
             c => (c.CardCategoryNameList.Any(n => n.Contains("单位", StringComparison.Ordinal)) ? 1 : 0)
                 | (c.CardCategoryNameList.Any(n => n.Contains("装备", StringComparison.Ordinal)) ? 2 : 0)
                 | (c.CardCategoryNameList.Any(n => n.Contains("法术", StringComparison.Ordinal)) ? 4 : 0), StringComparer.Ordinal));

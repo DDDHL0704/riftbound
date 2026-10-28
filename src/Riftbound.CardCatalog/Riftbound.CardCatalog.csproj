@@ -9,5 +9,11 @@
     <Content Include="../../data/official/card-catalog.zh-CN.json" Link="data/official/card-catalog.zh-CN.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../data/official/armaments.json" Link="data/official/armaments.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../data/official/rule-input-scope.json" Link="data/official/rule-input-scope.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../data/official/upstream/2026-10-28/radiance-rule-authorities/source-snapshot.json" Link="data/official/upstream/2026-10-28/radiance-rule-authorities/source-snapshot.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-28/radiance-disarm-reviewed-universe/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.DisarmSourceSnapshot" WithCulture="false" />
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-28/reviewed-rune-source-universe/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.ReviewedRuneSourceSnapshot" WithCulture="false" />
+    <EmbeddedResource Include="../../data/official/upstream/2026-10-28/reviewed-resource-legend-sources/card-catalog.zh-CN.json" LogicalName="Riftbound.CardCatalog.ReviewedResourceLegendSnapshot" WithCulture="false" />
   </ItemGroup>
 </Project>

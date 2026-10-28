@@ -4,9 +4,14 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    internal static ManaPaymentPurpose ManaPurposeForPlay(CardBehaviorDefinition behavior)
+        => IsSpellPlayBehavior(behavior) ? ManaPaymentPurpose.PlaySpell
+            : behavior.PlaysSourceToBaseAsUnit ? ManaPaymentPurpose.PlayUnit : ManaPaymentPurpose.Other;
+
     internal static PowerPaymentPurpose PowerPurposeForPlay(CardBehaviorDefinition behavior)
         => IsSpellPlayBehavior(behavior) ? PowerPaymentPurpose.PlaySpell
-            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.Equipment : PowerPaymentPurpose.Other;
+            : behavior.PlaysSourceToBaseAsEquipment ? PowerPaymentPurpose.PlayEquipment
+            : behavior.PlaysSourceToBaseAsUnit ? PowerPaymentPurpose.PlayUnit : PowerPaymentPurpose.Other;
 
     public PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
     {
@@ -35,7 +40,12 @@ public sealed partial class CoreRuleEngine
         var missingExperience = Math.Max(0, plan.TotalExperienceCost - plan.AvailableExperience);
         var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
         var remaining = accepted ? PaymentCostRules.PayPowerCost(powerPool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
-        var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state) : null;
+        var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state,
+            plan.Payment.ManaSourceSelection) : null;
+        var sourceBalances = PaymentCostRules.AvailablePowerSources(pool, plan.Payment.PowerPurpose);
+        var showSources = pool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1 || debit.PowerSourceSelection is not null;
+        var remainingPool = accepted && showSources ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost,
+            debit.PowerCostByTrait, debit.PowerPurpose, debit.PowerSourceSelection) : null;
         var adjustments = new List<PlayCostAdjustmentDto>();
         void Adjust(string label, int mana, int power = 0)
         {
@@ -79,7 +89,18 @@ public sealed partial class CoreRuleEngine
                     ? remainingMana!.SpellOnlyMana : 0,
                 AvailableDuelOnlyMana = PaymentCostRules.IsSpellDuel(state) ? pool.DuelOnlyMana : 0,
                 RemainingDuelOnlyMana = !accepted ? null : PaymentCostRules.IsSpellDuel(state) ? remainingMana!.DuelOnlyMana : 0,
-                SpellPowerReductionChoices = plan.SpellPowerReductionChoices };
+                AvailableUnitPlayOrUnitAbilityOnlyMana = plan.Payment.ManaPurpose == ManaPaymentPurpose.PlayUnit
+                    ? pool.UnitPlayOrUnitAbilityOnlyMana : 0,
+                RemainingUnitPlayOrUnitAbilityOnlyMana = !accepted ? null : plan.Payment.ManaPurpose == ManaPaymentPurpose.PlayUnit
+                    ? remainingMana!.UnitPlayOrUnitAbilityOnlyMana : 0,
+                RemainingOrdinaryMana = accepted && (pool.UnitPlayOrUnitAbilityOnlyMana > 0 || plan.Payment.ManaSourceSelection is not null)
+                    ? remainingMana!.Mana : null,
+                SpellPowerReductionChoices = plan.SpellPowerReductionChoices,
+                AvailableWildcardSources = showSources ? sourceBalances : null,
+                RemainingWildcardSources = remainingPool is null ? null
+                    : PaymentCostRules.AvailablePowerSources(remainingPool, debit.PowerPurpose),
+                PaymentResourceActions = plan.RenektonResourceAction is { } action
+                    ? [new(action, 2, 2)] : null };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);
