@@ -74,7 +74,7 @@ def source_scope_methods(scope, text):
     return sorted(selected & required), sorted(selected - required)
 
 
-def make_plan(text, inventory, source_scope, weights, count=6):
+def make_plan(text, inventory, source_scope, weights, count=6, case_weights=None):
     discovered = RULES.discover(text)
     selected = RULES.l2_rule_methods(discovered)
     cases = defaultdict(list)
@@ -92,7 +92,7 @@ def make_plan(text, inventory, source_scope, weights, count=6):
     units = SELECT.selectors(discovered_cases(text), cases, weights)
     result = dict(schemaVersion=3, profile='l2-distributed', methods=sorted(selected),
                   cases=dict(sorted(cases.items())), deferredL3Methods=sorted(RULES.l3_acceptance_methods()),
-                  shards=SELECT.partition(units, cases, weights, count),
+                  shards=SELECT.partition(units, cases, weights, count, case_weights),
                   sourceGuardL2Methods=source_l2, sourceGuardNightlyMethods=source_nightly,
                   targeted=dict(mode='full-fallback', reason='No audited dependency closure; validate the complete L2 input.',
                                 methods=sorted(selected), execution='DERIVED_FROM_ORIGINAL_SHARD_TRX'))
@@ -401,8 +401,11 @@ def prepare(commit, output, count, github_output):
         shutil.copyfile(helper.with_name('L2CaseInventory' + suffix), bundle / ('L2CaseInventory' + suffix))
     files = bundle_files(bundle)
     write(output / 'bundle-manifest.json', files)
-    weights = RULES.load_weights(ROOT / 'scripts/l2-method-timings.json')
-    plan = make_plan(text, read(output / 'case-inventory.json'), read(output / 'source-scope/source-guard-methods.json'), weights, count)
+    timing_path = ROOT / 'scripts/l2-method-timings.json'
+    weights = RULES.load_weights(timing_path)
+    case_weights = read(timing_path).get('caseWeights', {})
+    plan = make_plan(text, read(output / 'case-inventory.json'), read(output / 'source-scope/source-guard-methods.json'),
+                     weights, count, case_weights)
     plan.update(commit=commit, sdkVersion=sdk, runId=checkout['runId'], runAttempt=checkout['runAttempt'],
                 testAssemblySha256=files[ASSEMBLY], bundleManifestSha256=digest(output / 'bundle-manifest.json'),
                 caseInventorySha256=digest(output / 'case-inventory.json'), discoverySha256=digest(output / 'discovery.log'),
