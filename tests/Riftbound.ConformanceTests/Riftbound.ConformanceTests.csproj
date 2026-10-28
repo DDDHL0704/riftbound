@@ -8,6 +8,7 @@
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionOrdinaryOpening.cs" Link="OptionalCostReductionOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalCostReductionCopiedOrdinaryOpening.cs" Link="OptionalCostReductionCopiedOrdinaryOpening.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/OptionalAdditionalCostReductionSqlAcceptance.cs" Link="OptionalAdditionalCostReductionSqlAcceptance.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/OptionalCostReductionNetworkChecks.cs" Link="OptionalCostReductionNetworkChecks.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs" Link="RuneRecycleDestinationSqlAcceptance.cs" />
     <Compile Include="../Riftbound.ImposedMovementAcceptance/ImposedMovementSqlAcceptance.cs" Link="ImposedMovementSqlAcceptance.cs" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
