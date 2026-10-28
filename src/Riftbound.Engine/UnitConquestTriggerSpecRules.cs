@@ -163,7 +163,7 @@ internal static class UnitConquestTriggerSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

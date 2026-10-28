@@ -78,10 +78,11 @@ public sealed partial class CoreRuleEngine
     {
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
         if (!state.StackItems.Any(i => i.StackItemId != item.StackItemId && i.SourceObjectId == item.SourceObjectId)
             && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior))
-            CompleteSpellSource(zones, cards, item, behavior);
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards };
+            CompleteSpellSource(zones, cards, item, behavior, events);
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
     }
 
     private static StackItemState SourceReplayChild(MatchState state, StackItemState child)
