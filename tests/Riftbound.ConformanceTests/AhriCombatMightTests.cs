@@ -289,6 +289,25 @@ public sealed class AhriCombatMightTests
         foreach (var printing in new[] { "OGN·121/298", "OGN·121a/298", "SFD·230/221", "SFD·230*/221" })
             errata[printing] = ("{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
                 "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。");
+        // CN356.4.c and these exact retained API records adopt mandatory
+        // reductions. Keep both printed sources and every other field intact.
+        const string ezrealBefore = "当你打出我时，弃置一张手牌，然后抽两张牌。\n你可以将其他卡牌的可选额外费用减少{{1}}或{{A}}后支付。";
+        const string ezrealAfter = "当你打出我时，弃置一张手牌，然后抽两张牌。\n你支付的可选额外费用，其费用减少{{1}}或{{A}}。";
+        foreach (var exact in new[] {
+            (No: "SFD·149/221", Id: 33242, Sha: "e1ec54e9db895c0207af923215b954b0aef2852b74a4b6c08b20abd906a7777a"),
+            (No: "SFD·149a/221", Id: 33243, Sha: "71b538e24f27a078c7a092e2a61508ac274074bd27fa744b1e292ef0f4d96a7a") })
+        {
+            var path = Path.Combine(root.FullName, "data/official/upstream/2026-10-28/ezreal-optional-component-errata", exact.Id + "-record.json");
+            var bytes = await File.ReadAllBytesAsync(path);
+            Assert.Equal(exact.Sha, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
+            using var source = JsonDocument.Parse(bytes);
+            Assert.Equal(exact.Id, source.RootElement.GetProperty("id").GetInt32());
+            Assert.Equal(exact.No, source.RootElement.GetProperty("cardNo").GetString());
+            Assert.Equal(ezrealBefore, source.RootElement.GetProperty("cardEffect").GetString()!.Replace("\\n", "\n", StringComparison.Ordinal));
+            Assert.Equal(ezrealAfter, source.RootElement.GetProperty("errata").GetString()!.Replace("\\n", "\n", StringComparison.Ordinal));
+            Assert.Equal(exact.Id, historical.Cards.Single(c => c.CardNo == exact.No).Id);
+            errata[exact.No] = (ezrealBefore, ezrealAfter);
+        }
         foreach (var card in historical.Cards)
         {
             var actual = current.Cards.Single(c => c.CardNo == card.CardNo);
