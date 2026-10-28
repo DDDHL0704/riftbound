@@ -67,6 +67,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidFieldContext(context, effect, cardNo)) return false;
         if (BattleLimitedMarkers.Kind(context.Kind)) return ValidBattleLimitedContextState(state, context, sourceId, controller, effect, cardNo);
         if (context.Kind == EmpoweredBanishKind) return ValidEmpoweredBanishSource(state, context, sourceId, controller);
+        if (context.Kind == PaidUnitStunKind) return ValidPaidUnitStunSource(state, context, sourceId, controller);
         if (context.Kind == AttackAreaDamageKind && !ValidAttackAreaCondition(state, context, sourceId, controller)) return false;
         if (context.Kind == "RECYCLE_BOON") return ValidRecycledBoonSource(state, context, sourceId, controller);
         if (context.Kind == "ENEMY_ATTACK_MIGHT")

@@ -43,6 +43,7 @@ public sealed partial class CoreRuleEngine
         if (player is null) return ev;
         ev = CaptureSourcePlayDraw(ev, zones, cards, entered, player);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
+        ev = CapturePaidUnitPlayStun(ev, zones, cards, entered);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureCardPlayHistory(ev, entered, player, ev.Payload.GetValueOrDefault("historyPlayId") as string,
                 true, ev.Kind == "UNIT_PLAYED_TO_BASE" ? "BASE" : "BATTLEFIELD", zones: zones, cards: cards);

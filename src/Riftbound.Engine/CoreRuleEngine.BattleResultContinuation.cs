@@ -37,6 +37,7 @@ public sealed partial class CoreRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueuePaidUnitPlayStuns(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);

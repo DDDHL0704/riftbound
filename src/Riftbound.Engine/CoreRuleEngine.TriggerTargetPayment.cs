@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
                 || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
-                || item.FieldContext is { } field && (field.Kind == EmpoweredBanishKind
+                || item.FieldContext is { } field && (field.Kind is EmpoweredBanishKind or PaidUnitStunKind
                     ? ValidFieldContextState(state, field, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                     : ValidFieldContext(field, item.EffectKind, item.CardNo))
                 || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
@@ -25,7 +25,11 @@ public sealed partial class CoreRuleEngine
             && item.TargetGenerations is { } generations && generations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => generations.TryGetValue(id, out var generation) && generation >= 0)
             && payment.PaymentId == "TRIGGER-WARD:" + item.StackItemId && payment.PlayerId == item.ControllerId
-            && payment.PaymentWindow == TriggerTargetCostWindow && payment.ManaCost == 0 && payment.PowerCost > 0
+            && payment.PaymentWindow == TriggerTargetCostWindow
+            && (item.FieldContext is { Kind: PaidUnitStunKind, PaidUnitTrigger.CostPaid: false } paid
+                ? payment.ManaCost == PaidUnitStunSpec(paid.CardNo)!.ManaCost
+                    && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
+                : payment.ManaCost == 0 && payment.PowerCost > 0)
             && (item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && item.FieldContext?.Kind != EmpoweredBanishKind || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
@@ -52,12 +56,18 @@ public sealed partial class CoreRuleEngine
             || item.TargetGenerations![id] != state.CardObjects.GetValueOrDefault(id)?.ObjectGeneration))
             return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
-            genericPowerCost: pending.PowerCost, totalPowerCost: pending.PowerCost, sourceObjectId: item.SourceObjectId);
+            baseManaCost: pending.ManaCost, totalManaCost: pending.ManaCost, genericPowerCost: pending.PowerCost,
+            totalPowerCost: pending.PowerCost, sourceObjectId: item.SourceObjectId);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience, state: state);
-        if (!committed.Accepted) return RejectWithCorePrompts(state, "符能不足；可先回收符文或放弃此触发技能。", ErrorCodes.InsufficientCost);
+        if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足；可先使用资源技能或放弃此触发技能。", ErrorCodes.InsufficientCost);
         next = next with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience };
-        var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付法盾费用",
-            PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience, new Dictionary<string, object?>()))]);
+        if (item.FieldContext is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid })
+            item = item with { FieldContext = item.FieldContext with { PaidUnitTrigger = paid with { CostPaid = true } } };
+        var completed = CompleteTriggerTargetConfirmation(next, item, [new("COST_PAID", "支付触发技能费用",
+            PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools, committed.PlayerExperience,
+                item.FieldContext?.Kind == PaidUnitStunKind ? new Dictionary<string, object?> {
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__") }
+                    : new Dictionary<string, object?>()))]);
         return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);
     }
 }
