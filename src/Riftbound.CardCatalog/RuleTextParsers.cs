@@ -1448,6 +1448,17 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        var attackAreaDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚[，,]\s*则)?\s*对此处的所有敌方单位各造成(?<damage>[0-9一两二三四五六七八九十]+)点伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackAreaDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackDamageAllEnemyUnitsHere, TriggerTimings.UnitAttack, segment,
+                "Check the rune condition when the unit first attacks; damage all enemies at the source's current location on resolution.",
+                TargetScope: TriggerTargetScopes.AllEnemyUnitsHere,
+                DamageAmount: ParseChineseNumber(attackAreaDamage.Groups["damage"].Value),
+                MaximumControlledRunes: attackAreaDamage.Groups["runes"].Success
+                    ? ParseChineseNumber(attackAreaDamage.Groups["runes"].Value) : null);
+
         var attackDistributedDamage = Regex.Match(segment,
             @"当我进攻时，对此处的敌方单位造成共计([0-9]+)点伤害，可在多名敌方单位之间分摊。?$",
             RegexOptions.CultureInvariant);

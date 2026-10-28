@@ -54,7 +54,7 @@ public static class LegendActionAbilityCatalog
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> ShenSourceCardNos = new(() =>
-        VendettaLegendSources.GetPhysicalPrints()
+        VendettaCardSources.GetAdmittedCards()
             .Where(card => card.CardName == "暮光之眼" && card.Hero == "慎"
                 && card.CardEffect.StartsWith("{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。", StringComparison.Ordinal))
             .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
