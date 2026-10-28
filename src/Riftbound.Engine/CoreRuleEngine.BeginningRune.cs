@@ -48,7 +48,7 @@ public sealed partial class CoreRuleEngine
     {
         var player = state.TurnPlayerId;
         if (!HasFewerControlledRunes(state, player)) return state;
-        var frame = CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects);
+        LastKnownMightFrame? frame = null;
         var queue = state.TriggerQueue.ToList();
         var ordinal = 0;
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
             {
                 if (BeginningRuneAbility(instance.CardNo).Might == 0) continue;
                 var context = new BeginningRuneContext(instance.CardNo, new(source.ObjectId, source.ObjectGeneration),
-                    player, state.Tick, instance.Id, frame, instance.Origin);
+                    player, state.Tick, instance.Id, frame ??= CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects), instance.Origin);
                 // A source may enter a private zone before its ability resolves.
                 // Keep its object and attached-instance IDs out of the public trigger ID.
                 var trigger = new TriggerQueueItemState($"beginning-rune-{state.TurnNumber}-{state.Tick}-{ordinal++}",

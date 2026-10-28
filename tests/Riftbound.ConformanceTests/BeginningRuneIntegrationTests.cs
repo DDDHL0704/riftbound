@@ -53,10 +53,13 @@ public sealed class BeginningRuneIntegrationTests
         var state = BeginningRuneConditionTests.Position("VEN·006", 0, 1);
         state = state with {
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["F"] = state.CardObjects["F"] with { CardNo = "OGN·278/298" },
                 ["MIGHTY-LEGEND"] = new("MIGHTY-LEGEND", cardNo: "SFD·205/221", ownerId: "P1", controllerId: "P1", tags: ["CARD_TYPE:LEGEND"]) },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["MIGHTY-LEGEND"] = new("P1", "LEGEND") },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { LegendZone = ["MIGHTY-LEGEND"] } } };
         var opened = await Act(state, "P1", new PassPriorityCommand());
+        Assert.Equal(4, CurrentPowerTargetTests.Snapshot(opened.State).GetProperty("players").GetProperty("P1")
+            .GetProperty("objects").GetProperty("SOURCE").GetProperty("effectivePower").GetInt32());
         var resolved = await Top(opened.State);
         var contexts = resolved.State.StackItems.Select(item => item.MightySkill)
             .Concat(resolved.State.TriggerQueue.Select(item => item.MightySkill)).Where(context => context is not null).ToArray();
