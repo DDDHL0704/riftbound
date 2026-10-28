@@ -25,7 +25,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(BattlefieldObjectId, opened["battlefieldObjectId"]);
         Assert.Equal(new[] { "SPEND_MANA:1", "DECLINE" }, Assert.IsType<string[]>(opened["paymentChoices"]));
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].Mana);
         AssertVayneJsonColdFrame(initial, game);
 
         var paid = await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]));
@@ -42,7 +42,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(AttackerObjectId, closed["sourceObjectId"]);
         Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, closed["trigger"]);
         Assert.Equal(false, closed["declined"]);
-        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(1, game.State.RunePools["P1"].Mana);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
         var item = Assert.Single(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
@@ -50,9 +50,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(1, item.TriggerCost.Mana);
         AssertVayneJsonColdFrame(initial, game);
 
-        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
-        Assert.Equal("P2", game.State.PriorityPlayerId);
-        await game.Act("P2", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
+        if (game.State.PriorityPlayerId == "P2") await game.Act("P2", new PassPriorityCommand());
+        Assert.Equal("P1", game.State.PriorityPlayerId);
+        await game.Act("P1", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
         await game.Top();
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Hand);
         Assert.Equal(initial.CardObjects[AttackerObjectId].ObjectGeneration + 1, game.State.CardObjects[AttackerObjectId].ObjectGeneration);
@@ -390,7 +390,12 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var attacker = swapSides ? "P2" : "P1";
         var defender = swapSides ? "P1" : "P2";
         if (responseCard)
-            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", defender);
+        {
+            initial = AttackDamageDistributionTests.Spell(initial, "VAYNE-RESPONSE", "OGN·104/298", attacker);
+            var pool = initial.RunePools[attacker];
+            initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                [attacker] = pool with { Mana = pool.Mana + 1 } } };
+        }
         var game = new StandbyDefendObserverTests.Driver(initial);
         await game.Act(attacker, new DeclareBattleCommand(BattlefieldObjectId, [AttackerObjectId, SecondAttackerObjectId],
             [BulwarkDefenderObjectId], ["COMBAT_ASSIGNMENT"]));

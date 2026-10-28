@@ -55,8 +55,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
-        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
+        if (game.State.PriorityPlayerId == "P2") await game.Act("P2", new PassPriorityCommand());
+        Assert.Equal("P1", game.State.PriorityPlayerId);
+        await game.Act("P1", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
         await game.Top();
 
         var item = Assert.Single(game.State.StackItems, s => s.UnitConquestReturn is not null);
