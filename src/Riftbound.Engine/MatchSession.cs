@@ -16125,6 +16125,7 @@ internal static class ActionPromptBuilder
         {
             view["requiresBattlefieldSource"] = true;
             view["drawCount"] = 1;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-draw";
             view["paymentPolicy"] = "payment-plan-typed-blue";
@@ -16134,6 +16135,7 @@ internal static class ActionPromptBuilder
         {
             view["requiresBattlefieldSource"] = true;
             view["scoreAmount"] = 1;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
             view["timingPolicy"] = "open-main-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-score";
             view["paymentPolicy"] = "payment-plan-typed-blue-exhaust-as-cost";

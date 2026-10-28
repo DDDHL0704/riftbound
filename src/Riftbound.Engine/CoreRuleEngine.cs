@@ -5827,7 +5827,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+            return RejectWithCorePrompts(state, "符能来源选择无效。", ErrorCodes.InvalidTarget);
+        var normalizedOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (!TryExtractRenektonPlayPayment(normalizedOptionalCosts, out var costsWithoutRenekton, out var renektonResourceAction))
             return RejectWithCorePrompts(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(
@@ -5884,6 +5886,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var paymentAudit = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+            ["drawCount"] = 1,
+            ["sourceCardNo"] = sourceState.CardNo
+        };
+        if (powerSpend?.Sources is { } selectedPowerSources) paymentAudit["selectedPowerSources"] = selectedPowerSources;
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -5908,12 +5917,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             manaSourceSelection: command.ServerManaSourceSelection,
-            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
-                ["drawCount"] = 1,
-                ["sourceCardNo"] = sourceState.CardNo
-            });
+            auditMetadata: paymentAudit);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -5947,8 +5951,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        var powerPurpose = PowerPurposeForActivatedAbility(ability);
+        if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
+                PaymentCostRules.PowerPoolForPurpose(adjustedPool, powerPurpose), ability.PowerCost,
+                powerCostByTrait, adjustedPool, powerPurpose))
+            return RejectWithCorePrompts(state, "技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
+        var debitPlan = powerSpend is null ? paymentPlan : PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, powerSpend);
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
@@ -6069,7 +6079,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var normalizedOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
+            return RejectWithCorePrompts(state, "符能来源选择无效。", ErrorCodes.InvalidTarget);
+        var normalizedOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         if (!TryExtractRenektonPlayPayment(normalizedOptionalCosts, out var costsWithoutRenekton, out var renektonResourceAction))
             return RejectWithCorePrompts(state, "只能选择一次传奇支付资源行动。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(
@@ -6134,6 +6146,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var paymentAudit = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
+            ["scoreAmount"] = 1,
+            ["sourceCardNo"] = sourceState.CardNo,
+            ["exhaustsSource"] = true
+        };
+        if (powerSpend?.Sources is { } selectedPowerSources) paymentAudit["selectedPowerSources"] = selectedPowerSources;
         const string paymentWindow = "ACTIVATE_ABILITY";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -6158,13 +6178,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             abilityId: command.AbilityId,
             manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             manaSourceSelection: command.ServerManaSourceSelection,
-            auditMetadata: new Dictionary<string, object?>(StringComparer.Ordinal)
-            {
-                ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
-                ["scoreAmount"] = 1,
-                ["sourceCardNo"] = sourceState.CardNo,
-                ["exhaustsSource"] = true
-            });
+            auditMetadata: paymentAudit);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -6198,8 +6212,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        var powerPurpose = PowerPurposeForActivatedAbility(ability);
+        if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
+                PaymentCostRules.PowerPoolForPurpose(adjustedPool, powerPurpose), ability.PowerCost,
+                powerCostByTrait, adjustedPool, powerPurpose))
+            return RejectWithCorePrompts(state, "技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
+        var debitPlan = powerSpend is null ? paymentPlan : PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, powerSpend);
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             runePools,
             state.PlayerExperience, state: state);
         if (!paymentCommit.Accepted)
