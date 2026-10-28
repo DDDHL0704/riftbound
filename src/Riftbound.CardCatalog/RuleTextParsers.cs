@@ -1119,6 +1119,22 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var unitEnemyDestroyedHereCallRuneMatch = Regex.Match(
+            segment,
+            @"每回合一次，当此处有一名敌方单位被摧毁时，召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
+            RegexOptions.CultureInvariant);
+        if (unitEnemyDestroyedHereCallRuneMatch.Success)
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune,
+                TriggerTimings.UnitDestroyed,
+                segment,
+                "A local enemy unit's destruction triggers a dormant rune call, once per source ability per turn.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere,
+                RuneCallCount: ParseChineseNumber(unitEnemyDestroyedHereCallRuneMatch.Groups[1].Value),
+                OncePerTurn: true);
+        }
+
         var unitFriendlyDestroyedGainExperienceMatch = Regex.Match(
             segment,
             @"当另一名友方单位被摧毁时，获得([0-9一两二三四五六七八九十]+)经验。?$",

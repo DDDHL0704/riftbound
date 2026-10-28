@@ -229,6 +229,8 @@ public static class TriggerKinds
         "LEGEND_HIGH_COST_SPELL_BANISH_COMPLETION";
     public const string UnitFriendlyDestroyedGainExperience =
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
+    public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
+        "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =

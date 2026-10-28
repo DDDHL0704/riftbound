@@ -456,6 +456,12 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·063", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
+        new("VEN·063a", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
+        new("VEN·178", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
         new("VEN·046", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
         new("VEN·046a", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
