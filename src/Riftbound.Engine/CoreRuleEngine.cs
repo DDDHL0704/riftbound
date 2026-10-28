@@ -3578,6 +3578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var spellOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).SpellOnlyMana;
         var duelOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).DuelOnlyMana;
+        var permanentPlayOnlyBeforePayment = runePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty).UnitOrEquipmentPlayOnlyPower;
         var debitPlan = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, spend) : paymentPlan;
         var paymentCommit = PaymentCostRules.TryCommitPayment(
             debitPlan,
@@ -3718,11 +3719,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["battlefieldObjectId"] = behavior.StandbyPlayFrom.Battlefield.ObjectId } };
         }
         events.AddRange(paymentEvents);
-        events.Add(
-            new GameEvent(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
-                PaymentCostRules.BuildCostPaidPayload(
+        var playPaidPayload = PaymentCostRules.BuildCostPaidPayload(
                     paymentPlan,
                     runePools,
                     playerExperience,
@@ -3755,7 +3752,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["luxSpellOnlyGeneratedMana"] = plan.LuxSpellOnlyGeneratedMana,
                     ["luxSpellOnlyConsumedMana"] = plan.LuxSpellOnlyConsumedMana,
                     ["luxSpellOnlyRemainingMana"] = plan.LuxSpellOnlyRemainingMana
-                })));
+                });
+        if (permanentPlayOnlyBeforePayment > 0)
+        {
+            var remaining = runePools[intent.PlayerId].UnitOrEquipmentPlayOnlyPower;
+            playPaidPayload["unitOrEquipmentPlayOnlyPowerSpent"] = permanentPlayOnlyBeforePayment - remaining;
+            playPaidPayload["remainingUnitOrEquipmentPlayOnlyPower"] = remaining;
+        }
+        events.Add(new GameEvent("COST_PAID", $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用", playPaidPayload));
         if (battlefieldNextSpellEchoConsumed)
         {
             events.Add(new GameEvent(
@@ -18365,7 +18369,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
             .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower))
+                || PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower,
+                    paymentAdjustedPool, powerPurpose))
             .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
@@ -18420,6 +18425,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAudit["empoweredSpellCostReductionPower"] = selectedPower.Reduction;
             if (spellPowerReductionChoices.Length > 0) paymentAudit["spellPowerReductionChoice"] = spellPowerReductionChoices[0];
         }
+        if (powerSpend?.Sources is { } selectedPowerSources)
+            paymentAudit["selectedPowerSources"] = selectedPowerSources;
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             PaymentCostRules.BuildPaymentId(state.Tick + 1, "PLAY_CARD", intent.PlayerId, command.SourceObjectId),
             "PLAY_CARD",
