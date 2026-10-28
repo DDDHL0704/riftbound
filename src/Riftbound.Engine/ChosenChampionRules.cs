@@ -7,7 +7,7 @@ internal static class ChosenChampionRules
     // CN 103.2.a.3: every hero unit with the chosen full name qualifies,
     // including another physical copy or alternate art. This is not an object ID.
     private static readonly Lazy<IReadOnlyDictionary<string, (string Name, string Subtitle)>> HeroNames = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(c => c.CardCategoryName == "英雄单位")
             .ToDictionary(c => OfficialCardSourceIdentityGroups.NormalizeCardNo(c.CardNo),
                 c => (c.CardName, c.SubTitle ?? ""), StringComparer.Ordinal));

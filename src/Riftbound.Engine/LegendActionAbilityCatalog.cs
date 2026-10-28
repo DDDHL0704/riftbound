@@ -6,6 +6,7 @@ namespace Riftbound.Engine;
 public static class LegendActionAbilityCatalog
 {
     public const string AkaliLegendAbilityId = "LEGEND_QUICK_EXHAUST_MOVE_DUEL_UNIT";
+    public const string ShenLegendAbilityId = "LEGEND_QUICK_EXHAUST_GRANT_BULWARK";
     public const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
     public const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
     public const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
@@ -53,21 +54,27 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> ShenSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards()
+            .Where(card => card.CardName == "暮光之眼" && card.Hero == "慎"
+                && card.CardEffect.StartsWith("{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> AkaliSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "离群之刺" && card.Hero == "阿卡丽"
+            && card.CardEffect.Contains("{{迅捷>}}{{横置}}：如果这是你的回合", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> RenektonSourceCardNos = new(() =>
         ReviewedResourceLegendSources.GetPhysicalPrints()
             .Where(card => card.CardName == "荒漠屠夫" && card.Hero == "雷克顿"
                 && card.CardEffect == "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。")
             .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
 
-    private static readonly Lazy<ImmutableArray<string>> AkaliSourceCardNos = new(() =>
-        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "离群之刺" && card.Hero == "阿卡丽"
-            && card.CardEffect.Contains("{{迅捷>}}{{横置}}：如果这是你的回合", StringComparison.Ordinal))
-            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
-
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
         if (string.Equals(abilityId, AkaliLegendAbilityId, StringComparison.Ordinal))
             return AkaliSourceCardNos.Value;
+        if (string.Equals(abilityId, ShenLegendAbilityId, StringComparison.Ordinal))
+            return ShenSourceCardNos.Value;
         if (string.Equals(abilityId, RenektonLegendAbilityId, StringComparison.Ordinal))
             return RenektonSourceCardNos.Value;
         return !string.IsNullOrWhiteSpace(abilityId)
