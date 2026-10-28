@@ -17,6 +17,13 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(1, payment.ManaCost);
         Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
         Assert.Equal(new[] { "SPEND_MANA:1", "DECLINE" }, payment.LegalPaymentChoiceIds);
+        var opened = Assert.Single(game.Events(), e => e.Event.Kind == "PAYMENT_WINDOW_OPENED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), AttackerObjectId)).Event.Payload;
+        Assert.Equal(payment.PaymentId, opened["paymentId"]);
+        Assert.Equal(payment.PaymentWindow, opened["paymentWindow"]);
+        Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, opened["trigger"]);
+        Assert.Equal(BattlefieldObjectId, opened["battlefieldObjectId"]);
+        Assert.Equal(new[] { "SPEND_MANA:1", "DECLINE" }, Assert.IsType<string[]>(opened["paymentChoices"]));
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(1, game.State.RunePools["P1"].Mana);
         AssertVayneJsonColdFrame(initial, game);
@@ -30,6 +37,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(AttackerObjectId, cost.Payload["sourceObjectId"]);
         Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, cost.Payload["reason"]);
         Assert.Equal(new[] { choice }, Assert.IsType<string[]>(cost.Payload["paymentChoiceIds"]));
+        var closed = Assert.Single(paid.Events, e => e.Kind == "PAYMENT_WINDOW_CLOSED").Payload;
+        Assert.Equal(payment.PaymentId, closed["paymentId"]);
+        Assert.Equal(AttackerObjectId, closed["sourceObjectId"]);
+        Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, closed["trigger"]);
+        Assert.Equal(false, closed["declined"]);
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
@@ -65,6 +77,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(1, game.State.RunePools["P1"].Mana);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(declined.Events, e => e.Kind is "COST_PAID" or "UNIT_RETURNED_TO_HAND");
+        var closed = Assert.Single(declined.Events, e => e.Kind == "PAYMENT_WINDOW_CLOSED").Payload;
+        Assert.Equal(payment.PaymentId, closed["paymentId"]);
+        Assert.Equal(AttackerObjectId, closed["sourceObjectId"]);
+        Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, closed["trigger"]);
+        Assert.Equal(true, closed["declined"]);
         Assert.DoesNotContain(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
         AssertVayneJsonColdFrame(initial, game);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
