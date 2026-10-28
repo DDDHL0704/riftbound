@@ -145,6 +145,28 @@ public sealed class RenektonInlinePaymentSecurityTests
     }
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TwoDifferentManaResourcesResolveInThePlayersSelectedOrder(bool luxFirst)
+    {
+        var initial = WithLegend(RestrictedManaLifecycleTests.Position());
+        initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(0, 2) } };
+        const string lux = "LUX_SPELL_ONLY_RESOURCE:LUX";
+        var command = new PlayCardCommand("FIRST", "OGN·268/298", ["FIELD"],
+            OptionalCosts: luxFirst ? [lux, Resource] : [Resource, lux]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.Equal(1, game.State.RunePools["P1"].SpellOnlyMana);
+        Assert.Equal(2, game.State.RunePools["P1"].UnitPlayOrUnitAbilityOnlyMana);
+        var gains = game.Events().Where(e => e.Event.Kind == "MANA_GAINED")
+            .Select(e => e.Event.Payload["sourceObjectId"]!.ToString()).ToArray();
+        Assert.Equal(luxFirst ? new[] { "LUX", "LEGEND" } : new[] { "LEGEND", "LUX" }, gains);
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task RecycledRunesCanFundTheLegendAndTheUnitInOnePayment(bool fundLegendFromRunes)
