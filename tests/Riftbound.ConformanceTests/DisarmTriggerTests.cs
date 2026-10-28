@@ -221,7 +221,8 @@ public sealed class DisarmTriggerTests
             "generation" => contribution with { Source = contribution.Source with { Generation = contribution.Source.Generation + 1 } },
             "card" => contribution with { CardNo = "OGN·001/298" },
             "aura" => contribution with { AuraKey = "FORGED" }, _ => contribution };
-        field = field with { Disarm = new(branch == "duplicate" ? [changed, changed] : [changed]) };
+        Assert.True(field.Disarm!.CapturedTick >= 0);
+        field = field with { Disarm = new(branch == "duplicate" ? [changed, changed] : [changed], field.Disarm.CapturedTick) };
         if (branch == "field-generation") field = field with { SourceGeneration = field.SourceGeneration + 1 };
         if (branch == "missing") field = field with { Disarm = null };
         if (branch == "other-kind") field = field with { Kind = "COMBAT_MIGHT" };
