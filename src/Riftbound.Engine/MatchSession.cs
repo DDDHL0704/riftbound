@@ -16261,7 +16261,10 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForPlay(behavior));
+        var powerPurpose = CoreRuleEngine.PowerPurposeForPlay(behavior);
+        var sourceBalances = PaymentCostRules.AvailablePowerSources(runePool, powerPurpose);
+        var showPowerSources = runePool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1;
+        runePool = PaymentCostRules.PowerPoolForPurpose(runePool, powerPurpose);
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByChoice = PlayCardPaymentResourcePowerByChoiceForBehavior(state, playerId, behavior, sourceObjectId);
@@ -16354,6 +16357,7 @@ internal static class ActionPromptBuilder
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
         if (manaCost.EmpoweredSpellReduction > 0) requirement["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
+        if (showPowerSources) requirement["availableWildcardSources"] = sourceBalances;
         if (reductionGroups.Count > 0)
             requirement["optionalCostReductionGroups"] = reductionGroups
                 .GroupBy(group => (group.SourceObjectId, group.SourceGeneration, group.SourceInstanceId, group.ComponentId))

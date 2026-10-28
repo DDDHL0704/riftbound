@@ -36,6 +36,10 @@ public sealed record PlayCostBreakdownDto(
     public int? RemainingDuelOnlyMana { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? AvailableWildcardSources { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? RemainingWildcardSources { get; init; }
 }
 
 // A quote is informational. Submission always rebuilds and authorizes its plan.

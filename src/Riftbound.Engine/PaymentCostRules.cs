@@ -30,7 +30,8 @@ public static class PaymentCostRules
             string? abilityId = null,
             IReadOnlyDictionary<string, object?>? auditMetadata = null,
             ManaPaymentPurpose manaPurpose = ManaPaymentPurpose.Other,
-            PowerPaymentPurpose? powerPurpose = null)
+            PowerPaymentPurpose? powerPurpose = null,
+            IReadOnlyDictionary<string, int>? powerSourceSelection = null)
         {
             PaymentId = NormalizeOptionalText(paymentId) ?? "UNKNOWN";
             PaymentWindow = NormalizeOptionalText(paymentWindow) ?? "UNKNOWN";
@@ -54,6 +55,7 @@ public static class PaymentCostRules
             ManaPurpose = manaPurpose;
             PowerPurpose = powerPurpose ?? (manaPurpose == ManaPaymentPurpose.PlaySpell
                 ? PowerPaymentPurpose.PlaySpell : PowerPaymentPurpose.Other);
+            PowerSourceSelection = powerSourceSelection?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             AuditMetadata = (auditMetadata ?? new Dictionary<string, object?>(StringComparer.Ordinal))
                 .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
                 .ToDictionary(entry => entry.Key.Trim(), entry => entry.Value, StringComparer.Ordinal);
@@ -94,6 +96,8 @@ public static class PaymentCostRules
         public ManaPaymentPurpose ManaPurpose { get; }
 
         public PowerPaymentPurpose PowerPurpose { get; }
+
+        public IReadOnlyDictionary<string, int>? PowerSourceSelection { get; }
 
         public IReadOnlyDictionary<string, object?> AuditMetadata { get; }
     }
@@ -144,6 +148,11 @@ public static class PaymentCostRules
             return new(false, "INSUFFICIENT_COST", "Not enough rune resources to pay the payment plan.");
         }
 
+        if (plan.PowerSourceSelection is { } selected
+            && (!CanSpendPowerSources(currentPool, plan.PowerPurpose, selected, plan.GenericPowerCost)
+                || plan.PowerCostByTrait.Any(cost => cost.Value > currentPool.PowerByTrait.GetValueOrDefault(cost.Key))))
+            return new(false, "INVALID_PAYMENT_PLAN", "The selected wildcard power sources cannot pay this plan.");
+
         if (currentExperience < plan.ExperienceCost)
         {
             return new(false, "INSUFFICIENT_COST", "Not enough experience to pay the payment plan.");
@@ -178,7 +187,8 @@ public static class PaymentCostRules
             currentPool,
             plan.GenericPowerCost,
             plan.PowerCostByTrait,
-            plan.PowerPurpose);
+            plan.PowerPurpose,
+            plan.PowerSourceSelection);
         var paidMana = SpendMana(currentPool, plan.TotalManaCost, plan.ManaPurpose, state);
         runePools[plan.PlayerId] = paidPower with {
             Mana = paidMana.Mana, SpellOnlyMana = paidMana.SpellOnlyMana, DuelOnlyMana = paidMana.DuelOnlyMana };
@@ -388,12 +398,50 @@ public static class PaymentCostRules
             EquipmentOnlyPower = purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment ? 0 : pool.EquipmentOnlyPower,
             UnitOrEquipmentPlayOnlyPower = purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment ? 0 : pool.UnitOrEquipmentPlayOnlyPower };
 
+    public static IReadOnlyDictionary<string, int> AvailablePowerSources(RunePool pool, PowerPaymentPurpose purpose)
+    {
+        var sources = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose)) return sources;
+        if (pool.Power > 0) sources["UNRESTRICTED"] = pool.Power;
+        if (purpose == PowerPaymentPurpose.PlaySpell && pool.SpellOnlyPower > 0) sources["SPELL_ONLY"] = pool.SpellOnlyPower;
+        if (purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment && pool.EquipmentOnlyPower > 0)
+            sources["EQUIPMENT_ONLY"] = pool.EquipmentOnlyPower;
+        if (purpose is PowerPaymentPurpose.PlayUnit or PowerPaymentPurpose.PlayEquipment && pool.UnitOrEquipmentPlayOnlyPower > 0)
+            sources["UNIT_OR_EQUIPMENT_PLAY_ONLY"] = pool.UnitOrEquipmentPlayOnlyPower;
+        return sources;
+    }
+
+    public static bool CanSpendPowerSources(RunePool pool, PowerPaymentPurpose purpose,
+        IReadOnlyDictionary<string, int> selection, int amount)
+    {
+        if (amount <= 0 || !pool.HasSupportedAmounts || !SupportedPowerPurpose(purpose) || selection.Count == 0) return false;
+        var available = AvailablePowerSources(pool, purpose);
+        long total = 0;
+        foreach (var (source, count) in selection)
+        {
+            if (count <= 0 || !available.TryGetValue(source, out var capacity) || count > capacity) return false;
+            total += count;
+        }
+        return total == amount;
+    }
+
     public static RunePool PayPowerCost(RunePool pool, int anyPowerCost,
-        IReadOnlyDictionary<string, int> powerCostByTrait, PowerPaymentPurpose purpose)
+        IReadOnlyDictionary<string, int> powerCostByTrait, PowerPaymentPurpose purpose,
+        IReadOnlyDictionary<string, int>? powerSourceSelection = null)
     {
         var view = PowerPoolForPurpose(pool, purpose);
         var paid = PayPowerCost(view, anyPowerCost, powerCostByTrait);
         var spent = view.Power - paid.AnyPower;
+        if (powerSourceSelection is { } selected)
+        {
+            if (!CanSpendPowerSources(pool, purpose, selected, spent))
+                throw new InvalidOperationException("Invalid selected wildcard power sources.");
+            return pool with { Power = pool.Power - selected.GetValueOrDefault("UNRESTRICTED"),
+                PowerByTrait = paid.PowerByTrait,
+                SpellOnlyPower = pool.SpellOnlyPower - selected.GetValueOrDefault("SPELL_ONLY"),
+                EquipmentOnlyPower = pool.EquipmentOnlyPower - selected.GetValueOrDefault("EQUIPMENT_ONLY"),
+                UnitOrEquipmentPlayOnlyPower = pool.UnitOrEquipmentPlayOnlyPower - selected.GetValueOrDefault("UNIT_OR_EQUIPMENT_PLAY_ONLY") };
+        }
         var spellSpent = purpose == PowerPaymentPurpose.PlaySpell ? Math.Min(pool.SpellOnlyPower, spent) : 0;
         var equipmentSpent = purpose is PowerPaymentPurpose.Equipment or PowerPaymentPurpose.PlayEquipment
             ? Math.Min(pool.EquipmentOnlyPower, spent - spellSpent) : 0;

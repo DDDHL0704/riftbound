@@ -37,6 +37,10 @@ public sealed partial class CoreRuleEngine
         var debit = plan.PowerSpend is { } spend ? PlayPowerSpendSelectionRules.DebitPlan(plan.Payment, spend) : plan.Payment;
         var remaining = accepted ? PaymentCostRules.PayPowerCost(powerPool, debit.GenericPowerCost, debit.PowerCostByTrait) : default;
         var remainingMana = accepted ? PaymentCostRules.SpendMana(pool, plan.TotalManaCost, plan.Payment.ManaPurpose, state) : null;
+        var sourceBalances = PaymentCostRules.AvailablePowerSources(pool, plan.Payment.PowerPurpose);
+        var showSources = pool.UnitOrEquipmentPlayOnlyPower > 0 || sourceBalances.Count > 1 || debit.PowerSourceSelection is not null;
+        var remainingPool = accepted && showSources ? PaymentCostRules.PayPowerCost(pool, debit.GenericPowerCost,
+            debit.PowerCostByTrait, debit.PowerPurpose, debit.PowerSourceSelection) : null;
         var adjustments = new List<PlayCostAdjustmentDto>();
         void Adjust(string label, int mana, int power = 0)
         {
@@ -80,7 +84,10 @@ public sealed partial class CoreRuleEngine
                     ? remainingMana!.SpellOnlyMana : 0,
                 AvailableDuelOnlyMana = PaymentCostRules.IsSpellDuel(state) ? pool.DuelOnlyMana : 0,
                 RemainingDuelOnlyMana = !accepted ? null : PaymentCostRules.IsSpellDuel(state) ? remainingMana!.DuelOnlyMana : 0,
-                SpellPowerReductionChoices = plan.SpellPowerReductionChoices };
+                SpellPowerReductionChoices = plan.SpellPowerReductionChoices,
+                AvailableWildcardSources = showSources ? sourceBalances : null,
+                RemainingWildcardSources = remainingPool is null ? null
+                    : PaymentCostRules.AvailablePowerSources(remainingPool, debit.PowerPurpose) };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
             accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
             accepted ? null : rejection.ErrorCode, cost);

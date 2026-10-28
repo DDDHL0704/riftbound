@@ -18365,7 +18365,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
                 || option.ChoiceId == spellPowerReductionChoices[0])
             .Where(option => powerSpend is null || !validateRepeats
-                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower))
+                || PlayPowerSpendSelectionRules.CanPay(powerSpend, spendablePowerPool, option.GenericPower, option.TypedPower,
+                    paymentAdjustedPool, powerPurpose))
             .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
@@ -18420,6 +18421,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAudit["empoweredSpellCostReductionPower"] = selectedPower.Reduction;
             if (spellPowerReductionChoices.Length > 0) paymentAudit["spellPowerReductionChoice"] = spellPowerReductionChoices[0];
         }
+        if (powerSpend?.Sources is { } selectedPowerSources)
+            paymentAudit["selectedPowerSources"] = selectedPowerSources;
         var paymentPlan = new PaymentCostRules.PaymentPlan(
             PaymentCostRules.BuildPaymentId(state.Tick + 1, "PLAY_CARD", intent.PlayerId, command.SourceObjectId),
             "PLAY_CARD",
