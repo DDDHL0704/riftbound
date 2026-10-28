@@ -414,6 +414,7 @@ public sealed partial class CoreRuleEngine
 
         var zones = NormalizeZonesForSeats(state);
         var playerZones = zones[item.ControllerId];
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         IReadOnlyDictionary<string, int> scores = state.PlayerScores;
         var rng = state.RngCursor;
         var burnouts = 0;
@@ -421,6 +422,11 @@ public sealed partial class CoreRuleEngine
         var moved = new List<string>();
         var batch = new List<string>();
         var events = new List<GameEvent>();
+        void AdvanceNonFieldIdentity(string id)
+        {
+            if (cards.TryGetValue(id, out var card))
+                cards[id] = card with { ObjectGeneration = checked(card.ObjectGeneration + 1), CopyFaceTransitions = null };
+        }
         void FlushMoved()
         {
             if (batch.Count == 0) return;
@@ -435,7 +441,15 @@ public sealed partial class CoreRuleEngine
         {
             // Move each card before the next attempt so an intervening burnout
             // recycles the graveyard as it exists at that exact point.
-            var draw = DrawOne(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts);
+            var draw = DrawOne(state with { CardObjects = cards, PlayerScores = scores, RngCursor = rng },
+                item.ControllerId, playerZones, burnouts);
+            // Burnout can recycle and then mill the same card within this
+            // instruction, leaving it in its original zone. Record each
+            // non-field crossing before the next step, not only the final zone.
+            var remainingGraveyard = draw.Graveyard.ToHashSet(StringComparer.Ordinal);
+            foreach (var id in playerZones.Graveyard.Where(id => !remainingGraveyard.Contains(id)))
+                AdvanceNonFieldIdentity(id);
+            foreach (var id in draw.DrawnCards) AdvanceNonFieldIdentity(id);
             if (draw.Burnouts.Count > 0) FlushMoved();
             foreach (var burnout in draw.Burnouts)
                 events.Add(new GameEvent("BURNOUT_APPLIED", $"{item.ControllerId} 执行燃尽",
@@ -462,7 +476,7 @@ public sealed partial class CoreRuleEngine
                 ["battlefieldCardNo"] = context.CardNo, ["trigger"] = item.EffectKind,
                 ["sourceObjectId"] = hiddenConquestSource ? "HIDDEN" : context.ConquestSourceObjectId, ["count"] = moved.Count }));
         if (winner is not null) events.Add(BuildScoreVictoryEvent(winner, EffectiveWinningScore(state)));
-        return new(zones, state.CardObjects, scores, NormalizeExperienceForSeats(state), state.RunePools,
+        return new(zones, cards, scores, NormalizeExperienceForSeats(state), state.RunePools,
             state.UntilEndOfTurnEffects, winner, events, [], null, [], null, [], rng);
     }
 }
