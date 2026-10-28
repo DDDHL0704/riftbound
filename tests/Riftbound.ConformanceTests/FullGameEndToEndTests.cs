@@ -1479,6 +1479,7 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-candlelit-sanctum-conquer");
+        triggered = triggered with { Events = journal.Entries.SelectMany(entry => entry.Events).ToArray() };
         AssertBattlefieldConquerRevealRecycleResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -3625,6 +3626,7 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-ravenbloom-defend");
+        triggered = triggered with { Events = journal.Entries.SelectMany(entry => entry.Events).ToArray() };
         AssertBattlefieldDefendRevealSpellResolved(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
