@@ -61,7 +61,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     {
         const string secondMixed = "P2-SECOND-MIXED";
         var defenders = new[] { BulwarkDefenderObjectId, BackRowDefenderObjectId, secondMixed };
-        var initial = BuildNaturalStartBattleState(defenderObjectIds: defenders);
+        var initial = WithRecoverySeats(BuildNaturalStartBattleState(defenderObjectIds: defenders));
         var cards = new Dictionary<string, CardObjectState>(initial.CardObjects, StringComparer.Ordinal)
         {
             [AttackerObjectId] = initial.CardObjects[AttackerObjectId] with { Power = 3 },
@@ -90,7 +90,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     {
         const string otherNormal = "P2-OTHER-NORMAL";
         var defenders = new[] { BulwarkDefenderObjectId, BackRowDefenderObjectId, otherNormal };
-        var initial = BuildNaturalStartBattleState(defenderObjectIds: defenders);
+        var initial = WithRecoverySeats(BuildNaturalStartBattleState(defenderObjectIds: defenders));
         var cards = new Dictionary<string, CardObjectState>(initial.CardObjects, StringComparer.Ordinal)
         {
             [AttackerObjectId] = initial.CardObjects[AttackerObjectId] with { Power = 2 },
@@ -116,7 +116,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
     private static MatchState MixedDefenderPosition()
     {
-        var state = BuildNaturalStartBattleState();
+        var state = WithRecoverySeats(BuildNaturalStartBattleState());
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
             [BulwarkDefenderObjectId] = MixedKeywords(state.CardObjects[BulwarkDefenderObjectId], 2),
@@ -127,7 +127,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
 
     private static MatchState MixedAttackerPosition()
     {
-        var state = BuildNaturalStartBattleState(includeSecondAttacker: true);
+        var state = WithRecoverySeats(BuildNaturalStartBattleState(includeSecondAttacker: true));
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects, StringComparer.Ordinal)
         {
             [AttackerObjectId] = MixedKeywords(state.CardObjects[AttackerObjectId], 2),
@@ -138,7 +138,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     }
 
     private static CardObjectState MixedKeywords(CardObjectState card, int power)
-        => card with { Power = power, Tags = [CardObjectTags.UnitCard, CardCombatKeywordNames.Bulwark, CardCombatKeywordNames.BackRow] };
+        => card with { Power = power, Tags = new[] { CardObjectTags.UnitCard, CardCombatKeywordNames.Bulwark, CardCombatKeywordNames.BackRow }
+            .OrderBy(tag => tag, StringComparer.Ordinal).ToArray() };
+
+    private static MatchState WithRecoverySeats(MatchState state)
+        => state with { Seats = new Dictionary<string, string>(StringComparer.Ordinal) { ["P1"] = "P1", ["P2"] = "P2" } };
 
     private static void WriteConflictingAssignmentDiagnostic(string name, MatchState initial, MatchState before,
         AssignCombatDamageCommand command, ResolutionResult result)
