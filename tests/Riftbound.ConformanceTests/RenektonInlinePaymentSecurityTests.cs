@@ -70,6 +70,11 @@ public sealed class RenektonInlinePaymentSecurityTests
         var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
         Assert.True(quote.CanPay, quote.Message);
         Assert.Equal(2, quote.Cost!.RemainingUnitPlayOrUnitAbilityOnlyMana);
+        var quoteCost = JsonSerializer.SerializeToElement(quote.Cost, Web);
+        var resourceCost = Assert.Single(quoteCost.GetProperty("paymentResourceActions").EnumerateArray());
+        Assert.Equal(selected, resourceCost.GetProperty("actionId").GetString());
+        Assert.Equal(2, resourceCost.GetProperty("powerCost").GetInt32());
+        Assert.Equal(2, resourceCost.GetProperty("unitPlayOrUnitAbilityOnlyManaGained").GetInt32());
         var game = new Driver(initial);
         await game.Act("P1", command);
         Assert.Equal(2, game.State.RunePools["P1"].UnitPlayOrUnitAbilityOnlyMana);
@@ -147,6 +152,25 @@ public sealed class RenektonInlinePaymentSecurityTests
         Assert.Equal(0, game.State.RunePools["P1"].TotalStoredMana);
         Assert.Equal(0, game.State.RunePools["P1"].TotalStoredPower);
         await game.Replay();
+    }
+
+    [Fact]
+    public async Task PromptAndCommitRespectTheSharedRunePowerCapacity()
+    {
+        var initial = UnitPosition(new RunePool(2, 0, unitOrEquipmentPlayOnlyPower: int.MaxValue - 1));
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Red, "RED-1");
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Red, "RED-2");
+        var action = "LEGEND_RESOURCE:LEGEND:" + Ability + ":POWER_SPEND:red:2";
+        var command = new PlayCardCommand("CARD", "SFD·143/221", [], OptionalCosts:
+            ["RECYCLE_RUNE:RED-1", "RECYCLE_RUNE:RED-2", action, Mana], Destination: "BASE");
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        Assert.DoesNotContain(prompt.Candidates ?? [], c => c.Action == CommandTypes.PlayCard
+            && (c.Sources ?? []).Any(s => s.Id == "CARD"));
+        var before = MatchStateHasher.Hash(initial);
+        Assert.False(new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command)).CanPay);
+        var result = await new CoreRuleEngine().ResolveAsync(initial, new("legend-rune-overflow", "P1", command.CmdType), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
     }
 
     private static MatchState UnitPosition(RunePool pool)
