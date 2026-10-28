@@ -10,53 +10,53 @@ public sealed class MoonveilHiddenTargetResponseTests
     [Theory]
     [InlineData("P1")]
     [InlineData("P2")]
-    public async Task ReturningTheConfirmedEquipmentToHandHidesItsIdentityAndDoesNotRetarget(string player)
+    public async Task SyntheticReturnToHandHidesTheConfirmedTargetAndDoesNotRetarget(string player)
     {
+        // This controlled component transition is not an actual response: SFD·135/221
+        // has Swift, not Reaction, and cannot be played in this closed window.
         var initial = ThreeBattlefieldTimingProbe.Position(player, "SFD·221/221", equipment: true);
-        var opponent = ThreeBattlefieldTimingProbe.Other(player);
         initial = initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                ["PULL"] = new("PULL", cardNo: "SFD·135/221", tags: [CardObjectTags.SpellCard], ownerId: player, controllerId: player),
-                ["OWN-RUNE"] = new("OWN-RUNE", cardNo: "UNL-R04", tags: [CardObjectTags.RuneCard], ownerId: player, controllerId: player),
                 ["BACKUP"] = new("BACKUP", cardNo: "SFD·019/221", isExhausted: true,
                     tags: [CardObjectTags.EquipmentCard], ownerId: player, controllerId: player) },
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
-                [player] = initial.PlayerZones[player] with { Hand = initial.PlayerZones[player].Hand.Append("PULL").ToArray(),
-                    Base = initial.PlayerZones[player].Base.Concat(["OWN-RUNE", "BACKUP"]).ToArray() } },
+                [player] = initial.PlayerZones[player] with { Base = initial.PlayerZones[player].Base.Append("BACKUP").ToArray() } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
-                ["PULL"] = new(player, "HAND"), ["OWN-RUNE"] = new(player, "BASE"), ["BACKUP"] = new(player, "BASE") } };
-        var evidence = Environment.GetEnvironmentVariable("RIFTBOUND_THREE_FIELD_EVIDENCE");
-        var driver = new StandbyDefendObserverTests.Driver(initial,
-            evidence is null ? null : Path.Combine(evidence, "moonveil-hidden-target-" + player));
+                ["BACKUP"] = new(player, "BASE") } };
+        var before = new ThreeBattlefieldTimingProbe.Trace(initial, "moonveil-hidden-before-" + player);
         try
         {
-            await driver.Act(player, new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
-            await driver.Act(player, new PassFocusCommand());
-            await driver.Act(opponent, new PassFocusCommand());
-            var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
-            await driver.Act(player, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["EQUIP"]));
-            var pending = Assert.Single(driver.State.StackItems, i => i.EffectKind == TriggerKinds.BattlefieldConquerReadyEquipment);
+            await before.Conquer(player);
+            await before.Choose(true, "EQUIP", targetMustBeChosen: true);
+            var pending = Assert.Single(before.State.StackItems, i => i.EffectKind == TriggerKinds.BattlefieldConquerReadyEquipment);
             var generation = pending.TargetGenerations!["EQUIP"];
-            Assert.Equal(player, driver.State.PriorityPlayerId);
-            await driver.Act(player, new TapRuneCommand("OWN-RUNE"));
-            var cast = await driver.Act(player, new PlayCardCommand("PULL", "SFD·135/221", ["EQUIP"]));
-            Assert.Equal(1, Assert.Single(cast.Events, e => e.Kind == "COST_PAID").Payload["totalManaCost"]);
-            await driver.Top();
-            Assert.Contains("EQUIP", driver.State.PlayerZones[player].Hand);
-            Assert.True(driver.State.CardObjects["EQUIP"].ObjectGeneration > generation);
-            var retained = Assert.Single(driver.State.StackItems, i => i.StackItemId == pending.StackItemId);
+            var zones = new Dictionary<string, PlayerZones>(before.State.PlayerZones) {
+                [player] = before.State.PlayerZones[player] with {
+                    Base = before.State.PlayerZones[player].Base.Where(id => id != "EQUIP").ToArray(),
+                    Hand = before.State.PlayerZones[player].Hand.Append("EQUIP").ToArray() } };
+            var cards = new Dictionary<string, CardObjectState>(before.State.CardObjects) {
+                ["EQUIP"] = before.State.CardObjects["EQUIP"] with { ObjectGeneration = generation + 1, IsExhausted = false } };
+            var locations = new Dictionary<string, ObjectLocationState>(before.State.ObjectLocations) {
+                ["EQUIP"] = new(player, "HAND") };
+            var changed = before.State with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+            var retained = Assert.Single(changed.StackItems, i => i.StackItemId == pending.StackItemId);
             Assert.Equal(generation, retained.TargetGenerations!["EQUIP"]);
-            var view = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(driver.State)[opponent],
+            var opponent = ThreeBattlefieldTimingProbe.Other(player);
+            var view = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(changed)[opponent],
                 new JsonSerializerOptions(JsonSerializerDefaults.Web));
             var row = Assert.Single(view.GetProperty("stack").EnumerateArray(),
                 e => e.GetProperty("stackItemId").GetString() == pending.StackItemId);
             Assert.Equal("HIDDEN", Assert.Single(row.GetProperty("targetObjectIds").EnumerateArray()).GetString());
-            var resolved = await driver.Top();
-            Assert.DoesNotContain(resolved.Events, e => e.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
-            Assert.True(driver.State.CardObjects["BACKUP"].IsExhausted);
-            Assert.Null(driver.State.PendingCardChoice);
-            await RideTheWindCurrentMovementTests.Replay(initial, driver);
+            var after = new ThreeBattlefieldTimingProbe.Trace(changed, "moonveil-hidden-after-" + player);
+            try
+            {
+                var resolved = await after.Top();
+                Assert.DoesNotContain(resolved.Events, e => e.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+                Assert.True(after.State.CardObjects["BACKUP"].IsExhausted);
+                Assert.Null(after.State.PendingCardChoice);
+            }
+            finally { after.Save(); }
         }
-        finally { driver.Export("summary.json", new { initial, state = driver.State, commands = driver.Commands(), events = driver.Events() }); }
+        finally { before.Save(); }
     }
 }
