@@ -61,7 +61,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var validation = OfficialDeckValidator.Validate(result, catalog); Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
             return result;
         }
-        var own = Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]);
+        var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
         var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-010-CURRENT-GRAVE-" + actor + "-" + add,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
@@ -138,7 +138,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             }
             return result;
         }
-        var own = Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]);
+        var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
         var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
         var run = new CopiedDuelInsightOpeningTests.Opening(10010 + (actor == "P1" ? 0 : 2) + (add ? 0 : 1), OfficialDeckFormat.ChinaStandard20260724);
         string[] forgeryErrors = [];
@@ -214,6 +214,18 @@ public sealed class Ven010PaidCurrentGraveConsumers
         }
     }
 
+    private static OfficialDecklist ArrangeGraveReactionDeck(OfficialDecklist deck)
+    {
+        // Submit a fixed legal order with enough cards left for Moon's two draws;
+        // the normal opening still shuffles the deck and draws naturally.
+        var cards = deck.MainDeck.ToArray();
+        Assert.Equal(deck.ChampionCardNo, cards[0]);
+        Assert.Equal(new[] { Curse, Curse, Curse }, cards[4..7]);
+        foreach (var (from, to) in new[] { (4, 11), (5, 20), (6, 21) })
+            (cards[from], cards[to]) = (cards[to], cards[from]);
+        return deck with { MainDeck = cards };
+    }
+
     private static async Task Sequence(Func<MatchState> state, Func<string, GameCommand, Task> act, Func<Task> top, Func<RecoveredEvent[]> events,
         string actor, string unit, string[] curses, string enemyCurse, string moon, string dispose, string field, bool add,
         Func<PlayCardCommand, Task>? rejectOneShort = null)
@@ -252,6 +264,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
         var beforeRecycledGeneration = state().CardObjects[curses[0]].ObjectGeneration;
         if (add)
         {
+            Assert.True(state().PlayerZones[actor].MainDeck.Count >= 2, "This discard scenario requires two draws without burnout.");
             await Cast(actor, moon, Moon, [curses[2]], 3); Assert.Contains(curses[2], state().PlayerZones[actor].Hand);
             Assert.Equal(new[] { curses[0] }, Graves(state(), actor)); var hand = state().PlayerZones[actor].Hand.Count;
             await top(); Assert.Contains(curses[2], state().PlayerZones[actor].Graveyard);
