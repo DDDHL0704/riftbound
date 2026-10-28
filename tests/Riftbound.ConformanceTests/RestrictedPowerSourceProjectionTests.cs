@@ -24,9 +24,10 @@ public sealed class RestrictedPowerSourceProjectionTests
         Assert.Equal(1, quote.Cost!.AvailableWildcardSources!["EQUIPMENT_ONLY"]);
         Assert.Equal(1, quote.Cost.AvailableWildcardSources["UNIT_OR_EQUIPMENT_PLAY_ONLY"]);
         Assert.Equal(1, quote.Cost.AvailableWildcardSources["UNRESTRICTED"]);
-        Assert.Equal(equipment, quote.Cost.RemainingWildcardSources!.GetValueOrDefault("EQUIPMENT_ONLY"));
-        Assert.Equal(union, quote.Cost.RemainingWildcardSources.GetValueOrDefault("UNIT_OR_EQUIPMENT_PLAY_ONLY"));
-        Assert.Equal(ordinary, quote.Cost.RemainingWildcardSources.GetValueOrDefault("UNRESTRICTED"));
+        var remaining = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(quote.Cost.RemainingWildcardSources);
+        Assert.Equal(equipment, remaining.GetValueOrDefault("EQUIPMENT_ONLY"));
+        Assert.Equal(union, remaining.GetValueOrDefault("UNIT_OR_EQUIPMENT_PLAY_ONLY"));
+        Assert.Equal(ordinary, remaining.GetValueOrDefault("UNRESTRICTED"));
         Assert.Equal(before, MatchStateHasher.Hash(state));
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var candidate = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.PlayCard);
