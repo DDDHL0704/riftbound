@@ -409,24 +409,30 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
     ? (steps.slice(1).flatMap((s) => s.choices) as Choice[]).filter((c, i, all) => all.findIndex((x) => x.id === c.id) === i)
     : md.paymentResourceChoices ?? [];
   const cost = md.cost as { mana?: number; power?: number; powerByTrait?: Record<string, number> } | undefined;
-  const pay = (ids: string[]) =>
-    client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+  const decline = (id: string) => client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [id] });
   // Runes may be tapped inside a payment window; when the pool is short, tap first and then pay.
   const readyRunes = (enabledCandidate(prompt, "TAP_RUNE")?.sources ?? []).map((r) => r.id);
   const missingMana = Math.max(0, (cost?.mana ?? 0) - (pool?.mana ?? 0));
+  const canTap = missingMana === 0 || readyRunes.length >= missingMana;
+  // Power the pool lacks is covered by recycling runes in the same payment; pick the unpicked ones.
+  const missingPower = Math.max(0, (cost?.power ?? 0) - (pool?.power ?? 0) - recycles.length);
+  const extraRecycles = recycleOptions.map((c) => c.id).filter((id) => !recycles.includes(id)).slice(0, missingPower);
+  const canPay = canTap && extraRecycles.length >= missingPower;
   const tapThenPay = async (ids: string[]) => {
-    if (missingMana > 0 && readyRunes.length >= missingMana) {
+    let fresh = md;
+    if (missingMana > 0) {
       const tap = readyRunes.slice(0, missingMana);
       const receipt = await client.submit({ cmdType: "TAP_RUNE", sourceObjectId: tap[0], sourceObjectIds: tap });
       if (!receipt?.accepted) return;
       // Pay against the fresh prompt the tap produced.
-      const fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
-      await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
-      return;
+      fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
     }
-    await pay(ids);
+    await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles, ...extraRecycles] });
   };
-  const payLabel = (base: string) => (missingMana > 0 && readyRunes.length >= missingMana ? `横置 ${missingMana} 枚符文并${base}` : base);
+  const payLabel = (base: string) => {
+    const pre = [missingMana > 0 && `横置 ${missingMana} 枚符文`, missingPower > 0 && `回收 ${missingPower} 枚符文`].filter(Boolean).join("、");
+    return pre ? `${pre}并${base}` : base;
+  };
   const toggle = (id: string) => setRecycles((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
   return (
@@ -439,9 +445,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
           {pool && <span className="muted">（法力池：{pool.mana} 法力，{pool.power} 符能）</span>}
         </p>
       ) : null}
-      {missingMana > 0 && readyRunes.length < missingMana && (
-        <p className="small warn">法力不足，可用的未横置符文也不够，只能选择放弃。</p>
-      )}
+      {!canPay && <p className="small warn">{canTap ? "符能不足，可回收的符文也不够" : "法力不足，可用的未横置符文也不够"}，只能选择放弃。</p>}
       {recycleOptions.length > 0 && (
         <div className="panel__group">
           <p className="small">可回收符文来支付符能：</p>
@@ -461,14 +465,15 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
             <button
               key={c.id}
               className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`}
-              onClick={() => void (/DECLINE/.test(c.id) ? pay([c.id]) : tapThenPay([c.id]))}
+              disabled={!/DECLINE/.test(c.id) && !canPay}
+              onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : tapThenPay([c.id]))}
             >
               {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
             </button>
           ))}
         </div>
       ) : (
-        <button className="btn btn--primary btn--wide" onClick={() => void tapThenPay(spend.map((c) => c.id))}>
+        <button className="btn btn--primary btn--wide" disabled={!canPay} onClick={() => void tapThenPay(spend.map((c) => c.id))}>
           {payLabel(spend.length ? spend.map((c) => c.label).join("，") : "确认支付")}
         </button>
       )}
@@ -567,8 +572,33 @@ function StackView({ snapshot, objects, meId, onHover }: { snapshot: Snapshot; o
 
 /** Server descriptions sometimes embed raw object ids; show card names instead. */
 function readable(text: string, objects: Record<string, GameObject>, pattern: RegExp | null) {
-  if (!pattern) return text;
-  return text.replace(/STACK-\d+-/g, "").replace(pattern, (id) => `「${cardName(objects[id]?.cardNo)}」`);
+  const named = pattern ? text.replace(/STACK-\d+-/g, "").replace(pattern, (id) => `「${cardName(objects[id]?.cardNo)}」`) : text;
+  return orderedItem(named) ?? named;
+}
+
+// Resolution lines for queued items carry the item's internal key, e.g.
+// "ordered-movement-87-1-「后巷酒吧」-BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER-「冰谷弓箭手」 结算".
+// Keep the card that owns the item (named right before its ability key, else the first card named)
+// and say what kind of item it was.
+const ORDERED_KINDS: [RegExp, string][] = [
+  [/LAST_BREATH|^TRIGGER-death-/, "绝念"],
+  [/^TRIGGER-/, "触发技能"],
+  [/^movement-/, "移动触发"],
+  [/^conquest-/, "征服效果"],
+  [/^held-/, "据守效果"],
+  [/^delayed-/, "延迟效果"],
+  [/^ephemeral-/, "瞬息效果"],
+  [/^copy-/, "复制效果"],
+  [/^(printed-)?predict-/, "预知"],
+];
+
+function orderedItem(text: string) {
+  const m = /^ordered-(\S+)\s+(\S+)$/.exec(text);
+  if (!m) return null;
+  const [, key, verb] = m;
+  const kind = ORDERED_KINDS.find(([re]) => re.test(key))?.[1] ?? "效果";
+  const source = /(「[^」]+」)-[A-Z][A-Z0-9_]*(?:-|$)/.exec(key)?.[1] ?? /「[^」]+」/.exec(key)?.[0];
+  return source ? `${source}的${kind}${verb}` : `${kind}${verb}`;
 }
 
 // A rune tap (or recycle) is followed by a "gained mana (power)" event saying the same thing.

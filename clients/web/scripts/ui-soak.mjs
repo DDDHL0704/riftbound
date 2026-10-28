@@ -15,6 +15,8 @@ const WEB = process.env.WEB_URL || "http://127.0.0.1:5176";
 const OUT_DIR = path.resolve(process.env.SOAK_OUT || "soak-results");
 const PAIRS = (process.argv[2] || "0-1,2-4,3-9,5-10,6-7,8-0").split(",").map((p) => p.split("-").map(Number));
 const STEP_CAP = Number(process.argv[3] || 1200);
+const SHOT_EVERY = Number(process.env.SOAK_SHOTS || 0);
+const [VW, VH] = (process.env.SOAK_VIEW || "1440x900").split("x").map(Number);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Runs inside the page: performs one UI action, returns a short label or null when nothing to do.
@@ -202,7 +204,7 @@ async function login(page, handle) {
 
 async function playMatch(browser, a, b, idx) {
   const report = { pair: [a, b], stuck: [], rejections: [], pageErrors: [], actions: {}, titles: {}, steps: 0, result: null };
-  const ctxs = [await browser.newContext({ viewport: { width: 1440, height: 900 } }), await browser.newContext({ viewport: { width: 1440, height: 900 } })];
+  const ctxs = [await browser.newContext({ viewport: { width: VW, height: VH } }), await browser.newContext({ viewport: { width: VW, height: VH } })];
   const pages = await Promise.all(ctxs.map((c) => c.newPage()));
   // Tally the floating feedback marks (damage / destroy / score) the page shows during the match.
   for (const p of pages)
@@ -249,6 +251,9 @@ async function playMatch(browser, a, b, idx) {
     for (let i = 0; i < 2; i++) {
       const p = pages[i];
       const label = await p.evaluate(STEP).catch((e) => "EVAL_ERR " + e.message.slice(0, 120));
+      if (process.env.SOAK_LOG)
+        for (const t of await p.$$eval(".log__item", (els) => els.map((e) => e.textContent ?? "")).catch(() => []))
+          (report.logLines ??= new Set()).add(t.replace(/×\d+$/, ""));
       if (label === "RESULT") {
         report.result = await p.evaluate(() => document.querySelector(".result")?.textContent ?? null);
         break;
@@ -263,6 +268,9 @@ async function playMatch(browser, a, b, idx) {
         if (label.startsWith("pick:cancel-empty")) (report.emptyPicks ??= []).push(label.slice(18));
         report.actions[key] = (report.actions[key] ?? 0) + 1;
         await sleep(250);
+        // SOAK_SHOTS=n saves both seats every n actions, for reviewing the table by eye.
+        if (SHOT_EVERY && report.steps % SHOT_EVERY === 0)
+          for (const [j, q] of pages.entries()) await q.screenshot({ path: path.join(OUT_DIR, `view-${idx}-${String(report.steps).padStart(4, "0")}-${j}.png`) });
         const toast = await p.evaluate(() => {
           const t = document.querySelector(".toast");
           const text = t?.textContent ?? null;
@@ -295,6 +303,12 @@ async function playMatch(browser, a, b, idx) {
     if (report.stuck.length >= 3) break;
   }
   report.seconds = Math.round((Date.now() - t0) / 1000);
+  // SOAK_EVAL=file.js runs that script in both seats when the match stops, e.g. to measure layout.
+  if (process.env.SOAK_EVAL) {
+    const code = fs.readFileSync(process.env.SOAK_EVAL, "utf8");
+    report.eval = await Promise.all(pages.map((q) => q.evaluate(code).catch((e) => String(e))));
+  }
+  if (report.logLines) report.logLines = [...report.logLines].sort();
   report.fx = await pages[0].evaluate(() => window.__fx).catch(() => null);
   report.score = await pages[0].$$eval(".spine__score", (els) => els.map((e) => e.textContent)).catch(() => null);
   await Promise.all(ctxs.map((c) => c.close()));
