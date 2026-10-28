@@ -199,6 +199,39 @@ public sealed class RenektonInlinePaymentSecurityTests
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
     }
 
+    [Fact]
+    public async Task SpendingLegendPowerCanOpenCapacityForAThenRecycledRune()
+    {
+        var initial = UnitPosition(new RunePool(2, 2, unitOrEquipmentPlayOnlyPower: int.MaxValue - 2));
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Purple, "PURPLE");
+        var costs = new[] { Resource, "RECYCLE_RUNE:PURPLE", Mana, "POWER_SPEND:purple:1" };
+        var command = new PlayCardCommand("CARD", "SFD·143/221", [], OptionalCosts: costs, Destination: "BASE");
+        var engine = new CoreRuleEngine();
+        var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        var play = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var unit = Assert.Single(JsonSerializer.SerializeToElement(play.Metadata, Web).GetProperty("sourceRequirements").EnumerateArray(),
+            r => r.GetProperty("sourceObjectId").GetString() == "CARD");
+        Assert.Contains(unit.GetProperty("paymentResourceChoices").EnumerateArray(),
+            c => c.GetProperty("id").GetString() == "RECYCLE_RUNE:PURPLE");
+        var game = new Driver(initial);
+        await game.Act("P1", command);
+        Assert.Equal(int.MaxValue - 2, game.State.RunePools["P1"].UnitOrEquipmentPlayOnlyPower);
+        var events = game.Events();
+        var legend = Array.FindIndex(events, e => e.Event.Kind == "COST_PAID" && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), Ability));
+        var recycled = Array.FindIndex(events, e => e.Event.Kind == "RUNE_RECYCLED");
+        Assert.True(legend >= 0 && recycled > legend);
+        await game.Replay();
+
+        var reversed = command with { OptionalCosts = ["RECYCLE_RUNE:PURPLE", Resource, Mana, "POWER_SPEND:purple:1"] };
+        var hash = MatchStateHasher.Hash(initial);
+        Assert.False(engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, reversed)).CanPay);
+        var rejected = await engine.ResolveAsync(initial, new("rune-before-capacity", "P1", reversed.CmdType), reversed, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+    }
+
     private static MatchState UnitPosition(RunePool pool)
     {
         var state = WithLegend(RestrictedPowerPlayTests.Position("SFD·143/221", false));
