@@ -559,6 +559,8 @@ public sealed record CardObjectState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsEmpowered { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<BanishReplacementOrigin>? BanishReplacementOrigins { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachmentUnitCopyLedger? AttachmentUnitCopies { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CopyFaceTransition>? CopyFaceTransitions { get; init; }
@@ -792,6 +794,8 @@ public sealed record StackItemState
     public LegendUnitEffectContext? LegendUnitEffect { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendEquipmentReadyContext? LegendEquipmentReady { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LegendDiscardDrawContext? LegendDiscardDraw { get; init; }
     public AzirMovementContext? AzirMovement { get; init; }
     public EquipContext? Equip { get; init; }
     public IReadOnlyList<string>? MovementDestinations { get; init; }
@@ -1212,6 +1216,9 @@ public sealed record PendingHandChoiceState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathDrawContext? LastBreathDraw { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LegendDiscardDrawContext? LegendDiscardDraw { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -4554,7 +4561,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, IsEmpowered = state.IsEmpowered, AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, IsEmpowered = state.IsEmpowered, BanishReplacementOrigins = state.BanishReplacementOrigins?.ToArray(), AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -4576,7 +4583,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, LegendDiscardDraw = item.LegendDiscardDraw, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4639,7 +4646,7 @@ public sealed record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw };
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw, LegendDiscardDraw = pendingHandChoice.LegendDiscardDraw };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -4929,7 +4936,8 @@ public sealed record ResolutionResult(
         if (trigger.DamageDestruction is not null) return "受伤后摧毁原单位";
         if (trigger.GraveyardPlay is not null) return "支付费用，从废牌堆打出原卡牌";
         if (trigger.DelayedEmpower is { } delayedEmpower) return CoreRuleEngine.DelayedEmpowerLabel(delayedEmpower);
-        if (trigger.EmpowerOtherObserver is not null) return "其他物体被强化：强化来源";
+        if (trigger.EmpowerOtherObserver is not null) return trigger.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
+            ? "放逐自己的卡牌：强化来源" : "其他物体被强化：强化来源";
         if (trigger.OutsideHandPlayObserver is not null) return "从手牌以外打出卡牌：强化来源";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunReadyPowerKind) return "眩晕敌方单位：活跃来源并获得战力";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunBoonKind) return "眩晕敌方单位：给予友方单位增益";
@@ -4959,7 +4967,8 @@ public sealed record ResolutionResult(
         if (trigger.DamageDestruction is not null) return "原单位已受到伤害；双方可以响应，结算时摧毁其原实例。";
         if (trigger.GraveyardPlay is not null) return "使用法术摧毁单位后，可选择支付基础费用确认；双方响应后，从废牌堆打出原卡牌。";
         if (trigger.DelayedEmpower is not null) return "双方响应后，对此前绑定的同一代单位执行强化状态操作。";
-        if (trigger.EmpowerOtherObserver is not null) return "其他物体被你强化；双方响应后强化来源。";
+        if (trigger.EmpowerOtherObserver is not null) return trigger.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
+            ? "你放逐了属于自己的卡牌；双方响应后强化来源。" : "其他物体被你强化；双方响应后强化来源。";
         if (trigger.OutsideHandPlayObserver is not null) return "从手牌以外打出卡牌；双方响应后强化来源。";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunReadyPowerKind) return "眩晕敌方单位；双方响应后活跃来源并给予战力。";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunBoonKind) return "眩晕敌方单位；选择友方单位，双方响应后给予增益。";
@@ -5690,7 +5699,9 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.LegendUnitKeyword is not null) view["abilityLabel"] = "传奇技能：双方响应后给予单位关键词";
         if (!hiddenSource && item.LegendUnitEffect is not null) view["abilityLabel"] = "传奇技能：双方响应后处理单位";
         if (!hiddenSource && item.LegendEquipmentReady is not null) view["abilityLabel"] = "传奇技能：双方响应后使装备活跃";
-        if (!hiddenSource && item.EmpowerOtherObserver is not null) view["abilityLabel"] = "其他物体被强化：双方响应后强化来源";
+        if (!hiddenSource && item.LegendDiscardDraw is not null) view["abilityLabel"] = "传奇技能：双方响应后弃一张牌，再抽一张牌";
+        if (!hiddenSource && item.EmpowerOtherObserver is not null) view["abilityLabel"] = item.EffectKind == CoreRuleEngine.OwnedBanishEmpowerEffect
+            ? "放逐自己的卡牌：双方响应后强化来源" : "其他物体被强化：双方响应后强化来源";
         if (!hiddenSource && item.OutsideHandPlayObserver is not null) view["abilityLabel"] = "从手牌以外打出卡牌：双方响应后强化来源";
         if (!hiddenSource && item.FieldContext?.Kind == CoreRuleEngine.StunReadyPowerKind) view["abilityLabel"] = "眩晕敌方单位：活跃来源并给予战力";
         if (!hiddenSource && item.FieldContext?.Kind == CoreRuleEngine.StunBoonKind) view["abilityLabel"] = "眩晕敌方单位：给予友方单位增益";
@@ -5911,7 +5922,7 @@ public sealed record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.LegendDiscardDraw is null ? choice.SourceObjectId
                 : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
@@ -10840,7 +10851,7 @@ internal static class ActionPromptBuilder
                 true,
                 !CoreRuleEngine.IsLegendAttachmentEffect(ability.EffectKind) && !CoreRuleEngine.IsLegendDuelMovementEffect(ability.EffectKind)
                     && !CoreRuleEngine.IsLegendUnitKeywordEffect(ability.EffectKind) && !CoreRuleEngine.IsLegendUnitEffect(ability.EffectKind)
-                    && !CoreRuleEngine.IsLegendEquipmentReadyEffect(ability.EffectKind),
+                    && !CoreRuleEngine.IsLegendEquipmentReadyEffect(ability.EffectKind) && !CoreRuleEngine.IsLegendDiscardDrawEffect(ability.EffectKind),
                 unsupportedReason is null,
                 unsupportedReason,
                 ability.PowerCost,
@@ -10858,6 +10869,10 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<LegendActionAbilityDefinition> ImplementedLegendActionAbilities()
     {
         return [
+            new(LegendActionAbilityCatalog.ZedLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZedLegendAbilityId),
+                "影流之主传奇弃牌抽牌技能", 0, 0, string.Empty, 0, false, "LEGEND_DISCARD_DRAW",
+                TimingKind: LegendActionTimingKinds.QuickOpen, RequiresEmpoweredSource: true),
             new(LegendActionAbilityCatalog.KennenLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KennenLegendAbilityId),
                 "狂暴之心传奇强攻技能", 0, 0, string.Empty, 1, false, "LEGEND_GRANT_UNIT_KEYWORD",
@@ -11489,6 +11504,7 @@ internal static class ActionPromptBuilder
     {
         return ability.AbilityId switch
         {
+            LegendActionAbilityCatalog.ZedLegendAbilityId => "迅捷解除强化并横置：弃一张手牌，然后抽一张牌",
             LegendActionAbilityCatalog.JayceLegendReadyOneAbilityId => "支付 1 法力并横置：使一件装备活跃",
             LegendActionAbilityCatalog.JayceLegendReadyTwoAbilityId => "已强化时支付 1 法力并横置：使两件装备活跃",
             LegendActionAbilityCatalog.MelLegendAbilityId => "解除强化并横置：战场上一名单位本回合战力 -2",

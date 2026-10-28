@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string ZedLegendAbilityId = "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_DISCARD_DRAW";
     public const string KennenLegendAbilityId = "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_GRANT_ASSAULT_TWO";
     public const string JayceLegendReadyOneAbilityId = "LEGEND_PAY_1_EXHAUST_READY_ONE_EQUIPMENT";
     public const string JayceLegendReadyTwoAbilityId = "LEGEND_EMPOWERED_PAY_1_EXHAUST_READY_TWO_EQUIPMENT";
@@ -59,6 +60,10 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> ZedSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "影流之主" && card.Hero == "劫"
+            && card.CardEffect.Contains("{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> KennenSourceCardNos = new(() =>
         VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "狂暴之心" && card.Hero == "凯南"
             && card.CardEffect.Contains("{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。", StringComparison.Ordinal))
@@ -93,6 +98,7 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, ZedLegendAbilityId, StringComparison.Ordinal)) return ZedSourceCardNos.Value;
         if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
         if (abilityId is JayceLegendReadyOneAbilityId or JayceLegendReadyTwoAbilityId) return JayceSourceCardNos.Value;
         if (string.Equals(abilityId, MelLegendAbilityId, StringComparison.Ordinal)) return MelSourceCardNos.Value;

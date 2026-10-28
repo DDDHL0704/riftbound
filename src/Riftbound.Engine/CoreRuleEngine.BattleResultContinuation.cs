@@ -30,6 +30,7 @@ public sealed partial class CoreRuleEngine
             result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);
+            result = QueueOwnedBanishObservers(result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);

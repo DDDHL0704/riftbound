@@ -1072,7 +1072,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED", "STATUS_EFFECT_APPLIED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -23961,6 +23961,9 @@ public static partial class MatchRecoveryValidator
         if (battleDeclarations > 0 && (battleDeclarations != 1
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
+        if (!CoreRuleEngine.ValidLegendDiscardDrawChoice(state)) errors.Add("invalid legend discard continuation");
+        foreach (var card in state.CardObjects.Values)
+            if (!CoreRuleEngine.ValidBanishReplacementOrigins(state, card)) errors.Add("invalid banish replacement origin");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
         if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)
@@ -24626,6 +24629,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
             if (!CoreRuleEngine.ValidLegendUnitEffect(state, item)) errors.Add("invalid captured legend unit effect");
             if (!CoreRuleEngine.ValidLegendEquipmentReady(state, item)) errors.Add("invalid captured legend equipment effect");
+            if (!CoreRuleEngine.ValidLegendDiscardDraw(state, item)) errors.Add("invalid captured legend discard effect");
         }
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
@@ -25409,7 +25413,7 @@ public static partial class MatchRecoveryValidator
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
                 || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
-                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
+                || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.LegendDiscardDraw is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
@@ -27527,7 +27531,8 @@ public static partial class MatchRecoveryValidator
         if (authoritativeState.PendingHandChoice is not null)
         {
             if (!(authoritativeState.PendingHandChoice.MovementObserver is not null && CoreRuleEngine.ValidMovementDiscardChoice(authoritativeState))
-                && !CoreRuleEngine.ValidLastBreathDiscardChoice(authoritativeState))
+                && !CoreRuleEngine.ValidLastBreathDiscardChoice(authoritativeState)
+                && !(authoritativeState.PendingHandChoice.LegendDiscardDraw is not null && CoreRuleEngine.ValidLegendDiscardDrawChoice(authoritativeState)))
                 ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                     $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
                     authoritativeState.PendingHandChoice.SourceObjectId,

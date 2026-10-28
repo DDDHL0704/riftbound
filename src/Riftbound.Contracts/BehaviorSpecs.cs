@@ -56,6 +56,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
