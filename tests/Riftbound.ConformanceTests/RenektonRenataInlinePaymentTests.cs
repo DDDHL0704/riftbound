@@ -164,10 +164,13 @@ public sealed class RenektonRenataInlinePaymentTests
         var initial = Position(new RunePool(0, 3, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }));
         var game = new Driver(initial);
         var command = new ActivateAbilityCommand("P1-RENATA", P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, [],
-            [LegendResource, "POWER_SPEND:A:1"]);
+            [LegendResource, "POWER_SPEND:A:1", "POWER_SOURCE:UNRESTRICTED:1"]);
         await game.Act("P1", command);
         Assert.Equal(0, game.State.RunePools["P1"].Power);
         Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        var cost = Assert.Single(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("abilityId"), P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId)).Event.Payload;
+        Assert.Equal(1, Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(cost["selectedPowerSources"])["UNRESTRICTED"]);
         var commands = game.Commands();
         var original = Assert.Single(commands);
         var changed = JsonNode.Parse(original.RawCommand!.Value.GetRawText())!.AsObject();
