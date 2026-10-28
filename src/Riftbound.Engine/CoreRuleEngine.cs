@@ -2300,33 +2300,72 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var source = side.FirstOrDefault(requiredSources.Contains);
             if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
             var requiredTargets = targets.Where(id => !UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray();
-            var targetPriority = targets.ToDictionary(id => id,
-                id => state.CardObjects.TryGetValue(id, out var card)
-                    ? BattleDamageAssignmentPriority(state, state.PlayerZones, id, card) : 1,
-                StringComparer.Ordinal);
-            var partiallyAssigned = 0;
-            var overAssigned = 0;
-            foreach (var target in requiredTargets)
+            if (!TrySelectCombatDamagePriorities(state, requiredTargets, targetTotals, lethalThreshold, out _, out var reason))
+                return Reject(ErrorCodes.InvalidPayload, reason);
+        }
+        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+    }
+
+    private static bool TrySelectCombatDamagePriorities(
+        MatchState state,
+        IReadOnlyList<string> targets,
+        IReadOnlyDictionary<string, long> targetTotals,
+        IReadOnlyDictionary<string, int> lethalThreshold,
+        out Dictionary<string, int> selected,
+        out string reason)
+    {
+        selected = new(StringComparer.Ordinal);
+        reason = "必须先向更高优先级的单位分配致命伤害。";
+        if (targets.Count(target => targetTotals.GetValueOrDefault(target) > 0
+            && targetTotals.GetValueOrDefault(target) < lethalThreshold.GetValueOrDefault(target)) > 1)
+        {
+            reason = "不能同时向多个单位分配不足致命的伤害。";
+            return false;
+        }
+
+        var excessTargets = targets.Where(target => targetTotals.GetValueOrDefault(target) > lethalThreshold.GetValueOrDefault(target)).ToArray();
+        if (excessTargets.Length > 1 || (excessTargets.Length == 1 && targets.Any(other => other != excessTargets[0]
+            && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other))))
+        {
+            reason = "其他单位尚可分配伤害时，不能向此单位分配过量伤害。";
+            return false;
+        }
+
+        var excessTarget = excessTargets.FirstOrDefault();
+        var options = targets.ToDictionary(target => target, target => CombatDamageTargetPriorityOptionsFor(state, target), StringComparer.Ordinal);
+        IReadOnlyList<int> lastPriorities = excessTarget is null ? [-1] : options[excessTarget];
+        // CN 467.2.c.8-9 permits each target with conflicting first/last
+        // requirements to satisfy either one. The command carries totals,
+        // not a declared order. A cutoff represents the priority between all
+        // targets already assigned damage and all still below lethal.
+        for (var cutoff = 0; cutoff <= 2; cutoff++)
+        {
+            foreach (var lastPriority in lastPriorities)
             {
-                var damage = targetTotals.GetValueOrDefault(target);
-                var lethal = lethalThreshold.GetValueOrDefault(target);
-                if (damage <= 0) continue;
-                if (requiredTargets.Any(other => targetPriority[other] < targetPriority[target]
-                    && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)))
-                    return Reject(ErrorCodes.InvalidPayload, "必须先向更高优先级的单位分配致命伤害。");
-                if (damage < lethal && ++partiallyAssigned > 1)
-                    return Reject(ErrorCodes.InvalidPayload, "不能同时向多个单位分配不足致命的伤害。");
-                if (damage > lethal)
+                var candidate = new Dictionary<string, int>(StringComparer.Ordinal);
+                foreach (var target in targets)
                 {
-                    // Excess can only remain on the last target in a legal order.
-                    if (++overAssigned > 1 || requiredTargets.Any(other => other != target
-                        && (targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)
-                            || targetPriority[other] > targetPriority[target])))
-                        return Reject(ErrorCodes.InvalidPayload, "其他单位尚可分配伤害时，不能向此单位分配过量伤害。");
+                    var damage = targetTotals.GetValueOrDefault(target);
+                    var lethal = lethalThreshold.GetValueOrDefault(target);
+                    var valid = options[target]
+                        .Where(priority => (damage <= 0 || priority <= cutoff)
+                            && (damage >= lethal || priority >= cutoff)
+                            && (excessTarget is null || (target == excessTarget
+                                ? priority == lastPriority : priority <= lastPriority)))
+                        .Select(priority => (int?)priority).FirstOrDefault();
+                    if (valid is null) break;
+                    candidate[target] = valid.Value;
+                }
+                if (candidate.Count == targets.Count)
+                {
+                    selected = candidate;
+                    return true;
                 }
             }
         }
-        return CombatDamageAssignmentValidationResult.AcceptedResult(damagePool, lethalThreshold);
+
+        if (excessTarget is not null) reason = "其他单位尚可分配伤害时，不能向此单位分配过量伤害。";
+        return false;
     }
 
     private static CombatDamageAssignmentValidationResult ValidateCombatDamageAssignments(
@@ -2433,6 +2472,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battleId = battle.BattleId;
         var battlefieldId = battle.BattlefieldObjectId;
         var assignmentLegalTargets = BuildCombatDamageLegalTargets(state, battle);
+        var selectedPriorities = SelectSubmittedCombatDamagePriorities(state, battle, assignments, assignmentLegalTargets, lethalDamageThreshold);
         foreach (var assignment in assignments)
         {
             var damageApplication = ApplyDamageToCardObject(
@@ -2445,6 +2485,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var assignmentRole = state.CardObjects.TryGetValue(assignment.TargetObjectId, out var targetState)
                 ? BattleDamageAssignmentRole(state, state.PlayerZones, assignment.TargetObjectId, targetState)
                 : string.Empty;
+            if (CombatDamageTargetPriorityOptionsFor(state, assignment.TargetObjectId).Count > 1
+                && selectedPriorities.TryGetValue(assignment.TargetObjectId, out var chosenPriority))
+                assignmentRole = chosenPriority == 2 ? "BACK_ROW_LAST" : "BULWARK_FIRST";
             payload["battleId"] = battleId;
             payload["battlefieldId"] = battlefieldId;
             payload["reason"] = "ASSIGN_COMBAT_DAMAGE";
@@ -2473,6 +2516,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && orderedTargets.Count > 1)
             {
                 var assignmentIndex = orderedTargets
+                    .OrderBy(target => UnitMovementRules.CannotTakeDamage(state.CardObjects[target]) ? 0 : 1)
+                    .ThenBy(target => selectedPriorities.TryGetValue(target, out var priority)
+                        ? priority : CombatDamageTargetPriorityFor(state, target))
                     .Select((targetObjectId, index) => new { targetObjectId, index })
                     .FirstOrDefault(item => string.Equals(item.targetObjectId, assignment.TargetObjectId, StringComparison.Ordinal))
                     ?.index + 1;
@@ -2493,6 +2539,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload));
         }
 
+    }
+
+    private static IReadOnlyDictionary<string, int> SelectSubmittedCombatDamagePriorities(
+        MatchState state,
+        BattleState battle,
+        IReadOnlyList<CombatDamageAssignmentDto> assignments,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> legalTargets,
+        IReadOnlyDictionary<string, int> lethalThreshold)
+    {
+        var totals = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (var assignment in assignments)
+            totals[assignment.TargetObjectId] = totals.GetValueOrDefault(assignment.TargetObjectId) + assignment.Damage;
+        var selected = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var side in new[] { battle.AttackerObjectIds, battle.DefenderObjectIds })
+        {
+            var source = side.FirstOrDefault(id => assignments.Any(assignment => assignment.SourceObjectId == id));
+            if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
+            var required = targets.Where(id => !UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray();
+            if (!TrySelectCombatDamagePriorities(state, required, totals, lethalThreshold, out var priorities, out _))
+                throw new InvalidOperationException("Previously validated combat damage priorities cannot be reconstructed.");
+            foreach (var (target, priority) in priorities) selected[target] = priority;
+        }
+        return selected;
     }
 
     private static IReadOnlyDictionary<string, int> BuildCombatDamagePool(MatchState state, BattleState battle)
@@ -17616,6 +17685,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     internal static int CombatDamageTargetPriorityFor(MatchState state, string objectId)
         => state.CardObjects.TryGetValue(objectId, out var card)
             ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, card) : 1;
+
+    internal static IReadOnlyList<int> CombatDamageTargetPriorityOptionsFor(MatchState state, string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var card)) return [1];
+        var priority = BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, card);
+        if (priority == 0 && ((HasExactCombatKeyword(card.Tags, CardCombatKeywordNames.BackRow)
+                || TemporaryCombatKeywordRules.Has(card, CardCombatKeywordNames.BackRow))
+            || ResolveFriendlyFilteredUnitsKeywordBonus(state, state.PlayerZones, objectId, card, CardCombatKeywordNames.BackRow) > 0))
+            return [0, 2];
+        return [priority];
+    }
 
     private static int BattleDamageAssignmentPriority(
         MatchState state,

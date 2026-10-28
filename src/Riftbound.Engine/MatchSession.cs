@@ -15492,7 +15492,9 @@ internal static class ActionPromptBuilder
             ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
             ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
                 .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
-            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
+            ["targetPriorityOptions"] = ResolutionResult.BattleParticipantObjectIds(battle)
+                .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityOptionsFor(state, id), StringComparer.Ordinal),
+            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同时拥有壁垒和后排的单位可以选择最先或最后分配，同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
             ["assigningSourceObjectIds"] = assigningSourceIds,
             ["legalTargets"] = assignableLegalTargets,
             ["allLegalTargets"] = legalTargets,
