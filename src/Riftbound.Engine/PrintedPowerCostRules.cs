@@ -10,9 +10,12 @@ public static class PrintedPowerCostRules
     public sealed record Cost(int Amount, IReadOnlyList<string> Traits);
     internal sealed record Allocation(int GenericPower, IReadOnlyDictionary<string, int> TypedPower);
     private static readonly Lazy<IReadOnlyDictionary<string, Cost>> Costs = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPrintedResourceCostPrints())
-            .Concat(ReviewedRuneCardSources.GetPrintedResourceCostPrints()).ToDictionary(
+            // An admitted print can also exist in a reviewed metadata-only
+            // source. The authoritative runtime entry takes precedence.
+            .Concat(ReviewedRuneCardSources.GetPrintedResourceCostPrints())
+            .DistinctBy(card => card.CardNo, StringComparer.Ordinal).ToDictionary(
             card => card.CardNo,
             card => new Cost(Math.Max(0, card.ReturnEnergy ?? 0), card.CardColorList
                 .Select(RuneTrait.Normalize).Where(trait => trait is RuneTrait.Red or RuneTrait.Green or RuneTrait.Blue or RuneTrait.Yellow or RuneTrait.Orange or RuneTrait.Purple)
