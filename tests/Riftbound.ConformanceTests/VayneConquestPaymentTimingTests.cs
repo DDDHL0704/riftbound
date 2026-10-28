@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -18,6 +19,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(new[] { "SPEND_MANA:1", "DECLINE" }, payment.LegalPaymentChoiceIds);
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        AssertVayneJsonColdFrame(initial, game);
 
         var paid = await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]));
         var cost = Assert.Single(paid.Events, e => e.Kind == "COST_PAID");
@@ -34,6 +36,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var item = Assert.Single(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
         Assert.Equal(new ObjectBinding(AttackerObjectId, initial.CardObjects[AttackerObjectId].ObjectGeneration), item.TriggerCost!.Source);
         Assert.Equal(1, item.TriggerCost.Mana);
+        AssertVayneJsonColdFrame(initial, game);
 
         if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
         Assert.Equal("P2", game.State.PriorityPlayerId);
@@ -43,9 +46,11 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Equal(initial.CardObjects[AttackerObjectId].ObjectGeneration + 1, game.State.CardObjects[AttackerObjectId].ObjectGeneration);
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
         Assert.Contains(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
+        AssertVayneJsonColdFrame(initial, game);
         var resolved = await game.Top();
         Assert.DoesNotContain(resolved.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
         Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        AssertVayneJsonColdFrame(initial, game);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
@@ -61,6 +66,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains(AttackerObjectId, game.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(declined.Events, e => e.Kind is "COST_PAID" or "UNIT_RETURNED_TO_HAND");
         Assert.DoesNotContain(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
+        AssertVayneJsonColdFrame(initial, game);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
@@ -136,6 +142,41 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
+    [Fact]
+    public async Task VaynePaymentAndReceiptRejectForgedBindingsAndCoordinatedRefund()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle();
+        var pending = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.NotNull(pending.ResolvingStackItemId);
+        var wrongPending = game.State with { PendingPayment = pending with { ResolvingStackItemId = "missing-vayne-stack" } };
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(wrongPending), e => e.Contains("invalid trigger cost payment", StringComparison.Ordinal));
+
+        await game.Act("P1", new PayCostCommand(pending.PaymentId, pending.PaymentWindow, ["SPEND_MANA:1"]));
+        var item = Assert.Single(game.State.StackItems, s => s.SourceObjectId == AttackerObjectId);
+        var receipt = Assert.IsType<TriggerCostReceipt>(item.TriggerCost);
+        var forgedItem = item with { TriggerCost = receipt with {
+            Source = receipt.Source with { Generation = receipt.Source.Generation + 1 } } };
+        var forgedReceipt = game.State with { StackItems = game.State.StackItems
+            .Select(s => s.StackItemId == item.StackItemId ? forgedItem : s).ToArray() };
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forgedReceipt), e => e.Contains("invalid trigger cost receipt", StringComparison.Ordinal));
+
+        var pool = game.State.RunePools["P1"];
+        var refund = game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+            ["P1"] = pool with { Mana = pool.Mana + 1 } } };
+        var frame = VayneRecoveryFrame(initial, game, refund);
+        Assert.Empty(frame.ValidationErrors);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands, refund,
+            new CoreRuleEngine(), default, JournalRoundTrip(frame.Events));
+        Assert.False(replay.IsMatch);
+        Assert.NotEqual(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
+            new ConquestContinuationRecoveryStore(frame));
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(refund.RoomId, default));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Null(await registry.FindAsync(refund.RoomId, default));
+        AssertVayneJsonColdFrame(initial, game);
     }
 
     [Theory]
@@ -277,5 +318,35 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
                 pair => pair.Value with { OwnerId = Swap(pair.Value.OwnerId), ControllerId = Swap(pair.Value.ControllerId) }, StringComparer.Ordinal),
             ObjectLocations = state.ObjectLocations.ToDictionary(pair => pair.Key,
                 pair => pair.Value with { PlayerId = Swap(pair.Value.PlayerId)! }, StringComparer.Ordinal) };
+    }
+
+    private static MatchRecoveryFrame VayneRecoveryFrame(MatchState initial, StandbyDefendObserverTests.Driver game, MatchState state)
+    {
+        var sequence = game.Commands().Last().CompletedEventSequence;
+        var snapshots = ResolutionResult.BuildSnapshots(state);
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(id => id,
+            id => new RecoveredPlayerView(id, state.Tick, sequence, snapshots[id], state.Tick, sequence, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, sequence, [], state);
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, sequence, game.Commands(), game.Events(), views, state, state.Tick, spectator);
+        return new(state.RoomId, state.Tick, sequence, game.Commands(), game.Events(), views, errors, state, initial, spectator)
+            { OpeningSeed = initial.Seed };
+    }
+
+    private static void AssertVayneJsonColdFrame(MatchState initial, StandbyDefendObserverTests.Driver game)
+    {
+        var state = game.State;
+        var frame = VayneRecoveryFrame(initial, game, state);
+        Assert.Empty(frame.ValidationErrors);
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, options), options)!;
+        var restored = MatchSession.Restore(decoded, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        foreach (var player in state.Seats.Keys)
+        {
+            Assert.Equal(MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(state)[player]),
+                MatchStateHasher.HashValue(restored.SnapshotFor(player)));
+            Assert.Equal(MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(state)[player]),
+                MatchStateHasher.HashValue(restored.PromptFor(player)));
+        }
     }
 }
