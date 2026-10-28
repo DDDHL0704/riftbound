@@ -68,6 +68,19 @@ public sealed class RestrictedPowerSourceProjectionTests
         => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<RunePool>(
             "{\"mana\":0,\"power\":0,\"" + Field + "\":" + value + "}", Web));
 
+    [Theory]
+    [InlineData(int.MaxValue, 1, false)]
+    [InlineData(int.MaxValue - 1, 1, true)]
+    [InlineData(1, -1, false)]
+    public void CombinedCapacityRetainsInvalidAmountsForRecoveryValidation(int ordinary, int restricted, bool supported)
+    {
+        var pool = new RunePool(0, ordinary, unitOrEquipmentPlayOnlyPower: restricted);
+        var roundTrip = JsonSerializer.Deserialize<RunePool>(JsonSerializer.Serialize(pool, Web), Web)!;
+        Assert.Equal(ordinary, roundTrip.Power);
+        Assert.Equal(restricted, roundTrip.UnitOrEquipmentPlayOnlyPower);
+        Assert.Equal(supported, roundTrip.HasSupportedAmounts);
+    }
+
     private static MatchState Position()
     {
         var state = RestrictedPowerPlayTests.Position("OGN·063/298", false);
