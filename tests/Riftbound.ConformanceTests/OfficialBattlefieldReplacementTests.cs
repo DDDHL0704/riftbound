@@ -209,7 +209,17 @@ public sealed class OfficialBattlefieldReplacementTests
     [Fact]
     public async Task NaturalConquestReturnDoesNotTriggerRestoredMonastery()
     {
-        var brush = await CreateBrush(Position(battlefield: "OGN·282/298"));
+        var conquered = await Conquer(Position(battlefield: "OGN·282/298"));
+        var ivern = Assert.Single(conquered.State.TriggerQueue, t => t.EffectKind == "HOLD_IVERN");
+        var monastery = Assert.Single(conquered.State.TriggerQueue, t => t.BattlefieldConquestConsumeBoon is not null);
+        Assert.Equal(2, conquered.State.TriggerQueue.Count);
+        Assert.Null(conquered.State.PendingCardChoice);
+        var ordered = await Act(conquered.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: [ivern.TriggerId, monastery.TriggerId]));
+        // This position has no boon to pay for the captured monastery skill.
+        Assert.DoesNotContain(ordered.State.StackItems, item => item.BattlefieldConquestConsumeBoon is not null);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", ordered.State.PendingCardChoice!.ChoiceWindow);
+        var brush = await Choose(ordered.State, "LEGEND");
+        brush = await Top(brush.State);
         var s = WithoutLegend(brush.State);
         s = s with { UntilEndOfTurnEffects = [],
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P1"] = s.PlayerZones["P1"] with {

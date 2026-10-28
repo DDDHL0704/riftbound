@@ -29,7 +29,15 @@ public sealed class BattleSettlementSurrenderTests
             (initial, run) = await BattleWinnerPhaseBoundaryTests.Open("control-observer");
             await BattleWinnerPhaseBoundaryTests.PassFocus(run); await BattleWinnerPhaseBoundaryTests.Declare(run);
             await BattleWinnerPhaseBoundaryTests.ChooseGuardian(run);
-            if (stage == "CONTROL_TRIGGERS") { await run.Top(); Assert.NotNull(run.State.PendingHandChoice); }
+            if (stage == "CONTROL_TRIGGERS")
+            {
+                await run.Top();
+                Assert.Equal(stage, run.State.PendingBattleResult!.Stage);
+                Assert.Null(run.State.PendingHandChoice);
+                Assert.Single(run.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+                await run.Top();
+                Assert.NotNull(run.State.PendingHandChoice);
+            }
         }
         Assert.Equal(stage, run.State.PendingBattleResult!.Stage);
         Assert.Contains(CommandTypes.Surrender, ResolutionResult.BuildPrompts(run.State)[player].EnabledActions());
