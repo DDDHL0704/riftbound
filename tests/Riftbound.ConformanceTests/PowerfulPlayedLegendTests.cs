@@ -326,4 +326,31 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Equal(2, driver.State.PlayerZones["P1"].RuneDeck.Count);
         await BanishEffectPlayTests.Replay(initial, driver);
     }
+
+    [Fact]
+    public async Task PowerfulTokensPlayedByLastBreathAlsoTriggerTheLegend()
+    {
+        var initial = Position("OGN·249/298");
+        foreach (var id in new[] { "AURA-1", "AURA-2" }) {
+            initial = OfficialHoldSequenceTests.AddUnit(initial, id, "OGS·013/024", "F", "P1");
+            initial = LocalDestructionRecallTests.At(initial, id, "P1", "BASE");
+        }
+        initial = OfficialHoldSequenceTests.AddUnit(initial, "DYING", "SFD·021/221", "F", "P1");
+        initial = LocalDestructionRecallTests.At(initial, "DYING", "P1", "BASE");
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "DESTROY", "OGN·229/298");
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act("P1", new PlayCardCommand("DESTROY", "OGN·229/298", ["DYING"]));
+        await driver.Top(); Assert.Contains("DYING", driver.State.PlayerZones["P1"].Graveyard);
+        Assert.NotNull(Assert.Single(driver.State.StackItems).LastBreathUnitCreation);
+        await driver.Top();
+        var tokens = driver.Events().Where(e => e.Event.Kind == "UNIT_TOKEN_CREATED")
+            .Select(e => Assert.IsType<string>(e.Event.Payload["tokenObjectId"])).ToArray();
+        Assert.Equal(2, tokens.Length);
+        var snapshot = CurrentPowerTargetTests.Snapshot(driver.State).GetProperty("players").GetProperty("P1").GetProperty("objects");
+        Assert.All(tokens, id => Assert.Equal(5, snapshot.GetProperty(id).GetProperty("effectivePower").GetInt32()));
+        var triggers = driver.State.TriggerQueue.Where(t => t.MightySkill?.Kind == "POWERFUL_PLAYED_LEGEND_CHANNEL").ToArray();
+        Assert.Equal(2, triggers.Length);
+        Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
+        await BanishEffectPlayTests.Replay(initial, driver);
+    }
 }
