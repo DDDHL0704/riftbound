@@ -7333,7 +7333,8 @@ internal static class ActionPromptBuilder
         bool ExhaustsSource,
         bool ResolvesImmediately,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason,
+        int PowerCost = 0);
 
     private sealed record DeclareBattlePromptRequirement(
         string SourceObjectId,
@@ -7386,7 +7387,8 @@ internal static class ActionPromptBuilder
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
-        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
+        int PowerCost = 0);
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -7404,6 +7406,7 @@ internal static class ActionPromptBuilder
     private const string DianaLegendAbilityId = LegendActionAbilityCatalog.DianaLegendAbilityId;
     private const string KaisaLegendAbilityId = LegendActionAbilityCatalog.KaisaLegendAbilityId;
     private const string OrnnLegendAbilityId = LegendActionAbilityCatalog.OrnnLegendAbilityId;
+    private const string RenektonLegendAbilityId = LegendActionAbilityCatalog.RenektonLegendAbilityId;
     private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
     private const string IreliaLegendAbilityId = LegendActionAbilityCatalog.IreliaLegendAbilityId;
     private const string TeemoLegendAbilityId = LegendActionAbilityCatalog.TeemoLegendAbilityId;
@@ -10772,7 +10775,8 @@ internal static class ActionPromptBuilder
                 true,
                 !CoreRuleEngine.IsLegendAttachmentEffect(ability.EffectKind),
                 unsupportedReason is null,
-                unsupportedReason);
+                unsupportedReason,
+                ability.PowerCost);
 
             if (CanPayLegendActionRequirement(state, playerId, requirement))
             {
@@ -10956,6 +10960,12 @@ internal static class ActionPromptBuilder
                 PowerGainAmount: 1,
                 TimingKind: LegendActionTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            new(
+                RenektonLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
+                "荒漠屠夫传奇单位法力技能",
+                0, 0, string.Empty, 0, false, "GAIN_UNIT_ONLY_MANA",
+                ManaGainAmount: 2, TimingKind: LegendActionTimingKinds.ResourceAction, PowerCost: 2),
             new(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -11342,6 +11352,7 @@ internal static class ActionPromptBuilder
         {
             return false;
         }
+        if (!PaymentCostRules.CanPayPowerCost(runePool, requirement.PowerCost, new Dictionary<string, int>())) return false;
 
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -11375,6 +11386,7 @@ internal static class ActionPromptBuilder
             DianaLegendAbilityId => "法术对决横置：获得 1 法力",
             KaisaLegendAbilityId => "法术反应横置：获得 1 符能",
             OrnnLegendAbilityId => "装备反应横置：获得 1 符能",
+            RenektonLegendAbilityId => "支付 2 符能并横置：获得仅用于打出单位或单位主动技能的 2 法力",
             EzrealLegendAbilityId => "反应横置：抽 1 张",
             IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
             TeemoLegendAbilityId => "支付 1 并横置：召回己方提莫单位",
@@ -15928,6 +15940,12 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+
+        if (requirement.PowerCost > 0)
+        {
+            view["powerCost"] = requirement.PowerCost;
+            view["powerSpendSelection"] = PlayPowerSpendSelectionRules.Metadata;
+        }
 
         return view;
     }

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-// Exact source and physical identity only; these tests do not enable a legend action.
+// Exact source and physical identity, with the separately verified legend action.
 public sealed class ReviewedResourceLegendSourcesTests
 {
     private const string Text = "{{反应>}} 支付{{A}}{{A}}，{{横置}}：{{获得}}{{2}}。此法力仅能用于打出单位或单位的主动技能。";
@@ -15,7 +15,7 @@ public sealed class ReviewedResourceLegendSourcesTests
     [InlineData(37844, "VEN·141")]
     [InlineData(37894, "VEN·190")]
     [InlineData(37895, "VEN·190*")]
-    public async Task EachExactOfficialApiKeyProvidesTheReviewedLegendFaceWithoutAnAction(long id, string no)
+    public async Task EachExactOfficialApiKeyProvidesTheReviewedLegendFaceAndItsAction(long id, string no)
     {
         Assert.True(ReviewedResourceLegendSources.TryGet(no, out var source));
         Assert.Equal(id, source.Id); Assert.Equal(no, source.CardNo); Assert.Equal("荒漠屠夫", source.CardName);
@@ -27,7 +27,8 @@ public sealed class ReviewedResourceLegendSourcesTests
         Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
         foreach (var field in typeof(LegendActionAbilityCatalog).GetFields(BindingFlags.Public | BindingFlags.Static))
             if (field.IsLiteral && field.FieldType == typeof(string) && field.GetRawConstantValue() is string ability)
-                Assert.False(LegendActionAbilityCatalog.IsSourceCardNoForAbility(ability, no));
+                Assert.Equal(ability == LegendActionAbilityCatalog.RenektonLegendAbilityId,
+                    LegendActionAbilityCatalog.IsSourceCardNoForAbility(ability, no));
 
         var physical = OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", no, "P1");
         Assert.Equal(no, physical.CardNo); Assert.Equal("P1", physical.OwnerId); Assert.Equal("P1", physical.ControllerId);

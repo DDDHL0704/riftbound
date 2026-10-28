@@ -91,6 +91,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const int KaisaLegendPowerGain = 1;
     private const string OrnnLegendAbilityId = LegendActionAbilityCatalog.OrnnLegendAbilityId;
     private const int OrnnLegendPowerGain = 1;
+    private const string RenektonLegendAbilityId = LegendActionAbilityCatalog.RenektonLegendAbilityId;
     private const string EzrealLegendAbilityId = LegendActionAbilityCatalog.EzrealLegendAbilityId;
     private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
     private const int EzrealEnemyTargetThreshold = 2;
@@ -7306,7 +7307,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend)
+            || powerSpend is not null && ability.PowerCost == 0)
+            return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
+        var optionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
         var requiredManaCostToken = manaCost > 0 ? $"{SpendManaOptionalCostPrefix}{manaCost}" : string.Empty;
         var requiredCostToken = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
@@ -7434,6 +7438,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana
+            && !CanGainSpellOnlyMana(currentPool, ability.ManaGainAmount))
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
+        if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
+                PaymentCostRules.PowerPoolForPurpose(currentPool, PowerPaymentPurpose.Other), ability.PowerCost,
+                new Dictionary<string, int>(), currentPool, PowerPaymentPurpose.Other))
+            return RejectWithCorePrompts(state, "传奇技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
         var currentExperience = NormalizeExperienceForSeats(state);
         const string paymentWindow = "LEGEND_ACT";
         var paymentId = PaymentCostRules.BuildPaymentId(
@@ -7448,6 +7459,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             baseManaCost: manaCost,
             totalManaCost: manaCost,
+            genericPowerCost: ability.PowerCost,
+            totalPowerCost: ability.PowerCost,
             experienceCost: ability.ExperienceCost,
             optionalCostIds: optionalCosts,
             reason: ability.EffectKind,
@@ -7488,8 +7501,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var debitPlan = powerSpend is null ? paymentPlan : PlayPowerSpendSelectionRules.DebitPlan(paymentPlan, powerSpend);
         var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
+            debitPlan,
             state.RunePools,
             currentExperience, state: state);
         if (!paymentCommit.Accepted)
@@ -7518,20 +7532,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0 || ability.ExperienceCost > 0)
+        if (manaCost > 0 || ability.PowerCost > 0 || ability.ExperienceCost > 0)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付{ability.DisplayName}费用",
                 PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
+                    debitPlan,
                     runePools,
                     playerExperience,
                     new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = manaCost,
-                    ["power"] = 0,
+                    ["power"] = ability.PowerCost,
                     ["experience"] = ability.ExperienceCost,
                     ["abilityId"] = command.AbilityId
                 })));
@@ -7666,6 +7680,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             case LegendAbilityEffectKinds.GainMana:
             case LegendAbilityEffectKinds.GainDuelMana:
+            case LegendAbilityEffectKinds.GainUnitOnlyMana:
                 runePools = GainLegendMana(
                     runePools,
                     intent.PlayerId,
@@ -7674,7 +7689,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
                     command.AbilityId,
-                    events, duelOnly: ability.EffectKind == LegendAbilityEffectKinds.GainDuelMana);
+                    events, duelOnly: ability.EffectKind == LegendAbilityEffectKinds.GainDuelMana,
+                    unitOnly: ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana);
                 break;
             case LegendAbilityEffectKinds.GainPower:
                 runePools = GainLegendPower(
@@ -7999,6 +8015,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PowerGainAmount: OrnnLegendPowerGain,
                 TimingKind: LegendAbilityTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            RenektonLegendAbilityId => new LegendAbilityDefinition(
+                RenektonLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
+                "荒漠屠夫传奇单位法力技能",
+                0, 0, string.Empty, 0, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GainUnitOnlyMana, ManaGainAmount: 2,
+                TimingKind: LegendAbilityTimingKinds.ResourceAction, PowerCost: 2),
             EzrealLegendAbilityId => new LegendAbilityDefinition(
                 EzrealLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(EzrealLegendAbilityId),
@@ -8462,12 +8485,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> sourceCardNos,
         string abilityId,
         List<GameEvent> events,
-        bool duelOnly = false)
+        bool duelOnly = false,
+        bool unitOnly = false)
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = duelOnly
-            ? currentPool with { DuelOnlyMana = currentPool.DuelOnlyMana + manaAmount }
+        var nextPool = unitOnly
+            ? currentPool with { UnitPlayOrUnitAbilityOnlyMana = currentPool.UnitPlayOrUnitAbilityOnlyMana + manaAmount }
+            : duelOnly ? currentPool with { DuelOnlyMana = currentPool.DuelOnlyMana + manaAmount }
             : currentPool with { Mana = currentPool.Mana + manaAmount };
         runePools[playerId] = nextPool;
         var payload = new Dictionary<string, object?>
@@ -8489,6 +8514,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             payload["manaRestriction"] = "SPELL_DUEL";
             payload["duelOnlyManaAfter"] = nextPool.DuelOnlyMana;
+        }
+        if (unitOnly)
+        {
+            payload["manaRestriction"] = "UNIT_PLAY_OR_UNIT_ABILITY";
+            payload["unitPlayOrUnitAbilityOnlyManaAfter"] = nextPool.UnitPlayOrUnitAbilityOnlyMana;
         }
         events.Add(new GameEvent("MANA_GAINED", $"{playerId} 通过传奇技能获得 {manaAmount} 点法力", payload));
         return runePools;
@@ -8545,6 +8575,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             DianaLegendAbilityId => "diana-spell-duel-mana",
             DariusLegendAbilityId => "darius-inspire-mana",
             OrnnLegendAbilityId => "ornn-equipment-power",
+            RenektonLegendAbilityId => "renekton-unit-mana",
             KaisaLegendAbilityId => "kaisa-spell-power",
             _ => "legend-resource-bridge"
         };
@@ -34428,7 +34459,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RequiresEzrealEnemyTargetsThisTurn = false,
         bool RequiresPendingFriendlyUnitTarget = false,
         string RequiredControlledBattlefieldStaticAbilityKind = "",
-        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other);
+        PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
+        int PowerCost = 0);
 
     private static class LegendAbilityEffectKinds
     {
@@ -34441,6 +34473,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
         public const string GainDuelMana = "GAIN_DUEL_MANA";
+        public const string GainUnitOnlyMana = "GAIN_UNIT_ONLY_MANA";
         public const string GainPower = "GAIN_POWER";
         public const string ReadyFriendlyUnit = "READY_FRIENDLY_UNIT";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";

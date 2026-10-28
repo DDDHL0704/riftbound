@@ -14,16 +14,29 @@ public sealed partial class CoreRuleEngine
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (pool.HasSupportedAmounts)
         foreach (var id in state.PlayerZones[player].LegendZone.Order(StringComparer.Ordinal))
-        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId, DianaLegendAbilityId })
+        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId, DianaLegendAbilityId, RenektonLegendAbilityId })
         {
             if (!TryGetLegendAbility(abilityId, out var legendAbility)
                 || !IsLegendAbilityTimingAllowed(state, player, legendAbility)
                 || legendAbility.RequiresPlayedAnotherCardThisTurn && !ControllerPlayedAnotherCardThisTurn(state, player)
                 || (long)pool.TotalStoredMana + legendAbility.ManaGainAmount > int.MaxValue
                 || (long)pool.TotalStoredPower + legendAbility.PowerGainAmount > int.MaxValue
+                || !PaymentCostRules.CanPayPowerCost(pool, legendAbility.PowerCost, new Dictionary<string, int>())
                 || !state.CardObjects.TryGetValue(id, out var source) || source.ObjectId != id
                 || source.IsFaceDown || source.IsExhausted || !SourceObjectControlledByPlayerOrLegacyOwned(source, player)
                 || !LegendAbilitySourceHasAbility(state, player, source.CardNo, legendAbility)) continue;
+            if (abilityId == RenektonLegendAbilityId)
+            {
+                var options = RenektonPowerSpendChoices(pool);
+                foreach (var option in options)
+                {
+                    var baseId = $"LEGEND_RESOURCE:{id}:{abilityId}";
+                    var choiceId = options.Count == 1 ? baseId : baseId + ":" + option;
+                    actions.Add(new(new(choiceId, $"支付 2 符能并横置传奇：获得 2 点单位专用法力（{option}）", [id]),
+                        new LegendActCommand(id, abilityId, [], [option])));
+                }
+                continue;
+            }
             var restriction = abilityId == KaisaLegendAbilityId ? "打出法术" : "打出装备或使用装备技能";
             var gain = abilityId == DianaLegendAbilityId ? "1 点仅可在法术对决期间消耗的法力" : legendAbility.ManaGainAmount > 0 ? "1 点法力" : $"1 点仅可用于{restriction}的符能";
             actions.Add(new(new($"LEGEND_RESOURCE:{id}:{abilityId}",
@@ -74,6 +87,22 @@ public sealed partial class CoreRuleEngine
             }
         }
         return actions;
+    }
+
+    private static IReadOnlyList<string> RenektonPowerSpendChoices(RunePool pool)
+    {
+        var wallet = PaymentCostRules.PowerPoolForPurpose(pool, PowerPaymentPurpose.Other);
+        var keys = new[] { "A", "blue", "green", "orange", "purple", "red", "yellow" };
+        int Available(string key) => key == "A" ? wallet.Power : wallet.PowerByTrait.GetValueOrDefault(key);
+        var result = new List<string>();
+        for (var first = 0; first < keys.Length; first++)
+        for (var second = first; second < keys.Length; second++)
+        {
+            if (Available(keys[first]) < (first == second ? 2 : 1) || Available(keys[second]) < 1) continue;
+            result.Add(first == second ? $"POWER_SPEND:{keys[first]}:2"
+                : $"POWER_SPEND:{keys[first]}:1,{keys[second]}:1");
+        }
+        return result;
     }
 
     internal static bool ResourceAbilityAmountsSupported(MatchState state, string player,
