@@ -69,19 +69,23 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         var state = result.State; var queue = state.TriggerQueue.ToList(); var events = result.Events.ToList();
-        foreach (var legend in state.TriggerQueue.Where(t => t.UnitPlayMight is not null
+        foreach (var legend in state.TriggerQueue.Where(t => (t.UnitPlayMight is not null || t.MightySkill?.Kind == PowerfulPlayedRuneEffect)
             && !before.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)))
-        foreach (var item in state.StackItems.Where(i => i.SourceConfirmed && i.SourceObjectId == legend.UnitPlayMight!.PlayedUnit.ObjectId
-            && !before.StackItems.Any(old => old.StackItemId == i.StackItemId)))
         {
-            // Keep the existing ability body under its normal validators. The
-            // queue references it until ORDER_TRIGGERS places both abilities.
-            var trigger = new TriggerQueueItemState("permanent-play-order-" + item.StackItemId, item.ControllerId,
-                item.SourceObjectId, item.EffectKind, legend.TriggeredByEventKind, item.TimingContext) {
-                PermanentPlayStackItemId = item.StackItemId, SourceCardNo = item.CardNo };
-            queue.Add(trigger);
-            events.Add(new("TRIGGER_ORDERING_DEFERRED", "同时触发的打出技能等待控制者排序", new Dictionary<string, object?> {
-                ["triggerId"] = trigger.TriggerId, ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = item.SourceObjectId }));
+            var playedId = legend.UnitPlayMight?.PlayedUnit.ObjectId ?? legend.MightySkill!.Unit.ObjectId;
+            foreach (var item in state.StackItems.Where(i => i.SourceConfirmed && i.SourceObjectId == playedId
+                && !before.StackItems.Any(old => old.StackItemId == i.StackItemId)))
+            {
+                if (queue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)) continue;
+                // Keep the existing ability body under its normal validators. The
+                // queue references it until ORDER_TRIGGERS places both abilities.
+                var trigger = new TriggerQueueItemState("permanent-play-order-" + item.StackItemId, item.ControllerId,
+                    item.SourceObjectId, item.EffectKind, legend.TriggeredByEventKind, item.TimingContext) {
+                    PermanentPlayStackItemId = item.StackItemId, SourceCardNo = item.CardNo };
+                queue.Add(trigger);
+                events.Add(new("TRIGGER_ORDERING_DEFERRED", "同时触发的打出技能等待控制者排序", new Dictionary<string, object?> {
+                    ["triggerId"] = trigger.TriggerId, ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = item.SourceObjectId }));
+            }
         }
         if (queue.Count == state.TriggerQueue.Count) return result;
         state = state with { TriggerQueue = queue };

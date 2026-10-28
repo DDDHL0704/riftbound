@@ -4875,6 +4875,7 @@ public sealed record ResolutionResult(
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
         if (trigger.DravenBattleWinScore is not null) return "本回合首次赢得战斗：获得1分；双方响应后结算。";
+        if (trigger.MightySkill?.Kind == CoreRuleEngine.PowerfulPlayedRuneEffect) return "打出强力单位：可横置传奇召出符文；确认后双方响应。";
         if (IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId))
         {
             return $"隐藏来源触发 ({trigger.TriggerId})";
@@ -4929,7 +4930,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null || trigger.MightySkill?.Kind == CoreRuleEngine.PowerfulPlayedRuneEffect)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -5554,6 +5555,7 @@ public sealed record ResolutionResult(
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
             || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind == CoreRuleEngine.EmpoweredBanishKind
+            || item.MightySkill?.Kind == CoreRuleEngine.PowerfulPlayedRuneEffect
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
@@ -5601,7 +5603,10 @@ public sealed record ResolutionResult(
             view["abilityLabel"] = "内嵌强化";
         }
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
-        if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
+        if (!hiddenSource && item.MightySkill is { } mighty) {
+            if (CoreRuleEngine.PublicPowerfulPlayedRune(mighty) is { } played) view["powerfulPlayedRune"] = played;
+            else view["mightySkill"] = mighty;
+        }
         if (!hiddenSource && item.MovementDestinations is { } moves)
             view["movementDestinations"] = moves.ToArray();
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
@@ -5789,7 +5794,10 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.DamageDestruction is not null) view["damageDestruction"] = item.DamageDestruction;
         if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
-        if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
+        if (!hiddenSource && item.MightySkill is { } mighty) {
+            if (CoreRuleEngine.PublicPowerfulPlayedRune(mighty) is { } played) view["powerfulPlayedRune"] = played;
+            else view["mightySkill"] = mighty;
+        }
         return view;
     }
 

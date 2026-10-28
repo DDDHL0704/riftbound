@@ -46111,6 +46111,13 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.DoesNotContain(p2PassResult.Events, e => e.Kind is "RUNES_CALLED" or "LEGEND_EXHAUSTED");
             Assert.Null(p2PassResult.State.PendingCardChoice); Assert.Empty(p2PassResult.State.StackItems); return;
         }
+        // The original outcome assertions below now follow the explicit optional
+        // confirmation and the response window required by the printed text.
+        var choice = Assert.IsType<PendingCardChoiceState>(p2PassResult.State.PendingCardChoice);
+        var confirmed = await OfficialGraveyardRecastTests.Act(p2PassResult.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [legendObjectId]));
+        var resolved = await OfficialGraveyardRecastTests.Top(confirmed.State);
+        p2PassResult = resolved with { Events = p2PassResult.Events.Concat(confirmed.Events).Concat(resolved.Events).ToArray() };
         Assert.Contains("P1-RUNE-POWERFUL-001", p2PassResult.State.PlayerZones["P1"].Base);
         Assert.Empty(p2PassResult.State.PlayerZones["P1"].RuneDeck);
         Assert.True(p2PassResult.State.CardObjects[legendObjectId].IsExhausted);

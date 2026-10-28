@@ -18896,7 +18896,7 @@ public static partial class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
+            CompareMightySkillView(spectatorTrigger, authoritativeTrigger.MightySkill, errors, "spectator");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
@@ -19137,7 +19137,7 @@ public static partial class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
+            CompareMightySkillView(triggerPayload, authoritativeTrigger.MightySkill, errors, "snapshot");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
@@ -23687,9 +23687,42 @@ public static partial class MatchRecoveryValidator
         } catch (JsonException) { return null; }
     }
 
+    private static PowerfulPlayedRunePublicContext? ReadPowerfulPlayedRuneView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("powerfulPlayedRune", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<PowerfulPlayedRunePublicContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static bool HasPowerfulPlayedRuneView(object? payload)
+    {
+        var json = JsonSerializer.SerializeToElement(payload);
+        return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("powerfulPlayedRune", out var raw)
+            && raw.ValueKind != JsonValueKind.Null;
+    }
+
+    private static void CompareMightySkillView(object? payload, MightySkillContext? expected, List<string> errors, string label)
+    {
+        var played = CoreRuleEngine.PublicPowerfulPlayedRune(expected);
+        var ordinary = played is null ? expected : null;
+        if (MatchStateHasher.HashValue(ReadMightySkillView(payload)) != MatchStateHasher.HashValue(ordinary)
+            || MatchStateHasher.HashValue(ReadPowerfulPlayedRuneView(payload)) != MatchStateHasher.HashValue(played)
+            || played is null && HasPowerfulPlayedRuneView(payload))
+            errors.Add($"{label} captured Mighty skill differs from authoritative state");
+    }
+
     private static void ValidateMightySkillPayload(object? payload, string? effect, List<string> errors)
     {
         var context = ReadMightySkillView(payload);
+        if (effect == CoreRuleEngine.PowerfulPlayedRuneEffect) {
+            if (context is not null || ReadPowerfulPlayedRuneView(payload) is null)
+                errors.Add("invalid public captured played-Mighty skill");
+            return;
+        }
+        if (HasPowerfulPlayedRuneView(payload)) errors.Add("unexpected public captured played-Mighty skill");
         if (effect is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect || context is not null)
             if (context is null || context.Kind != effect || !CoreRuleEngine.ValidMightySkillFrame(context))
                 errors.Add("invalid public captured Mighty transition");
@@ -23703,8 +23736,7 @@ public static partial class MatchRecoveryValidator
             TryReadObjectString(payload, "effectKind", out var effect);
             ValidateMightySkillPayload(payload, effect, errors);
             var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(payload)) != MatchStateHasher.HashValue(expected?.MightySkill))
-                errors.Add($"{label} captured Mighty transition differs from authoritative state");
+            CompareMightySkillView(payload, expected?.MightySkill, errors, label);
         }
     }
 
@@ -23863,12 +23895,12 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (item.MightySkill is { } mighty ? !CoreRuleEngine.ValidMightySkill(state, mighty,
                     item.EffectKind, item.SourceObjectId, item.ControllerId)
-                : item.EffectKind is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect)
+                : item.EffectKind is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect or CoreRuleEngine.PowerfulPlayedRuneEffect)
                 errors.Add("invalid captured Mighty transition stack");
         foreach (var item in state.TriggerQueue)
             if (item.MightySkill is { } mighty ? !CoreRuleEngine.ValidMightySkill(state, mighty,
                     item.EffectKind, item.SourceObjectId, item.ControllerId)
-                : item.EffectKind is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect)
+                : item.EffectKind is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect or CoreRuleEngine.PowerfulPlayedRuneEffect)
                 errors.Add("invalid captured Mighty transition queue");
         if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.MightyCostWindow } mightyPayment
             && !CoreRuleEngine.ValidMightySkillPayment(state, mightyPayment)) errors.Add("invalid Mighty transition payment");

@@ -112,6 +112,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMightySkillFrame(MightySkillContext context)
     {
         try {
+            if (context.Kind == PowerfulPlayedRuneEffect) return ValidPowerfulPlayedRuneFrame(context);
             if (MightySkillDefinition(context.CardNo) is not { } spec
                 || context.Kind != (spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect)
                 || context.BeforeMight >= spec.RequiredPowerThreshold || context.AfterMight < spec.RequiredPowerThreshold
@@ -147,6 +148,8 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMightySkill(MatchState state, MightySkillContext context, string effect, string source, string controller)
         => ValidMightySkillFrame(context) && effect == context.Kind && source == context.Source.ObjectId
             && controller == context.ControllerId && state.Seats.ContainsKey(controller)
+            && (context.Kind != PowerfulPlayedRuneEffect || AttachedRuleTextRules.ValidCaptured(state, context.Origin,
+                source, context.Source.Generation, context.CardNo))
             && new[] { context.Before, context.After }.All(frame => frame.PlayerZones.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(state.Seats.Keys)
                 && frame.CardObjects.All(p => state.CardObjects.TryGetValue(p.Key, out var current)
                     ? current.ObjectGeneration >= p.Value.ObjectGeneration
@@ -155,19 +158,19 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult PrepareMightySkill(ResolutionResult result, StackItemState item)
     {
-        var context = item.MightySkill!; var state = result.State; var spec = MightySkillDefinition(context.CardNo)!;
+        var context = item.MightySkill!; var state = result.State; var spec = MightySkillDefinition(context.CardNo);
         if (!ValidMightySkill(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId))
             return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
-        if (spec.ExhaustsSource == true) {
+        if (context.Kind == PowerfulPlayedRuneEffect || spec!.ExhaustsSource == true) {
             var legal = state.CardObjects.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.Source.Generation
                 && source.ControllerId == item.ControllerId && !source.IsExhausted && !source.IsFaceDown
                 && state.PlayerZones[item.ControllerId].LegendZone.Contains(source.ObjectId) ? new[] { source.ObjectId } : [];
             if (legal.Length == 0) return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             state = state with { PendingCardChoice = new("MIGHTY-COST:" + item.StackItemId, MightyChoiceWindow, item.ControllerId,
-                0, 1, legal, [context.Unit.ObjectId], "横置此传奇以确认召出符文；不选则放弃。确认后双方响应。", item.SourceObjectId,
+                0, 1, legal, context.Kind == PowerfulPlayedRuneEffect ? [] : [context.Unit.ObjectId], "横置此传奇以确认召出符文；不选则放弃。确认后双方响应。", item.SourceObjectId,
                 item.EffectKind) { ResolvingStackItemId = item.StackItemId }, PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         } else {
-            var costs = new Dictionary<string, int> { [spec.PowerCostTrait!] = spec.PowerCost!.Value };
+            var costs = new Dictionary<string, int> { [spec!.PowerCostTrait!] = spec.PowerCost!.Value };
             state = state with { PendingPayment = new("MIGHTY-COST:" + item.StackItemId, MightyCostWindow, item.ControllerId,
                 powerCostByTrait: costs, legalPaymentChoiceIds: [MightySpendChoice(spec), "DECLINE"],
                 paymentResourceActionIds: RecycleRunePaymentResourceActionIds(state, item.ControllerId),
@@ -211,7 +214,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMightySkillChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item?.MightySkill is not { Confirmed: false } context || context.Kind != MightyRuneEffect
+        if (item?.MightySkill is not { Confirmed: false } context || context.Kind is not (MightyRuneEffect or PowerfulPlayedRuneEffect)
             || !ValidMightySkill(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId)
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.IsExhausted
             || source.ObjectGeneration != context.Source.Generation || source.ControllerId != item.ControllerId
@@ -219,7 +222,7 @@ public sealed partial class CoreRuleEngine
         return choice.ChoiceWindow == MightyChoiceWindow && choice.ChoiceId == "MIGHTY-COST:" + item.StackItemId
             && choice.PlayerId == item.ControllerId && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == 0 && choice.MaxCount == 1 && choice.LegalObjectIds.SequenceEqual(new[] { item.SourceObjectId })
-            && choice.ContextObjectIds.SequenceEqual(new[] { context.Unit.ObjectId });
+            && choice.ContextObjectIds.SequenceEqual(context.Kind == PowerfulPlayedRuneEffect ? [] : new[] { context.Unit.ObjectId });
     }
 
     private static ResolutionResult ConfirmMightySkill(MatchState state, StackItemState item, bool confirm,
@@ -242,7 +245,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveMightySkillChoice(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (!ValidMightySkillChoice(state, choice) || item?.MightySkill is not { Confirmed: false } context || context.Kind != MightyRuneEffect
+        if (!ValidMightySkillChoice(state, choice) || item?.MightySkill is not { Confirmed: false } context || context.Kind is not (MightyRuneEffect or PowerfulPlayedRuneEffect)
             || selected.Count > 1 || selected.Any(id => id != context.Source.ObjectId)
             || !ValidMightySkill(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId))
             return RejectWithCorePrompts(state, "强力技能确认选择无效。", ErrorCodes.InvalidTarget);
@@ -251,6 +254,10 @@ public sealed partial class CoreRuleEngine
             || source.ObjectGeneration != context.Source.Generation || source.ControllerId != item.ControllerId)
             return RejectWithCorePrompts(state, "来源无法支付休眠费用。", ErrorCodes.InvalidTarget);
         var cards = new Dictionary<string, CardObjectState>(state.CardObjects) { [source.ObjectId] = source with { IsExhausted = true } };
+        if (context.Kind == PowerfulPlayedRuneEffect)
+            return ConfirmMightySkill(state, item, true, cards, events: [new("LEGEND_EXHAUSTED", "横置传奇以确认强力技能",
+                new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId,
+                    ["legendObjectId"] = source.ObjectId, ["legendCardNo"] = context.CardNo, ["reason"] = item.EffectKind })]);
         return ConfirmMightySkill(state, item, true, cards, events: [new("LEGEND_EXHAUSTED", "横置传奇以确认强力技能",
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["reason"] = item.EffectKind })]);
     }
@@ -302,14 +309,27 @@ public sealed partial class CoreRuleEngine
                     ["targetObjectId"] = target.ObjectId, ["reason"] = item.EffectKind }));
             }
         } else {
-            var called = CallRunes(zones, cards, item.ControllerId, MightySkillDefinition(context.CardNo)!.RuneCallCount!.Value);
+            var called = CallRunes(zones, cards, item.ControllerId,
+                context.Kind == PowerfulPlayedRuneEffect ? 1 : MightySkillDefinition(context.CardNo)!.RuneCallCount!.Value);
             events.Add(new("RUNES_CALLED", "强力技能结算召出休眠符文", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = context.Kind == PowerfulPlayedRuneEffect
+                    ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray() }));
         }
-        events.Add(new("TRIGGER_RESOLVED", "强力技能结算", new Dictionary<string, object?> {
+        var payload = new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["trigger"] = item.EffectKind, ["sourceObjectId"] = item.SourceObjectId,
-            ["targetObjectId"] = context.Unit.ObjectId }));
+            ["targetObjectId"] = context.Unit.ObjectId };
+        if (context.Kind == PowerfulPlayedRuneEffect) {
+            payload["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
+            payload.Remove("targetObjectId");
+            events.Add(new("LEGEND_TRIGGER_RESOLVED", "强力单位传奇技能结算", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId,
+                ["legendObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+                ["legendCardNo"] = context.CardNo, ["trigger"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE",
+                ["playedUnitObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, context.Unit.ObjectId, "__spectator__"),
+                ["playedUnitPower"] = context.AfterMight }));
+        }
+        events.Add(new("TRIGGER_RESOLVED", "强力技能结算", payload));
         return new(zones, cards, state.PlayerScores, NormalizeExperienceForSeats(state), state.RunePools,
             state.UntilEndOfTurnEffects, null, events, [], null, [], null, [], state.RngCursor);
     }

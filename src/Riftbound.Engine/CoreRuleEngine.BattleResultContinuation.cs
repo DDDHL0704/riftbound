@@ -37,6 +37,7 @@ public sealed partial class CoreRuleEngine
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
             result = QueueUnitPlayMight(state, result);
+            result = QueuePowerfulPlayedRune(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)

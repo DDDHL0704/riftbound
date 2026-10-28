@@ -19995,6 +19995,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(legendObjectId, out var legendState)
                 || legendState.IsExhausted
+                || HasPowerfulPlayedRuneAbility(legendState.CardNo)
                 || !LegendCardHasIdentity(legendState.CardNo, PowerfulUnitRuneLegendIdentityId))
             {
                 continue;
