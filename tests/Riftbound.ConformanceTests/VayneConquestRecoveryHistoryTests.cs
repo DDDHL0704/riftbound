@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -6,6 +7,43 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
+    [Fact]
+    public async Task VayneForgedPaidReceiptWithoutPaymentHistoryCannotRestore()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle();
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var simulated = await new CoreRuleEngine().ResolveAsync(game.State,
+            new("vayne-not-journalled-payment", "P1", CommandTypes.PayCost),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]), default);
+        Assert.True(simulated.Accepted, simulated.ErrorMessage);
+        Assert.NotNull(Assert.Single(simulated.State.StackItems, s => s.SourceObjectId == AttackerObjectId).TriggerCost);
+
+        // Keep the original journal and unspent resources; forge the paid continuation,
+        // its tick, and all player/spectator views consistently.
+        var forged = simulated.State with { Tick = game.State.Tick, RunePools = game.State.RunePools };
+        Assert.Null(forged.PendingPayment);
+        Assert.Equal(1, forged.RunePools["P1"].Mana);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("paymentId"), payment.PaymentId));
+        var frame = VayneRecoveryFrame(initial, game, forged);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, frame.Commands, forged,
+            new CoreRuleEngine(), default, JournalRoundTrip(frame.Events));
+        Assert.False(replay.IsMatch);
+        Assert.DoesNotContain(frame.ValidationErrors, e => e.Contains("invalid trigger cost receipt", StringComparison.Ordinal));
+        Assert.Contains(frame.ValidationErrors, e => e.Contains("payment", StringComparison.OrdinalIgnoreCase)
+            && e.Contains("history", StringComparison.OrdinalIgnoreCase));
+        Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var persisted = JsonSerializer.Deserialize<MatchRecoveryFrame>(
+            JsonSerializer.Serialize(frame with { ValidationErrors = [] }, options), options)!;
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
+            new ConquestContinuationRecoveryStore(persisted));
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(forged.RoomId, default));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("payment history", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(await registry.FindAsync(forged.RoomId, default));
+    }
+
     [Fact]
     public async Task VayneRecoveryBindsSourceGenerationToAcceptedConquestHistory()
     {
@@ -55,8 +93,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]));
-        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
+        if (game.State.PriorityPlayerId == "P2") await game.Act("P2", new PassPriorityCommand());
+        Assert.Equal("P1", game.State.PriorityPlayerId);
+        await game.Act("P1", new PlayCardCommand("VAYNE-RESPONSE", "OGN·104/298", [AttackerObjectId]));
         await game.Top();
 
         var item = Assert.Single(game.State.StackItems, s => s.UnitConquestReturn is not null);
