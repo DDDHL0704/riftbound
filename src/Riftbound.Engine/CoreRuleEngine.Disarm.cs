@@ -115,6 +115,8 @@ public sealed partial class CoreRuleEngine
         if (context.Disarm!.CapturedTick > state.Tick) return false;
         foreach (var contribution in context.Disarm!.Contributions)
         {
+            if (contribution.SourceTokenFactoryCardNo is not null
+                && !CopyCharacteristics.HasFace(contribution.CardNo)) return false;
             var binding = contribution.Source;
             state.CardObjects.TryGetValue(binding.ObjectId, out var source);
             if (source is null)
