@@ -154,6 +154,9 @@ public sealed class BattlefieldConquestMillTimingTests
         var item = Assert.Single(original.StackItems, i => i.EffectKind == TriggerKinds.BattlefieldConquerMill);
         var captured = Assert.IsType<BattlefieldConquestMillContext>(item.BattlefieldConquestMill);
         Assert.Equal(3, captured.BattlefieldGeneration);
+        var birth = Assert.Single(driver.Events(), e => e.Event.Kind == "TRIGGER_QUEUED"
+            && Equals(e.Event.Payload.GetValueOrDefault("effectKind"), TriggerKinds.BattlefieldConquerMill));
+        Assert.Equal(3L, birth.Event.Payload["sourceGeneration"]);
         var forged = original with { StackItems = original.StackItems.Select(i => i == item
             ? i with { BattlefieldConquestMill = captured with { BattlefieldGeneration = 0 } } : i).ToArray() };
         var sequence = driver.Commands().Last().CompletedEventSequence;
@@ -164,23 +167,34 @@ public sealed class BattlefieldConquestMillTimingTests
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(forged.RoomId, forged.Tick, sequence, [], forged);
         var errors = MatchRecoveryValidator.Validate(forged.RoomId, sequence, driver.Commands(), driver.Events(),
             views, forged, forged.Tick, spectator);
+        var genuineReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), original,
+            new CoreRuleEngine(), default, driver.Events());
+        Assert.True(genuineReplay.IsMatch, string.Join("; ", genuineReplay.Errors));
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), forged,
             new CoreRuleEngine(), default, driver.Events());
         Assert.False(replay.IsMatch);
+        var tamperedBirth = driver.Events().Select(e => e == birth
+            ? e with { Event = e.Event with { Payload = new Dictionary<string, object?>(e.Event.Payload) {
+                ["sourceGeneration"] = 0L } } } : e).ToArray();
+        var tamperedReplay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), forged,
+            new CoreRuleEngine(), default, tamperedBirth);
+        Assert.False(tamperedReplay.IsMatch);
+        Assert.Contains(tamperedReplay.Errors, e => e.Contains("payload hash", StringComparison.Ordinal));
         var restoreAccepted = false;
-        if (errors.Count == 0)
+        var frame = new MatchRecoveryFrame(forged.RoomId, forged.Tick, sequence, driver.Commands(), driver.Events(),
+            views, errors, forged, initial, spectator) { OpeningSeed = initial.Seed };
+        try
         {
-            var frame = new MatchRecoveryFrame(forged.RoomId, forged.Tick, sequence, driver.Commands(), driver.Events(),
-                views, errors, forged, initial, spectator) { OpeningSeed = initial.Seed };
             _ = MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance);
             restoreAccepted = true;
         }
+        catch (MatchSessionException) { }
         if (Environment.GetEnvironmentVariable("RIFTBOUND_SFD212_DIAGNOSTICS") is { } root)
         {
             Directory.CreateDirectory(root);
             File.WriteAllText(Path.Combine(root, "forged-lower-generation.json"), JsonSerializer.Serialize(new {
                 initial, genuine = original, forged, commands = driver.Commands(), events = driver.Events(),
-                views, spectator, errors, replay, restoreAccepted
+                views, spectator, errors, genuineReplay, replay, tamperedReplay, restoreAccepted
             }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         }
         Assert.Contains(errors, e => e.Contains("not bound to accepted conquest history", StringComparison.Ordinal));
@@ -223,12 +237,15 @@ public sealed class BattlefieldConquestMillTimingTests
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
     }
 
-    [Fact]
-    public async Task OtherConquestSkillCanReplaceBattlefieldBeforeTheCapturedMillResolves()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    public async Task OtherConquestSkillCanReplaceBattlefieldBeforeTheCapturedMillResolves(int generation)
     {
         var initial = Position("P1", 3);
         initial = initial with {
             CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["BF"] = initial.CardObjects["BF"] with { ObjectGeneration = generation },
                 ["LEGEND"] = new("LEGEND", cardNo: "UNL-195/219", ownerId: "P1", controllerId: "P1") },
             PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
                 ["P1"] = initial.PlayerZones["P1"] with { LegendZone = ["LEGEND"] } },

@@ -23763,6 +23763,7 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectString(e.Event.Payload, "triggerId", out var id) && id == triggerId
                 && TryReadObjectString(e.Event.Payload, "controllerId", out var controller) && controller == c.ControllerId
                 && TryReadObjectString(e.Event.Payload, "sourceObjectId", out var source) && source == c.BattlefieldObjectId
+                && TryReadObjectLong(e.Event.Payload, "sourceGeneration", out var generation) && generation == c.BattlefieldGeneration
                 && TryReadObjectString(e.Event.Payload, "effectKind", out var effect) && effect == TriggerKinds.BattlefieldConquerMill
                 && TryReadObjectString(e.Event.Payload, "triggeredByEventKind", out var origin) && origin == "BATTLEFIELD_CONQUERED").Take(2).ToArray();
             if (conquests.Length != 1 || queued.Length != 1 || queued[0].Sequence <= conquests[0].Sequence

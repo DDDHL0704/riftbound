@@ -5108,6 +5108,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.BattlefieldConquestMill is { } conquestMill)
+            payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
         {
