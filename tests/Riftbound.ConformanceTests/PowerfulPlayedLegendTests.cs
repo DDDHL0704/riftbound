@@ -210,6 +210,8 @@ public sealed class PowerfulPlayedLegendTests
         var response = await Act(paid.State, "P1", new PlayCardCommand("RETURN", "OGN·104/298", ["PLAYED"]));
         var returned = await Top(response.State);
         Assert.Contains("PLAYED", returned.State.PlayerZones["P1"].Hand);
+        Assert.Equal(2, returned.State.PlayerZones["P1"].RuneDeck.Count);
+        Assert.Equal(1, Convert.ToInt32(Assert.Single(returned.Events, e => e.Kind == "RUNES_CALLED").Payload["count"]));
         var opponent = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(returned.State)["P2"]);
         var spectator = JsonSerializer.Serialize(MatchReplayRedactor.BuildSpectatorFrame(returned.State.RoomId, returned.State.Tick, 0, [], returned.State));
         Assert.DoesNotContain("\"PLAYED\"", opponent, StringComparison.Ordinal);
@@ -217,7 +219,8 @@ public sealed class PowerfulPlayedLegendTests
         Restore(returned.State); ArmamentMightTests.PublicRecovery(returned.State);
         var resolved = await Top(returned.State);
         Assert.DoesNotContain(resolved.Events, e => e.Payload.Values.Any(value => Equals(value, "PLAYED")));
-        Assert.Equal(2, resolved.State.PlayerZones["P1"].RuneDeck.Count);
+        Assert.Single(resolved.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, Convert.ToInt32(Assert.Single(resolved.Events, e => e.Kind == "RUNES_CALLED").Payload["count"]));
     }
 
     [Theory]
@@ -276,6 +279,16 @@ public sealed class PowerfulPlayedLegendTests
         Assert.Equal(might, actual);
         var skills = played.State.StackItems.Select(i => i.MightySkill).Concat(played.State.TriggerQueue.Select(t => t.MightySkill))
             .Where(c => c?.Kind == "POWERFUL_PLAYED_LEGEND_CHANNEL").ToArray();
+        if (bonus && skills.Length == 0 && Environment.GetEnvironmentVariable("RIFTBOUND_POWERFUL_PLAYED_DIAGNOSTICS") is { } folder) {
+            var flags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+            var engine = typeof(CoreRuleEngine);
+            var frame = engine.GetMethod("CapturePublicMightFrame", flags)!.Invoke(null, [state, played.State.PlayerZones, played.State.CardObjects, null]);
+            var frameState = Assert.IsType<MatchState>(engine.GetMethod("MightFrameState", flags)!.Invoke(null, [frame]));
+            var captured = Assert.IsType<int>(engine.GetMethod("ResolveCurrentFieldUnitPower", flags)!.Invoke(null, [frameState, frameState.CardObjects["PLAYED"]]));
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "battlefield-entry-frame.json"), JsonSerializer.Serialize(new {
+                initial = state, result = played.State, played.Events, actual, captured, frame }, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
         if (bonus) Assert.Equal(5, Assert.Single(skills)!.AfterMight);
         else Assert.Empty(skills);
         Restore(played.State); ArmamentMightTests.PublicRecovery(played.State);
