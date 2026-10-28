@@ -32,7 +32,7 @@ public sealed class RestrictedPermanentPowerNonPlayBoundaryTests
         var initial = WithPool(InstructionPowerPaymentTimingTests.Position(), 1); var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("CARD", "OGN·268/298", ["FIELD"]));
         await game.Top();
-        var choice = Assert.IsType<PendingRuleChoiceState>(game.State.PendingRuleChoice);
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
         Assert.Equal("INSTRUCTION_POWER_PAYMENT", choice.Request.Kind);
         Assert.DoesNotContain(choice.Request.Options, option => option.Id == "SPEND_POWER:1");
         Assert.Equal(1, game.State.RunePools["P1"].TotalStoredPower);
