@@ -78,13 +78,11 @@ public sealed partial class CoreRuleEngine
                     state = state with { TurnStartStep = "CHANNEL", Status = state.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished };
                     break;
                 case "CHANNEL":
-                    var own = zones[player];
-                    var runes = TakeControlledRuneDeckPrefix(cards, player, own.RuneDeck, RuneCallCount(state));
-                    zones[player] = own with { RuneDeck = own.RuneDeck.Skip(runes.Length).ToArray(), Base = own.Base.Concat(runes).ToArray() };
+                    var runes = ApplyRuneCall(zones, cards, player, RuneCallCount(state), originalExhausted: false).CalledRuneObjectIds;
                     var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
                     foreach (var id in runes) locations[id] = new(player, MoveUnitBaseZone);
-                    events.Add(new("RUNES_CALLED", $"召出 {runes.Length} 张符文", new Dictionary<string, object?> { ["playerId"] = player, ["count"] = runes.Length }));
-                    state = state with { PlayerZones = zones, ObjectLocations = locations, TurnStartStep = "DRAW" };
+                    events.Add(new("RUNES_CALLED", $"召出 {runes.Count} 张符文", new Dictionary<string, object?> { ["playerId"] = player, ["count"] = runes.Count }));
+                    state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
                     var draw = DrawCards(state, player, zones[player], 1);

@@ -30,7 +30,10 @@ public sealed partial class CoreRuleEngine
         if (all.Length == 0) return new([], []);
         zones[playerId] = own with { RuneDeck = own.RuneDeck.Skip(all.Length).ToArray(), Base = own.Base.Concat(all).ToArray() };
 
-        foreach (var id in originals) SetExhausted(id, originalExhausted);
+        // A missing card state represents a ready rune. Preserve that representation
+        // for ordinary CHANNEL runes while readying any existing rune state.
+        foreach (var id in originals)
+            if (originalExhausted || cards.ContainsKey(id)) SetExhausted(id, originalExhausted);
         foreach (var id in extras) SetExhausted(id, true);
         return new(originals, extras);
 
