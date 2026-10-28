@@ -1337,6 +1337,13 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedPower.Groups[1].Value),
                 Duration: TriggerDurations.UntilEndOfTurn, MovementOriginZone: "BATTLEFIELD");
 
+        var movedToBattlefieldPower = Regex.Match(segment,
+            @"^(?:每当|当)我移动到一处战场时，给予我在本回合内\{\{S\}\}\+(?<amount>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedToBattlefieldPower.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedToBattlefieldPower.Groups["amount"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
+
         var unitMovedCreateDormantGoldMatch = Regex.Match(
             segment,
             @"每当(?:我|其)移动时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
@@ -2849,6 +2856,15 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
+                continue;
+            }
+
+            if (Regex.IsMatch(segment, @"^除非我处于战斗中，否则我无法被敌方法术和技能选作目标。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Enemy spell and skill target protection applies while the source is outside combat.",
+                    RequiresSourceOutsideBattle: true));
                 continue;
             }
 

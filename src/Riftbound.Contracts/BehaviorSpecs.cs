@@ -689,7 +689,8 @@ public sealed record StaticAbilitySpec(
     bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
-    bool? RequiresSameNameCardInControllerGraveyard = null);
+    bool? RequiresSameNameCardInControllerGraveyard = null,
+    bool? RequiresSourceOutsideBattle = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
