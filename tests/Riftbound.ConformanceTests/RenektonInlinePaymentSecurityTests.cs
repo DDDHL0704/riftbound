@@ -60,6 +60,32 @@ public sealed class RenektonInlinePaymentSecurityTests
         Assert.False(result.State.CardObjects["LEGEND"].IsExhausted);
     }
 
+    [Theory]
+    [InlineData("exhausted")]
+    [InlineData("face-down")]
+    [InlineData("opponent")]
+    [InlineData("wrong-card")]
+    public async Task InlineActionRequiresTheActualReadyControlledLegend(string kind)
+    {
+        var initial = UnitPosition(new(2, 3));
+        var source = initial.CardObjects["LEGEND"];
+        source = kind switch
+        {
+            "exhausted" => source with { IsExhausted = true },
+            "face-down" => source with { IsFaceDown = true },
+            "opponent" => source with { OwnerId = "P2", ControllerId = "P2" },
+            _ => OfficialGarenConquestBattlefieldCountTests.Printed("LEGEND", "SFD·189/221", "P1")
+        };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["LEGEND"] = source } };
+        var command = new PlayCardCommand("CARD", "SFD·143/221", [], OptionalCosts: [Resource, Mana], Destination: "BASE");
+        var before = MatchStateHasher.Hash(initial);
+        Assert.False(new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command)).CanPay);
+        var result = await new CoreRuleEngine().ResolveAsync(initial, new("invalid-legend-" + kind, "P1", command.CmdType), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+    }
+
     [Fact]
     public async Task UnspentGeneratedManaRemainsRestrictedAndTamperedHistoryDoesNotReplay()
     {
