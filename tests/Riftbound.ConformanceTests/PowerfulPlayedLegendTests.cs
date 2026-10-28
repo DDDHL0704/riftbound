@@ -294,4 +294,36 @@ public sealed class PowerfulPlayedLegendTests
         else Assert.Empty(skills);
         Restore(played.State); ArmamentMightTests.PublicRecovery(played.State);
     }
+
+    [Fact]
+    public async Task TwoPowerfulUnitTokensQueueIndependentlyButTheLegendCanPayOnce()
+    {
+        var initial = Position("OGN·249/298");
+        foreach (var id in new[] { "AURA-1", "AURA-2" }) {
+            initial = OfficialHoldSequenceTests.AddUnit(initial, id, "OGS·013/024", "F", "P1");
+            initial = LocalDestructionRecallTests.At(initial, id, "P1", "BASE");
+        }
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "SPRITES", "UNL-069/219");
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        await driver.Act("P1", new PlayCardCommand("SPRITES", "UNL-069/219", []));
+        await driver.Top();
+        var tokens = driver.Events().Where(e => e.Event.Kind == "UNIT_TOKEN_CREATED")
+            .Select(e => Assert.IsType<string>(e.Event.Payload["tokenObjectId"])).ToArray();
+        Assert.Equal(2, tokens.Length);
+        var snapshot = CurrentPowerTargetTests.Snapshot(driver.State).GetProperty("players").GetProperty("P1").GetProperty("objects");
+        Assert.All(tokens, id => Assert.Equal(5, snapshot.GetProperty(id).GetProperty("effectivePower").GetInt32()));
+        var triggers = driver.State.TriggerQueue.Where(t => t.MightySkill?.Kind == "POWERFUL_PLAYED_LEGEND_CHANNEL").ToArray();
+        Assert.Equal(2, triggers.Length);
+        Assert.Equal(tokens.Order(), triggers.Select(t => t.MightySkill!.Unit.ObjectId).Order());
+        await BanishEffectPlayTests.Replay(initial, driver);
+        await driver.Act("P1", new OrderTriggersCommand(driver.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["LEGEND"]));
+        Assert.True(driver.State.CardObjects["LEGEND"].IsExhausted);
+        Assert.Null(driver.State.PendingCardChoice);
+        Assert.Single(driver.State.StackItems);
+        await driver.Top();
+        Assert.Equal(2, driver.State.PlayerZones["P1"].RuneDeck.Count);
+        await BanishEffectPlayTests.Replay(initial, driver);
+    }
 }
