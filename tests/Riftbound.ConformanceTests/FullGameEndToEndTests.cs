@@ -21044,6 +21044,7 @@ public sealed partial class FullGameEndToEndTests
 
         var battleDeclared = Assert.Single(declared.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
         AssertAllBattlefieldParticipants(current.State, battleDeclared);
+        Assert.Contains(defenderObjectId, Assert.IsType<string[]>(battleDeclared.Payload["defenderObjectIds"]));
         if (declared.State.BattleState.IsActive)
         {
             var staticAura = Assert.Single(declared.State.ContinuousEffects, effect =>
@@ -21060,14 +21061,25 @@ public sealed partial class FullGameEndToEndTests
             Assert.Equal("RECOMPUTED_FROM_CURRENT_BATTLE_PARTICIPANT_LOCATIONS", staticAura.Lifecycle);
             var participantObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds);
             Assert.Contains(sourceObjectId, participantObjectIds);
-            Assert.Contains(defenderObjectId, participantObjectIds);
             var sourceDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds);
             Assert.Contains(sourceObjectId, sourceDependencyObjectIds);
             var targetDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds);
             Assert.Contains(sourceObjectId, targetDependencyObjectIds);
             var participantDependencyObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds);
             Assert.Contains(sourceObjectId, participantDependencyObjectIds);
-            Assert.Contains(defenderObjectId, participantDependencyObjectIds);
+            if (declared.State.BattleState.DefenderObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
+            {
+                Assert.Contains(defenderObjectId, participantObjectIds);
+                Assert.Contains(defenderObjectId, participantDependencyObjectIds);
+            }
+            else
+            {
+                Assert.Contains(defenderObjectId, declared.State.PlayerZones[opponentId].Graveyard);
+                Assert.Contains(declared.Events, gameEvent => gameEvent.Kind == "UNIT_DESTROYED"
+                    && Equals(gameEvent.Payload["targetObjectId"], defenderObjectId));
+                Assert.DoesNotContain(defenderObjectId, participantObjectIds);
+                Assert.DoesNotContain(defenderObjectId, participantDependencyObjectIds);
+            }
         }
 
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
