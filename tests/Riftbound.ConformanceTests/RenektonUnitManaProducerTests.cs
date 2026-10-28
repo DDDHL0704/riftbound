@@ -57,6 +57,31 @@ public sealed class RenektonUnitManaProducerTests
     }
 
     [Fact]
+    public async Task LegendPowerCostUsesThePlayersSelectedActualResources()
+    {
+        var initial = Pool(AddLegend(RestrictedManaLifecycleTests.Position(), "VEN·141"),
+            new RunePool(0, 1, new Dictionary<string, int> { ["green"] = 1, ["red"] = 1 }));
+        var game = new Driver(initial);
+        await game.Act("P1", new LegendActCommand("LEGEND", Ability, [], ["POWER_SPEND:A:1,red:1"]));
+        var pool = game.State.RunePools["P1"];
+        Assert.Equal(0, pool.Power); Assert.Equal(0, pool.PowerByTrait.GetValueOrDefault("red"));
+        Assert.Equal(1, pool.PowerByTrait["green"]); Assert.Equal(2, pool.UnitPlayOrUnitAbilityOnlyMana);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task RestrictedPlayOnlyPowerCannotPayTheLegendAbilityCost()
+    {
+        var initial = Pool(AddLegend(RestrictedManaLifecycleTests.Position(), "VEN·141"),
+            new RunePool(0, 0, unitOrEquipmentPlayOnlyPower: 2));
+        var command = new LegendActCommand("LEGEND", Ability, []);
+        var before = MatchStateHasher.Hash(initial);
+        var result = await new CoreRuleEngine().ResolveAsync(initial, new("renekton-ineligible-power", "P1", command.CmdType), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+    }
+
+    [Fact]
     public async Task ReactionResourceCanBeAcquiredDuringAnInstructionWithoutPayingThatInstruction()
     {
         var initial = Pool(AddLegend(RestrictedManaLifecycleTests.Position(), "VEN·141"), new(1, 2));
@@ -74,6 +99,26 @@ public sealed class RenektonUnitManaProducerTests
         Assert.Equal(2, game.State.RunePools["P1"].UnitPlayOrUnitAbilityOnlyMana);
         Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
         Assert.Single(game.Events(), e => e.Event.Kind == "MANA_GAINED");
+        await RideTheWindCurrentMovementTests.Replay(initial, game);
+    }
+
+    [Fact]
+    public async Task PaymentWindowOffersDistinctLegalLegendPowerAllocations()
+    {
+        var initial = Pool(AddLegend(RestrictedManaLifecycleTests.Position(), "VEN·141"),
+            new RunePool(1, 1, new Dictionary<string, int> { ["green"] = 1, ["red"] = 1 }));
+        var game = new StandbyDefendObserverTests.Driver(initial);
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·268/298", ["FIELD"]));
+        await game.Top();
+        var request = game.State.PendingRuleChoice!.Request;
+        var prefix = $"LEGEND_RESOURCE:LEGEND:{Ability}:POWER_SPEND:";
+        var choices = request.Options.Where(option => option.Id.StartsWith(prefix, StringComparison.Ordinal)).Select(option => option.Id).ToArray();
+        Assert.Equal(3, choices.Length);
+        var selected = Assert.Single(choices, choice => choice == prefix + "A:1,red:1");
+        await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [selected]));
+        var pool = game.State.PendingRuleChoice!.Request.Preview!.RunePools["P1"];
+        Assert.Equal(0, pool.Power); Assert.Equal(0, pool.PowerByTrait.GetValueOrDefault("red"));
+        Assert.Equal(1, pool.PowerByTrait["green"]); Assert.Equal(2, pool.UnitPlayOrUnitAbilityOnlyMana);
         await RideTheWindCurrentMovementTests.Replay(initial, game);
     }
 
