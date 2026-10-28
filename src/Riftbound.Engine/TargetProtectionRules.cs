@@ -48,12 +48,7 @@ internal static class TargetProtectionRules
             return false;
         }
 
-        // CN 740.2.c: a unit is in combat only while it has a combat role at
-        // the battlefield where the battle is taking place.
-        var battle = state.BattleState;
-        var inCombat = battle.IsActive && (targetState.IsAttacking || targetState.IsDefending)
-            && state.ObjectLocations.TryGetValue(targetObjectId, out var location)
-            && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId == battle.BattlefieldObjectId;
+        var inCombat = CombatPresenceRules.IsInCombat(state, targetState);
         return AttachedRuleTextRules.Instances(state, targetState).Any(instance =>
             CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                 ability => CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility(ability)

@@ -10,7 +10,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class AmbessaSubmittedDeckTests
 {
     public static IEnumerable<object[]> Prints() => new[] { "VEN·153", "VEN·196", "VEN·196*" }
-        .SelectMany(legend => new[] { "VEN·136", "VEN·136a", "VEN·187" }.Select(hero => new object[] { legend, hero }));
+        .SelectMany(legend => new[] { "VEN·084", "VEN·084a", "VEN·136", "VEN·136a", "VEN·187" }.Select(hero => new object[] { legend, hero }));
 
     [Theory]
     [MemberData(nameof(Prints))]
