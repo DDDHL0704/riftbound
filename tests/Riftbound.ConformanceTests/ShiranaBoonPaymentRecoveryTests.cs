@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -51,6 +52,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var item = Assert.Single(game.State.StackItems, s => s.BattlefieldConquestConsumeBoon is not null);
         Assert.Equal(new ObjectBinding("UNIT", generation), item.TriggerCost!.ConsumedBoon);
         Assert.Empty(item.TargetObjectIds);
+        AssertVayneJsonColdFrame(initial, game);
 
         var opponent = ThreeBattlefieldTimingProbe.Other(player);
         if (game.State.PriorityPlayerId == player) await game.Act(player, new PassPriorityCommand());
@@ -62,12 +64,14 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains("UNIT", game.State.PlayerZones[player].Hand);
         Assert.Equal(generation + 1, game.State.CardObjects["UNIT"].ObjectGeneration);
         Assert.Contains(game.State.StackItems, s => s.BattlefieldConquestConsumeBoon is not null);
+        AssertVayneJsonColdFrame(initial, game);
 
         var resolved = await game.Top();
         Assert.Single(resolved.Events, e => e.Kind == "CARD_DRAWN");
         Assert.Contains("DRAW1", game.State.PlayerZones[player].Hand);
         Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
         Assert.Single(game.Events(), e => e.Event.Kind == "BOON_CONSUMED");
+        AssertVayneJsonColdFrame(initial, game);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), game.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
@@ -138,5 +142,14 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         Assert.Contains(frame.ValidationErrors, e => e.Contains("boon cost", StringComparison.OrdinalIgnoreCase)
             && e.Contains("payment history", StringComparison.OrdinalIgnoreCase));
         Assert.Throws<MatchSessionException>(() => MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance));
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var persisted = JsonSerializer.Deserialize<MatchRecoveryFrame>(
+            JsonSerializer.Serialize(frame with { ValidationErrors = [] }, options), options)!;
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance,
+            new ConquestContinuationRecoveryStore(persisted));
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () => await registry.GetOrCreateAsync(forged.RoomId, default));
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("boon cost", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(await registry.FindAsync(forged.RoomId, default));
     }
 }
