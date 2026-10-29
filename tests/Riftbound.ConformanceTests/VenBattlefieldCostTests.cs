@@ -51,6 +51,32 @@ public sealed class VenBattlefieldCostTests
         Assert.Equal(20, game.State.RunePools["P1"].TotalPower); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task VortexAndEnemyHelmIncreasesStackInTheQuoteAndActualPayment(bool empowered)
+    {
+        var initial = VenConditionalPlayCostTests.Place(EnemyField(Field("VEN·160", "OGN·048/298")),
+            "HELM", "VEN·045", "P2", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HELM"] = initial.CardObjects["HELM"] with { IsEmpowered = empowered } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
+        var command = new PlayCardCommand("UNIT", "OGN·048/298", []);
+        var quote = Quote(game.State, command);
+        Assert.True(quote.CanPay, quote.Message);
+        Assert.Equal(3, quote.Cost!.Mana);
+        Assert.Equal(empowered ? 2 : 1, quote.Cost.GenericPower);
+        var helm = Assert.Single(quote.Cost.Adjustments, a => a.Label == "对手法术增费");
+        Assert.Equal(1, helm.Mana); Assert.Equal(empowered ? 1 : 0, helm.Power);
+        Assert.Equal(1, Assert.Single(quote.Cost.Adjustments, a => a.Label == "战场反应增费").Power);
+        await Reject(game.State with { RunePools = new Dictionary<string, RunePool>(game.State.RunePools) {
+            ["P1"] = new(3, empowered ? 1 : 0) } }, "P1", command);
+        await game.Act("P1", command);
+        Assert.Equal(17, game.State.RunePools["P1"].Mana);
+        Assert.Equal(empowered ? 18 : 19, game.State.RunePools["P1"].TotalPower);
+        await game.Top(); await game.Replay();
+    }
+
     [Fact]
     public async Task AStandbyCardHasReactionAndStillPaysTheVortexIncreaseAfterItsBaseCostIsWaived()
     {
