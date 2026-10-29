@@ -295,10 +295,14 @@ public sealed record CardBehaviorDefinition(
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
     int? PowerModifierAmountIfTargetEmpowered = null,
     bool CannotBeCountered = false,
-    bool IgnoresSpellshield = false)
+    bool IgnoresSpellshield = false,
+    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record ConditionalTargetRemovalSpec(int MaximumMight, string Removal,
+    string OtherwiseRemoval = "", bool RemoveEmpowermentFirst = false);
 
 public static class CardDamageConditionKinds
 {
@@ -459,6 +463,18 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_RETURN_FRIENDLY", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, Mode: "RETURN_FRIENDLY", ReturnsTargetToHand: true,
+            CanPlayDuringPriority: true),
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_REDUCE_ENEMY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, Mode: "REDUCE_ENEMY", PowerModifierAmount: -2,
+            CanPlayDuringPriority: true),
+        new("VEN·106", "风灵瞬转", 3, "SPIRIT_SHIFT_CONDITIONAL_REMOVAL", 0, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ConditionalTargetRemoval: new(3, "BANISH", "RETURN_TO_HAND")),
+        new("VEN·127", "血戮", 2, "BLOODLETTING_CONDITIONAL_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, FlowCost: new(4, 2, [RuneTrait.Yellow]),
+            ConditionalTargetRemoval: new(3, "DESTROY", RemoveEmpowermentFirst: true)),
         new("VEN·015", "暴怒箴言", 1, "INVOCATION_OF_FURY_DAMAGE", 4, 1,
             TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:green",
             CanPlayDuringSpellDuel: true, CannotBeCountered: true),

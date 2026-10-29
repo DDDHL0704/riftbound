@@ -25793,8 +25793,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
+                ApplyConditionalRemovalEmpowerInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                    stackItem, behavior, cardObjects, events);
+                var removalState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    behavior.DestroysTarget ? stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : [], stackItem);
+                    stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)
+                        && (behavior.DestroysTarget || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray(), stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
@@ -26035,7 +26039,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    if (behavior.DestroysTarget
+                    var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
+                    if (removalAction == "BANISH"
+                        && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
+                    {
+                        events.Add(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标单位", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["playerId"] = banishedRemoval.OwnerPlayerId, ["destinationZone"] = banishedRemoval.DestinationZone,
+                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }));
+                        continue;
+                    }
+                    if ((behavior.DestroysTarget || removalAction == "DESTROY")
                         && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
                         events.AddRange(BuildFieldRemovalEvents(
@@ -26089,7 +26103,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryGetBattlefieldUnitReturnContext(
                             playerZones,
                             cardObjects,
@@ -26141,7 +26155,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var normalReturnedOwnerPlayerId, out var normalReturnedWasEquipment))
                     {
                         events.Add(BuildReturnedToHandEvent(
