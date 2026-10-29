@@ -77,9 +77,14 @@ public sealed partial class CoreRuleEngine
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var ownZones)
             || !ownZones.Hand.Concat(ownZones.ChampionZone).Contains(command.SourceObjectId))
             return RejectWithCorePrompts(state, "待命埋伏只能选择自己手牌中的牌。", ErrorCodes.CardNotInHand);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId,
-                NormalizeOptionalCosts(command.OptionalCosts), out var costs, out var resourceActions, out var recycledRunes))
+        var submittedCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractTapRunePaymentResourceActions(state, intent.PlayerId, submittedCosts,
+                out var costsWithoutTaps, out var tapActions, out var tappedRunes)
+            || !TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId,
+                costsWithoutTaps, out var costs, out var recycleActions, out var recycledRunes))
             return RejectWithCorePrompts(state, "待命支付包含非法或重复的符文资源动作。", ErrorCodes.InvalidTarget);
+        var resourceActionSet = tapActions.Concat(recycleActions).ToHashSet(StringComparer.Ordinal);
+        var resourceActions = submittedCosts.Where(resourceActionSet.Contains).ToArray();
         var teemoPermission = HasTeemoStandbyHidePermission(state, intent.PlayerId);
         var freePermission = HasFreeStandbyHidePermission(state, intent.PlayerId);
         if (costs.Count != 1 || costs[0] is not (StandbyHideOptionalCost or StandbyHideTeemoOptionalCost or StandbyHideFreeOptionalCost)
@@ -112,17 +117,19 @@ public sealed partial class CoreRuleEngine
         // CN 811.1.b / 430.3: acquire reaction resources inside the hide payment.
         // Validate the complete debit before moving any rune or hidden card.
         var pool = state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
-        if (!pool.HasSupportedAmounts || recycledRunes.Count > int.MaxValue - pool.TotalStoredPower)
-            return RejectWithCorePrompts(state, "资源数量超出支持范围，未回收符文或支付待命费用。", ErrorCodes.InvalidTarget);
-        var adjusted = ApplyRecycleRunePaymentToPool(pool, state.CardObjects, recycledRunes);
+        if (!pool.HasSupportedAmounts || !TryPreviewOrderedPaymentResources(state, intent.PlayerId, pool,
+                resourceActions, out var adjusted))
+            return RejectWithCorePrompts(state, "待命支付的资源行动顺序、来源或容量无效。", ErrorCodes.InvalidTarget);
         if (!PaymentCostRules.AuthorizePayment(payment, adjusted).Accepted)
             return RejectWithCorePrompts(state, "待命所需资源不足。", ErrorCodes.InsufficientCost);
         var zones=NormalizeZonesForSeats(state);
         var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var locations=ReconcileObjectLocations(state.ObjectLocations,zones);
         var events=new List<GameEvent>();
-        var pools=ApplyRecycleRunePaymentResourceActions(state.RunePools,zones,cards,locations,
-            intent.PlayerId,recycledRunes,events,"HIDE_CARD",payment.PaymentId);
+        var pools=state.RunePools.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resourceActions,
+                zones, ref cards, locations, ref pools, events, "HIDE_CARD", payment.PaymentId))
+            return RejectWithCorePrompts(state, "待命支付的资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         var committed=PaymentCostRules.TryCommitPayment(payment,pools,state.PlayerExperience, state: state);
         if(!committed.Accepted)return RejectWithCorePrompts(state,"待命所需资源不足。",ErrorCodes.InsufficientCost);
         var own=zones[intent.PlayerId];
@@ -136,7 +143,8 @@ public sealed partial class CoreRuleEngine
         events.AddRange(new GameEvent[] {
             new("COST_PAID","支付待命布置费用",PaymentCostRules.BuildCostPaidPayload(payment,committed.RunePools,committed.PlayerExperience,
                 new Dictionary<string,object?> { ["mana"]=mana,["power"]=power,
-                    ["standbyHideCostWaived"]=permission=="FREE", ["teemoStandbyHideReplacement"]=permission=="TEEMO", ["recycledRuneObjectIds"]=recycledRunes.ToArray() })),
+                    ["standbyHideCostWaived"]=permission=="FREE", ["teemoStandbyHideReplacement"]=permission=="TEEMO",
+                    ["recycledRuneObjectIds"]=recycledRunes.ToArray(), ["tappedRuneObjectIds"]=tappedRunes.ToArray() })),
             new("CARD_HIDDEN","在战场的待命区布置卡牌",new Dictionary<string,object?> {
                 ["playerId"]=intent.PlayerId,["sourceObjectId"]=source.ObjectId,["destination"]="BATTLEFIELD:"+fieldId,
                 ["destinationZone"]="BATTLEFIELD",["battlefieldObjectId"]=fieldId,["isFaceDown"]=true }) });

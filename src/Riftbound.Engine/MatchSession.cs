@@ -9767,7 +9767,14 @@ internal static class ActionPromptBuilder
 
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
-        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
+        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用")
+            .Concat(CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Select(id =>
+            {
+                var choice = ObjectChoice(state, id[TapRunePaymentOptionalCostPrefix.Length..], "待命支付资源");
+                return new ActionPromptChoiceDto(id, $"横置符文支付：{choice.Label}",
+                    "横置此符文获得 1 点法力并继续支付待命布置费用");
+            }))
+            .ToArray();
         var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, resources);
         var requirements = new List<HideCardPromptRequirement>();
         foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
@@ -10099,7 +10106,9 @@ internal static class ActionPromptBuilder
         var choices = new List<ActionPromptChoiceDto>();
         if (pool.TotalPower >= 1 || CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId).Count > 0)
             choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
-        if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
+        if ((PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1
+                || CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count > 0)
+            && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
     }
@@ -12150,6 +12159,14 @@ internal static class ActionPromptBuilder
             choice => choice.Id,
             choice =>
             {
+                if (choice.Id.StartsWith(TapRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+                    return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["trait"] = string.Empty,
+                        ["mana"] = BasicRuneTapManaGain,
+                        ["power"] = 0,
+                        ["abilityId"] = "BASIC_RUNE_EXHAUST_GAIN_1_MANA"
+                    };
                 var trait = string.Empty;
                 if (choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
                 {
