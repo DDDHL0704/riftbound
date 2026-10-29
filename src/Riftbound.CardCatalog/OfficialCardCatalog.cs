@@ -43,12 +43,16 @@ public sealed record OfficialCardCatalog(
         var reviewed = ReviewedRuneCardSources.GetAll();
         var admitted = new[] { (Id: 37690L, CardNo: "VEN·005"), (Id: 37691L, CardNo: "VEN·006") }
             .Select(identity => reviewed.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            .Concat(VendettaCardSources.GetAdmittedCards())
+            .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .ToArray();
         if (admitted.Any(card => original.Cards.Any(existing => existing.Id == card.Id || existing.CardNo == card.CardNo)))
             throw new InvalidDataException("The reviewed runtime card already exists in the original catalog.");
         var cards = original.Cards.Concat(admitted).ToImmutableArray();
         return original with {
-            Source = original.Source + "; reviewed additions: " + ReviewedRuneCardSources.SnapshotPath,
+            Source = original.Source + "; reviewed additions: " + ReviewedRuneCardSources.SnapshotPath
+                + "; " + VendettaCardSources.SnapshotPath
+                + "; " + ReviewedResourceLegendSources.SnapshotPath,
             Total = cards.Length,
             Cards = cards
         };
