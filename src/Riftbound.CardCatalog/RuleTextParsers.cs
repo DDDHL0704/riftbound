@@ -1610,6 +1610,26 @@ public static class TriggerParser
                 DrawCountPerParticipant: ParseChineseNumber(battlefieldConquerDrawForOtherBattlefieldsMatch.Groups[1].Value));
         }
 
+        var lowRunesConquest = Regex.Match(segment,
+            @"当你征服此处时，如果你控制的符文数量不多于(?<runes>[0-9一两二三四五六七八九十]+)枚，则你可以选择支付\{\{(?<mana>[0-9一两二三四五六七八九十]+)\}\}，以此抽(?<draw>[0-9一两二三四五六七八九十]+)张牌",
+            RegexOptions.CultureInvariant);
+        if (lowRunesConquest.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldConquerLowRunesPayDraw, TriggerTimings.BattlefieldConquered,
+                segment, "Optional conquest draw with a captured controlled-rune ceiling.",
+                ManaCost: ParseChineseNumber(lowRunesConquest.Groups["mana"].Value),
+                DrawCount: ParseChineseNumber(lowRunesConquest.Groups["draw"].Value),
+                Optional: true, MaximumControlledRunes: ParseChineseNumber(lowRunesConquest.Groups["runes"].Value));
+        var heldBurn = Regex.Match(segment, @"当你据守此处时，\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}", RegexOptions.CultureInvariant);
+        if (heldBurn.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldHeldBurn, TriggerTimings.BattlefieldHeld, segment,
+                "Held burn uses the shared burn and burnout instruction.", MillCount: ParseChineseNumber(heldBurn.Groups["count"].Value));
+        var battleStartMana = Regex.Match(segment,
+            @"当战斗在此处开始时，进攻方和防守方各\{\{获得\}\}\{\{(?<mana>[0-9一两二三四五六七八九十]+)\}\}", RegexOptions.CultureInvariant);
+        if (battleStartMana.Success)
+            return new TriggerSpec(TriggerKinds.BattlefieldBattleStartMana, "BATTLE_STARTED", segment,
+                "Both battle sides immediately gain ordinary mana (CN 430.2).", TargetScope: TriggerTargetScopes.EachPlayer,
+                ManaDelta: ParseChineseNumber(battleStartMana.Groups["mana"].Value));
+
         var battlefieldConquerPowerfulPayDrawMatch = Regex.Match(
             segment,
             @"当你征服此处时，如果此战场上留存至少一名\{\{强力\}\}单位，则你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}来抽([0-9一两二三四五六七八九十]+)张牌",

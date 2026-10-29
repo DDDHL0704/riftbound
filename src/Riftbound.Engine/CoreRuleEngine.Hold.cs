@@ -25,6 +25,7 @@ public sealed partial class CoreRuleEngine
                 .Select(no => (no, pair.Value))).ToDictionary(x => x.no, x => x.Value, StringComparer.Ordinal);
     });
     private static (string Kind, int Amount)? HeldDefinition(string? cardNo) =>
+        BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, BattlefieldTriggerSpecRules.IsBattlefieldHeldBurnTrigger, out var burn) ? ("BURN", burn.MillCount!.Value) :
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
     private static TriggerSpec? ExactOtherFriendlyHeldSpec(string cardNo)
@@ -38,6 +39,13 @@ public sealed partial class CoreRuleEngine
         string effect, string controller, string source, string? cardNo)
     {
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
+        if (context.Kind == "BURN") return HeldDefinition(context.CardNo) is { Kind: "BURN" } burn
+            && context.Amount == burn.Amount && effect == "HOLD_BURN" && cardNo == context.CardNo
+            && controller == state.TurnPlayerId && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
+            && context.Origin is null && context.RuleTextInstanceId is null && context.RequiredExactOtherFriendlyBattlefieldUnits is null
+            && context.SourceGeneration >= 0 && source == context.BattlefieldObjectId
+            && BattlefieldLocalRules.Battlefield(state, source) is { } battlefield && battlefield.CardNo == context.CardNo
+            && battlefield.ObjectGeneration >= context.SourceGeneration;
         if (!conditional) return context.RequiredExactOtherFriendlyBattlefieldUnits is null && context.Origin is null && context.RuleTextInstanceId is null;
         var spec = ExactOtherFriendlyHeldSpec(context.CardNo);
         return spec is not null && context.Kind == (spec.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE")
@@ -167,6 +175,10 @@ public sealed partial class CoreRuleEngine
                 effects = conquestEffects;
                 break;
             case "DRAW": case "EXACT_OTHER_DRAW": Draw(context.Amount); break;
+            case "BURN":
+                var burned = ApplyBurnToPlayer(state, zones, cards, scores, player, context.Amount, rng, item, events);
+                scores = burned.PlayerScores; winner = burned.WinnerPlayerId; rng = burned.RngCursor;
+                break;
             case "MINION": case "ROBOT":
                 CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
                     context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events, effects);
