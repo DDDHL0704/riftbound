@@ -200,7 +200,7 @@ public sealed partial class CoreRuleEngine
         if (spec.ReadiesSource && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, source.ObjectId)) {
             var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);
-            source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready);
+            source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready, zones, cards);
             if (ready is not null) events.Add(ready);
             source = ApplyPowerModifier(state, source, behavior, item, source.ObjectId, spec.SourcePowerBonus, out var power);
             events.Add(power); cards[source.ObjectId] = source;
