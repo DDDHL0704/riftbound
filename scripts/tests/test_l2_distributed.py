@@ -392,7 +392,7 @@ class DistributedL2Tests(unittest.TestCase):
         with self.assertRaises(ValueError): self.verify()
 
     def test_safe_heavy_rows_split_but_unexpanded_member_data_stays_whole(self):
-        plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400, self.dynamic: 3000}, 6)
+        plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400, self.dynamic: 3000}, 9)
         for key in ['commit', 'sdkVersion', 'runId', 'runAttempt', 'testAssemblySha256', 'bundleManifestSha256',
                     'caseInventorySha256', 'sourceScopeSha256', 'rowProbeSha256', 'discoverySha256']:
             plan[key] = self.plan[key]

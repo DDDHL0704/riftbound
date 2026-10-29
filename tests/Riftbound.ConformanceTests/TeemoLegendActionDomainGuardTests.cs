@@ -81,7 +81,7 @@ public sealed class TeemoLegendActionDomainGuardTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var matchSessionSource = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("LegendActionIsTeemoUnitCardNo", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsTeemoLegendCardNo", matchSessionSource, StringComparison.Ordinal);
