@@ -209,15 +209,16 @@ public sealed class VenLegacyHeroPrintsTests
     [InlineData("OGN·238/298")] [InlineData("VEN·184")]
     public async Task ARealResponseMovingTheChosenEnemyToBasePreventsTheStun(string no)
     {
-        var game = await Attack(EquipChainTests.Response(AttackDamageDistributionTests.Position(no), "OGS·011/024", "P2"));
+        var game = await Attack(AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(no), "FLASH", "OGS·011/024", "P2"));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         var item = Assert.Single(game.State.StackItems);
         var forgedPlay = item with { FieldContext = item.FieldContext! with {
+            BattlefieldId = null, ReturnFocusPlayerId = null,
             PaidUnitTrigger = item.FieldContext.PaidUnitTrigger! with { Event = "PLAY" } } };
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [forgedPlay] }));
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]));
         await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("RESPONSE", "OGS·011/024", ["ENEMY1"]));
+        await game.Act("P2", new PlayCardCommand("FLASH", "OGS·011/024", ["ENEMY1"]));
         await game.Top();
         Assert.Contains("ENEMY1", game.State.PlayerZones["P2"].Base);
         await game.Top();
