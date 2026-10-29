@@ -148,8 +148,10 @@ public sealed class ZedSilentShadowTests
             .Where(r => Equals(r.GetValueOrDefault("sourceObjectId"), "HOST") && Equals(r.GetValueOrDefault("abilityId"), Ability)).ToArray();
         Assert.Equal(2, requirements.Length);
         var copy = Assert.Single(requirements, r => r.GetValueOrDefault("abilityInstanceId") is not null);
-        await driver.Act("P1", new ActivateAbilityCommand("HOST", Ability, ["TARGET"],
-            AbilityInstanceId: Assert.IsType<string>(copy["abilityInstanceId"])));
+        await driver.Act("P1", new ActivateAbilityCommand("HOST", Ability, ["TARGET"])
+        {
+            AbilityInstanceId = Assert.IsType<string>(copy["abilityInstanceId"])
+        });
         Assert.NotNull(Assert.Single(driver.State.StackItems).NamedUnitSwap!.Origin);
         await driver.Top();
         Assert.Equal("OTHER", driver.State.ObjectLocations["HOST"].BattlefieldObjectId);
