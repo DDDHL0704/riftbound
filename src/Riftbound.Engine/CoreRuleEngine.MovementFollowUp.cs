@@ -123,7 +123,7 @@ public sealed partial class CoreRuleEngine
         CardBehaviorDefinition behavior, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         IReadOnlyDictionary<string, ObjectLocationState> locations, Dictionary<string, RunePool> pools, List<GameEvent> events, bool deferCompletion)
     {
-        if (!deferCompletion) CompleteSpellSource(zones, cards, item, behavior);
+        if (!deferCompletion) CompleteSpellSource(zones, cards, item, behavior, events);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = pools, Events = events };
     }

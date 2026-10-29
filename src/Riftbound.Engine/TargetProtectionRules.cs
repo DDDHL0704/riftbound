@@ -43,18 +43,19 @@ internal static class TargetProtectionRules
             || string.Equals(targetLocation.PlayerId, sourceControllerId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || !IsVisibleSourceUnit(targetState)
-            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId)
-            || !CardStaticAbilitySpecRules.TryGetStaticAbility(
-                targetState.CardNo,
-                CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility,
-                out var ability))
+            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId))
         {
             return false;
         }
 
-        return !ability.RequiredPlayerExperience.HasValue
-            || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
-                && experience >= ability.RequiredPlayerExperience.Value;
+        var inCombat = CombatPresenceRules.IsInCombat(state, targetState);
+        return AttachedRuleTextRules.Instances(state, targetState).Any(instance =>
+            CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                ability => CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility(ability)
+                    && (ability.RequiresSourceOutsideBattle != true || !inCombat)
+                    && (!ability.RequiredPlayerExperience.HasValue
+                        || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
+                            && experience >= ability.RequiredPlayerExperience.Value), out _));
     }
 
     private static bool IsVisibleSourceUnit(CardObjectState targetState)

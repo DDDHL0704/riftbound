@@ -11,7 +11,8 @@ public sealed record LastKnownMightFrame(
     IReadOnlyDictionary<string, CardObjectState> CardObjects,
     IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations,
     IReadOnlyList<string> BattleDeclarations,
-    IReadOnlyDictionary<string, int> PlayerExperience);
+    IReadOnlyDictionary<string, int> PlayerExperience,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? PlayerScores = null);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record LastBreathMightContext(string SourceObjectId, string CardNo, long SourceGeneration,
@@ -33,15 +34,38 @@ public sealed partial class CoreRuleEngine
             Field(p.Value.LegendZone), Field(p.Value.ChampionZone)), StringComparer.Ordinal);
         var publicLocations = ReconcileObjectLocations(locations ?? state.ObjectLocations, zones)
             .Where(p => visible.ContainsKey(p.Key)).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        var scores = FrameHasScorePower(publicZones, visible)
+            ? publicZones.Keys.ToDictionary(id => id, id => state.PlayerScores.GetValueOrDefault(id), StringComparer.Ordinal) : null;
         return new(publicZones, visible, publicLocations, state.UntilEndOfTurnEffects
             .Where(e => e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray(),
-            publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal));
+            publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal), scores);
+    }
+
+    private static bool FrameHasScorePower(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards)
+    {
+        static bool HasScorePower(string? no) => StaticAuraSpecRules.GetStaticAuras(no)
+            .Any(aura => aura.Kind == StaticAuraKinds.SourceControllerScorePower);
+        // Avoid scanning attachments for every unit in the common case where
+        // no visible printed or copied text can depend on a score at all.
+        if (!cards.Values.Any(card => card is not null
+            && (HasScorePower(card.CardNo) || HasScorePower(card.AttachedRuleText?.CardNo)))) return false;
+        return cards.Values.Any(card => card is not null && !card.IsFaceDown && card.Tags.Contains(CardObjectTags.UnitCard)
+            && IsObjectOnField(zones, card.ObjectId)
+            && AttachedRuleTextRules.Instances(zones, cards, card).Any(instance => HasScorePower(instance.CardNo)));
     }
 
     private static bool ValidMightFrameExperience(LastKnownMightFrame frame)
-        => frame.PlayerExperience is not null && frame.PlayerZones is not null
-            && frame.PlayerExperience.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
-            && frame.PlayerExperience.Values.All(value => value >= 0);
+    {
+        if (frame.PlayerExperience is null || frame.PlayerZones is null || frame.CardObjects is null
+            || !frame.PlayerExperience.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
+            || frame.PlayerExperience.Values.Any(value => value < 0)) return false;
+        var needsScores = FrameHasScorePower(frame.PlayerZones, frame.CardObjects);
+        return frame.PlayerScores is { } scores
+            ? needsScores && scores.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
+                && scores.Values.All(value => value >= 0)
+            : !needsScores;
+    }
 
     private static MatchState MightFrameState(LastKnownMightFrame frame)
     {
@@ -49,7 +73,7 @@ public sealed partial class CoreRuleEngine
         return new("LAST-KNOWN-MIGHT", 0, 0, frame.PlayerZones.Keys.First(),
             frame.PlayerZones.Keys.ToDictionary(p => p, p => p, StringComparer.Ordinal),
             status: MatchStatuses.InProgress, phase: MatchPhases.Main,
-            playerZones: frame.PlayerZones, cardObjects: frame.CardObjects,
+            playerZones: frame.PlayerZones, playerScores: frame.PlayerScores, cardObjects: frame.CardObjects,
             objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: frame.BattleDeclarations,
             playerExperience: frame.PlayerExperience);
     }
