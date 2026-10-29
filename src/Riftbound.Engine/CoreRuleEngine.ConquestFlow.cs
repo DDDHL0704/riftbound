@@ -66,6 +66,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTurnFlowGrants(MatchState state)
     {
+        if (state.UntilEndOfTurnEffects is null) return false;
         var markers = state.UntilEndOfTurnEffects.Where(e => e?.StartsWith(TurnFlowGrantPrefix, StringComparison.Ordinal) == true).ToArray();
         return markers.Distinct(StringComparer.Ordinal).Count() == markers.Length
             && markers.All(m => ReadFlowGrant(m) is { } grant && ValidFlowGrant(state, grant));
