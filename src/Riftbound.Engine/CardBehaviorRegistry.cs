@@ -293,10 +293,14 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    OptionalPowerModifierSpec? OptionalPowerModifier = null,
+    bool CounterRequiresOpponentOtherSpellThisTurn = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
 
 public static class CardDamageConditionKinds
 {
@@ -456,6 +460,14 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·039", "崩解之沙", 1, "CRUMBLING_SANDS_CONDITIONAL_COUNTER", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, CanPlayDuringPriority: true, CountersTargetStackSpell: true,
+            CounterRequiresOpponentOtherSpellThisTurn: true),
+        new("VEN·083", "暴走", 3, "RAMPAGE_OPTIONAL_POWER_MUTUAL_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits, DealsMutualTargetPowerDamage: true,
+            OptionalPowerModifier: new(1, RuneTrait.Orange, 2)),
+        new("VEN·085", "力量箴言", 1, "INVOCATION_OF_STRENGTH_RECYCLE_BLUE_HAND_CARD", 0, 0,
+            HandChoice: new(RevealedHandAction.Recycle, RequiredTag: "COLOR:blue")),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
