@@ -12,7 +12,11 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { IgnoreAllCosts: true } p && p.PlayerId == playerId;
 
     internal static bool IsForcedEffectPlayDestination(MatchState state, string playerId, string destination)
-        => state.PendingEffectPlay is { SourceZone: "BANISHED", DestinationPolicy: "ANY_BATTLEFIELD" } banished
+        => state.PendingEffectPlay is { SourceZone: "BANISHED", DestinationPolicy: "ORIGINAL_LOCATION", OriginalBattlefield: { } original } same
+            && same.PlayerId == playerId && destination == "BATTLEFIELD:" + original.ObjectId
+            && BattlefieldLocalRules.Battlefield(state, original.ObjectId) is { } originalField
+            && originalField.ObjectGeneration == original.Generation
+            || state.PendingEffectPlay is { SourceZone: "BANISHED", DestinationPolicy: "ANY_BATTLEFIELD" } banished
             && banished.PlayerId == playerId && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && BattlefieldLocalRules.Battlefield(state, destination["BATTLEFIELD:".Length..]) is not null
             || state.PendingEffectPlay is { RevealedHand: { Choosing: false } hand } p && p.PlayerId == playerId
