@@ -86,6 +86,34 @@ public sealed class ZedSilentShadowTests
     }
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ReturningTheSourceToHandHidesItsNewIdentityWhileTheCapturedSkillStaysPublic(bool conquest)
+    {
+        var state = conquest ? ConquestTokenTriggerTests.Position("VEN·112") : Position();
+        var source = conquest ? "UNIT" : "HOST";
+        state = AttackDamageDistributionTests.Spell(state, "RETURN", "OGN·104/298", "P1") with {
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+                ["P1"] = new(20, 20, new Dictionary<string, int> { [RuneTrait.Purple] = 20 }) } };
+        var driver = new VenBasicFlowSpellTests.Driver(state);
+        if (conquest) {
+            await driver.Act("P1", new MoveUnitCommand(source, "BASE", "BATTLEFIELD:BF", []));
+            await driver.Act("P1", new PassFocusCommand()); await driver.Act("P2", new PassFocusCommand());
+        } else await driver.Act("P1", new ActivateAbilityCommand(source, Ability, ["TARGET"]));
+        await driver.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", [source])); await driver.Top();
+        Assert.Contains(source, driver.State.PlayerZones["P1"].Hand);
+        var item = Assert.Single(driver.State.StackItems);
+        var stack = JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(driver.State)["P2"],
+            new JsonSerializerOptions(JsonSerializerDefaults.Web)).GetProperty("stack");
+        var view = Assert.Single(stack.EnumerateArray(), row => row.GetProperty("stackItemId").GetString() == item.StackItemId);
+        Assert.Equal("HIDDEN", view.GetProperty("sourceObjectId").GetString());
+        Assert.Equal(item.EffectKind, view.GetProperty("effectKind").GetString());
+        await driver.Top();
+        if (conquest) Assert.Single(driver.State.CardObjects.Values, c => c.TokenFactoryCardNo == "VEN·T05");
+        else Assert.Equal("OTHER", driver.State.ObjectLocations["TARGET"].BattlefieldObjectId);
+    }
+
+    [Theory]
     [InlineData("VEN·112")]
     [InlineData("VEN·112a")]
     public async Task RepeatedControlWithoutAnotherConquestDoesNotCreateAClone(string no)
@@ -192,6 +220,23 @@ public sealed class ZedSilentShadowTests
         Assert.Equal(18, driver.State.RunePools["P1"].PowerByTrait[RuneTrait.Purple]);
         Assert.False(driver.State.CardObjects["HOST"].IsExhausted);
         Assert.False(driver.State.CardObjects["TARGET"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task ReturningTheTargetCloneToHandCeasesItAndThePaidSwapSafelyFizzlesAcrossRecovery()
+    {
+        var state = AttackDamageDistributionTests.Spell(Position(), "RETURN", "OGN·104/298", "P1");
+        var driver = new VenBasicFlowSpellTests.Driver(state);
+        await driver.Act("P1", new ActivateAbilityCommand("HOST", Ability, ["TARGET"]));
+        await driver.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["TARGET"])); await driver.Top();
+        Assert.False(driver.State.CardObjects.ContainsKey("TARGET"));
+        var target = Assert.Single(Assert.Single(driver.State.StackItems).DepartedTokenTargets!);
+        Assert.Equal(new ObjectBinding("TARGET", state.CardObjects["TARGET"].ObjectGeneration), target.Target);
+        await driver.Top();
+        Assert.Equal("F", driver.State.ObjectLocations["HOST"].BattlefieldObjectId);
+        Assert.Equal(18, driver.State.RunePools["P1"].Mana);
+        Assert.Equal(19, driver.State.RunePools["P1"].PowerByTrait[RuneTrait.Purple]);
+        Assert.Empty(driver.State.StackItems);
     }
 
     public static IEnumerable<object[]> Rejections() => Printings.SelectMany(no => new[] {
