@@ -40,7 +40,7 @@ public sealed class OnPlaySourcePowerTriggerSourceGuardTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.Contains(
             "OnPlaySourcePowerSourceTriggerSpecLabelForRecovery",

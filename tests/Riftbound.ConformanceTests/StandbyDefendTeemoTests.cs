@@ -387,7 +387,7 @@ public sealed class StandbyDefendTeemoTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var matchSessionSource = SourceFileParts.ReadAllText(matchSessionPath);
         var promptHelper = matchSessionSource[
             matchSessionSource.IndexOf("private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleBattlefieldDefendEffectTargetChoicesByIndex", StringComparison.Ordinal)..];
         promptHelper = promptHelper[..promptHelper.IndexOf("private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex", StringComparison.Ordinal)];
