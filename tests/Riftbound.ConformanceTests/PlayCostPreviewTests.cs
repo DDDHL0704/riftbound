@@ -144,6 +144,63 @@ public sealed class PlayCostPreviewTests
         Assert.Single(journal.Entries);
     }
 
+    [Fact]
+    public void PlayCardPromptCountsReadyRunesAsProspectiveMana()
+    {
+        var baseState = Position(new RunePool(0, 2));
+        var state = baseState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones)
+            {
+                ["P1"] = baseState.PlayerZones["P1"] with
+                {
+                    Base = ["P1-RUNE-READY", "P1-RUNE-READY-2", "P1-RUNE-READY-3", "P1-RUNE-READY-4"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects)
+            {
+                ["P1-RUNE-READY"] = new(
+                    "P1-RUNE-READY",
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Red}"]),
+                ["P1-RUNE-READY-2"] = new(
+                    "P1-RUNE-READY-2",
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Blue}"])
+                , ["P1-RUNE-READY-3"] = new(
+                    "P1-RUNE-READY-3",
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Green}"])
+                , ["P1-RUNE-READY-4"] = new(
+                    "P1-RUNE-READY-4",
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Purple}"])
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["CARD"] = new("P1", "HAND"),
+                ["P2-CARD"] = new("P2", "HAND"),
+                ["P1-RUNE-READY"] = new("P1", "BASE"),
+                ["P1-RUNE-READY-2"] = new("P1", "BASE"),
+                ["P1-RUNE-READY-3"] = new("P1", "BASE"),
+                ["P1-RUNE-READY-4"] = new("P1", "BASE")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var play = Assert.Single(prompt.Candidates!, candidate => candidate.Action == CommandTypes.PlayCard);
+        Assert.True(play.Enabled, play.Reason);
+        Assert.Contains(play.Sources!, source => source.Id == "CARD");
+    }
+
     internal static MatchState Position(RunePool pool, string cardNo = "SFD·143/221")
         => new("COST-PREVIEW", 1, 3, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen,

@@ -7254,6 +7254,8 @@ internal static class ActionPromptBuilder
         string DisplayName,
         IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice,
         int ManaCost,
         bool Composable,
         string? UnsupportedReason);
@@ -9702,14 +9704,34 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        var costChoices = HideCardOptionalCostChoicesForState(state, playerId);
-        if (costChoices.Length == 0)
-        {
-            return [];
-        }
-
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
+        var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
+        var recycleChoices = CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId)
+            .Select(actionId =>
+            {
+                var objectId = actionId[RecycleRunePaymentOptionalCostPrefix.Length..];
+                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for standby");
+                return new ActionPromptChoiceDto(actionId, $"回收符文支付：{choice.Label}", choice.Reason);
+            })
+            .ToArray();
+        var paymentResourcePowerByChoice = recycleChoices
+            .Select(choice => choice.Id[RecycleRunePaymentOptionalCostPrefix.Length..])
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
+                && TryGetRuneTrait(runeState, out _))
+            .ToDictionary(
+                objectId => $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                objectId =>
+                {
+                    TryGetRuneTrait(state.CardObjects[objectId], out var trait);
+                    return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["trait"] = trait,
+                        ["power"] = BasicRuneRecyclePowerGain,
+                        ["paymentOnly"] = false
+                    };
+                },
+                StringComparer.Ordinal);
         var requirements = new List<HideCardPromptRequirement>();
         foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
         {
@@ -9720,12 +9742,44 @@ internal static class ActionPromptBuilder
                 continue;
             }
 
+            var costChoices = new List<ActionPromptChoiceDto>();
+            if (StandbyRules.HasPrintedKeyword(behavior.CardNo)
+                && (pool.TotalPower >= 1 || recycleChoices.Length > 0))
+            {
+                costChoices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+                if (pool.TotalPower < 1)
+                {
+                    costChoices.AddRange(recycleChoices);
+                }
+            }
+
+            if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1
+                && HasTeemoStandbyHidePermission(state, playerId))
+            {
+                costChoices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
+            }
+
+            if (HasFreeStandbyHidePermission(state, playerId))
+            {
+                costChoices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
+            }
+
+            if (costChoices.Count == 0)
+            {
+                continue;
+            }
+
+            var paymentChoices = costChoices
+                .Where(choice => choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+                .ToArray();
             requirements.Add(new HideCardPromptRequirement(
                 objectId,
                 behavior.CardNo,
                 behavior.DisplayName,
                 destinationChoices,
-                costChoices.Where(c => c.Id == StandbyHideTeemoOptionalCost || StandbyRules.HasPrintedKeyword(behavior.CardNo)).ToArray(),
+                costChoices,
+                paymentChoices,
+                paymentResourcePowerByChoice,
                 0,
                 true,
                 null));
@@ -10038,7 +10092,10 @@ internal static class ActionPromptBuilder
     {
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
-        if (pool.TotalPower >= 1) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+        if (pool.TotalPower >= 1)
+        {
+            choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+        }
         if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
@@ -14887,12 +14944,32 @@ internal static class ActionPromptBuilder
             : RunePool.Empty;
         var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
         var available = AvailablePlayMana(state, runePool, behavior)
-            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
+            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana)
+            + PromptTapRuneGeneratedMana(state, playerId, sourceObjectId);
         if (behavior.PlaysSourceToBaseAsUnit && PromptRenektonPaymentChoices(state, playerId).Any(choice =>
                 CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, choice.RemainingRunePower,
                     behavior, 0, "", choice.RemainingRuneCapacity)))
             available += 2;
         return available;
+    }
+
+    private static int PromptTapRuneGeneratedMana(
+        MatchState state,
+        string playerId,
+        string? playedSourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !state.RunePools.TryGetValue(playerId, out var pool)
+            || !pool.HasSupportedAmounts)
+        {
+            return 0;
+        }
+
+        var readyRuneCount = zones.Base
+            .Where(objectId => !string.Equals(objectId, playedSourceObjectId, StringComparison.Ordinal))
+            .Count(objectId => IsTapRuneSource(state, playerId, objectId));
+        var capacity = Math.Max(0, int.MaxValue - pool.TotalStoredMana);
+        return Math.Min(readyRuneCount, capacity);
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -15866,7 +15943,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyDictionary<string, object?> HideCardMetadataFor(MatchState state, string playerId)
     {
         var sourceRequirements = HideCardSourceRequirements(state, playerId)
-            .Select(HideCardSourceRequirementView)
+            .Select(requirement => HideCardSourceRequirementView(state, requirement))
             .ToArray();
         return new Dictionary<string, object?>
         {
@@ -15915,8 +15992,22 @@ internal static class ActionPromptBuilder
     }
 
     private static IReadOnlyDictionary<string, object?> HideCardSourceRequirementView(
+        MatchState state,
         HideCardPromptRequirement requirement)
     {
+        var costsByChoice = requirement.OptionalCostChoices.ToDictionary(
+            choice => choice.Id,
+            choice =>
+            {
+                var isRecycle = choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal);
+                return (object)new Dictionary<string, object?>(StringComparer.Ordinal)
+                {
+                    ["mana"] = choice.Id == StandbyHideTeemoOptionalCost ? 1 : 0,
+                    ["power"] = choice.Id == StandbyHideOptionalCost || isRecycle ? 1 : 0,
+                    ["paymentResource"] = isRecycle
+                };
+            },
+            StringComparer.Ordinal);
         return new Dictionary<string, object?>
         {
             ["sourceObjectId"] = requirement.SourceObjectId,
@@ -15924,9 +16015,11 @@ internal static class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["destinationChoices"] = requirement.DestinationChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.OptionalCostChoices.Any(c => c.Id == StandbyHideOptionalCost) ? 1 : 0,
-            ["costsByChoice"] = requirement.OptionalCostChoices.ToDictionary(c => c.Id, c => (object)new Dictionary<string, object?> { ["mana"] = c.Id == StandbyHideTeemoOptionalCost ? 1 : 0, ["power"] = c.Id == StandbyHideOptionalCost ? 1 : 0 }),
+            ["costsByChoice"] = costsByChoice,
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };

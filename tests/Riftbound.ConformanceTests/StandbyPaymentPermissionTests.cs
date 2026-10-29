@@ -105,6 +105,67 @@ public sealed class StandbyPaymentPermissionTests
         await Replay(initial, driver);
     }
 
+    [Fact]
+    public async Task PrintedStandbyCanRecycleRuneAsItsAttachedPowerPayment()
+    {
+        var initial = StandbySourceRulesTests.Position("OGN·135/298");
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects)
+        {
+            ["P1-PAY-RUNE"] = new(
+                "P1-PAY-RUNE",
+                cardNo: "UNL-R03",
+                ownerId: "P1",
+                controllerId: "P1",
+                tags: [CardObjectTags.RuneCard, $"COLOR:{RuneTrait.Red}"])
+        };
+        var zones = new Dictionary<string, PlayerZones>(initial.PlayerZones)
+        {
+            ["P1"] = initial.PlayerZones["P1"] with { Base = ["P1-PAY-RUNE"] }
+        };
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations)
+        {
+            ["P1-PAY-RUNE"] = new("P1", "BASE")
+        };
+        initial = initial with
+        {
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = RunePool.Empty },
+            CardObjects = cards,
+            PlayerZones = zones,
+            ObjectLocations = locations
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        var candidate = Assert.Single(prompt.Candidates!, item => item.Action == CommandTypes.HideCard);
+        Assert.True(candidate.Enabled, candidate.Reason);
+        Assert.Contains(candidate.OptionalCosts!, choice => choice.Id == "STANDBY_A");
+        Assert.Contains(candidate.OptionalCosts!, choice => choice.Id == "RECYCLE_RUNE:P1-PAY-RUNE");
+        var requirement = Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(
+            candidate.Metadata!["sourceRequirements"]);
+        var source = Assert.Single(requirement, item => (string)item["sourceObjectId"]! == "SHADOW");
+        Assert.Contains(
+            Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(source["paymentResourceChoices"]),
+            choice => choice.Id == "RECYCLE_RUNE:P1-PAY-RUNE");
+
+        var hidden = await new CoreRuleEngine().ResolveAsync(
+            initial,
+            new("standby-recycle-payment", "P1", CommandTypes.HideCard),
+            new HideCardCommand(
+                "SHADOW",
+                "OGN·135/298",
+                "BATTLEFIELD:F",
+                ["STANDBY_A", "RECYCLE_RUNE:P1-PAY-RUNE"]),
+            default);
+        Assert.True(hidden.Accepted, hidden.ErrorMessage);
+        Assert.Equal(RunePool.Empty, hidden.State.RunePools["P1"]);
+        Assert.DoesNotContain("P1-PAY-RUNE", hidden.State.PlayerZones["P1"].Base);
+        Assert.Contains("P1-PAY-RUNE", hidden.State.PlayerZones["P1"].RuneDeck);
+        Assert.Contains(hidden.Events, gameEvent => gameEvent.Kind == "RUNE_RECYCLED");
+        var paid = Assert.Single(hidden.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(
+            ["RECYCLE_RUNE:P1-PAY-RUNE"],
+            Assert.IsType<string[]>(paid.Payload!["paymentResourceActions"]));
+    }
+
     private static async Task Rejected(MatchState state, GameCommand command)
     {
         var blocked = await new CoreRuleEngine().ResolveAsync(state, new("blocked-payment", "P1", command.CmdType), command, default);

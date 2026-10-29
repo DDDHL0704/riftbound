@@ -78,12 +78,37 @@ public sealed partial class CoreRuleEngine
             || !ownZones.Hand.Concat(ownZones.ChampionZone).Contains(command.SourceObjectId))
             return RejectWithCorePrompts(state, "待命埋伏只能选择自己手牌中的牌。", ErrorCodes.CardNotInHand);
         var costs = NormalizeOptionalCosts(command.OptionalCosts);
+        var standbyCosts = costs
+            .Where(cost => cost is StandbyHideOptionalCost or StandbyHideTeemoOptionalCost or StandbyHideFreeOptionalCost)
+            .ToArray();
+        if (standbyCosts.Length != 1)
+            return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该费用进行待命埋伏。", ErrorCodes.InvalidTarget);
+
+        var standbyCost = standbyCosts[0];
+        var paymentResourceCosts = costs
+            .Where(cost => !string.Equals(cost, standbyCost, StringComparison.Ordinal))
+            .ToArray();
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                paymentResourceCosts,
+                out var unsupportedPaymentCosts,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds)
+            || unsupportedPaymentCosts.Count > 0
+            || recycledRuneObjectIds.Any(runeObjectId =>
+                !state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+                || string.IsNullOrWhiteSpace(runeState.CardNo)))
+        {
+            return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该支付资源动作进行待命埋伏。", ErrorCodes.InvalidTarget);
+        }
+
         var teemoPermission = HasTeemoStandbyHidePermission(state, intent.PlayerId);
         var freePermission = HasFreeStandbyHidePermission(state, intent.PlayerId);
-        if (costs.Count != 1 || costs[0] is not (StandbyHideOptionalCost or StandbyHideTeemoOptionalCost or StandbyHideFreeOptionalCost)
-            || costs[0] == StandbyHideTeemoOptionalCost && !teemoPermission
-            || costs[0] == StandbyHideFreeOptionalCost && !freePermission)
-            return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该费用进行待命埋伏。", ErrorCodes.UnsupportedCardBehavior);
+        if (standbyCost == StandbyHideTeemoOptionalCost && !teemoPermission
+            || standbyCost == StandbyHideFreeOptionalCost && !freePermission
+            || paymentResourceActions.Count > 0 && standbyCost != StandbyHideOptionalCost)
+            return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该费用进行待命埋伏。", ErrorCodes.InvalidTarget);
         if (!TryParseBattlefieldDestination(command.Destination, out var fieldId))
             return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该去向进行待命埋伏。", ErrorCodes.UnsupportedCardBehavior);
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var source) || string.IsNullOrWhiteSpace(source.CardNo))
@@ -94,7 +119,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "待命埋伏只能选择自己控制的手牌。", ErrorCodes.InvalidTarget);
         if (source.IsFaceDown)
             return RejectWithCorePrompts(state, "待命布置来源必须正面朝上。", ErrorCodes.InvalidTarget);
-        var permission = costs[0] switch {
+        var permission = standbyCost switch {
             StandbyHideOptionalCost when StandbyRules.HasPrintedKeyword(source.CardNo) => "PRINTED",
             StandbyHideTeemoOptionalCost when teemoPermission && StandbyRules.HasPrintedKeyword(source.CardNo) => "TEEMO",
             StandbyHideFreeOptionalCost when freePermission && StandbyRules.HasPrintedKeyword(source.CardNo) => "FREE",
@@ -103,28 +128,55 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, $"{behavior.DisplayName} 没有待命关键词，不能进行待命埋伏。", ErrorCodes.UnsupportedCardBehavior);
         if (!StandbyHideBattlefields(state, intent.PlayerId).Contains(fieldId))
             return RejectWithCorePrompts(state, "请选择你控制且仍有待命空位的战场。", ErrorCodes.InvalidTarget);
+        var currentPool = state.RunePools.GetValueOrDefault(intent.PlayerId) ?? RunePool.Empty;
+        if (paymentResourceActions.Count > 0
+            && !AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                1,
+                new Dictionary<string, int>(StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(state, "待命所需资源不需要这些支付资源动作。", ErrorCodes.InvalidTarget);
+        }
+
+        var zones=NormalizeZonesForSeats(state);
+        var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
+        var locations=ReconcileObjectLocations(state.ObjectLocations,zones);
+        var paymentEvents = new List<GameEvent>();
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            zones,
+            cards,
+            locations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            "HIDE_CARD",
+            PaymentCostRules.BuildPaymentId(state.Tick+1,"HIDE_CARD",intent.PlayerId,command.SourceObjectId));
+        var own=zones[intent.PlayerId];
         var mana=permission=="TEEMO" ? 1 : 0;var power=permission=="PRINTED" ? 1 : 0;
         var payment=new PaymentCostRules.PaymentPlan(PaymentCostRules.BuildPaymentId(state.Tick+1,"HIDE_CARD",intent.PlayerId,command.SourceObjectId),
             "HIDE_CARD",intent.PlayerId,baseManaCost:mana,totalManaCost:mana,genericPowerCost:power,totalPowerCost:power,
-            optionalCostIds:costs,reason:"STANDBY_HIDE",sourceObjectId:command.SourceObjectId);
-        var committed=PaymentCostRules.TryCommitPayment(payment,state.RunePools,state.PlayerExperience, state: state);
+            optionalCostIds:costs,paymentResourceActionIds:paymentResourceActions,reason:"STANDBY_HIDE",sourceObjectId:command.SourceObjectId);
+        var committed=PaymentCostRules.TryCommitPayment(payment,runePools,state.PlayerExperience, state: state);
         if(!committed.Accepted)return RejectWithCorePrompts(state,"待命所需资源不足。",ErrorCodes.InsufficientCost);
-        var zones=NormalizeZonesForSeats(state);var own=zones[intent.PlayerId];
         zones[intent.PlayerId]=own with {Hand=RemoveFromZone(own.Hand,source.ObjectId),ChampionZone=RemoveFromZone(own.ChampionZone,source.ObjectId),
             Battlefields=own.Battlefields.Append(source.ObjectId).ToArray()};
         var placement=new StandbyPlacement(source.ObjectId,source.ObjectGeneration+1,source.CardNo!,intent.PlayerId,
             new(fieldId,state.CardObjects[fieldId].ObjectGeneration),state.TurnNumber,state.Tick+1,permission,StandbyRules.TextHash(source.CardNo!));
-        var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         cards[source.ObjectId]=source with {IsFaceDown=true,IsAttacking=false,IsDefending=false,IsExhausted=false,
             ControllerId=intent.PlayerId,StandbyPlacement=placement,Tags=source.Tags.Append(CardObjectTags.Standby).Distinct(StringComparer.Ordinal).OrderBy(tag=>tag,StringComparer.Ordinal).ToArray()};
-        var locations=ReconcileObjectLocations(state.ObjectLocations,zones);locations[source.ObjectId]=new(intent.PlayerId,"BATTLEFIELD",fieldId);
+        locations=ReconcileObjectLocations(locations,zones);locations[source.ObjectId]=new(intent.PlayerId,"BATTLEFIELD",fieldId);
         var events=new List<GameEvent> {
             new("COST_PAID","支付待命布置费用",PaymentCostRules.BuildCostPaidPayload(payment,committed.RunePools,committed.PlayerExperience,
                 new Dictionary<string,object?> { ["mana"]=mana,["power"]=power,
-                    ["standbyHideCostWaived"]=permission=="FREE", ["teemoStandbyHideReplacement"]=permission=="TEEMO" })),
+                    ["standbyHideCostWaived"]=permission=="FREE", ["teemoStandbyHideReplacement"]=permission=="TEEMO",
+                    ["recycledRuneObjectIds"]=recycledRuneObjectIds.ToArray() })),
             new("CARD_HIDDEN","在战场的待命区布置卡牌",new Dictionary<string,object?> {
                 ["playerId"]=intent.PlayerId,["sourceObjectId"]=source.ObjectId,["destination"]="BATTLEFIELD:"+fieldId,
                 ["destinationZone"]="BATTLEFIELD",["battlefieldObjectId"]=fieldId,["isFaceDown"]=true }) };
+        events.InsertRange(0, paymentEvents);
         var next=state with {Tick=state.Tick+1,PlayerZones=zones,CardObjects=cards,ObjectLocations=locations,
             RunePools=committed.RunePools,PlayerExperience=committed.PlayerExperience};
         return new(true,null,next,events,ResolutionResult.BuildSnapshots(next),BuildCorePrompts(next));
