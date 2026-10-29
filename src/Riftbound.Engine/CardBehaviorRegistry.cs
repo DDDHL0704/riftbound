@@ -267,6 +267,8 @@ public sealed record CardBehaviorDefinition(
     bool GrantsFreeStandbyHidePermission = false,
     string EffectPlaySourceZone = "",
     bool EffectPlayIgnoreBaseMana = false,
+    int DestroyedEquipmentGrantsTurnPlayMaximumMana = 0,
+    string? AppliedEquipmentPlayGrant = null,
     bool EffectPlayIgnoreBasePower = false,
     int EffectPlayManaReduction = 0,
     string EffectPlayDestination = "ANY",
@@ -307,6 +309,7 @@ public static class CardDamageConditionKinds
 
 public static class CardTargetScopes
 {
+    public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
     public const string Battlefield = "BATTLEFIELD";
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
@@ -2661,6 +2664,10 @@ public static class CardBehaviorRegistry
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·175", "杰斯 · 推陈出新", 4, "VEN_JAYCE_EQUIPMENT_GRANT_PLAY_UNIT", 0, 1,
+            TargetRequiredTag: CardObjectTags.EquipmentCard, TargetScope: CardTargetScopes.FriendlyEquipment,
+            MinTargetCount: 0, DestroysTarget: true, DestroyedEquipmentGrantsTurnPlayMaximumMana: 7,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new(
             "VEN·019",
             "雷克顿 · 杀意骤起",
@@ -5838,7 +5845,12 @@ public static class CardBehaviorRegistry
             4,
             "SFD_JAYCE_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT",
             0,
-            0,
+            1,
+            TargetRequiredTag: CardObjectTags.EquipmentCard,
+            TargetScope: CardTargetScopes.FriendlyEquipment,
+            MinTargetCount: 0,
+            DestroysTarget: true,
+            DestroyedEquipmentGrantsTurnPlayMaximumMana: 7,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
         new(

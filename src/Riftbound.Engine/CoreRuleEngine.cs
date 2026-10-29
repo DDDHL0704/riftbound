@@ -3934,6 +3934,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         nextState = nextState with
         {
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            EquipmentPlayGrants = TurnEquipmentPlayRules.Consume(state, behavior),
             CardObjects = cardObjects,
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
@@ -18054,6 +18055,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
         behavior = PlaySourceKeywordBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
+        if (!TurnEquipmentPlayRules.TryApply(state, intent.PlayerId, command.SourceObjectId, command.OptionalCosts, behavior, out behavior))
+        {
+            rejection = Reject(state, "所选装备打出权限不存在、已使用，或不适用于这张牌。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
@@ -18974,6 +18980,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PendingCardChoice = pendingCardChoice,
                 PendingEffectPlay = stackResolution.PendingEffectPlay,
                 LinkedExiles = stackResolution.LinkedExiles ?? state.LinkedExiles,
+                EquipmentPlayGrants = stackResolution.EquipmentPlayGrants ?? state.EquipmentPlayGrants,
                 PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
@@ -19830,6 +19837,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var nextTurnState = cleanupState with
         {
             TurnNumber = state.TurnNumber + 1,
+            EquipmentPlayGrants = null,
             FaceDownLookPermissions = [],
             ActivePlayerId = nextPlayerId,
             TurnPlayerId = nextPlayerId,
@@ -21126,6 +21134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
                 : IsEquipmentObject(state, objectId),
+            CardTargetScopes.FriendlyEquipment => IsFriendlyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
@@ -22239,6 +22248,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         destroyedAdditionalCostTargetObjectIds = [];
         returnedAdditionalCostTargetObjectIds = [];
         discardedOptionalCostTargetObjectIds = [];
+
+        if (normalizedOptionalCosts.Any(cost => cost.StartsWith(TurnEquipmentPlayRules.ChoicePrefix, StringComparison.Ordinal)))
+        {
+            var selected = normalizedOptionalCosts.Where(cost => cost.StartsWith(TurnEquipmentPlayRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
+            if (selected.Length != 1 || selected[0] != TurnEquipmentPlayRules.ChoicePrefix + behavior.AppliedEquipmentPlayGrant) return false;
+            var other = normalizedOptionalCosts.Except(selected, StringComparer.Ordinal).ToArray();
+            return TryBuildOptionalCostPlan(state, playerId, other, behavior, out _, out extraManaCost,
+                out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds);
+        }
 
         if (normalizedOptionalCosts.Count == 0)
         {
@@ -26532,7 +26552,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rngCursor,
             PendingEffectPlay: sourceReplayChoice,
             ObjectLocations: resolvedObjectLocations,
-            PendingPayment: pendingPayment);
+            PendingPayment: pendingPayment,
+            EquipmentPlayGrants: GrantEquipmentPlayAfterDestruction(state, stackItem, behavior, destroyedObjectIds, events));
     }
 
     private static StackResolutionResult ResolveUnitLastBreathDrawOneStackItem(
@@ -34627,7 +34648,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PendingPaymentState? PendingPayment = null,
         PendingEffectPlayState? PendingEffectPlay = null,
         IReadOnlyList<LinkedExileGroup>? LinkedExiles = null,
-        IReadOnlyList<string>? CompletedCardPlayIds = null);
+        IReadOnlyList<string>? CompletedCardPlayIds = null,
+        IReadOnlyList<TurnEquipmentPlayGrant>? EquipmentPlayGrants = null);
 
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,
