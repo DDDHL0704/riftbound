@@ -39,7 +39,10 @@ def partition(units, cases, weights, count):
     if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values()):
         raise ValueError('Invalid duration history; it never controls membership.')
     def weight(unit):
-        return weights.get(unit['method'], 1) / (len(cases[unit['method']]) if unit['kind'] == 'case' else 1)
+        method_seconds = weights.get(unit['method'], 1)
+        if unit['kind'] == 'case':
+            return weights.get(unit['case'], method_seconds / len(cases[unit['method']]))
+        return method_seconds
     key = lambda unit: (unit['method'], unit.get('case', ''))
     bins = [dict(name=f'shard-{i + 1}', selectors=[], estimatedSeconds=0.0) for i in range(count)]
     for unit in sorted(units, key=lambda item: (-weight(item), key(item))):
