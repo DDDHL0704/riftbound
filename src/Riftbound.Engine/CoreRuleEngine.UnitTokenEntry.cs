@@ -25,7 +25,7 @@ public sealed partial class CoreRuleEngine
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
             if (hastePaid) token = token with { IsExhausted = false };
             token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,
-                out var ready, out var staticSourceId, out var staticSource, out var staticAbility);
+                out var ready, out var staticSourceId, out var staticSource, out var staticAbility, battlefieldId);
             cards[id] = token;
             var destination = battlefieldId is null ? "BASE" : "BATTLEFIELD";
             zones[item.ControllerId] = battlefieldId is null
