@@ -24,6 +24,7 @@ internal static class TemporaryCombatKeywordRules
         var keyword = effect[Prefix.Length..separator];
         return keyword is CardCombatKeywordNames.Bulwark or CardCombatKeywordNames.BackRow
             || CardCombatKeywordRules.KeywordAmount([keyword], CardCombatKeywordNames.Steadfast) > 0
-            || CardCombatKeywordRules.KeywordAmount([keyword], CardCombatKeywordNames.Assault) > 0;
+            || CardCombatKeywordRules.KeywordAmount([keyword], CardCombatKeywordNames.Assault) > 0
+            || CardResourceKeywordRules.SpellshieldTaxFromTags([keyword]) > 0;
     }
 }
