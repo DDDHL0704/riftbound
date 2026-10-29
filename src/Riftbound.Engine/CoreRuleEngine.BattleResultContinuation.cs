@@ -26,6 +26,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = RecordHandDiscardObservers(result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);

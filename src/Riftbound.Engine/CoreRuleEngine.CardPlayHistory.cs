@@ -15,7 +15,8 @@ public sealed record TurnCardPlayHistory(int TurnNumber,
 public sealed partial class CoreRuleEngine
 {
     private const string CardPlayHistoryObservationKey = "cardPlayHistoryObservation";
-    private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone);
+    private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone,
+        HighCostPlayObserverCandidate[] HighCostObservers);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
             c => (c.CardCategoryNameList.Any(n => n.Contains("单位", StringComparison.Ordinal)) ? 1 : 0)
@@ -23,7 +24,8 @@ public sealed partial class CoreRuleEngine
                 | (c.CardCategoryNameList.Any(n => n.Contains("法术", StringComparison.Ordinal)) ? 4 : 0), StringComparer.Ordinal));
 
     private static GameEvent CaptureCardPlayHistory(GameEvent ev, CardObjectState card, string player,
-        string? playId, bool resolved, string zone)
+        string? playId, bool resolved, string zone,
+        IReadOnlyDictionary<string, PlayerZones>? zones = null, IReadOnlyDictionary<string, CardObjectState>? cards = null)
     {
         var payload = ev.Payload.Where(p => p.Key != "historyPlayId").ToDictionary(p => p.Key, p => p.Value);
         if (card.CardNo is not { } no || TokenObjectRules.IsToken(card)
@@ -31,7 +33,8 @@ public sealed partial class CoreRuleEngine
             return ev with { Payload = payload };
         payload[CardPlayHistoryObservationKey] = new CardPlayHistoryObservation(
             new(playId ?? "", player, new(card.ObjectId, card.ObjectGeneration), no, types, 0,
-                card.CopyFaceTransitions?.Count ?? 0), resolved, zone);
+                card.CopyFaceTransitions?.Count ?? 0), resolved, zone,
+            resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : []);
         return ev with { Payload = payload };
     }
 
@@ -42,6 +45,7 @@ public sealed partial class CoreRuleEngine
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();
         var events = new List<GameEvent>();
+        var queue = result.State.TriggerQueue.ToList();
         var locations = IdentityLocations(before);
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
         {
@@ -64,12 +68,30 @@ public sealed partial class CoreRuleEngine
             // must not borrow a previous countered play of this physical card.
             if (!observation.Resolved || limited)
                 if (!finalized.Any(p => p.PlayId == entry.PlayId)) finalized.Add(entry);
-            if (observation.Resolved && !resolved.Any(p => p.PlayId == entry.PlayId)) resolved.Add(entry);
+            if (observation.Resolved && !resolved.Any(p => p.PlayId == entry.PlayId))
+            {
+                resolved.Add(entry);
+                if ((entry.Types & 3) != 0 && PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
+                {
+                    foreach (var (observer, ordinal) in observation.HighCostObservers.Select((value, ordinal) => (value, ordinal)))
+                    {
+                        if (mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
+                        var context = observer.ToContext(result.State.Tick, entry, null);
+                        var trigger = new TriggerQueueItemState($"high-cost-play-{result.State.Tick}-{index}-{ordinal}",
+                            entry.PlayerId, context.Source.ObjectId, HighCostPlayEffect, "CARD_PLAY_COMPLETED")
+                            { HighCostPlayObserver = context, SourceCardNo = context.CardNo };
+                        queue.Add(trigger);
+                        var queued = BuildTriggerQueuedEvent(trigger);
+                        events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
+                            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
+                    }
+                }
+            }
         }
         var nextHistory = result.State.TurnNumber == before.TurnNumber
             ? new TurnCardPlayHistory(before.TurnNumber, finalized, resolved)
             : new TurnCardPlayHistory(result.State.TurnNumber, [], []);
-        var next = result.State with { CardPlays = nextHistory };
+        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue };
         return result with { State = next, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }

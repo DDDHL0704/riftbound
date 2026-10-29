@@ -322,6 +322,14 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var highCostRunes = Regex.Match(text,
+            @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
+            RegexOptions.CultureInvariant);
+        if (highCostRunes.Success)
+            triggers.Add(new(TriggerKinds.ControllerHighCostUnitEquipmentOrAbilityReadyRunes, "HIGH_COST_PLAY_COMPLETED", highCostRunes.Value,
+                "When a unit, equipment or activated ability with at least the specified base mana cost is played, optionally exhaust the source to ready runes.",
+                TargetScope: TriggerTargetScopes.AnyFieldRune, MinimumCardMana: int.Parse(highCostRunes.Groups["mana"].Value),
+                RuneReadyCount: ParseChineseNumber(highCostRunes.Groups["runes"].Value), ExhaustsSource: true, Optional: true));
         var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
         if (otherEmpowered.Success)
             triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,
