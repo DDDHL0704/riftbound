@@ -1,0 +1,149 @@
+using System.Text.Json.Serialization;
+using Riftbound.Contracts;
+
+namespace Riftbound.Engine;
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
+    string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null);
+
+public sealed partial class CoreRuleEngine
+{
+    internal const string UnitEventEffect = "CAPTURED_UNIT_EVENT_ABILITY";
+    internal const string TookDamageThisTurn = "TOOK_DAMAGE_THIS_TURN";
+    private const string UnitEventCaptureKey = "unitEventObservations";
+    private sealed record UnitEventObservation(string Source, string Controller, UnitEventContext Context);
+    private static UnitEventAbilitySpec? UnitEventSpec(string? no)
+        => no is not null && CardBehaviorRegistry.TryGetByCardNo(no, out var card) ? card.UnitEventAbility : null;
+
+    private static UnitEventObservation[] CaptureUnitEvents(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<string> sources, string timing)
+        => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
+                && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(zones, id))
+            .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
+                .Where(i => UnitEventSpec(i.CardNo) is { } spec && spec.Timing == timing
+                    && (!spec.RequiresNoDamageThisTurn || !card.UntilEndOfTurnEffects.Contains(TookDamageThisTurn)))
+                .Select(i => new UnitEventObservation(card.ObjectId, EffectiveFieldControllerId(zones, card.ObjectId, card),
+                    new(i.CardNo, card.ObjectGeneration, card.CopyFaceTransitions?.Count ?? 0, 0, timing,
+                        card.TokenFactoryCardNo, i.Origin)))).ToArray();
+
+    private static GameEvent WithUnitEvents(GameEvent ev, IReadOnlyList<UnitEventObservation> observations)
+        => observations.Count == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+            [UnitEventCaptureKey] = ((ev.Payload.GetValueOrDefault(UnitEventCaptureKey) as UnitEventObservation[]) ?? [])
+                .Concat(observations).ToArray() } };
+
+    private static GameEvent CaptureOtherUnitPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
+        => ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED") ? ev
+            : WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c => c.ObjectId != entered.ObjectId
+                && EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId), "ANOTHER_UNIT_PLAYED"));
+
+    // Record at the instruction, so ready-then-exhaust and departure later in
+    // the same command cannot erase or invent an earned trigger (CN383.2.c).
+    private static GameEvent CaptureUnitReadied(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, string unit, bool wasExhausted)
+        => !wasExhausted ? ev : WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [unit], "BECAME_READY"));
+
+    private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
+        string timing, string eventKind)
+        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK").Select((o, i) =>
+            UnitEventTrigger(o, state.Tick + 1, i, eventKind, timing)).ToArray();
+
+    private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
+        string eventKind, string? timing = null)
+        => new($"unit-event-{tick}-{ordinal}-{observation.Source}-{observation.Context.Timing}", observation.Controller,
+            observation.Source, UnitEventEffect, eventKind, timing) {
+            UnitEvent = observation.Context with { CapturedTick = tick }, SourceCardNo = observation.Context.CardNo };
+
+    private static ResolutionResult QueueUnitEvents(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList(); var ordinal = 0;
+        foreach (var (ev, index) in result.Events.Select((e, i) => (e, i))) {
+            if (ev.Payload.GetValueOrDefault(UnitEventCaptureKey) is not UnitEventObservation[] observations) continue;
+            events[index] = ev with { Payload = ev.Payload.Where(p => p.Key != UnitEventCaptureKey).ToDictionary(p => p.Key, p => p.Value) };
+            foreach (var observation in observations) {
+                var timing = ev.Kind == "BATTLE_CLOSED" ? null : before.StackItems.LastOrDefault()?.TimingContext;
+                if (timing is not (TimingStates.SpellDuelOpen or TimingStates.NeutralClosed))
+                    timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
+                var trigger = UnitEventTrigger(observation, result.State.Tick, ordinal++, ev.Kind, timing);
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+        }
+        if (events.Count == result.Events.Count) return result;
+        var next = result.State with { TriggerQueue = queue };
+        return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+    }
+
+    internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null)
+        => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
+            && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
+            && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
+            && (c.Origin is { } origin ? AttachedRuleTextRules.ValidCaptured(state, origin, source, c.SourceGeneration, c.CardNo)
+                : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
+
+    private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
+        && UnitEventSpec(c.CardNo)?.Effect == "READY_ANOTHER_FRIENDLY";
+    private static string[] UnitEventTargets(MatchState state, StackItemState item)
+        => state.CardObjects.Values.Where(c => c.ObjectId != item.SourceObjectId && IsFaceUpNonStandbyUnit(c)
+            && IsObjectOnField(state.PlayerZones, c.ObjectId) && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
+            .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
+    private static PendingCardChoiceState UnitEventChoice(MatchState state, StackItemState item)
+    {
+        var legal = UnitEventTargets(state, item);
+        return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 1, 1, legal, legal,
+            "选择另一名友方单位变为活跃状态；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
+            { ResolvingStackItemId = item.StackItemId };
+    }
+    private static ResolutionResult PrepareUnitEventTarget(ResolutionResult result, StackItemState item)
+    {
+        var choice = UnitEventChoice(result.State, item);
+        if (choice.LegalObjectIds.Count == 0) return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
+        var next = result.State with { PendingCardChoice = choice, ActivePlayerId = item.ControllerId, PriorityPlayerId = null };
+        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+    }
+    internal static bool ValidUnitEventChoice(MatchState state, PendingCardChoiceState choice)
+    {
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
+        if (item is null || !NeedsUnitEventTarget(item) || item.TargetGenerations is not null
+            || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)) return false;
+        var expected = UnitEventChoice(state, item);
+        return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow && choice.PlayerId == item.ControllerId
+            && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == 1 && choice.MaxCount == 1
+            && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
+    }
+
+    private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
+    {
+        var context = item.UnitEvent!;
+        if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
+            throw new InvalidOperationException("Invalid captured unit event.");
+        var spec = UnitEventSpec(context.CardNo)!;
+        if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration));
+        var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
+            ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "DRAW") {
+            // CN383.2.a.1: the undamaged clause is checked when the battle ends.
+            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+                RngCursor = draw.RngCursor, WinnerPlayerId = draw.WinnerPlayerId, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
+        if (spec.Effect == "MIGHT_SELF" && cards.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == context.SourceGeneration && IsObjectOnField(zones, source.ObjectId)) {
+            cards[source.ObjectId] = ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId, context.CardNo,
+                item.EffectKind, "UNIT_EVENT", spec.Amount, source.Power + spec.Amount);
+            events.Add(new("UNIT_POWER_CHANGED", "单位在本回合内获得战力", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = source.ObjectId, ["powerDelta"] = spec.Amount }));
+        }
+        if (spec.Effect == "READY_ANOTHER_FRIENDLY" && item.TargetObjectIds.SingleOrDefault() is { } target
+            && StackObjectRules.ReferencesCurrentObject(state, item, target) && UnitEventTargets(state, item).Contains(target)) {
+            var card = cards[target]; var behavior = new CardBehaviorDefinition(context.CardNo, "进攻触发技能", 0, item.EffectKind, 0, 1, ReadiesTarget: true);
+            cards[target] = ApplyReadyState(card, behavior, item, target, out var ready, state.PlayerZones, cards);
+            if (ready is not null) events.Add(ready);
+        }
+        return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+    }
+}

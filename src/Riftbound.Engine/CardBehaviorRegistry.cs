@@ -2,6 +2,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false);
+
 public sealed record CardBehaviorDefinition(
     string CardNo,
     string DisplayName,
@@ -27,6 +29,7 @@ public sealed record CardBehaviorDefinition(
     RevealedHandChoiceSpec? HandChoice = null,
     ConquestDamageSpec? ConquestDamage = null,
     MovementScoreSpec? MovementScore = null,
+    UnitEventAbilitySpec? UnitEventAbility = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
@@ -456,6 +459,21 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·020", "暮光狂舞者", 3, "VEN_020_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            UnitEventAbility: new("ATTACK", "READY_ANOTHER_FRIENDLY")),
+        new("VEN·024", "贴贴魄罗", 3, "VEN_024_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "魄罗",
+            UnitEventAbility: new("BATTLE_END", "DRAW", 1, RequiresNoDamageThisTurn: true)),
+        new("VEN·028", "悲悯见证者", 2, "VEN_028_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "仙灵",
+            UnitEventAbility: new("BATTLE_END", "EMPOWER_SELF")),
+        new("VEN·071", "焦躁的猫咪", 6, "VEN_071_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "猫科",
+            UnitEventAbility: new("BECAME_READY", "MIGHT_SELF", 2)),
+        new("VEN·121", "草包队长", 4, "VEN_121_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            UnitEventAbility: new("ANOTHER_UNIT_PLAYED", "MIGHT_SELF", 2)),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

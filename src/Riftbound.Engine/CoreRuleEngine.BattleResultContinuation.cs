@@ -35,6 +35,7 @@ public sealed partial class CoreRuleEngine
             result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
+            result = QueueUnitEvents(state, result);
             result = QueueSourcePlayDraw(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
