@@ -1618,6 +1618,14 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamage, TriggerTimings.UnitAttackOrDefend,
                 segment, TargetScope: TriggerTargetScopes.EnemyUnitHere);
 
+        if (Regex.IsMatch(segment,
+            @"^当我进攻或防守时[，,]\s*对此处的所有敌方单位各造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere,
+                TriggerTimings.UnitAttackOrDefend, segment,
+                "Damage all enemies at the source's current location using its current Might; no targets are chosen.",
+                TargetScope: TriggerTargetScopes.AllEnemyUnitsHere);
+
         var empoweredAttackDestroy = Regex.Match(segment,
             @"^\{\{已强化>\}\}\s*当我进攻时[，,]\s*摧毁此处一名战力低于我的敌方单位[。.]?$",
             RegexOptions.CultureInvariant);
@@ -3185,6 +3193,14 @@ public static class StaticAbilityParser
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitCannotDealCombatDamage, segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "The source contributes no combat damage; its Might and spell/skill damage remain unchanged."));
+                continue;
+            }
+            if (Regex.IsMatch(segment, @"^除非此处有一件友方装备[，,]\s*否则我无法造成战斗伤害[。.]?$",
+                RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitFriendlyEquipmentHereCombatDamage,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "A current friendly face-up equipment at the source's location permits combat damage."));
                 continue;
             }
             var exactOtherFriendlyBattlefieldCombatDamage = Regex.Match(segment,
