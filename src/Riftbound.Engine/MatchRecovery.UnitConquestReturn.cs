@@ -122,15 +122,17 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectStringList(e.Event.Payload, "paymentChoiceIds", out var choices)
                 && choices.Count == 1 && (choices[0] == "PAY" || choices[0] == $"SPEND_MANA:{receipt.Mana}"))
                 .Take(2).ToArray();
+            // Typed callers retain their original arguments; the payment executor trims text.
             if (payments.Length != 1 || !commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
                 && command.CommandType == CommandTypes.PayCost && command.CompletedTick == payments[0].Tick
                 && command.StartedEventSequence < payments[0].Sequence && command.CompletedEventSequence >= payments[0].Sequence
                 && (command.RawCommand ?? command.TypedCommand?.Value) is { } input
-                && TryReadObjectString(input, "paymentId", out var id) && id == paymentId
-                && TryReadObjectString(input, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
+                && TryReadObjectString(input, "paymentId", out var id) && id?.Trim() == paymentId
+                && TryReadObjectString(input, "paymentWindow", out var window) && window?.Trim() == "TRIGGER_PAYMENT"
                 && TryReadObjectStringList(input, "paymentChoiceIds", out var choices)
                 && TryReadObjectStringList(payments[0].Event.Payload, "paymentChoiceIds", out var paidChoices)
-                && choices.SequenceEqual(paidChoices)))
+                && choices.All(choice => !string.IsNullOrWhiteSpace(choice))
+                && choices.Select(choice => choice.Trim()).SequenceEqual(paidChoices)))
                 errors.Add("captured unit conquest return receipt is not bound to accepted payment history");
         }
     }
