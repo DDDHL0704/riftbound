@@ -348,6 +348,13 @@ public static class TriggerParser
         if (ownBanish.Success)
             triggers.Add(new(TriggerKinds.ControllerOwnedBanishEmpowerSource, "CARD_BANISHED", ownBanish.Value,
                 "When this controller banishes a card they own, empower the source on resolution."));
+        var attackStun = Regex.Match(text,
+            @"当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?",
+            RegexOptions.CultureInvariant);
+        if (attackStun.Success)
+            triggers.Add(new(TriggerKinds.UnitAttackStunEnemyHere, TriggerTimings.UnitAttack, attackStun.Value,
+                "Choose an enemy unit here and pay any ward cost before responses; recheck its location at resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, ManaCost: 0, Optional: false));
         var outsideHandPlay = Regex.Match(text, @"当你从你的手牌以外的位置打出一张卡牌时，强化我。", RegexOptions.CultureInvariant);
         if (outsideHandPlay.Success)
             triggers.Add(new(TriggerKinds.ControllerOutsideHandPlayEmpowerSource, "CARD_PLAY_COMPLETED", outsideHandPlay.Value,

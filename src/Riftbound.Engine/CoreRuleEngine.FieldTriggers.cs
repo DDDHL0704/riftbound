@@ -114,7 +114,9 @@ public sealed partial class CoreRuleEngine
     private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
-            && (item.FieldContext!.Kind == PaidUnitStunKind ? true
+            && (item.FieldContext!.Kind == PaidUnitStunKind ? !IsMandatoryAttackStun(item.FieldContext.CardNo)
+                    || EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
+                        && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind == StunBoonKind ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                 : item.FieldContext.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
                 : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? IsEmpoweredAttackDestroyTarget(state, item, c)
@@ -179,8 +181,10 @@ public sealed partial class CoreRuleEngine
                     || source.ControllerId != item.ControllerId || !IsObjectOnField(state.PlayerZones, item.SourceObjectId)))
                 return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             choice = new("TRIGGER-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-                item.FieldContext.Kind is "DEFEND" or PaidUnitStunKind ? 0 : 1, 1, legal, legal,
-                item.FieldContext.Kind == PaidUnitStunKind ? "选择一名单位，或不选以放弃；然后确认支付基础费用和法盾费用。"
+                item.FieldContext.Kind == "DEFEND" || item.FieldContext.Kind == PaidUnitStunKind && !IsMandatoryAttackStun(item.FieldContext.CardNo) ? 0 : 1, 1, legal, legal,
+                item.FieldContext.Kind == PaidUnitStunKind && IsMandatoryAttackStun(item.FieldContext.CardNo)
+                    ? "选择此处一名敌方单位眩晕；确认目标和法盾费用后开放响应。"
+                    : item.FieldContext.Kind == PaidUnitStunKind ? "选择一名单位，或不选以放弃；然后确认支付基础费用和法盾费用。"
                     : item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
@@ -234,7 +238,7 @@ public sealed partial class CoreRuleEngine
             && context.Kind != "ENEMY_ATTACK_MIGHT"
             && item.ControllerId == choice.PlayerId && item.SourceObjectId == choice.SourceObjectId
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
-            && choice.RequiredCount == (context.Kind is "DEFEND" or PaidUnitStunKind ? 0 : 1) && choice.MaxCount == 1
+            && choice.RequiredCount == (context.Kind == "DEFEND" || context.Kind == PaidUnitStunKind && !IsMandatoryAttackStun(context.CardNo) ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
             || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
@@ -329,6 +333,9 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events);
         }
         var confirmed = item with { PermanentPlayTargetsPending = false, TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.FieldContext is { Kind: PaidUnitStunKind, PaidUnitTrigger: { CostPaid: false } stun }
+            && IsMandatoryAttackStun(item.FieldContext.CardNo))
+            confirmed = confirmed with { FieldContext = item.FieldContext with { PaidUnitTrigger = stun with { CostPaid = true } } };
         if (item.FieldContext is { Kind: "COMBAT_MIGHT" })
             next = next with { UntilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
                 state, next.UntilEndOfTurnEffects, item.ControllerId, selected) };

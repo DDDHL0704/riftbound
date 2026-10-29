@@ -16,8 +16,11 @@ public sealed partial class CoreRuleEngine
 
     private static TriggerSpec? PaidUnitStunSpec(string? cardNo) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo)
         .FirstOrDefault(t => t.Kind == TriggerKinds.UnitPlayedOrAttacksOptionalPaidStun
-            && t.Timing == TriggerTimings.SourceUnitPlayedOrAttack && t.TargetScope == TriggerTargetScopes.AnyUnitOnField
-            && t.Optional == true && t.ManaCost is > 0);
+                && t.Timing == TriggerTimings.SourceUnitPlayedOrAttack && t.TargetScope == TriggerTargetScopes.AnyUnitOnField
+                && t.Optional == true && t.ManaCost is > 0
+            || t.Kind == TriggerKinds.UnitAttackStunEnemyHere && t.Timing == TriggerTimings.UnitAttack
+                && t.TargetScope == TriggerTargetScopes.EnemyUnitHere && t.Optional == false && t.ManaCost == 0);
+    private static bool IsMandatoryAttackStun(string? cardNo) => PaidUnitStunSpec(cardNo)?.Kind == TriggerKinds.UnitAttackStunEnemyHere;
 
     private static GameEvent CapturePaidUnitPlayStun(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, CardObjectState entered)
@@ -25,7 +28,7 @@ public sealed partial class CoreRuleEngine
         if (entered.IsFaceDown || ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")) return ev;
         var controller = EffectiveFieldControllerId(zones, entered.ObjectId, entered);
         var sources = AttachedRuleTextRules.Instances(zones, cards, entered)
-            .Where(instance => PaidUnitStunSpec(instance.CardNo) is not null)
+            .Where(instance => PaidUnitStunSpec(instance.CardNo)?.Timing == TriggerTimings.SourceUnitPlayedOrAttack)
             .Select(instance => new PaidUnitStunCapture(entered.ObjectId, controller, instance.Id,
                 new(instance.CardNo, PaidUnitStunKind, entered.ObjectGeneration) {
                     Origin = instance.Origin, SourceTokenFactoryCardNo = entered.TokenFactoryCardNo,
@@ -91,6 +94,7 @@ public sealed partial class CoreRuleEngine
             || PaidUnitStunSpec(context.CardNo) is null || context.SourceGeneration < 0
             || context.PaidUnitTrigger is not { CapturedTick: >= 0, FaceRevision: >= 0 } birth
             || birth.Event is not ("PLAY" or "ATTACK") || string.IsNullOrWhiteSpace(birth.RuleTextInstanceId)
+            || IsMandatoryAttackStun(context.CardNo) && birth.Event != "ATTACK"
             || context.RecycledBoon is not null || context.EmpoweredTransition is not null || context.SourceLocation is not null
             || context.AffectedUnit is not null || context.AffectedUnitCeasedToExist || context.AttackConditionFrame is not null
             || birth.Event == "PLAY" && (context.BattlefieldId is not null || context.ReturnFocusPlayerId is not null)
