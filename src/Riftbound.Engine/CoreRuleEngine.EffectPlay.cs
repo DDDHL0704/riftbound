@@ -11,12 +11,18 @@ public sealed record PendingEffectPlayState(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SourceReplayContinuation? SourceReplay { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourcePlayerId { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.EmpowerInteraction is { } empowerment && EmpowerInteractionDefinition(empowerment.CardNo)?.Effect
+            is "PLAY_GRAVEYARD_UNIT" or "MILL_THEN_PLAY_OPPONENT_UNIT") {
+            definition = EmpowerInteractionPlayBehavior(empowerment); return true;
+        }
         if (parent.GraveyardPlay is { } graveyard && parent.EffectKind == GraveyardPlayEffect
             && parent.CardNo == graveyard.CardNo && GraveyardPlaySpec(graveyard.CardNo) is not null)
         {
@@ -85,6 +91,7 @@ public sealed partial class CoreRuleEngine
                     .Concat(FlowPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+        if (pending.SourcePlayerId is { } sourcePlayer && state.PlayerZones.TryGetValue(sourcePlayer, out var sourceZones)) zones = sourceZones;
         var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
@@ -94,7 +101,8 @@ public sealed partial class CoreRuleEngine
 
     // Restore the same policy selected by the registered effect, never client-supplied waivers.
     internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)
-        => TryGetEffectPlayDefinition(pending.Parent, out var behavior)
+        => pending.Parent.EmpowerInteraction is not null ? ValidEmpowerInteractionPlay(state, pending)
+            : pending.SourcePlayerId is null && TryGetEffectPlayDefinition(pending.Parent, out var behavior)
             && behavior.CardNo == pending.Parent.CardNo && behavior.EffectPlaySourceZone == "GRAVEYARD"
             && pending.SourceZone == behavior.EffectPlaySourceZone && pending.PlayerId == pending.Parent.ControllerId
             && state.Seats.ContainsKey(pending.PlayerId) && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
@@ -295,7 +303,7 @@ public sealed partial class CoreRuleEngine
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,
             sourceZone, sources.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             behavior.EffectPlayIgnoreBaseMana, behavior.EffectPlayIgnoreBasePower, behavior.EffectPlayManaReduction,
-            behavior.EffectPlayDestination, behavior.EffectPlayOptional);
+            behavior.EffectPlayDestination, behavior.EffectPlayOptional) { SourcePlayerId = parent.EmpowerInteraction?.Opponent };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

@@ -2,6 +2,9 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
+    int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
+
 public sealed record CardBehaviorDefinition(
     string CardNo,
     string DisplayName,
@@ -26,6 +29,7 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesTargets = false,
     RevealedHandChoiceSpec? HandChoice = null,
     ConquestDamageSpec? ConquestDamage = null,
+    EmpowerInteractionSpec? EmpowerInteraction = null,
     MovementScoreSpec? MovementScore = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
@@ -456,6 +460,21 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·037", "盗墓贼芭芭拉", 4, "VEN_037_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("PLAY", "DISENCHANT_OR_DESTROY_EQUIPMENT", MinimumRunes: 7)),
+        new("VEN·082", "黑心商人", 4, "VEN_082_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("PLAY", "TRANSFER_EMPOWER")),
+        new("VEN·099", "旋风武者", 3, "VEN_099_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "待命",
+            EmpowerInteraction: new("STANDBY_PLAY", "TEMPORARY_EMPOWER_HERE")),
+        new("VEN·104", "披尾女族长", 4, "VEN_104_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("EMPOWERED", "PLAY_GRAVEYARD_UNIT", MaximumMana: 3, MaximumPower: 1)),
+        new("VEN·114", "卡洛克斯", 6, "VEN_114_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            EmpowerInteraction: new("EMPOWERED", "MILL_THEN_PLAY_OPPONENT_UNIT", MillCount: 3)),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
