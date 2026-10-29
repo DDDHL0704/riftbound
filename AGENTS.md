@@ -5,15 +5,17 @@
 ## 目标与分工
 
 - **目标**：尽快把服务端规则开发完毕——全部已接入卡牌的效果正确，剩余官方卡牌接入，夜间完整验收稳定通过。随后由 Claude 适配前端。
-- **服务端**：Codex 两条线并行，从 [待办清单](docs/BACKLOG.md) 领任务。
-  - **A 线 · 规则与机制**：共享流程（战斗、触发、费用与资源、行动合法性、胜负、投影、恢复与持久化）、夜间验收修复、CI 与工具。
-  - **B 线 · 卡牌**：卡牌行为接入与修正、新卡（VEN/RAD）、逐卡测试。
+- **服务端**：Codex 四条线并行，从 [待办清单](docs/BACKLOG.md) 领任务。
+  - **A 线**：P0 夜间验收、L2 提速（最优先）、P3 工程项、CI 与工具，以及 RAD 中国区生效确认；不做 P1。提速只改测试、夹具、CI 和工具；必须改共享流程时，先查看 C 线打开的 PR，避免改同一方法。
+  - **B 线**：VEN/RAD 传奇、英雄单位、专属法术、专属装备及现有卡牌 PR，按待办清单逐卡验证。
+  - **C 线**：P1-1 至 P1-5 的全部规则缺陷与旧 PR，包括征服时机、费用候选和待命支付。
+  - **D 线**：其余单位、法术、装备和战场，按待办清单分配。
 - **前端**：Claude 负责 `clients/web`；只在用户要求时参与服务端。
 - 只有两条线要同时改**同一个方法**时才需要协调：先合入的一方优先，另一方同步 main 后再改。其余情况各自开发、各自合入，不需要审批或确认往返。
 
 ## 每个任务的流程
 
-1. 从 `origin/main` 新建分支：`a/<主题>` 或 `b/<主题>`（前端用 `web/<主题>`）。一个分支只做一件事。
+1. 从 `origin/main` 新建分支：对应各线使用 `a/<主题>`、`b/<主题>`、`c/<主题>` 或 `d/<主题>`（前端用 `web/<主题>`）。一个分支只做一件事，不叠加依赖 PR。
 2. 实现并补测试；本地只跑相关测试（见下）。
 3. 推送并开 PR，PR 描述写清改了什么、依据哪条官方规则或卡牌文本、跑了哪些测试。
 4. `L2 required` 通过后**直接合入**：`gh pr merge <号> --merge --delete-branch`；仓库开启自动合并后可以改用 `--auto`。PR 不要求先同步最新 main；有冲突时再同步。
@@ -31,18 +33,17 @@ ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5088 \
 ConnectionStrings__Riftbound="" dotnet run --project src/Riftbound.Api
 
 # 构建与定向测试（按类名或方法名过滤）
-dotnet build tests/Riftbound.ConformanceTests
-dotnet test tests/Riftbound.ConformanceTests --no-build --filter "FullyQualifiedName~Teemo"
+DOTNET_PROCESSOR_COUNT=1 dotnet build tests/Riftbound.ConformanceTests -m:1
+DOTNET_PROCESSOR_COUNT=1 dotnet test tests/Riftbound.ConformanceTests --no-build -m:1 --filter "FullyQualifiedName~Teemo"
 
-# 按领域的快速回归：combat / payment / recast / recovery / triggers
-python3 scripts/test-rules.py focus combat
-python3 scripts/test-rules.py focus --match Teemo
+# 按类名或方法名运行快速回归
+python3 scripts/test-rules.py focus --match Teemo --jobs 1
 
 # 脚本自身的测试
 python3 -m unittest discover -s scripts/tests
 ```
 
-本机 10 核 / 24 GB 内存，本地测试用 `--jobs 1` 或 `2`。完整规则套件、真实 PostgreSQL、SignalR 和进程重启只在 GitHub Actions 里跑。
+本机 10 核 / 24 GB 内存由四条线共用。本地构建和测试必须使用 `-m:1`、`--jobs 1`；只运行按类名或方法名过滤的规则测试，不在本地跑完整规则套件。`dotnet` 的 PATH 包装全机最多放行两个重任务，负载高时排队是正常现象，不要绕过包装或使用 SDK 的绝对路径。完整规则套件、真实 PostgreSQL、SignalR 和进程重启只在 GitHub Actions 里跑。
 
 ## CI
 

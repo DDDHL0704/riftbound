@@ -77,7 +77,7 @@
   - main 的 [40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172) 被 #260 的新提交取消；后续 [40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883)（固定 `25913d6a`）已完成，六片全部 17,804 条用例及 `L2 required` 通过，恢复合入后的主干完整验证。已让包含 #266 新夹具的 main [40880177592](https://github.com/DDDHL0704/riftbound/actions/runs/40880177592) 接替刚启动的旧版本 40863395876。包含 #266 的该次 main 运行现已完整通过。包含 #269 的固定 `94092d89` main [40917321493](https://github.com/DDDHL0704/riftbound/actions/runs/40917321493) 也完整通过 18,457 条用例与门槛。后续固定 `d9f26d83` 的 main [40913724782](https://github.com/DDDHL0704/riftbound/actions/runs/40913724782) 也完整通过 18,445 条用例与门槛，已包含 #254 新卡。PR 与 main 的并发组隔离，#263 保留运行中的 main、待跑只留最新；文档豁免只适用于 PR，main 推送始终全量；
   - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）已完整通过 9,186 个方法、18,477 条用例与门槛，清单与 #276 一致；包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646) 接续运行。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
-- [ ] **P3-3 清理 `docs/legacy/`**：候选分支 `a/legacy-fixtures` 已将 4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`；删除其余旧文档及没有调用方的治理报告工具。历史内容保留在 Git 中。
+- [ ] **P3-3 清理 `docs/legacy/`**：候选分支 `a/legacy-fixtures` 已将 4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`；删除其余旧文档及没有调用方的治理报告工具。历史内容保留在 Git 中。 AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束；最新 main 上 32 条夹具读取测试逐条对齐 #262 清单通过，零跳过，178 项 Python 检查通过。
 
 ## 接手旧分支
 
