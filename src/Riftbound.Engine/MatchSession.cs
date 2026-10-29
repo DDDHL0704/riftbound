@@ -10447,7 +10447,8 @@ internal static class ActionPromptBuilder
                         .Select(id => new ActionPromptChoiceDto(DestroyFriendlyUnitAdditionalCostPrefix + id,
                             $"摧毁 {ObjectChoice(state, id, "friendly unit cost").Label}：支付强化费用", ObjectIds: [id])).ToArray() : [];
                 if (requiresAdditional && additionalCosts.Length == 0) continue;
-                var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
+                var mana = Math.Max(0, EmpowerRules.Mana(ability.Spec, cost, runes)
+                    - CoreRuleEngine.EquipmentAbilityManaReduction(state, playerId, sourceObjectId));
                 var costLabels = new List<string>();
                 if (mana > 0) costLabels.Add($"{mana}法力");
                 if (cost.Power > 0) costLabels.Add($"{cost.Power}任意符能");
@@ -10472,7 +10473,8 @@ internal static class ActionPromptBuilder
                     AdditionalCostChoices: requiresAdditional ? additionalCosts : null, RequiredAdditionalCostChoiceCount: requiresAdditional ? 1 : 0));
             }
         }
-        foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
+        foreach (var ability in P4ActivatedAbilityCatalog.GetAll().Select(printed =>
+            CoreRuleEngine.BattlefieldAdjustedAbility(state, playerId, sourceObjectId, printed)))
         {
             if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
@@ -12738,7 +12740,8 @@ internal static class ActionPromptBuilder
 
     private static int AssembleEquipmentManaCost(MatchState state, AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
     {
-        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState));
+        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState)
+            - CoreRuleEngine.EquipmentAbilityManaReduction(state, targetState.ControllerId!));
     }
 
     private static int AssembleEquipmentTargetPowerManaReduction(
