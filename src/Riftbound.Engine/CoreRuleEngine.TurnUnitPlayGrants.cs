@@ -137,7 +137,7 @@ public sealed partial class CoreRuleEngine
             || !IsFieldUnitObject(state, unit.ObjectId)) return NoopStackResolutionResult(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var b = CardBehaviorRegistry.GetAll().Single(b => b.CardNo == c.Grant.CardNo);
-        cards[unit.ObjectId] = ApplyBoon(unit, b, item, unit.ObjectId, out var events);
+        cards[unit.ObjectId] = ApplyBoon(unit, b, item, unit.ObjectId, out var events, state.PlayerZones, cards);
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }
 }
