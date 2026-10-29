@@ -889,6 +889,15 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var playedOrScoredToken = Regex.Match(segment,
+            @"^当你打出我时，或当我得分时，打出一名具有“(?<tag>[^”]+)”属性的(?<might>[1-9][0-9]*)\{\{S\}\}“(?<name>[^”]+)”。?$",
+            RegexOptions.CultureInvariant);
+        if (playedOrScoredToken.Success && int.TryParse(playedOrScoredToken.Groups["might"].Value, out var tokenMight))
+            return new(TriggerKinds.SourceUnitPlayedOrScoredCreateUnit, TriggerTimings.SourceUnitPlayedOrScored, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
+                CreatedTokenName: playedOrScoredToken.Groups["name"].Value, CreatedTokenPower: tokenMight,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true,
+                CreatedTokenKeywords: [playedOrScoredToken.Groups["tag"].Value]);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);
@@ -3755,6 +3764,19 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                     StaticAuraTargetFilters.TagPrefix + friendlyTaggedUnitsPowerMatch.Groups[1].Value));
+                continue;
+            }
+
+            var controlledTokenCount = Regex.Match(segment,
+                @"^你每控制一[名个]指示物单位，我便获得\{\{S\}\}\+(?<delta>[1-9][0-9]*)。?$",
+                RegexOptions.CultureInvariant);
+            if (controlledTokenCount.Success && int.TryParse(controlledTokenCount.Groups["delta"].Value, out var tokenDelta))
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, tokenDelta, segment,
+                    BehaviorImplementationStatuses.Unimplemented, "Count controlled public token units across the board.",
+                    StaticAuraTargetFilters.UnitToken));
                 continue;
             }
 

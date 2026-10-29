@@ -56,6 +56,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string SourceUnitPlayedOrScoredCreateUnit = "SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
@@ -256,6 +257,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string SourceUnitPlayedOrScored = "SOURCE_UNIT_PLAYED_OR_SCORED";
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
@@ -405,6 +407,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";

@@ -2661,6 +2661,10 @@ public static class CardBehaviorRegistry
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·109", "俄洛伊", 6, "VEN_ILLAOI_TOKEN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·182", "俄洛伊", 6, "VEN_ILLAOI_TOKEN_ALT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new(
             "VEN·019",
             "雷克顿 · 杀意骤起",

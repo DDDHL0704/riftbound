@@ -149,7 +149,7 @@ public static class OfficialCardSchemaValidator
 
     private static bool RequiresEnergy(OfficialCard card)
     {
-        if (card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal))
+        if (OfficialRuleDomainBehaviorCatalog.IsTokenCard(card))
         {
             return false;
         }
