@@ -82,7 +82,7 @@ class DistributedL2Tests(unittest.TestCase):
                 exitCode=int(label == 'unexpanded-row-refused'), expectedExitCode=int(label == 'unexpanded-row-refused'),
                 trxSha256='c' * 64) for label, body in calls.items()])
 
-    def materialize(self):
+    def materialize(self, targeted=True):
         self.put(self.prepared / 'plan.json', self.plan)
         for shard in self.plan['shards']:
             folder = self.inputs / shard['name']
@@ -102,7 +102,8 @@ class DistributedL2Tests(unittest.TestCase):
                 executionSettingsSha256=D.digest(folder / 'execution.runsettings'),
                 runtimeReceiptSha256=D.digest(folder / 'execution-runtime.json'),
                 trxSha256=D.digest(folder / 'results.trx'), counters=dict(total=len(names), passed=len(names), failed=0, notExecuted=0)))
-        self.put(self.target / 'view.json', D.derived_view(self.prepared, self.inputs, self.commit))
+        if targeted:
+            self.put(self.target / 'view.json', D.derived_view(self.prepared, self.inputs, self.commit))
         self.put(self.target / 'checkout.json', self.checkout)
         self.put(self.quality / 'checkout.json', self.checkout)
 
@@ -134,6 +135,86 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual(1, result['sourceGuardMethods'])
         self.assertEqual([self.fact], [row['method'] for row in result['sourceGuardCaseMapping']])
         self.assertNotIn(self.plan['sourceGuardNightlyMethods'][0], self.plan['methods'])
+
+    def full_fixture(self):
+        game = D.RULES.FULL_CLASS + 'NightlyMatrix'
+        names = [game + '(seat: "P1")', game + '(seat: "P2")']
+        text = self.text + ''.join('    ' + name + '\n' for name in names)
+        inventory = copy.deepcopy(self.inventory)
+        for method in D.RULES.l3_acceptance_methods():
+            inventory['cases'][method] = [method]
+        scope = copy.deepcopy(self.scope)
+        scope.update(discoverySha256=hashlib.sha256(text.encode()).hexdigest(),
+                     discoveredMethods=len(D.RULES.discover(text)),
+                     declaredTestMethods=len(D.RULES.discover(text)))
+        plan = D.make_plan(text, inventory, scope, {game: 2400}, 6, profile='full')
+        plan.update({key: self.plan[key] for key in ('commit', 'sdkVersion', 'runId', 'runAttempt',
+                    'testAssemblySha256', 'bundleManifestSha256', 'rowProbeSha256')})
+        (self.prepared / 'discovery.log').write_text(text)
+        self.put(self.prepared / 'case-inventory.json', inventory)
+        self.put(self.prepared / 'source-scope/source-guard-methods.json', scope)
+        plan.update(discoverySha256=D.digest(self.prepared / 'discovery.log'),
+                    caseInventorySha256=D.digest(self.prepared / 'case-inventory.json'),
+                    sourceScopeSha256=D.digest(self.prepared / 'source-scope/source-guard-methods.json'))
+        self.plan = plan
+        self.materialize(targeted=False)
+        return game, names
+
+    def full_verify(self):
+        return D.aggregate_full(self.prepared, self.inputs, self.commit,
+                                dict(prepare='success', rule_shards='success'))
+
+    def test_full_profile_runs_all_discovered_rules_deferred_openings_and_every_game_row_once(self):
+        game, names = self.full_fixture()
+        result = self.full_verify()
+        self.assertEqual('FULL_RULE_SUITE_PASSED', result['status'])
+        self.assertEqual([], self.plan['deferredL3Methods'])
+        self.assertEqual(D.RULES.discover((self.prepared / 'discovery.log').read_text()), set(self.plan['methods']))
+        self.assertTrue(D.RULES.l3_acceptance_methods() <= set(self.plan['methods']))
+        self.assertCountEqual(names, [row['name'] for row in result['rawCaseMapping'] if row['method'] == game])
+        actual = [row['name'] for row in result['rawCaseMapping']]
+        expected = [name for rows in self.plan['cases'].values() for name in rows]
+        self.assertCountEqual(expected, actual)
+
+    def test_full_gate_rejects_the_valid_l2_subset_and_missing_failed_or_cancelled_jobs(self):
+        with self.assertRaisesRegex(ValueError, 'full profile'):
+            self.full_verify()
+        self.full_fixture()
+        for state in ('failure', 'cancelled', 'skipped', ''):
+            for job in ('prepare', 'rule_shards'):
+                jobs = dict(prepare='success', rule_shards='success')
+                jobs[job] = state
+                with self.subTest(job=job, state=state), self.assertRaises(ValueError):
+                    D.aggregate_full(self.prepared, self.inputs, self.commit, jobs)
+        with self.assertRaises(ValueError):
+            D.aggregate_full(self.prepared, self.inputs, self.commit, dict(prepare='success'))
+        with self.assertRaisesRegex(ValueError, 'L2 profile'):
+            D.derived_view(self.prepared, self.inputs, self.commit)
+        with self.assertRaisesRegex(ValueError, 'L2 profile'):
+            self.verify()
+
+    def test_full_gate_rejects_an_omitted_deferred_opening_or_original_trx_row(self):
+        self.full_fixture()
+        plan = copy.deepcopy(self.plan)
+        omitted = sorted(D.RULES.l3_acceptance_methods())[0]
+        self.plan['methods'].remove(omitted)
+        self.plan['cases'].pop(omitted)
+        self.put(self.prepared / 'plan.json', self.plan)
+        with self.assertRaises(ValueError):
+            self.full_verify()
+        self.plan = plan
+        self.materialize(targeted=False)
+        shard = next(row for row in self.plan['shards'] if omitted in row['methods'])
+        folder = self.inputs / shard['name']
+        names = D.SELECT.case_names(shard, self.plan['cases'])
+        names.remove(omitted)
+        self.trx(folder / 'results.trx', names)
+        receipt = D.read(folder / 'receipt.json')
+        receipt.update(trxSha256=D.digest(folder / 'results.trx'),
+                       counters=dict(total=len(names), passed=len(names), failed=0, notExecuted=0))
+        self.put(folder / 'receipt.json', receipt)
+        with self.assertRaises(ValueError):
+            self.full_verify()
 
     def test_bounded_conquest_prefix_has_all_five_rows_once_in_distributed_plan_and_filter(self):
         method = next(iter(D.RULES.L2_BOUNDED_GAMES))

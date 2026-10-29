@@ -57,16 +57,60 @@ jobs:
           path: var/qa/ci-scope/
           retention-days: 90
 
-  rule_suite:
+  rule_prepare:
     needs: scope
-    # All nightly jobs use the one main SHA selected by scope.
-    if: ${{ needs.scope.result == 'success' }}
-    runs-on: ubuntu-latest
-    # Each independent full job has its own six-hour budget. Run the rule
-    # suite and real SQL/network in the first wave; never remove test inputs.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      sdk: ${{ steps.plan.outputs.sdk }}
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - name: Verify fixed nightly build checkout
+        run: python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-prepared/checkout.json
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.403
+      - name: Test runner coverage safeguards
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Prove exact Linux row selection
+        run: python3 scripts/probe-l2-row-selection.py --commit "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-prepared/row-filter-probe
+      - name: Build once and enumerate every full rule case
+        id: plan
+        run: python3 scripts/l2-distributed.py prepare --profile full --commit "$RIFTBOUND_FIXED_COMMIT" --shards 6 --output var/qa/nightly-prepared --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
+        with:
+          name: nightly-rule-plan
+          path: |
+            var/qa/nightly-prepared/*.json
+            var/qa/nightly-prepared/*.log
+            var/qa/nightly-prepared/source-scope/source-guard-methods.json
+            var/qa/nightly-prepared/row-filter-probe/receipt.json
+          retention-days: 90
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: nightly-rule-built-input
+          path: var/qa/nightly-prepared/bundle.tar.gz
+          compression-level: 0
+          retention-days: 14
+
+  rule_shards:
+    needs: [scope, rule_prepare]
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6]
     concurrency:
-      group: rule-suite-${{ github.ref }}-${{ needs.scope.outputs.commit }}
+      group: rule-suite-${{ github.ref }}-${{ needs.scope.outputs.commit }}-${{ matrix.shard }}
       cancel-in-progress: false
     services:
       postgres:
@@ -87,28 +131,64 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.scope.outputs.commit }}
-      - name: Verify fixed nightly checkout
-        run: python3 scripts/ci-candidate.py --expected "${{ needs.scope.outputs.commit }}" --output var/qa/nightly-checkout.json
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: |
             8.0.x
-            10.0.x
-      - name: Test runner coverage safeguards
-        run: python3 -m unittest discover -s scripts/tests -v
-      - name: Record the fixed rule suite commit
-        run: |
-          mkdir -p var/qa
-          git rev-parse HEAD > var/qa/ci-rule-suite-commit.txt
-      - name: Complete rule suite with checked process shards
-        run: python3 scripts/test-rules.py full --output var/qa/ci-rules
+            ${{ needs.rule_prepare.outputs.sdk }}
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: nightly-rule-plan
+          path: var/qa/nightly-prepared
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: nightly-rule-built-input
+          path: var/qa/nightly-prepared
+      - name: Verify fixed nightly shard checkout
+        run: python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --event-sha "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-shards/${{ matrix.shard }}/checkout.json
+      - name: Execute every assigned full rule case without rebuilding
+        run: python3 scripts/l2-distributed.py shard --commit "$RIFTBOUND_FIXED_COMMIT" --prepared var/qa/nightly-prepared --shard '${{ matrix.shard }}' --output var/qa/nightly-shards/${{ matrix.shard }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ !cancelled() }}
+        with:
+          name: nightly-rule-${{ matrix.shard }}
+          path: var/qa/nightly-shards/${{ matrix.shard }}/
+          retention-days: 90
+
+  rule_suite:
+    needs: [scope, rule_prepare, rule_shards]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.scope.outputs.commit }}
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: nightly-rule-plan
+          path: var/qa/nightly-prepared
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          pattern: nightly-rule-shard-*
+          path: var/qa/nightly-shards
+      - name: Restore original shard names
+        run: |
+          python3 -c "from pathlib import Path; p=Path('var/qa/nightly-shards'); [(x.rename(p/x.name.removeprefix('nightly-rule-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('nightly-rule-shard-')]"
+      - name: Verify fixed nightly aggregate checkout
+        run: python3 scripts/ci-candidate.py --expected "$RIFTBOUND_FIXED_COMMIT" --output var/qa/ci-rules/checkout.json
+      - name: Require every discovered full rule case exactly once
+        env:
+          RIFTBOUND_PREPARE: ${{ needs.rule_prepare.result }}
+          RIFTBOUND_RULE_SHARDS: ${{ needs.rule_shards.result }}
+        run: python3 scripts/l2-distributed.py aggregate-full --commit "$RIFTBOUND_FIXED_COMMIT" --prepared var/qa/nightly-prepared --inputs var/qa/nightly-shards --output var/qa/ci-rules/result.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
         with:
           name: conformance-results
-          path: |
-            var/qa/ci-rules/
-            var/qa/ci-rule-suite-commit.txt
+          path: var/qa/ci-rules/
           retention-days: 90
 
   postgres_partitions:
