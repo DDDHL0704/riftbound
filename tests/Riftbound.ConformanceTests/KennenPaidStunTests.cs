@@ -30,6 +30,7 @@ public sealed class KennenPaidStunTests
         Assert.Equal(2, spec.ManaCost); Assert.Equal(TriggerTargetScopes.AnyUnitOnField, spec.TargetScope);
         var game = new VenBasicFlowSpellTests.Driver(VenUnitEntryBasicTests.Position(no));
         await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        Assert.Equal("PLAY_OR_ATTACK_OPTIONAL_PAID_STUN", Assert.Single(game.State.StackItems).FieldContext!.Kind);
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
         Assert.Equal(17, game.State.RunePools["P1"].Mana);
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
