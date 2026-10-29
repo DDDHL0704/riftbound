@@ -50,18 +50,24 @@ internal static class TargetProtectionRules
             || string.Equals(targetLocation.PlayerId, sourceControllerId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || !IsVisibleSourceUnit(targetState)
-            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId)
-            || !CardStaticAbilitySpecRules.TryGetStaticAbility(
-                targetState.CardNo,
-                CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility,
-                out var ability))
+            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId))
         {
             return false;
         }
 
-        return !ability.RequiredPlayerExperience.HasValue
-            || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
-                && experience >= ability.RequiredPlayerExperience.Value;
+        // CN 740.2.c: a unit is in combat only while it has a combat role at
+        // the battlefield where the battle is taking place.
+        var battle = state.BattleState;
+        var inCombat = battle.IsActive && (targetState.IsAttacking || targetState.IsDefending)
+            && state.ObjectLocations.TryGetValue(targetObjectId, out var location)
+            && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId == battle.BattlefieldObjectId;
+        return AttachedRuleTextRules.Instances(state, targetState).Any(instance =>
+            CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                ability => CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility(ability)
+                    && (ability.RequiresSourceOutsideBattle != true || !inCombat)
+                    && (!ability.RequiredPlayerExperience.HasValue
+                        || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
+                            && experience >= ability.RequiredPlayerExperience.Value), out _));
     }
 
     private static bool IsVisibleSourceUnit(CardObjectState targetState)
