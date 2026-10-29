@@ -456,6 +456,12 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·136", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("VEN·136a", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("VEN·187", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

@@ -1459,6 +1459,14 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        var empoweredAttackDestroy = Regex.Match(segment,
+            @"^\{\{已强化>\}\}\s*当我进攻时[，,]\s*摧毁此处一名战力低于我的敌方单位[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (empoweredAttackDestroy.Success)
+            return new TriggerSpec(TriggerKinds.UnitEmpoweredAttackDestroyWeakerEnemyHere, TriggerTimings.UnitAttack, segment,
+                "When an empowered unit attacks, confirm a weaker local enemy before responses and recheck the target on resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, RequiresSourceEmpowered: true);
+
         var attackAreaDamage = Regex.Match(segment,
             @"^当我进攻时[，,]\s*(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚[，,]\s*则)?\s*对此处的所有敌方单位各造成(?<damage>[0-9一两二三四五六七八九十]+)点伤害[。.]?$",
             RegexOptions.CultureInvariant);
