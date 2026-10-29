@@ -19,7 +19,7 @@ public sealed class ReprimandReturnToHandGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",

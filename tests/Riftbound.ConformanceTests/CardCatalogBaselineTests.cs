@@ -417,7 +417,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             repositoryRoot,
             "src",
             "Riftbound.Engine",
@@ -4112,7 +4112,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("ContinuousEffectStaticAuraCards", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldAllUnitsPowerPlusOneCardNo", source, StringComparison.Ordinal);
@@ -4184,7 +4184,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var matchSessionSource = SourceFileParts.ReadAllText(matchSessionPath);
         Assert.DoesNotContain("P4ActivatedAbilityCatalog.CardCannotBecomeActive", matchSessionSource, StringComparison.Ordinal);
 
         var coreRuleEnginePath = Path.Combine(
@@ -4257,7 +4257,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldMovedUnitPowerPlusOneCardNo", source, StringComparison.Ordinal);
 
@@ -4400,7 +4400,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldNextSpellEchoCardNo", source, StringComparison.Ordinal);
 
@@ -4423,7 +4423,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldUnitCostIncreaseCardNo", source, StringComparison.Ordinal);
 
@@ -4446,7 +4446,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldFriendlySpellDrawCardNo", source, StringComparison.Ordinal);
 
@@ -4493,7 +4493,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldSpellPowerBonusCardNo", source, StringComparison.Ordinal);
 
@@ -4540,7 +4540,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHighCostSpellInsightCardNo", source, StringComparison.Ordinal);
 
@@ -4587,7 +4587,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldPlayUnitPayOneBoonCardNo", source, StringComparison.Ordinal);
 
@@ -4634,7 +4634,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldUnitReturnedCallRuneCardNo", source, StringComparison.Ordinal);
 
@@ -4681,7 +4681,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo", source, StringComparison.Ordinal);
 
@@ -4728,7 +4728,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("string.Equals(cardObject.CardNo, \"SFD·039/221\"", source, StringComparison.Ordinal);
     }
@@ -4741,7 +4741,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldMoveUnitToBaseCardNo", source, StringComparison.Ordinal);
 
@@ -4764,7 +4764,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldDefendMoveFriendlyUnitToBaseCardNo", source, StringComparison.Ordinal);
 
@@ -4787,7 +4787,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldDefenderSteadfastTwoCardNo", source, StringComparison.Ordinal);
 
@@ -4810,7 +4810,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHoldGrantBoonCardNo", source, StringComparison.Ordinal);
 
@@ -4833,7 +4833,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHoldCreateMinionCardNo", source, StringComparison.Ordinal);
 
@@ -4856,7 +4856,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldReturnHeroCardNo", source, StringComparison.Ordinal);
 
@@ -4879,7 +4879,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldHeldSevenUnitsWinAltCardNo", source, StringComparison.Ordinal);
@@ -4904,7 +4904,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerRevealRecycleCardNo", source, StringComparison.Ordinal);
 
@@ -4951,7 +4951,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerMillTwoCardNo", source, StringComparison.Ordinal);
 
@@ -4998,7 +4998,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerRecycleRuneCardNo", source, StringComparison.Ordinal);
 
@@ -5045,7 +5045,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerConsumeBoonDrawCardNo", source, StringComparison.Ordinal);
 
@@ -5092,7 +5092,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerDiscardDrawCardNo", source, StringComparison.Ordinal);
 
@@ -5139,7 +5139,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerDrawForOtherBattlefieldsCardNo", source, StringComparison.Ordinal);
 
@@ -5186,7 +5186,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerPowerfulPayOneDrawCardNo", source, StringComparison.Ordinal);
 
@@ -5235,7 +5235,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerReadyTwoRunesAtEndCardNo", source, StringComparison.Ordinal);
 
@@ -5282,7 +5282,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerReadyEquipmentCardNo", source, StringComparison.Ordinal);
 
@@ -5329,7 +5329,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerPayOneCreateGoldCardNo", source, StringComparison.Ordinal);
 
@@ -5376,7 +5376,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo", source, StringComparison.Ordinal);
 
@@ -5424,7 +5424,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerPayOneReadyLegendCardNo", source, StringComparison.Ordinal);
 
@@ -5543,7 +5543,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldDefendRevealSpellCardNo", source, StringComparison.Ordinal);
 
@@ -5590,7 +5590,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldConquerOverkillCreateWarhawkCardNo", source, StringComparison.Ordinal);
 
@@ -5637,7 +5637,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldTurnStartDamageAllUnitsCardNo", source, StringComparison.Ordinal);
 
@@ -5684,7 +5684,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldTurnStartDestroyUnitDrawCardNo", source, StringComparison.Ordinal);
 
@@ -5731,7 +5731,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldDestroyedInBattleRecallCardNo", source, StringComparison.Ordinal);
 
@@ -5780,7 +5780,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldActivateConquestEffectsCardNo", source, StringComparison.Ordinal);
 
@@ -5921,7 +5921,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("SavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -5944,7 +5944,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("GhostlyCentaurCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("GhostlyCentaurCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
@@ -5966,7 +5966,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("ResonantSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ResonantSoulCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
@@ -5988,7 +5988,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6015,7 +6015,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("SadPoroOriginalCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SadPoroUnleashedCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6040,7 +6040,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("LoyalPoroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("LoyalPoroLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6063,7 +6063,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("WatchfulSentinelCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("WatchfulSentinelLastBreathDrawEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6086,7 +6086,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("ScoutingWarhawkCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ScoutingWarhawkLastBreathCallRuneEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6109,7 +6109,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("HonestBrokerCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("HonestBrokerLastBreathCreateGoldBehavior", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6137,7 +6137,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("UndercoverAgentCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UndercoverAgentLastBreathEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6163,7 +6163,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("UnsungHeroCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("UnsungHeroLastBreathSourceEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6189,7 +6189,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("KogmawCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("KogmawLastBreathAoeEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6215,7 +6215,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("MechanicalTricksterCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("MechanicalTricksterLastBreathCreateMinionsEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
@@ -6269,7 +6269,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldFirstTurnExtraRuneCardNo", source, StringComparison.Ordinal);
 
@@ -6316,7 +6316,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldFirstTurnScoreCardNo", source, StringComparison.Ordinal);
 
@@ -6363,7 +6363,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldScoreDelayCardNo", source, StringComparison.Ordinal);
 
@@ -6410,7 +6410,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldIncreaseWinningScoreCardNo", source, StringComparison.Ordinal);
 
@@ -6429,7 +6429,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
+        var matchRecoverySource = SourceFileParts.ReadAllText(matchRecoveryPath);
 
         Assert.DoesNotContain("BattlefieldIncreaseWinningScoreCardNo", matchRecoverySource, StringComparison.Ordinal);
     }
@@ -6466,7 +6466,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldExtraStandbyCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldExtraStandbyAltCardNo", source, StringComparison.Ordinal);
@@ -6492,7 +6492,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldGrantLegendAttachArmamentCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("RequiredControlledBattlefieldCardNo", source, StringComparison.Ordinal);
@@ -6517,7 +6517,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHeldPayPowerScoreCardNo", source, StringComparison.Ordinal);
 
@@ -6540,7 +6540,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHoldDrawCardNo", source, StringComparison.Ordinal);
 
@@ -6605,7 +6605,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHoldCallRuneCardNo", source, StringComparison.Ordinal);
 
@@ -6628,7 +6628,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldHoldEachPlayerCallRuneCardNo", source, StringComparison.Ordinal);
 
@@ -6651,7 +6651,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldGrantUnitExperienceCardNo", source, StringComparison.Ordinal);
 
@@ -6674,7 +6674,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldTargetSpellSkillDamageBonusCardNo", source, StringComparison.Ordinal);
 
@@ -6697,7 +6697,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var source = File.ReadAllText(matchSessionPath);
+        var source = SourceFileParts.ReadAllText(matchSessionPath);
 
         Assert.DoesNotContain("BattlefieldPreventMoveToBaseCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BattlefieldPreventUnitPlayCardNo", source, StringComparison.Ordinal);
@@ -6975,7 +6975,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine",
             "MatchSession.cs");
-        var matchSessionSource = File.ReadAllText(matchSessionPath);
+        var matchSessionSource = SourceFileParts.ReadAllText(matchSessionPath);
         var battlefieldTriggerSpecRulesPath = Path.Combine(
             RepositoryRoot(),
             "src",
@@ -8875,7 +8875,7 @@ public sealed class CardCatalogBaselineTests
             "src",
             "Riftbound.Engine");
         var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
         var equipmentKeywordSource = File.ReadAllText(Path.Combine(engineRoot, "CardEquipmentKeywordRules.cs"));
         var assembleProfileCatalogSource = File.ReadAllText(Path.Combine(engineRoot, "AssembleEquipmentProfileCatalog.cs"));
 
