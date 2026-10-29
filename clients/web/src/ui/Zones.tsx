@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent, ReactNode } from "react";
+import { useLayoutEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import type { ObjectAction } from "../game/actions";
 import { cardInfo, COLOR_HEX } from "../game/cards";
 import type { GameObject, SnapshotPlayer, TableBattlefield } from "../game/types";
@@ -9,12 +9,49 @@ export type RenderObject = (id: string, size?: "board" | "hand" | "hero" | "mini
 /** Which public pile is open; its cards are read from the live snapshot. */
 export type ZoneView = { title: string; playerId: string; zone: "graveyard" | "banished" } | null;
 
-/** Crowded rows overlap their cards instead of wrapping, so the table never grows past the viewport. */
-export function crowd(count: number, roomy: number): CSSProperties {
-  if (count <= roomy) return {};
-  // Each extra card beyond `roomy` tucks further under its neighbour, up to 70% of a card.
-  const overlap = Math.min(0.7, ((count - roomy) * 1.1) / count);
-  return { ["--overlap-ratio" as string]: overlap };
+/**
+ * A row that never grows past its own width: once its cards no longer fit side by side, each card
+ * tucks under its left neighbour just enough to fit (at most most of a card, so every card stays
+ * clickable).
+ */
+export function Crowd({ className, style, children }: { className: string; style?: CSSProperties; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const cards = () => [...el.children].filter((c): c is HTMLElement => c instanceof HTMLElement && c.classList.contains("obj"));
+    const fit = () => {
+      const all = cards();
+      let shift = 0;
+      if (all.length > 1) {
+        // Exhausted cards lie sideways and are wider, so add up each card's own width.
+        const widths = all.map((c) => c.offsetWidth);
+        const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+        const need = widths.reduce((a, w) => a + w, 0) + (all.length - 1) * gap;
+        shift = Math.min(Math.min(...widths) * 0.8 + gap, Math.max(0, (need - el.clientWidth) / (all.length - 1)));
+      }
+      el.style.setProperty("--crowd-shift", `${shift}px`);
+    };
+    // Re-fit when the row resizes, a card comes or goes, or a card turns sideways.
+    const ro = new ResizeObserver(fit);
+    const watch = () => {
+      ro.disconnect();
+      ro.observe(el);
+      cards().forEach((c) => ro.observe(c));
+    };
+    watch();
+    const mo = new MutationObserver(watch);
+    mo.observe(el, { childList: true });
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+    };
+  }, []);
+  return (
+    <div ref={ref} className={`${className} crowd`} style={style}>
+      {children}
+    </div>
+  );
 }
 
 export function ScoreSpine({ me, opp, goal }: { me: SnapshotPlayer; opp?: SnapshotPlayer; goal: number }) {
@@ -112,17 +149,15 @@ export function Side({ player, side, render, onZone, legal, onOpenZone, heroActi
 
       <div className={`base${baseLegal ? " is-legal" : ""}`} onClick={onZone(["BASE", `BASE:${player.id}`])} data-drop="BASE" data-drop-owner={player.id} aria-label="基地">
         <span className="zone-label">{side === "me" ? "我的基地" : "对手基地"}</span>
-        <div className="base__units crowd" style={crowd(units.length, 6)}>
+        <Crowd className="base__units">
           {units.map((id) => render(id))}
           {units.length === 0 && <span className="base__empty">{side === "me" ? "打出的单位会进入这里" : ""}</span>}
-        </div>
+        </Crowd>
       </div>
 
       <div className="runezone" aria-label="符文">
         {runeBar}
-        <div className="runes crowd" style={crowd(z.baseRunes.length, 6)}>
-          {z.baseRunes.map((id) => render(id, "rune"))}
-        </div>
+        <Crowd className="runes" style={{ ["--n" as string]: z.baseRunes.length }}>{z.baseRunes.map((id) => render(id, "rune"))}</Crowd>
         <div className="pool" title="符文池：本回合可用的法力与符能">
           <span className="pool__mana">
             <b>{pool.mana}</b> 法力
@@ -218,9 +253,7 @@ export function Battlefield({ bf, meId, oppId, objects, render, onZone, legal, h
       data-drop={`BATTLEFIELD:${bf.battlefieldObjectId}`}
       aria-label={`战场 ${info?.name ?? ""}，${status}`}
     >
-      <div className="field__row field__row--opp crowd" style={crowd(theirs.length, 4)}>
-        {theirs.map((id) => render(id))}
-      </div>
+      <Crowd className="field__row field__row--opp">{theirs.map((id) => render(id))}</Crowd>
       <div className="field__mid">
         {theirSlots.length > 0 && <div className="field__standby field__standby--opp">{theirSlots.map(renderSlot)}</div>}
         <div className="field__cardwrap">
@@ -238,9 +271,7 @@ export function Battlefield({ bf, meId, oppId, objects, render, onZone, legal, h
         </div>
         {mySlots.length > 0 && <div className="field__standby field__standby--me">{mySlots.map(renderSlot)}</div>}
       </div>
-      <div className="field__row field__row--me crowd" style={crowd(mine.length, 4)}>
-        {mine.map((id) => render(id))}
-      </div>
+      <Crowd className="field__row field__row--me">{mine.map((id) => render(id))}</Crowd>
     </section>
   );
 }

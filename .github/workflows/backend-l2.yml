@@ -10,10 +10,10 @@ on:
 permissions:
   contents: read
 
-# A newer push to the same PR supersedes the older run; main keeps one run per merge.
+# Verify the newest revision of each PR or branch; obsolete main runs release runners too.
 concurrency:
-  group: l2-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: l2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -21,55 +21,60 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
-  quality:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 2
-      - name: Verify exact checkout
-        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-quality/checkout.json
-      - name: L2 verification and rule-runner safeguards
-        run: |
-          python3 -m unittest discover -s scripts/tests -p 'test_l2*.py' -v
-          python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
-          python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
-          python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
-      - name: Check committed formatting
-        run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: l2-quality
-          path: var/qa/l2-quality/
-          retention-days: 14
-
   prepare:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
       sdk: ${{ steps.plan.outputs.sdk }}
+      tier: ${{ steps.scope.outputs.tier }}
+      quality: ${{ steps.quality.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 2
+      - name: Verify exact checkout for safeguards
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-quality/checkout.json
+      - name: L2 verification and rule-runner safeguards
+        id: quality
+        run: |
+          python3 -m unittest discover -s scripts/tests -p 'test_l2*.py' -v
+          python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
+          python3 -m unittest discover -s scripts/tests -p test_ci_change_scope.py -v
+          python3 -m unittest discover -s scripts/tests -p test_scoped_ci.py -v
+          python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
+          python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
+      - name: Check committed formatting
+        run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
+      - name: Determine whether only reviewed documentation changed
+        id: scope
+        run: >-
+          python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
+          --head "$GITHUB_SHA" --output var/qa/l2-quality/scope.json --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
+        with:
+          name: l2-quality
+          path: var/qa/l2-quality/
+          retention-days: 14
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        if: steps.scope.outputs.tier != 'DOCS'
         with:
           dotnet-version: |
             8.0.x
             10.0.403
       - name: Verify exact checkout
+        if: steps.scope.outputs.tier != 'DOCS'
         run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-prepared/checkout.json
       - name: Prove mixed row and whole-method selection on Linux before the rule build
+        if: steps.scope.outputs.tier != 'DOCS'
         run: python3 scripts/probe-l2-row-selection.py --commit "$GITHUB_SHA" --output var/qa/l2-prepared/row-filter-probe
       - name: Build API and conformance once and enumerate the complete L2 input
+        if: steps.scope.outputs.tier != 'DOCS'
         id: plan
         run: python3 scripts/l2-distributed.py prepare --commit "$GITHUB_SHA" --shards 6 --output var/qa/l2-prepared --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' }}
         with:
           name: l2-plan
           path: |
@@ -79,12 +84,13 @@ jobs:
             var/qa/l2-prepared/row-filter-probe/receipt.json
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' }}
         with:
           name: l2-row-filter-probe
           path: var/qa/l2-prepared/row-filter-probe/
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: steps.scope.outputs.tier != 'DOCS'
         with:
           name: l2-built-input
           path: var/qa/l2-prepared/bundle.tar.gz
@@ -93,6 +99,7 @@ jobs:
 
   rule_suite:
     needs: [prepare]
+    if: needs.prepare.outputs.tier != 'DOCS'
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     strategy:
@@ -122,88 +129,91 @@ jobs:
       - name: Execute assigned methods from the shared built assemblies without rebuilding
         run: python3 scripts/l2-distributed.py shard --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --shard '${{ matrix.shard }}' --output var/qa/l2-shards/${{ matrix.shard }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           name: l2-${{ matrix.shard }}
           path: var/qa/l2-shards/${{ matrix.shard }}/
           retention-days: 14
 
-  targeted:
-    needs: [prepare, rule_suite]
-    if: ${{ always() && needs.prepare.result == 'success' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ github.sha }}
-      - name: Verify exact checkout
-        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: l2-plan
-          path: var/qa/l2-prepared
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          pattern: l2-shard-*
-          path: var/qa/l2-shards
-      - name: Restore original shard names
-        run: |
-          python3 -c "from pathlib import Path; p=Path('var/qa/l2-shards'); [(x.rename(p/x.name.removeprefix('l2-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('l2-shard-')]"
-      - name: Derive targeted coverage from the original execution TRX; no second execution
-        run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --inputs var/qa/l2-shards --output var/qa/l2-targeted
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: l2-targeted
-          path: var/qa/l2-targeted/
-          retention-days: 30
-
   l2_required:
     name: L2 required
-    needs: [quality, prepare, rule_suite, targeted]
-    if: ${{ always() }}
+    needs: [prepare, rule_suite]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
+      - name: Require successful preparation and the expected rule-suite outcome
+        env:
+          RIFTBOUND_PREPARE: ${{ needs.prepare.result }}
+          RIFTBOUND_QUALITY: ${{ needs.prepare.outputs.quality }}
+          RIFTBOUND_RULE_SUITE: ${{ needs.rule_suite.result }}
+          RIFTBOUND_TIER: ${{ needs.prepare.outputs.tier }}
+        run: |
+          python3 - <<'PYGATE'
+          import os
+          expected = 'skipped' if os.environ['RIFTBOUND_TIER'] == 'DOCS' else 'success'
+          for stage, outcome in [('PREPARE', 'success'), ('QUALITY', 'success'), ('RULE_SUITE', expected)]:
+              actual = os.environ['RIFTBOUND_' + stage]
+              if actual != outcome:
+                  raise SystemExit(f'{stage} must be {outcome}; got {actual!r}')
+          PYGATE
       - name: Verify exact aggregate checkout
         run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-gate/checkout.json
+      - name: Recheck the documentation exemption from the actual Git input
+        if: needs.prepare.outputs.tier == 'DOCS'
+        run: >-
+          python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
+          --head "$GITHUB_SHA" --require-docs --output var/qa/l2-gate/documentation.json
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        if: needs.prepare.outputs.tier != 'DOCS'
         with:
           name: l2-plan
           path: var/qa/l2-prepared
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        if: needs.prepare.outputs.tier != 'DOCS'
         with:
           pattern: l2-shard-*
           path: var/qa/l2-shards
       - name: Restore original shard names
+        if: needs.prepare.outputs.tier != 'DOCS'
         run: |
           python3 -c "from pathlib import Path; p=Path('var/qa/l2-shards'); [(x.rename(p/x.name.removeprefix('l2-'))) for x in list(p.iterdir()) if x.is_dir() and x.name.startswith('l2-shard-')]"
+      - name: Verify the targeted view checkout
+        if: needs.prepare.outputs.tier != 'DOCS'
+        run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-targeted/checkout.json
+      - name: Derive targeted coverage from the original execution TRX; no second execution
+        id: targeted
+        if: needs.prepare.outputs.tier != 'DOCS'
+        run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --inputs var/qa/l2-shards --output var/qa/l2-targeted
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: l2-targeted
-          path: var/qa/l2-targeted
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        if: needs.prepare.outputs.tier != 'DOCS'
         with:
           name: l2-quality
           path: var/qa/l2-quality
       - name: Require all children, fixed identities and exact original case coverage
+        if: needs.prepare.outputs.tier != 'DOCS'
         env:
-          RIFTBOUND_QUALITY: ${{ needs.quality.result }}
+          RIFTBOUND_QUALITY: ${{ needs.prepare.outputs.quality }}
           RIFTBOUND_PREPARE: ${{ needs.prepare.result }}
           RIFTBOUND_RULE_SUITE: ${{ needs.rule_suite.result }}
-          RIFTBOUND_TARGETED: ${{ needs.targeted.result }}
+          RIFTBOUND_TARGETED: ${{ steps.targeted.outcome }}
         run: >-
           python3 scripts/l2-distributed.py aggregate --commit "$GITHUB_SHA"
           --prepared var/qa/l2-prepared --inputs var/qa/l2-shards
           --targeted var/qa/l2-targeted --quality var/qa/l2-quality
           --output var/qa/l2-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           name: l2-required-result
           path: var/qa/l2-gate/
+          retention-days: 30
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() && needs.prepare.outputs.tier != 'DOCS' }}
+        with:
+          name: l2-targeted
+          path: var/qa/l2-targeted/
           retention-days: 30
