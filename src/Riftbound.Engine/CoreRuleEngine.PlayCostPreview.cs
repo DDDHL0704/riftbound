@@ -59,6 +59,8 @@ public sealed partial class CoreRuleEngine
         {
             if (state.PendingEffectPlay is { IgnoreBaseMana: true } effect && effect.PlayerId == playerId)
                 Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+            if (plan.Behavior.AppliedEquipmentPlayGrant is not null)
+                Adjust("装备打出权限忽略基础法力", -plan.Behavior.ManaCost);
             if (plan.Behavior.IgnorePrintedPowerCost)
                 Adjust("效果忽略基础符能", 0, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         }

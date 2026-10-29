@@ -13,6 +13,22 @@ public sealed partial class CoreRuleEngine
         if (battle.IsActive && (battle.AttackerObjectIds.Contains(card.ObjectId) || battle.DefenderObjectIds.Contains(card.ObjectId)))
             return ResolveAssignmentBattleCombatPower(state, battle, card.ObjectId, out _, out _,
                 damageContribution: false, conditionalPowerAuras: false, clampResult: false);
+        // The first battle spell duel is already part of combat: units have
+        // attacker/defender roles and their Assault/Deflect affects their Might
+        // before attack triggers are confirmed (CN 466.1, 807.1.d.1).
+        if (IsInitialBattleDuel(state, out var duel) && IsEstablishedBattleDuelParticipant(state, card.ObjectId))
+        {
+            var participants = state.CardObjects.Values.Where(unit => IsFaceUpNonStandbyUnit(unit)
+                && IsObjectLocatedAtBattlefield(state.PlayerZones, state.ObjectLocations, unit.ObjectId, duel.BattlefieldId)
+                && (unit.IsAttacking || unit.IsDefending)).ToArray();
+            var combat = new BattleState(true, BattleLifecycleIds.BattleIdForBattlefield(duel.BattlefieldId), duel.BattlefieldId,
+                participants.Where(unit => unit.IsAttacking).Select(unit => unit.ObjectId).ToArray(),
+                participants.Where(unit => unit.IsDefending).Select(unit => unit.ObjectId).ToArray(),
+                participants.ToDictionary(unit => unit.ObjectId,
+                    unit => EffectiveFieldControllerId(state.PlayerZones, unit.ObjectId, unit), StringComparer.Ordinal));
+            return ResolveAssignmentBattleCombatPower(state, combat, card.ObjectId, out _, out _,
+                damageContribution: false, conditionalPowerAuras: false, clampResult: false);
+        }
         var field = state.ObjectLocations.GetValueOrDefault(card.ObjectId)?.BattlefieldObjectId ?? "";
         return card.Power + ResolveFieldPowerStaticAuraBonus(state, state.PlayerZones, card.ObjectId, card, field);
     }

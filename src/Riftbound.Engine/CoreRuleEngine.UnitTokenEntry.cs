@@ -16,9 +16,10 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         if (!P6TokenFactoryCatalog.TryGetByCardNo(factoryCardNo, out var factory))
             throw new InvalidOperationException($"Missing official unit token factory: {factoryCardNo}");
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");
         for (var i = 0; i < count; i++)
         {
-            var id = NextTokenObjectId(zones, cards, item.SourceObjectId, i + 1);
+            var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);
             var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !entersReady);
             token = token with { Tags = ApplyAzirSandSoldierTemperedTags(zones, cards, item.ControllerId, token.Tags) };
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
@@ -32,13 +33,13 @@ public sealed partial class CoreRuleEngine
                 : zones[item.ControllerId] with { Battlefields = zones[item.ControllerId].Battlefields.Append(id).ToArray() };
             locations[id] = new(item.ControllerId, destination, battlefieldId);
             var payload = new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = visibleSource,
                 ["abilityId"] = abilityId, ["tokenObjectId"] = id, ["tokenCardNo"] = token.CardNo,
                 ["tokenName"] = factory.TokenFamilyName, ["power"] = token.Power, ["destinationZone"] = destination, ["battlefieldId"] = battlefieldId, ["tokenFactoryCardNo"] = token.TokenFactoryCardNo,
                 ["tokenTags"] = token.Tags.ToArray(), ["isExhausted"] = token.IsExhausted, ["azirTempered"] = token.Tags.Contains(CardEquipmentKeywordNames.Tempered) };
             AddEntryStaticAbilityPayload(payload, ready ? staticAbility : null, staticSourceId, staticSource.CardNo);
             AddTokenHastePayload(payload, hastePaid);
-            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{item.SourceObjectId}打出{factory.TokenFamilyName}", payload), zones, cards, state.UntilEndOfTurnEffects));
+            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{(visibleSource == "HIDDEN" ? "技能" : visibleSource)}打出{factory.TokenFamilyName}", payload), zones, cards, state.UntilEndOfTurnEffects));
         }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
             ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
