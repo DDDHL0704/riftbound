@@ -13547,6 +13547,7 @@ public static partial class MatchRecoveryValidator
         var seenSequences = new HashSet<int>();
         var validSequences = new List<int>();
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var authoritativeEffectsById = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
@@ -13562,7 +13563,8 @@ public static partial class MatchRecoveryValidator
             var effectValues = ValidateSpectatorContinuousEffectPayloadValues(
                 spectatorEffect,
                 knownObjectIds,
-                errors);
+                errors,
+                authoritativeEffectsById);
             if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
                 errors.Add(
@@ -13582,7 +13584,6 @@ public static partial class MatchRecoveryValidator
             validSequences,
             errors);
 
-        var authoritativeEffectsById = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
         ValidateSpectatorContinuousEffectAuthoritativeKeySet(
             spectatorEffects,
             authoritativeEffectsById,
@@ -14884,7 +14885,8 @@ public static partial class MatchRecoveryValidator
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors,
+        IReadOnlyDictionary<string, ContinuousEffectState> authoritativeEffects)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
         var effectValues = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
@@ -14973,12 +14975,25 @@ public static partial class MatchRecoveryValidator
             "deferred LayerEngine residual",
             errors);
         ValidateContinuousEffectStaticAuraDependencyListConsistency(effectPayload, effectLabel, errors);
+        // The public source of a resolved modifier may now be hidden. The
+        // authoritative keyed comparison below still verifies every field.
+        string? historicalSource = null;
+        if (effectValues.EffectId is { } id && authoritativeEffects.TryGetValue(id, out var expected)
+            && expected.Scope == "OBJECT" && expected.Layer == ContinuousEffectLayers.PowerModifier
+            && expected.Duration == "UNTIL_END_OF_TURN" && expected.SourceObjectId == "HIDDEN"
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourceObjectId", expected.SourceObjectId)
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourceCardNo", expected.SourceCardNo)
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourcePath", expected.SourcePath)
+            && OptionalStringSnapshotValueMatches(effectPayload, "targetObjectId", expected.TargetObjectId)
+            && knownObjectIds.Contains(expected.TargetObjectId ?? string.Empty))
+            historicalSource = expected.SourceObjectId;
         ValidateContinuousEffectObjectReferences(
             effectPayload,
             effectLabel,
             knownObjectIds,
             "object registry",
-            errors);
+            errors,
+            historicalSource);
         return effectValues;
     }
 
