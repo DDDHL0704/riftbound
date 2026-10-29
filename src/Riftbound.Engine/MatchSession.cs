@@ -7211,6 +7211,8 @@ public sealed record ResolutionResult(
 internal static class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
+    private const string TapRunePaymentOptionalCostPrefix = "TAP_RUNE:";
+    private const int BasicRuneTapManaGain = 1;
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const int BasicRuneRecyclePowerGain = 1;
@@ -15732,6 +15734,8 @@ internal static class ActionPromptBuilder
                     var objectChoice = ObjectChoice(state, objectId, "pending payment resource action: recycle rune");
                     label = $"回收符文支付：{objectChoice.Label}";
                 }
+                else if (TryParseTapRunePaymentActionId(choiceId, out var tapId))
+                    label = $"横置符文支付：{ObjectChoice(state, tapId, "pending payment resource action: tap rune").Label}";
 
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
@@ -15760,7 +15764,8 @@ internal static class ActionPromptBuilder
         PendingPaymentState payment)
     {
         return PendingPaymentResourceActionIds(payment)
-
+            .Concat(payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow
+                ? [] : CoreRuleEngine.TapRunePaymentResourceActionIds(state, payment.PlayerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -15813,7 +15818,8 @@ internal static class ActionPromptBuilder
                 choiceId =>
                 {
                     var trait = string.Empty;
-                    var power = BasicRuneRecyclePowerGain;
+                    var tap = TryParseTapRunePaymentActionId(choiceId, out _);
+                    var power = tap ? 0 : BasicRuneRecyclePowerGain;
                     if (TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
                         && state.CardObjects.TryGetValue(objectId, out var runeState)
                         && TryGetRuneTrait(runeState, out var runeTrait))
@@ -15823,7 +15829,9 @@ internal static class ActionPromptBuilder
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
                         ["trait"] = trait,
+                        ["mana"] = tap ? BasicRuneTapManaGain : 0,
                         ["power"] = power,
+                        ["abilityId"] = tap ? "BASIC_RUNE_EXHAUST_GAIN_1_MANA" : "BASIC_RUNE_RECYCLE_GAIN_1_POWER",
                         ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal),
                         ["paymentOnly"] = false
                     };
@@ -15847,6 +15855,13 @@ internal static class ActionPromptBuilder
     private static bool IsRecycleRunePaymentActionId(string choiceId)
     {
         return choiceId.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal);
+    }
+
+    private static bool TryParseTapRunePaymentActionId(string choiceId, out string objectId)
+    {
+        objectId = choiceId.StartsWith(TapRunePaymentOptionalCostPrefix, StringComparison.Ordinal)
+            ? choiceId[TapRunePaymentOptionalCostPrefix.Length..].Trim() : string.Empty;
+        return objectId.Length > 0;
     }
 
     private static bool TryParseRecycleRunePaymentActionId(string choiceId, out string objectId)

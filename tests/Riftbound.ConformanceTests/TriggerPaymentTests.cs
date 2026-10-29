@@ -1932,7 +1932,9 @@ public sealed class TriggerPaymentTests
         var resourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Equal(expectedResourceActionIds, resourceChoices);
+        Assert.Equal(expectedResourceActionIds, resourceChoices.Where(id => id.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)));
+        foreach (var id in resourceChoices.Where(id => id.StartsWith("TAP_RUNE:", StringComparison.Ordinal)))
+            Assert.False(result.State.CardObjects[id["TAP_RUNE:".Length..]].IsExhausted);
         return payment;
     }
 
