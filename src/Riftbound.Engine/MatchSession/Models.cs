@@ -661,8 +661,6 @@ public sealed record PendingCardChoiceState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DeckChoiceContext? DeckContext { get; init; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public TurnBattlefieldConquests? BattlefieldConquests { get; init; }
     public RevealedHandChoiceContext? HandContext { get; init; }
 
     public string ChoiceId { get; init; }
