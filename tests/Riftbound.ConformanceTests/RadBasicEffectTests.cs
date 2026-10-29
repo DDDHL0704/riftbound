@@ -12,9 +12,12 @@ public sealed class RadBasicEffectTests
     public static IEnumerable<object[]> Cards() => new[] {
         new object[] { "RAD·003/167", 39493L, 3, 3, 0 },
         new object[] { "RAD·008/167", 39498L, 3, 2, 0 },
+        new object[] { "RAD·058/167", 39554L, 4, 3, 1 },
         new object[] { "RAD·059/167", 39555L, 9, -1, 1 },
         new object[] { "RAD·077/167", 39576L, 9, 7, 0 },
-        new object[] { "RAD·088/167", 39588L, 2, 2, 1 } };
+        new object[] { "RAD·083/167", 39582L, 4, 2, 0 },
+        new object[] { "RAD·088/167", 39588L, 2, 2, 1 },
+        new object[] { "RAD·118/167", 39623L, 5, 3, 0 } };
 
     [Theory]
     [MemberData(nameof(Cards))]
@@ -30,9 +33,13 @@ public sealed class RadBasicEffectTests
         Assert.Equal(no switch {
             "RAD·003/167" => "当你打出我时，对最多两名单位各造成1点伤害。",
             "RAD·008/167" => "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当你打出我时，给予一名单位在本回合内{{S}}+2。",
+            "RAD·058/167" => "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当你打出我时，给予一名敌方单位在本回合内{{S}}-3。",
             "RAD·059/167" => "对一名单位造成10点伤害。抽两张牌。",
             "RAD·077/167" => "我以活跃状态进场。\n{{坚守3}}（只要我是防守方，便{{S}}+3。）",
-            _ => "{{强攻2}}，{{坚守2}}（只要我是进攻方或防守方，便{{S}}+2。）" }, card.CardEffect);
+            "RAD·083/167" => "{{坚守2}}（只要我是防守方，便{{S}}+2。）\n当你打出我时，你可以选择摧毁一件法力费用不高于{{4}}的装备。",
+            "RAD·088/167" => "{{强攻2}}，{{坚守2}}（只要我是进攻方或防守方，便{{S}}+2。）",
+            "RAD·118/167" => "当你打出我时，选择一名友方单位。其基础战力在本回合内变为5。",
+            _ => throw new InvalidOperationException(no) }, card.CardEffect);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(no, out var behavior));
         Assert.Equal(mana, behavior.ManaCost);
         Assert.Equal(powerCost, PrintedPowerCostRules.ForCard(no).Amount);
@@ -48,28 +55,34 @@ public sealed class RadBasicEffectTests
         var game = new Driver(VenUnitEntryBasicTests.Position(no));
         await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: destination));
         Assert.Equal(20 - mana, game.State.RunePools["P1"].Mana);
-        Assert.Equal(no == "RAD·088/167" ? 19 : 20, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(no is "RAD·058/167" or "RAD·088/167" ? 19 : 20, game.State.RunePools["P1"].TotalPower);
         Assert.Equal(power, game.State.CardObjects["UNIT"].Power);
         Assert.Equal(no != "RAD·077/167", game.State.CardObjects["UNIT"].IsExhausted);
         Assert.Equal(destination == "BASE" ? "BASE" : "BATTLEFIELD", game.State.ObjectLocations["UNIT"].Zone);
-        if (no is "RAD·003/167" or "RAD·008/167") {
+        if (no is not ("RAD·077/167" or "RAD·088/167")) {
+            var target = no switch { "RAD·058/167" => "ENEMY", "RAD·083/167" => "GEAR", _ => "ALLY" };
             Assert.Equal(0, game.State.CardObjects["ALLY"].Damage);
-            Assert.Equal(4, game.State.CardObjects["ALLY"].Power);
+            Assert.Equal(4, Might(game.State, "ALLY")); Assert.Equal(4, Might(game.State, "ENEMY"));
+            Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
             var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
             Assert.Equal(0, game.State.CardObjects["ALLY"].Damage);
-            Assert.Equal(4, game.State.CardObjects["ALLY"].Power);
+            Assert.Equal(4, Might(game.State, "ALLY")); Assert.Equal(4, Might(game.State, "ENEMY"));
+            Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
             await game.Top();
             Assert.Equal(no == "RAD·003/167" ? 1 : 0, game.State.CardObjects["ALLY"].Damage);
-            Assert.Equal(no == "RAD·008/167" ? 6 : 4, game.State.CardObjects["ALLY"].Power);
-        } else {
+            Assert.Equal(no switch { "RAD·008/167" => 6, "RAD·118/167" => 5, _ => 4 }, Might(game.State, "ALLY"));
+            Assert.Equal(no == "RAD·058/167" ? 1 : 4, Might(game.State, "ENEMY"));
+            Assert.Equal(no == "RAD·083/167", game.State.PlayerZones["P1"].Graveyard.Contains("GEAR"));
+        }
+        if (no is "RAD·077/167" or "RAD·083/167" or "RAD·088/167") {
             var profile = CardCombatKeywordRules.BuildProfile(CardBehaviorRegistry.GetAll().Single(b => b.CardNo == no));
             Assert.Equal(no == "RAD·088/167" ? 2 : 0, profile.AssaultAmount);
-            Assert.Equal(no == "RAD·088/167" ? 2 : 3, profile.SteadfastAmount);
+            Assert.Equal(no == "RAD·077/167" ? 3 : 2, profile.SteadfastAmount);
             Assert.Contains("坚守" + profile.SteadfastAmount, game.State.CardObjects["UNIT"].Tags);
             if (no == "RAD·088/167") Assert.Contains("强攻2", game.State.CardObjects["UNIT"].Tags);
-            Assert.Empty(game.State.StackItems);
         }
+        Assert.Empty(game.State.StackItems);
         await game.Replay();
     }
 
@@ -191,6 +204,118 @@ public sealed class RadBasicEffectTests
         Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage); Assert.Empty(game.State.PlayerZones["P1"].Hand);
         Assert.Equal(3, game.State.PlayerZones["P1"].MainDeck.Count); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
+
+    [Theory]
+    [InlineData("RAD·058/167", "ALLY", "ENEMY")] [InlineData("RAD·058/167", "GEAR", "ENEMY")]
+    [InlineData("RAD·058/167", "GRAVE", "ENEMY")] [InlineData("RAD·083/167", "ALLY", "GEAR")]
+    [InlineData("RAD·083/167", "GRAVE", "GEAR")] [InlineData("RAD·118/167", "ENEMY", "ALLY")]
+    [InlineData("RAD·118/167", "GEAR", "ALLY")] [InlineData("RAD·118/167", "GRAVE", "ALLY")]
+    public async Task EntrySkillsRejectInvalidTargetsAndStillResolveTheValidChoice(string no, string invalid, string valid)
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position(no));
+        await game.Act("P1", new PlayCardCommand("UNIT", no, []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.DoesNotContain(invalid, choice.LegalObjectIds); Assert.Contains(valid, choice.LegalObjectIds);
+        await Reject(game.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [invalid]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [valid]));
+        await game.Top(); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task MagesOptionalHasteAddsOneManaAndBluePowerAndItsDebuffExpires(bool haste)
+    {
+        var initial = VenUnitEntryBasicTests.Position("RAD·058/167") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 2 }), ["P2"] = new(20, 20) } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·058/167", [], OptionalCosts: haste ? ["HASTE_READY"] : []));
+        Assert.Equal(!haste, game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(haste ? 0 : 1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(haste ? 0 : 1, game.State.RunePools["P1"].TotalPower);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY"]));
+        await game.Top(); Assert.Equal(1, Might(game.State, "ENEMY"));
+        await game.Act("P1", new EndTurnCommand()); Assert.Equal(4, Might(game.State, "ENEMY")); await game.Replay();
+    }
+
+    [Fact]
+    public async Task MagesBlueHasteCannotSpendRedPowerAfterItsPrintedBlueCost()
+    {
+        var state = VenUnitEntryBasicTests.Position("RAD·058/167") with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1, [RuneTrait.Red] = 1 }), ["P2"] = new(20, 20) } };
+        await Reject(state, new PlayCardCommand("UNIT", "RAD·058/167", [], OptionalCosts: ["HASTE_READY"]));
+    }
+
+    [Theory]
+    [InlineData("SFD·019/221", "P1", true)] [InlineData("SFD·019/221", "P2", true)]
+    [InlineData("UNL-174/219", "P1", false)] [InlineData("UNL-174/219", "P2", false)]
+    public async Task ShepherdCanDestroyEitherSidesFourManaEquipmentButRejectsHigherCosts(string gear, string owner, bool allowed)
+    {
+        var initial = VenUnitEntryBasicTests.Position("RAD·083/167");
+        initial = initial with {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["TARGET-GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("TARGET-GEAR", gear, owner) },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["TARGET-GEAR"] = new(owner, "BASE") },
+            PlayerZones = initial.PlayerZones.ToDictionary(p => p.Key, p => p.Key == owner ? p.Value with { Base = [..p.Value.Base, "TARGET-GEAR"] } : p.Value) };
+        Assert.Equal(allowed ? 4 : 6, initial.CardObjects["TARGET-GEAR"].ManaCost);
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·083/167", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(allowed, choice.LegalObjectIds.Contains("TARGET-GEAR"));
+        if (!allowed) await Reject(game.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["TARGET-GEAR"]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, allowed ? ["TARGET-GEAR"] : []));
+        if (game.State.StackItems.Count > 0) await game.Top();
+        Assert.Equal(allowed, game.State.PlayerZones[owner].Graveyard.Contains("TARGET-GEAR"));
+        Assert.Equal(!allowed, game.State.PlayerZones[owner].Base.Contains("TARGET-GEAR"));
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ShepherdMayDeclineItsDestructionEvenWhenLegalEquipmentExists()
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position("RAD·083/167"));
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·083/167", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Contains("GEAR", choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+        if (game.State.StackItems.Count > 0) await game.Top();
+        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("坚守2", game.State.CardObjects["UNIT"].Tags); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task HeraldChangesBaseMightWhilePreservingEarlierAndLaterModifiersUntilTurnEnd(bool buffFirst)
+    {
+        var state = AttackDamageDistributionTests.Spell(VenUnitEntryBasicTests.Position("RAD·118/167"), "BOOST", "VEN·081", "P1");
+        var game = new Driver(state);
+        if (buffFirst) { await game.Act("P1", new PlayCardCommand("BOOST", "VEN·081", ["ALLY"])); await game.Top(); }
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·118/167", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"])); await game.Top();
+        if (!buffFirst) { await game.Act("P1", new PlayCardCommand("BOOST", "VEN·081", ["ALLY"])); await game.Top(); }
+        Assert.Equal(11, Might(game.State, "ALLY")); Assert.Equal(5, SnapshotObject(game.State, "ALLY").GetProperty("basePower").GetInt32());
+        await game.Act("P1", new EndTurnCommand()); Assert.Equal(4, Might(game.State, "ALLY")); await game.Replay();
+    }
+
+    [Fact]
+    public async Task HeraldCanChooseItselfAsTheFriendlyUnitAndRestoresItsPrintedBaseAtTurnEnd()
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position("RAD·118/167"));
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·118/167", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["UNIT"])); await game.Top();
+        Assert.Equal(5, Might(game.State, "UNIT"));
+        await game.Act("P1", new EndTurnCommand()); Assert.Equal(3, Might(game.State, "UNIT")); await game.Replay();
+    }
+
+    private static JsonElement SnapshotObject(MatchState state, string id)
+    {
+        var player = state.CardObjects[id].ControllerId!;
+        return JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[player], new JsonSerializerOptions(JsonSerializerDefaults.Web))
+            .GetProperty("players").GetProperty(player).GetProperty("objects").GetProperty(id);
+    }
+    private static int Might(MatchState state, string id) => SnapshotObject(state, id).GetProperty("effectivePower").GetInt32();
 
     private static async Task Reject(MatchState state, GameCommand command)
     {
