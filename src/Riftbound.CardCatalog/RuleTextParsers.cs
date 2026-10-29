@@ -1585,6 +1585,13 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitEmpoweredAttackDestroyWeakerEnemyHere, TriggerTimings.UnitAttack, segment,
                 "When an empowered unit attacks, confirm a weaker local enemy before responses and recheck the target on resolution.",
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, RequiresSourceEmpowered: true);
+        var attackStun = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackStun.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackStunEnemyHere, TriggerTimings.UnitAttack, segment,
+                "Confirm one local enemy before responses; stun that same unit on resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, ManaCost: 0, Optional: false);
         var attackMightDamage = Regex.Match(segment,
             @"^当我进攻时[，,]\s*你可以选择消耗(?<experience>[0-9一两二三四五六七八九十]+)经验[，,]\s*以此对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
             RegexOptions.CultureInvariant);

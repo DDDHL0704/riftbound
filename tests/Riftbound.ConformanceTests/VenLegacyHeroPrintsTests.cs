@@ -20,11 +20,15 @@ public sealed class VenLegacyHeroPrintsTests
         => AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Spell(
             VenUnitEntryBasicTests.Position(no), "FODDER", "VEN·049", "P1"), "FODDER2", "VEN·049", "P1");
 
-    private static async Task Reject(MatchState state, GameCommand command)
+    private static string[] DiscardTargets(string no)
+        => no == "VEN·168" ? ["FODDER", "FODDER2"] : no == "VEN·SP5" ? ["FODDER"] : [];
+
+    private static async Task Reject(MatchState state, GameCommand command, string? errorCode = null)
     {
         var before = MatchStateHasher.Hash(state);
         var result = await new CoreRuleEngine().ResolveAsync(state, new("illegal-legacy-hero", "P1", command.CmdType), command, default);
         Assert.False(result.Accepted); Assert.Empty(result.Events);
+        if (errorCode is not null) Assert.Equal(errorCode, result.ErrorCode);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
     }
 
@@ -35,16 +39,15 @@ public sealed class VenLegacyHeroPrintsTests
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal(mana, card.Energy); Assert.Equal(power, card.Power); Assert.Equal(1, card.ReturnEnergy);
         var game = new Driver(Position(no));
-        await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        var discards = DiscardTargets(no);
+        if (discards.Length > 0)
+            foreach (var bad in new string[][] { ["UNIT"], ["GEAR"], ["P2-DRAW-1"], ["FODDER", "FODDER"] })
+                await Reject(game.State, new PlayCardCommand("UNIT", no, bad, Destination: "BASE"));
+        await game.Act("P1", new PlayCardCommand("UNIT", no, discards, Destination: "BASE"));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
         Assert.Equal(20 - mana, game.State.RunePools["P1"].Mana); Assert.Equal(19, game.State.RunePools["P1"].TotalPower);
         Assert.Equal(power, game.State.CardObjects["UNIT"].Power); Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
         if (no is "VEN·168" or "VEN·SP5") {
-            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
-            foreach (var bad in new string[][] { ["GEAR"], ["P2-DRAW-1"], ["FODDER", "FODDER"] })
-                await Reject(game.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, bad));
-            var discards = no == "VEN·168" ? new[] { "FODDER", "FODDER2" } : ["FODDER"];
-            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, discards));
             Assert.All(discards, target => Assert.Contains(target, game.State.PlayerZones["P1"].Hand));
             await game.Top();
             Assert.All(discards, target => Assert.Contains(target, game.State.PlayerZones["P1"].Graveyard));
@@ -67,25 +70,28 @@ public sealed class VenLegacyHeroPrintsTests
     {
         var state = Position(no);
         state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(mana - 1, 20) } };
-        await Reject(state, new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        await Reject(state, new PlayCardCommand("UNIT", no, DiscardTargets(no), Destination: "BASE"), ErrorCodes.InsufficientCost);
     }
 
     [Theory]
     [MemberData(nameof(CardNumbers))]
-    public async Task EachPrintingIsAcceptedAsTheChampionOfAChinaStandardDeck(string no)
+    public async Task EachPrintingIsAcceptedInAChinaStandardDeck(string no)
     {
         const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var allowed = catalog with { Cards = catalog.Cards.Where(c => ChinaStandardBanList.IsAllowed(c, format)).ToArray() };
         var hero = Assert.Single(allowed.Cards, c => c.CardNo == no);
-        var legend = allowed.Cards.Where(c => c.CardCategory == "legendary" && c.Hero == hero.Hero)
+        var legend = allowed.Cards.Where(c => c.CardCategory == "legendary" && hero.CardColorList.All(c.CardColorList.Contains))
+            .OrderByDescending(c => c.Hero == hero.Hero).ThenBy(c => c.CardNo, StringComparer.Ordinal).First();
+        var champion = hero.Hero == legend.Hero ? hero : allowed.Cards
+            .Where(c => c.CardCategory == "hero_unit" && c.Hero == legend.Hero)
             .OrderBy(c => c.CardNo, StringComparer.Ordinal).First();
         var runes = legend.CardColorList.SelectMany(color => Enumerable.Repeat(allowed.Cards
             .Where(c => c.CardCategory == "rune" && c.CardColorList.Contains(color))
             .OrderBy(c => c.CardNo, StringComparer.Ordinal).First().CardNo, 6)).ToArray();
         var builder = typeof(PreconstructedDeckCatalog).GetMethod("BuildLowCurveDeck", BindingFlags.NonPublic | BindingFlags.Static)!;
         var deck = (OfficialDecklist)builder.Invoke(null, [allowed, allowed.Cards.ToDictionary(c => c.CardNo, StringComparer.Ordinal),
-            legend.CardNo, no, Array.Empty<string>(), new[] { "OGN·277/298", "OGN·278/298", "OGN·294/298" }, runes])!;
+            legend.CardNo, champion.CardNo, new[] { no }, new[] { "OGN·277/298", "OGN·278/298", "OGN·294/298" }, runes])!;
         var validation = OfficialDeckValidator.Validate(deck, catalog, format);
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
         var initial = MatchReplayInitialStateBuilder.FromSeats("ven-legacy-deck-" + no,
@@ -95,7 +101,9 @@ public sealed class VenLegacyHeroPrintsTests
         var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo, deck.MainDeck, deck.RuneDeck, deck.Battlefields);
         var raw = JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var submitted = await session.SubmitDeckAsync("P1", "deck", command, raw, default);
-        Assert.True(submitted.Accepted, submitted.ErrorMessage); Assert.Equal(no, submitted.State.PlayerDecklists["P1"].ChampionCardNo);
+        Assert.True(submitted.Accepted, submitted.ErrorMessage);
+        Assert.Equal(champion.CardNo, submitted.State.PlayerDecklists["P1"].ChampionCardNo);
+        Assert.Contains(no, submitted.State.PlayerDecklists["P1"].MainDeck);
     }
 
     [Theory]
@@ -143,18 +151,16 @@ public sealed class VenLegacyHeroPrintsTests
     }
 
     [Theory]
-    [InlineData("OGN·238/298")] [InlineData("VEN·184")]
+    [InlineData("OGN·238/298")] [InlineData("OGN·238a/298")] [InlineData("VEN·184")]
     public async Task AttackStunsOnlyAnEnemyHereAfterTheOpponentCanRespond(string no)
     {
         var state = AttackDamageDistributionTests.Position(no);
         state = OfficialHoldSequenceTests.AddUnit(state, "DISTANT", "OGN·001/298", "F", "P2");
         state = LocalDestructionRecallTests.At(state, "DISTANT", "P2", "BASE");
-        var game = new Driver(state);
-        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        for (var i = 0; i < 4 && game.State.FocusPlayerId is { } focus; i++) await game.Act(focus, new PassFocusCommand());
-        if (ResolutionResult.BuildPrompts(game.State)["P1"].EnabledActions().Contains(CommandTypes.DeclareBattle))
-            await game.Act("P1", new DeclareBattleCommand("F", ["HOST"], ["ENEMY1", "ENEMY2", "ENEMY3"], ["COMBAT_ASSIGNMENT"]));
+        var game = await Attack(state);
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(1, choice.RequiredCount);
+        await Reject(game.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         foreach (var id in new[] { "HOST", "GEAR", "DISTANT" }) {
             Assert.DoesNotContain(id, choice.LegalObjectIds);
             await Reject(game.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]));
@@ -164,5 +170,59 @@ public sealed class VenLegacyHeroPrintsTests
         await game.Top();
         Assert.Contains("STUNNED", game.State.CardObjects["ENEMY1"].UntilEndOfTurnEffects);
         Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY2"].UntilEndOfTurnEffects); await game.Replay();
+    }
+
+    private static async Task<Driver> Attack(MatchState state)
+    {
+        var game = new Driver(state);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        for (var i = 0; i < 4 && game.State.PendingCardChoice is null && game.State.FocusPlayerId is { } focus; i++)
+            await game.Act(focus, new PassFocusCommand());
+        if (game.State.PendingCardChoice is null && ResolutionResult.BuildPrompts(game.State)["P1"].EnabledActions().Contains(CommandTypes.DeclareBattle))
+            await game.Act("P1", new DeclareBattleCommand("F", ["HOST"], ["ENEMY1", "ENEMY2", "ENEMY3"], ["COMBAT_ASSIGNMENT"]));
+        return game;
+    }
+
+    [Theory]
+    [InlineData("VEN·184", "PAY")] [InlineData("VEN·184", "DECLINE")]
+    [InlineData("OGN·238/298", "PAY")] [InlineData("OGN·238/298", "DECLINE")]
+    public async Task MandatoryAttackStunStillPaysWardOrDeclinesWithoutSpending(string no, string answer)
+    {
+        var state = AttackDamageDistributionTests.Position(no);
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["ENEMY1"] = state.CardObjects["ENEMY1"] with { Tags = [CardObjectTags.UnitCard, "法盾2"] } } };
+        var game = await Attack(state);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(0, payment.ManaCost); Assert.Equal(2, payment.PowerCost);
+        var mana = game.State.RunePools["P1"].Mana; var power = game.State.RunePools["P1"].TotalPower;
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [answer]));
+        Assert.Equal(mana, game.State.RunePools["P1"].Mana);
+        Assert.Equal(power - (answer == "PAY" ? 2 : 0), game.State.RunePools["P1"].TotalPower);
+        if (answer == "PAY") await game.Top();
+        Assert.Equal(answer == "PAY", game.State.CardObjects["ENEMY1"].UntilEndOfTurnEffects.Contains("STUNNED"));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("OGN·238/298")] [InlineData("VEN·184")]
+    public async Task ARealResponseMovingTheChosenEnemyToBasePreventsTheStun(string no)
+    {
+        var game = await Attack(EquipChainTests.Response(AttackDamageDistributionTests.Position(no), "OGS·011/024", "P2"));
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        var item = Assert.Single(game.State.StackItems);
+        var forgedPlay = item with { FieldContext = item.FieldContext! with {
+            PaidUnitTrigger = item.FieldContext.PaidUnitTrigger! with { Event = "PLAY" } } };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [forgedPlay] }));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]));
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("RESPONSE", "OGS·011/024", ["ENEMY1"]));
+        await game.Top();
+        Assert.Contains("ENEMY1", game.State.PlayerZones["P2"].Base);
+        await game.Top();
+        Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY1"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY2"].UntilEndOfTurnEffects);
+        await game.Replay();
     }
 }

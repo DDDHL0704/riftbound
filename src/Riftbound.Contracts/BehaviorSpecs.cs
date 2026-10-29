@@ -228,6 +228,7 @@ public static class TriggerKinds
     public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
+    public const string UnitAttackStunEnemyHere = "UNIT_ATTACK_STUN_ENEMY_HERE";
     public const string UnitAttackPayExperienceSourceMightDamage = "UNIT_ATTACK_PAY_EXPERIENCE_SOURCE_MIGHT_DAMAGE";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
