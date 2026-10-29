@@ -10,7 +10,7 @@ public sealed record StandbyPlacement(string ObjectId, long SourceGeneration, st
 internal static class StandbyRules
 {
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c=>c.CardNo,StringComparer.Ordinal));
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c=>c.CardNo,StringComparer.Ordinal));
     internal static bool HasPrintedKeyword(string? cardNo)
         => cardNo is not null && Cards.Value.TryGetValue(cardNo,out var card) && StandbyParser.HasPrintedKeyword(card.CardEffect);
     internal static int PlayedSelfMight(string? cardNo)

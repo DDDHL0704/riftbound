@@ -37,12 +37,14 @@ internal static class UnitMovedTriggerSpecRules
 
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
-            || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
+            || IsMovementDamageTrigger(trigger) || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
             || IsUnitMovedDrawDiscardTypesTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
                     || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
+                    || trigger.Kind == TriggerKinds.UnitFirstMovementMillPlayer && trigger.MillCount > 0 && trigger.OncePerTurn == true
+                    || trigger.Kind == TriggerKinds.UnitMovedAllPlayersDrawOrDiscard && trigger.DrawCount > 0 && trigger.DiscardCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);
@@ -64,6 +66,11 @@ internal static class UnitMovedTriggerSpecRules
             && trigger.RevealSourceZone == TriggerZones.MainDeck
             && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.UnitCard
             && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.Graveyard;
+
+    public static bool IsMovementDamageTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedDamageAtOriginOrDestination
+            && trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.UnitAtMovementEndpointBattlefield
+            && trigger.Optional == true && trigger.DamageAmount > 0 && trigger.EmpoweredDamageAmount > 0;
 
     public static bool IsMovementUnitTokenTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedCreateUnitToken && trigger.CreatedTokenCount > 0
@@ -92,7 +99,7 @@ internal static class UnitMovedTriggerSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

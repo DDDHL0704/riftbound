@@ -27,18 +27,37 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
         Assert.Equal(MatchPhases.Room, run.Initial.Phase);
         Assert.Empty(run.Initial.CardObjects);
         var entries = recipe.GetProperty("openingIntents").EnumerateArray().ToArray();
-        foreach (var entry in entries)
+        for (var index = 0; index < entries.Length; index++)
         {
+            var entry = entries[index];
+            var player = entry.GetProperty("playerId").GetString()!;
             var command = GameCommandJsonMapper.Map(entry.GetProperty("rawCommand"));
+            if (command is TapRuneCommand { SourceObjectIds: null } tap)
+            {
+                // Combine only adjacent resource preparation by the same player.
+                // Every played card, choice and recovery boundary stays separate.
+                var runes = new List<string> { tap.SourceObjectId };
+                while (index + 1 < entries.Length && runes.Count < 12
+                    && entries[index + 1].GetProperty("playerId").GetString() == player
+                    && GameCommandJsonMapper.Map(entries[index + 1].GetProperty("rawCommand"))
+                        is TapRuneCommand { SourceObjectIds: null } next)
+                {
+                    runes.Add(next.SourceObjectId);
+                    index++;
+                }
+                command = tap with { SourceObjectIds = runes.ToArray() };
+            }
             // This is a supported typed/wire equivalence. Before the repair,
             // the accepted raw journal replay captured [] instead of this null.
             if (command is DeclareBattleCommand battle)
                 command = battle with { BattlefieldTargetObjectIds = null };
-            await run.Submit(entry.GetProperty("playerId").GetString()!,
+            await run.Submit(player,
                 entry.GetProperty("clientIntentId").GetString()!, command,
                 command is not DeclareBattleCommand || rawPresent);
         }
-        Assert.Equal(187, run.Entries.Count);
+        Assert.Equal(187, entries.Length);
+        var openingCommandCount = run.Entries.Count;
+        Assert.Equal(58, openingCommandCount);
         var last = run.Entries[^1];
         Assert.Equal(rawPresent, last.RawCommand is not null);
         Assert.Equal(!rawPresent, last.TypedCommand is not null);
@@ -79,7 +98,7 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
         Assert.Contains("replayed final state hash", rejection.Message, StringComparison.Ordinal);
         var forgedReplay = new[] { rejection.Message };
         Assert.Equal(originalCommands, JsonSerializer.Serialize(forged.Commands, Json));
-        Assert.Equal(entries.Length, run.Entries.Count);
+        Assert.Equal(openingCommandCount, run.Entries.Count);
 
         // The production registry performs the mandatory original action-log
         // replay audit before restoring either this frame or the final frame.
@@ -98,12 +117,12 @@ public sealed class GuardianPendingChoiceOpeningRecoveryTests(ITestOutputHelper 
         Assert.True(JsonNode.DeepEquals(beforeCards, JsonSerializer.SerializeToNode(ended.State.CardObjects, Json)));
         Assert.True(JsonNode.DeepEquals(beforeScores, JsonSerializer.SerializeToNode(ended.State.PlayerScores, Json)));
         Assert.Equal("MATCH_WON", Assert.Single(ended.Events).Kind);
-        Assert.Equal(entries.Length + 1, run.Entries.Count);
+        Assert.Equal(openingCommandCount + 1, run.Entries.Count);
         var surrenderRaw = run.Entries[^1].RawCommand;
         var duplicate = await cold.SubmitAsync(surrenderingPlayer, "pending-guardian-surrender",
             new SurrenderCommand(), surrenderRaw, default);
         Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(ended, Json), JsonSerializer.SerializeToNode(duplicate, Json)));
-        Assert.Equal(entries.Length + 1, run.Entries.Count);
+        Assert.Equal(openingCommandCount + 1, run.Entries.Count);
         var after = run.ColdFrame();
         AssertNormal(after);
         var finalRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), run, new Store(after));

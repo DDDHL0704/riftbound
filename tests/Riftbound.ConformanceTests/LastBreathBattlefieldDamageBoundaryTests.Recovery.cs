@@ -28,7 +28,8 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
         var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < 7; i++) await game.Act("P1", new TapRuneCommand("P1-RUNE-" + i));
+            var funding = Enumerable.Range(0, 7).Select(i => "P1-RUNE-" + i).ToArray();
+            await game.Act("P1", new TapRuneCommand(funding[0], funding));
             await game.Act("P1", new RecycleRuneCommand("P1-RUNE-6"));
             await game.Act("P1", new PlayCardCommand("UNIT", Unit, [], Destination: "BATTLEFIELD:BF"));
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
@@ -56,7 +57,7 @@ public sealed partial class LastBreathBattlefieldDamageBoundaryTests
             });
             await game.Act("P2", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-            await game.Act("P1", new TapRuneCommand("DRAW-RUNE-A")); await game.Act("P1", new TapRuneCommand("DRAW-RUNE-B"));
+            await game.Act("P1", new TapRuneCommand("DRAW-RUNE-A", ["DRAW-RUNE-A", "DRAW-RUNE-B"]));
             await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", [])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation + 1);
             Assert.Equal("P1", game.State.CardObjects["UNIT"].ControllerId); var ownerHand = game.State.PlayerZones["P1"].Hand.ToArray();

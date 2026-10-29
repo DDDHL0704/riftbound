@@ -17,9 +17,10 @@ public sealed partial class CoreRuleEngine
     {
         if (UnitMovementRules.CannotTakeDamage(target)) return 0;
         var ordinary = System.Math.Max(0, System.Math.Max(1, power) - target.Damage);
-        return assigningPlayer is not null && assigningPlayer != EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target)
+        var beforePrevention = assigningPlayer is not null && assigningPlayer != EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target)
             && HasControllerLethalDamage(state, assigningPlayer)
                 ? target.DamageMarkedByPlayerIds?.Contains(assigningPlayer) == true ? 0 : System.Math.Min(1, ordinary)
                 : ordinary;
+        return beforePrevention == 0 ? 0 : checked(beforePrevention + TemporaryUnitEffectRules.RemainingPrevention(target));
     }
 }

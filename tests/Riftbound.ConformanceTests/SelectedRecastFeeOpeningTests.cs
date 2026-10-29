@@ -24,10 +24,13 @@ public sealed class SelectedRecastFeeOpeningTests
     public async Task ChosenHasteFeeCanBeRefusedWithoutForcingTheFreeAlternative(string actor, string route)
     {
         var room = "SELECTED-RECAST-FEE-" + actor + "-" + route;
-        var initial = MatchState.Create(room) with { Seed = 424242 };
+        // Preserve the first player and both battlefields, with the three required cards
+        // naturally drawn before rune channeling finishes for either seat.
+        var initial = MatchState.Create(room) with { Seed = 21821 };
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
+        var verifyColdRecoveryAfterEveryCommand = true;
         OfficialDecklist? deck = null; ResolutionResult? core = null, native = null; object? forgery = null;
         PlayCostQuoteDto? defaultQuote = null, selectedQuote = null;
         try
@@ -50,18 +53,29 @@ public sealed class SelectedRecastFeeOpeningTests
             await Act("alice", new ReadyCommand()); await Act("bob", new ReadyCommand());
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            // Natural draws and rune channeling are setup for the payment assertion. Replaying the
+            // entire accepted action log after every EndTurn makes this fixture quadratic in the
+            // number of setup turns, while the critical payment/refusal stages below still perform
+            // full cold recovery checks.
+            verifyColdRecoveryAfterEveryCommand = false;
             for (var turns = 0; State().TurnPlayerId != actor || Runes().Length < 12
                 || Hand(Parent) is null || Hand(Gift) is null || Hand(Unit) is null; turns++)
             {
                 Assert.True(turns < 70 && State().Status == MatchStatuses.InProgress);
                 await Act(State().TurnPlayerId, new EndTurnCommand());
             }
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(Unit)!;
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             var red = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R01");
-            foreach (var id in Runes().Except(purple)) await Act(actor, new TapRuneCommand(id));
-            foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            verifyColdRecoveryAfterEveryCommand = false;
+            var manaRunes = Runes().Except(purple).ToArray();
+            await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+            await Act(actor, new RecycleRuneCommand(purple[0], purple));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Equal(10, State().RunePools[actor].Mana);
             var deckCount = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [unit])); await Drain();
@@ -152,7 +166,7 @@ public sealed class SelectedRecastFeeOpeningTests
             {
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(Path.Combine(output, actor + "-" + route + ".json"), JsonSerializer.Serialize(new {
-                    scope = "Empty room, real seats, submitted red/purple 40/12/3 deck validated against explicit ChinaStandard20260724 snapshot, seed424242, native Ready/Mulligan/natural draws and twelve physical runes. Actual Gift discard/draw2 and paid Harrowing derive default zero versus chosen Haste 1mana+1red; funded/unfunded explicit refusal, actual payment/free play and false-client-price zero rejection. Per-command privacy, dedup and production-registry JSON cold recovery preserve original input; altered accepted refusal history must reject. No claim of latest format/source completeness, SQL/SignalR/process restart, full L2/L3 or whole-card.",
+                    scope = "Empty room, real seats, submitted red/purple 40/12/3 deck validated against explicit ChinaStandard20260724 snapshot, fixed seed, native Ready/Mulligan/natural draws and twelve physical runes. Actual Gift discard/draw2 and paid Harrowing derive default zero versus chosen Haste 1mana+1red; funded/unfunded explicit refusal, actual payment/free play and false-client-price zero rejection. Per-command privacy, dedup and production-registry JSON cold recovery preserve original input; altered accepted refusal history must reject. No claim of latest format/source completeness, SQL/SignalR/process restart, full L2/L3 or whole-card.",
                     initial, deck, actor, route, defaultQuote, selectedQuote, core, native, forgery,
                     final = journal.Entries.LastOrDefault()?.AuthoritativeState, commands = Commands(), events = Events() }, Json));
             }
@@ -203,7 +217,8 @@ public sealed class SelectedRecastFeeOpeningTests
             if (!accepted) { Assert.Equal(before, MatchStateHasher.Hash(result.State)); Assert.Empty(result.Events); }
             var count = journal.Entries.Count; var duplicate = await Submit();
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
-            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State)); await Cold();
+            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
+            if (verifyColdRecoveryAfterEveryCommand) await Cold();
         }
         async Task Drain()
         {

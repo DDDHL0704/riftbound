@@ -109,8 +109,11 @@ public sealed class VenRunePrintingConsumerTests
             for (var guard = 0; driver.State.PlayerZones.Any(e => e.Value.RuneDeck.Count > 0); guard++)
             {
                 Assert.True(guard < 16, "Real turn channeling did not exhaust the initial rune decks.");
-                await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand());
+                await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand(), coldRecovery: false);
             }
+            // Recover the complete natural-channeling prefix once. The resource assertions below
+            // still cold-recover every accepted/rejected tap, recycle and batch command.
+            await driver.ColdCheckpoint();
             foreach (var player in new[] { "P1", "P2" })
             {
                 if (driver.State.TurnPlayerId != player) await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand());
@@ -160,7 +163,7 @@ public sealed class VenRunePrintingConsumerTests
             for (var guard = 0; cycled.Any(c => driver.State.ObjectLocations[c.Id].Zone != "BASE"); guard++)
             {
                 Assert.True(guard < 10, "Recycled physical runes did not reenter by normal turn channeling.");
-                await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand());
+                await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand(), coldRecovery: false);
                 Assert.All(driver.State.RunePools.Values, pool => { Assert.Equal(0, pool.Mana); Assert.Equal(0, pool.TotalPower); });
             }
             foreach (var c in cycled)
@@ -169,6 +172,7 @@ public sealed class VenRunePrintingConsumerTests
                 Assert.Equal(c.Generation + 2, rune.ObjectGeneration); Assert.False(rune.IsExhausted);
                 Assert.Empty(rune.UntilEndOfTurnEffects); Assert.Equal(c.Player, driver.State.ObjectLocations[c.Id].PlayerId);
             }
+            await driver.ColdCheckpoint();
         }
         finally { await driver.Save(trait, lifecycle); }
     }
@@ -196,6 +200,7 @@ public sealed class VenRunePrintingConsumerTests
         internal MatchState Initial { get; } internal MatchState State { get; private set; }
         private Journal Log { get; } = new(); private IMatchSession Session { get; set; }
         private HashSet<string> EverPublic { get; } = []; private List<object> Steps { get; } = [];
+        private (string Player, string Intent, JsonElement Raw, bool Accepted)? last;
         internal Driver(MatchState initial) { Initial = initial; State = initial; Session = new MatchSession(initial, new CoreRuleEngine(), Log); }
         private async Task<ResolutionResult> Send(string player, string intent, GameCommand command, JsonElement raw) => command switch
         {
@@ -203,11 +208,12 @@ public sealed class VenRunePrintingConsumerTests
             ReadyCommand => await Session.ReadyAsync(player, intent, raw, default),
             _ => await Session.SubmitAsync(player, intent, command, raw, default)
         };
-        internal async Task Act(string player, GameCommand command, bool accepted = true)
+        internal async Task Act(string player, GameCommand command, bool accepted = true, bool coldRecovery = true)
         {
             var node = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
             node["promptId"] = Session.PromptFor(player).PromptId; node["snapshotTick"] = State.Tick;
             var raw = JsonSerializer.SerializeToElement(node, Json); var intent = "n22-" + Log.Entries.Count; var before = MatchStateHasher.Hash(State);
+            last = (player, intent, raw, accepted);
             var result = await Send(player, intent, GameCommandJsonMapper.Map(raw), raw); Assert.Equal(accepted, result.Accepted); State = result.State;
             if (!accepted) { Assert.Equal(before, MatchStateHasher.Hash(State)); Assert.Empty(result.Events); }
             var frame = Frame(); Assert.Empty(frame.ValidationErrors);
@@ -219,6 +225,21 @@ public sealed class VenRunePrintingConsumerTests
             }
             var spectator = JsonSerializer.Serialize(frame.SpectatorReplayFrame, Json);
             foreach (var hidden in State.Seats.Keys.SelectMany(Hidden).Where(id => !EverPublic.Contains(id))) Assert.DoesNotContain(hidden, spectator, StringComparison.Ordinal);
+            if (coldRecovery) await Recover(frame);
+            await AssertDuplicate(coldRecovery);
+            Steps.Add(new { player, intent, raw, result.Accepted, result.ErrorCode, result.Events, structuralRecovery = "PASS",
+                originalActionEventAuditViaActualRegistry = coldRecovery ? "PASS" : "DEFERRED_TO_CHECKPOINT",
+                actualRegistryAdmitted = coldRecovery, coldDuplicateUnchanged = coldRecovery, duplicateUnchanged = true,
+                unrevealedIdentityPrivacy = true, state = State });
+        }
+        internal async Task ColdCheckpoint()
+        {
+            var frame = Frame(); Assert.Empty(frame.ValidationErrors);
+            await Recover(frame);
+            await AssertDuplicate(afterColdRecovery: true);
+        }
+        private async Task Recover(MatchRecoveryFrame frame)
+        {
             var copy = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, Json), Json)!;
             // The real registry performs the full original canonical action/event audit before admission.
             // Avoid redundantly executing that same audit a second time on identical inputs here.
@@ -228,9 +249,14 @@ public sealed class VenRunePrintingConsumerTests
                 Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(Session.SnapshotFor(viewer), Json), JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Snapshot, Json)));
                 Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(Session.PromptFor(viewer), Json), JsonSerializer.SerializeToNode(frame.PlayerViews[viewer].Prompt, Json)));
             }
-            var count = Log.Entries.Count; var duplicate = await Send(player, intent, GameCommandJsonMapper.Map(raw), raw);
-            Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, Log.Entries.Count); Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(duplicate.State));
-            Steps.Add(new { player, intent, raw, result.Accepted, result.ErrorCode, result.Events, structuralRecovery = "PASS", originalActionEventAuditViaActualRegistry = "PASS", actualRegistryAdmitted = true, coldDuplicateUnchanged = true, unrevealedIdentityPrivacy = true, state = State });
+        }
+        private async Task AssertDuplicate(bool afterColdRecovery)
+        {
+            var previous = last!.Value; var count = Log.Entries.Count;
+            var duplicate = await Send(previous.Player, previous.Intent, GameCommandJsonMapper.Map(previous.Raw), previous.Raw);
+            Assert.Equal(previous.Accepted, duplicate.Accepted);
+            if (afterColdRecovery) Assert.Empty(duplicate.Events);
+            Assert.Equal(count, Log.Entries.Count); Assert.Equal(MatchStateHasher.Hash(State), MatchStateHasher.Hash(duplicate.State));
         }
         private IEnumerable<string> Hidden(string player) => State.PlayerZones[player].Hand.Concat(State.PlayerZones[player].MainDeck).Concat(State.PlayerZones[player].RuneDeck);
         private MatchRecoveryFrame Frame()
