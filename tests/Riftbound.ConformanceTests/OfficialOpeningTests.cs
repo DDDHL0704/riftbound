@@ -13753,7 +13753,7 @@ public sealed class OfficialOpeningTests
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
-        Assert.DoesNotContain(CommandTypes.PlayCard, firstTurnPrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, firstTurnPrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
@@ -15147,7 +15147,7 @@ public sealed class OfficialOpeningTests
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
-        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
@@ -16499,7 +16499,7 @@ public sealed class OfficialOpeningTests
         Assert.True(activePrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, activePrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, activePrompt.EnabledActions());
-        Assert.DoesNotContain(CommandTypes.PlayCard, activePrompt.EnabledActions());
+        Assert.Contains(CommandTypes.TapRune, activePrompt.EnabledActions());
 
         var waitPrompt = context.Accepted.Prompts[context.SecondPlayerId];
         Assert.False(waitPrompt.Actionable);
