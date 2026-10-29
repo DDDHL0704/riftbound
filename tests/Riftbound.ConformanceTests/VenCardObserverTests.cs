@@ -61,6 +61,20 @@ public sealed class VenCardObserverTests
     }
 
     [Fact]
+    public async Task ResolvingTheFirstSpellCannotObserveItAsAnotherFirstCard()
+    {
+        var game = new Driver(Heron(true));
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
+        Assert.Equal(2, game.State.StackItems.Count);
+        await game.Top(); await game.Top();
+        Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+        Assert.Single(game.State.CardPlays.Finalized); Assert.Single(game.State.CardPlays.Resolved);
+        Assert.Single(game.State.UntilEndOfTurnEffects, IsDiscount);
+        Assert.Single(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED");
+        await game.Replay();
+    }
+
+    [Fact]
     public async Task PlayingTheHeronItselfAsTheFirstCardToABattlefieldCapturesItsNewFieldIncarnation()
     {
         var game = new Driver(VenUnitEntryBasicTests.Position("VEN·044"));
