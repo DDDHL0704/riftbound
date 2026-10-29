@@ -80,7 +80,7 @@
   - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）及包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646)（固定 `b17468bc`）均已完整通过 9,186 个方法、18,477 条用例与门槛，原 Counter 逐条一致。 包含 #277 的 main [40940552211](https://github.com/DDDHL0704/riftbound/actions/runs/40940552211)（固定 `6c934aef`）也已完整通过，原 Counter 逐条一致。
   - 包含 #262 和 #278 的 main [40946282257](https://github.com/DDDHL0704/riftbound/actions/runs/40946282257)（固定 `afab4e71`）已完整通过 9,406 个方法、19,220 条用例和门槛，Counter 与 #262 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
-- [ ] **P3-3 清理 `docs/legacy/`**：候选分支 `a/legacy-fixtures` 已将 4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`；删除其余旧文档及没有调用方的治理报告工具。历史内容保留在 Git 中。 AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束；最新 main 上 32 条夹具读取测试逐条对齐 #262 清单通过，零跳过，178 项 Python 检查通过。
+- [x] **P3-3 清理 `docs/legacy/`**：4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；178 项 Python 检查通过，完整规则和完整对局由合入门槛验收。
 
 ## 接手旧分支
 
