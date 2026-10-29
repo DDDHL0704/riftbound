@@ -39,7 +39,7 @@ public sealed partial class CoreRuleEngine
         if (context.EmpoweredTransition is not null) return false;
         if (context.Kind != AttackAreaDamageKind && context.AttackConditionFrame is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
-            && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or "RECYCLE_BOON" or AttackAreaDamageKind
+            && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or "RECYCLE_BOON" or AttackAreaDamageKind
                 ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
                     && (context.SourceTokenFactoryCardNo is null
                         || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
@@ -53,6 +53,7 @@ public sealed partial class CoreRuleEngine
                 && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "ATTACK_DECK_PLAY" ? AttackDeckPlaySpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
+                : context.Kind == AttackGraveyardBanishKind ? AttackBanishAssaultAmount(context.CardNo) > 0 && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind == "STANDBY_DEFEND" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
                 : context.Kind == AttackAreaDamageKind ? AttackAreaDamageSpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
@@ -102,7 +103,9 @@ public sealed partial class CoreRuleEngine
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
-    private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
+    private static string[] FieldTriggerTargets(MatchState state, StackItemState item)
+        => item.FieldContext?.Kind == AttackGraveyardBanishKind ? AttackGraveyardBanishTargets(state, item.ControllerId)
+        : state.CardObjects.Values
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
             && (item.FieldContext!.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
@@ -166,8 +169,9 @@ public sealed partial class CoreRuleEngine
                     || source.ControllerId != item.ControllerId || !IsObjectOnField(state.PlayerZones, item.SourceObjectId)))
                 return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             choice = new("TRIGGER-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-                item.FieldContext.Kind == "DEFEND" ? 0 : 1, 1, legal, legal,
+                item.FieldContext.Kind is "DEFEND" or AttackGraveyardBanishKind ? 0 : 1, 1, legal, legal,
                 item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
+                    : item.FieldContext.Kind == AttackGraveyardBanishKind ? "可选择自己废牌堆中的一名单位，或不选以放弃；双方响应后，实际放逐才使来源本回合获得强攻"
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
@@ -201,9 +205,9 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult DiscardUnconfirmedTrigger(ResolutionResult result, StackItemState item)
     {
         var state = RestoreAfterTriggerConfirmation(result.State with { StackItems = result.State.StackItems.Where(i => i.StackItemId != item.StackItemId).ToArray() }, item);
-        return result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
+        return ResumeDuelChainFocus(result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
             new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") })).ToArray(),
-            Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+            Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) });
     }
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
@@ -214,7 +218,7 @@ public sealed partial class CoreRuleEngine
             && context.Kind != "ENEMY_ATTACK_MIGHT"
             && item.ControllerId == choice.PlayerId && item.SourceObjectId == choice.SourceObjectId
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
-            && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
+            && choice.RequiredCount == (context.Kind is "DEFEND" or AttackGraveyardBanishKind ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
             || ValidReadyObjectChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
@@ -305,6 +309,7 @@ public sealed partial class CoreRuleEngine
         if (item.FieldContext is { Kind: EmpoweredBanishKind }) return ResolveEmpoweredBanish(state, item);
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);
         if (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" }) return ResolveAttackDeckPlay(state, item);
+        if (item.FieldContext is { Kind: AttackGraveyardBanishKind }) return ResolveAttackGraveyardBanish(state, item);
         if (item.FieldContext is { Kind: AttackAreaDamageKind }) return ResolveAttackAreaDamage(state, item);
         if (item.FieldContext is { Kind: "STANDBY_DEFEND" }) return ResolveStandbyDefendTrigger(state, item);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);

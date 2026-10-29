@@ -57,6 +57,7 @@ public static class P6TokenFactoryCatalog
     public const string BrushBattlefieldTokenCardNo = "UNL·T03";
     public const string BrushReplacementSurfaceId = "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT";
     public const string FaerieTokenCardNo = "UNL·T07";
+    public const string ShadowCloneTokenCardNo = "VEN·T05";
     public const string SandSoldierTokenCardNo = "SFD·T02";
     public const string ZaunMinionTokenCardNo = "OGN·273/298";
     public const string BattlefieldCardTag = "CARD_TYPE:BATTLEFIELD";
@@ -73,6 +74,7 @@ public static class P6TokenFactoryCatalog
         Battlefield(BrushBattlefieldTokenCardNo, "草丛", "草丛"),
         Equipment("UNL·T05", "金币", "金币", "反应"),
         Unit(ImageTokenCardNo, "映像", "映像", 0, true, CopySourceRequiredTag),
+        Unit(ShadowCloneTokenCardNo, "影分身", "影分身", 0),
         Unit(FaerieTokenCardNo, "精灵", "精灵", 3, CardObjectTags.Ephemeral, "仙灵"),
         Unit("SFD·T01", "机器人", "机器人", 3, "机械"),
         Unit(SandSoldierTokenCardNo, "黄沙士兵", "黄沙士兵", 2, CardObjectTags.SandSoldier, "恕瑞玛"),

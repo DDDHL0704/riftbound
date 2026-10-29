@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, RecycledBoon = origin with {
                     CeasedSource = CaptureBoonSource(sourceId, context, origin) } }
-                : context is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
+                : context is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == (before.CardObjects[sourceId].TokenFactoryCardNo ?? before.CardObjects[sourceId].CardNo)
                 ? context with { SourceCeasedToExist = true }

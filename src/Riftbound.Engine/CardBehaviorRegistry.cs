@@ -442,6 +442,7 @@ public static class CardTargetCountConditionKinds
 public static class CardTokenCreationConditionKinds
 {
     public const string None = "NONE";
+    public const string DiscardHandCardOptionalCostPaid = "DISCARD_HAND_CARD_OPTIONAL_COST_PAID";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
 }
 
@@ -456,6 +457,18 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·023", "劫·禁忌之影", 4, "ZED_FORBIDDEN_SHADOW_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            CreatedBaseUnitTokenCount: 1, CreatedBaseUnitTokenName: "影分身", CreatedBaseUnitTokenPower: 0,
+            CreatedBaseUnitTokenConditionKind: CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid),
+        new("VEN·023a", "劫·禁忌之影", 4, "ZED_FORBIDDEN_SHADOW_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            CreatedBaseUnitTokenCount: 1, CreatedBaseUnitTokenName: "影分身", CreatedBaseUnitTokenPower: 0,
+            CreatedBaseUnitTokenConditionKind: CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid),
+        new("VEN·169", "劫·禁忌之影", 4, "ZED_FORBIDDEN_SHADOW_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            CreatedBaseUnitTokenCount: 1, CreatedBaseUnitTokenName: "影分身", CreatedBaseUnitTokenPower: 0,
+            CreatedBaseUnitTokenConditionKind: CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

@@ -322,6 +322,14 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var attackGraveyardBanish = Regex.Match(text,
+            @"(?:^|\n)当我进攻时，你可以选择从你的废牌堆中放逐一名单位。\s*若如此做，则给予我在本回合内\{\{强攻(?<amount>[0-9]+)\}\}。",
+            RegexOptions.CultureInvariant);
+        if (attackGraveyardBanish.Success && int.TryParse(attackGraveyardBanish.Groups["amount"].Value, out var assault) && assault > 0)
+            triggers.Add(new(TriggerKinds.UnitAttackBanishGraveyardUnitAssault, TriggerTimings.UnitAttack,
+                attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
+                TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
+                GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
         var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
         if (otherEmpowered.Success)
             triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,

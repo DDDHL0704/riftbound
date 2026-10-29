@@ -14905,14 +14905,16 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId)
     {
-        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+        var createsTokens = behavior.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid;
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0 && !createsTokens
             || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
 
         return zones.Hand
             .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
-                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
+                createsTokens ? $"弃置 {PromptHandCardLabel(state, objectId)}：打出时创建 {behavior.CreatedBaseUnitTokenCount} 名{behavior.CreatedBaseUnitTokenName}"
+                    : $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();
     }

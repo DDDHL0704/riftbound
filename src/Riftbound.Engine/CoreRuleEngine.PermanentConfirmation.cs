@@ -9,6 +9,8 @@ public sealed partial class CoreRuleEngine
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
+                && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
+                    || ShouldCreateBaseUnitTokens(behavior, item))
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
