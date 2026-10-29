@@ -63,6 +63,11 @@ public sealed record PlayCostQuoteDto(
     string? ErrorCode = null,
     PlayCostBreakdownDto? Cost = null)
 {
+    /// <summary>The quote contains known costs; target selection is still required before play.</summary>
+    public bool RequiresTargetSelection { get; init; }
+    /// <summary>Target-dependent costs, including Ward, will be included after targets are selected.</summary>
+    public bool TargetDependentCosts { get; init; }
+
     public static PlayCostQuoteDto Rejected(PlayCostPreviewRequestDto request, long tick, string code, string message)
         => new(request.RequestId, request.PromptId, tick, false, false, message, code);
 }

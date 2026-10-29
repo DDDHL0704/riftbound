@@ -18360,6 +18360,17 @@ public sealed partial class MatchSession : IMatchSession
             return true;
         }
 
+        // A snapshot version alone does not identify a particular offered prompt.
+        if (hasPromptId && TryReadStringProperty(command, "cmdType", out var commandType)
+            && !currentPrompts.Where(prompt => !hasPromptId || prompt.PromptId == submittedPromptId)
+                .Any(prompt => prompt.Candidates is { Count: > 0 }
+                    ? prompt.Candidates.Any(candidate => candidate.Enabled && candidate.Action == commandType)
+                    : prompt.Actions.Contains(commandType, StringComparer.Ordinal)))
+        {
+            rejection = ResolutionResult.Rejected(state,
+                "当前提示未提供此操作，请按最新提示重新选择。", ErrorCodes.PromptExpired);
+            return true;
+        }
         return false;
     }
 

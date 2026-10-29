@@ -850,8 +850,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InvalidDeck, rejected.ErrorCode);
-        Assert.Equal("正式卡组房间需要先提交合法卡组才能准备。", rejected.ErrorMessage);
+        Assert.Equal(ErrorCodes.PromptExpired, rejected.ErrorCode);
+        Assert.Equal("当前提示未提供此操作，请按最新提示重新选择。", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(submittedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(submitted.State.Tick, rejected.State.Tick);
@@ -1399,8 +1399,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("玩家准备后不能更改卡组。", rejected.ErrorMessage);
+        Assert.Equal(ErrorCodes.PromptExpired, rejected.ErrorCode);
+        Assert.Equal("当前提示未提供此操作，请按最新提示重新选择。", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(readyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(ready.State.Tick, rejected.State.Tick);
@@ -1605,7 +1605,9 @@ public sealed class OfficialOpeningTests
             PromptScopedReadyRawCommand(waitPrompt),
             CancellationToken.None);
 
-        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Equal("当前提示未提供此操作，请按最新提示重新选择。", replay.ErrorMessage);
         Assert.Empty(replay.Events);
         Assert.Equal(readyHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(ready.State.Tick, replay.State.Tick);
@@ -1880,7 +1882,9 @@ public sealed class OfficialOpeningTests
             PromptScopedReadyRawCommand(waitPrompt),
             CancellationToken.None);
 
-        Assert.True(replay.Accepted, replay.ErrorMessage);
+        Assert.False(replay.Accepted);
+        Assert.Equal(ErrorCodes.PromptExpired, replay.ErrorCode);
+        Assert.Equal("当前提示未提供此操作，请按最新提示重新选择。", replay.ErrorMessage);
         Assert.Empty(replay.Events);
         Assert.Equal(readyHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(ready.State.Tick, replay.State.Tick);
@@ -2187,8 +2191,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("玩家准备后不能更改卡组。", rejected.ErrorMessage);
+        Assert.Equal(ErrorCodes.PromptExpired, rejected.ErrorCode);
+        Assert.Equal("当前提示未提供此操作，请按最新提示重新选择。", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(readyHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(ready.State.Tick, rejected.State.Tick);
@@ -5400,7 +5404,7 @@ public sealed class OfficialOpeningTests
                 return SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, prompt.SnapshotTick.Value);
             },
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: MISSING-CARD ");
+            "暂不支持该卡牌或模式：MISSING-CARD ");
     }
 
     private static async Task AssertPlayCardFirstReadyEnvelopeAfterFinalReadyRejectsWithoutMutation(
@@ -10081,7 +10085,7 @@ public sealed class OfficialOpeningTests
             "wrong-player-first-turn-play-card-snapshot",
             firstTurnPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, firstTurnPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: missing-card ");
+            "暂不支持该卡牌或模式：missing-card ");
     }
 
     [Fact]
@@ -12652,7 +12656,7 @@ public sealed class OfficialOpeningTests
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
-        var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Pass, firstTurnPrompt);
+        var rawCommand = SnapshotOnlyBasicRawCommand(CommandTypes.Pass, firstTurnPrompt.SnapshotTick!.Value);
         var journalEntryCountBeforePass = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -12872,7 +12876,7 @@ public sealed class OfficialOpeningTests
             "active-player-first-turn-play-card-with-opposite-wait-snapshot",
             waitPrompt => SnapshotOnlyBasicRawCommand(CommandTypes.PlayCard, waitPrompt.SnapshotTick.GetValueOrDefault()),
             ErrorCodes.UnsupportedCardBehavior,
-            "Unsupported card behavior or mode: missing-card ");
+            "暂不支持该卡牌或模式：missing-card ");
     }
 
     [Fact]
@@ -15160,7 +15164,7 @@ public sealed class OfficialOpeningTests
 
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("Unsupported card behavior or mode: missing-card ", rejected.ErrorMessage);
+        Assert.Equal("暂不支持该卡牌或模式：missing-card ", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
