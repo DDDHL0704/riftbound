@@ -14,8 +14,10 @@ public sealed record EmpowerActivationContext(ObjectBinding Source, string CardN
     int PaidMana, int ControlledRunes, long AcquiredTick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? DiscardedHandCard = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerUnitDestructionReceipt? DestructionCost = null);
-internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerUnitDestructionReceipt? DestructionCost = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EmpowerBattlefieldReduction? BattlefieldReduction = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] EquipmentAbilityManaReductionReceipt? EquipmentManaReduction = null);
+internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, EmpowerSpec Spec, EmpowerCostSpec Cost, int Alternative, EmpowerBattlefieldReduction? BattlefieldReduction = null)
 {
     internal string? InstanceId => Instance.Origin is null ? null : $"{Instance.Id}:{Id}";
 }
@@ -54,7 +56,8 @@ internal static class EmpowerRules
     internal static IEnumerable<EmpowerAbility> Abilities(MatchState state, CardObjectState source)
         => AttachedRuleTextRules.Instances(state, source).SelectMany(instance => Specs(instance.CardNo)
             .SelectMany(spec => spec.Alternatives.Select((cost, index) => new EmpowerAbility(
-                $"EMPOWER:{spec.Index}:{index}", instance, spec, cost, index)).Where(a => SupportedCost(a.Cost))));
+                $"EMPOWER:{spec.Index}:{index}", instance, spec, cost, index)).Where(a => SupportedCost(a.Cost))))
+            .SelectMany(ability => CoreRuleEngine.BattlefieldEmpowerAbilities(state, source, ability));
     internal static int ControlledRunes(MatchState state, string actor) => state.PlayerZones.Values
         .SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct().Count(id => state.CardObjects.TryGetValue(id, out var c)
             && c.Tags.Contains(CardObjectTags.RuneCard) && !c.IsFaceDown && c.ControllerId == actor);
@@ -83,7 +86,9 @@ internal static class EmpowerRules
             || c.Origin is null && state.CardObjects.TryGetValue(c.Source.ObjectId, out var live) && live.ObjectGeneration == c.Source.Generation
                 && CopyFaceTimeline.FaceAt(live, c.FaceRevision, c.AcquiredTick) != c.CardNo) return false;
         var spec = specs[c.Keyword]; var cost = spec.Alternatives[c.Alternative];
-        if (!SupportedCost(cost) || c.PaidMana != Mana(spec, cost, c.ControlledRunes)) return false;
+        if (!SupportedCost(cost) || !CoreRuleEngine.TryApplyCapturedEmpowerReduction(state, c, cost, out var reducedCost)
+            || !CoreRuleEngine.ValidEquipmentEmpowerReduction(state, c, Mana(spec, reducedCost, c.ControlledRunes))
+            || c.PaidMana != Mana(spec, reducedCost, c.ControlledRunes) - (c.EquipmentManaReduction?.Amount ?? 0)) return false;
         if (RequiresFriendlyUnitDestruction(cost))
             return c.DiscardedHandCard is null && ValidDestructionReceipt(state, c.DestructionCost, c.AcquiredTick);
         if (c.DestructionCost is not null) return false;
@@ -176,6 +181,8 @@ public sealed partial class CoreRuleEngine
         else if (extra.Count != 0)
             return RejectWithCorePrompts(state, "强化费用选择无效。", ErrorCodes.InvalidTarget);
         var runes = EmpowerRules.ControlledRunes(state, intent.PlayerId); var mana = EmpowerRules.Mana(ability.Spec, ability.Cost, runes);
+        var equipmentReduction = CaptureEquipmentEmpowerReduction(state, intent.PlayerId, source.ObjectId, mana);
+        mana -= equipmentReduction?.Amount ?? 0;
         var cost = ability.Cost; var totalPower = cost.Power + cost.TypedPower.Values.Sum();
         var orderedPaymentResources = renektonResourceAction is null ? resources
             : OrderedRenektonPaymentResources(requestedCosts, resources, renektonResourceAction);
@@ -218,7 +225,7 @@ public sealed partial class CoreRuleEngine
         var destructionReceipt = destroyed is null ? null : new EmpowerUnitDestructionReceipt(destroyed, paidTokenFactory);
         var context = new EmpowerActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,
             ability.Spec.Index, ability.Alternative, mana, runes, state.Tick + 1, source.CopyFaceTransitions?.Count ?? 0,
-            ability.Instance.Origin, discarded, destructionReceipt);
+            ability.Instance.Origin, discarded, destructionReceipt, ability.BattlefieldReduction, equipmentReduction);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-EMPOWER", intent.PlayerId, source.ObjectId,
             EmpowerRules.Effect, ability.Instance.CardNo, [], 0, 0, []) { EmpowerActivation = context };
         var committedPools = payment.RunePools;

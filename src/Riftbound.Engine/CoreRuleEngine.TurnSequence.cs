@@ -73,14 +73,15 @@ public sealed partial class CoreRuleEngine
                         var heldScore = ApplyBattlefieldHeldScoresAtTurnStart(state, zones, cards, player);
                         events.AddRange(heldScore.Events);
                         state = state with { PlayerScores = heldScore.PlayerScores, WinnerPlayerId = heldScore.WinnerPlayerId,
-                            UntilEndOfTurnEffects = heldScore.UntilEndOfTurnEffects, PlayerZones = zones, CardObjects = cards };
+                            UntilEndOfTurnEffects = heldScore.UntilEndOfTurnEffects, PlayerZones = zones, CardObjects = cards,
+                            RngCursor = heldScore.RngCursor ?? state.RngCursor };
                         if (state.WinnerPlayerId is null)
                             state = QueueHeldAbilities(state, heldFields, events);
                     }
                     state = state with { TurnStartStep = "CHANNEL", Status = state.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished };
                     break;
                 case "CHANNEL":
-                    var runes = ApplyRuneCall(zones, cards, player, RuneCallCount(state), originalExhausted: false).CalledRuneObjectIds;
+                    var runes = ApplyRuneCall(zones, cards, player, RuneCallCount(state), originalExhausted: false, maximumCount: StageRuneCallLimit(state)).CalledRuneObjectIds;
                     var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
                     foreach (var id in runes) locations[id] = new(player, MoveUnitBaseZone);
                     events.Add(new("RUNES_CALLED", $"召出 {runes.Count} 张符文", new Dictionary<string, object?> { ["playerId"] = player, ["count"] = runes.Count }));

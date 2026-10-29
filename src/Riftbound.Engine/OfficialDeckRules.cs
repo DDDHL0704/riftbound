@@ -232,6 +232,8 @@ public static class OfficialDeckValidator
     {
         foreach (var group in cards.GroupBy(card => card.CardName, StringComparer.Ordinal))
         {
+            if (group.Any(card => card.CardEffect.Contains(
+                $"你的卡组中可以包含任意数量名为“{card.CardName}”的卡牌", StringComparison.Ordinal))) continue;
             var maxCopies = group.Any(IsUniqueCard) ? 1 : DefaultMaxCopiesByName;
             if (group.Count() > maxCopies)
             {
