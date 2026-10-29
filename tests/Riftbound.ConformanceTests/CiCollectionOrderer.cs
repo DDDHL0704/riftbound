@@ -13,7 +13,8 @@ public sealed class CiCollectionOrderer : ITestCollectionOrderer
 {
     private readonly string? selectionPath;
 
-    public CiCollectionOrderer() : this(Environment.GetEnvironmentVariable("RIFTBOUND_TEST_COLLECTION_ORDER")) { }
+    public CiCollectionOrderer() : this(Environment.GetEnvironmentVariable("RIFTBOUND_TEST_COLLECTION_ORDER"))
+        => CiTestHostObservation.Start();
     internal CiCollectionOrderer(string? selectionPath) => this.selectionPath = selectionPath;
 
     public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
