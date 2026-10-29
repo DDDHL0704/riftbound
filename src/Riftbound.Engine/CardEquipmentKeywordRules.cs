@@ -253,7 +253,7 @@ public static class CardEquipmentKeywordRules
 
     private static IReadOnlyList<CardEquipmentRepresentativeBoundary> BuildBehaviorSpecRepresentativeBoundaries()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var behaviors = CardBehaviorRegistry.GetAll();
         var behaviorByCardNo = behaviors
