@@ -456,6 +456,9 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·100", "深渊之触", 3, "ABYSSAL_TOUCH_CREATE_TENTACLES", 0, 0,
+            CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "触手",
+            CreatedBaseUnitTokenTags: "比尔吉沃特", FlowCost: new(3, 0, [])),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
