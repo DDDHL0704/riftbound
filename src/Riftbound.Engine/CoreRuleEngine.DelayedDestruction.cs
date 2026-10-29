@@ -4,6 +4,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record DelayedDestructionRewardSpec(string EquipmentTokenName = "", int RuneCallCount = 0);
+
 public sealed record DelayedDestructionContext(string InstanceId, string CardNo, string ControllerId,
     ObjectBinding Source, ObjectBinding Unit, int TurnNumber, int ExecutionIndex, long CreatedTick)
 {
@@ -13,7 +15,7 @@ public sealed record DelayedDestructionContext(string InstanceId, string CardNo,
 
 public sealed partial class CoreRuleEngine
 {
-    internal const string DelayedDestructionEffect = "DELAYED_UNIT_DESTRUCTION_CREATE_GOLD";
+    internal const string DelayedDestructionEffect = "DELAYED_UNIT_DESTRUCTION_REWARD";
     internal const string DelayedDestructionPrefix = "DELAYED_UNIT_DESTRUCTION|";
 
     private static string EncodeDelayedIdentity(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
@@ -55,7 +57,7 @@ public sealed partial class CoreRuleEngine
             && c.InstanceId == $"STACK-{c.CreatedTick.ToString(CultureInfo.InvariantCulture)}-{c.Source.ObjectId}:DESTRUCTION:{c.ExecutionIndex.ToString(CultureInfo.InvariantCulture)}:{c.Unit.ObjectId}"
             && (source is null || source == c.Source.ObjectId) && (controller is null || controller == c.ControllerId)
             && (cardNo is null || cardNo == c.CardNo) && state.Seats.ContainsKey(c.ControllerId)
-            && CardBehaviorRegistry.TryGetByCardNo(c.CardNo, out var behavior) && behavior.CreatesGoldWhenTargetDestroyedThisTurn
+            && CardBehaviorRegistry.TryGetByCardNo(c.CardNo, out var behavior) && behavior.DelayedDestructionReward is not null
             && state.CardObjects.TryGetValue(c.Source.ObjectId, out var printedSource)
             && printedSource.ObjectGeneration >= c.Source.Generation
             && (printedSource.ObjectGeneration != c.Source.Generation || printedSource.CardNo == c.CardNo)
@@ -87,7 +89,7 @@ public sealed partial class CoreRuleEngine
             new(unit.ObjectId, unit.ObjectGeneration), state.TurnNumber, item.CompletedRepeatExecutions, createdTick);
         var marker = DelayedDestructionMarker(context);
         effects.Add(marker);
-        events.Add(new("DELAYED_DESTRUCTION_SCHEDULED", "本回合该单位被摧毁时触发金币技能", new Dictionary<string, object?> {
+        events.Add(new("DELAYED_DESTRUCTION_SCHEDULED", "本回合该单位被摧毁时触发延迟技能", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = unit.ObjectId, ["delayedDestruction"] = context }));
     }
 
@@ -135,8 +137,18 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitDestroyed)) };
-        CreateLegendEquipmentToken(zones, cards, context.ControllerId, context.Source.ObjectId, item.EffectKind,
-            "金币", [CardObjectTags.EquipmentCard], true, events, context.CardNo);
+        CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior);
+        var reward = behavior.DelayedDestructionReward!;
+        if (reward.EquipmentTokenName.Length > 0)
+            CreateLegendEquipmentToken(zones, cards, context.ControllerId, context.Source.ObjectId, item.EffectKind,
+                reward.EquipmentTokenName, [CardObjectTags.EquipmentCard], true, events, context.CardNo);
+        if (reward.RuneCallCount > 0)
+        {
+            var called = CallRunes(zones, cards, context.ControllerId, reward.RuneCallCount);
+            events.Add(new("RUNES_CALLED", "延迟技能召出休眠的符文", new Dictionary<string, object?> {
+                ["sourceObjectId"] = context.Source.ObjectId, ["playerId"] = context.ControllerId,
+                ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray() }));
+        }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
     }
 }

@@ -25928,7 +25928,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         sourceReplayChoice = SourceReplayChoice(state, stackItem, sourceReplayProgress, new(targetObjectId, targetState.ObjectGeneration), damagedController!);
                     }
 
-                    if (behavior.CreatesGoldWhenTargetDestroyedThisTurn)
+                    if (behavior.DelayedDestructionReward is not null)
                         ScheduleDelayedDestruction(state, stackItem, targetState, untilEndOfTurnEffects, events);
 
                     var statusEffectIds = ShouldApplyStatusEffectsToTarget(behavior, targetIndex)
@@ -33324,7 +33324,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             damageAmount = firstTargetState.ManaCost;
         }
         else if (behavior.ConditionalDamageAmount > 0
-            && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind, targetObjectId))
+            && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind, targetObjectId,
+                behavior.DamageConditionRuneCount))
         {
             damageAmount = behavior.ConditionalDamageAmount;
         }
@@ -33384,11 +33385,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         string controllerId,
         string conditionKind,
-        string? targetObjectId)
+        string? targetObjectId,
+        int minimumControlledRunes)
     {
         return conditionKind switch
         {
             CardDamageConditionKinds.ControllerHasFaceDownCard => ControllerControlsFaceDownCard(state, controllerId),
+            CardDamageConditionKinds.ControllerHasAtLeastRunes => minimumControlledRunes > 0
+                && EmpowerRules.ControlledRunes(state, controllerId) >= minimumControlledRunes,
             CardDamageConditionKinds.TargetIsAttacking
                 => !string.IsNullOrWhiteSpace(targetObjectId)
                     && state.CardObjects.TryGetValue(targetObjectId, out var targetState)

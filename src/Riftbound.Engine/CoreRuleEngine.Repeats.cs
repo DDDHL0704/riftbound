@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
                 TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
-                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0 || repeatedBehavior.DamageAlternativeDrawCount > 0 || repeatedBehavior.TurnUnitPlayGrantKind.Length > 0
+                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.DelayedDestructionReward is not null || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0 || repeatedBehavior.DamageAlternativeDrawCount > 0 || repeatedBehavior.TurnUnitPlayGrantKind.Length > 0
                         || repeatedBehavior.EffectKind is TemporaryEmpowerEffect or TemporaryRemoveEmpowerEffect) ? index : 0,
                 ResolutionDamageChoice = original.ResolutionDamageChoice?.ExecutionIndex == index ? original.ResolutionDamageChoice : null,
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,

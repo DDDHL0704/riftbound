@@ -361,7 +361,7 @@ public sealed class VenSignatureFlowSpellTests
         Assert.DoesNotContain("P1-DRAW-1", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(driver.State)["P2"]));
     }
 
-    private static async Task Reject(MatchState state, PlayCardCommand command, string expectedError)
+    internal static async Task Reject(MatchState state, PlayCardCommand command, string expectedError)
     {
         var hash = MatchStateHasher.Hash(state); var snapshots = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(state));
         var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(state));
@@ -380,7 +380,7 @@ public sealed class VenSignatureFlowSpellTests
     private static PlayCostQuoteDto Quote(MatchState state, PlayCardCommand command)
         => new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
 
-    private static MatchState Position(string no, bool flow = false, int friendlyCount = 2)
+    internal static MatchState Position(string no, bool flow = false, int friendlyCount = 2)
     {
         var cards = new Dictionary<string, CardObjectState>();
         var locations = new Dictionary<string, ObjectLocationState>();
