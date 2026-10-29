@@ -18656,7 +18656,9 @@ public sealed partial class MatchSession : IMatchSession
         }
 
         // A snapshot version alone does not identify a particular offered prompt.
-        if (hasPromptId && TryReadStringProperty(command, "cmdType", out var commandType)
+        // Finished matches retain their terminal rejection for current prompts.
+        if (state.Status == MatchStatuses.InProgress && hasPromptId
+            && TryReadStringProperty(command, "cmdType", out var commandType)
             && !currentPrompts.Where(prompt => !hasPromptId || prompt.PromptId == submittedPromptId)
                 .Any(prompt => prompt.Candidates is { Count: > 0 }
                     ? prompt.Candidates.Any(candidate => candidate.Enabled && candidate.Action == commandType)
