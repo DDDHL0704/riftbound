@@ -3289,6 +3289,14 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (Regex.IsMatch(segment, @"^把你的分数加到我的战力上[。.]?$", RegexOptions.CultureInvariant))
+            {
+                auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceControllerScorePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SourceObject, 1, segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Recompute source Might from its current controller's score.", PowerMultiplierZone: "CONTROLLER_SCORE"));
+                continue;
+            }
             if (segment.Contains("提升我的战力，数值等同于你废牌堆的卡牌数量", StringComparison.Ordinal))
             {
                 auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceGraveyardCountPower, StaticAuraLayer,

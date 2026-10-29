@@ -505,6 +505,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark),
         new("VEN·003", "极寒脆化", 2, "BRITTLE_FROST_DESTROY_EQUIPMENT", 0, 1,
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
+        new("VEN·172", "德莱文 · 夸耀角斗士", 5, "OGN_DRAVEN_SCORE_STATIC_ZERO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·110", "梅尔", 5, "VEN_110_EMPOWERED_BANISH_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·110a", "梅尔", 5, "VEN_110_EMPOWERED_BANISH_UNIT", 0, 0,

@@ -2924,6 +2924,9 @@ public sealed record MatchState
         if (aura.PowerMultiplierZone == "GRAVEYARD")
             return ("STATIC_AURA:SOURCE_GRAVEYARD_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
                 "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_GRAVEYARD");
+        if (aura.PowerMultiplierZone == "CONTROLLER_SCORE")
+            return ("STATIC_AURA:SOURCE_CONTROLLER_SCORE_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
+                "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_SCORE");
         if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
         {
             return (
