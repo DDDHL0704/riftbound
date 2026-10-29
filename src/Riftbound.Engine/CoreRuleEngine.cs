@@ -18104,12 +18104,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!IsSequentialMovementPlanAllowed(state, intent.PlayerId, behavior, command))
+        // A partial quote has no units from which to validate movement destinations.
+        // Actual play always completes those declarations before any payment.
+        var deferMovementChoices = previewWithoutTargets && NormalizeTargetObjectIds(command.TargetObjectIds).Count == 0;
+        if (!(deferMovementChoices && behavior.MovesTargetsSequentially)
+            && !IsSequentialMovementPlanAllowed(state, intent.PlayerId, behavior, command))
         {
             rejection = Reject(state, "请为每次移动选择对应单位可到达的终点。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (behavior.CommandedMovement is { } commanded
+        if (!deferMovementChoices && behavior.CommandedMovement is { } commanded
             && !IsCommandedMovementDestinationAllowed(state, intent.PlayerId, destination, command.TargetObjectIds, commanded))
         {
             rejection = Reject(state, "请选择受你控制、且与目标单位当前位置不同的战场。", ErrorCodes.InvalidTarget);

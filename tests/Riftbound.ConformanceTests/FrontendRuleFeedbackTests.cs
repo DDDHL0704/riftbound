@@ -35,6 +35,35 @@ public sealed class FrontendRuleFeedbackTests
         Assert.Equal(before, MatchStateHasher.Hash(state));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TargetlessMovementQuoteDefersTargetBoundDestinationsButCommitStillRequiresThem(bool sequential)
+    {
+        var state = sequential ? SequentialMovementTests.Position() : CommandedMovementTests.Position();
+        var complete = sequential
+            ? Assert.IsType<PlayCardCommand>(SequentialMovementTests.Command("BATTLEFIELD:BF2", "BASE:P2"))
+            : CommandedMovementTests.Command();
+        var partial = complete with { TargetObjectIds = [], Destination = string.Empty, MovementDestinations = null };
+        var engine = new CoreRuleEngine();
+        var before = MatchStateHasher.Hash(state);
+        var quoted = engine.PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, partial));
+        var selected = engine.PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, complete));
+        Assert.True(quoted.IsValid, quoted.Message);
+        Assert.False(quoted.CanPay);
+        Assert.True(quoted.RequiresTargetSelection);
+        Assert.True(quoted.TargetDependentCosts);
+        Assert.True(selected.CanPay, selected.Message);
+        Assert.Equal(selected.Cost!.Mana, quoted.Cost!.Mana);
+        Assert.Equal(selected.Cost.GenericPower, quoted.Cost.GenericPower);
+        Assert.Equal(before, MatchStateHasher.Hash(state));
+        var rejected = await engine.ResolveAsync(state, new("incomplete-movement", "P1", partial.CmdType), partial, default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+    }
+
     [Fact]
     public async Task InvalidQuotePreservesTheCommandRejectionReason()
     {
