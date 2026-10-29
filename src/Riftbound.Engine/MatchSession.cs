@@ -10692,7 +10692,7 @@ internal static class ActionPromptBuilder
         }
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
         {
-            if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
+            if (!AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability).Any()
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
@@ -12158,7 +12158,7 @@ internal static class ActionPromptBuilder
         return P4ActivatedAbilityCatalog.TryGetByAbilityId(
                 P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
                 out var ability)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
+            && AttachedRuleTextRules.ActivatedInstances(state, sourceState, ability).Any()
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)

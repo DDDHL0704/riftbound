@@ -6758,7 +6758,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             1,
             [], timingContext: state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null)
             { SelfMovement = new(new(sourceState.ObjectId, sourceState.ObjectGeneration), state.Tick + 1,
-                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin) };
+                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin, sourceState.TokenFactoryCardNo) };
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -21111,7 +21111,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
+            || !AttachedRuleTextRules.ActivatedInstances(state, candidate, ability).Any()
             || !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             || !state.ObjectLocations.TryGetValue(sourceObjectId, out var location)

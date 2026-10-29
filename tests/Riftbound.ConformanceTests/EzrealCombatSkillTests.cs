@@ -289,4 +289,30 @@ public sealed class EzrealCombatSkillTests
         Check(s); var done = await Top(s); Assert.Contains("HOST", done.State.PlayerZones["P1"].Base); Check(done.State);
     }
 
+    [Fact]
+    public async Task ARealEzrealCopyTokenCanUseItsSwiftSkillAndCannotForgeItsIntrinsicIdentity()
+    {
+        var copied = await OfficialCopyIdentityTests.Copy(OfficialCopyIdentityTests.Position(Card));
+        const string source = "C-TOKEN-001";
+        var s = copied.State;
+        var field = OfficialGarenConquestBattlefieldCountTests.Printed("COPY_FIELD", "OGN·278/298", "P1");
+        s = s with { PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) {
+                ["P1"] = s.PlayerZones["P1"] with { Battlefields = s.PlayerZones["P1"].Battlefields.Append(field.ObjectId).ToArray() } },
+            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { [field.ObjectId] = field },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { [field.ObjectId] = new("P1", "BATTLEFIELD", field.ObjectId) },
+            RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(0, 0, new Dictionary<string,int> { [RuneTrait.Blue] = 1 }) } };
+        s = LocalDestructionRecallTests.At(s, source, "P1", "BATTLEFIELD", field.ObjectId);
+        Check(s);
+        var activated = await Act(s, "P1", new ActivateAbilityCommand(source, Move().AbilityId, []));
+        var item = Assert.Single(activated.State.StackItems);
+        Assert.Equal(s.CardObjects[source].TokenFactoryCardNo, item.SelfMovement!.SourceTokenFactoryCardNo);
+        Check(activated.State);
+        var forged = activated.State with { StackItems = [item with { SelfMovement = item.SelfMovement with { SourceTokenFactoryCardNo = null } }] };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged));
+        var done = await Top(activated.State);
+        Assert.Contains(source, done.State.PlayerZones["P1"].Base);
+        Assert.Equal(s.CardObjects[source].TokenFactoryCardNo, done.State.CardObjects[source].TokenFactoryCardNo);
+        Check(done.State);
+    }
+
 }
