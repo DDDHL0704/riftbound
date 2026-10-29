@@ -173,6 +173,8 @@ def main():
     parser.add_argument('--match', action='append', default=[], help='Additional test-name token for focus; repeatable')
     parser.add_argument('--include-games', action='store_true', help='Explicitly allow matched full-game tests in focus')
     parser.add_argument('--l2-only', action='store_true', help='Focus excludes only explicitly declared full-opening L3 acceptance methods')
+    parser.add_argument('--configuration', choices=['Debug', 'Release'], default='Release',
+                        help='Use the same build configuration for build, discovery and execution (default: Release)')
     parser.add_argument('--jobs', type=int, default=min(4, os.cpu_count() or 1)
                         if os.environ.get('GITHUB_ACTIONS') == 'true' else 1)
     parser.add_argument('--timings', type=Path, help='Prior TRX or timing JSON, used only to balance full shards')
@@ -206,8 +208,8 @@ def main():
     print(f'Incremental build; evidence: {output}', flush=True)
     with (output / 'build.log').open('w') as log:
         # Keep project builds in one MSBuild node; test-process sharding remains independent.
-        subprocess.run([dotnet, 'build', str(PROJECT), '-m:1', '-v:q', '--nologo'], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
-    discovery = subprocess.run([dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '-m:1', '--list-tests', '-v:q'],
+        subprocess.run([dotnet, 'build', str(PROJECT), '-c', args.configuration, '-m:1', '-v:q', '--nologo'], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
+    discovery = subprocess.run([dotnet, 'test', str(PROJECT), '-c', args.configuration, '--no-build', '--no-restore', '-m:1', '--list-tests', '-v:q'],
                                cwd=ROOT, env=env, capture_output=True, text=True, check=True)
     (output / 'discovery.log').write_text(discovery.stdout + discovery.stderr)
     methods = discover(discovery.stdout)
@@ -217,11 +219,11 @@ def main():
         candidates = sorted((PROJECT / 'TestResults').glob('*full*.trx'), key=lambda p: p.stat().st_mtime, reverse=True)
         timings = candidates[0] if candidates else ROOT / 'scripts/rule-test-timings.json'
     shards = plan(methods, args.profile, args.jobs, tokens, load_weights(timings), args.include_games, args.l2_only)
-    document = {'profile': args.profile, 'discoveredMethods': len(methods), 'jobs': args.jobs,
+    document = {'profile': args.profile, 'configuration': args.configuration, 'discoveredMethods': len(methods), 'jobs': args.jobs,
                 'includeGames': args.include_games,
                 'l2Only': args.l2_only or args.profile == 'l2',
                 'deferredL3Methods': sorted(l3_acceptance_methods()) if args.l2_only or args.profile == 'l2' else [],
-                'testAssemblySha256': hashlib.sha256((PROJECT / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll').read_bytes()).hexdigest(),
+                'testAssemblySha256': hashlib.sha256((PROJECT / f'bin/{args.configuration}/net10.0/Riftbound.ConformanceTests.dll').read_bytes()).hexdigest(),
                 'timings': str(timings) if timings else None,
                 'shards': [{**s, 'methods': sorted(s['methods'])} for s in shards]}
     (output / 'plan.json').write_text(json.dumps(document, ensure_ascii=False, indent=2) + '\n')
@@ -239,7 +241,7 @@ def main():
                 directory = output / shard['name']
                 directory.mkdir()
                 log = (directory / 'test.log').open('w')
-                command = [dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '-m:1', '-v:q', '--filter', shard['filter'],
+                command = [dotnet, 'test', str(PROJECT), '-c', args.configuration, '--no-build', '--no-restore', '-m:1', '-v:q', '--filter', shard['filter'],
                            '--results-directory', str(directory), '--logger', 'trx;LogFileName=results.trx']
                 process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=os.name != 'nt')
                 running.append((process, log, shard, directory, time.monotonic()))

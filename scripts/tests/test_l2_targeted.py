@@ -17,7 +17,7 @@ class TargetSelectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             project = root / 'tests'
-            assembly = project / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll'
+            assembly = project / 'bin/Release/net10.0/Riftbound.ConformanceTests.dll'
             assembly.parent.mkdir(parents=True)
             assembly.write_bytes(b'synthetic parser-only unit fixture')
             discovery = '    Riftbound.ConformanceTests.NewConsumerTests.ActualAssertion\n'

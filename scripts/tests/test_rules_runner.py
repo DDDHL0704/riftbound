@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -23,9 +24,11 @@ class RuleRunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             project = root / 'tests/Riftbound.ConformanceTests'
-            assembly = project / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll'
-            assembly.parent.mkdir(parents=True)
-            assembly.write_bytes(b'test assembly')
+            for configuration in ('Debug', 'Release'):
+                assembly = project / f'bin/{configuration}/net10.0/Riftbound.ConformanceTests.dll'
+                assembly.parent.mkdir(parents=True)
+                assembly.write_bytes(configuration.encode())
+            configuration = extra_args[extra_args.index('--configuration') + 1] if '--configuration' in extra_args else 'Release'
             local = root / 'home/.dotnet/dotnet'
             local.parent.mkdir(parents=True)
             local.touch()
@@ -57,6 +60,7 @@ class RuleRunnerTests(unittest.TestCase):
             for call in [*run.call_args_list, *popen.call_args_list]:
                 self.assertEqual(wrapper, call.args[0][0])
                 self.assertIn('-m:1', call.args[0])
+                self.assertEqual(configuration, call.args[0][call.args[0].index('-c') + 1])
                 if dotnet_root is None:
                     self.assertNotIn('DOTNET_ROOT', call.kwargs['env'])
                 else:
@@ -64,7 +68,10 @@ class RuleRunnerTests(unittest.TestCase):
             test_command = popen.call_args.args[0]
             self.assertIn('--filter', test_command)
             self.assertIn('FullyQualifiedName~Rules.Theory', test_command[test_command.index('--filter') + 1])
-            return json.loads((output / 'plan.json').read_text())
+            plan = json.loads((output / 'plan.json').read_text())
+            self.assertEqual(configuration, plan['configuration'])
+            self.assertEqual(hashlib.sha256(configuration.encode()).hexdigest(), plan['testAssemblySha256'])
+            return plan
 
     def test_path_wrapper_and_inherited_sdk_are_used_for_every_filtered_command(self):
         self.assertEqual(1, self.run_with_wrapper()['jobs'])
@@ -75,6 +82,9 @@ class RuleRunnerTests(unittest.TestCase):
     def test_ci_keeps_parallel_default_and_explicit_jobs_still_take_precedence(self):
         self.assertEqual(4, self.run_with_wrapper(github_actions='true')['jobs'])
         self.assertEqual(1, self.run_with_wrapper(github_actions='true', extra_args=['--jobs', '1'])['jobs'])
+
+    def test_debug_override_builds_discovers_executes_and_hashes_the_same_configuration(self):
+        self.assertEqual('Debug', self.run_with_wrapper(extra_args=['--configuration', 'Debug'])['configuration'])
 
     def test_missing_path_sdk_does_not_fall_back_to_home_install(self):
         with tempfile.TemporaryDirectory() as folder:

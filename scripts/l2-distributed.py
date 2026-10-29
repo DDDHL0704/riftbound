@@ -23,6 +23,7 @@ SELECT_SPEC = importlib.util.spec_from_file_location('l2_case_selection', ROOT /
 SELECT = importlib.util.module_from_spec(SELECT_SPEC)
 SELECT_SPEC.loader.exec_module(SELECT)
 ASSEMBLY = 'Riftbound.ConformanceTests.dll'
+CONFIGURATION = 'Release'
 HEX = re.compile(r'[0-9a-f]{64}')
 MODULES = {'Riftbound.ConformanceTests', 'Riftbound.Engine', 'Riftbound.Contracts',
            'Riftbound.CardCatalog', 'Riftbound.Persistence', 'Riftbound.Api'}
@@ -375,8 +376,8 @@ def prepare(commit, output, count, github_output):
         raise ValueError('Verify the exact checkout before building.')
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
     validate_probe(read(output / 'row-filter-probe/receipt.json'), commit, sdk, checkout['runId'], checkout['runAttempt'])
-    run_logged(['dotnet', 'build', str(RULES.PROJECT), '-m:1', '-v:q', '--nologo'], output / 'build.log')
-    bundle = RULES.PROJECT / 'bin/Debug/net10.0'
+    run_logged(['dotnet', 'build', str(RULES.PROJECT), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'build.log')
+    bundle = RULES.PROJECT / f'bin/{CONFIGURATION}/net10.0'
     run_logged(['dotnet', 'vstest', str(bundle / ASSEMBLY), '--TestAdapterPath:' + str(bundle), '--ListTests'], output / 'discovery.log')
     text = (output / 'discovery.log').read_text()
     selected = RULES.l2_rule_methods(RULES.discover(text))
@@ -387,13 +388,13 @@ def prepare(commit, output, count, github_output):
     bare = sorted(method for method, rows in names.items() if rows == [method])
     write(output / 'unexpanded-methods.json', bare)
     inventory_project = ROOT / 'scripts/ci/L2CaseInventory'
-    run_logged(['dotnet', 'build', str(inventory_project), '-m:1', '-v:q', '--nologo'], output / 'inventory-build.log')
-    helper = inventory_project / 'bin/Debug/net10.0/L2CaseInventory.dll'
+    run_logged(['dotnet', 'build', str(inventory_project), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'inventory-build.log')
+    helper = inventory_project / f'bin/{CONFIGURATION}/net10.0/L2CaseInventory.dll'
     run_logged(['dotnet', str(helper), str(bundle / ASSEMBLY), str(output / 'unexpanded-methods.json'),
                 str(output / 'case-inventory.json')], output / 'inventory.log')
     scanner_project = ROOT / 'tools/source-guard-scope/scanner/Scanner.csproj'
-    run_logged(['dotnet', 'build', str(scanner_project), '-m:1', '-v:q', '--nologo'], output / 'source-scanner-build.log')
-    scanner = scanner_project.parent / 'bin/Debug/net10.0/Scanner.dll'
+    run_logged(['dotnet', 'build', str(scanner_project), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'source-scanner-build.log')
+    scanner = scanner_project.parent / f'bin/{CONFIGURATION}/net10.0/Scanner.dll'
     run_logged([sys.executable, str(ROOT / 'tools/source-guard-scope/generate_inventory.py'), '--repo', str(ROOT),
                 '--source-head', commit, '--discovery', str(output / 'discovery.log'), '--scanner', str(scanner),
                 '--output', str(output / 'source-scope')], output / 'source-inventory.log')
