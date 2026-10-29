@@ -38,40 +38,6 @@ public sealed partial record MatchState
             || !StaticAuraSpecRules.IsSourceObjectPowerAuraAlreadyMaterialized(cardObject, aura);
     }
 
-    private static (
-        string EffectIdPrefix,
-        string SourcePath,
-        string Condition,
-        string Lifecycle) SourceObjectPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
-    {
-        if (aura.PowerMultiplierZone == "GRAVEYARD")
-            return ("STATIC_AURA:SOURCE_GRAVEYARD_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
-                "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_GRAVEYARD");
-        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
-        {
-            return (
-                "STATIC_AURA:SOURCE_OBJECT_FILTERED_POWER",
-                "CoreRuleEngine.ResolveSourceObjectFilteredPowerBonus",
-                "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
-                "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS");
-        }
-
-        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
-        {
-            return (
-                "STATIC_AURA:SOURCE_OBJECT_POWER",
-                "CoreRuleEngine.ResolveSourceObjectPowerBonus",
-                "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
-                "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
-        }
-
-        return (
-            $"STATIC_AURA:{aura.Kind}",
-            "CoreRuleEngine.ResolveSourceObjectPowerStaticAuraBonus",
-            "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_SOURCE_OBJECT_SCOPE",
-            "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_STATE");
-    }
-
     private static IReadOnlyList<ContinuousEffectState> BuildSourceObjectKeywordStaticAuraEffects(
         MatchState state,
         string objectId,

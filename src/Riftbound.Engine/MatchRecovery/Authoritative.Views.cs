@@ -38,67 +38,6 @@ public static partial class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateEmpoweredViews(SnapshotDto snapshot, MatchState state, string? viewer, List<string> errors, string label)
-    {
-        foreach (var player in snapshot.Players?.Values ?? [])
-        {
-            if (!TryReadObjectValue(player, "objects", out var objects) || !TryReadObjectDictionaryValue(objects, out var payloads)) continue;
-            foreach (var (id, payload) in payloads)
-            {
-                if (!state.CardObjects.TryGetValue(id, out var card)) continue;
-                var present = TryReadObjectValue(payload, "isEmpowered", out _);
-                var visible = !card.IsFaceDown || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
-                if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
-                    || !present && visible && card.IsEmpowered)
-                    errors.Add($"{label} empowered status differs from authoritative visible object");
-            }
-        }
-    }
-
-    private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
-    {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
-            .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
-            foreach (var payload in effects)
-            {
-                if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
-                if (!expected.TryGetValue(id, out var effect))
-                {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
-                        errors.Add($"{label} unexpected dynamic power aura");
-                    continue;
-                }
-                seen.Add(id);
-                var scalars = new Dictionary<string, int> { ["powerDelta"] = effect.PowerDelta,
-                    ["basePower"] = effect.BasePower, ["effectivePower"] = effect.EffectivePower };
-                foreach (var (key, value) in scalars)
-                    if (!TryReadObjectInt(payload, key, out var actual) || actual != value)
-                        errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind == CoreRuleEngine.BoonAmplifierEffect
-                    && (!TryReadObjectInt(payload, "sourceOrder", out var sourceOrder) || sourceOrder != effect.SourceOrder))
-                    errors.Add($"{label} temporary Boon amplifier source order differs from authoritative state");
-                var strings = new Dictionary<string, string?> { ["sourceObjectId"] = effect.SourceObjectId,
-                    ["targetObjectId"] = effect.TargetObjectId, ["sourceCardNo"] = effect.SourceCardNo,
-                    ["effectKind"] = effect.EffectKind, ["sourcePath"] = effect.SourcePath,
-                    ["scope"] = effect.Scope, ["layer"] = effect.Layer, ["duration"] = effect.Duration,
-                    ["condition"] = effect.Condition, ["lifecycle"] = effect.Lifecycle };
-                foreach (var (key, value) in strings)
-                    if (!TryReadObjectString(payload, key, out var actual) || actual != value)
-                        errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
-                    foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
-                        ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
-                        ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
-                        ["participantDependencyObjectIds"] = effect.ParticipantDependencyObjectIds ?? [],
-                        ["participantObjectIds"] = effect.ParticipantObjectIds ?? [] })
-                        if (!TryReadObjectStringList(payload, key, out var actual) || !actual.SequenceEqual(value))
-                            errors.Add($"{label} copied rule text aura {key} differs from authoritative state");
-            }
-        if (!seen.SetEquals(expected.Keys)) errors.Add($"{label} dynamic power aura set differs from authoritative state");
-    }
-
     private static void ValidateBeginningRecycleViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
         void Check(object? payload, BeginningRecycleContext? expected)
@@ -310,44 +249,6 @@ public static partial class MatchRecoveryValidator
         } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
         if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMovementObserver(authority)))
             errors.Add($"{label} captured movement observer differs from authoritative state");
-    }
-
-    private static bool ValidateMovementObserverView(object? payload, string? effect, string? controller, string? source, List<string> errors)
-    {
-        MovementObserverContext? context = null;
-        try {
-            var json = JsonSerializer.SerializeToElement(payload);
-            if (json.ValueKind == JsonValueKind.Object && json.TryGetProperty("movementObserver", out var raw) && raw.ValueKind != JsonValueKind.Null)
-                context = raw.Deserialize<MovementObserverContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
-        if (effect is not (CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) && context is null) return false;
-        // Public old-generation movement facts remain public, while the source
-        // field can hide the source's new private incarnation. Authority parity
-        // checks separately prove this exact captured fact and source visibility.
-        var capturedSource = source == "HIDDEN" && context?.Kind != TriggerKinds.OpponentMovedToOtherBattlefieldDraw
-            ? context?.Kind == TriggerKinds.BattlefieldUnitMovedAwayPowerModifier ? context.Unit?.Origin?.BattlefieldObjectId : context?.Unit?.ObjectId
-            : source;
-        if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", capturedSource ?? ""))
-        { errors.Add("invalid public captured movement observer"); return false; }
-        return true;
-    }
-
-    private static MightySkillContext? ReadMightySkillView(object? payload)
-    {
-        try {
-            var json = JsonSerializer.SerializeToElement(payload);
-            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("mightySkill", out var raw)
-                && raw.ValueKind != JsonValueKind.Null
-                ? raw.Deserialize<MightySkillContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
-        } catch (JsonException) { return null; }
-    }
-
-    private static void ValidateMightySkillPayload(object? payload, string? effect, List<string> errors)
-    {
-        var context = ReadMightySkillView(payload);
-        if (effect is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect || context is not null)
-            if (context is null || context.Kind != effect || !CoreRuleEngine.ValidMightySkillFrame(context))
-                errors.Add("invalid public captured Mighty transition");
     }
 
     private static void ValidateBattlefieldConquestMightPayload(object? payload, string? effect, List<string> errors)

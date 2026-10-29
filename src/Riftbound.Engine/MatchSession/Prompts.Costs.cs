@@ -134,33 +134,6 @@ internal static partial class ActionPromptBuilder
             : 0;
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> PromptTargetChoicesForIndex(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        int targetIndex)
-    {
-        var targetScope = PromptTargetScopeForBehavior(behavior);
-        if (behavior.MainDeckLookCount > 0
-            && targetIndex >= behavior.MainDeckLookTargetStartIndex
-            && string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal))
-        {
-            return PromptFriendlyMainDeckLookTargetChoices(state, playerId, behavior);
-        }
-
-        return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
-            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
-                && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
-                && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
-                && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
-                && (!behavior.MovesTargetsToChosenLocation || behavior.OptionalEquipmentAfterMovement && targetIndex != 0
-                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
-            .Select(objectId => IsPromptStackSpellItem(state, objectId)
-                ? StackItemChoice(state, objectId, "legal stack spell target")
-                : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
-            .ToArray();
-    }
-
     private static IReadOnlyList<ActionPromptChoiceDto> PromptFriendlyMainDeckLookTargetChoices(
         MatchState state,
         string playerId,
@@ -336,105 +309,6 @@ internal static partial class ActionPromptBuilder
         }
 
         return PublicBoardObjects(state);
-    }
-
-    private static bool IsPromptTargetObjectInScope(
-        MatchState state,
-        string playerId,
-        string objectId,
-        string targetScope,
-        int targetIndex,
-        bool allowAbilities = false)
-    {
-        return targetScope switch
-        {
-            CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
-                || IsPromptEquipmentObject(state, objectId),
-            CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
-            CardTargetScopes.AnyEmpoweredUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
-                && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
-            CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
-            CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
-                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
-                : IsPromptControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId)
-                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
-            CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
-                ? IsPromptControlledBaseObject(state, playerId, objectId)
-                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
-            CardTargetScopes.BattlefieldThenEnemyUnit => targetIndex == 0
-                ? BattlefieldLocalRules.Battlefield(state, objectId) is not null
-                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
-                ? CoreRuleEngine.HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
-                : IsPromptEnemyFieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
-                : IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
-            CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
-                ? IsPromptFieldUnitObject(state, objectId)
-                : IsPromptEquipmentObject(state, objectId),
-            CardTargetScopes.FriendlyEquipment => IsPromptFriendlyEquipmentObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
-                ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
-                : IsPromptEnemyEquipmentObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId)
-                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
-                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
-                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
-                    && IsPromptFieldUnitObject(state, objectId)
-                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
-            CardTargetScopes.FriendlyUnitThenStackSpell => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
-                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
-            CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
-            CardTargetScopes.AnyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
-            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => targetIndex == 0
-                ? IsPromptFriendlyHandCard(state, playerId, objectId)
-                : IsPromptBattlefieldObject(state, objectId),
-            CardTargetScopes.FriendlyMainDeckCard => false,
-            CardTargetScopes.FriendlyGraveyardCard => IsPromptFriendlyGraveyardCard(state, playerId, objectId),
-            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
-                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
-                && state.Seats.ContainsKey(graveyardCard.OwnerId)
-                && IsPromptFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
-            CardTargetScopes.FriendlyBaseUnit => IsPromptControlledBaseObject(state, playerId, objectId),
-            CardTargetScopes.AttackingUnit => IsPromptAttackingBattlefieldObject(state, objectId),
-            CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
-                && IsPromptAttackingBattlefieldObject(state, objectId),
-            CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId)
-                : IsPromptFriendlyEquipmentObject(state, playerId, objectId),
-            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
-                ? IsPromptEnemyBattlefieldObject(state, playerId, objectId) : IsPromptControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.EnemyUnitAtSourceBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
-            CardTargetScopes.EnemyUnitAtSourceLocation => IsPromptEnemyFieldObject(state, playerId, objectId)
-                && IsPromptFieldUnitObject(state, objectId),
-            CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
-            CardTargetScopes.EnemyUnitOrEquipment => IsPromptOpponentControlledFieldObject(state, playerId, objectId)
-                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
-                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
-            CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
-            CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
-            CardTargetScopes.OpponentHandCard => false,
-            CardTargetScopes.OpponentGraveyardCard => IsPromptOpponentGraveyardCard(state, playerId, objectId),
-            CardTargetScopes.OpponentMainDeckTopCard => false,
-            CardTargetScopes.AnyMainDeckTopFiveCard => false,
-            CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
-            CardTargetScopes.Legend => IsPromptLegendObject(state, objectId),
-            CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
-            CardTargetScopes.SacredJudgmentKeepCard => false,
-            _ => IsPromptBattlefieldObject(state, objectId)
-        };
     }
 
     private static bool IsPromptBattlefieldObject(MatchState state, string objectId)
@@ -1600,24 +1474,6 @@ internal static partial class ActionPromptBuilder
             .ToArray();
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        string? sourceObjectId)
-    {
-        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
-
-        return zones.Hand
-            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
-            .Select(objectId => new ActionPromptChoiceDto(
-                $"DISCARD_HAND_CARD:{objectId}",
-                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
-                $"{behavior.DisplayName}的可选额外费用"))
-            .ToArray();
-    }
-
     private static string PromptHandCardLabel(MatchState state, string objectId)
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -2053,97 +1909,6 @@ internal static partial class ActionPromptBuilder
             .Where(objectId => IsPromptHandCardControlledByPlayerOrLegacyOwned(state, choice.PlayerId, objectId))
             .Select(objectId => ObjectChoice(state, objectId, "可弃置手牌"))
             .ToArray();
-    }
-
-    private static IReadOnlyDictionary<string, object?> AssignCombatDamageMetadataFor(MatchState state, string playerId)
-    {
-        var battle = state.BattleState;
-        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
-        {
-            return new Dictionary<string, object?>
-            {
-                ["assignmentState"] = "WAIT"
-            };
-        }
-
-        var assigningPlayerId = ResolutionResult.BattleDamageAssigningPlayerId(state) ?? string.Empty;
-        var damagePool = ResolutionResult.BattleDamagePoolFor(state, battle);
-        var legalTargets = ResolutionResult.BattleDamageLegalTargetsFor(state, battle);
-        var existingDamage = ResolutionResult.BattleExistingDamageFor(state, battle);
-        var lethalDamageThreshold = ResolutionResult.BattleLethalDamageThresholdFor(state, battle);
-        var requiredAssignments = ResolutionResult.BattleRequiredAssignmentsFor(state, battle);
-        var assigningSourceIds = ResolutionResult.BattleDamageRequiredSourceIdsForPlayer(state, battle, assigningPlayerId);
-        var assigningSourceSet = assigningSourceIds.ToHashSet(StringComparer.Ordinal);
-        var assignableDamagePool = damagePool
-            .Where(entry => assigningSourceSet.Contains(entry.Key))
-            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var assignableLegalTargets = legalTargets
-            .Where(entry => assigningSourceSet.Contains(entry.Key))
-            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var requiredAssignmentsForPrompt = requiredAssignments
-            .Where(requirement => requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
-                && sourceObjectId is string source
-                && assigningSourceSet.Contains(source))
-            .ToArray();
-        var battleParticipants = ResolutionResult.BattleParticipantObjectIds(battle)
-            .Select(objectId => new Dictionary<string, object?>
-            {
-                ["objectId"] = objectId,
-                ["role"] = ResolutionResult.BattleParticipantRole(battle, objectId),
-                ["displayName"] = state.CardObjects.TryGetValue(objectId, out var participant)
-                    && !participant.IsFaceDown && !string.IsNullOrWhiteSpace(participant.CardNo)
-                    && CardBehaviorRegistry.TryGetByCardNo(participant.CardNo, out var behavior)
-                        ? behavior.DisplayName : string.Empty,
-                ["controllerId"] = battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
-                    ? controllerId
-                    : string.Empty,
-                ["power"] = ResolutionResult.BattleEffectivePowerFor(state, objectId),
-                ["damage"] = existingDamage.TryGetValue(objectId, out var damage) ? damage : 0
-            })
-            .ToArray();
-        var assignmentChoices = assignableDamagePool
-            .Where(entry => entry.Value > 0 && assignableLegalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
-            .SelectMany(entry => assignableLegalTargets[entry.Key].Select(targetObjectId => new ActionPromptChoiceDto(
-                $"{entry.Key}->{targetObjectId}",
-                $"{entry.Key} -> {targetObjectId}",
-                $"分配 {entry.Value} 点战斗伤害候选")))
-            .ToArray();
-
-        return new Dictionary<string, object?>
-        {
-            ["battleId"] = battle.BattleId,
-            ["battlefieldId"] = battle.BattlefieldObjectId,
-            ["assigningPlayerId"] = assigningPlayerId,
-            ["damagePool"] = damagePool,
-            ["assignableDamagePool"] = assignableDamagePool,
-            ["totalAssignableDamage"] = assignableDamagePool.Values.Sum(value => (long)value),
-            ["assignmentRule"] = "SIDE_POOL_LETHAL_PRIORITY",
-            ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
-            ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
-                .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
-            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
-            ["assigningSourceObjectIds"] = assigningSourceIds,
-            ["legalTargets"] = assignableLegalTargets,
-            ["allLegalTargets"] = legalTargets,
-            ["existingDamage"] = existingDamage,
-            ["lethalDamageThreshold"] = lethalDamageThreshold,
-            // Zero means no mandatory assignment for these IDs, never lethal damage.
-            ["damageImmuneTargetIds"] = ResolutionResult.BattleParticipantObjectIds(battle).Where(id => UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray(),
-            ["requiredAssignments"] = requiredAssignmentsForPrompt,
-            ["allRequiredAssignments"] = requiredAssignments,
-            ["submittedAssignments"] = ResolutionResult.BattleDamageAssignmentLedgerFor(state, battle),
-            ["assignmentChoices"] = assignmentChoices,
-            ["battleParticipants"] = battleParticipants,
-            ["battleState"] = string.Equals(playerId, assigningPlayerId, StringComparison.Ordinal)
-                ? "PENDING_ASSIGNMENT"
-                : "WAITING_FOR_ASSIGNMENT",
-            ["participantControllerIds"] = battle.ParticipantControllerIds,
-            ["damageLedger"] = new Dictionary<string, object?>
-            {
-                ["existingDamage"] = existingDamage,
-                ["pendingDamage"] = damagePool
-            }
-        };
     }
 
     private static IReadOnlyDictionary<string, object?> OrderTriggersMetadataFor(MatchState state, string playerId)

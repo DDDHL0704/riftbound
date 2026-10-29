@@ -874,6 +874,241 @@ public sealed partial record MatchState
 
     public string? ExtraTurnPlayerId { get; init; }
 
+    private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var effectId in state.UntilEndOfTurnEffects
+            .Where(effectId => !IsInternalUntilEndOfTurnMarker(effectId))
+            .OrderBy(effectId => effectId, StringComparer.Ordinal))
+        {
+            effects.Add(new ContinuousEffectState(
+                $"GLOBAL:{effectId}",
+                "GLOBAL",
+                ContinuousEffectLayers.RuleText,
+                "UNTIL_END_OF_TURN"));
+        }
+
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var objectId = entry.Key;
+            var cardObject = entry.Value;
+            foreach (var copy in CoreRuleEngine.CopiedRuleTextPowerContributions(state, cardObject))
+            {
+                effects.Add(new ContinuousEffectState($"COPIED_RULE_POWER:{copy.Instance.Id}:{copy.Index}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, objectId,
+                    copy.Delta, cardObject.Power, cardObject.Power + copy.Delta, "ATTACHED_RULE_TEXT_POWER",
+                    copy.Instance.CardNo, "CoreRuleEngine.CopiedRuleTextPowerContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: copy.Kind, Lifecycle: "RECOMPUTED_FROM_CURRENT_COPIED_PRINTED_INSTANCE",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [objectId, copy.Instance.Origin!.Equipment.ObjectId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
+            foreach (var copy in AttachedRuleTextRules.Copies(state, cardObject))
+                foreach (var keyword in new[] { CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast })
+                {
+                    var amount = CoreRuleEngine.CopiedRuleTextKeywordAmount(state, cardObject, copy, keyword);
+                    if (amount == 0) continue;
+                    // This static projection describes the active attached
+                    // grant. The copied text instance itself is persisted on
+                    // the armament, independently of this diagnostic aura.
+                    effects.Add(new ContinuousEffectState($"COPIED_RULE_KEYWORD:{copy.Id}:{keyword}", "OBJECT",
+                        ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, objectId,
+                        0, cardObject.Power, cardObject.Power, "ATTACHED_RULE_TEXT_KEYWORD", copy.CardNo,
+                        "CoreRuleEngine.CopiedRuleTextKeywordAmount", true, LayerEngineFoundationResiduals(),
+                        Condition: $"{keyword}:{amount}", Lifecycle: "CURRENT_COPIED_PRINTED_KEYWORD_INSTANCE",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [objectId, copy.Origin!.Equipment.ObjectId],
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                }
+            foreach (var sourceObjectKeywordEffect in BuildSourceObjectKeywordStaticAuraEffects(state, objectId, cardObject))
+            {
+                effects.Add(sourceObjectKeywordEffect);
+            }
+
+            foreach (var bonus in CoreRuleEngine.ArmamentMightContributions(state, state.PlayerZones, cardObject))
+            {
+                effects.Add(new ContinuousEffectState($"ARMAMENT_MIGHT:{bonus.SourceId}:{objectId}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, bonus.SourceId,
+                    bonus.Delta, cardObject.Power, cardObject.Power + bonus.Delta, "ATTACHED_ARMAMENT_BASE_MIGHT",
+                    bonus.SourceCardNo, "CoreRuleEngine.ArmamentMightContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: "PUBLIC_ARMAMENT_ATTACHED_TO_PUBLIC_UNIT", Lifecycle: "RECOMPUTED_FROM_CURRENT_ATTACHMENT_AND_HOST",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [bonus.SourceId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
+            foreach (var grant in CoreRuleEngine.BoonAmplifiersFor(state, state.PlayerZones, cardObject))
+                effects.Add(new ContinuousEffectState($"BOON_MIGHT:{grant.Marker}:{objectId}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "UNTIL_END_OF_TURN", objectId, grant.Source.ObjectId,
+                    grant.Amount, cardObject.Power, cardObject.Power + grant.Amount, CoreRuleEngine.BoonAmplifierEffect,
+                    grant.CardNo, "CoreRuleEngine.BoonAmplifiersFor", true, LayerEngineFoundationResiduals(),
+                    Condition: "CURRENT_FRIENDLY_UNIT_HAS_BOON", Lifecycle: "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId],
+                    SourceOrder: (int)Math.Min(int.MaxValue, long.Parse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)]))));
+            var empoweredAuras = CoreRuleEngine.EmpoweredUnitAuraContributions(state, cardObject);
+            if (empoweredAuras.Count > 0) {
+                var before = CoreRuleEngine.CurrentPowerBeforeConditionalAuras(state, cardObject) - empoweredAuras.Sum(aura => aura.Delta);
+                foreach (var aura in empoweredAuras) {
+                    var dependencies = aura.Instance.Origin is { } copied ? new[] { aura.SourceId, copied.Equipment.ObjectId } : new[] { aura.SourceId };
+                    effects.Add(new ContinuousEffectState($"EMPOWERED_UNIT_AURA:{aura.SourceId}:{aura.Instance.Id}:{aura.Index}:{objectId}",
+                        "OBJECT", ContinuousEffectLayers.StaticAura, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", objectId, aura.SourceId,
+                        aura.Delta, before, before + aura.Delta, CoreRuleEngine.EmpoweredUnitAuraEffect, aura.Instance.CardNo,
+                        "CoreRuleEngine.EmpoweredUnitAuraContributions", true, LayerEngineFoundationResiduals(),
+                        Condition: "SOURCE_AND_FRIENDLY_TARGET_EMPOWERED", Lifecycle: "RECOMPUTED_FROM_CURRENT_EMPOWERED_TEXT_AND_CONTROLLER",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                    before += aura.Delta;
+                }
+            }
+            foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
+            {
+                var dependencies = aura.Instance.Origin is { } copied
+                    ? new[] { aura.SourceId, copied.Equipment.ObjectId } : new[] { aura.SourceId };
+                effects.Add(new ContinuousEffectState($"CONDITIONAL_POWER_AURA:{aura.SourceId}:{aura.Instance.Id}:{aura.Index}:{objectId}",
+                    "OBJECT", ContinuousEffectLayers.StaticAura, aura.Spec.Duration, objectId, aura.SourceId,
+                    aura.Delta, aura.Before, aura.After, aura.Spec.Kind, aura.Instance.CardNo,
+                    "CoreRuleEngine.ConditionalPowerAuraContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: $"STUNNED_ENEMY_AT_SOURCE_LOCATION_MINIMUM:{aura.Spec.MinimumPowerAfterModifier}",
+                    Lifecycle: "RECOMPUTED_FROM_CURRENT_CONDITION_LOCATION_AND_MIGHT",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
+            foreach (var sourceObjectPowerEffect in BuildSourceObjectPowerStaticAuraEffects(state, objectId, cardObject))
+            {
+                effects.Add(sourceObjectPowerEffect);
+            }
+
+            foreach (var sourceParticipantCountPowerEffect in BuildSourceParticipantCountPowerStaticAuraEffects(
+                state,
+                objectId,
+                cardObject))
+            {
+                effects.Add(sourceParticipantCountPowerEffect);
+            }
+
+            foreach (var sourceBattleStatePowerEffect in BuildSourceBattleStatePowerStaticAuraEffects(
+                state,
+                objectId,
+                cardObject))
+            {
+                effects.Add(sourceBattleStatePowerEffect);
+            }
+
+            if (cardObject.UntilEndOfTurnPowerModifier != 0 || cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
+            {
+                if (cardObject.UntilEndOfTurnPowerModifiers.Count > 0)
+                {
+                    effects.AddRange(cardObject.UntilEndOfTurnPowerModifiers.Select(modifier =>
+                        new ContinuousEffectState(
+                            modifier.EffectId,
+                            "OBJECT",
+                            ContinuousEffectLayers.PowerModifier,
+                            modifier.Duration,
+                            objectId,
+                            modifier.SourceObjectId,
+                            modifier.PowerDelta,
+                            modifier.BasePower,
+                            modifier.EffectivePower,
+                            modifier.EffectKind,
+                            modifier.SourceCardNo,
+                            modifier.SourcePath,
+                            true,
+                            LayerEngineFoundationResiduals(),
+                            modifier.RequestedPowerDelta,
+                            modifier.PowerDelta,
+                            modifier.MinimumPower,
+                            modifier.ResultingPower,
+                            modifier.AppliedOrder,
+                            SnapshotMight: modifier.SnapshotMight)));
+                    var trackedPowerDelta = cardObject.UntilEndOfTurnPowerModifiers.Sum(modifier => modifier.PowerDelta);
+                    var untrackedPowerDelta = cardObject.UntilEndOfTurnPowerModifier - trackedPowerDelta;
+                    if (untrackedPowerDelta != 0)
+                    {
+                        effects.Add(new ContinuousEffectState(
+                            $"POWER:{objectId}:UNTRACKED:{untrackedPowerDelta}",
+                            "OBJECT",
+                            ContinuousEffectLayers.PowerModifier,
+                            "UNTIL_END_OF_TURN",
+                            objectId,
+                            null,
+                            untrackedPowerDelta,
+                            ResolveBasePower(cardObject),
+                            cardObject.Power,
+                            "LEGACY_UNTRACKED_POWER_MODIFIER",
+                            null,
+                            "MatchState.ContinuousEffects.LegacyRemainder",
+                            true,
+                            LayerEngineFoundationResiduals()));
+                    }
+                }
+                else
+                {
+                    effects.Add(new ContinuousEffectState(
+                        $"POWER:{objectId}:{cardObject.UntilEndOfTurnPowerModifier}",
+                        "OBJECT",
+                        ContinuousEffectLayers.PowerModifier,
+                        "UNTIL_END_OF_TURN",
+                        objectId,
+                        null,
+                        cardObject.UntilEndOfTurnPowerModifier,
+                        ResolveBasePower(cardObject),
+                        cardObject.Power));
+                }
+            }
+
+            foreach (var effectId in cardObject.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
+            {
+                if (BattleLimitedMarkers.PrivateMarker(effectId)) continue;
+                var battleGrant = cardObject.UntilEndOfTurnEffects.Select(text =>
+                    BattleLimitedMarkers.TryGrant(text, out var grant) ? grant : null)
+                    .SingleOrDefault(grant => grant?.KeywordEffectId == effectId);
+                effects.Add(new ContinuousEffectState(
+                    $"OBJECT:{objectId}:{effectId}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    battleGrant is null ? "UNTIL_END_OF_TURN" : BattleLimitedMarkers.Duration,
+                    objectId,
+                    battleGrant?.SourceObjectId,
+                    0,
+                    ResolveBasePower(cardObject),
+                    cardObject.Power,
+                    battleGrant?.Context.Kind ?? "",
+                    battleGrant?.Context.CardNo,
+                    battleGrant is null ? "" : BattleLimitedMarkers.SourcePath));
+            }
+        }
+
+        effects.AddRange(BuildBattlefieldPowerStaticAuraEffects(state));
+        effects.AddRange(BuildBattlefieldKeywordAuraEffects(state));
+        effects.AddRange(BuildBattlefieldIsolatedDefenderKeywordModifierAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildSameBattlefieldOtherFriendlyPowerStaticAuraEffects(state));
+        effects.AddRange(BuildPublicFieldFriendlyPowerStaticAuraEffects(state));
+        effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
+        var publicFieldSourceOrders = PublicFieldSourceOrders(state);
+
+        return effects
+            .Select(effect => ApplySourceOrder(effect, publicFieldSourceOrders))
+            .OrderBy(effect => effect.Scope, StringComparer.Ordinal)
+            .ThenBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
+            .ThenBy(effect => effect.AppliedOrder ?? int.MaxValue)
+            .ThenBy(effect => effect.SourceOrder ?? int.MaxValue)
+            .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .Select((effect, index) => effect with { Sequence = index + 1 })
+            .ToArray();
+    }
+
+    private static bool IsInternalUntilEndOfTurnMarker(string effectId)
+    {
+        return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattlefieldContestRules.InitiatorPrefix, StringComparison.Ordinal);
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildSourceParticipantCountPowerStaticAuraEffects(
         MatchState state,
         string objectId,
@@ -1034,6 +1269,40 @@ public sealed partial record MatchState
         }
 
         return cardObject.Power;
+    }
+
+    private static (
+        string EffectIdPrefix,
+        string SourcePath,
+        string Condition,
+        string Lifecycle) SourceObjectPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
+    {
+        if (aura.PowerMultiplierZone == "GRAVEYARD")
+            return ("STATIC_AURA:SOURCE_GRAVEYARD_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
+                "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_GRAVEYARD");
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SOURCE_OBJECT_FILTERED_POWER",
+                "CoreRuleEngine.ResolveSourceObjectFilteredPowerBonus",
+                "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_FILTER",
+                "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_TAGS");
+        }
+
+        if (string.Equals(aura.Kind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
+        {
+            return (
+                "STATIC_AURA:SOURCE_OBJECT_POWER",
+                "CoreRuleEngine.ResolveSourceObjectPowerBonus",
+                "SOURCE_PUBLIC_FIELD_UNIT_AND_CONTROLLER_EXPERIENCE",
+                "RECOMPUTED_FROM_CURRENT_CONTROLLER_EXPERIENCE");
+        }
+
+        return (
+            $"STATIC_AURA:{aura.Kind}",
+            "CoreRuleEngine.ResolveSourceObjectPowerStaticAuraBonus",
+            "SOURCE_PUBLIC_FIELD_UNIT_MATCHES_SOURCE_OBJECT_SCOPE",
+            "RECOMPUTED_FROM_CURRENT_SOURCE_OBJECT_STATE");
     }
 
     private static IReadOnlyDictionary<string, CardObjectState> NormalizeCardObjects(
@@ -1351,6 +1620,24 @@ public sealed partial record ResolutionResult(
             && !string.IsNullOrWhiteSpace(BattleDamageAssigningPlayerId(state));
     }
 
+    private static IReadOnlyList<string> OrderedBattleDamageTargetObjectIds(
+        MatchState state,
+        IReadOnlyList<string> objectIds)
+    {
+        return objectIds
+            .Select((objectId, index) => new
+            {
+                ObjectId = objectId,
+                Index = index,
+                Priority = CoreRuleEngine.CombatDamageTargetPriorityFor(state, objectId)
+            })
+            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
+            .ThenBy(item => item.Priority)
+            .ThenBy(item => item.Index)
+            .Select(item => item.ObjectId)
+            .ToArray();
+    }
+
     private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
     {
         return CardControlRules.IsControlledByPlayerOrLegacyOwned(cardObject, playerId);
@@ -1591,6 +1878,30 @@ public sealed partial record ResolutionResult(
         return view;
     }
 
+    private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
+        MatchState state,
+        PendingPaymentState? payment)
+    {
+        if (payment is null)
+        {
+            return null;
+        }
+
+        var view = new Dictionary<string, object?>
+        {
+            ["paymentId"] = payment.PaymentId,
+            ["choiceKind"] = state.PendingRuleChoice?.Request.Kind,
+            ["paymentWindow"] = payment.PaymentWindow,
+            ["playerId"] = payment.PlayerId,
+            ["cost"] = BuildPaymentCostView(payment),
+            ["paymentChoices"] = payment.LegalPaymentChoiceIds,
+            ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
+        };
+        if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
+            view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
+        return view;
+    }
+
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(
         MatchState state,
         PendingPaymentState payment)
@@ -1671,6 +1982,70 @@ public sealed partial record ResolutionResult(
             view.Remove("requiredCount");
             view.Remove("maxCount");
         }
+        return view;
+    }
+
+    private static Dictionary<string, object?> BuildCardObjectSnapshotView(
+        MatchState state,
+        string objectId,
+        string viewerPlayerId)
+    {
+        var cardObject = state.CardObjects[objectId];
+        var location = ResolveObjectLocation(state, objectId);
+        if (cardObject.IsFaceDown && !CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
+        {
+            var redacted = new Dictionary<string, object?>
+            {
+                ["objectId"] = cardObject.ObjectId,
+                ["isFaceDown"] = true
+            };
+            if (location is not null)
+            {
+                redacted["location"] = BuildObjectLocationSnapshotView(location, cardObject, includeObjectClassHints: false);
+            }
+
+            return redacted;
+        }
+
+        var view = new Dictionary<string, object?>
+        {
+            ["objectId"] = cardObject.ObjectId,
+            ["damage"] = cardObject.Damage,
+            ["power"] = cardObject.Power,
+            ["basePower"] = ResolveBasePower(cardObject),
+            ["effectivePower"] = SnapshotEffectivePower(state, cardObject, location),
+            ["untilEndOfTurnPowerModifier"] = cardObject.UntilEndOfTurnPowerModifier,
+            ["isExhausted"] = cardObject.IsExhausted,
+            ["isFaceDown"] = cardObject.IsFaceDown,
+            ["isAttacking"] = cardObject.IsAttacking,
+            ["isDefending"] = cardObject.IsDefending,
+            ["tags"] = cardObject.Tags,
+            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects.Where(effect => !BattleLimitedMarkers.PrivateMarker(effect)).ToArray(),
+            ["manaCost"] = cardObject.ManaCost,
+            ["attachedToObjectId"] = cardObject.AttachedToObjectId,
+            ["cardNo"] = cardObject.CardNo,
+            ["ownerId"] = cardObject.OwnerId,
+            ["controllerId"] = cardObject.ControllerId
+        };
+        if (cardObject.GrantedTags is { Count: > 0 } grantedTags) view["grantedTags"] = grantedTags.ToArray();
+        if (cardObject.IsEmpowered) view["isEmpowered"] = true;
+        if (cardObject.DamageMarkedByPlayerIds is { Count: > 0 } damageMarkers)
+            view["damageMarkedByPlayerIds"] = damageMarkers.ToArray();
+        if (cardObject.MovementCountThisTurn > 0)
+        {
+            view["movementCountThisTurn"] = cardObject.MovementCountThisTurn;
+            view["cannotTakeDamage"] = UnitMovementRules.CannotTakeDamage(cardObject);
+        }
+        if (cardObject.IsFaceDown && CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
+        {
+            view["canInspectFaceDown"] = true;
+            view["inspectionViewerId"] = viewerPlayerId;
+        }
+        if (location is not null)
+        {
+            view["location"] = BuildObjectLocationSnapshotView(location, cardObject, includeObjectClassHints: true);
+        }
+
         return view;
     }
 }
@@ -2200,6 +2575,222 @@ internal static partial class ActionPromptBuilder
         => CoreRuleEngine.StandbyHideBattlefields(state, playerId).Select(id =>
             new ActionPromptChoiceDto("BATTLEFIELD:" + id, BattlefieldLocationLabel(state, id))).ToArray();
 
+    private static IReadOnlyList<ActivateAbilityPromptRequirement> ActivateAbilityRequirementsForSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            || cardObject.IsFaceDown)
+        {
+            return [];
+        }
+
+        var requirements = new List<ActivateAbilityPromptRequirement>();
+        if (EmpowerRules.CanActivate(state, playerId, cardObject))
+        {
+            var pool = state.RunePools.TryGetValue(playerId, out var currentPool) ? currentPool : RunePool.Empty;
+            var runes = EmpowerRules.ControlledRunes(state, playerId);
+            foreach (var ability in EmpowerRules.Abilities(state, cardObject))
+            {
+                if (ability.Cost.Exhaust && cardObject.IsExhausted) continue;
+                var cost = ability.Cost;
+                var requiredDiscard = EmpowerRules.RequiresHandDiscard(cost);
+                var requiredDestruction = EmpowerRules.RequiresFriendlyUnitDestruction(cost);
+                var requiresAdditional = requiredDiscard || requiredDestruction;
+                var additionalCosts = requiredDiscard ? CoreRuleEngine.EmpowerHandDiscardCostChoices(state, playerId, sourceObjectId, cost)
+                    .Select(id => new ActionPromptChoiceDto("DISCARD_HAND_CARD:" + id, $"弃置 {PromptHandCardLabel(state, id)}：支付强化费用", ObjectIds: [id])).ToArray()
+                    : requiredDestruction ? CoreRuleEngine.EmpowerFriendlyUnitDestructionCostChoices(state, playerId, cost)
+                        .Select(id => new ActionPromptChoiceDto(DestroyFriendlyUnitAdditionalCostPrefix + id,
+                            $"摧毁 {ObjectChoice(state, id, "friendly unit cost").Label}：支付强化费用", ObjectIds: [id])).ToArray() : [];
+                if (requiresAdditional && additionalCosts.Length == 0) continue;
+                var mana = EmpowerRules.Mana(ability.Spec, cost, runes);
+                var costLabels = new List<string>();
+                if (mana > 0) costLabels.Add($"{mana}法力");
+                if (cost.Power > 0) costLabels.Add($"{cost.Power}任意符能");
+                costLabels.AddRange(cost.TypedPower.Select(p => $"{p.Value}{RuneTraitLabel(p.Key)}符能"));
+                if (cost.Exhaust) costLabels.Add("横置");
+                if (requiresAdditional) costLabels.Add(cost.AdditionalCost);
+                var label = $"强化（{(costLabels.Count == 0 ? "0" : string.Join("＋", costLabels))}）";
+                var choices = RenektonAwareRecycleRuneChoices(state, playerId, "payment resource action: recycle rune for empower")
+                    .Concat(PromptRenektonPaymentChoices(state, playerId)
+                        .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
+                            "传奇支付资源行动；其符能费用与强化费用分别核对")))
+                    .ToArray();
+                var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
+                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
+                requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "强化", label,
+                    mana, cost.Power, 0, cost.TypedPower, 0, 0, "无目标",
+                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(), additionalCosts, choices, byChoice,
+                    pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
+                    new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait), [],
+                    cost.Exhaust, false, true, null, AbilityInstanceId: ability.InstanceId,
+                    CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId,
+                    AdditionalCostChoices: requiresAdditional ? additionalCosts : null, RequiredAdditionalCostChoiceCount: requiresAdditional ? 1 : 0));
+            }
+        }
+        foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
+        {
+            if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
+                || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
+                || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+                || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
+                || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
+                || ability.Kind == "TRIGGERED_RESOURCE"
+                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
+                    && !IsPromptEzrealBlueSwiftMoveSource(state, playerId, sourceObjectId, cardObject)))
+            {
+                continue;
+            }
+
+            if (ability.IsResourceSkill && ability.AbilityId != P4ActivatedAbilityCatalog.MalzaharResourceAbilityId
+                && ResourceQuantityRules.ConversionPrefix(ability.AbilityId) is null
+                && !CoreRuleEngine.ResourceAbilityAmountsSupported(state, playerId, ability, [])) continue;
+            if (!CanPromptActivateAbilityInCurrentWindow(state, playerId, ability))
+            {
+                continue;
+            }
+            if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                && !CoreRuleEngine.IsPowerAbilitySource(state, playerId, sourceObjectId, ability)) continue;
+
+            var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, sourceObjectId, ability);
+            if (ability.RequiredTargetCount > 0
+                && Enumerable.Range(0, ability.RequiredTargetCount)
+                    .Any(index => !targetChoicesByIndex.TryGetValue(index.ToString(System.Globalization.CultureInfo.InvariantCulture), out var choices)
+                        || choices.Count == 0))
+            {
+                continue;
+            }
+
+            var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            var paymentResourceChoices = ActivateAbilityPaymentResourceChoices(state, playerId, ability);
+            var paymentResourcePowerByTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, ability);
+            var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
+            var conversionOptionalCostChoices = ActivateAbilityConversionOptionalCostChoices(state, playerId, ability);
+            var isResourceConversionAbility = P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId);
+
+            var honeyfruitLevelSixChoices = ActivateAbilityHoneyfruitLevelSixChoices(state, playerId, sourceObjectId, ability);
+            if (isResourceConversionAbility
+                && !string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
+                && conversionOptionalCostChoices.Count == 0)
+            {
+                continue;
+            }
+
+            var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
+            var spellshieldTaxPowerByTargetObjectId = ActivateAbilitySpellshieldTaxPowerByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
+            var renataGoldExtraManaAvailable = P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
+                && CoreRuleEngine.RenataGoldBonusActive(state, playerId);
+            var azirArmamentReattachChoicesByTargetObjectId = string.Equals(
+                    ability.AbilityId,
+                    P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
+                    StringComparison.Ordinal)
+                ? AzirArmamentReattachChoicesByTargetObjectId(state, playerId, targetChoicesByIndex)
+                : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+            var powerPool = PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability));
+            var availablePowerByTrait = PlayCardAvailablePowerByTrait(
+                powerPool,
+                new Dictionary<string, int>(StringComparer.Ordinal));
+            var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
+                powerPool,
+                paymentResourcePowerByTrait);
+
+            var requirement = new ActivateAbilityPromptRequirement(
+                sourceObjectId,
+                cardObject.CardNo ?? ability.SourceCardNo,
+                ability.AbilityId,
+                ActivateAbilityDisplayName(ability),
+                ActivateAbilityLabel(ability),
+                ability.ManaCost,
+                ability.PowerCost,
+                ability.ExperienceCost,
+                powerCostByTrait,
+                ability.RequiredTargetCount,
+                azirArmamentReattachChoicesByTargetObjectId.Values.Any(choices => choices.Count > 0) ? 2 : ability.RequiredTargetCount,
+                ActivateAbilityTargetScopeLabel(ability),
+                targetChoicesByIndex,
+                isResourceConversionAbility
+                    ? conversionOptionalCostChoices
+                    : honeyfruitLevelSixChoices.Count > 0
+                            ? honeyfruitLevelSixChoices
+                            : paymentResourceChoices,
+                isResourceConversionAbility ? [] : paymentResourceChoices,
+                isResourceConversionAbility
+                    ? new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal)
+                    : paymentResourcePowerByChoice,
+                powerPool.TotalPower,
+                availablePowerByTrait,
+                new RunePaymentReachability(powerPool, paymentResourcePowerByTrait).MaximumTotal,
+                availablePowerByTraitWithPaymentResources,
+                [],
+                ability.ExhaustsSourceAsCost,
+                ability.IsResourceSkill,
+                true,
+                null,
+                spellshieldTaxPowerByTargetObjectId,
+                renataGoldExtraManaAvailable,
+                renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
+                azirArmamentReattachChoicesByTargetObjectId);
+            foreach (var instance in AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability))
+            {
+                var copyId = instance.Origin is null ? null : instance.Id;
+                if (ability.AbilityId == P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId
+                    && state.UntilEndOfTurnEffects.Contains(P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(
+                        playerId, sourceObjectId, cardObject.ObjectGeneration, copyId), StringComparer.Ordinal)) continue;
+                requirements.Add(requirement with { AbilityInstanceId = copyId, CopyEquipmentObjectId = instance.Origin?.Equipment.ObjectId,
+                    AbilityLabel = copyId is null ? requirement.AbilityLabel
+                        : $"{requirement.AbilityLabel}（{ObjectChoice(state, instance.Origin!.Equipment.ObjectId, "copied printed rules text").Label}复制技能）" });
+            }
+        }
+
+        if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && !cardObject.IsExhausted
+            && BattlefieldGrantUnitExperienceObjectId(state, playerId, sourceObjectId) is not null)
+        {
+            var battlefieldAbilityPool = state.RunePools.TryGetValue(playerId, out var currentPool)
+                ? currentPool
+                : RunePool.Empty;
+            var battlefieldAbilityPowerByTrait = PlayCardAvailablePowerByTrait(
+                battlefieldAbilityPool,
+                new Dictionary<string, int>(StringComparer.Ordinal));
+            requirements.Add(new ActivateAbilityPromptRequirement(
+                sourceObjectId,
+                cardObject.CardNo ?? string.Empty,
+                BattlefieldUnitGainExperienceAbilityId,
+                "蜕变花园授予能力",
+                "横置：获得 1 经验",
+                0,
+                0,
+                0,
+                new Dictionary<string, int>(StringComparer.Ordinal),
+                0,
+                0,
+                "无目标",
+                new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal),
+                [],
+                [],
+                new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal),
+                battlefieldAbilityPool.TotalPower,
+                battlefieldAbilityPowerByTrait,
+                battlefieldAbilityPool.TotalPower,
+                battlefieldAbilityPowerByTrait,
+                [],
+                true,
+                true,
+                true,
+                null));
+        }
+
+        return requirements
+            .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
+            .ToArray();
+    }
+
     private static IReadOnlyList<LegendActionPromptRequirement> LegendActionSourceRequirements(
         MatchState state,
         string playerId)
@@ -2722,6 +3313,46 @@ internal static partial class ActionPromptBuilder
         };
     }
 
+    private static bool CanPayActivateAbilityRequirement(
+        MatchState state,
+        string playerId,
+        ActivateAbilityPromptRequirement requirement)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        if (experience < requirement.ExperienceCost)
+        {
+            return false;
+        }
+
+        var hasAbility = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability);
+        var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
+        if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) < requirement.ManaCost)
+        {
+            var supportsLegend = requirement.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal)
+                || hasAbility && SupportsInlineRenektonAbilityPayment(ability);
+            if (manaPurpose != ManaPaymentPurpose.UnitAbility || !supportsLegend) return false;
+            return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
+            {
+                var remaining = choice.RemainingPool with {
+                    UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
+                var purpose = hasAbility ? CoreRuleEngine.PowerPurposeForActivatedAbility(ability) : PowerPaymentPurpose.Other;
+                var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, purpose);
+                return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= requirement.ManaCost
+                    && new RunePaymentReachability(payablePower, choice.RemainingRunePower, choice.RemainingRuneCapacity)
+                        .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
+            });
+        }
+        var powerPool = hasAbility
+            ? PaymentCostRules.PowerPoolForPurpose(runePool, CoreRuleEngine.PowerPurposeForActivatedAbility(ability)) : runePool;
+        return new RunePaymentReachability(powerPool, CandidatePowerByTrait(requirement.PaymentResourcePowerByChoice))
+            .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
+    }
+
     private static int PromptMinimumManaCost(
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         string? sourceObjectId = null, int additionalMana = 0)
@@ -2749,6 +3380,66 @@ internal static partial class ActionPromptBuilder
         return cardObjects.TryGetValue(objectId, out var cardObject)
             && PromptDelimitedValues(requiredTags)
                 .All(tag => cardObject.Tags.Contains(tag, StringComparer.Ordinal));
+    }
+
+    private static IReadOnlyList<CardBehaviorDefinition> PlayCardPromptBehaviorsForSource(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || string.IsNullOrWhiteSpace(cardObject.CardNo))
+        {
+            return [];
+        }
+
+        var behaviors = CardBehaviorRegistry.GetAll()
+            .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
+            .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
+            .Select(behavior => CoreRuleEngine.PlaySourceKeywordBehavior(state, playerId, objectId, behavior))
+            .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
+            .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
+            .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
+                >= PromptMinimumManaCost(state, playerId, behavior, objectId))
+            .Where(behavior => !behavior.MaySacrificeUnitForPrintedCostReduction
+                || AffordableOptionalSacrificePlayCosts(state, playerId, behavior, objectId).Count > 0)
+            .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
+            .ToArray();
+        if (ShouldPreferModeSpecificPlayCardBehaviors(state, playerId, behaviors))
+        {
+            return behaviors
+                .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
+                .ToArray();
+        }
+
+        return behaviors;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PromptTargetChoicesForIndex(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int targetIndex)
+    {
+        var targetScope = PromptTargetScopeForBehavior(behavior);
+        if (behavior.MainDeckLookCount > 0
+            && targetIndex >= behavior.MainDeckLookTargetStartIndex
+            && string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal))
+        {
+            return PromptFriendlyMainDeckLookTargetChoices(state, playerId, behavior);
+        }
+
+        return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
+            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
+                && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
+                && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
+                && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
+                && (!behavior.MovesTargetsToChosenLocation || behavior.OptionalEquipmentAfterMovement && targetIndex != 0
+                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
+            .Select(objectId => IsPromptStackSpellItem(state, objectId)
+                ? StackItemChoice(state, objectId, "legal stack spell target")
+                : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
+            .ToArray();
     }
 
     private static bool PlayCardHasServerTargetSelectionConstraint(
@@ -2837,6 +3528,105 @@ internal static partial class ActionPromptBuilder
         return string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || targetObjectIds.Any(targetObjectId =>
                 PromptCardObjectHasTags(state.CardObjects, targetObjectId, behavior.AnyTargetRequiredTag));
+    }
+
+    private static bool IsPromptTargetObjectInScope(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string targetScope,
+        int targetIndex,
+        bool allowAbilities = false)
+    {
+        return targetScope switch
+        {
+            CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
+                || IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
+            CardTargetScopes.AnyEmpoweredUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
+            CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
+            CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
+                : IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
+                ? IsPromptControlledBaseObject(state, playerId, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.BattlefieldThenEnemyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId) is not null
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
+                ? CoreRuleEngine.HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
+            CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
+                ? IsPromptFieldUnitObject(state, objectId)
+                : IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.FriendlyEquipment => IsPromptFriendlyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
+                ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
+                : IsPromptEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
+                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
+                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
+                    && IsPromptFieldUnitObject(state, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
+            CardTargetScopes.FriendlyUnitThenStackSpell => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
+            CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.AnyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => targetIndex == 0
+                ? IsPromptFriendlyHandCard(state, playerId, objectId)
+                : IsPromptBattlefieldObject(state, objectId),
+            CardTargetScopes.FriendlyMainDeckCard => false,
+            CardTargetScopes.FriendlyGraveyardCard => IsPromptFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.AnyGraveyardCard => state.CardObjects.TryGetValue(objectId, out var graveyardCard)
+                && !string.IsNullOrWhiteSpace(graveyardCard.OwnerId)
+                && state.Seats.ContainsKey(graveyardCard.OwnerId)
+                && IsPromptFriendlyGraveyardCard(state, graveyardCard.OwnerId, objectId),
+            CardTargetScopes.FriendlyBaseUnit => IsPromptControlledBaseObject(state, playerId, objectId),
+            CardTargetScopes.AttackingUnit => IsPromptAttackingBattlefieldObject(state, objectId),
+            CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
+                && IsPromptAttackingBattlefieldObject(state, objectId),
+            CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : IsPromptFriendlyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
+                ? IsPromptEnemyBattlefieldObject(state, playerId, objectId) : IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitAtSourceBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitAtSourceLocation => IsPromptEnemyFieldObject(state, playerId, objectId)
+                && IsPromptFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsPromptOpponentControlledFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
+            CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.OpponentHandCard => false,
+            CardTargetScopes.OpponentGraveyardCard => IsPromptOpponentGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.OpponentMainDeckTopCard => false,
+            CardTargetScopes.AnyMainDeckTopFiveCard => false,
+            CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.Legend => IsPromptLegendObject(state, objectId),
+            CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
+            CardTargetScopes.SacredJudgmentKeepCard => false,
+            _ => IsPromptBattlefieldObject(state, objectId)
+        };
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? ActivateAbilityOptionalCostChoices(
@@ -3128,6 +3918,24 @@ internal static partial class ActionPromptBuilder
             && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
     }
 
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+
+        return zones.Hand
+            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"DISCARD_HAND_CARD:{objectId}",
+                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
+                $"{behavior.DisplayName}的可选额外费用"))
+            .ToArray();
+    }
+
     private static IReadOnlyList<CoreRuleEngine.RenektonPaymentChoice> PromptRenektonPaymentChoices(
         MatchState state, string playerId)
         => CoreRuleEngine.RenektonPlayPaymentChoices(state, playerId,
@@ -3404,6 +4212,97 @@ internal static partial class ActionPromptBuilder
             ["availablePowerByTraitWithPaymentResources"] = reachability.TraitUpperBounds()
         };
         return WithPowerCapacity(view, reachability);
+    }
+
+    private static IReadOnlyDictionary<string, object?> AssignCombatDamageMetadataFor(MatchState state, string playerId)
+    {
+        var battle = state.BattleState;
+        if (!ResolutionResult.HasOpenBattleDamageAssignmentWindow(state))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["assignmentState"] = "WAIT"
+            };
+        }
+
+        var assigningPlayerId = ResolutionResult.BattleDamageAssigningPlayerId(state) ?? string.Empty;
+        var damagePool = ResolutionResult.BattleDamagePoolFor(state, battle);
+        var legalTargets = ResolutionResult.BattleDamageLegalTargetsFor(state, battle);
+        var existingDamage = ResolutionResult.BattleExistingDamageFor(state, battle);
+        var lethalDamageThreshold = ResolutionResult.BattleLethalDamageThresholdFor(state, battle);
+        var requiredAssignments = ResolutionResult.BattleRequiredAssignmentsFor(state, battle);
+        var assigningSourceIds = ResolutionResult.BattleDamageRequiredSourceIdsForPlayer(state, battle, assigningPlayerId);
+        var assigningSourceSet = assigningSourceIds.ToHashSet(StringComparer.Ordinal);
+        var assignableDamagePool = damagePool
+            .Where(entry => assigningSourceSet.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var assignableLegalTargets = legalTargets
+            .Where(entry => assigningSourceSet.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var requiredAssignmentsForPrompt = requiredAssignments
+            .Where(requirement => requirement.TryGetValue("sourceObjectId", out var sourceObjectId)
+                && sourceObjectId is string source
+                && assigningSourceSet.Contains(source))
+            .ToArray();
+        var battleParticipants = ResolutionResult.BattleParticipantObjectIds(battle)
+            .Select(objectId => new Dictionary<string, object?>
+            {
+                ["objectId"] = objectId,
+                ["role"] = ResolutionResult.BattleParticipantRole(battle, objectId),
+                ["displayName"] = state.CardObjects.TryGetValue(objectId, out var participant)
+                    && !participant.IsFaceDown && !string.IsNullOrWhiteSpace(participant.CardNo)
+                    && CardBehaviorRegistry.TryGetByCardNo(participant.CardNo, out var behavior)
+                        ? behavior.DisplayName : string.Empty,
+                ["controllerId"] = battle.ParticipantControllerIds.TryGetValue(objectId, out var controllerId)
+                    ? controllerId
+                    : string.Empty,
+                ["power"] = ResolutionResult.BattleEffectivePowerFor(state, objectId),
+                ["damage"] = existingDamage.TryGetValue(objectId, out var damage) ? damage : 0
+            })
+            .ToArray();
+        var assignmentChoices = assignableDamagePool
+            .Where(entry => entry.Value > 0 && assignableLegalTargets.TryGetValue(entry.Key, out var targets) && targets.Count > 0)
+            .SelectMany(entry => assignableLegalTargets[entry.Key].Select(targetObjectId => new ActionPromptChoiceDto(
+                $"{entry.Key}->{targetObjectId}",
+                $"{entry.Key} -> {targetObjectId}",
+                $"分配 {entry.Value} 点战斗伤害候选")))
+            .ToArray();
+
+        return new Dictionary<string, object?>
+        {
+            ["battleId"] = battle.BattleId,
+            ["battlefieldId"] = battle.BattlefieldObjectId,
+            ["assigningPlayerId"] = assigningPlayerId,
+            ["damagePool"] = damagePool,
+            ["assignableDamagePool"] = assignableDamagePool,
+            ["totalAssignableDamage"] = assignableDamagePool.Values.Sum(value => (long)value),
+            ["assignmentRule"] = "SIDE_POOL_LETHAL_PRIORITY",
+            ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
+            ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
+                .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
+            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
+            ["assigningSourceObjectIds"] = assigningSourceIds,
+            ["legalTargets"] = assignableLegalTargets,
+            ["allLegalTargets"] = legalTargets,
+            ["existingDamage"] = existingDamage,
+            ["lethalDamageThreshold"] = lethalDamageThreshold,
+            // Zero means no mandatory assignment for these IDs, never lethal damage.
+            ["damageImmuneTargetIds"] = ResolutionResult.BattleParticipantObjectIds(battle).Where(id => UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray(),
+            ["requiredAssignments"] = requiredAssignmentsForPrompt,
+            ["allRequiredAssignments"] = requiredAssignments,
+            ["submittedAssignments"] = ResolutionResult.BattleDamageAssignmentLedgerFor(state, battle),
+            ["assignmentChoices"] = assignmentChoices,
+            ["battleParticipants"] = battleParticipants,
+            ["battleState"] = string.Equals(playerId, assigningPlayerId, StringComparison.Ordinal)
+                ? "PENDING_ASSIGNMENT"
+                : "WAITING_FOR_ASSIGNMENT",
+            ["participantControllerIds"] = battle.ParticipantControllerIds,
+            ["damageLedger"] = new Dictionary<string, object?>
+            {
+                ["existingDamage"] = existingDamage,
+                ["pendingDamage"] = damagePool
+            }
+        };
     }
 
     private static IReadOnlyDictionary<string, object?> RevealCardSourceRequirementView(
@@ -3988,6 +4887,59 @@ internal static partial class ActionPromptBuilder
             .Select(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
                 ? choice with { Label = BattlefieldLocationLabel(state, choice.Id["BATTLEFIELD:".Length..]) } : choice).ToArray();
         return choices.Length == 0 ? null : choices;
+    }
+
+    private static string PromptTargetScopeLabel(string targetScope)
+    {
+        return targetScope switch
+        {
+            CardTargetScopes.BattlefieldUnit => "战场单位",
+            CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
+            CardTargetScopes.BaseUnit => "基地单位",
+            CardTargetScopes.AnyUnit => "任意单位",
+            CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
+            CardTargetScopes.FriendlyUnit => "友方单位",
+            CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => "受你控制的战场，然后位于其他位置的友方单位",
+            CardTargetScopes.FriendlyBaseUnitThenBattlefield => "友方基地单位，然后选择战场",
+            CardTargetScopes.BattlefieldThenEnemyUnit => "战场，然后选择该处的敌方单位",
+            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
+            CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
+            CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
+            CardTargetScopes.FriendlyEquipment => "友方装备",
+            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
+            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
+            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
+            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",
+            CardTargetScopes.FriendlyUnitThenStackSpell => "友方单位，然后结算链法术",
+            CardTargetScopes.FriendlyBattlefieldUnit => "友方战场单位",
+            CardTargetScopes.FriendlyHandCard => "己方手牌",
+            CardTargetScopes.AnyHandCard => "手牌",
+            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "己方手牌，然后战场单位",
+            CardTargetScopes.FriendlyMainDeckCard => "己方主牌堆牌",
+            CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
+            CardTargetScopes.AnyGraveyardCard => "任意废牌堆牌",
+            CardTargetScopes.AttackingUnit => "攻击中单位",
+            CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
+            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",
+            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => "友方单位，然后可选同控制者武装",
+            CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
+            CardTargetScopes.EnemyUnit => "敌方单位",
+            CardTargetScopes.EnemyUnitOrEquipment => "敌方单位或装备",
+            CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",
+            CardTargetScopes.Battlefield => "战场",
+            CardTargetScopes.OpponentHandCard => "对手手牌",
+            CardTargetScopes.OpponentGraveyardCard => "对手废牌堆牌",
+            CardTargetScopes.OpponentMainDeckTopCard => "对手主牌堆顶牌",
+            CardTargetScopes.AnyMainDeckTopFiveCard => "主牌堆顶五张",
+            CardTargetScopes.FriendlyBaseUnit => "友方基地单位",
+            CardTargetScopes.Equipment => "装备",
+            CardTargetScopes.Legend => "传奇",
+            CardTargetScopes.StackSpell => "结算链法术",
+            CardTargetScopes.SacredJudgmentKeepCard => "审判日保留牌",
+            _ => "战场单位"
+        };
     }
 }
 

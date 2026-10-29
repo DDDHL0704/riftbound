@@ -45,30 +45,6 @@ public sealed partial record ResolutionResult
             || string.Equals(kind, "COST_PAID", StringComparison.Ordinal);
     }
 
-    private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
-        MatchState state,
-        PendingPaymentState? payment)
-    {
-        if (payment is null)
-        {
-            return null;
-        }
-
-        var view = new Dictionary<string, object?>
-        {
-            ["paymentId"] = payment.PaymentId,
-            ["choiceKind"] = state.PendingRuleChoice?.Request.Kind,
-            ["paymentWindow"] = payment.PaymentWindow,
-            ["playerId"] = payment.PlayerId,
-            ["cost"] = BuildPaymentCostView(payment),
-            ["paymentChoices"] = payment.LegalPaymentChoiceIds,
-            ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
-        };
-        if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
-            view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
-        return view;
-    }
-
     private static Dictionary<string, object?> BuildPaymentCostView(PendingPaymentState payment)
         => payment.CostView();
 

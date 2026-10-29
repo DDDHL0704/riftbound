@@ -424,24 +424,6 @@ public sealed partial record ResolutionResult
         return [];
     }
 
-    private static IReadOnlyList<string> OrderedBattleDamageTargetObjectIds(
-        MatchState state,
-        IReadOnlyList<string> objectIds)
-    {
-        return objectIds
-            .Select((objectId, index) => new
-            {
-                ObjectId = objectId,
-                Index = index,
-                Priority = CoreRuleEngine.CombatDamageTargetPriorityFor(state, objectId)
-            })
-            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
-            .ThenBy(item => item.Priority)
-            .ThenBy(item => item.Index)
-            .Select(item => item.ObjectId)
-            .ToArray();
-    }
-
     internal static string BattleParticipantRole(BattleState battle, string objectId)
     {
         if (battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal))

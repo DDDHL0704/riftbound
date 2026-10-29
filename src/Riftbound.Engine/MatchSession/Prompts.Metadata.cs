@@ -697,59 +697,6 @@ internal static partial class ActionPromptBuilder
             : behavior.TargetScope;
     }
 
-    private static string PromptTargetScopeLabel(string targetScope)
-    {
-        return targetScope switch
-        {
-            CardTargetScopes.BattlefieldUnit => "战场单位",
-            CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
-            CardTargetScopes.BaseUnit => "基地单位",
-            CardTargetScopes.AnyUnit => "任意单位",
-            CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
-            CardTargetScopes.FriendlyUnit => "友方单位",
-            CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
-            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => "受你控制的战场，然后位于其他位置的友方单位",
-            CardTargetScopes.FriendlyBaseUnitThenBattlefield => "友方基地单位，然后选择战场",
-            CardTargetScopes.BattlefieldThenEnemyUnit => "战场，然后选择该处的敌方单位",
-            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",
-            CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
-            CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
-            CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
-            CardTargetScopes.FriendlyEquipment => "友方装备",
-            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
-            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
-            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
-            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",
-            CardTargetScopes.FriendlyUnitThenStackSpell => "友方单位，然后结算链法术",
-            CardTargetScopes.FriendlyBattlefieldUnit => "友方战场单位",
-            CardTargetScopes.FriendlyHandCard => "己方手牌",
-            CardTargetScopes.AnyHandCard => "手牌",
-            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "己方手牌，然后战场单位",
-            CardTargetScopes.FriendlyMainDeckCard => "己方主牌堆牌",
-            CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
-            CardTargetScopes.AnyGraveyardCard => "任意废牌堆牌",
-            CardTargetScopes.AttackingUnit => "攻击中单位",
-            CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
-            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",
-            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => "友方单位，然后可选同控制者武装",
-            CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
-            CardTargetScopes.EnemyUnit => "敌方单位",
-            CardTargetScopes.EnemyUnitOrEquipment => "敌方单位或装备",
-            CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",
-            CardTargetScopes.Battlefield => "战场",
-            CardTargetScopes.OpponentHandCard => "对手手牌",
-            CardTargetScopes.OpponentGraveyardCard => "对手废牌堆牌",
-            CardTargetScopes.OpponentMainDeckTopCard => "对手主牌堆顶牌",
-            CardTargetScopes.AnyMainDeckTopFiveCard => "主牌堆顶五张",
-            CardTargetScopes.FriendlyBaseUnit => "友方基地单位",
-            CardTargetScopes.Equipment => "装备",
-            CardTargetScopes.Legend => "传奇",
-            CardTargetScopes.StackSpell => "结算链法术",
-            CardTargetScopes.SacredJudgmentKeepCard => "审判日保留牌",
-            _ => "战场单位"
-        };
-    }
-
     private static ActionPromptChoiceDto BattlefieldDestinationChoice(MatchState state, string objectId, string reason)
     {
         var choice = ObjectChoice(state, objectId, reason);
