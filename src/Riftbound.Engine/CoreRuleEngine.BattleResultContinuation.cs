@@ -39,6 +39,7 @@ public sealed partial class CoreRuleEngine
             result = QueueSourcePlayDraw(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
+            result = QueueSourceUnitTokens(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);

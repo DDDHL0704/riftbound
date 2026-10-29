@@ -17,14 +17,16 @@ public static class VendettaCardSources
             ?? throw new InvalidOperationException("The official VEN snapshot is missing.");
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] {
-            (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"), (Id: 37726L, CardNo: "VEN·038"),
-            (Id: 37727L, CardNo: "VEN·038a"), (Id: 37760L, CardNo: "VEN·068"), (Id: 37761L, CardNo: "VEN·068a"),
-            (Id: 37783L, CardNo: "VEN·088"), (Id: 37784L, CardNo: "VEN·088a"), (Id: 37812L, CardNo: "VEN·113"),
+            (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"), (Id: 37710L, CardNo: "VEN·023"),
+            (Id: 37711L, CardNo: "VEN·023a"), (Id: 37726L, CardNo: "VEN·038"), (Id: 37727L, CardNo: "VEN·038a"),
+            (Id: 37760L, CardNo: "VEN·068"), (Id: 37761L, CardNo: "VEN·068a"), (Id: 37783L, CardNo: "VEN·088"),
+            (Id: 37784L, CardNo: "VEN·088a"), (Id: 37806L, CardNo: "VEN·109"), (Id: 37812L, CardNo: "VEN·113"),
             (Id: 37813L, CardNo: "VEN·113a"), (Id: 37842L, CardNo: "VEN·139"), (Id: 37850L, CardNo: "VEN·147"),
-            (Id: 37854L, CardNo: "VEN·151"), (Id: 37856L, CardNo: "VEN·153"), (Id: 37892L, CardNo: "VEN·189"),
-            (Id: 37893L, CardNo: "VEN·189*"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"),
-            (Id: 37942L, CardNo: "VEN·195"), (Id: 37905L, CardNo: "VEN·195*"), (Id: 37906L, CardNo: "VEN·196"),
-            (Id: 37907L, CardNo: "VEN·196*") }
+            (Id: 37854L, CardNo: "VEN·151"), (Id: 37856L, CardNo: "VEN·153"), (Id: 37872L, CardNo: "VEN·169"),
+            (Id: 37885L, CardNo: "VEN·182"), (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"),
+            (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"), (Id: 37942L, CardNo: "VEN·195"),
+            (Id: 37905L, CardNo: "VEN·195*"), (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*"),
+            (Id: 37925L, CardNo: "VEN·T05"), (Id: 37926L, CardNo: "VEN·T06") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),

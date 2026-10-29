@@ -59,6 +59,7 @@ public static class TriggerKinds
     public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
+    public const string SourceUnitPlayedOrScoredCreateUnit = "SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
@@ -211,6 +212,7 @@ public static class TriggerKinds
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
+    public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
@@ -261,6 +263,7 @@ public static class TriggerTimings
 {
     public const string SourceReadied = "SOURCE_READIED";
     public const string SourcePlayedOrFirstEquipmentPlayed = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_PLAYED";
+    public const string SourceUnitPlayedOrScored = "SOURCE_UNIT_PLAYED_OR_SCORED";
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
@@ -310,6 +313,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
+    public const string ControlledUnitInGraveyard = "CONTROLLED_UNIT_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
@@ -411,6 +415,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
