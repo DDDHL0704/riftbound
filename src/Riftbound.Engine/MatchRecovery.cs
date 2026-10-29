@@ -24040,8 +24040,7 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
-                    || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
-                        || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))))
+                    || !CoreRuleEngine.ValidUnitEventTargets(item)))
                 errors.Add("invalid captured unit event stack");
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))

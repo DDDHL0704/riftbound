@@ -3,7 +3,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
-    bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false);
+    bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
+    bool AnyNumberOfTargets = false);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -165,6 +166,7 @@ public sealed record CardBehaviorDefinition(
     int SourceUnitPower = 0,
     string SourceUnitTags = "",
     bool SourceUnitIsExhausted = true,
+    int? SourceReadyWhenWinningScoreDistanceExceeds = null,
     bool AppliesPowerModifierToSourceUnit = false,
     bool GrantsBoonToSourceUnit = false,
     bool ModifiesAllEnemyUnits = false,
@@ -460,6 +462,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·091", "腐化巨龙", 10, "UNIT_PLAY:VEN·091", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 10, SourceUnitTags: "龙",
+            SourceReadyWhenWinningScoreDistanceExceeds: 3,
+            UnitEventAbility: new("ATTACK", "MOVE_ENEMIES_TO_BASE", 5, Optional: true, AnyNumberOfTargets: true)),
         new("VEN·009", "巴凯收割者", 3, "BAKKAI_REAPER_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
             UnitEventAbility: new("ATTACK", "ASSAULT_SELF", 2, LeadingPowerCost: 1, LeadingPowerTrait: "red")),

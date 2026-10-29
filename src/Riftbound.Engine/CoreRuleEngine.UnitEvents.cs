@@ -57,9 +57,11 @@ public sealed partial class CoreRuleEngine
             UnitEventTrigger(o, state.Tick + 1, i, eventKind, timing)).ToArray();
 
     private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
-        => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT"
-            ? o with { Context = o.Context with { LastKnownPower = ResolveCurrentFieldUnitPower(state, state.CardObjects[o.Source]),
-                Here = UnitEventSpec(o.Context.CardNo)!.Effect == "MATCH_GREATER_POWER" ? state.ObjectLocations[o.Source] : null } } : o;
+        => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE"
+            ? o with { Context = o.Context with {
+                LastKnownPower = UnitEventSpec(o.Context.CardNo)!.Effect == "MOVE_ENEMIES_TO_BASE" ? null
+                    : ResolveCurrentFieldUnitPower(state, state.CardObjects[o.Source]),
+                Here = UnitEventSpec(o.Context.CardNo)!.Effect is "MATCH_GREATER_POWER" or "MOVE_ENEMIES_TO_BASE" ? state.ObjectLocations[o.Source] : null } } : o;
 
     private static TriggerQueueItemState[] CaptureConquestUnitEvents(MatchState state, IEnumerable<string> units, long tick)
         => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
@@ -68,10 +70,10 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RecordUnitEventSourceFacts(MatchState before, ResolutionResult result)
     {
         UnitEventContext? Update(string id, UnitEventContext? c) {
-            if (c?.LastKnownPower is null) return c;
+            if (c is null || c.LastKnownPower is null && c.Here is null) return c;
             var current = CombatMightSourceLocation(result.State, id, c.SourceGeneration) is not null ? result.State
                 : CombatMightSourceLocation(before, id, c.SourceGeneration) is not null ? before : null;
-            return current is null ? c : c with { LastKnownPower = ResolveCurrentFieldUnitPower(current, current.CardObjects[id]),
+            return current is null ? c : c with { LastKnownPower = c.LastKnownPower is null ? null : ResolveCurrentFieldUnitPower(current, current.CardObjects[id]),
                 Here = c.Here is null ? null : current.ObjectLocations[id] };
         }
         var next = result.State with {
@@ -111,7 +113,7 @@ public sealed partial class CoreRuleEngine
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
             && (spec.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
-            && (spec.Effect == "MATCH_GREATER_POWER" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
+            && (spec.Effect is "MATCH_GREATER_POWER" or "MOVE_ENEMIES_TO_BASE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
                 && (here.Zone == "BASE" && here.BattlefieldObjectId is null
                     || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is not null)
                 : c.Here is null)
@@ -122,7 +124,13 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && UnitEventSpec(c.CardNo)?.Effect is "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT";
+        && UnitEventSpec(c.CardNo)?.Effect is "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE";
+    internal static bool ValidUnitEventTargets(StackItemState item)
+        => item.TargetGenerations is null || NeedsUnitEventTarget(item) && item.TargetObjectIds.Count > 0
+            && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
+            && item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count
+            && item.TargetGenerations.Count == item.TargetObjectIds.Count
+            && item.TargetObjectIds.All(id => item.TargetGenerations.TryGetValue(id, out var generation) && generation >= 0);
     private static string[] UnitEventTargets(MatchState state, StackItemState item)
         => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.Effect switch {
@@ -133,6 +141,11 @@ public sealed partial class CoreRuleEngine
                     && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId)
                     && ResolveCurrentFieldUnitPower(state, c) > UnitEventSourcePower(state, item),
                 "DESTROY_CHEAPER_EQUIPMENT" => c.Tags.Contains(CardObjectTags.EquipmentCard) && c.ManaCost <= UnitEventSourcePower(state, item),
+                "MOVE_ENEMIES_TO_BASE" => IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
+                    && state.ObjectLocations.TryGetValue(c.ObjectId, out var loc) && loc.Zone == item.UnitEvent.Here!.Zone
+                    && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId)
+                    && ResolveCurrentFieldUnitPower(state, c) <= UnitEventSpec(item.UnitEvent.CardNo)!.Amount,
                 _ => false
             })
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
@@ -141,7 +154,8 @@ public sealed partial class CoreRuleEngine
     {
         var legal = UnitEventTargets(state, item);
         return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1, 1, legal, legal,
+            UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1,
+            UnitEventSpec(item.UnitEvent.CardNo)!.AnyNumberOfTargets ? legal.Length : 1, legal, legal,
             "选择单位技能的合法目标；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };
     }
@@ -159,7 +173,7 @@ public sealed partial class CoreRuleEngine
             || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)) return false;
         var expected = UnitEventChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow && choice.PlayerId == item.ControllerId
-            && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == expected.RequiredCount && choice.MaxCount == 1
+            && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == expected.RequiredCount && choice.MaxCount == expected.MaxCount
             && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
 
@@ -177,6 +191,15 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "MOVE_ENEMIES_TO_BASE") {
+            var legal = UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal);
+            var selected = item.TargetObjectIds.Where(id => legal.Contains(id) && StackObjectRules.ReferencesCurrentObject(state, item, id)).ToArray();
+            var locations = state.ObjectLocations.ToDictionary(); var pools = state.RunePools.ToDictionary();
+            foreach (var group in selected.GroupBy(id => FindFieldObjectLocation(zones, id)!.Value.PlayerId))
+                MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, group.ToArray(), "BASE:" + group.Key, events);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
+                ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
+        }
         if (spec.Effect == "DESTROY_CHEAPER_EQUIPMENT" && item.TargetObjectIds.SingleOrDefault() is { } gear
             && StackObjectRules.ReferencesCurrentObject(state, item, gear) && UnitEventTargets(state, item).Contains(gear)) {
             var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),

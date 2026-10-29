@@ -24297,7 +24297,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     state.PlayerExperience,
                     state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
-                    events);
+                    events, state.PlayerScores);
             }
             else if (!stackItem.SourceConfirmed)
             {
@@ -24309,7 +24309,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     state.PlayerExperience,
                     state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
-                    events);
+                    events, state.PlayerScores);
             }
 
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
@@ -29945,7 +29945,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
-        List<GameEvent> events)
+        List<GameEvent> events, IReadOnlyDictionary<string, int> playerScores)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
         {
@@ -29956,7 +29956,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
             appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
             PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
-                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects);
+                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects, playerScores: playerScores);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
         playerZones[stackItem.ControllerId] = zones with
@@ -30004,7 +30004,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
-        List<GameEvent> events)
+        List<GameEvent> events, IReadOnlyDictionary<string, int> playerScores)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
         {
@@ -30015,7 +30015,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
             appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
             PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
-                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects);
+                destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects, playerScores: playerScores);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
         playerZones[stackItem.ControllerId] = zones with

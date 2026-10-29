@@ -321,6 +321,73 @@ public sealed class VenUnitEventTests
         Assert.Contains("GEAR", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(0, false)] [InlineData(4, false)] [InlineData(5, true)] [InlineData(7, true)]
+    public async Task DragonEntersReadyOnlyWhenMoreThanThreePointsBelowTheWinningScore(int score, bool exhausted)
+    {
+        var initial = VenUnitEntryBasicTests.Position("VEN·091");
+        initial = initial with { PlayerScores = new Dictionary<string, int>(initial.PlayerScores) { ["P1"] = score } };
+        await Reject(initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = RunePool.Empty } },
+            "P1", new PlayCardCommand("UNIT", "VEN·091", []));
+        var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("UNIT", "VEN·091", []));
+        Assert.Equal(exhausted, game.State.CardObjects["UNIT"].IsExhausted); Assert.Equal(10, game.State.CardObjects["UNIT"].Power);
+        Assert.Equal(10, game.State.RunePools["P1"].Mana); Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(0)] [InlineData(1)] [InlineData(2)]
+    public async Task DragonChoosesAnyNumberOfEnemyUnitsHereWhoseCurrentPowerDoesNotExceedFive(int count)
+    {
+        var game = new Driver(DragonBattle()); await Fight(game);
+        var choice = game.State.PendingCardChoice!; Assert.Equal(0, choice.RequiredCount); Assert.Equal(2, choice.MaxCount);
+        Assert.Equal(new[] { "ENEMY", "SECOND" }, choice.LegalObjectIds);
+        foreach (var illegal in new[] { "UNIT", "ALLY", "STRONG", "AWAY", "GRAVE" })
+            await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [illegal]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, new[] { "ENEMY", "SECOND" }.Take(count).ToArray()));
+        if (count > 0) { Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["ENEMY"].Zone); await game.Top(); }
+        Assert.Equal(count > 0 ? "BASE" : "BATTLEFIELD", game.State.ObjectLocations["ENEMY"].Zone);
+        Assert.Equal(count == 2 ? "BASE" : "BATTLEFIELD", game.State.ObjectLocations["SECOND"].Zone);
+        Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["STRONG"].Zone);
+        Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["AWAY"].Zone); await game.Replay();
+    }
+
+    [Fact]
+    public async Task DragonsConfirmedTargetAboveFivePowerInResponseDoesNotMove()
+    {
+        var game = new Driver(AddHandCard(DragonBattle(), "BUFF", "OGN·058/298", "P2")); await Fight(game);
+        var choice = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY", "SECOND"]));
+        if (game.State.PriorityPlayerId == "P1") await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("BUFF", "OGN·058/298", ["SECOND"])); await game.Top(); await game.Top();
+        Assert.Equal("BASE", game.State.ObjectLocations["ENEMY"].Zone);
+        Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["SECOND"].Zone); await game.Replay();
+    }
+
+    [Fact]
+    public async Task DragonLeavingInResponseKeepsItsLastKnownHereForTheEarnedSkill()
+    {
+        var game = new Driver(AddHandCard(DragonBattle(), "BOUNCE", "OGN·104/298", "P1")); await Fight(game);
+        var choice = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY", "SECOND"]));
+        await game.Act("P1", new PlayCardCommand("BOUNCE", "OGN·104/298", ["UNIT"])); await game.Top(); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.Equal("BASE", game.State.ObjectLocations["ENEMY"].Zone);
+        Assert.Equal("BASE", game.State.ObjectLocations["SECOND"].Zone); await game.Replay();
+    }
+
+    private static MatchState DragonBattle()
+    {
+        var initial = BattlePosition("VEN·091", true);
+        foreach (var (id, power, field) in new[] { ("SECOND", 5, "BF"), ("STRONG", 6, "BF"), ("AWAY", 1, "OTHER") }) {
+            initial = AddHandCard(initial, id, "OGN·219/298", "P2");
+            initial = LocalDestructionRecallTests.At(initial, id, "P2", "BATTLEFIELD", field);
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                [id] = initial.CardObjects[id] with { Power = power } } };
+        }
+        return initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            ["P2"] = initial.PlayerZones["P2"] with { Hand = [] } } };
+    }
+
     private static async Task Fight(Driver game)
     {
         await game.Act("P1", new DeclareBattleCommand("BF", ["UNIT"], ["ENEMY"], ["COMBAT_ASSIGNMENT"]));
