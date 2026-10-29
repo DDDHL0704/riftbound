@@ -96,7 +96,7 @@ public sealed partial class CoreRuleEngine
             && cards.TryGetValue(id, out var unit) && unit.ObjectGeneration == item.TargetGenerations![id]
             && !AttachedRuleTextRules.Instances(state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations }, unit)
                 .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
-            ReadyLegendFriendlyUnit(cards, id, item.ControllerId, item.SourceObjectId, context.AbilityId, events);
+            ReadyLegendFriendlyUnit(zones, cards, id, item.ControllerId, item.SourceObjectId, context.AbilityId, events);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = locations, Events = events };
     }
