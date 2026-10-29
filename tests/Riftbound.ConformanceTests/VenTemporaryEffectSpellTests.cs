@@ -254,6 +254,21 @@ public sealed class VenTemporaryEffectSpellTests
         Assert.Contains(errors, e => e.Contains(no == "VEN·116" ? "base Might replacement" : "finite damage prevention budget"));
     }
 
+    [Fact]
+    public async Task RecoveryRejectsRepeatedShieldIdsWithDifferentRemainingAmountsWithoutThrowing()
+    {
+        var game = new Driver(Position("VEN·126"));
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·126", ["ALLY"])); await game.Top();
+        var card = game.State.CardObjects["ALLY"]; var budget = Assert.Single(card.UntilEndOfTurnEffects);
+        var state = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+            ["ALLY"] = card with { UntilEndOfTurnEffects = [budget, budget[..^1] + "6"] } } };
+        var seq = game.Events()[^1].Sequence; var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var views = state.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, state.Tick, seq, snapshots[p], state.Tick, seq, prompts[p]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, seq, [], state);
+        var errors = MatchRecoveryValidator.Validate(state.RoomId, seq, game.Commands(), game.Events(), views, state, state.Tick, spectator);
+        Assert.Contains(errors, e => e.Contains("malformed temporary numeric unit effect"));
+    }
+
     private static MatchState Position(string no) => VenUnitEntryBasicTests.Position(no);
     private static JsonElement SnapshotObject(MatchState state, string player, string id)
         => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)[player], new JsonSerializerOptions(JsonSerializerDefaults.Web)).GetProperty("players")

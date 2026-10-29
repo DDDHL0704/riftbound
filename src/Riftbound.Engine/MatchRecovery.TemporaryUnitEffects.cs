@@ -62,7 +62,10 @@ public static partial class MatchRecoveryValidator
             var baseEffects = effects.Where(e => e.StartsWith(TemporaryUnitEffectRules.BaseMightPrefix, StringComparison.Ordinal)).ToArray();
             if (actual.Length + baseEffects.Length != effects.Length || actual.Select(b => b.Id).Distinct().Count() != actual.Length
                 || baseEffects.Length > 1 || baseEffects.Length == 1 && TemporaryUnitEffectRules.Number(card, TemporaryUnitEffectRules.BaseMightPrefix) is null)
+            {
                 errors.Add("malformed temporary numeric unit effect");
+                continue;
+            }
             if (!historyRequired) continue;
             var expected = budgets.Where(b => b.Key.Target == card.ObjectId && b.Key.Generation == card.ObjectGeneration && b.Value > 0)
                 .ToDictionary(b => b.Key.Budget, b => b.Value);
