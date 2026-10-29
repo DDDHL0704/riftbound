@@ -6,7 +6,8 @@ public sealed record EmpowerCostSpec(int Mana, int Power, IReadOnlyDictionary<st
     bool Exhaust, string AdditionalCost, bool SupportedResources);
 public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alternatives,
     int ManaReductionAtMostRunes = 0, int? RuneLimit = null, bool ReduceManaPerRune = false);
-public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords);
+public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords, int MaximumCount = 1,
+    int MightPerCount = 0, int? KeywordCount = null, IReadOnlyList<string>? KeywordsAtCount = null);
 public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
 public sealed record EmpoweredSpellCostReductionSpec(int Mana, int GenericPower, int MinimumMana);
 public sealed record EmpoweredUnitAuraSpec(int Might);
@@ -77,7 +78,17 @@ public static class EmpowerParser
             foreach (Match keyword in Regex.Matches(body, @"\{\{(?<keyword>法盾|强攻|坚守|游走|壁垒)(?<n>[0-9]*)\}\}"))
                 keywords.Add(keyword.Groups["keyword"].Value + keyword.Groups["n"].Value);
         }
-        return new(might, keywords);
+        var maximum = Regex.Match(text, @"(?m)^\s*我最多可以拥有(?<count>[1-9][0-9]*)个\{\{已强化\}\}。\s*$");
+        var perCount = Regex.Match(text, @"(?m)^\s*我每拥有1个\{\{已强化\}\}，便获得\{\{S\}\}\+(?<might>[0-9]+)。\s*$");
+        var countedKeywords = Regex.Match(text,
+            @"(?m)^\s*如果我拥有(?<count>[1-9][0-9]*)个\{\{已强化\}\}，则我获得(?<body>[^\r\n。]+)。\s*$");
+        var atCount = countedKeywords.Success
+            ? Regex.Matches(countedKeywords.Groups["body"].Value, @"\{\{(?<keyword>法盾|强攻|坚守|游走|壁垒)(?<n>[0-9]*)\}\}")
+                .Select(keyword => keyword.Groups["keyword"].Value + keyword.Groups["n"].Value).ToArray()
+            : [];
+        return new(might, keywords, maximum.Success ? int.Parse(maximum.Groups["count"].Value) : 1,
+            perCount.Success ? int.Parse(perCount.Groups["might"].Value) : 0,
+            countedKeywords.Success ? int.Parse(countedKeywords.Groups["count"].Value) : null, atCount);
     }
 
     public static IReadOnlyList<EmpoweredSpellSpec> SpellEffects(string text)

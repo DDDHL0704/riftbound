@@ -23422,6 +23422,11 @@ public static partial class MatchRecoveryValidator
                 if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
                     || !present && visible && card.IsEmpowered)
                     errors.Add($"{label} empowered status differs from authoritative visible object");
+                var countPresent = TryReadObjectValue(payload, "empowermentCount", out _);
+                if (countPresent && (!visible || !card.IsEmpowered
+                        || !TryReadObjectInt(payload, "empowermentCount", out var count) || count != card.EmpowermentCount)
+                    || !countPresent && visible && card.IsEmpowered)
+                    errors.Add($"{label} empowerment count differs from authoritative visible object");
             }
         }
     }
@@ -24522,6 +24527,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured public battle history reference");
         foreach (var card in state.CardObjects.Values)
         {
+            if (!EmpowerRules.ValidCount(card)) errors.Add("invalid empowerment count");
             if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");
             if (!StandbyRules.ValidLastPlay(state, card)) errors.Add("invalid last standby play provenance");
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");

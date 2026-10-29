@@ -557,7 +557,13 @@ public sealed record CardObjectState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyPlacement? LastStandbyPlay { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool IsEmpowered { get; init; }
+    public int EmpowermentCount { get; init; }
+    [JsonIgnore]
+    public bool IsEmpowered
+    {
+        get => EmpowermentCount > 0;
+        init => EmpowermentCount = value ? Math.Max(1, EmpowermentCount) : 0;
+    }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachmentUnitCopyLedger? AttachmentUnitCopies { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -4536,7 +4542,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, IsEmpowered = state.IsEmpowered, AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, EmpowermentCount = state.EmpowermentCount, AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -6842,7 +6848,10 @@ public sealed record ResolutionResult(
             ["controllerId"] = cardObject.ControllerId
         };
         if (cardObject.GrantedTags is { Count: > 0 } grantedTags) view["grantedTags"] = grantedTags.ToArray();
-        if (cardObject.IsEmpowered) view["isEmpowered"] = true;
+        if (cardObject.IsEmpowered) {
+            view["isEmpowered"] = true;
+            view["empowermentCount"] = cardObject.EmpowermentCount;
+        }
         if (cardObject.DamageMarkedByPlayerIds is { Count: > 0 } damageMarkers)
             view["damageMarkedByPlayerIds"] = damageMarkers.ToArray();
         if (cardObject.MovementCountThisTurn > 0)
