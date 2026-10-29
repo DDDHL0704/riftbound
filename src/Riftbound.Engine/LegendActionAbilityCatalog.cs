@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string ShenLegendAbilityId = "LEGEND_QUICK_EXHAUST_GRANT_BULWARK";
     public const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
     public const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
     public const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
@@ -52,6 +53,11 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> ShenSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards()
+            .Where(card => card.CardName == "暮光之眼" && card.Hero == "慎"
+                && card.CardEffect.StartsWith("{{迅捷>}}{{横置}}：给予一名友方单位在本回合内{{壁垒}}。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> RenektonSourceCardNos = new(() =>
         ReviewedResourceLegendSources.GetPhysicalPrints()
             .Where(card => card.CardName == "荒漠屠夫" && card.Hero == "雷克顿"
@@ -60,6 +66,8 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, ShenLegendAbilityId, StringComparison.Ordinal))
+            return ShenSourceCardNos.Value;
         if (string.Equals(abilityId, RenektonLegendAbilityId, StringComparison.Ordinal))
             return RenektonSourceCardNos.Value;
         return !string.IsNullOrWhiteSpace(abilityId)
