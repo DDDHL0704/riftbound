@@ -190,7 +190,7 @@ public sealed partial class CoreRuleEngine
             next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? item : i).ToArray() }, item);
         } else {
             var card = state.CardObjects[selected.Single()];
-            var changed = ApplyEmpowerStatusAction(next, new(card.ObjectId, card.ObjectGeneration), false);
+            var changed = ApplyEmpowerStatusAction(next, new(card.ObjectId, card.ObjectGeneration), false, item.ControllerId);
             next = next with { CardObjects = changed.CardObjects }; events.AddRange(changed.Events);
             item = item with { EmpowerInteraction = c with { RemovedEmpower = new(card.ObjectId, card.ObjectGeneration),
                 RemovedEmpowerTokenFactory = IsTokenObject(card) ? card.TokenFactoryCardNo ?? card.CardNo : null } };
@@ -241,7 +241,7 @@ public sealed partial class CoreRuleEngine
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }
         var empowered = spec.Effect != "DISENCHANT_OR_DESTROY_EQUIPMENT";
-        var result = ApplyEmpowerStatusAction(state, new(id, cards[id].ObjectGeneration), empowered);
+        var result = ApplyEmpowerStatusAction(state, new(id, cards[id].ObjectGeneration), empowered, item.ControllerId);
         if (spec.Effect != "TEMPORARY_EMPOWER_HERE") return result;
         var effects = state.UntilEndOfTurnEffects.ToList();
         ScheduleDelayedEmpower(state, item, id, false, effects, events);

@@ -65,6 +65,34 @@ public sealed class VenEmpowerInteractionTests
         Assert.True(game.State.CardObjects[target].IsEmpowered); await game.Replay();
     }
 
+    [Theory]
+    [InlineData("ALLY")] [InlineData("ENEMY")]
+    public async Task MerchantUsesItsControllerForEmpowerObserversOnEitherSidesUnits(string target)
+    {
+        var initial = VenUnitEntryBasicTests.Position("VEN·082");
+        var cards = initial.CardObjects.ToDictionary(); var zones = initial.PlayerZones.ToDictionary();
+        var locations = initial.ObjectLocations.ToDictionary();
+        cards["ALLY"] = cards["ALLY"] with { IsEmpowered = true };
+        foreach (var player in new[] { "P1", "P2" }) {
+            var id = player + "-LEGEND";
+            cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "VEN·151", player);
+            zones[player] = zones[player] with { LegendZone = [id] };
+            locations[id] = new(player, "LEGEND");
+        }
+        var game = new Driver(initial with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations });
+        await game.Act("P1", new PlayCardCommand("UNIT", "VEN·082", []));
+        var cost = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(cost.ChoiceId, cost.ChoiceWindow, ["ALLY"]));
+        var choice = game.State.PendingCardChoice!;
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+        await game.Top(); Assert.True(game.State.CardObjects[target].IsEmpowered);
+        var observer = Assert.Single(game.State.StackItems).EmpowerOtherObserver!;
+        Assert.Equal("P1", observer.ControllerId); Assert.Equal(target, observer.Observed.ObjectId);
+        Assert.Equal("P1-LEGEND", observer.Source.ObjectId);
+        await game.Top(); Assert.True(game.State.CardObjects["P1-LEGEND"].IsEmpowered);
+        Assert.False(game.State.CardObjects["P2-LEGEND"].IsEmpowered); await game.Replay();
+    }
+
     [Fact]
     public async Task MerchantCanDeclineWithoutRemovingEmpowerAndCannotPayWithAnOpponentsStatus()
     {
