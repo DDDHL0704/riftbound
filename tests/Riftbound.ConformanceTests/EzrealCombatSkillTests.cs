@@ -63,10 +63,11 @@ public sealed class EzrealCombatSkillTests
     [Theory, InlineData(false), InlineData(true)]
     public async Task RecallOfSourceOrTargetInvalidatesDamageAndKeepsPrivateIdentityHidden(bool targetLeaves)
     {
-        var initial = EquipChainTests.Response(Board(), "OGN·169/298", "P2");
+        var player = targetLeaves ? "P1" : "P2";
+        var initial = EquipChainTests.Response(Board(), "OGN·169/298", player);
         var pending = await AhriCombatMightTests.Pending(initial, "ENEMY1");
-        var passed = await Act(pending, "P1", new PassPriorityCommand());
-        var response = await Act(passed.State, "P2", new PlayCardCommand("RESPONSE", "OGN·169/298", [targetLeaves ? "ENEMY1" : "HOST"]));
+        var responseState = targetLeaves ? pending : (await Act(pending, "P1", new PassPriorityCommand())).State;
+        var response = await Act(responseState, player, new PlayCardCommand("RESPONSE", "OGN·169/298", [targetLeaves ? "ENEMY1" : "HOST"]));
         var recalled = await Top(response.State); Check(recalled.State);
         var done = await Top(recalled.State);
         Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage); Check(done.State);
@@ -111,7 +112,7 @@ public sealed class EzrealCombatSkillTests
         foreach (var opponentTurn in new[] { false, true }) {
             var s = Swift(no, attached: true);
             s = s with { TurnPlayerId = opponentTurn ? "P2" : "P1", ActivePlayerId = "P1", FocusPlayerId = "P1",
-                TimingState = TimingStates.SpellDuelOpen, SpellDuelState = new(true, false, "spell-duel:F", "F", "P1", [], [], []) };
+                TimingState = TimingStates.SpellDuelOpen };
             Check(s);
             Assert.Contains(CommandTypes.ActivateAbility, ResolutionResult.BuildPrompts(s)["P1"].Actions);
             var activated = await Act(s, "P1", Move()); Check(activated.State);
@@ -128,10 +129,8 @@ public sealed class EzrealCombatSkillTests
     {
         var s = Swift();
         s = branch switch {
-            "focus" => s with { TimingState = TimingStates.SpellDuelOpen, FocusPlayerId = "P2",
-                SpellDuelState = new(true, false, "spell-duel:F", "F", "P2", [], [], []) },
-            "priority" => s with { TimingState = TimingStates.SpellDuelOpen, FocusPlayerId = "P1", PriorityPlayerId = "P2",
-                SpellDuelState = new(true, true, "spell-duel:F", "F", "P1", [], [], []) },
+            "focus" => s with { TimingState = TimingStates.SpellDuelOpen, FocusPlayerId = "P2" },
+            "priority" => s with { TimingState = TimingStates.SpellDuelClosed, FocusPlayerId = "P1", PriorityPlayerId = "P2" },
             "closed" => s with { TimingState = TimingStates.NeutralClosed },
             _ => s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = RunePool.Empty } } };
         var hash = MatchStateHasher.Hash(s);
@@ -294,14 +293,15 @@ public sealed class EzrealCombatSkillTests
     {
         var copied = await OfficialCopyIdentityTests.Copy(OfficialCopyIdentityTests.Position(Card));
         const string source = "C-TOKEN-001";
-        var s = copied.State;
-        var field = OfficialGarenConquestBattlefieldCountTests.Printed("COPY_FIELD", "OGN·278/298", "P1");
-        s = s with { PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) {
-                ["P1"] = s.PlayerZones["P1"] with { Battlefields = s.PlayerZones["P1"].Battlefields.Append(field.ObjectId).ToArray() } },
-            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { [field.ObjectId] = field },
-            ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { [field.ObjectId] = new("P1", "BATTLEFIELD", field.ObjectId) },
-            RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(0, 0, new Dictionary<string,int> { [RuneTrait.Blue] = 1 }) } };
-        s = LocalDestructionRecallTests.At(s, source, "P1", "BATTLEFIELD", field.ObjectId);
+        var position = Swift();
+        var cards = position.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        cards.Remove("HOST"); cards[source] = copied.State.CardObjects[source];
+        var locations = position.ObjectLocations.ToDictionary(p => p.Key, p => p.Value);
+        locations.Remove("HOST"); locations[source] = new("P1", "BATTLEFIELD", "F");
+        var s = position with { Tick = copied.State.Tick + 1, CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(position.PlayerZones) {
+                ["P1"] = position.PlayerZones["P1"] with { Battlefields = position.PlayerZones["P1"].Battlefields
+                    .Select(id => id == "HOST" ? source : id).ToArray() } } };
         Check(s);
         var activated = await Act(s, "P1", new ActivateAbilityCommand(source, Move().AbilityId, []));
         var item = Assert.Single(activated.State.StackItems);
