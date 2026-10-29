@@ -991,6 +991,12 @@ public static class TriggerParser
                 CreatedTokenName: playedOrScoredToken.Groups["name"].Value, CreatedTokenPower: tokenMight,
                 CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true,
                 CreatedTokenKeywords: [playedOrScoredToken.Groups["tag"].Value]);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，召出一枚符文")
+            return new(TriggerKinds.UnitBattlefieldHeldCallRune, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, RuneCallCount: 1);
+        if (segment.TrimEnd('。') == "当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分")
+            return new(TriggerKinds.UnitBattlefieldHeldScore, TriggerTimings.BattlefieldHeld, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, ScoreAmount: 1, RequiresControlledFaceDownCardHere: true);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);

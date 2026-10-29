@@ -11,7 +11,11 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     RuleTextInstanceBinding? Origin = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    string? RuleTextInstanceId = null);
+    string? RuleTextInstanceId = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    HeldUnitSource? UnitSource = null);
+public sealed record HeldUnitSource(long CapturedTick, long FaceRevision, string FaceCardNo,
+    string? TokenFactoryCardNo = null, bool Ceased = false);
 public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
     string SourceCardNo, string BattlefieldObjectId, int DueTurn, int Power);
 

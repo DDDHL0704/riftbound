@@ -67,8 +67,12 @@ public sealed partial class CoreRuleEngine
                 ? context with { AffectedUnitCeasedToExist = true } : context;
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
-            StackItems = result.State.StackItems.Select(i => i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.SourceObjectId, i.FieldContext) }).ToArray(),
-            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is null ? t : t with { FieldContext = Invalidate(t.SourceObjectId, t.FieldContext) }).ToArray() };
+            StackItems = result.State.StackItems.Select(i => i with {
+                FieldContext = Invalidate(i.SourceObjectId, i.FieldContext),
+                HeldContext = MarkCeasedUnitHeld(before, departed, i.SourceObjectId, i.HeldContext) }).ToArray(),
+            TriggerQueue = result.State.TriggerQueue.Select(t => t with {
+                FieldContext = Invalidate(t.SourceObjectId, t.FieldContext),
+                HeldContext = MarkCeasedUnitHeld(before, departed, t.SourceObjectId, t.HeldContext) }).ToArray() };
         // Preserve the originally declared participant identities. The current
         // resolution's before-state proves these missing objects were tokens;
         // recovery never invents a live unit to replace a ceased participant.
