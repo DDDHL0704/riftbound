@@ -293,7 +293,8 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    bool AllowsPlayToOpenBattlefield = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -315,6 +316,7 @@ public static class CardTargetScopes
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string ControlledBattlefieldThenFriendlyUnit = "CONTROLLED_BATTLEFIELD_THEN_FRIENDLY_UNIT";
     public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
     public const string BattlefieldThenEnemyUnit = "BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
@@ -456,6 +458,17 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·066", "时空裂隙", 2, "TIME_FISSURE_BANISH_UNIT_PLAY_SAME_LOCATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+            EffectPlayDestination: "ORIGINAL_LOCATION"),
+        new("VEN·115", "海洋亚龙", 8, "OCEAN_DRAKE_PLAY_UNIT_OPTIONAL_RETURN_NON_DRAGON", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            TargetForbiddenTag: "龙", MinTargetCount: 0, ReturnsTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "龙", AllowsPlayToOpenBattlefield: true),
+        new("VEN·034", "回音击", 2, "ECHOING_STRIKE_MOVE_FRIENDLY_UNIT_AND_BUFF", 0, 2,
+            TargetScope: CardTargetScopes.ControlledBattlefieldThenFriendlyUnit, CanPlayDuringPriority: true,
+            TargetReferencedMovement: new(1, 0, ReferenceIsBattlefield: true, ReferenceMustBeControlled: true, MovingUnitPowerBonus: 2)),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

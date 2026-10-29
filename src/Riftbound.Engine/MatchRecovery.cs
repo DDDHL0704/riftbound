@@ -1140,6 +1140,8 @@ public static partial class MatchRecoveryValidator
             errors.Add("command rule input identity is missing or differs from running inputs");
 
         RoomSeatRecoveryValidator.Validate(commands, events, errors);
+        if (authoritativeState is not null)
+            ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
