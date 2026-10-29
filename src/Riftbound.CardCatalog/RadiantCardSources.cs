@@ -18,6 +18,7 @@ public static class RadiantCardSources
         // Admit each implemented physical printing by both official identifiers.
         return new[] { (Id: 39535L, CardNo: "RAD·042/167"), (Id: 39536L, CardNo: "RAD·042a/167"),
             (Id: 39540L, CardNo: "RAD·045/167"), (Id: 39541L, CardNo: "RAD·045a/167"),
+            (Id: 39560L, CardNo: "RAD·063/167"),
             (Id: 39584L, CardNo: "RAD·085/167"), (Id: 39655L, CardNo: "RAD·147/167"),
             (Id: 39656L, CardNo: "RAD·148/167"),
             (Id: 39684L, CardNo: "RAD·172*/167"), (Id: 39685L, CardNo: "RAD·172/167"),

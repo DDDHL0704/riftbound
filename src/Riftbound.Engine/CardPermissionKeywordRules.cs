@@ -117,7 +117,7 @@ public static class CardPermissionKeywordRules
         {
             return new CardPlayTimingDecision(
                 true,
-                behavior.CanPlayDuringPriority ? CardPermissionKeywordNames.Reaction : CardPermissionKeywordNames.Swift,
+                HasReactionPermission(state, playerId, behavior) ? CardPermissionKeywordNames.Reaction : CardPermissionKeywordNames.Swift,
                 "Swift or Reaction card may be played by the focus player during an open spell duel.");
         }
 
@@ -214,7 +214,7 @@ public static class CardPermissionKeywordRules
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return (behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction))
+        return HasReactionPermission(state, playerId, behavior)
             && (state.StackItems.Count > 0
                 || (state.BattleState.IsActive
                     && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)))
@@ -227,12 +227,28 @@ public static class CardPermissionKeywordRules
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return (behavior.CanPlayDuringSpellDuel || behavior.CanPlayDuringPriority
-                || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction))
+        return (behavior.CanPlayDuringSpellDuel || HasReactionPermission(state, playerId, behavior))
             && state.StackItems.Count == 0
             && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
             && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool HasReactionPermission(MatchState state, string playerId, CardBehaviorDefinition behavior)
+        => behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction)
+            || HasSpellDuelReactionGrant(state, playerId, behavior);
+
+    private static bool HasSpellDuelReactionGrant(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    {
+        // CN 344.1: a battle begins with a showdown. The unit must be at the
+        // current showdown's battlefield; the turn's showdown state alone is insufficient.
+        if (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
+            || state.SpellDuelState is not { IsActive: true, BattlefieldObjectId: { } field }) return false;
+        return state.CardObjects.Values.Any(unit => unit.ControllerId == playerId
+            && BattlefieldLocalRules.AtUnit(state, unit.ObjectId)?.ObjectId == field
+            && AttachedRuleTextRules.Instances(state, unit).Any(instance =>
+                CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                    ability => ability.Kind == Riftbound.Contracts.StaticAbilityKinds.UnitInSpellDuelFriendlySpellsReaction, out _)));
     }
 
     private static CardPlayTimingDecision Rejected(string reason)

@@ -21,8 +21,10 @@ public sealed partial class CoreRuleEngine
             return new(new(sourceId, context.SourceGeneration), context.SourceTokenFactoryCardNo!, result.State.Tick,
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
-        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid }
+        FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context)
+        {
+            context = FinalizeDisarmContributionDepartures(before, result.State, departed, context);
+            return context is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, PaidUnitTrigger = paid with {
@@ -58,13 +60,14 @@ public sealed partial class CoreRuleEngine
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, RecycledBoon = origin with {
                     CeasedSource = CaptureBoonSource(sourceId, context, origin) } }
-                : context is { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
+                : context is { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == (before.CardObjects[sourceId].TokenFactoryCardNo ?? before.CardObjects[sourceId].CardNo)
                 ? context with { SourceCeasedToExist = true }
                 : context is { Kind: "ENEMY_ATTACK_MIGHT", AffectedUnit: { } affected }
                 && departed.Contains(affected.ObjectId) && before.CardObjects[affected.ObjectId].ObjectGeneration == affected.Generation
                 ? context with { AffectedUnitCeasedToExist = true } : context;
+        }
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
             .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
             StackItems = result.State.StackItems.Select(i => i with {

@@ -44,6 +44,7 @@ public static partial class KeywordParser
         "急速",
         "强攻",
         "坚守",
+        "缴械",
         "壁垒",
         "后排",
         "游走",
@@ -2949,6 +2950,13 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (Regex.IsMatch(segment, @"^只要我处于法术对决中[，,]\s*你的法术便具有\{\{反应\}\}[。.]?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitInSpellDuelFriendlySpellsReaction,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "The controller's spells have Reaction while this unit is at the active showdown's battlefield."));
+                continue;
+            }
             if (segment.Contains("如果你将召出符文，则改为召出同等数量的符文，外加一枚休眠的符文", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.ControllerRuneCallExtraExhausted,
