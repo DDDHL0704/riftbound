@@ -25351,6 +25351,10 @@ public static partial class MatchRecoveryValidator
                 || source.ObjectGeneration == context.SourceGeneration
                     && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
                         || !source.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal))
+                || (ability.PowerModifierAmountIfSourceEmpowered is null ? context.LastKnownSourceEmpowered is not null
+                    : context.LastKnownSourceEmpowered is null || source.ObjectGeneration == context.SourceGeneration
+                        && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
+                        && context.LastKnownSourceEmpowered != source.IsEmpowered)
                 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
                 || item.TargetObjectIds is not { Count: 1 }
                 || item.TargetGenerations is not { Count: 1 }

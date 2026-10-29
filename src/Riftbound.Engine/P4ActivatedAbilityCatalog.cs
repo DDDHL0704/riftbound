@@ -40,7 +40,8 @@ public sealed record P4ActivatedAbilityDefinition(
     int MinimumPowerAfterModifier = 0,
     string SourceRequiredTag = "",
     SimpleActivatedEffectSpec? SimpleEffect = null,
-    int? GeneratedManaIfSourceEmpowered = null);
+    int? GeneratedManaIfSourceEmpowered = null,
+    int? PowerModifierAmountIfSourceEmpowered = null);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false);
@@ -242,6 +243,10 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("IMPERIAL_TOOL_POWER", "VEN·077", "IMPERIAL_TOOL_POWER", "帝国工具", 0, 0, 1,
+            false, true, 0, true, "官方中文：横置，单位本回合+2；来源已强化时改为+4。",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: 2, SourceRequiredTag: CardObjectTags.EquipmentCard, PowerModifierAmountIfSourceEmpowered: 4),
         new("BOOK_REMOVE_EMPOWER_DRAW", "VEN·054", "BOOK_REMOVE_EMPOWER_DRAW", "可疑之书", 1, 0, 0,
             false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
             RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,

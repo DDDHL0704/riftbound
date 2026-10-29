@@ -713,7 +713,8 @@ public sealed record CardObjectState
 public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "",
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? MovementDeclarationPlayerId = null);
 
-public sealed record TargetedPowerAbilityContext(string AbilityId, string SourceObjectId, long SourceGeneration);
+public sealed record TargetedPowerAbilityContext(string AbilityId, string SourceObjectId, long SourceGeneration,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? LastKnownSourceEmpowered = null);
 
 public sealed record StackItemState
 {

@@ -9,7 +9,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class VenActivatedEquipmentTests
 {
     public static TheoryData<string, int, bool> Cards => new() {
-        { "VEN·054", 3, false }, { "VEN·062", 2, true }, { "VEN·075", 3, true }, { "VEN·087", 4, false }
+        { "VEN·054", 3, false }, { "VEN·062", 2, true }, { "VEN·075", 3, true }, { "VEN·077", 4, false }, { "VEN·087", 4, false }
     };
 
     [Theory]
@@ -33,12 +33,81 @@ public sealed class VenActivatedEquipmentTests
     }
 
     [Theory]
-    [InlineData("VEN·054")] [InlineData("VEN·062")] [InlineData("VEN·075")] [InlineData("VEN·087")]
+    [InlineData("VEN·054")] [InlineData("VEN·062")] [InlineData("VEN·075")] [InlineData("VEN·077")] [InlineData("VEN·087")]
     public async Task UnpayableEquipmentAndInventedPlayTargetsAreRejectedWithoutMutation(string no)
     {
         await Reject(Position(no), new PlayCardCommand("UNIT", no, ["ALLY"]));
         var state = Position(no);
         await Reject(state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(0, 0) } }, new PlayCardCommand("UNIT", no, []));
+    }
+
+    [Theory]
+    [InlineData(false, false)] [InlineData(true, false)]
+    [InlineData(false, true)] [InlineData(true, true)]
+    public async Task ImperialToolReadsCurrentOrLastKnownEmpowermentAndItsBonusExpires(bool empowered, bool destroyed)
+    {
+        var state = Position("VEN·077");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["UNIT"] = state.CardObjects["UNIT"] with { IsEmpowered = empowered } } };
+        state = LocalDestructionRecallTests.At(state, "UNIT", "P1", "BASE");
+        state = state with { PlayerZones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Key == "P1" ? p.Value with { Hand = [] } : p.Value) };
+        var game = new Driver(state); var power = state.CardObjects["ALLY"].Power;
+        foreach (var illegal in new[] { "UNIT", "GEAR", "GRAVE", "P1-DRAW-1" })
+            await Reject(game.State, new ActivateAbilityCommand("UNIT", "IMPERIAL_TOOL_POWER", [illegal]));
+        await game.Act("P1", new ActivateAbilityCommand("UNIT", "IMPERIAL_TOOL_POWER", ["ALLY"]));
+        Assert.Equal(power, game.State.CardObjects["ALLY"].Power);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(empowered, Assert.Single(game.State.StackItems).TargetedPowerAbility!.LastKnownSourceEmpowered);
+        if (destroyed) {
+            var departed = game.State with {
+                CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects) {
+                    ["UNIT"] = game.State.CardObjects["UNIT"] with { ObjectGeneration = 1, IsEmpowered = false } },
+                PlayerZones = game.State.PlayerZones.ToDictionary(p => p.Key, p => p.Key == "P1" ? p.Value with {
+                    Base = p.Value.Base.Where(id => id != "UNIT").ToArray(), Graveyard = [..p.Value.Graveyard, "UNIT"] } : p.Value),
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(game.State.ObjectLocations) { ["UNIT"] = new("P1", "GRAVEYARD") }
+            };
+            Assert.Empty(OfficialInsightAndSpellLockTests.Errors(departed));
+            var done = await OfficialGraveyardRecastTests.Top(departed);
+            Assert.Equal(power + (empowered ? 4 : 2), done.State.CardObjects["ALLY"].Power);
+            Assert.Empty(OfficialInsightAndSpellLockTests.Errors(done.State));
+            return;
+        }
+        await game.Top(); Assert.Equal(power + (empowered ? 4 : 2), game.State.CardObjects["ALLY"].Power);
+        await game.Act("P1", new EndTurnCommand()); Assert.Equal(power, game.State.CardObjects["ALLY"].Power); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ImperialToolTracksAnEmpowermentChangeBeforeItsResolution(bool initiallyEmpowered)
+    {
+        var state = LocalDestructionRecallTests.At(Position("VEN·077"), "UNIT", "P1", "BASE");
+        state = state with { PlayerZones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Key == "P1" ? p.Value with { Hand = [] } : p.Value),
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["UNIT"] = state.CardObjects["UNIT"] with { IsEmpowered = initiallyEmpowered } } };
+        var engine = new CoreRuleEngine();
+        var started = await engine.ResolveAsync(state, new("activate", "P1", CommandTypes.ActivateAbility), new ActivateAbilityCommand("UNIT", "IMPERIAL_TOOL_POWER", ["ALLY"]), default);
+        Assert.True(started.Accepted);
+        var changed = started.State with { CardObjects = new Dictionary<string, CardObjectState>(started.State.CardObjects) {
+            ["UNIT"] = started.State.CardObjects["UNIT"] with { IsEmpowered = !initiallyEmpowered } } };
+        var captured = await engine.ResolveAsync(changed, new("pass1", "P1", CommandTypes.PassPriority), new PassPriorityCommand(), default);
+        Assert.True(captured.Accepted);
+        Assert.Equal(!initiallyEmpowered, Assert.Single(captured.State.StackItems).TargetedPowerAbility!.LastKnownSourceEmpowered);
+        Assert.Contains(captured.Events, e => e.Kind == "ABILITY_SOURCE_STATUS_CAPTURED");
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(captured.State));
+        var done = await engine.ResolveAsync(captured.State, new("pass2", "P2", CommandTypes.PassPriority), new PassPriorityCommand(), default);
+        Assert.True(done.Accepted); Assert.Equal(state.CardObjects["ALLY"].Power + (initiallyEmpowered ? 2 : 4), done.State.CardObjects["ALLY"].Power);
+    }
+
+    [Fact]
+    public async Task ImperialToolRecoveryRejectsAFalseOrMissingCurrentSourceStatus()
+    {
+        var state = LocalDestructionRecallTests.At(Position("VEN·077"), "UNIT", "P1", "BASE");
+        state = state with { PlayerZones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Key == "P1" ? p.Value with { Hand = [] } : p.Value) };
+        var game = new Driver(state); await game.Act("P1", new ActivateAbilityCommand("UNIT", "IMPERIAL_TOOL_POWER", ["ALLY"]));
+        var item = Assert.Single(game.State.StackItems);
+        foreach (bool? status in new bool?[] { null, true }) {
+            var forged = game.State with { StackItems = [item with { TargetedPowerAbility = item.TargetedPowerAbility! with { LastKnownSourceEmpowered = status } }] };
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), e => e.Contains("targeted power ability"));
+        }
     }
 
     [Theory]
