@@ -134,6 +134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
+    private const string PlayedUnitThisTurnEffectPrefix = "PLAYED_UNIT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
@@ -3630,6 +3631,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects,
             intent.PlayerId,
             behavior);
+        untilEndOfTurnEffects = MarkUnitPlayedThisTurn(
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            behavior,
+            toBattlefield: !string.IsNullOrWhiteSpace(destination));
         untilEndOfTurnEffects = MarkRengarUnitPlayedTriggerTarget(
             untilEndOfTurnEffects,
             stackItem,
@@ -4501,6 +4507,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : existingEffectIds;
     }
 
+    private static IReadOnlyList<string> MarkUnitPlayedThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        bool toBattlefield)
+    {
+        return behavior.PlaysSourceToBaseAsUnit && toBattlefield
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedUnitThisTurnEffectId(playerId))
+            : existingEffectIds;
+    }
+
     private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
@@ -4516,6 +4533,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string BuildPlayedEquipmentThisTurnEffectId(string playerId)
     {
         return $"{PlayedEquipmentThisTurnEffectPrefix}{playerId}";
+    }
+
+    private static string BuildPlayedUnitThisTurnEffectId(string playerId)
+    {
+        return $"{PlayedUnitThisTurnEffectPrefix}{playerId}";
     }
 
     private static string BuildDiscardedHandCardThisTurnEffectId(string playerId)
@@ -4671,6 +4693,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             BuildPlayedEquipmentThisTurnEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+                   BuildPlayedUnitThisTurnEffectId(playerId),
+                   StringComparer.Ordinal)
+            || ControllerPlayedEquipmentThisTurn(state, playerId);
     }
 
     private static bool BattlefieldFriendlySpellDrawUsedThisTurn(
@@ -22783,6 +22813,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => ControllerControlsEmpoweredObject(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn
+                => ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(state, playerId)
+                    ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.PlayedOutsideOwnHand
                 => sourceObjectId is not null && state.CardObjects.TryGetValue(sourceObjectId, out var source)
                     && source.CardNo == behavior.CardNo && state.PlayerZones.TryGetValue(playerId, out var own)
@@ -25863,7 +25896,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         events.Add(tagEvent);
                     }
 
-                    if (behavior.GrantsBoon)
+                    if (behavior.GrantsBoon
+                        && (behavior.BoonTargetIndex < 0 || behavior.BoonTargetIndex == targetIndex))
                     {
                         targetState = ApplyBoon(
                             targetState,
@@ -26242,12 +26276,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (winnerPlayerId is null && behavior.CreatedBaseEquipmentTokenCount > 0)
         {
+            var tokenRecipientId = behavior.CreatedBaseEquipmentTokenForTargetController
+                ? targetControllerDrawRecipientIds.LastOrDefault() ?? stackItem.ControllerId
+                : stackItem.ControllerId;
             CreateBaseEquipmentTokens(
                 playerZones,
                 cardObjects,
                 behavior,
                 stackItem,
-                events);
+                events,
+                recipientPlayerId: tokenRecipientId);
         }
 
         if (behavior.RecyclesSelectedMainDeckTargets && !IsDeferredDeckChoice(behavior))
@@ -28782,9 +28820,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         List<GameEvent> events,
-        int tokenCountOverride = 0)
+        int tokenCountOverride = 0,
+        string? recipientPlayerId = null)
     {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        recipientPlayerId ??= stackItem.ControllerId;
+        if (!playerZones.TryGetValue(recipientPlayerId, out var zones))
         {
             return;
         }
@@ -28815,8 +28855,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var tokenState = hasTokenDefinition
                 ? tokenDefinition.CreateObject(
                     tokenObjectId,
-                    stackItem.ControllerId,
-                    stackItem.ControllerId,
+                    recipientPlayerId,
+                    recipientPlayerId,
                     behavior.CreatedBaseEquipmentTokenIsExhausted) with
                 {
                     Tags = resolvedTokenTags
@@ -28825,12 +28865,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     tokenObjectId,
                     isExhausted: behavior.CreatedBaseEquipmentTokenIsExhausted,
                     tags: resolvedTokenTags,
-                    ownerId: stackItem.ControllerId,
-                    controllerId: stackItem.ControllerId);
+                    ownerId: recipientPlayerId,
+                    controllerId: recipientPlayerId);
             tokenState = ApplyTokenEntryStaticAbility(
                 playerZones,
                 cardObjects,
-                stackItem.ControllerId,
+                recipientPlayerId,
                 tokenObjectId,
                 tokenState,
                 out var entersReadyFromStaticAbility,
@@ -28840,7 +28880,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects[tokenObjectId] = tokenState;
             var payload = new Dictionary<string, object?>
             {
-                ["playerId"] = stackItem.ControllerId,
+                ["playerId"] = recipientPlayerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseEquipmentTokenName,
@@ -28868,7 +28908,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload));
         }
 
-        playerZones[stackItem.ControllerId] = zones with
+        playerZones[recipientPlayerId] = zones with
         {
             Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
         };

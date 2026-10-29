@@ -318,7 +318,13 @@ public sealed record CardBehaviorDefinition(
     bool EachPlayerKeepsOneUnitBeforeDestroyingOthers = false,
     bool CannotBeCountered = false,
     bool IgnoresSpellshield = false,
-    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
+    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null,
+    // Some official effects apply a boon to only one member of a multi-target
+    // instruction.  The default keeps the historical single-target behavior.
+    int BoonTargetIndex = -1,
+    // A destruction effect may create the replacement equipment in the
+    // destroyed card's controller's base rather than the spell controller's.
+    bool CreatedBaseEquipmentTokenForTargetController = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -438,6 +444,7 @@ public static class CardCostReductionConditionKinds
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
     public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
+    public const string ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn = "CONTROLLER_PLAYED_UNIT_OR_EQUIPMENT_TO_BATTLEFIELD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
 }
 
@@ -716,6 +723,21 @@ public static class CardBehaviorRegistry
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Blue),
         new("RAD·059/167", "超新星", 9, "SUPERNOVA_DAMAGE_TEN_DRAW_TWO", 10, 1,
             DrawCount: 2, TargetScope: CardTargetScopes.AnyUnit),
+        new("RAD·070/167", "先打再跟", 3, "PLAY_THEN_FOLLOW_POWER_PLUS_THREE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 3,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn,
+            CostReductionMana: 2, CanPlayDuringSpellDuel: true),
+        new("RAD·101/167", "无法拒绝的提议", 2, "IRRESISTIBLE_OFFER_DESTROY_EQUIPMENT_CREATE_TARGET_CONTROLLER_GOLD", 0, 1,
+            TargetScope: CardTargetScopes.Equipment, DestroysTarget: true,
+            CreatedBaseEquipmentTokenCount: 1, CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true,
+            CreatedBaseEquipmentTokenForTargetController: true, CanPlayDuringSpellDuel: true),
+        new("RAD·121/167", "组合拳", 3, "COMBO_GRANT_BOON_AND_STUN", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            StatusEffectId: "STUNNED", StatusEffectTargetIndex: 1,
+            GrantsBoon: true, BoonTargetIndex: 0, CanPlayDuringSpellDuel: true),
         new("RAD·071/167", "纳祖芒陀斧", 1, "NTOFO_BLADES_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new("RAD·077/167", "弗雷尔卓德之怒", 9, "FRELJORD_FURY_PLAY_READY_UNIT", 0, 0,
