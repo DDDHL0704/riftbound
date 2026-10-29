@@ -11906,6 +11906,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
             var queue = CaptureAttackDamageTriggers(attackState, attackerObjectIds, battlefieldId).ToList();
+            queue.AddRange(CaptureAttackAreaDamageTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackDeckPlayTriggers(attackState, attackerObjectIds, battlefieldId, TimingStates.NeutralClosed)
                 .Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
             queue.AddRange(CaptureStandbyDefendTriggers(attackState, defenderObjectIds, battlefieldId,
@@ -18972,7 +18973,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null ? resolvedItem.SourceObjectId
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                        ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
