@@ -141,7 +141,11 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             RunePools = new Dictionary<string, RunePool> { ["P1"] = new(0, 0), ["P2"] = new(0, 0) } };
     }
     private static async Task Tap(Driver game, string player)
-    { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].CardNo == "UNL-R06" && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
+    {
+        foreach (var runes in game.State.PlayerZones[player].Base
+            .Where(id => game.State.CardObjects[id].CardNo == "UNL-R06" && !game.State.CardObjects[id].IsExhausted).ToArray().Chunk(12))
+            await game.Act(player, new TapRuneCommand(runes[0], runes));
+    }
     private static CardObjectState[] Minions(MatchState state) => state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.MinionTokenFamily)).ToArray();
     private static async Task Export(string label, MatchState initial, Driver game)
     {
