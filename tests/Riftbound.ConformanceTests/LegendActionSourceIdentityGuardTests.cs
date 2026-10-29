@@ -312,7 +312,7 @@ public sealed class LegendActionSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
@@ -364,7 +364,7 @@ public sealed class LegendActionSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
@@ -431,7 +431,7 @@ public sealed class LegendActionSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",

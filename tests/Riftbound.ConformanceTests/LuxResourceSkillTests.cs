@@ -47,7 +47,7 @@ public sealed class LuxResourceSkillTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             repositoryRoot,
             "src",
             "Riftbound.Engine",
