@@ -70,6 +70,7 @@ def partition(units, cases, weights, count):
     for shard in bins:
         shard['selectors'].sort(key=key)
         shard['methods'] = sorted({unit['method'] for unit in shard['selectors']})
+        shard['estimatedClassSeconds'] = dict(sorted(class_loads[shard['name']].items()))
     return bins
 
 
