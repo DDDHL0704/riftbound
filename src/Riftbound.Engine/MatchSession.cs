@@ -553,6 +553,8 @@ public sealed record PowerModifierLedgerEntry
 public sealed record CardObjectState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SpellNameDeclaration? DeclaredSpellName { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyPlacement? StandbyPlacement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyPlacement? LastStandbyPlay { get; init; }
@@ -2678,6 +2680,8 @@ public sealed record MatchState
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
+            return CoreRuleEngine.SameLocationOtherFriendlySameNameUnitIds(state, objectId);
         if (string.Equals(
             aura.ParticipantScope,
             StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
@@ -3438,9 +3442,9 @@ public sealed record MatchState
                         aura.Duration,
                         participantObjectId,
                         sourceObjectId,
-                        aura.PowerDeltaPerParticipant,
+                        StaticAuraSpecRules.PowerDeltaForSource(aura, source),
                         participant.Power,
-                        participant.Power + aura.PowerDeltaPerParticipant,
+                        participant.Power + StaticAuraSpecRules.PowerDeltaForSource(aura, source),
                         aura.Kind,
                         source.CardNo,
                         metadata.SourcePath,
@@ -4542,7 +4546,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, IsEmpowered = state.IsEmpowered, AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { StandbyPlacement = state.StandbyPlacement, LastStandbyPlay = state.LastStandbyPlay, IsEmpowered = state.IsEmpowered, AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId, DeclaredSpellName = state.DeclaredSpellName };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -6853,6 +6857,7 @@ public sealed record ResolutionResult(
         };
         if (cardObject.GrantedTags is { Count: > 0 } grantedTags) view["grantedTags"] = grantedTags.ToArray();
         if (cardObject.IsEmpowered) view["isEmpowered"] = true;
+        if (cardObject.DeclaredSpellName is { } declaration) view["declaredSpellName"] = declaration.Name;
         if (cardObject.DamageMarkedByPlayerIds is { Count: > 0 } damageMarkers)
             view["damageMarkedByPlayerIds"] = damageMarkers.ToArray();
         if (cardObject.MovementCountThisTurn > 0)

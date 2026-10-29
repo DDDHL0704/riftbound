@@ -25415,7 +25415,7 @@ public sealed partial class FullGameEndToEndTests
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
                     Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
-                        ?? (item.PermanentPlaySource is not null ? "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
+                        ?? (item.PermanentPlaySource is not null ? item.CardNo == "VEN·132" ? "VEN·132" : "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
                     if (held is not null)
                     {
                         // Independently verify this bounded public old-generation
@@ -25444,6 +25444,13 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(grantedConquest.SourceGeneration.ToString(), grantFields[6]);
                         Assert.Equal(item.SourceObjectId, Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[8])));
                         Assert.Null(row["unitConquest"]); // Stack view exposes only the public source/card identity.
+                    }
+                    else if (item.PermanentPlaySource is { } declaredSource && item.CardNo == "VEN·132")
+                    {
+                        Assert.Equal("FALLING_CAT_DECLARE_SPELL_NAME", item.EffectKind);
+                        Assert.True(item.SourceConfirmed); Assert.Equal(item.SourceObjectId, declaredSource.ObjectId);
+                        Assert.Contains(result.State.CardPlays.Resolved, play => play.PlayId == item.StackItemId
+                            && play.Source == declaredSource && play.CardNo == "VEN·132");
                     }
                     else if (item.PermanentPlaySource is { } permanent)
                     {

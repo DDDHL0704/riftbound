@@ -300,12 +300,17 @@ public sealed record CardBehaviorDefinition(
     int StaticFlowSpellCostReductionMana = 0,
     int StaticFlowSpellCostReductionMinimumManaCost = 0,
     OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
-    bool PlayTriggerBanishesGraveyardCardAsCost = false)
+    bool PlayTriggerBanishesGraveyardCardAsCost = false,
+    SourceStaticLimitsSpec? SourceStaticLimits = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
 
 public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 0, int? GenericPowerIfEmpowered = null);
+public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
+    bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
+    int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -492,6 +497,28 @@ public static class CardBehaviorRegistry
             CostReductionConditionKind: CardCostReductionConditionKinds.ControlledBattlefieldUnitCount,
             CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Yellow,
             CostReductionBattlefieldUnitCount: 2),
+        new("VEN·132", "坠落猫咪", 2, "FALLING_CAT_DECLARE_SPELL_NAME", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "猫科",
+            SourceStaticLimits: new(DeclaresSpellNameAndProhibitsItOnEnemyBattlefield: true)),
+        new("VEN·004", "沙丘冲浪者", 3, "DUNE_SURFER_STATIC_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            SourceStaticLimits: new(CombatDamageIgnoresBulwarkHere: true)),
+        new("VEN·025", "圣职尊者", 5, "SACRED_ELDER_RUNE_IMMUNITY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            SourceStaticLimits: new(EnemySpellSkillDamageImmunityMinimumRunes: 7)),
+        new("VEN·029", "老老魄罗", 2, "ELDER_PORO_TURN_RESTRICTED_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "魄罗",
+            SourceStaticLimits: new(UnplayableThroughControllerTurn: 3)),
+        new("VEN·036", "砂岩奇美拉", 7, "SANDSTONE_CHIMERA_CHANNEL_LIMIT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8,
+            SourceStaticLimits: new(BattlefieldStageRuneCallLimit: 1)),
+        new("VEN·053", "章獭", 2, "OTTERPUS_EARLY_SCORE_REPLACEMENT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2,
+            SourceStaticLimits: new(BattlefieldScoreDrawThroughPlayerTurn: 2)),
+        new("VEN·018", "怒火放大器", 4, "FURY_AMPLIFIER_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·076", "维修专家", 3, "MAINTENANCE_EXPERT_UNIT", 0, 0, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·097", "小蜘蛛", 3, "SPIDERLING_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "蜘蛛|待命"),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
