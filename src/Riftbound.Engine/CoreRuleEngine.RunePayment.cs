@@ -151,10 +151,9 @@ public sealed partial class CoreRuleEngine
             return [];
         }
 
-        var capacity = int.MaxValue - pool.TotalStoredMana;
+        // Every individually legal rune remains a choice; selected combinations are capacity-checked.
         return zones.Base
             .Where(id => CanTapRuneForPayment(state, playerId, id))
-            .Take(capacity)
             .Select(id => TapRunePaymentOptionalCostPrefix + id)
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
