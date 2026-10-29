@@ -25203,6 +25203,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
+                if (behavior.ReadiesAllFriendlyUnits)
+                    ReadyFriendlyFieldUnits(playerZones, cardObjects, behavior, stackItem, events);
                 foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     if (!CardObjectHasTag(cardObjects, targetObjectId, behavior.PowerModifierUnitTag))
@@ -25280,26 +25282,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.ReadiesAllFriendlyUnits)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
-            {
-                foreach (var targetObjectId in GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
-                {
-                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-                        ? existingTarget
-                        : new CardObjectState(targetObjectId);
-
-                    targetState = ApplyReadyState(
-                        targetState,
-                        behavior,
-                        stackItem,
-                        targetObjectId,
-                        out var readyEvent, playerZones, cardObjects);
-                    cardObjects[targetObjectId] = targetState;
-                    if (readyEvent is not null)
-                    {
-                        events.Add(readyEvent);
-                    }
-                }
-            }
+                ReadyFriendlyFieldUnits(playerZones, cardObjects, behavior, stackItem, events);
         }
         else if (behavior.CreatedBaseUnitTokenCount > 0
             && !behavior.CreatedBaseUnitTokenCopiesFirstTarget
