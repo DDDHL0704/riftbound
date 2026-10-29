@@ -68,7 +68,7 @@ public sealed partial class LastBreathRuneCallBoundaryTests
         }
         var game = new Driver(initial);
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P2"].Mana);
-            foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+            await Tap(game, "P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
             var mana = game.State.RunePools["P1"].Mana;
             await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
             Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.CardObjects["UNIT"].Power);
@@ -105,6 +105,14 @@ public sealed partial class LastBreathRuneCallBoundaryTests
                 "BASE" => state.PlayerZones[owner] with { Base = [..state.PlayerZones[owner].Base, id] },
                 "RUNE_DECK" => state.PlayerZones[owner] with { RuneDeck = [..state.PlayerZones[owner].RuneDeck, id] },
                 _ => state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } } };
-    private static async Task Tap(Driver game, string player)
-    { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
+    private static async Task Tap(Driver game, string player, IEnumerable<string>? selectedRunes = null)
+    {
+        var runes = (selectedRunes ?? game.State.PlayerZones[player].Base.Where(id =>
+            game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted)).ToArray();
+        // Prepare resources with the production batch command. The driver's
+        // privacy, recovery, duplicate and original-history replay checks still
+        // run after every command, including each actual last-breath resolution.
+        foreach (var batch in runes.Chunk(12))
+            await game.Act(player, new TapRuneCommand(batch[0], batch));
+    }
 }

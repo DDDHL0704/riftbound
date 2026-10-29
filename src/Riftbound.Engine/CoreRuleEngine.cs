@@ -2549,7 +2549,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
+    internal static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
     {
         return battle.AttackerObjectIds
             .Concat(battle.DefenderObjectIds)
@@ -3217,6 +3217,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (pendingChoice.ChoiceWindow is EmpowerRemovalCostWindow or EmpowerOpponentWindow) return ResolveEmpowerInteractionChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == ReadiedModeWindow) return ResolveReadiedMode(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DravenDeathOpponentWindow) return ResolveDravenDeathOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
@@ -3249,7 +3251,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (trigger.PermanentPlayStackItemId is { } pending)
             return state.StackItems.Single(i => i.StackItemId == pending);
         if (trigger.DelayedEmpower is not null) return DelayedEmpowerStack(trigger);
-        var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.HandDiscardObserver?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.EmpowerInteraction?.CardNo ?? trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.ReadyObjectTrigger?.CardNo ?? trigger.SourceReadied?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.HandDiscardObserver?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3262,7 +3264,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction };
     }
 
     private sealed record TriggerControllerBlock(
@@ -7326,7 +7328,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != ability.RequiredTargetCount
-            || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
+            || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)
+                || IsLegendUnitEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7334,8 +7337,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend)
-            || powerSpend is not null && ability.PowerCost == 0)
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var optionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
@@ -7398,6 +7400,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RemovesSourceEmpowerAsCost && !sourceState.IsEmpowered)
+            return RejectWithCorePrompts(state, "此技能需要解除来源的强化。", ErrorCodes.InsufficientCost);
+
         if (ability.RequiresPlayedAnotherCardThisTurn
             && !ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId))
         {
@@ -7453,6 +7458,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
+            return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
+
         if (ability.RequiresArmamentSecondTarget
             && (!state.CardObjects.TryGetValue(targetObjectIds[0], out var attachmentHost)
                 || !IsFaceUpNonStandbyUnit(attachmentHost)
@@ -7464,12 +7472,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var spellshieldTax = ability.RequiresAnyUnitTarget
+            ? ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targetObjectIds, out _)
+            : 0;
+        var totalPowerCost = checked(ability.PowerCost + spellshieldTax);
+        if (powerSpend is not null && totalPowerCost == 0)
+            return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana
             && !CanGainSpellOnlyMana(currentPool, ability.ManaGainAmount))
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
         if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
-                PaymentCostRules.PowerPoolForPurpose(currentPool, PowerPaymentPurpose.Other), ability.PowerCost,
+                PaymentCostRules.PowerPoolForPurpose(currentPool, PowerPaymentPurpose.Other), totalPowerCost,
                 new Dictionary<string, int>(), currentPool, PowerPaymentPurpose.Other))
             return RejectWithCorePrompts(state, "传奇技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
         var currentExperience = NormalizeExperienceForSeats(state);
@@ -7486,8 +7500,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             baseManaCost: manaCost,
             totalManaCost: manaCost,
-            genericPowerCost: ability.PowerCost,
-            totalPowerCost: ability.PowerCost,
+            genericPowerCost: totalPowerCost,
+            totalPowerCost: totalPowerCost,
             experienceCost: ability.ExperienceCost,
             optionalCostIds: optionalCosts,
             reason: ability.EffectKind,
@@ -7559,7 +7573,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0 || ability.PowerCost > 0 || ability.ExperienceCost > 0)
+        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
@@ -7572,7 +7586,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = manaCost,
-                    ["power"] = ability.PowerCost,
+                    ["power"] = totalPowerCost,
                     ["experience"] = ability.ExperienceCost,
                     ["abilityId"] = command.AbilityId
                 })));
@@ -7603,6 +7617,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 }));
 
+        if (ability.RemovesSourceEmpowerAsCost)
+        {
+            var removed = ApplyEmpowerStatusAction(state with { CardObjects = cardObjects },
+                new(command.SourceObjectId, sourceState.ObjectGeneration), false, intent.PlayerId);
+            cardObjects = removed.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            events.AddRange(removed.Events);
+            sourceState = cardObjects[command.SourceObjectId];
+        }
         cardObjects[command.SourceObjectId] = sourceState with
         {
             IsExhausted = true,
@@ -7623,6 +7645,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return QueueLegendUnitKeyword(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, events);
+
+        if (IsLegendUnitEffect(ability.EffectKind))
+            return QueueLegendUnitEffect(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, spellshieldTax, events);
 
         if (IsLegendAttachmentEffect(ability.EffectKind))
             return QueueLegendAttachment(state with { RunePools = runePools, PlayerExperience = playerExperience,
@@ -7743,6 +7770,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 break;
             case LegendAbilityEffectKinds.ReadyFriendlyUnit:
                 ReadyLegendFriendlyUnit(
+                    playerZones,
                     cardObjects,
                     targetObjectIds[0],
                     intent.PlayerId,
@@ -7884,6 +7912,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.MelLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.MelLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
+                "流光镜影传奇减战力技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.UnitPowerModifier, RequiresBattlefieldTarget: true,
+                RequiresAnyUnitTarget: true, RemovesSourceEmpowerAsCost: true, PowerModifierAmount: -2),
+            LegendActionAbilityCatalog.AmbessaLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.AmbessaLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AmbessaLegendAbilityId),
+                "铁血狼母传奇活跃单位技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.ReadyUnit, PowerCost: 1, RequiresAnyUnitTarget: true, RemovesSourceEmpowerAsCost: true),
             LegendActionAbilityCatalog.AkaliLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.AkaliLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AkaliLegendAbilityId),
@@ -13765,6 +13804,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, string id, CardObjectState card, string battlefieldId)
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
+            + TemporaryUnitEffectRules.BaseMightDelta(card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
@@ -14816,6 +14856,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ReadyLegendFriendlyUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         string playerId,
@@ -14829,6 +14870,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var wasExhausted = targetState.IsExhausted;
+        AddReadiedObservation(playerZones, cardObjects, targetState, events);
         cardObjects[targetObjectId] = targetState with
         {
             IsExhausted = false
@@ -15554,6 +15596,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             var wasExhausted = unitState.IsExhausted;
+            AddReadiedObservation(playerZones, cardObjects, unitState, events);
             cardObjects[unitObjectId] = unitState with
             {
                 IsExhausted = false
@@ -18077,6 +18120,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
+                && !IsForeignGraveyardEffectPlay(state, intent.PlayerId, command.SourceObjectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
@@ -18433,6 +18477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
+                && !OpenBattlefieldPlayAllowed(state, behavior, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
@@ -19015,12 +19060,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                    ["sourceObjectId"] = resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
@@ -20128,6 +20173,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return TurnStartReadyResult.Empty;
         }
 
+        var readiedSources = readiedObjectIds.SelectMany(id => CaptureReadiedObject(playerZones, cardObjects, cardObjects[id])).ToArray();
         foreach (var objectId in readiedObjectIds)
         {
             cardObjects[objectId] = cardObjects[objectId] with { IsExhausted = false };
@@ -20143,7 +20189,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["playerId"] = turnPlayerId,
                         ["objectIds"] = readiedObjectIds,
                         ["count"] = readiedObjectIds.Length,
-                        ["timing"] = MatchPhases.TurnStart
+                        ["timing"] = MatchPhases.TurnStart,
+                        [ReadiedObservationKey] = readiedSources
                     })
             ]);
     }
@@ -20361,7 +20408,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     triggerBehavior,
                     triggerStackItem,
                     sourceObjectId,
-                    out var readyEvent);
+                    out var readyEvent, playerZones, cardObjects);
                 if (readyEvent is not null)
                 {
                     events.Add(readyEvent);
@@ -21086,6 +21133,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .ToArray()
         };
 
+        if (IsForeignGraveyardEffectPlay(state, playerId, sourceObjectId) && state.PendingEffectPlay!.SourcePlayerId is { } owner)
+            playerZones[owner] = playerZones[owner] with { Graveyard = RemoveFromZone(playerZones[owner].Graveyard, sourceObjectId) };
         return playerZones;
     }
 
@@ -21122,6 +21171,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
+                : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -21137,7 +21189,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
-                : IsEnemyFieldObject(state, playerId, objectId),
+                : IsEnemyFieldObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
                 : IsEquipmentObject(state, objectId),
@@ -21182,7 +21234,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceLocation => IsEnemyFieldObject(state, playerId, objectId)
                 && IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
-            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId)
+                && IsFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsEnemyFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
@@ -21803,6 +21859,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         spellshieldTaxTargetObjectIds = [];
         if (behavior.PlaysSourceToBaseAsUnit
             || behavior.PlaysSourceToBaseAsEquipment
+            || behavior.IgnoresSpellshield
             || targetObjectIds.Count == 0)
         {
             return 0;
@@ -21858,6 +21915,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || card.IsFaceDown) return 0;
         return CardResourceKeywordRules.SpellshieldTaxFromTags(NonRuleDerivedTags(card))
             + CardResourceKeywordRules.SpellshieldTaxFromTags(card.RuleDerivedTags ?? [])
+            + TemporaryCombatKeywordRules.Amount(card, CardResourceKeywordNames.Spellshield)
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
@@ -22408,6 +22466,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             experienceCost = spendExperienceCost;
             optionalCostManaReduction = behavior.ManaReductionIfExperiencePaid;
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1 && behavior.OptionalPowerModifier is { } modifier
+            && normalizedOptionalCosts[0] == OptionalPowerModifierCostId(modifier))
+        {
+            extraPowerCostByTrait = new Dictionary<string, int> { [modifier.Trait] = modifier.PowerCost };
             return true;
         }
 
@@ -23100,6 +23165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? sourceObjectId
                 : sourceBehavior.DisplayName;
             var wasExhausted = sourceState.IsExhausted;
+            AddReadiedObservation(playerZones, cardObjects, sourceState, events);
             cardObjects[sourceObjectId] = sourceState with
             {
                 IsExhausted = false
@@ -23448,6 +23514,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryResolveSourceUnitOptionalReadyPower(
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         List<GameEvent> events)
     {
@@ -23469,6 +23536,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var wasExhausted = sourceState.IsExhausted;
+        AddReadiedObservation(playerZones, cardObjects, sourceState, events);
         var nextSourceState = ApplyDirectUntilEndPowerModifier(
             sourceState,
             stackItem.SourceObjectId,
@@ -23884,6 +23952,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string DescribeTargetScope(string targetScope)
     {
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
+        if (targetScope == CardTargetScopes.ControlledBattlefieldThenFriendlyUnit) return "controlled battlefield then friendly unit at another location";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
@@ -23982,7 +24051,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
         if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
+        if (stackItem.LegendUnitEffect is not null) return ResolveLegendUnitEffect(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
+        if (stackItem.EmpowerInteraction is not null) return ResolveEmpowerInteraction(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
         if (!BattleResultRecoveryRules.Valid(state, stackItem))
@@ -23993,6 +24064,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.DravenBattleDeathScore is { OpponentId: { } opponent } dravenDeath)
             return ResolveDravenBattleDeathScore(state, stackItem, dravenDeath, opponent);
         if (stackItem.DravenBattleWinScore is { } dravenScore) return ResolveDravenBattleWinScore(state, stackItem, dravenScore);
+        if (stackItem.ReadyObjectTrigger is not null) return ResolveReadyOtherObject(state, stackItem);
+        if (stackItem.SourceReadied is not null) return ResolveSourceReadied(state, stackItem);
         if (stackItem.SourcePlayDraw is not null) return ResolveSourcePlayDraw(state, stackItem);
         if (stackItem.CreatedTokenReady is not null) return ResolveCreatedTokenReady(state, stackItem);
         if (stackItem.DeckPlayReflexive is not null) return ResolveDeckPlayReflexive(state, stackItem);
@@ -24031,6 +24104,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.EmpowerOtherObserver is not null) return ResolveEmpowerOtherObserver(state, stackItem);
         if (stackItem.DelayedEmpower is not null) return ResolveDelayedEmpower(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
@@ -24415,6 +24489,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             TryResolveSourceUnitOptionalReadyPower(
                 behavior,
                 stackItem,
+                playerZones,
                 cardObjects,
                 events);
         }
@@ -24493,6 +24568,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetStackItemId in stackItem.TargetObjectIds)
             {
+                // CN FAQ / 419.4.b: finalized plays count, including countered
+                // spells. The chosen spell is excluded by its play identity.
+                if (behavior.CounterRequiresOpponentOtherSpellThisTurn
+                    && !(state.CardPlays.TurnNumber == state.TurnNumber && state.CardPlays.Finalized.Any(play =>
+                        play.PlayerId != stackItem.ControllerId && (play.Types & 4) != 0 && play.PlayId != targetStackItemId))) continue;
                 if (behavior.CounterUnlessControllerPaysMana > 0
                     && TargetSpellControllerPaysCounterCost(state, playerZones, cardObjects, runePools,
                         targetStackItemId, stackItem, behavior.CounterUnlessControllerPaysMana, events))
@@ -24592,7 +24672,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 stackItem.SourceObjectId,
-                out var boonEvents);
+                out var boonEvents, playerZones, cardObjects);
             cardObjects[stackItem.SourceObjectId] = nextSourceUnitState;
             events.AddRange(boonEvents);
 
@@ -24886,7 +24966,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.DestroysAllUnits)
         {
             var allUnitTargetObjectIds = GetFieldUnitObjectIds(playerZones, cardObjects).ToArray();
-            var allUnitTargetObjectIdSet = allUnitTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (behavior.EachPlayerKeepsOneUnitBeforeDestroyingOthers) {
+                var survivors = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var player in playerZones.Keys.OrderBy(p => p == state.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal)) {
+                    var legal = GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, player).Order(StringComparer.Ordinal).ToArray();
+                    if (legal.Length == 0) continue;
+                    var choice = RuleChoices.Value!.Choose(player, "选择一名受你控制的单位，其他单位将被摧毁。",
+                        legal.Select(id => new RuleChoiceOption(id, cardObjects[id].CardNo is { } no ? OfficialCardSourceIdentityGroups.DisplayName(no) : "单位", [id])).ToArray(),
+                        kind: "MASS_DESTRUCTION_SURVIVOR", preview: state);
+                    survivors.Add(choice);
+                    events.Add(new("MASS_DESTRUCTION_SURVIVOR_CHOSEN", "玩家选择保留一名单位", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = stackItem.SourceObjectId, ["playerId"] = player, ["unitObjectId"] = choice }));
+                }
+                allUnitTargetObjectIds = allUnitTargetObjectIds.Where(id => !survivors.Contains(id)).ToArray();
+            }
             using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, allUnitTargetObjectIds);
             events.AddRange(replacements.Events);
             foreach (var targetObjectId in allUnitTargetObjectIds.Where(id => !replacements.Replaced.Contains(id)))
@@ -25194,7 +25287,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     targetObjectId,
-                    out var boonEvents);
+                    out var boonEvents, playerZones, cardObjects);
                 cardObjects[targetObjectId] = targetState;
                 events.AddRange(boonEvents);
             }
@@ -25214,7 +25307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         behavior,
                         stackItem,
                         targetObjectId,
-                        out var readyEvent);
+                        out var readyEvent, playerZones, cardObjects);
                     cardObjects[targetObjectId] = targetState;
                     if (readyEvent is not null)
                     {
@@ -25363,32 +25456,33 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     firstTargetObjectId,
                     secondTargetObjectId));
-            if (canResolveTargets)
+            if (canResolveTargets && behavior.MovesFirstTargetToSecondTargetLocation
+                && TryMoveFirstTargetToSecondTargetLocation(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    firstTargetObjectId,
+                    secondTargetObjectId,
+                    out var destinationPlayerId,
+                    out var destinationZone))
             {
-                if (behavior.MovesFirstTargetToSecondTargetLocation
-                    && TryMoveFirstTargetToSecondTargetLocation(
-                        playerZones,
-                        cardObjects,
-                        stackItem.ControllerId,
-                        firstTargetObjectId,
-                        secondTargetObjectId,
-                        out var destinationPlayerId,
-                        out var destinationZone))
-                {
-                    events.Add(new GameEvent(
-                        "UNIT_MOVED_TO_UNIT_LOCATION",
-                        $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                        new Dictionary<string, object?>
-                        {
-                            ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = firstTargetObjectId,
-                            ["destinationTargetObjectId"] = secondTargetObjectId,
-                            ["destinationPlayerId"] = destinationPlayerId,
-                            ["destinationZone"] = destinationZone
-                        }));
-                }
+                events.Add(new GameEvent(
+                    "UNIT_MOVED_TO_UNIT_LOCATION",
+                    $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = firstTargetObjectId,
+                        ["destinationTargetObjectId"] = secondTargetObjectId,
+                        ["destinationPlayerId"] = destinationPlayerId,
+                        ["destinationZone"] = destinationZone
+                    }));
+            }
 
-                if (behavior.PowerModifierAmount != 0
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+            {
+                var firstTargetModifier = behavior.PowerModifierAmount + OptionalPowerModifierAmount(behavior, stackItem);
+                if (firstTargetModifier != 0 && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
                     && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
                 {
                     var modifiedFirstTargetState = ApplyPowerModifier(
@@ -25397,62 +25491,60 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         behavior,
                         stackItem,
                         firstTargetObjectId,
-                        behavior.PowerModifierAmount,
+                        firstTargetModifier,
                         out var powerEvent);
                     cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
                     events.Add(powerEvent);
                 }
 
-                for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+                if (!canResolveTargets) continue;
+                var firstTargetPower = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                    ? ResolveCurrentFieldUnitPower(state with { PlayerZones = playerZones, CardObjects = cardObjects }, firstTargetState)
+                    : 0;
+                var secondTargetPower = cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState)
+                    ? ResolveCurrentFieldUnitPower(state with { PlayerZones = playerZones, CardObjects = cardObjects }, secondTargetState)
+                    : 0;
+
+                if (firstTargetPower > 0
+                    && cardObjects.ContainsKey(secondTargetObjectId))
                 {
-                    var firstTargetPower = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                        ? Math.Max(0, firstTargetState.Power)
-                        : 0;
-                    var secondTargetPower = cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState)
-                        ? Math.Max(0, secondTargetState.Power)
-                        : 0;
-
-                    if (firstTargetPower > 0
-                        && cardObjects.ContainsKey(secondTargetObjectId))
-                    {
-                        var damageApplication = ApplyDamageToCardObject(
-                            cardObjects,
-                            EffectiveFieldControllerId(playerZones, firstTargetObjectId, cardObjects[firstTargetObjectId])!,
+                    var damageApplication = ApplyDamageToCardObject(
+                        cardObjects,
+                        EffectiveFieldControllerId(playerZones, firstTargetObjectId, cardObjects[firstTargetObjectId])!,
+                        secondTargetObjectId,
+                        firstTargetPower,
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成单位互斗伤害",
+                        BuildDamagePayload(
+                            stackItem.SourceObjectId,
                             secondTargetObjectId,
-                            firstTargetPower,
-                            damageTriggeredDestroyTargetObjectIds,
-                            preventDamageFromThisStackItem,
-                            PreventSpellAndSkillDamageThisTurnEffectId);
-                        events.Add(new GameEvent(
-                            "DAMAGE_APPLIED",
-                            $"{behavior.DisplayName}造成单位互斗伤害",
-                            BuildDamagePayload(
-                                stackItem.SourceObjectId,
-                                secondTargetObjectId,
-                                damageApplication,
-                                firstTargetObjectId)));
-                    }
+                            damageApplication,
+                            firstTargetObjectId)));
+                }
 
-                    if (secondTargetPower > 0
-                        && cardObjects.ContainsKey(firstTargetObjectId))
-                    {
-                        var damageApplication = ApplyDamageToCardObject(
-                            cardObjects,
-                            EffectiveFieldControllerId(playerZones, secondTargetObjectId, cardObjects[secondTargetObjectId])!,
+                if (secondTargetPower > 0
+                    && cardObjects.ContainsKey(firstTargetObjectId))
+                {
+                    var damageApplication = ApplyDamageToCardObject(
+                        cardObjects,
+                        EffectiveFieldControllerId(playerZones, secondTargetObjectId, cardObjects[secondTargetObjectId])!,
+                        firstTargetObjectId,
+                        secondTargetPower,
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成单位互斗伤害",
+                        BuildDamagePayload(
+                            stackItem.SourceObjectId,
                             firstTargetObjectId,
-                            secondTargetPower,
-                            damageTriggeredDestroyTargetObjectIds,
-                            preventDamageFromThisStackItem,
-                            PreventSpellAndSkillDamageThisTurnEffectId);
-                        events.Add(new GameEvent(
-                            "DAMAGE_APPLIED",
-                            $"{behavior.DisplayName}造成单位互斗伤害",
-                            BuildDamagePayload(
-                                stackItem.SourceObjectId,
-                                firstTargetObjectId,
-                                damageApplication,
-                                secondTargetObjectId)));
-                    }
+                            damageApplication,
+                            secondTargetObjectId)));
                 }
             }
         }
@@ -25562,7 +25654,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     readyTargetObjectId,
-                    out var readyEvent);
+                    out var readyEvent, playerZones, cardObjects);
                 cardObjects[readyTargetObjectId] = readiedTargetState;
                 if (readyEvent is not null)
                 {
@@ -25798,13 +25890,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["secondDestinationZone"] = targetDestinationZone
                 }));
         }
-        else if (behavior.RequiredTargetCount > 0
+        else if (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
+                ApplyConditionalRemovalEmpowerInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                    stackItem, behavior, cardObjects, events);
+                var removalState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    behavior.DestroysTarget ? stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : [], stackItem);
+                    stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)
+                        && (behavior.DestroysTarget || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray(), stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
@@ -25835,6 +25931,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
+
+                    if (behavior.BasePowerUntilEndOfTurn is { } baseMight)
+                    {
+                        targetState = TemporaryUnitEffectRules.SetNumber(targetState, TemporaryUnitEffectRules.BaseMightPrefix, baseMight, retainZero: true);
+                        events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["targetGeneration"] = targetState.ObjectGeneration, ["baseMight"] = baseMight, ["cardNo"] = stackItem.CardNo }));
+                    }
+                    if (behavior.PreventDamageUntilEndOfTurn > 0)
+                    {
+                        var remaining = checked(TemporaryUnitEffectRules.RemainingPrevention(targetState) + behavior.PreventDamageUntilEndOfTurn);
+                        targetState = TemporaryUnitEffectRules.GrantPrevention(targetState, state.Tick + 1, events.Count, behavior.PreventDamageUntilEndOfTurn);
+                        events.Add(new("DAMAGE_PREVENTION_GRANTED", "授予本回合有限伤害抵挡", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["targetGeneration"] = targetState.ObjectGeneration, ["amount"] = behavior.PreventDamageUntilEndOfTurn, ["remaining"] = remaining,
+                            ["budgetId"] = $"{TemporaryUnitEffectRules.DamagePreventionPrefix}{state.Tick + 1}:{events.Count}", ["cardNo"] = stackItem.CardNo }));
+                    }
 
                     var damageAmount = ShouldApplyDamageToTarget(behavior, targetIndex)
                         ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId)
@@ -25986,7 +26099,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             behavior,
                             stackItem,
                             targetObjectId,
-                            out var boonEvents);
+                            out var boonEvents, playerZones, cardObjects);
                         events.AddRange(boonEvents);
                     }
 
@@ -26021,7 +26134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             behavior,
                             stackItem,
                             targetObjectId,
-                            out var readyEvent);
+                            out var readyEvent, playerZones, cardObjects);
                         if (readyEvent is not null)
                         {
                             events.Add(readyEvent);
@@ -26045,7 +26158,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    if (behavior.DestroysTarget
+                    var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
+                    if (removalAction == "BANISH"
+                        && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
+                    {
+                        events.Add(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标单位", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["playerId"] = banishedRemoval.OwnerPlayerId, ["destinationZone"] = banishedRemoval.DestinationZone,
+                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }));
+                        continue;
+                    }
+                    if ((behavior.DestroysTarget || removalAction == "DESTROY")
                         && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
                         events.AddRange(BuildFieldRemovalEvents(
@@ -26099,7 +26222,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryGetBattlefieldUnitReturnContext(
                             playerZones,
                             cardObjects,
@@ -26151,7 +26274,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var normalReturnedOwnerPlayerId, out var normalReturnedWasEquipment))
                     {
                         events.Add(BuildReturnedToHandEvent(
@@ -26460,7 +26583,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 foreach (var id in movedTargets)
                 {
                     if (!cardObjects.TryGetValue(id, out var unit)) continue;
-                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent);
+                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent, playerZones, cardObjects);
                     if (readyEvent is not null) events.Add(readyEvent);
                 }
             if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
@@ -27594,6 +27717,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !targetState.IsFaceDown
             && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
+            AddReadiedObservation(playerZones, cardObjects, targetState, events);
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
             events.Add(new GameEvent(
                 "UNIT_READIED",
@@ -27898,6 +28022,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (EmpoweredSpellRules.PreventsCounter(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetStackItem.ControllerId))
             return false;
+
+        if (!StackObjectRules.IsAbility(targetStackItem)
+            && CardBehaviorRegistry.TryGetByCardNo(targetStackItem.CardNo, out var targetBehavior)
+            && targetBehavior.CannotBeCountered) return false;
 
         if (StackObjectRules.IsAbility(targetStackItem))
         {
@@ -28664,20 +28792,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : new CardObjectState(targetObjectId);
         if (UnitMovementRules.CannotTakeDamage(targetState))
             return new DamageApplicationResult(0, damageAmount, true, "MOVEMENT_DAMAGE_IMMUNITY");
-        var preventsWithTargetEffect = !preventDamage
-            && targetState.UntilEndOfTurnEffects.Contains(
-                PreventNextDamageThisTurnEffectId,
-                StringComparer.Ordinal);
-        var preventsDamage = preventDamage || preventsWithTargetEffect;
-        var adjustedDamageAmount = preventsDamage
-            ? 0
-            : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
-                ? damageAmount * 2
-                : damageAmount;
-        var nextEffects = targetState.UntilEndOfTurnEffects
-            .Where(effectId => !preventsWithTargetEffect
-                || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
-            .ToArray();
+        var replacement = ReplaceDamage(targetState, cardObjects, damageAmount, preventDamage, preventionEffectId);
+        targetState = replacement.Target;
+        var adjustedDamageAmount = replacement.Damage;
 
         cardObjects[targetObjectId] = targetState with
         {
@@ -28686,18 +28803,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
                 : targetState.DamageMarkedByPlayerIds,
-            UntilEndOfTurnEffects = nextEffects
+            UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
         };
 
         return new DamageApplicationResult(
             adjustedDamageAmount,
             damageAmount,
-            preventsDamage,
-            preventsWithTargetEffect
-                ? PreventNextDamageThisTurnEffectId
-                : preventDamage
-                    ? preventionEffectId
-                    : string.Empty) { Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
+            replacement.Prevented > 0,
+            replacement.EffectId) {
+                        PreventedDamageAmount = replacement.Prevented, PreventionSpent = replacement.Spent,
+                        Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
                         TargetTokenFactoryCardNo = targetState.TokenFactoryCardNo };
     }
 
@@ -28716,6 +28831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         if (damageApplication.Target is { } target) payload["targetGeneration"] = target.Generation;
         if (damageApplication.TargetTokenFactoryCardNo is { } tokenFactory) payload["targetTokenFactoryCardNo"] = tokenFactory;
+        if (damageApplication.PreventionSpent is { Count: > 0 } spent) payload["damagePreventionSpent"] = spent;
 
         if (!string.IsNullOrWhiteSpace(damageSourceObjectId))
         {
@@ -28724,7 +28840,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (damageApplication.Prevented)
         {
-            payload["preventedDamage"] = damageApplication.OriginalDamageAmount;
+            payload["preventedDamage"] = damageApplication.PreventedDamageAmount ?? damageApplication.OriginalDamageAmount;
             payload["preventionEffectId"] = damageApplication.PreventionEffectId;
         }
 
@@ -29138,6 +29254,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 equipmentState));
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
+        playedEvent = CaptureEquipmentPlayReadyObjects(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId, stackItem.StackItemId);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
             stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD");
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
@@ -30529,7 +30646,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         string targetObjectId,
-        out IReadOnlyList<GameEvent> boonEvents)
+        out IReadOnlyList<GameEvent> boonEvents,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         if (targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
         {
@@ -30572,6 +30691,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (TryGetUnitBoonGrantedReadySelfTrigger(nextTargetState, stackItem.ControllerId, out var boonGrantedTrigger))
         {
             var wasExhausted = nextTargetState.IsExhausted;
+            AddReadiedObservation(playerZones, cardObjects, nextTargetState, nextBoonEvents);
             nextTargetState = nextTargetState with
             {
                 IsExhausted = false
@@ -30662,7 +30782,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         string targetObjectId,
-        out GameEvent? readyEvent)
+        out GameEvent? readyEvent,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         if (CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
@@ -30683,7 +30805,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["targetObjectId"] = targetObjectId,
                 ["wasExhausted"] = wasExhausted,
-                ["isExhausted"] = nextTargetState.IsExhausted
+                ["isExhausted"] = nextTargetState.IsExhausted,
+                [ReadiedObservationKey] = CaptureReadiedObject(playerZones, cardObjects, targetState)
             });
 
         return nextTargetState;
@@ -30827,7 +30950,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return !behavior.PlaysSourceToBaseAsUnit
-            && !behavior.PlaysSourceToBaseAsEquipment;
+            && !behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.DealsMutualTargetPowerDamage;
     }
 
     private static bool ShouldGrantFreeStandbyHidePermission(CardBehaviorDefinition behavior)
@@ -34485,6 +34609,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool Prevented,
         string PreventionEffectId)
     {
+        public int? PreventedDamageAmount { get; init; }
+        public IReadOnlyList<DamagePreventionSpend>? PreventionSpent { get; init; }
         public ObjectBinding? Target { get; init; }
         public string ControllerId { get; init; } = "";
         public string? TargetTokenFactoryCardNo { get; init; }
@@ -34527,10 +34653,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int PowerCost = 0,
         bool ResolveOnlyOnControllerTurn = false,
         bool ReadyTargetIfSourceEmpowered = false,
-        string GrantedCombatKeyword = "");
+        string GrantedCombatKeyword = "",
+        bool RequiresAnyUnitTarget = false,
+        bool RemovesSourceEmpowerAsCost = false,
+        int PowerModifierAmount = 0);
 
     private static class LegendAbilityEffectKinds
     {
+        public const string UnitPowerModifier = "LEGEND_UNIT_POWER_MODIFIER";
+        public const string ReadyUnit = "LEGEND_READY_UNIT";
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";

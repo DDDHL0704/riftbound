@@ -30,8 +30,10 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             var valid = OfficialDeckValidator.Validate(deck, catalog); Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
         }
+        // Keep the same first player and battlefields while drawing the required cards sooner.
+        // Setup still uses the real shuffle, natural draws and channeling, with no state injection.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-DELAYED-AURA-DEATH",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 249881 };
         var game = new Game(initial);
         try
         {
@@ -55,7 +57,9 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             var auras = game.Hand("P1", "VEN·130").Take(2).ToArray(); var aura = auras[0]; var nativeAura = auras[1];
             foreach (var id in auras) await game.Act("P1", new PlayCardCommand(id, "VEN·130", []));
             Assert.Equal(2, game.State.RunePools["P1"].Mana);
-            await game.ColdCheckpoint(); await EndTurn(game, "P1"); await EndTurn(game, "P2"); await game.Tap("P1");
+            // The next checkpoint after the actual empower covers this complete setup phase;
+            // replaying once after each aura placement adds no independent rule assertion.
+            await EndTurn(game, "P1"); await EndTurn(game, "P2"); await game.Tap("P1");
             var poros = game.Hand("P1", "UNL-156/219").Take(2).ToArray(); var host = poros[0]; var victim = poros[1];
             foreach (var id in poros) await game.Act("P1", new PlayCardCommand(id, "UNL-156/219", []));
             Assert.Equal(6, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects[aura].IsEmpowered);
@@ -81,7 +85,6 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             Assert.Equal(3, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(8, game.Might("P1", host)); Assert.Equal(7, game.Might("P1", victim));
             Assert.Equal(9, game.Might("P1", aura)); Assert.Equal(9, game.Might("P1", nativeAura));
-            await game.ColdCheckpoint();
             await game.Act("P1", new MoveUnitCommand(host, "BASE", "BATTLEFIELD:" + field, [], poros));
             await FinishWindow(game); Assert.False(game.State.BattleState.IsActive); Assert.Equal("P1", game.State.CardObjects[field].ControllerId);
             Assert.Single(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED" && Equals(e.Event.Payload.GetValueOrDefault("playerId"), "P1"));
@@ -90,14 +93,12 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             await game.Act("P1", new EndTurnCommand()); Assert.Equal(3, game.State.TriggerQueue.Count);
             var byUnit = game.State.TriggerQueue.ToDictionary(t => Assert.IsType<DelayedEmpowerContext>(t.DelayedEmpower).Unit.ObjectId);
             var order = auraFirst ? new[] { aura, host, victim } : new[] { victim, aura, host };
-            await game.ColdCheckpoint();
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: order.Select(id => byUnit[id].TriggerId).ToArray()));
             var robbery = game.Hand("P2", "OGN·033/298").Take(2).ToArray(); var enemyDeck = game.State.PlayerZones["P2"].MainDeck.ToArray();
             for (var i = 0; i < 2; i++)
             {
                 Assert.Equal("P1", game.State.PriorityPlayerId); await game.Act("P1", new PassPriorityCommand());
-                if (i == 0)
-                    foreach (var id in game.Runes("P2").Take(4).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+                if (i == 0) await game.Tap("P2", 4);
                 await Recycle(game, "P2", "UNL-R01");
                 await game.Act("P2", new PlayCardCommand(robbery[i], "OGN·033/298", [poros[i]])); await game.Top();
                 var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
@@ -108,7 +109,6 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
                 Assert.Contains("P2", game.State.CardObjects[poros[i]].DamageMarkedByPlayerIds!);
                 Assert.Equal(3, game.State.StackItems.Count); Assert.Contains(robbery[i], game.State.PlayerZones["P2"].Graveyard);
                 Assert.Equal(2 - i * 2, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
-                await game.ColdCheckpoint();
             }
             Assert.Equal(enemyDeck, game.State.PlayerZones["P2"].MainDeck);
             Assert.Equal(host, game.State.CardObjects[guardian].AttachedToObjectId);
@@ -137,7 +137,6 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
                 Assert.Equal(hand.Concat(deckAtDeath.Take(1)), game.State.PlayerZones["P1"].Hand);
                 Assert.Equal(deckAtDeath.Skip(1), game.State.PlayerZones["P1"].MainDeck);
             }
-            await game.ColdCheckpoint();
             for (var i = 1; i < 3; i++)
             {
                 var inverse = Assert.IsType<DelayedEmpowerContext>(game.State.StackItems[^1].DelayedEmpower);

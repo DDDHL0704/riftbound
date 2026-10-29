@@ -102,7 +102,8 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
         var game = new Driver(initial);
         try
         {
-            foreach (var id in Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+            var funding = Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).ToArray();
+            await game.Act("P1", new TapRuneCommand(funding[0], funding));
             await game.Act("P1", new RecycleRuneCommand("P1-RUNE-0")); await game.Act("P1", new RecycleRuneCommand("P1-RUNE-1"));
             foreach (var gear in new[] { "SONG-A", "SONG-B" }) { await game.Act("P1", new AssembleEquipmentCommand(gear, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top(); }
             Assert.All(new[] { "SONG-A", "SONG-B" }, id => Assert.NotNull(game.State.CardObjects[id].AttachedRuleText));
@@ -123,7 +124,7 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             {
                 await game.Act("P2", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
                 if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-                await game.Act("P1", new TapRuneCommand("DRAW-RUNE-1")); await game.Act("P1", new TapRuneCommand("DRAW-RUNE-2"));
+                await game.Act("P1", new TapRuneCommand("DRAW-RUNE-1", ["DRAW-RUNE-1", "DRAW-RUNE-2"]));
                 await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", [])); await game.Top();
                 Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
                 Assert.Equal("P1", game.State.CardObjects["UNIT"].ControllerId);
@@ -167,7 +168,11 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(player, "BATTLEFIELD", "BF") },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { [player] = state.PlayerZones[player] with { Base = state.PlayerZones[player].Base.Where(x => x != id).ToArray(), Battlefields = [..state.PlayerZones[player].Battlefields, id] } } };
     private static async Task Tap(Driver game, string player)
-    { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
+    {
+        foreach (var runes in game.State.PlayerZones[player].Base
+            .Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray().Chunk(12))
+            await game.Act(player, new TapRuneCommand(runes[0], runes));
+    }
     private static LastBreathUnitCreationContext[] Creations(MatchState state)
         => state.StackItems.Select(i => i.LastBreathUnitCreation).Concat(state.TriggerQueue.Select(i => i.LastBreathUnitCreation)).OfType<LastBreathUnitCreationContext>().ToArray();
     private static CardObjectState[] Minions(MatchState state) => state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.MinionTokenFamily)).ToArray();

@@ -322,6 +322,20 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var firstMoveMill = Regex.Match(text,
+            @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
+        if (firstMoveMill.Success)
+            triggers.Add(new(TriggerKinds.UnitFirstMovementMillPlayer, TriggerTimings.UnitMoved, firstMoveMill.Value,
+                TargetScope: TriggerTargetScopes.SourceUnit, MillCount: ParseChineseNumber(firstMoveMill.Groups["count"].Value), OncePerTurn: true));
+        var movedAllPlayers = Regex.Match(text,
+            @"当我移动到一处战场时，选择一个效果\s*—\s*-\s*每名玩家各弃置一张手牌。\s*-\s*每名玩家各抽一张牌。?", RegexOptions.CultureInvariant);
+        if (movedAllPlayers.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedAllPlayersDrawOrDiscard, TriggerTimings.UnitMoved, movedAllPlayers.Value,
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: 1, DiscardCount: 1, MovementDestinationZone: "BATTLEFIELD"));
+        var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
+        if (otherEmpowered.Success)
+            triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,
+                "When this controller empowers another object, the source becomes empowered on resolution."));
         var graveyardPlay = Regex.Match(text,
             @"当你使用法术摧毁一名单位时，你可以选择支付\{\{(?<mana>[0-9]+)\}\}和\{\{红色\}\}，以此从废牌堆中将我打出。",
             RegexOptions.CultureInvariant);
@@ -381,6 +395,12 @@ public static class TriggerParser
                 PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
+        var readiedModes = Regex.Match(text,
+            @"当我变为活跃状态时，选择一个给予我在本回合内的效果\s*[—-]\s*-\s*\{\{强攻2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{法盾2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{游走\}\}(?:（[^）]*）)?[。]?",
+            RegexOptions.CultureInvariant);
+        if (readiedModes.Success) triggers.Add(new(TriggerKinds.SourceReadiedChooseKeyword, TriggerTimings.SourceReadied,
+            readiedModes.Value, TargetScope: TriggerTargetScopes.SourceUnit, Duration: TriggerDurations.UntilEndOfTurn,
+            Modes: [new("ASSAULT_2", "强攻2", GrantedKeyword: "强攻2"), new("WARD_2", "法盾2", GrantedKeyword: "法盾2"), new("ROAM", "游走", GrantedKeyword: "游走")]));
         var equipmentDraw = Regex.Match(text,
             @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
             RegexOptions.CultureInvariant);
@@ -492,6 +512,7 @@ public static class TriggerParser
             .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
+            .Where(segment => !readiedModes.Success || !segment.Contains("当我变为活跃状态时，选择一个给予我", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
@@ -889,6 +910,10 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
+            return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
+                segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
+                OncePerTurn: true, ExcludesTokens: true, ObjectReadyCount: 1);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);
@@ -1318,12 +1343,19 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit, DiscardCount: ParseChineseNumber(movedDiscardDraw.Groups[1].Value),
                 DrawCount: ParseChineseNumber(movedDiscardDraw.Groups[2].Value));
 
+        var movedBurnPower = Regex.Match(segment,
+            @"^当我移动时，你可以选择\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}，以此给予我在本回合内\{\{S\}\}\+(?<power>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedBurnPower.Success)
+            return new(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, MillCount: ParseChineseNumber(movedBurnPower.Groups["count"].Value),
+                PowerDelta: ParseChineseNumber(movedBurnPower.Groups["power"].Value), Optional: true, Duration: TriggerDurations.UntilEndOfTurn);
         var movedDraw = Regex.Match(segment,
-            @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:每当|当)我移动时，抽(?<count>[0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
+            @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:每当|当)我移动时，(?:(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚，则))?抽(?<count>[0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
         if (movedDraw.Success)
             return new TriggerSpec(TriggerKinds.UnitMovedDraw, TriggerTimings.UnitMoved, segment,
                 TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: ParseChineseNumber(movedDraw.Groups["count"].Value),
-                RequiresSourceEmpowered: movedDraw.Groups["empowered"].Success ? true : null);
+                RequiresSourceEmpowered: movedDraw.Groups["empowered"].Success ? true : null,
+                MaximumControlledRunes: movedDraw.Groups["runes"].Success ? ParseChineseNumber(movedDraw.Groups["runes"].Value) : null);
         var movedExperience = Regex.Match(segment,
             @"^(?:每当|当)我移动(至战场)?时，获得([0-9一两二三四五六七八九十]+)经验。?$", RegexOptions.CultureInvariant);
         if (movedExperience.Success)
@@ -1336,6 +1368,13 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedPower.Groups[1].Value),
                 Duration: TriggerDurations.UntilEndOfTurn, MovementOriginZone: "BATTLEFIELD");
+
+        var movedToBattlefieldPower = Regex.Match(segment,
+            @"^(?:每当|当)我移动到一处战场时，给予我在本回合内\{\{S\}\}\+(?<amount>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedToBattlefieldPower.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedToBattlefieldPower.Groups["amount"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
 
         var unitMovedCreateDormantGoldMatch = Regex.Match(
             segment,
@@ -2860,6 +2899,15 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
+                continue;
+            }
+
+            if (Regex.IsMatch(segment, @"^除非我处于战斗中，否则我无法被敌方法术和技能选作目标。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Enemy spell and skill target protection applies while the source is outside combat.",
+                    RequiresSourceOutsideBattle: true));
                 continue;
             }
 

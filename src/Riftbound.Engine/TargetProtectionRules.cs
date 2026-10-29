@@ -15,7 +15,8 @@ internal static class TargetProtectionRules
             return true;
         }
 
-        return !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
+        return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
 
     public static bool IsLegalActivatedSkillTarget(
@@ -23,8 +24,14 @@ internal static class TargetProtectionRules
         string sourceControllerId,
         string targetObjectId)
     {
-        return !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
+        return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
+
+    private static bool HasTemporaryEnemyTargetProtection(MatchState state, string player, string target)
+        => TryFindPublicFieldLocation(state.PlayerZones, target, out var at) && at.PlayerId != player
+            && state.CardObjects.TryGetValue(target, out var card) && IsVisibleSourceUnit(card)
+            && card.UntilEndOfTurnEffects.Contains(TemporaryUnitEffectRules.EnemyTargetProtection, StringComparer.Ordinal);
 
     private static bool IsSpellOrSkillPlayCardBehavior(CardBehaviorDefinition behavior)
     {
@@ -43,18 +50,24 @@ internal static class TargetProtectionRules
             || string.Equals(targetLocation.PlayerId, sourceControllerId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || !IsVisibleSourceUnit(targetState)
-            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId)
-            || !CardStaticAbilitySpecRules.TryGetStaticAbility(
-                targetState.CardNo,
-                CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility,
-                out var ability))
+            || !ObjectControlledByPlayerOrLegacyOwned(targetState, targetLocation.PlayerId))
         {
             return false;
         }
 
-        return !ability.RequiredPlayerExperience.HasValue
-            || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
-                && experience >= ability.RequiredPlayerExperience.Value;
+        // CN 740.2.c: a unit is in combat only while it has a combat role at
+        // the battlefield where the battle is taking place.
+        var battle = state.BattleState;
+        var inCombat = battle.IsActive && (targetState.IsAttacking || targetState.IsDefending)
+            && state.ObjectLocations.TryGetValue(targetObjectId, out var location)
+            && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId == battle.BattlefieldObjectId;
+        return AttachedRuleTextRules.Instances(state, targetState).Any(instance =>
+            CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                ability => CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility(ability)
+                    && (ability.RequiresSourceOutsideBattle != true || !inCombat)
+                    && (!ability.RequiredPlayerExperience.HasValue
+                        || state.PlayerExperience.TryGetValue(targetLocation.PlayerId, out var experience)
+                            && experience >= ability.RequiredPlayerExperience.Value), out _));
     }
 
     private static bool IsVisibleSourceUnit(CardObjectState targetState)

@@ -9,47 +9,12 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+# docs/legacy and DEPLOYMENT.md are read by tests and remain executable inputs.
 DOCUMENTATION = frozenset({
     'AGENTS.md', 'README.md', 'GLOSSARY.md',
-    'docs/BACKEND_RULES_GOAL_2026-10-23.md',
-    'docs/START_HERE.md', 'docs/PROJECT_GOVERNANCE.md',
-    'docs/PROJECT_STATUS.md', 'docs/development-audit-status.md',
-    'docs/legacy/REPOSITORY_AUDIT_2026-10-12.md',
-    'docs/legacy/MOONFALL_AUDIT_2026-10-12.md',
-    'docs/legacy/SIPHON_MINIMUM_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/ORB_OF_REGRET_AUDIT_2026-10-12.md',
-    'docs/legacy/AHRI_COMBAT_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/NINE_TAILED_FOX_AUDIT_2026-10-12.md',
-    'docs/legacy/LEONA_STUNNED_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_KEYWORD_LAYER_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_CONSUMER_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_LAST_BREATH_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_SACRIFICE_COST_AUDIT_2026-10-13.md',
-    'docs/legacy/SUNKEN_TEMPLE_MIGHT_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_TRANSITION_AUDIT_2026-10-13.md',
-    'docs/legacy/HIGHEST_MIGHT_COST_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_INSTRUCTION_EVENT_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_EXPERIENCE_FRAME_AUDIT_2026-10-13.md',
-    'docs/legacy/AMBUSH_PERMISSION_AUDIT_2026-10-13.md',
-    'docs/legacy/VENDETTA_AMBUSH_PRINTINGS_AUDIT_2026-10-13.md',
-    'docs/legacy/PERMANENT_PLAY_TARGETS_AUDIT_2026-10-13.md',
-    'docs/legacy/COPIED_SPELL_TRIGGERS_AUDIT_2026-10-13.md',
-    'docs/legacy/PAID_SPELL_READY_AUDIT_2026-10-13.md',
-    'docs/legacy/COPIED_FACE_AUTHORITY_AUDIT_2026-10-13.md',
-    'docs/legacy/SHADY_SPECTACLES_AUDIT_2026-10-13.md',
-    'docs/legacy/ATTACHMENT_THEFT_COPY_AUDIT_2026-10-13.md',
-    'docs/legacy/POSTGRES_EXPORT_ACCEPTANCE_2026-10-13.md',
-    'docs/legacy/EMPOWER_FOUNDATION_AUDIT_2026-10-13.md',
-    'docs/RULE_TEST_WORKFLOW.md', 'docs/legacy/RULE_TEST_SPEED_2026-10-09.md',
-    'docs/legacy/RULE_TEST_SPEED_2026-10-12.md',
-    'docs/legacy/rules-authority-and-audit.md', 'docs/legacy/rules-evidence-index.md',
-    'docs/legacy/COMPREHENSIVE_OFFICIAL_AUDIT_2026-10-11.md',
+    'docs/BACKLOG.md', 'docs/CARD_BACKLOG.md',
     'docs/agents/issue-tracker.md', 'docs/agents/domain.md',
     'docs/agents/triage-labels.md',
-    'docs/CURRENT_COMPLETION_AUDIT.md', 'docs/CURRENT_A_MASTER_CHECKPOINT.md',
-    'docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md',
-    'docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md',
-    'docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md',
 })
 SHA = re.compile(r'[0-9a-fA-F]{40}')
 RAW = re.compile(r':([0-7]{6}) ([0-7]{6}) [0-9a-f]+ [0-9a-f]+ ([A-Z])')
@@ -113,6 +78,12 @@ def git(repo, *args):
     return subprocess.check_output(['git', *args], cwd=repo, stderr=subprocess.PIPE)
 
 
+def require_full(result, reason):
+    result.update(tier='L3', full=True, profile='full', sql=True, network=True,
+                  packaging=True, matches=[], reason=reason)
+    return result
+
+
 def decide(event_name, event, head, repo=ROOT, allow_fetch=False):
     result = dict(full=True, reason='Unknown event; require full verification',
                   event=event_name, headSha=head, baseSha=None, changes=[])
@@ -152,6 +123,70 @@ def decide(event_name, event, head, repo=ROOT, allow_fetch=False):
     return result
 
 
+def scope_context(event_name, event, head):
+    return dict(event=event_name, headSha=head,
+                eventSha256=hashlib.sha256(json.dumps(event, sort_keys=True).encode()).hexdigest(),
+                selectorSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                runId=os.environ.get('GITHUB_RUN_ID'), runAttempt=os.environ.get('GITHUB_RUN_ATTEMPT'))
+
+
+def recheck(result, previous_path):
+    """Only two matching Git inspections can exempt docs, before choosing jobs."""
+    try:
+        raw = previous_path.read_bytes()
+        previous = json.loads(raw)
+        result['priorScopeSha256'] = hashlib.sha256(raw).hexdigest()
+        keys = ['event', 'eventSha256', 'headSha', 'baseSha', 'changes', 'selectorSha256',
+                'runId', 'runAttempt', 'tier', 'full', 'profile', 'sql', 'network', 'packaging', 'matches']
+        if (not isinstance(previous, dict) or any(k not in previous or k not in result
+                                                 or previous[k] != result[k] for k in keys)):
+            raise ValueError('Scope inspections disagree')
+        return result
+    except (OSError, ValueError, TypeError):
+        return require_full(result, 'Scope recheck unavailable or inconsistent; require full verification')
+
+
+def verify_docs_receipt(directory, checkout_path, event_name, event, head):
+    """Verify the same-run exemption without repeating Git ancestry after jobs ran."""
+    previous_path = directory / 'scope-candidate.json'
+    previous = json.loads(previous_path.read_text())
+    final = json.loads((directory / 'scope.json').read_text())
+    prepared = json.loads((directory / 'checkout.json').read_text())
+    checkout = json.loads(checkout_path.read_text())
+    context = scope_context(event_name, event, head)
+    if event_name == 'pull_request':
+        base = event.get('pull_request', {}).get('base', {}).get('sha')
+    elif event_name == 'push':
+        base = event.get('before')
+    else:
+        raise ValueError('This event cannot exempt documentation')
+    if (not SHA.fullmatch(base or '') or base == '0'*40
+            or not SHA.fullmatch(head or '') or not str(context['runId']).isdigit()
+            or not str(context['runAttempt']).isdigit()):
+        raise ValueError('Missing fixed event or workflow identity')
+    for decision in [previous, final]:
+        if (not isinstance(decision, dict) or decision.get('baseSha') != base
+                or any(decision.get(k) != v for k, v in context.items())
+                or decision.get('ruleAndPackagingExecution') != 'NOT_RUN_DOCUMENTATION_ONLY'):
+            raise ValueError('Documentation scope belongs to a different input')
+        expected = tier_details(decision['changes'])
+        if expected['tier'] != 'DOCS' or any(decision.get(k) != v for k, v in expected.items()):
+            raise ValueError('Scope does not prove reviewed documentation only')
+    if (previous['changes'] != final['changes']
+            or final.get('priorScopeSha256') != hashlib.sha256(previous_path.read_bytes()).hexdigest()):
+        raise ValueError('Documentation inspections are not linked')
+    for receipt in [prepared, checkout]:
+        if (receipt.get('status') != 'FIXED_CANDIDATE_CHECKOUT_VERIFIED'
+                or any(receipt.get(k) != head for k in ['actualSha', 'expectedSha', 'eventSha'])
+                or any(receipt.get(k) != context[k] for k in ['runId', 'runAttempt'])
+                or not SHA.fullmatch(receipt.get('treeSha', ''))):
+            raise ValueError('Checkout does not match the documentation input')
+    if any(prepared.get(k) != checkout.get(k) for k in ['treeSha', 'sourceIndexSha256']):
+        raise ValueError('Documentation checkout trees disagree')
+    return dict(status='DOCUMENTATION_EXEMPTION_VERIFIED', **context, baseSha=base,
+                ruleAndPackagingExecution='NOT_RUN_DOCUMENTATION_ONLY')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--event', type=Path, required=True)
@@ -159,18 +194,42 @@ def main():
     parser.add_argument('--head', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--github-output', type=Path)
+    parser.add_argument('--docs-pr-only', action='store_true',
+                        help='Main may replace pending code runs; only PRs may exempt documentation.')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--require-docs', action='store_true',
+                        help='Fail unless fresh Git inspection proves a documentation-only change.')
+    mode.add_argument('--recheck', type=Path,
+                      help='Reinspect Git before selecting jobs; uncertainty requires the full suite.')
+    mode.add_argument('--verify-docs-receipt', type=Path,
+                      help='Validate the preparation artifact without late Git scope selection.')
+    parser.add_argument('--checkout', type=Path)
     args = parser.parse_args()
     try:
         event = json.loads(args.event.read_text())
         if not isinstance(event, dict):
             raise ValueError('Invalid event envelope')
+        if args.verify_docs_receipt:
+            result = verify_docs_receipt(args.verify_docs_receipt, args.checkout,
+                                         args.event_name, event, args.head)
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(result, indent=2)+'\n')
+            print(json.dumps(result))
+            return
         result = decide(args.event_name, event, args.head, allow_fetch=True)
-    except (OSError, ValueError):
+    except (OSError, ValueError, TypeError, AttributeError, KeyError) as error:
+        if args.verify_docs_receipt:
+            parser.exit(1, 'Documentation receipt rejected: '+str(error)+'\n')
+        event = None
         result = dict(full=True, reason='Unreadable event; require full verification',
                       headSha=args.head, baseSha=None, changes=[])
     if 'tier' not in result:
-        result.update(tier='L3', profile='full', sql=True, network=True, packaging=True, matches=[])
-    result['selectorSha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        require_full(result, result['reason'])
+    if args.docs_pr_only and args.event_name != 'pull_request':
+        require_full(result, 'Main always requires complete verification, including replaced pending code runs')
+    result.update(scope_context(args.event_name, event, args.head))
+    if args.recheck:
+        result = recheck(result, args.recheck)
     result['ruleAndPackagingExecution'] = 'COMPLETE_REQUIRED' if result['full'] else ('NOT_RUN_DOCUMENTATION_ONLY' if result['tier'] == 'DOCS' else 'SCOPED_ONLY_FULL_NOT_RUN')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2)+'\n')
@@ -180,6 +239,8 @@ def main():
                 stream.write(key+'='+str(result[key]).lower()+'\n')
             stream.write('tier='+result['tier']+'\n')
     print(json.dumps(result))
+    if args.require_docs and result['tier'] != 'DOCS':
+        parser.exit(1, 'Documentation exemption rejected: ' + result['reason'] + '\n')
 
 
 if __name__ == '__main__':

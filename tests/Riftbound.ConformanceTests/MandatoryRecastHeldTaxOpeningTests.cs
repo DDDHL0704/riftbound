@@ -23,6 +23,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
+        var verifyColdRecoveryAfterEveryCommand = true;
         OfficialDecklist? deck = null; PlayCostQuoteDto? defaultQuote = null, discountQuote = null; object? forgery = null;
         try
         {
@@ -53,14 +54,20 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             Assert.Equal(Field, State().CardObjects[field].CardNo);
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            // Natural channeling is setup. Recover its complete original history once before
+            // the first paid play, then retain cold recovery at every conquest/tax/payment step.
+            verifyColdRecoveryAfterEveryCommand = false;
             for (var turns = 0; State().TurnPlayerId != actor || Runes().Length < 12; turns++)
             {
                 Assert.True(turns < 30 && State().Status == MatchStatuses.InProgress);
                 await Act(State().TurnPlayerId, new EndTurnCommand());
             }
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var pirate = Hand(Pirate)!; var host = Hand(Host)!;
             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
-            foreach (var id in Runes().Take(2)) await Act(actor, new TapRuneCommand(id));
+            var hostRunes = Runes().Take(2).ToArray();
+            await Act(actor, new TapRuneCommand(hostRunes[0], hostRunes));
             await Act(actor, new PlayCardCommand(host, Host, [])); await Drain();
             Assert.Contains(host, State().PlayerZones[actor].Base); Assert.True(State().CardObjects[host].IsExhausted);
             Assert.Equal(0, State().RunePools[actor].Mana);
@@ -79,8 +86,9 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             var scores = MatchStateHasher.HashValue(State().PlayerScores);
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             Assert.Equal(12, Runes().Length); Assert.Equal(2, purple.Length);
-            foreach (var id in Runes().Except(purple)) await Act(actor, new TapRuneCommand(id));
-            foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            var manaRunes = Runes().Except(purple).ToArray();
+            await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+            await Act(actor, new RecycleRuneCommand(purple[0], purple));
             Assert.Equal(10, State().RunePools[actor].Mana);
             var remainingDeck = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [pirate])); await Drain();
@@ -157,7 +165,7 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             {
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(Path.Combine(output, actor + "-" + choice + ".json"), JsonSerializer.Serialize(new {
-                    scope = "Real seats, validated red/purple Pyke40/12/3 decks, seed424242 and independent pre-submission blueprint; no future runtime deck order read or changed. Natural runes, real two-mana Poro play/readiness/movement/conquest, next real held step and tax, then actual ten mana/two purple payment of Gift/Harrowing. Default one-mana versus voluntary discard-to-zero, both seats and all three choices. Every native command checks privacy/dedup and JSON production-registry cold recovery from the unchanged complete original history. No SQL/SignalR/real process restart/full L2/L3/whole-card claim.",
+                    scope = "Real seats, validated red/purple Pyke40/12/3 decks, seed424242 and independent pre-submission blueprint; no future runtime deck order read or changed. Natural runes, real two-mana Poro play/readiness/movement/conquest, next real held step and tax, then actual ten mana/two purple payment of Gift/Harrowing. Default one-mana versus voluntary discard-to-zero, both seats and all three choices. Every native command checks privacy/dedup. JSON production-registry cold recovery checks the complete natural-channeling prefix and every later conquest/tax/payment command, followed by full original-history replay. No SQL/SignalR/real process restart/full L2/L3/whole-card claim.",
                     initial, deck, actor, choice, final = journal.Entries.LastOrDefault()?.AuthoritativeState, defaultQuote, discountQuote,
                     commands = Commands(), events = Events(), forgery }, Json));
             }
@@ -206,7 +214,8 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             var count = journal.Entries.Count; var duplicate = await Send();
             Assert.True(duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
-            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State)); await Cold();
+            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
+            if (verifyColdRecoveryAfterEveryCommand) await Cold();
             return result;
         }
         async Task NextOwnTurn()

@@ -202,7 +202,8 @@ public sealed class Ven117PaidConditionalSteadfastConsumerTests
     {
         Assert.Equal(player, game.State.TurnPlayerId); Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
         var costs = units.Select(id => game.State.CardObjects[id].CardNo == No ? 2 : game.State.CardObjects[id].CardNo == FriendNo ? 3 : 6).ToArray();
-        for (var i = 0; i < costs.Sum(); i++) await game.Act(player, new TapRuneCommand(Rune(player, i)));
+        var runes = Enumerable.Range(0, costs.Sum()).Select(i => Rune(player, i)).ToArray();
+        foreach (var batch in runes.Chunk(12)) await game.Act(player, new TapRuneCommand(batch[0], batch));
         for (var i = 0; i < units.Length; i++)
         { var prefix = game.Events().Length; var id = units[i]; await game.Act(player, new PlayCardCommand(id, game.State.CardObjects[id].CardNo!, [])); AssertCost(game.Events().Skip(prefix), costs[i], 0); Assert.True(game.State.CardObjects[id].IsExhausted); Assert.False(game.State.CardObjects[id].IsEmpowered); }
         Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower); Common.AssertTwelveEach(game.State);
