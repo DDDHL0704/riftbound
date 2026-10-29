@@ -85,6 +85,10 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
+                    if (ActiveFieldCardBehaviors(zones, cards, player).Any(b => b.SkipsDrawPhase)) {
+                        events.Add(new("DRAW_PHASE_SKIPPED", "卡牌效果跳过抽牌阶段", new Dictionary<string, object?> { ["playerId"] = player }));
+                        state = state with { TurnStartStep = "MAIN" }; break;
+                    }
                     var draw = DrawCards(state, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };

@@ -230,6 +230,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = UnitEventSpec(context.CardNo)!;
+        if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
             var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
             return NoopStackResolutionResult(state) with { PlayerScores = scores,

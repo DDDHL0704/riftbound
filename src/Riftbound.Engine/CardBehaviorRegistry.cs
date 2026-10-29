@@ -33,6 +33,7 @@ public sealed record CardBehaviorDefinition(
     ConquestDamageSpec? ConquestDamage = null,
     MovementScoreSpec? MovementScore = null,
     UnitEventAbilitySpec? UnitEventAbility = null,
+    bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
@@ -465,6 +466,9 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·022", "无尽秘藏", 5, "EQUIPMENT_PLAY:VEN·022", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY", "BANISH_HAND_GRAVEYARD_BURN", 7),
+            GrantsNormalGraveyardPlay: true, SkipsDrawPhase: true, BanishesNonDeckGraveyardEntries: true),
         new("VEN·067", "瓶中星海", 10, "EQUIPMENT_PLAY:VEN·067", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("MAIN", "SCORE", 1, LeadingDestroyOtherFriendlyPermanents: 3)),

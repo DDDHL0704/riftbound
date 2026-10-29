@@ -154,7 +154,7 @@ public sealed partial class CoreRuleEngine
             untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                 untilEndOfTurnEffects,
                 playerId,
-                battlefieldDiscardedObjectIds);
+                battlefieldDiscardedObjectIds, playerZones);
         }
         if (TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
                 state,

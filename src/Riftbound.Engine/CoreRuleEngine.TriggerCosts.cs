@@ -223,7 +223,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
             UntilEndOfTurnEffects = discarded is null ? state.UntilEndOfTurnEffects
-                : MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, selected) };
+                : MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, selected, zones) };
         return CompleteTriggerCost(next, item, new(new(source.ObjectId, source.ObjectGeneration), discarded), events);
     }
 

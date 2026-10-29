@@ -12868,6 +12868,7 @@ internal static class ActionPromptBuilder
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
+            .SelectMany(behavior => CoreRuleEngine.NormalGraveyardPlayBehaviors(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PlaySourceKeywordBehavior(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
@@ -14609,6 +14610,9 @@ internal static class ActionPromptBuilder
             ? currentExperience
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
+        if (sourceObjectId is not null && behavior.AppliedFlowCost is null
+            && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId))
+            choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
 
         var reductionChoiceIds = new HashSet<string>(StringComparer.Ordinal);
@@ -16492,8 +16496,10 @@ internal static class ActionPromptBuilder
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
+            ["normalGraveyardPlayChoiceId"] = behavior.AppliedFlowCost is null
+                && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId) ? CoreRuleEngine.NormalGraveyardPlayChoice : null,
             ["sourceZone"] = state.PendingEffectPlay?.SourceZone
-                ?? (behavior.AppliedFlowCost is not null ? "GRAVEYARD" : behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
+                ?? (state.PlayerZones[playerId].Graveyard.Contains(sourceObjectId) ? "GRAVEYARD" : behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
