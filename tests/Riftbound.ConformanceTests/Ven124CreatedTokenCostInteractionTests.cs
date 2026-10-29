@@ -22,7 +22,8 @@ public sealed class Ven124CreatedTokenCostInteractionTests
         try
         {
             Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
-            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+            var funding = Enumerable.Range(0, 12).Select(i => "TOKEN-COST-RUNE-" + i).ToArray();
+            await game.Act("P1", new TapRuneCommand(funding[0], funding));
             Assert.Equal(12, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
             Assert.Equal(10, game.State.RunePools["P1"].Mana);
