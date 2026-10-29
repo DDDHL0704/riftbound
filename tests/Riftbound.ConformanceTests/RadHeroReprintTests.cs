@@ -91,7 +91,9 @@ public sealed class RadHeroReprintTests
     {
         var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
         var printings = RadiantCardSources.GetAdmittedCards();
-        Assert.Equal(CardNumbers().Select(row => (string)row[0]).Order(),
+        Assert.Equal(CardNumbers().Select(row => (string)row[0]).Concat(new[] {
+            "RAD·086/167", "RAD·086a/167", "RAD·178*/167", "RAD·178/167",
+            "RAD·109/167", "RAD·109a/167", "RAD·SP3/005" }).Order(),
             printings.Where(card => card.CardCategoryName == "英雄单位").Select(card => card.CardNo).Order());
         Assert.Throws<NotSupportedException>(() => ((IList<OfficialCard>)printings)[0] = printings[0] with { CardEffect = "forged" });
         var play = CardBehaviorRegistry.GetAll().Select(definition => new ImplementedCardBehavior(

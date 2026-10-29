@@ -213,6 +213,7 @@ public static class TriggerKinds
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
+    public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -694,7 +695,9 @@ public sealed record TriggerSpec(
     int? EmpoweredDamageAmount = null,
     int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? ObjectReadyCount = null);
+    int? ObjectReadyCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledFaceDownCardHere = null);
 
 public sealed record ReplacementSpec(
     string Kind,
