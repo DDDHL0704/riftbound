@@ -7256,7 +7256,12 @@ internal static class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         int ManaCost,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason)
+    {
+        public IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices { get; init; } = [];
+        public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice { get; init; }
+            = new Dictionary<string, IReadOnlyDictionary<string, object?>>();
+    }
 
     private sealed record RevealCardPromptRequirement(
         string SourceObjectId,
@@ -9710,6 +9715,8 @@ internal static class ActionPromptBuilder
 
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
+        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
+        var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, resources);
         var requirements = new List<HideCardPromptRequirement>();
         foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
         {
@@ -9728,7 +9735,7 @@ internal static class ActionPromptBuilder
                 costChoices.Where(c => c.Id == StandbyHideTeemoOptionalCost || StandbyRules.HasPrintedKeyword(behavior.CardNo)).ToArray(),
                 0,
                 true,
-                null));
+                null) { PaymentResourceChoices = resources, PaymentResourcePowerByChoice = byChoice });
         }
 
         return requirements;
@@ -10038,7 +10045,8 @@ internal static class ActionPromptBuilder
     {
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
-        if (pool.TotalPower >= 1) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+        if (pool.TotalPower >= 1 || CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId).Count > 0)
+            choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
         if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
@@ -13911,7 +13919,7 @@ internal static class ActionPromptBuilder
         string playerId)
     {
         var choices = HideCardSourceRequirements(state, playerId)
-            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .SelectMany(requirement => requirement.OptionalCostChoices.Concat(requirement.PaymentResourceChoices))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
@@ -15924,6 +15932,10 @@ internal static class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["destinationChoices"] = requirement.DestinationChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["costChoiceMinCount"] = 1,
+            ["costChoiceMaxCount"] = 1,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.OptionalCostChoices.Any(c => c.Id == StandbyHideOptionalCost) ? 1 : 0,
             ["costsByChoice"] = requirement.OptionalCostChoices.ToDictionary(c => c.Id, c => (object)new Dictionary<string, object?> { ["mana"] = c.Id == StandbyHideTeemoOptionalCost ? 1 : 0, ["power"] = c.Id == StandbyHideOptionalCost ? 1 : 0 }),
