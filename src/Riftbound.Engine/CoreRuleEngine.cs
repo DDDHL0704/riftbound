@@ -5240,7 +5240,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveGatekeeperMaduliMoveAbility(state, intent, command, ability);
         }
 
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal))
+        if (ability.Kind == ActivatedAbilityKinds.SwiftMoveSelfToBase)
         {
             return ResolveEzrealBlueSwiftMoveAbility(state, intent, command, ability);
         }
@@ -6615,19 +6615,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ActivateAbilityCommand command,
         P4ActivatedAbilityDefinition ability)
     {
-        if (state.PendingPayment is not null
-            || state.PendingHandChoice is not null
-            || state.PendingTaskQueue.IsBlocking
-            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "伊泽瑞尔的迅捷移动技能只能在当前玩家的开放主阶段提交。",
-                ErrorCodes.PhaseNotAllowed);
-        }
+        if (!CanActivateSwiftAbility(state, intent.PlayerId))
+            return RejectWithCorePrompts(state, "迅捷技能需要自己的中立开环或法术对决中的行动权。", ErrorCodes.PhaseNotAllowed);
 
         if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
             || command.TargetObjectIds.Count != 0)
@@ -6661,6 +6650,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "伊泽瑞尔的迅捷移动技能来源必须是当前玩家控制的公开精确战场单位。",
                 ErrorCodes.InvalidTarget);
         }
+
+        if (!AttachedRuleTextRules.SelectActivatedInstance(state, sourceState, ability, command.AbilityInstanceId, out var instance))
+            return RejectWithCorePrompts(state, "所选移动技能实例已失效。", ErrorCodes.InvalidTarget);
 
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
@@ -6756,15 +6748,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
         var stackItem = new StackItemState(
-            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-EZREAL-MOVE-BASE",
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-SELF-MOVE-BASE",
             intent.PlayerId,
             command.SourceObjectId,
             ability.EffectKind,
-            sourceState.CardNo,
+            instance.CardNo,
             [],
             0,
             1,
-            []);
+            [], timingContext: state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null)
+            { SelfMovement = new(new(sourceState.ObjectId, sourceState.ObjectGeneration), state.Tick + 1,
+                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin) };
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -19003,7 +18997,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -26670,12 +26664,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, "__spectator__");
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        var hasAbilityDefinition = P4ActivatedAbilityCatalog.TryGetByEffectKind(
-            stackItem.EffectKind,
-            out var abilityDefinition);
         var events = new List<GameEvent>
         {
             new(
@@ -26685,7 +26677,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = stackItem.ControllerId,
                     ["controllerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = visibleSource,
                     ["cardNo"] = stackItem.CardNo,
                     ["stackItemId"] = stackItem.StackItemId,
                     ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
@@ -26695,17 +26687,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (!hasAbilityDefinition
-            || !TryMoveEzrealBlueSwiftSourceToBase(
-                playerZones,
-                cardObjects,
-                objectLocations,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                abilityDefinition,
-                stackItem.CardNo,
-                out var originLocation,
-                out var destinationLocation))
+        var movementEventStart = events.Count;
+        if (!ValidSelfMovement(state, stackItem)
+            || state.CardObjects.GetValueOrDefault(stackItem.SourceObjectId)?.ObjectGeneration != stackItem.SelfMovement!.Source.Generation
+            || !state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var currentSource)
+            || EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, currentSource) != stackItem.ControllerId
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations,
+                stackItem.SourceObjectId, new(stackItem.ControllerId, "BASE"), stackItem.ControllerId, stackItem, events))
         {
             events.Add(new GameEvent(
                 "ABILITY_NO_EFFECT",
@@ -26713,7 +26701,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = visibleSource,
                     ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["stackItemId"] = stackItem.StackItemId,
@@ -26722,25 +26710,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else
         {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_BASE",
-                "伊泽瑞尔移动到基地",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.SourceObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
-                    ["effectKind"] = stackItem.EffectKind,
-                    ["stackItemId"] = stackItem.StackItemId,
-                    ["originZone"] = MoveUnitBattlefieldZone,
-                    ["destinationZone"] = MoveUnitBaseZone,
-                    ["originLocation"] = BuildLocationPayload(originLocation),
-                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
-                    ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE",
-                    ["swift"] = true
-                }));
-            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BASE"));
+            for (var index = movementEventStart; index < events.Count; index++)
+                if (events[index].Kind == "UNIT_MOVED_TO_BASE") events[index] = events[index] with {
+                    Payload = new Dictionary<string, object?>(events[index].Payload) {
+                        ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                        ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
+                        ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE", ["swift"] = true } };
         }
 
         return new StackResolutionResult(
@@ -32327,40 +32302,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             controllerId,
             MoveUnitBattlefieldZone,
             targetBattlefieldObjectId);
-        objectLocations[sourceObjectId] = destinationLocation;
-        return true;
-    }
-
-    private static bool TryMoveEzrealBlueSwiftSourceToBase(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, ObjectLocationState> objectLocations,
-        string controllerId,
-        string sourceObjectId,
-        P4ActivatedAbilityDefinition abilityDefinition,
-        string? stackCardNo,
-        out ObjectLocationState originLocation,
-        out ObjectLocationState destinationLocation)
-    {
-        originLocation = new ObjectLocationState(string.Empty, string.Empty);
-        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || sourceState.IsFaceDown
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
-            || !string.Equals(sourceState.CardNo, stackCardNo, StringComparison.Ordinal)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(abilityDefinition, sourceState.CardNo)
-            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
-            || !string.Equals(originLocation.PlayerId, controllerId, StringComparison.Ordinal)
-            || !string.Equals(originLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(originLocation.BattlefieldObjectId))
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
-        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBaseZone, sourceObjectId);
-        destinationLocation = new ObjectLocationState(controllerId, MoveUnitBaseZone);
         objectLocations[sourceObjectId] = destinationLocation;
         return true;
     }

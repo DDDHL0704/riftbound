@@ -27,6 +27,7 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.True(ability.RequiresBattlefieldSource);
         Assert.False(ability.ExhaustsSourceAsCost);
         Assert.False(ability.ReactionSpeed);
+        Assert.True(ability.SwiftSpeed);
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
         Assert.Equal(P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveBluePowerCost, powerCostByTrait[RuneTrait.Blue]);
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo));
@@ -88,9 +89,9 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.Equal("ordinary-stack-item-before-move-to-base", requirement["stackPolicy"]);
         Assert.Equal("payment-plan-typed-blue", requirement["paymentPolicy"]);
         Assert.True(Assert.IsType<bool>(requirement["swift"]));
-        Assert.Equal("full-swift-reaction-timing-deferred", requirement["swiftTimingPolicy"]);
-        Assert.Equal("deferred", requirement["combatDamageStaticPolicy"]);
-        Assert.Equal("deferred", requirement["attackDefenseDamageTriggerPolicy"]);
+        Assert.Equal("open-main-or-spell-duel-focus", requirement["swiftTimingPolicy"]);
+        Assert.Equal("cannot-deal-combat-damage", requirement["combatDamageStaticPolicy"]);
+        Assert.Equal("confirm-local-target-then-current-source-might", requirement["attackDefenseDamageTriggerPolicy"]);
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             requirement["targetChoicesByIndex"]);
         Assert.Empty(targetChoicesByIndex);

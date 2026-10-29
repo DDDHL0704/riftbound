@@ -449,11 +449,11 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03AO opens only Ezreal's pay blue swift self move-to-base representative; attack/defense damage trigger, cannot-combat-damage static, and full swift timing remain deferred.",
+            "Swift self movement uses the shared action window and captured source identity.",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Blue] = EzrealBlueSwiftMoveBluePowerCost
-            }),
+            }, SwiftSpeed: true, SupportsCopiedRuleText: true, Kind: ActivatedAbilityKinds.SwiftMoveSelfToBase),
         new(
             CrimsonRoseReadyAbilityId,
             CrimsonRoseCardNo,

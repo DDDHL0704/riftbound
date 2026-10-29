@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string SwiftMoveSelfToBase = "SWIFT_MOVE_SELF_TO_BASE";
     public const string ConsumeSourceBoonGrantSelfMight = "CONSUME_SOURCE_BOON_GRANT_SELF_MIGHT";
     public const string ManaGrantSelfMight = "MANA_GRANT_SELF_MIGHT";
     public const string RecycleGraveyardCardGrantSelfMight = "RECYCLE_GRAVEYARD_CARD_GRANT_SELF_MIGHT";
@@ -236,6 +237,7 @@ public static class TriggerKinds
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
+    public const string UnitAttackOrDefendSourceMightDamage = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
@@ -401,6 +403,7 @@ public static class StaticAbilityKinds
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
+    public const string UnitCannotDealCombatDamage = "UNIT_CANNOT_DEAL_COMBAT_DAMAGE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";
