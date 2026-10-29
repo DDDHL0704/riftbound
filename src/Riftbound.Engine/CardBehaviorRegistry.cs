@@ -457,6 +457,10 @@ public static class CardBehaviorRegistry
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
         new("VEN·077", "帝国工具", 4, "IMPERIAL_TOOL_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·060", "天际漫游者", 4, "SKY_STRIDER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·125", "冰原饿狼", 4, "TUNDRA_HUNTER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "犬形"),
         new("VEN·054", "可疑之书", 3, "SUSPICIOUS_BOOK_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
         new("VEN·062", "海克斯方程式", 2, "HEXTECH_EQUATION_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),

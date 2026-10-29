@@ -44,7 +44,9 @@ public sealed record P4ActivatedAbilityDefinition(
     int? PowerModifierAmountIfSourceEmpowered = null);
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
-    int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false);
+    int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
+    bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
+    bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -243,6 +245,13 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("SKY_STRIDER_DISCARD_DAMAGE", "VEN·060", "SKY_STRIDER_DISCARD_DAMAGE", "天际漫游者", 1, 0, 1,
+            false, true, 4, true, "官方中文：弃置装备、支付1并横置，对战场上的一名单位造成4点伤害。",
+            SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(DiscardsEquipmentAsCost: true, BattlefieldUnitDamage: 4)),
+        new("TUNDRA_HUNTER_READY", "VEN·125", "TUNDRA_HUNTER_READY", "冰原饿狼", 0, 0, 0,
+            false, false, 0, false, "官方中文：本回合已选择过敌方单位后，支付黄色，活跃并本回合+1；每回合一次。",
+            PowerCostByTrait: new Dictionary<string, int> { ["yellow"] = 1 }, SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(ReadiesSource: true, SourcePowerBonus: 1, OncePerTurn: true, RequiresEnemyUnitTargetThisTurn: true)),
         new("IMPERIAL_TOOL_POWER", "VEN·077", "IMPERIAL_TOOL_POWER", "帝国工具", 0, 0, 1,
             false, true, 0, true, "官方中文：横置，单位本回合+2；来源已强化时改为+4。",
             Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,

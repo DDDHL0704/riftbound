@@ -9,6 +9,34 @@ public sealed record SimpleActivationContext(string AbilityId, ObjectBinding Sou
 
 public sealed partial class CoreRuleEngine
 {
+    private static string SimpleActivationUse(CardObjectState source, string ability)
+        => $"PRINTED_ACTIVATION_USED:{source.ObjectId}:{source.ObjectGeneration}:{ability}";
+    private static string EnemyUnitTargetMarker(string actor) => "TARGETED_ENEMY_UNIT_THIS_TURN:" + actor;
+
+    // Track confirmed targets for every skill/spell through the shared stack;
+    // paying a non-target cost never counts as choosing an enemy unit.
+    private static ResolutionResult RecordEnemyUnitTargets(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var markers = result.State.UntilEndOfTurnEffects.ToHashSet(StringComparer.Ordinal);
+        foreach (var item in result.State.StackItems) {
+            if (item.TargetGenerations is null || item.EmpowerActivation is not null) continue;
+            var prior = before.StackItems.FirstOrDefault(i => i.StackItemId == item.StackItemId);
+            if (prior?.TargetGenerations is not null && prior.TargetObjectIds.SequenceEqual(item.TargetObjectIds)) continue;
+            if (item.TargetObjectIds.Any(id => before.CardObjects.TryGetValue(id, out var target)
+                && IsObjectOnField(before.PlayerZones, id) && !target.IsFaceDown
+                && target.Tags.Contains(CardObjectTags.UnitCard) && target.ControllerId != item.ControllerId))
+                markers.Add(EnemyUnitTargetMarker(item.ControllerId));
+        }
+        if (markers.Count == result.State.UntilEndOfTurnEffects.Count) return result;
+        var next = result.State with { UntilEndOfTurnEffects = markers.Order(StringComparer.Ordinal).ToArray() };
+        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+    }
+
+    internal static string[] SimpleActivationDiscardChoices(MatchState state, string actor)
+        => state.PlayerZones[actor].Hand.Where(id => state.CardObjects.TryGetValue(id, out var card)
+            && card.Tags.Contains(CardObjectTags.EquipmentCard)).Select(id => "DISCARD_HAND_CARD:" + id).ToArray();
+
     internal static bool IsSimpleAbilitySource(MatchState state, string actor, string id, P4ActivatedAbilityDefinition ability)
         => state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id && source.ControllerId == actor
             && !source.IsFaceDown && (!ability.ExhaustsSourceAsCost || !source.IsExhausted)
@@ -16,12 +44,17 @@ public sealed partial class CoreRuleEngine
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
             && FindFieldObjectLocation(state.PlayerZones, id) is { } at && at.PlayerId == actor
             && state.ObjectLocations.TryGetValue(id, out var precise) && precise.PlayerId == actor && precise.Zone == at.Zone
-            && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered);
+            && (ability.SimpleEffect?.RemovesSourceEmpowermentAsCost != true || source.IsEmpowered)
+            && (ability.SimpleEffect?.OncePerTurn != true || !state.UntilEndOfTurnEffects.Contains(SimpleActivationUse(source, ability.AbilityId)))
+            && (ability.SimpleEffect?.RequiresEnemyUnitTargetThisTurn != true || state.UntilEndOfTurnEffects.Contains(EnemyUnitTargetMarker(actor)))
+            && (ability.SimpleEffect?.DiscardsEquipmentAsCost != true || SimpleActivationDiscardChoices(state, actor).Length > 0);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId
-            && state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
-            && target.Tags.Contains(CardObjectTags.EquipmentCard) && IsObjectOnField(state.PlayerZones, id)
+        => state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
+            && IsObjectOnField(state.PlayerZones, id)
+            && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
+                || ability.SimpleEffect?.BattlefieldUnitDamage > 0 && target.Tags.Contains(CardObjectTags.UnitCard)
+                    && state.ObjectLocations.GetValueOrDefault(id)?.Zone == "BATTLEFIELD")
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, actor, id);
 
     private static ResolutionResult ResolveSimpleActivation(MatchState state, PlayerIntent intent,
@@ -35,7 +68,9 @@ public sealed partial class CoreRuleEngine
             || targets.Any(id => !IsSimpleAbilityTarget(state, intent.PlayerId, command.SourceObjectId, id, ability)))
             return RejectWithCorePrompts(state, "技能来源、横置或解除强化费用、目标不合法。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
-                out var extras, out var resources, out var recycled) || extras.Count != 0)
+                out var extras, out var resources, out var recycled)
+            || (ability.SimpleEffect!.DiscardsEquipmentAsCost ? extras.Count != 1
+                || !SimpleActivationDiscardChoices(state, intent.PlayerId).Contains(extras[0]) : extras.Count != 0))
             return RejectWithCorePrompts(state, "技能支付选择不合法。", ErrorCodes.InvalidTarget);
         var tax = ability.AppliesSpellshieldTargetTax ? ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targets, out _) : 0;
         var typed = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
@@ -44,7 +79,7 @@ public sealed partial class CoreRuleEngine
         var plan = new PaymentCostRules.PaymentPlan(paymentId, window, intent.PlayerId,
             baseManaCost: ability.ManaCost, totalManaCost: ability.ManaCost,
             genericPowerCost: ability.PowerCost + tax, totalPowerCost: ability.PowerCost + tax + typed.Values.Sum(),
-            powerCostByTrait: typed, paymentResourceActionIds: resources, reason: ability.EffectKind,
+            powerCostByTrait: typed, optionalCostIds: extras, paymentResourceActionIds: resources, reason: ability.EffectKind,
             sourceObjectId: command.SourceObjectId, abilityId: ability.AbilityId,
             powerPurpose: PowerPurposeForActivatedAbility(ability), manaPurpose: ManaPurposeForActivatedAbility(state, command.SourceObjectId),
             manaSourceSelection: command.ServerManaSourceSelection);
@@ -57,6 +92,15 @@ public sealed partial class CoreRuleEngine
         var paid = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!paid.Accepted) return RejectWithCorePrompts(state, "资源不足，未横置或解除来源的强化。", ErrorCodes.InsufficientCost);
         var source = cards[command.SourceObjectId];
+        if (ability.SimpleEffect.DiscardsEquipmentAsCost) {
+            var discarded = extras.Single()["DISCARD_HAND_CARD:".Length..];
+            if (!TryDiscardCardFromHand(zones, cards, intent.PlayerId, discarded))
+                return RejectWithCorePrompts(state, "无法弃置所选装备。", ErrorCodes.InvalidTarget);
+            events.Add(new("CARD_DISCARDED", "弃置装备以支付技能费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = discarded,
+                ["reason"] = "ABILITY_COST", ["destinationZone"] = "GRAVEYARD" }));
+            ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED", source.ObjectId, [discarded], events);
+        }
         if (ability.SimpleEffect!.RemovesSourceEmpowermentAsCost)
         {
             var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(source.ObjectId, source.ObjectGeneration), false);
@@ -72,13 +116,20 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["sourceObjectId"] = source.ObjectId,
             ["abilityId"] = ability.AbilityId, ["effectKind"] = ability.EffectKind, ["targetObjectIds"] = targets.ToArray() };
         events.Add(new("ABILITY_ACTIVATED", $"打出{ability.DisplayName}的技能", payload));
-        events.Add(new("EQUIPMENT_EXHAUSTED", "横置来源以支付技能费用", payload));
+        if (ability.ExhaustsSourceAsCost)
+            events.Add(new(source.Tags.Contains(CardObjectTags.EquipmentCard) ? "EQUIPMENT_EXHAUSTED" : "UNIT_EXHAUSTED", "横置来源以支付技能费用", payload));
         events.Add(new("COST_PAID", "支付技能费用", PaymentCostRules.BuildCostPaidPayload(plan, paid.RunePools, paid.PlayerExperience, payload)));
         events.Add(new("STACK_ITEM_ADDED", "技能进入结算链", new Dictionary<string, object?>(payload) { ["stackItemId"] = item.StackItemId }));
+        var effects = ability.SimpleEffect.OncePerTurn
+            ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability.AbilityId)).ToArray()
+            : state.UntilEndOfTurnEffects;
+        if (ability.SimpleEffect.DiscardsEquipmentAsCost)
+            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]]);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed, PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
-            PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = paid.RunePools,
-            PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item] };
+            PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = paid.RunePools,
+            PlayerExperience = paid.PlayerExperience, StackItems = [..state.StackItems, item],
+            UntilEndOfTurnEffects = effects };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
@@ -101,7 +152,8 @@ public sealed partial class CoreRuleEngine
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
             || (item.TargetGenerations?.Count ?? 0) != ability.RequiredTargetCount
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
-                || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory) || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
+                || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
+                || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
             || item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
@@ -129,6 +181,29 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", $"{ability.DisplayName}技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["abilityId"] = ability.AbilityId }) };
         var result = NoopStackResolutionResult(state);
+        if (spec.ReadiesSource && cards.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, source.ObjectId)) {
+            var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);
+            source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready);
+            if (ready is not null) events.Add(ready);
+            source = ApplyPowerModifier(state, source, behavior, item, source.ObjectId, spec.SourcePowerBonus, out var power);
+            events.Add(power); cards[source.ObjectId] = source;
+        }
+        if (spec.BattlefieldUnitDamage > 0) {
+            var target = item.TargetObjectIds.Single();
+            if (IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, target, ability)
+                && item.TargetGenerations![target] == cards[target].ObjectGeneration) {
+                var destroyed = new HashSet<string>(StringComparer.Ordinal);
+                var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, spec.BattlefieldUnitDamage);
+                var damage = ApplyDamageToCardObject(cards, item.ControllerId, target, amount, destroyed,
+                    state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
+                events.Add(new("DAMAGE_APPLIED", "主动技能造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
+                var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, pools, damageTriggeredDestroyTargetObjectIds: destroyed,
+                    objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
+                events.AddRange(cleanup.Events); pools = cleanup.RunePools.ToDictionary(p => p.Key, p => p.Value);
+                result = result with { TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds };
+            }
+        }
         if (spec.DrawCount > 0)
         {
             var drawn = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
