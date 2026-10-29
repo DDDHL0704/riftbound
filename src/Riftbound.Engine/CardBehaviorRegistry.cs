@@ -4779,6 +4779,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
+        new("VEN·SP2", "娑娜", 4, "VEN_SONA_END_TURN_READY_RUNES_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new(
             "OGN·076/298",
             "亚索",

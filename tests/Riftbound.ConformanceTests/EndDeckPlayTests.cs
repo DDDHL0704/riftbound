@@ -11,6 +11,7 @@ public sealed class EndDeckPlayTests
     [Theory]
     [InlineData("OGS·017/024", 2, false)]
     [InlineData("OGN·073/298", 4, true)]
+    [InlineData("VEN·SP2", 4, true)]
     public async Task ActualEndRuneAbilityChoosesUpToThePrintedLimitBeforeAResponseWindow(string card, int limit, bool battlefield)
     {
         var initial=RunePosition(card,battlefield);var driver=Driver(initial,"runes-"+limit);
@@ -29,6 +30,7 @@ public sealed class EndDeckPlayTests
     [Theory]
     [InlineData("OGS·017/024",false)]
     [InlineData("OGN·073/298",true)]
+    [InlineData("VEN·SP2",true)]
     public async Task ActualEndRuneAbilityCanChooseNone(string card,bool battlefield)
     {
         var initial=RunePosition(card,battlefield);var driver=Driver(initial,"runes-none-"+(battlefield?"sona":"annie"));
@@ -51,20 +53,22 @@ public sealed class EndDeckPlayTests
         await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 
-    [Fact]
-    public async Task SonaInBaseDoesNotTriggerAnEndRuneAbility()
+    [Theory]
+    [InlineData("OGN·073/298")] [InlineData("VEN·SP2")]
+    public async Task SonaInBaseDoesNotTriggerAnEndRuneAbility(string card)
     {
-        var initial=RunePosition("OGN·073/298",false);var driver=Driver(initial,"sona-base");
+        var initial=RunePosition(card,false);var driver=Driver(initial,"sona-base-"+card);
         await driver.Act("P1",new EndTurnCommand());Assert.Equal("P2",driver.State.TurnPlayerId);
         Assert.All(RuneIds,id=>Assert.True(driver.State.CardObjects[id].IsExhausted));
         Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind=="TURN_END_STEP_STARTED");await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 
-    [Fact]
-    public async Task MovingSonaAfterTargetConfirmationDoesNotEraseItsCapturedRuneAbility()
+    [Theory]
+    [InlineData("OGN·073/298")] [InlineData("VEN·SP2")]
+    public async Task MovingSonaAfterTargetConfirmationDoesNotEraseItsCapturedRuneAbility(string card)
     {
-        var initial=AttackDamageDistributionTests.Spell(RunePosition("OGN·073/298",true),"FLASH","OGS·011/024","P1");
-        var driver=Driver(initial,"sona-leaves-battlefield");await driver.Act("P1",new EndTurnCommand());var c=driver.State.PendingCardChoice!;
+        var initial=AttackDamageDistributionTests.Spell(RunePosition(card,true),"FLASH","OGS·011/024","P1");
+        var driver=Driver(initial,"sona-leaves-battlefield-"+card);await driver.Act("P1",new EndTurnCommand());var c=driver.State.PendingCardChoice!;
         await driver.Act("P1",new ChooseCardsCommand(c.ChoiceId,c.ChoiceWindow,[RuneIds[3]]));
         await driver.Act("P1",new PlayCardCommand("FLASH","OGS·011/024",["HOST"]));await driver.Top();
         Assert.Equal("BASE",driver.State.ObjectLocations["HOST"].Zone);Assert.Equal("P1",driver.State.TurnPlayerId);
