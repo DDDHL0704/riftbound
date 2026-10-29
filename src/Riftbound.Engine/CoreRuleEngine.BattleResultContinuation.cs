@@ -27,6 +27,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
+            result = QueueSelfActionObservers(state, result);
             result = RecordHandDiscardObservers(result);
             result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
@@ -44,6 +45,7 @@ public sealed partial class CoreRuleEngine
             result = QueuePaidUnitPlayStuns(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
+            result = QueueSourceUnitTokens(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);
@@ -72,7 +74,10 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return StampNewTriggerQueueTimes(state, completed);
+            // Checked target intents may become confirmed while earned skills
+            // are published. Observe those selections before opening responses.
+            completed = QueueSelfActionObservers(collected.State, completed);
+            return StampNewTriggerQueueTimes(state, PrepareTriggerConfirmation(PublishPendingTriggers(completed)));
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";

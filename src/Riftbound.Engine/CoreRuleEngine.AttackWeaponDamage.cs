@@ -74,7 +74,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var destroyed = new HashSet<string>(StringComparer.Ordinal);
-        var damage = ApplyDamageToCardObject(cards, item.ControllerId, target, amount, destroyed,
+        var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
             state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
         events.Add(new("DAMAGE_APPLIED", "进攻技能按已贴附武装造成伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards, item, state.RunePools,
