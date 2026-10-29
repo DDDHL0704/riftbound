@@ -10,6 +10,12 @@ public sealed partial class CoreRuleEngine
     internal const string UnitHeldHiddenScoreKind = "UNIT_HIDDEN_HERE_SCORE";
     internal static bool IsParsedUnitHeldContext(HeldTriggerContext? context)
         => context?.Kind is UnitHeldRuneKind or UnitHeldHiddenScoreKind;
+    internal static bool IsCapturedUnitHeld(MatchState state, StackItemState item)
+        => item.HeldContext is { } context && IsParsedUnitHeldContext(context)
+            && ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo);
+    internal static bool IsCapturedUnitHeld(MatchState state, TriggerQueueItemState item)
+        => item.HeldContext is { } context && IsParsedUnitHeldContext(context)
+            && ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.SourceCardNo);
     internal static string UnitHeldLabel(HeldTriggerContext context)
         => context.Kind == UnitHeldRuneKind ? "据守战场：召出一枚符文；双方响应后结算。"
             : "据守战场且此处控制背面卡牌：获得1分；双方响应后结算。";
