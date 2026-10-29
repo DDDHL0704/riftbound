@@ -50,7 +50,8 @@ public sealed partial class CoreRuleEngine
             && (ability.SimpleEffect?.DiscardsEquipmentAsCost != true || SimpleActivationDiscardChoices(state, actor).Length > 0);
 
     internal static bool IsSimpleAbilityTarget(MatchState state, string actor, string sourceId, string id, P4ActivatedAbilityDefinition ability)
-        => state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
+        => ability.SimpleEffect?.TransfersSourceToChosenPlayer == true ? state.Seats.ContainsKey(id)
+            : state.CardObjects.TryGetValue(id, out var target) && !target.IsFaceDown
             && IsObjectOnField(state.PlayerZones, id)
             && (ability.SimpleEffect?.EmpowersOtherEquipment == true && id != sourceId && target.Tags.Contains(CardObjectTags.EquipmentCard)
                 || ability.SimpleEffect?.BattlefieldUnitDamage > 0 && target.Tags.Contains(CardObjectTags.UnitCard)
@@ -108,7 +109,7 @@ public sealed partial class CoreRuleEngine
             events.AddRange(changed.Events);
         }
         cards[source.ObjectId] = source with { IsExhausted = source.IsExhausted || ability.ExhaustsSourceAsCost };
-        var tokenTargets = targets.Where(id => TokenObjectRules.IsToken(cards[id]))
+        var tokenTargets = targets.Where(id => cards.TryGetValue(id, out var target) && TokenObjectRules.IsToken(target))
             .ToDictionary(id => id, id => cards[id].TokenFactoryCardNo ?? cards[id].CardNo!, StringComparer.Ordinal);
         var context = new SimpleActivationContext(ability.AbilityId, new(source.ObjectId, source.ObjectGeneration), state.Tick + 1,
             tokenTargets.Count == 0 ? null : tokenTargets);
@@ -138,6 +139,10 @@ public sealed partial class CoreRuleEngine
         => new($"STACK-{context.AcquiredTick}-{context.Source.ObjectId}-PRINTED", actor, context.Source.ObjectId,
             ability.EffectKind, cardNo, targets, 0, 1, []) { SimpleActivation = context };
 
+    internal static bool SimpleActivationTargetsPlayer(MatchState state, StackItemState item)
+        => P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability)
+            && ability.SimpleEffect?.TransfersSourceToChosenPlayer == true && ValidSimpleActivation(state, item);
+
     internal static bool ValidSimpleActivation(MatchState state, StackItemState item)
     {
         var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var ability) && ability.SimpleEffect is not null;
@@ -150,15 +155,16 @@ public sealed partial class CoreRuleEngine
             || source.ObjectGeneration == context.Source.Generation
                 && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo) || !source.Tags.Contains(ability.SourceRequiredTag))
             || item.TargetObjectIds.Count != ability.RequiredTargetCount || item.TargetObjectIds.Distinct().Count() != ability.RequiredTargetCount
-            || (item.TargetGenerations?.Count ?? 0) != ability.RequiredTargetCount
+            || (item.TargetGenerations?.Count ?? 0) != (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? 0 : ability.RequiredTargetCount)
             || context.TargetTokenFactories is not null && context.TargetTokenFactories.Any(p => !item.TargetObjectIds.Contains(p.Key)
                 || !P6TokenFactoryCatalog.TryGetByCardNo(p.Value, out var factory)
                 || !factory.Tags.Contains(ability.SimpleEffect!.EmpowersOtherEquipment ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard))
-            || item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
+            || (ability.SimpleEffect!.TransfersSourceToChosenPlayer ? item.TargetObjectIds.Any(id => !state.Seats.ContainsKey(id))
+                : item.TargetObjectIds.Any(id => item.TargetGenerations!.GetValueOrDefault(id, -1) < 0
                 || (state.CardObjects.TryGetValue(id, out var target)
                     ? item.TargetGenerations![id] > target.ObjectGeneration
                         || context.TargetTokenFactories?.GetValueOrDefault(id) != target.TokenFactoryCardNo
-                    : context.TargetTokenFactories?.ContainsKey(id) != true))) return false;
+                    : context.TargetTokenFactories?.ContainsKey(id) != true)))) return false;
         var expected = SimpleActivationStackItem(context, item.ControllerId, item.CardNo!, ability, item.TargetObjectIds)
             with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
@@ -181,6 +187,16 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", $"{ability.DisplayName}技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["abilityId"] = ability.AbilityId }) };
         var result = NoopStackResolutionResult(state);
+        if (spec.TransfersSourceToChosenPlayer && cards.TryGetValue(item.SourceObjectId, out var transferred)
+            && transferred.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, transferred.ObjectId)) {
+            var controller = item.TargetObjectIds.Single();
+            var previous = EffectiveFieldControllerId(zones, transferred.ObjectId, transferred);
+            cards[transferred.ObjectId] = transferred with { ControllerId = controller, AttachedToObjectId = null, AttachedRuleText = null };
+            RecallAttachedGroupToBase(zones, cards, transferred.ObjectId, controller);
+            events.Add(new("CONTROL_CHANGED", "所选玩家获得来源物体控制权并将其召回", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = item.SourceObjectId,
+                ["previousControllerId"] = previous, ["controllerId"] = controller, ["destinationZone"] = "BASE" }));
+        }
         if (spec.ReadiesSource && cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == item.SimpleActivation!.Source.Generation && IsObjectOnField(zones, source.ObjectId)) {
             var behavior = new CardBehaviorDefinition(item.CardNo!, ability.DisplayName, 0, ability.EffectKind, 0, 0, PowerModifierAmount: spec.SourcePowerBonus);

@@ -27658,6 +27658,8 @@ public static partial class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, stackItem))
+                foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
             if (stackItem.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
                 foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
@@ -32473,6 +32475,8 @@ public static partial class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, original))
+                    foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
                 if (original.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, original))
                     foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }

@@ -46,7 +46,8 @@ public sealed record P4ActivatedAbilityDefinition(
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
     bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
-    bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0);
+    bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
+    bool TransfersSourceToChosenPlayer = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -245,6 +246,10 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
+            false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, TransfersSourceToChosenPlayer: true)),
         new("SKY_STRIDER_DISCARD_DAMAGE", "VEN·060", "SKY_STRIDER_DISCARD_DAMAGE", "天际漫游者", 1, 0, 1,
             false, true, 4, true, "官方中文：弃置装备、支付1并横置，对战场上的一名单位造成4点伤害。",
             SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(DiscardsEquipmentAsCost: true, BattlefieldUnitDamage: 4)),

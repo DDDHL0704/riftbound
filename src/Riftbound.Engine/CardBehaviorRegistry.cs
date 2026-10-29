@@ -293,7 +293,8 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    int EndStepSelfDestructionDamage = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -456,6 +457,8 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·133", "发光石", 2, "EQUIPMENT_PLAY:VEN·133", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, EndStepSelfDestructionDamage: 5),
         new("VEN·077", "帝国工具", 4, "IMPERIAL_TOOL_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
         new("VEN·060", "天际漫游者", 4, "SKY_STRIDER_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

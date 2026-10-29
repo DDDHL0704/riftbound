@@ -11513,7 +11513,9 @@ internal static class ActionPromptBuilder
 
         if (ability.SimpleEffect is not null)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
-                ["0"] = PublicBoardObjects(state)
+                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer
+                    ? state.Seats.Keys.Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto(id, state.Seats[id], "获得来源控制权并召回")).ToArray()
+                    : PublicBoardObjects(state)
                     .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
                     .Select(id => ObjectChoice(state, id, ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
