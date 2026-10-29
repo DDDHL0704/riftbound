@@ -99,19 +99,33 @@ public sealed class RadCombatHeroTests
         await game.Replay();
     }
 
-    [Theory, InlineData("recall"), InlineData("counter")]
-    public async Task AResponseCanRemoveTheSourceOrCounterTheWholeAreaSkill(string branch)
+    [Theory, InlineData("recall"), InlineData("prevent")]
+    public async Task AResponseCanRecallTheSourceOrPreventAllOfTheAreaDamage(string branch)
     {
         var s = Board(Graves);
         // Gust's limit is three Might; it must actually be legal to recall the source.
         if (branch == "recall") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["HOST"] = s.CardObjects["HOST"] with { Power = 3 } } };
-        s = EquipChainTests.Response(s, branch == "recall" ? "OGN·169/298" : "SFD·045/221", "P2");
+        var response = branch == "recall" ? "OGN·169/298" : "OGN·145/298";
+        s = EquipChainTests.Response(s, response, "P2");
         var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        var item = Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("RESPONSE", branch == "recall" ? "OGN·169/298" : "SFD·045/221", [branch == "recall" ? "HOST" : item.StackItemId]));
-        await game.Top(); if (branch == "recall") { Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand); await game.Top(); }
+        Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("RESPONSE", response, branch == "recall" ? ["HOST"] : []));
+        await game.Top(); if (branch == "recall") Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        await game.Top();
         Assert.Empty(game.State.StackItems); Assert.All(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, id => Assert.Equal(0, game.State.CardObjects[id].Damage));
         await game.Replay();
+    }
+
+    [Fact]
+    public async Task ACounterThatRequiresFriendlyTargetsCannotSelectTheUntargetedAreaSkill()
+    {
+        var game = new Driver(EquipChainTests.Response(Board(Graves), "SFD·045/221", "P2"));
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var skill = Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
+        await Reject(game.State, "P2", new PlayCardCommand("RESPONSE", "SFD·045/221", [skill.StackItemId]));
+        await game.Top();
+        Assert.All(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, id => Assert.Equal(4, game.State.CardObjects[id].Damage));
+        Assert.Contains("RESPONSE", game.State.PlayerZones["P2"].Hand); await game.Replay();
     }
 
     [Fact]
