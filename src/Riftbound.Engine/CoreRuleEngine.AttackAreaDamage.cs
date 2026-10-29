@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
             foreach (var id in targets)
             {
                 var targetDamage = ApplyBattlefieldTargetSpellSkillDamageBonus(state, id, amount);
-                var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, targetDamage, destroyed,
+                var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, targetDamage, destroyed,
                     state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new("DAMAGE_APPLIED", "进攻技能对同处敌方单位造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));
             }

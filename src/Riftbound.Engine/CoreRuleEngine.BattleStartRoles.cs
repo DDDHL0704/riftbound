@@ -78,7 +78,17 @@ public sealed partial class CoreRuleEngine
             .Select(t => t with { TriggeredByEventKind = roleKind }).ToList();
         queue.AddRange(CaptureAttackAreaDamageTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureAttackWeaponDamageTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureEmpoweredAttackDestroyTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CapturePaidUnitAttackStuns(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureAttackMightDamage(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureAttackDeckPlayTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureAttackGraveyardBanishTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureCombatMightTriggers(state, firstAttackers.Concat(firstDefenders),
             context.BattlefieldId, TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));

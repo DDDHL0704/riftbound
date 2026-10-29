@@ -41,13 +41,23 @@ public sealed class DependentLastBreathParserTests
     }
 
     [Theory]
-    [InlineData("OGN·117/298", "on-play")]
-    [InlineData("OGN·117a/298", "on-play")]
+    [InlineData("OGN·117/298", TriggerKinds.ControllerOpponentTurnPlayCreateMinion)]
+    [InlineData("OGN·117a/298", TriggerKinds.ControllerOpponentTurnPlayCreateMinion)]
     [InlineData("OGN·212/298", "on-play")]
     [InlineData("OGN·275/298", TriggerKinds.BattlefieldHeldCreateMinion)]
-    public async Task OnPlayAndBattlefieldHeldMinionClausesKeepTheirOriginalTriggerKinds(string no, string expectedKind)
+    public async Task PrintedMinionClausesHaveOneCorrectlyClassifiedTrigger(string no, string expectedKind)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadDefaultAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(expectedKind, Assert.Single(TriggerParser.Parse(card.CardEffect)).Kind);
+    }
+
+    [Fact]
+    public void TypedOpponentTurnObserverDoesNotDuplicateItsClauseOrHideAnIndependentOnPlayClause()
+    {
+        var triggers = TriggerParser.Parse("每当你在对手的回合内打出一张卡牌时，额外打出一名1{{S}}的“随从”到你的基地。\n当你打出我时，抽一张牌。");
+        Assert.Equal(2, triggers.Count);
+        Assert.Single(triggers, trigger => trigger.Kind == TriggerKinds.ControllerOpponentTurnPlayCreateMinion);
+        Assert.Single(triggers, trigger => trigger.Kind == "on-play");
+        Assert.DoesNotContain(triggers, trigger => trigger.Kind == TriggerKinds.UnitLastBreathCreateMinions);
     }
 }

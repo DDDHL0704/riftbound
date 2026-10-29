@@ -34,7 +34,8 @@ public sealed partial class CoreRuleEngine
         {
             var location = ReconcileObjectLocations(state.ObjectLocations, result.PlayerZones).GetValueOrDefault(item.SourceObjectId);
             var observation = CaptureCardPlayHistory(new("INTERNAL_CARD_PLAY_COMPLETION", "", new Dictionary<string, object?>()),
-                playedCard, item.ControllerId, item.StackItemId, true, location?.Zone ?? "STACK");
+                playedCard, item.ControllerId, item.StackItemId, true, location?.Zone ?? "STACK",
+                zones: result.PlayerZones, cards: result.CardObjects);
             result = result with { Events = result.Events.Append(observation).ToArray() };
         }
         if (result.WinnerPlayerId is not null) return result;
@@ -221,7 +222,8 @@ public sealed partial class CoreRuleEngine
                 .Where(e => cards.GetValueOrDefault(e.Key)?.ObjectGeneration == e.Value && zones.Values.Any(z => z.Banished.Contains(e.Key)))
                 .ToDictionary(e => e.Key, e => e.Value) ?? new Dictionary<string, long>();
             references[id] = cards[id].ObjectGeneration;
-            events.Add(new("CARD_BANISHED", "法术由关联技能放逐", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id }));
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "法术由关联技能放逐", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id }),
+                zones, cards, item.ControllerId, [id]));
             if (references.Count >= spec.BanishCount)
             {
                 foreach (var pair in references)
@@ -263,13 +265,13 @@ public sealed partial class CoreRuleEngine
             {
                 AddReadiedObservation(zones, cards, card, events);
                 cards[id] = card with { IsExhausted = false };
-                events.Add(new("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
+                events.Add(CaptureSelfReady(new("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
                 {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = id, ["targetObjectId"] = id,
                     ["wasExhausted"] = card.IsExhausted, ["isExhausted"] = false,
                     ["reason"] = context.Kind, ["playedCardNo"] = context.PlayedCardNo,
                     ["playedSourceObjectId"] = context.PlayedObjectId
-                }));
+                }), card, item.ControllerId, zones, cards));
             }
         }
         else if (spec.DrawCount is > 0)

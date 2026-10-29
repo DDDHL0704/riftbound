@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·084/221 杰斯",
-      "note": "官方卡面：费用 4；英雄单位；战力 4；当控制者打出其时，可以选择摧毁一件友方装备，以便本回合从手牌免费打出一件法力费用不高于 7 的装备，仍需支付符能费用。当前 fixture 覆盖不选择可选装备摧毁时普通主阶段从手牌打出后成为基地单位对象；友方装备目标、摧毁和装备免费打出窗口路径暂缓。"
+      "note": "官方勘误：费用 4；英雄单位；战力 4；当你打出我时，你可以选择摧毁一件友方装备。若如此做，则在本回合内可从手牌打出一件法力费用不高于 7 的装备，无视其法力费用，仍需支付符能费用。本夹具覆盖没有友方装备时，单位直接入场且不确认无合法目标的可选技能。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -80,21 +80,17 @@
         "cardNo": "SFD·084/221",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-jayce-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-jayce-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGER_NOT_CONFIRMED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

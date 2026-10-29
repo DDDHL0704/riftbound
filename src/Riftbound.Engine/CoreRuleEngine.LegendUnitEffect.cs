@@ -83,10 +83,11 @@ public sealed partial class CoreRuleEngine
         else if (!AttachedRuleTextRules.Instances(state, target)
             .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
         {
+            AddReadiedObservation(state.PlayerZones, cards, target, events);
             cards[id] = target with { IsExhausted = false };
-            events.Add(new("UNIT_READIED", "单位变为活跃状态", new Dictionary<string, object?> {
+            events.Add(CaptureSelfReady(new("UNIT_READIED", "单位变为活跃状态", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-                ["abilityId"] = context.AbilityId, ["wasExhausted"] = target.IsExhausted, ["isExhausted"] = false }));
+                ["abilityId"] = context.AbilityId, ["wasExhausted"] = target.IsExhausted, ["isExhausted"] = false }), target, item.ControllerId, state.PlayerZones, cards));
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }

@@ -7,7 +7,9 @@ internal static class ReviewedCardErrata
     // UNL errata version 260403, DOC-10-P003-B005/B006/B007.
     // https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf
     // SHA-256: 1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f
-    internal static string EffectiveText(long id, string cardNo, string printedText) => id == 34615 && cardNo == "UNL-081/219"
+    internal static string EffectiveText(long id, string cardNo, string printedText) => id == 33166 && cardNo == "SFD·084/221"
+        ? "当你打出我时，你可以选择摧毁一件友方装备。若如此做，则在本回合内，你可以选择从手牌中打出一件法力费用不高于{{7}}的装备，无视其法力费用（仍需支付所有符能费用）。"
+        : id == 34615 && cardNo == "UNL-081/219"
         ? "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n"
             + "{{瞬息}}（在我控制者的下个开始阶段开始时，结算得分之前将我摧毁。）\n"
             + "当你打出我时，在此处打出两名“映像”。然后进行一次：它们变为我的复制体。"
@@ -15,6 +17,9 @@ internal static class ReviewedCardErrata
         // SHA256 13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d.
         : id == 33075 && cardNo == "SFD·003/221"
             ? "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"
+        // CN OGN errata, 蔚 - 铲除者: recycling is the activation cost (CN 417.3).
+        : (id == 31244 && cardNo == "OGN·036/298" || id == 34840 && cardNo == "ARC-001/006")
+            ? "{{游走}}（我可以向其他战场进行移动。）\n从你的废牌堆回收一张卡牌：给予我在本回合内{{S}}+1。"
         : (id == 31473 && cardNo == "OGN·235/298" || id == 33346 && cardNo == "SFD·237/221"
             || id == 33347 && cardNo == "SFD·237*/221")
             // Current CN DOC-16-P005-B003, SHA256 1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c.

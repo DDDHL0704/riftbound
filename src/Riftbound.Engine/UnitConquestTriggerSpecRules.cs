@@ -68,18 +68,16 @@ internal static class UnitConquestTriggerSpecRules
 
         return trigger.Kind switch
         {
+            TriggerKinds.UnitConquestCreateUnitToken => trigger.CreatedTokenCount is > 0
+                && trigger.CreatedTokenPower is >= 0 && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+                && trigger.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase,
             TriggerKinds.UnitConquestOverkillCreateDormantGold => trigger.RequiredOverkillDamage is > 0
                 && trigger.CreatedTokenCount is > 0,
             TriggerKinds.UnitConquestAttackOverkillGainScore => trigger.RequiredOverkillDamage is > 0
                 && trigger.ScoreAmount is > 0,
             TriggerKinds.UnitConquestCreateDormantGold => trigger.CreatedTokenCount is > 0,
-            TriggerKinds.UnitConquestDrawOne => trigger.DrawCount is > 0,
             TriggerKinds.UnitConquestDrawOneOrCallRune => trigger.DrawCount is > 0
                 && trigger.RuneCallCount is > 0,
-            TriggerKinds.UnitConquestGrantSelfBoon => string.Equals(
-                trigger.TargetScope,
-                TriggerTargetScopes.SourceUnit,
-                StringComparison.Ordinal),
             TriggerKinds.UnitConquestReadySelfOncePerTurn => string.Equals(
                 trigger.TargetScope,
                 TriggerTargetScopes.SourceUnit,
@@ -163,7 +161,7 @@ internal static class UnitConquestTriggerSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

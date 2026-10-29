@@ -26,9 +26,13 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = QueueHighCostSkillObservers(state, result, roleEventOffset);
+            result = QueueSelfActionObservers(state, result);
             result = RecordHandDiscardObservers(result);
+            result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);
+            result = QueueOwnedBanishObservers(result);
             result = QueueEmpowerInteractions(state, result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
@@ -38,8 +42,10 @@ public sealed partial class CoreRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueuePaidUnitPlayStuns(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
+            result = QueueSourceUnitTokens(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);
@@ -52,6 +58,7 @@ public sealed partial class CoreRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
@@ -67,7 +74,10 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return StampNewTriggerQueueTimes(state, completed);
+            // Checked target intents may become confirmed while earned skills
+            // are published. Observe those selections before opening responses.
+            completed = QueueSelfActionObservers(collected.State, completed);
+            return StampNewTriggerQueueTimes(state, PrepareTriggerConfirmation(PublishPendingTriggers(completed)));
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";

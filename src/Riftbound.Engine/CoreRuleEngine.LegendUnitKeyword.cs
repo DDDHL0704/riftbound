@@ -4,7 +4,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record LegendUnitKeywordContext(string AbilityId, long SourceGeneration);
+public sealed record LegendUnitKeywordContext(string AbilityId, long SourceGeneration,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int SpellshieldTaxPower = 0);
 
 public sealed partial class CoreRuleEngine
 {
@@ -18,7 +19,8 @@ public sealed partial class CoreRuleEngine
             || ability.EffectKind != item.EffectKind || string.IsNullOrEmpty(ability.GrantedCombatKeyword)
             || !TemporaryCombatKeywordRules.IsValid("COMBAT_KEYWORD:" + ability.GrantedCombatKeyword + ":1")
             || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(context.AbilityId, item.CardNo)
-            || context.SourceGeneration < 0 || !state.Seats.ContainsKey(item.ControllerId)
+            || context.SourceGeneration < 0 || context.SpellshieldTaxPower < 0
+            || !ability.RequiresAnyUnitTarget && context.SpellshieldTaxPower != 0 || !state.Seats.ContainsKey(item.ControllerId)
             || string.IsNullOrWhiteSpace(item.SourceObjectId) || item.SourceConfirmed || item.EffectRepeatCount != 1
             || item.DamageAmount != 0 || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
             || item.TargetObjectIds is not { Count: 1 } || item.TargetObjectIds[0] == item.SourceObjectId
@@ -33,12 +35,12 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult QueueLegendUnitKeyword(MatchState state, string player, string sourceId,
         string cardNo, LegendAbilityDefinition ability, IReadOnlyList<string> targets,
-        IReadOnlyList<string> optionalCosts, List<GameEvent> events)
+        IReadOnlyList<string> optionalCosts, int spellshieldTax, List<GameEvent> events)
     {
         var item = new StackItemState($"STACK-{state.Tick + 1}-{sourceId}-KEYWORD", player, sourceId,
             ability.EffectKind, cardNo, targets, optionalCosts: optionalCosts,
             timingContext: StackTimingContextForNewStackItem(state)) {
-            LegendUnitKeyword = new(ability.AbilityId, state.CardObjects[sourceId].ObjectGeneration),
+            LegendUnitKeyword = new(ability.AbilityId, state.CardObjects[sourceId].ObjectGeneration, spellshieldTax),
             TargetGenerations = targets.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration, StringComparer.Ordinal)
         };
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = player,
@@ -60,7 +62,9 @@ public sealed partial class CoreRuleEngine
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
             ["cardNo"] = item.CardNo, ["abilityId"] = context.AbilityId, ["stackItemId"] = item.StackItemId }) };
         var id = item.TargetObjectIds[0];
-        if (!IsValidLegendAbilityTarget(state, item.ControllerId, id, ability)
+        if (!(ability.RequiresAnyUnitTarget
+                ? IsLegendUnitEffectTarget(state, item.ControllerId, id, ability.RequiresBattlefieldTarget)
+                : IsValidLegendAbilityTarget(state, item.ControllerId, id, ability))
             || !state.CardObjects.TryGetValue(id, out var target) || !IsFaceUpNonStandbyUnit(target)
             || target.ObjectGeneration != item.TargetGenerations![id])
         {

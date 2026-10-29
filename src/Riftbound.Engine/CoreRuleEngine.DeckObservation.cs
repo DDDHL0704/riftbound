@@ -52,8 +52,8 @@ public sealed partial class CoreRuleEngine
             zones[player]=zones[player] with {MainDeck=RemoveFromZone(zones[player].MainDeck,id),Banished=zones[player].Banished.Append(id).ToArray()};
             frame.ObservedPlays.Add(new($"OBSERVED:{state.Tick}:{parent.StackItemId}:{execution}:{id}",instruction,
                 new(id,cards[id].ObjectGeneration),card.CardNo!,cost,state.Tick));
-            events.Add(new("CARD_BANISHED",$"所{observedVerb}的卡牌以静态能力放逐，开始待确认出牌",new Dictionary<string,object?> {
-                ["playerId"]=player,["sourceObjectId"]=id,["targetObjectId"]=id,["cardNo"]=card.CardNo,["destinationZone"]="BANISHED"}));
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED",$"所{observedVerb}的卡牌以静态能力放逐，开始待确认出牌",new Dictionary<string,object?> {
+                ["playerId"]=player,["sourceObjectId"]=id,["targetObjectId"]=id,["cardNo"]=card.CardNo,["destinationZone"]="BANISHED"}), zones, cards, player, [id]));
         }
         return seen.Where(id=>zones[player].MainDeck.Contains(id)).ToArray();
     }

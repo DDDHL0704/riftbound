@@ -12,6 +12,7 @@ internal static class OfficialPrintedTimingRules
             .Select(card => (card.CardNo, Clauses: Regex.Replace(card.CardEffect, @"\{\{(?:百炼|预知)\}\}[。\s]*[（(][^）)]*[）)]", "").Split('。', '\n').Where(clause =>
                 !clause.Contains("作为额外费用", StringComparison.Ordinal)
                 && (clause.Contains("当你打出我", StringComparison.Ordinal)
+                    || clause.TrimStart().StartsWith("当我被打出", StringComparison.Ordinal)
                     || clause.Contains("当你打出此牌", StringComparison.Ordinal)
                     || clause.Contains("当你打出此装备", StringComparison.Ordinal)
                     || clause.Contains("当此牌被打出", StringComparison.Ordinal)
