@@ -118,9 +118,7 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectString(e.Event.Payload, "reason", out var reason) && reason == item.EffectKind
                 && TryReadObjectLong(e.Event.Payload, "totalManaCost", out var mana) && mana == receipt.Mana
                 && TryReadObjectLong(e.Event.Payload, "totalPowerCost", out var power) && power == receipt.Power
-                && TryReadObjectLong(e.Event.Payload, "experienceCost", out var experience) && experience == 0
-                && TryReadObjectStringList(e.Event.Payload, "paymentChoiceIds", out var choices)
-                && choices.Count == 1 && (choices[0] == "PAY" || choices[0] == $"SPEND_MANA:{receipt.Mana}"))
+                && TryReadObjectLong(e.Event.Payload, "experienceCost", out var experience) && experience == 0)
                 .Take(2).ToArray();
             if (payments.Length != 1 || !commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
                 && command.CommandType == CommandTypes.PayCost && command.CompletedTick == payments[0].Tick
@@ -128,10 +126,54 @@ public static partial class MatchRecoveryValidator
                 && (command.RawCommand ?? command.TypedCommand?.Value) is { } input
                 && TryReadObjectString(input, "paymentId", out var id) && id == paymentId
                 && TryReadObjectString(input, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
-                && TryReadObjectStringList(input, "paymentChoiceIds", out var choices)
-                && TryReadObjectStringList(payments[0].Event.Payload, "paymentChoiceIds", out var paidChoices)
-                && choices.SequenceEqual(paidChoices)))
+                && ValidUnitConquestPaymentResourceHistory(command, input, payments[0], receipt.Mana, events)))
                 errors.Add("captured unit conquest return receipt is not bound to accepted payment history");
         }
     }
+
+    private static bool ValidUnitConquestPaymentResourceHistory(RecoveredCommand command, object input,
+        RecoveredEvent payment, int manaCost, IReadOnlyList<RecoveredEvent> events)
+    {
+        if (!TryReadObjectStringList(input, "paymentChoiceIds", out var choices)
+            || !TryReadObjectStringList(payment.Event.Payload, "paymentChoiceIds", out var paidChoices)
+            || !choices.SequenceEqual(paidChoices)
+            || choices.Distinct(StringComparer.Ordinal).Count() != choices.Count) return false;
+        var taps = new List<string>();
+        var spendCount = 0;
+        foreach (var choice in choices)
+        {
+            if (choice == "PAY" || choice == $"SPEND_MANA:{manaCost}") spendCount++;
+            else if (choice.StartsWith("TAP_RUNE:", StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(choice["TAP_RUNE:".Length..]))
+                taps.Add(choice["TAP_RUNE:".Length..].Trim());
+            else return false;
+        }
+        if (spendCount != 1 || taps.Distinct(StringComparer.Ordinal).Count() != taps.Count) return false;
+
+        // Inline resource actions must occur inside this accepted command before its
+        // receipt. An earlier standalone tap cannot authenticate a forged inline choice.
+        var preceding = events.Where(e => e.Sequence > command.StartedEventSequence
+            && e.Sequence < payment.Sequence).OrderBy(e => e.Sequence).ToArray();
+        var resources = preceding.Where(e => e.Event.Kind is "RUNE_TAPPED" or "RUNE_RECYCLED").ToArray();
+        var gains = preceding.Where(e => e.Event.Kind == "MANA_GAINED").ToArray();
+        if (resources.Length != taps.Count || gains.Length != taps.Count) return false;
+        for (var i = 0; i < taps.Count; i++)
+        {
+            if (resources[i].Event.Kind != "RUNE_TAPPED" || resources[i].Sequence >= gains[i].Sequence
+                || !ValidUnitConquestInlineTapEvent(resources[i], taps[i], command, payment)
+                || !ValidUnitConquestInlineTapEvent(gains[i], taps[i], command, payment)) return false;
+        }
+        return true;
+    }
+
+    private static bool ValidUnitConquestInlineTapEvent(RecoveredEvent resource, string rune,
+        RecoveredCommand command, RecoveredEvent payment)
+        => resource.Tick == command.CompletedTick
+            && TryReadObjectString(resource.Event.Payload, "playerId", out var player) && player == command.PlayerId
+            && TryReadObjectString(resource.Event.Payload, "sourceObjectId", out var source) && source == rune
+            && TryReadObjectString(resource.Event.Payload, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
+            && TryReadObjectString(resource.Event.Payload, "paymentId", out var id)
+            && TryReadObjectString(payment.Event.Payload, "paymentId", out var paymentId) && id == paymentId
+            && TryReadObjectString(resource.Event.Payload, "abilityId", out var ability) && ability == "BASIC_RUNE_EXHAUST_GAIN_1_MANA"
+            && TryReadObjectLong(resource.Event.Payload, "mana", out var mana) && mana == 1;
 }
