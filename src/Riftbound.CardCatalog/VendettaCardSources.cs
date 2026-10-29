@@ -8,15 +8,19 @@ public static class VendettaCardSources
     public const string SnapshotPath = "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json";
     private const string ResourceName = "Riftbound.CardCatalog.VendettaSourceSnapshot";
     private static readonly Lazy<ImmutableArray<OfficialCard>> Cards = new(Load);
+    private static readonly Lazy<OfficialCardCatalog> Source = new(() => {
+        using var stream = typeof(VendettaCardSources).Assembly.GetManifestResourceStream(ResourceName)
+            ?? throw new InvalidOperationException("The official VEN snapshot is missing.");
+        return OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
+    });
 
     public static IReadOnlyList<OfficialCard> GetAdmittedCards() => Cards.Value;
+    public static IReadOnlyList<OfficialCard> GetOfficialCards() => Source.Value.Cards;
 
     private static ImmutableArray<OfficialCard> Load()
     {
-        using var stream = typeof(VendettaCardSources).Assembly.GetManifestResourceStream(ResourceName)
-            ?? throw new InvalidOperationException("The official VEN snapshot is missing.");
-        var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
-        return new[] { (Id: 37689L, CardNo: "VEN·004"), (Id: 37713L, CardNo: "VEN·025"),
+        var catalog = Source.Value;
+        return new[] { (Id: 37832L, CardNo: "VEN·132"), (Id: 37689L, CardNo: "VEN·004"), (Id: 37713L, CardNo: "VEN·025"),
             (Id: 37717L, CardNo: "VEN·029"), (Id: 37724L, CardNo: "VEN·036"),
             (Id: 37744L, CardNo: "VEN·053"), (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),
             (Id: 37842L, CardNo: "VEN·139"), (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"),

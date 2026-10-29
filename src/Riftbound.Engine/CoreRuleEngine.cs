@@ -24167,6 +24167,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         behavior = StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby);
+        if (stackItem.SourceConfirmed && behavior.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true)
+            return ResolveSpellNameDeclaration(state, stackItem);
         behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
 
         if (!(confirmPermanent && HasIndependentPermanentTargets(behavior))

@@ -28,12 +28,14 @@ internal static class PermanentPlayTriggerRecoveryRules
             && item.Destination.Length > "BATTLEFIELD:".Length;
         var here = item.SourceConfirmed && battlefield && HereDamageSources.Value.Contains(item.CardNo)
             && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var hereBehavior) && item.EffectKind == hereBehavior.EffectKind;
+        var declares = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var named)
+            && item.EffectKind == named.EffectKind && named.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true;
         if (item.PermanentPlaySource is { } binding
-            ? !here || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
+            ? !(here || declares) || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
                 || !state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration < binding.Generation
                 || item.PlayedFromStandby is { } standby && binding.Generation != standby.SourceGeneration + 1
                 || !state.CardPlays.Resolved.Any(play => play.Source == binding && play.CardNo == item.CardNo)
-            : here) return false;
+            : here || declares) return false;
 
         if (!item.SourceConfirmed || !BattlefieldOnlySources.Value.Contains(item.CardNo)
             || !CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior)

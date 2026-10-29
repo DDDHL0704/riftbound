@@ -301,7 +301,8 @@ public sealed record CardBehaviorDefinition(
 
 public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
-    int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0);
+    int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -461,6 +462,9 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·132", "坠落猫咪", 2, "FALLING_CAT_DECLARE_SPELL_NAME", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "猫科",
+            SourceStaticLimits: new(DeclaresSpellNameAndProhibitsItOnEnemyBattlefield: true)),
         new("VEN·004", "沙丘冲浪者", 3, "DUNE_SURFER_STATIC_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
             SourceStaticLimits: new(CombatDamageIgnoresBulwarkHere: true)),

@@ -24,7 +24,7 @@ public sealed partial class CoreRuleEngine
         if (CardBehaviorRegistry.TryGetByCardNoAndMode(request.Command.CardNo, request.Command.Mode, out var behavior)
             && CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior))
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed,
-                CardPermissionKeywordRules.SpellPlayProhibitionReason);
+                CardPermissionKeywordRules.SpellPlayProhibitionMessage(state, playerId, behavior));
 
         var accepted = TryBuildPlayCardPlan(state, new("COST_PREVIEW", playerId, CommandTypes.PlayCard),
             request.Command, out var plan, out var rejection, includeRejectionProjections: false);

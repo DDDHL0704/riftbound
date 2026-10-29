@@ -27414,6 +27414,8 @@ public static partial class MatchRecoveryValidator
         List<string> errors)
     {
         CoreRuleEngine.ValidateBattlefieldReplacements(authoritativeState, errors);
+        foreach (var card in authoritativeState.CardObjects.Values)
+            if (!CoreRuleEngine.ValidSpellNameDeclaration(authoritativeState, card)) errors.Add($"card object {card.ObjectId} spell name declaration is invalid");
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var (objectId, cardObject) in authoritativeState.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
