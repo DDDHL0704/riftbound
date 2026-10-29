@@ -66,8 +66,10 @@ public sealed class Ven010PaidCurrentGraveConsumers
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-010-CURRENT-GRAVE-" + actor + "-" + add,
             new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 666992 };
         var game = new CanonicalGame(initial);
+        // Recover the paid plays and movement, then the changed grave and final cleanup.
+        // Those checkpoints still audit every accepted opening and turn command.
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
-            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+            checkpoint: command is PlayCardCommand or MoveUnitCommand);
         async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
             await game.Act(player, command);
@@ -111,7 +113,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var field = Assert.Single(game.State.PlayerZones[actor].Battlefields, id => game.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
             await Sequence(() => game.State, Act,
                 async () => { await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); },
-                game.Events, actor, unit, curses, enemyCurse, moon, dispose, field, add);
+                game.Events, actor, unit, curses, enemyCurse, moon, dispose, field, add,
+                checkpointAfterReaction: game.ColdCheckpoint);
             await game.ColdCheckpoint();
             var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects)
                 { [unit] = game.State.CardObjects[unit] with { Damage = 1 } } };
@@ -143,7 +146,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
         var run = new CopiedDuelInsightOpeningTests.Opening(10010 + (actor == "P1" ? 0 : 2) + (add ? 0 : 1), OfficialDeckFormat.ChinaStandard20260724);
         string[] forgeryErrors = [];
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
-            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+            checkpoint: command is PlayCardCommand or MoveUnitCommand);
         async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
             await run.Submit(player, command);
@@ -188,7 +191,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var field = Assert.Single(run.State.PlayerZones[actor].Battlefields, id => run.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
             await Sequence(() => run.State, Act,
                 async () => { await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); },
-                () => run.Frame().Events.ToArray(), actor, unit, curses, enemyCurse, moon, dispose, field, add);
+                () => run.Frame().Events.ToArray(), actor, unit, curses, enemyCurse, moon, dispose, field, add,
+                checkpointAfterReaction: run.Cold);
             await run.Cold(); var original = run.Frame();
             Assert.Empty(original.ValidationErrors);
             Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default));
@@ -247,7 +251,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
 
     private static async Task Sequence(Func<MatchState> state, Func<string, GameCommand, Task> act, Func<Task> top, Func<RecoveredEvent[]> events,
         string actor, string unit, string[] curses, string enemyCurse, string moon, string dispose, string field, bool add,
-        Func<PlayCardCommand, Task>? rejectOneShort = null)
+        Func<PlayCardCommand, Task>? rejectOneShort = null, Func<Task>? checkpointAfterReaction = null)
     {
         var enemy = Arena.Other(actor); Common.AssertTwelveEach(state());
         foreach (var player in new[] { actor, enemy }) { Assert.Equal(0, state().RunePools[player].Mana); Assert.Equal(0, state().RunePools[player].TotalPower); Assert.Empty(Graves(state(), player)); }
@@ -296,6 +300,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             Assert.Contains(curses[0], state().PlayerZones[actor].MainDeck); Assert.Equal(beforeRecycledGeneration + 1, state().CardObjects[curses[0]].ObjectGeneration);
             Assert.Contains(curses[2], state().PlayerZones[actor].Hand);
         }
+        // Resume the still-pending lower spell with the reaction's actual grave count.
+        if (checkpointAfterReaction is not null) await checkpointAfterReaction();
         Assert.Equal(captured.StackItemId, Assert.Single(state().StackItems).StackItemId); Assert.Equal(2, state().StackItems.Single().DamageAmount);
         Assert.Equal(0, state().CardObjects[unit].Damage); Assert.Equal(new[] { enemyCurse }, Graves(state(), enemy));
         await top(); Damage(curses[1], add ? 4 : 2); Assert.Equal(add ? 3 : 1, Graves(state(), actor).Length);
