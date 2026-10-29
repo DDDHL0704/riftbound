@@ -28,9 +28,12 @@ public sealed partial class CoreRuleEngine
     {
             result = RecordBattlefieldConquests(result);
             result = RecordEquipmentAbilityPlays(state, result);
+            result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = RecordHandDiscardObservers(result);
+            result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);
+            result = QueueOwnedBanishObservers(result);
             result = QueueEmpowerInteractions(state, result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
@@ -41,6 +44,7 @@ public sealed partial class CoreRuleEngine
             result = QueuePrintedPredict(state, result);
             result = QueueUnitEvents(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueuePaidUnitPlayStuns(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
             result = QueueUnitPlayMight(state, result);
@@ -56,6 +60,7 @@ public sealed partial class CoreRuleEngine
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
             collected = RecordTargetedPowerSourceStatus(state, collected);
+            collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);

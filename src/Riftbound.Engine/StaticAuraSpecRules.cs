@@ -348,7 +348,10 @@ internal static class StaticAuraSpecRules
             || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
-                StringComparison.Ordinal);
+                StringComparison.Ordinal)
+            || aura.Kind == StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy
+                && aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits
+                && aura.TargetFilter == StaticAuraTargetFilters.Stunned;
     }
 
     public static bool IsFriendlyEquipmentCountToSourcePowerStaticAura(StaticAuraSpec aura)

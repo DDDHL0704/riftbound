@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
         var increase = ResolveBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
         var spellIncrease = OpponentSpellCostIncreases(state, playerId, behavior).Mana;
         var effect = state.PendingEffectPlay is { } pending && pending.PlayerId == playerId ? pending : null;
-        var total = (effect?.IgnoreBaseMana == true || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
+        var total = (effect?.IgnoreBaseMana == true || behavior.AppliedEquipmentPlayGrant is not null || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
             + Math.Max(0, additionalMana - (componentEchoReduction.HasValue ? 0 : echoReduction)) + increase + spellIncrease;
         var reductions = new List<(string Kind, int Amount, int Floor)> { ("card", effect?.ManaReduction ?? 0, 0) };
         if (behavior.PlaysSourceToBaseAsUnit)
@@ -65,6 +65,8 @@ public sealed partial class CoreRuleEngine
     internal static PlayManaCost MinimumPlayManaCost(
         MatchState state, string playerId, CardBehaviorDefinition behavior, string? sourceObjectId, int additionalMana = 0)
     {
+        if (behavior.AppliedEquipmentPlayGrant is null && TurnEquipmentPlayRules.Available(state, playerId, behavior, sourceObjectId).FirstOrDefault() is { } grant)
+            return MinimumPlayManaCost(state, playerId, behavior with { AppliedEquipmentPlayGrant = grant.Id }, sourceObjectId, additionalMana);
         if (behavior.MaySacrificeUnitForPrintedCostReduction)
             return OptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId, additionalMana)
                 .MinBy(cost => cost.Mana.Total)!.Mana;

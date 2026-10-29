@@ -320,10 +320,11 @@ public sealed partial class CoreRuleEngine
                     zones[actor] = zones[actor] with { Banished = RemoveFromZone(zones[actor].Banished, id) };
                     sources = [];
                 }
-                events.Add(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
+                events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
                     ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED",
                     ["originalLocation"] = originalLocation, ["originalBattlefield"] = originalBattlefield,
-                    ["parentStackItemId"] = parent.StackItemId, ["targetGeneration"] = target.ObjectGeneration }));
+                    ["parentStackItemId"] = parent.StackItemId, ["targetGeneration"] = target.ObjectGeneration }),
+                    zones, cards, parent.ControllerId, [id]));
             }
         }
         sources = sources.Where(id => cards.TryGetValue(id, out var card) && EffectPlaySourceMatches(card, behavior)).ToArray();
