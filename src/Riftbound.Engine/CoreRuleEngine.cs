@@ -21143,6 +21143,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return targetScope switch
         {
+            CardTargetScopes.BattlefieldUnit => IsBattlefieldUnitObjectControlledByZonePlayer(
+                state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),

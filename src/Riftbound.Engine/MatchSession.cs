@@ -13369,6 +13369,8 @@ internal static class ActionPromptBuilder
     {
         return targetScope switch
         {
+            CardTargetScopes.BattlefieldUnit => IsPromptBattlefieldObject(state, objectId)
+                && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
