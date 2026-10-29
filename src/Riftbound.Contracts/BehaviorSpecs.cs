@@ -56,6 +56,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";

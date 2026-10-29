@@ -456,6 +456,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·041", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
+        new("VEN·171", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

@@ -36,6 +36,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
         if (context.Kind == EmpoweredBanishKind) return ValidEmpoweredBanishShape(context, effect, cardNo);
+        if (context.Kind == AttackWeaponDamageKind) return ValidAttackWeaponDamageShape(context, effect, cardNo);
         if (context.EmpoweredTransition is not null) return false;
         if (context.Kind != AttackAreaDamageKind && context.AttackConditionFrame is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
@@ -106,6 +107,7 @@ public sealed partial class CoreRuleEngine
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
             && (item.FieldContext!.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
+                : item.FieldContext.Kind == AttackWeaponDamageKind ? IsAttackWeaponDamageTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
                 : item.FieldContext.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
@@ -167,6 +169,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
+                    : item.FieldContext.Kind == AttackWeaponDamageKind ? "选择此处一名敌方单位；确认目标和法盾费用后双方可以响应。"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? "选择一名单位，在本次战斗期间获得坚守2；确认目标和法盾费用后开放响应"
                     : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
@@ -197,14 +200,16 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult DiscardUnconfirmedTrigger(ResolutionResult result, StackItemState item)
     {
         var state = RestoreAfterTriggerConfirmation(result.State with { StackItems = result.State.StackItems.Where(i => i.StackItemId != item.StackItemId).ToArray() }, item);
-        return result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
-            new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })).ToArray(),
+        var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
+            new Dictionary<string, object?> { ["sourceObjectId"] = item.FieldContext?.Kind == AttackWeaponDamageKind
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId })).ToArray(),
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+        return ResumeDuelChainFocus(discarded);
     }
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
-            && (context.Kind == EmpoweredBanishKind
+            && (context.Kind is EmpoweredBanishKind or AttackWeaponDamageKind
                 ? ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : ValidFieldContext(context, item.EffectKind, item.CardNo)) && item.TargetGenerations is null
             && context.Kind != "ENEMY_ATTACK_MIGHT"
@@ -242,7 +247,8 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付法盾费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.FieldContext?.Kind == AttackWeaponDamageKind
+                    ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["powerCost"] = tax,
                 ["targetObjectIds"] = selected.ToArray() });
@@ -290,12 +296,15 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
-            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() }));
+            ["sourceObjectId"] = item.FieldContext?.Kind == AttackWeaponDamageKind
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
+            ["targetObjectIds"] = selected.ToArray() }));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
+        if (item.FieldContext is { Kind: AttackWeaponDamageKind }) return ResolveAttackWeaponDamage(state, item);
         if (item.FieldContext is { } battleLimited && BattleLimitedMarkers.Kind(battleLimited.Kind))
             return ResolveBattleLimitedRoleSkill(state, item);
         if (item.FieldContext is { Kind: EmpoweredBanishKind }) return ResolveEmpoweredBanish(state, item);
