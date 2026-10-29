@@ -1,40 +1,80 @@
+import itertools
+import os
 import re
 from pathlib import Path
+import textwrap
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class DailyWorkflowTests(unittest.TestCase):
-    def test_every_daily_entry_runs_actual_focus_and_rules_with_an_always_materialized_gate(self):
-        text = (ROOT / '.github/workflows/backend-l2.yml').read_text()
-        jobs = dict(re.findall(r'^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z0-9_]+:\n|\Z)', text.split('jobs:\n', 1)[1], re.M | re.S))
-        self.assertEqual({'quality', 'prepare', 'targeted', 'rule_suite', 'l2_required'}, set(jobs))
+    def workflow(self):
+        return (ROOT / '.github/workflows/backend-l2.yml').read_text()
+
+    def jobs(self):
+        return dict(re.findall(r'^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z0-9_]+:\n|\Z)',
+                               self.workflow().split('jobs:\n', 1)[1], re.M | re.S))
+
+    def test_six_complete_shards_share_preparation_and_the_derived_targeted_gate(self):
+        text, jobs = self.workflow(), self.jobs()
+        self.assertEqual({'prepare', 'rule_suite', 'l2_required'}, set(jobs))
         self.assertIn('name: L2 required', jobs['l2_required'])
-        self.assertIn('needs: [quality, prepare, rule_suite, targeted]', jobs['l2_required'])
-        self.assertIn('if: ${{ always() }}', jobs['l2_required'])
-        self.assertIn('scripts/run-l2-targeted.py', jobs['targeted'])
-        self.assertNotIn('dotnet test', jobs['targeted'])
+        self.assertIn('needs: [prepare, rule_suite]', jobs['l2_required'])
+        self.assertIn('if: ${{ !cancelled() }}', jobs['l2_required'])
+        self.assertNotIn('always()', text)
+        self.assertIn('scripts/run-l2-targeted.py', jobs['l2_required'])
+        self.assertIn('RIFTBOUND_TARGETED: ${{ steps.targeted.outcome }}', jobs['l2_required'])
+        self.assertIn('RIFTBOUND_QUALITY: ${{ needs.prepare.outputs.quality }}', jobs['l2_required'])
+        self.assertNotIn('dotnet test', jobs['l2_required'])
         self.assertIn('scripts/l2-distributed.py shard', jobs['rule_suite'])
         self.assertIn('fail-fast: false', jobs['rule_suite'])
         self.assertIn('max-parallel: 6', jobs['rule_suite'])
+        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6]', jobs['rule_suite'])
         self.assertIn('--shards 6', jobs['prepare'])
-        self.assertIn('needs: [prepare, rule_suite]', jobs['targeted'])
-        for name in ['quality', 'prepare', 'rule_suite']:
-            self.assertNotRegex(jobs[name], r'(?m)^    if:')
         for forbidden in ['services:', 'needs.postgres', 'needs.native_network', 'needs.related_network',
                           'continue-on-error', 'Riftbound.NativeNetworkSmoke', 'test_process_restart',
                           'unittest discover -s scripts/tests -v']:
             self.assertNotIn(forbidden, text)
         self.assertIn('Build API and conformance once', jobs['prepare'])
-        self.assertNotIn('dotnet build', jobs['quality'])
-        self.assertIn("-p 'test_l2*.py'", jobs['quality'])
+        for pattern in ["-p 'test_l2*.py'", '-p test_ci_change_scope.py', '-p test_rules_runner.py']:
+            self.assertIn(pattern, jobs['prepare'])
+
+    def test_only_verified_docs_skip_the_build_and_rules_and_are_rechecked_at_the_gate(self):
+        jobs = self.jobs()
+        self.assertNotRegex(jobs['prepare'], r'(?m)^    if:')
+        self.assertIn("if: needs.prepare.outputs.tier != 'DOCS'", jobs['rule_suite'])
+        self.assertIn("if: steps.scope.outputs.tier != 'DOCS'", jobs['prepare'])
+        self.assertIn('scripts/ci-change-scope.py --event', jobs['prepare'])
+        self.assertIn('--require-docs', jobs['l2_required'])
+        self.assertIn("if: needs.prepare.outputs.tier == 'DOCS'", jobs['l2_required'])
+        # L1/L2 scope results also have full=false. Only DOCS may skip the suite.
+        self.assertNotIn('outputs.full', self.workflow())
+
+    def test_actual_gate_preconditions_reject_every_unsuccessful_stage(self):
+        block = self.jobs()['l2_required'].split("python3 - <<'PYGATE'\n", 1)[1].split('          PYGATE', 1)[0]
+        code = compile(textwrap.dedent(block), 'workflow-gate', 'exec')
+        outcomes = ['success', 'failure', 'cancelled', 'skipped', '', 'in_progress']
+        for tier in ['DOCS', 'L1', 'L2', 'L3', '']:
+            for values in itertools.product(outcomes, repeat=3):
+                env = dict(zip(['RIFTBOUND_PREPARE', 'RIFTBOUND_QUALITY', 'RIFTBOUND_RULE_SUITE'], values))
+                env['RIFTBOUND_TIER'] = tier
+                expected = ('success', 'success', 'skipped' if tier == 'DOCS' else 'success')
+                with self.subTest(tier=tier, values=values), patch.dict(os.environ, env):
+                    if values == expected:
+                        exec(code, {})
+                    else:
+                        with self.assertRaises(SystemExit):
+                            exec(code, {})
 
     def test_latest_pr_or_main_sha_is_used_by_every_checkout_and_test_receipt(self):
-        text = (ROOT / '.github/workflows/backend-l2.yml').read_text()
-        self.assertEqual(5, text.count('ref: ${{ github.sha }}'))
+        text = self.workflow()
+        self.assertEqual(3, text.count('ref: ${{ github.sha }}'))
         self.assertEqual(5, text.count('--event-sha "$GITHUB_SHA"'))
         self.assertIn('--commit "$GITHUB_SHA"', text)
+        self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', text)
+        self.assertIn('cancel-in-progress: true', text)
         triggers = text.split('permissions:', 1)[0]
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)

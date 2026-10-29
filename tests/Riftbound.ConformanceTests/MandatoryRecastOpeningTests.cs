@@ -24,6 +24,7 @@ public sealed class MandatoryRecastOpeningTests
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
+        var verifyColdRecoveryAfterEveryCommand = true;
         OfficialDecklist? deck = null; object? forgery = null;
         try
         {
@@ -46,20 +47,30 @@ public sealed class MandatoryRecastOpeningTests
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
             var unitNo = mode == "zero" ? FreeUnit : PaidUnit;
+            // Natural draws and rune channeling are setup for the payment assertion. Replaying the
+            // entire accepted action log after every EndTurn makes this fixture quadratic in the
+            // number of setup turns, while the critical payment/refusal stages below still perform
+            // full cold recovery checks.
+            verifyColdRecoveryAfterEveryCommand = false;
             for (var turns = 0; State().TurnPlayerId != actor || Runes().Length < 12
                 || Hand(Parent) is null || Hand(Gift) is null || Hand(unitNo) is null; turns++)
             {
                 Assert.True(turns < 70 && State().Status == MatchStatuses.InProgress, "Wait only for natural draws and physical rune channeling.");
                 await Act(State().TurnPlayerId, new EndTurnCommand());
             }
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(unitNo)!;
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             var blue = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R03");
             Assert.Equal(2, purple.Length);
+            verifyColdRecoveryAfterEveryCommand = false;
             var manaRunes = Runes().Except(purple.Append(blue)).ToArray();
             await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
             await Act(actor, new RecycleRuneCommand(purple[0], purple));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Equal(9, State().RunePools[actor].Mana);
             var deckCount = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [unit])); await Drain();
@@ -184,7 +195,8 @@ public sealed class MandatoryRecastOpeningTests
             if (!accepted) { Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode); Assert.Equal(before, MatchStateHasher.Hash(result.State)); Assert.Empty(result.Events); }
             var count = journal.Entries.Count; var duplicate = await Send();
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
-            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State)); await Cold();
+            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
+            if (verifyColdRecoveryAfterEveryCommand) await Cold();
         }
         async Task Drain()
         {
