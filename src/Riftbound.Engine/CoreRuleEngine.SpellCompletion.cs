@@ -34,7 +34,8 @@ public sealed partial class CoreRuleEngine
         {
             var location = ReconcileObjectLocations(state.ObjectLocations, result.PlayerZones).GetValueOrDefault(item.SourceObjectId);
             var observation = CaptureCardPlayHistory(new("INTERNAL_CARD_PLAY_COMPLETION", "", new Dictionary<string, object?>()),
-                playedCard, item.ControllerId, item.StackItemId, true, location?.Zone ?? "STACK");
+                playedCard, item.ControllerId, item.StackItemId, true, location?.Zone ?? "STACK",
+                zones: result.PlayerZones, cards: result.CardObjects);
             result = result with { Events = result.Events.Append(observation).ToArray() };
         }
         if (result.WinnerPlayerId is not null) return result;

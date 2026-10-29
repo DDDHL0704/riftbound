@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 
 public static class LegendActionAbilityCatalog
 {
+    public const string KennenLegendAbilityId = "LEGEND_QUICK_REMOVE_EMPOWER_EXHAUST_GRANT_ASSAULT_TWO";
     public const string MelLegendAbilityId = "LEGEND_REMOVE_EMPOWER_EXHAUST_BATTLEFIELD_UNIT_MINUS_TWO";
     public const string AmbessaLegendAbilityId = "LEGEND_REMOVE_EMPOWER_PAY_ONE_POWER_EXHAUST_READY_UNIT";
     public const string AkaliLegendAbilityId = "LEGEND_QUICK_EXHAUST_MOVE_DUEL_UNIT";
@@ -56,6 +57,10 @@ public static class LegendActionAbilityCatalog
 
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly Lazy<ImmutableArray<string>> KennenSourceCardNos = new(() =>
+        VendettaCardSources.GetAdmittedCards().Where(card => card.CardName == "狂暴之心" && card.Hero == "凯南"
+            && card.CardEffect.Contains("{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Lazy<ImmutableArray<string>> ShenSourceCardNos = new(() =>
         VendettaCardSources.GetAdmittedCards()
             .Where(card => card.CardName == "暮光之眼" && card.Hero == "慎"
@@ -81,6 +86,7 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
         if (string.Equals(abilityId, MelLegendAbilityId, StringComparison.Ordinal)) return MelSourceCardNos.Value;
         if (string.Equals(abilityId, AmbessaLegendAbilityId, StringComparison.Ordinal)) return AmbessaSourceCardNos.Value;
         if (string.Equals(abilityId, AkaliLegendAbilityId, StringComparison.Ordinal))
