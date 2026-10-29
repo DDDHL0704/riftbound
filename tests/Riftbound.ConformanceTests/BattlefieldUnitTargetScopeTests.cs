@@ -26,6 +26,15 @@ public sealed class BattlefieldUnitTargetScopeTests
                     Tags = [kind switch { "equipment" => CardObjectTags.EquipmentCard,
                         "rune" => CardObjectTags.RuneCard, "spell" => CardObjectTags.SpellCard,
                         _ => CardObjectTags.UnitCard }] } } };
+        if (kind == "equipment")
+        {
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                [target] = initial.CardObjects[target] with { CardNo = "SFD·022/221", AttachedToObjectId = "GEAR-HOST",
+                    Tags = [CardObjectTags.EquipmentCard, "武装", "灵便"] },
+                ["GEAR-HOST"] = new("GEAR-HOST", cardNo: "OGN·001/298", ownerId: "P2", controllerId: "P2",
+                    power: 5, tags: [CardObjectTags.UnitCard]) } };
+            initial = LocalDestructionRecallTests.At(initial, "GEAR-HOST", "P2", "BATTLEFIELD", "OTHER");
+        }
         var command = new PlayCardCommand("SPELL", card, [target]);
         var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
         Assert.False(quote.IsValid); Assert.False(quote.CanPay);
