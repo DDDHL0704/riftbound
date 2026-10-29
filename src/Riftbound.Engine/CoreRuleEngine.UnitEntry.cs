@@ -23,7 +23,8 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
-        bool countsAsPlay = true)
+        bool countsAsPlay = true,
+        IReadOnlyDictionary<string, int>? playerScores = null)
     {
         var zones = playerZones[stackItem.ControllerId];
         var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
@@ -94,7 +95,11 @@ public sealed partial class CoreRuleEngine
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = entersReadyFromSourceUnitStaticAbility
+            IsExhausted = behavior.SourceReadyWhenWinningScoreDistanceExceeds is { } distance
+                    && playerScores is not null
+                    && EffectiveWinningScore(playerZones, cardObjects) - playerScores.GetValueOrDefault(stackItem.ControllerId) > distance
+                    && !CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
+                || entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
                 || sourceReadyOptionalCostPaid
@@ -147,7 +152,8 @@ public sealed partial class CoreRuleEngine
             var entry = PrepareUnitEntry(playerZones, cardObjects, behavior,
                 new StackItemState(controllerId: controllerId, sourceObjectId: unit.ObjectId,
                     cardNo: unit.CardNo, destination: toBattlefield ? "BATTLEFIELD:ENTRY" : "BASE"),
-                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay);
+                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay,
+                context.PlayerScores);
             unit = entry.UnitState;
         }
         if (!string.IsNullOrWhiteSpace(statusEffectId))

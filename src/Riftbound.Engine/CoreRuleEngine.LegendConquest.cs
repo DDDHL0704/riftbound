@@ -94,9 +94,9 @@ public sealed partial class CoreRuleEngine
                 && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards[target].ObjectGeneration && cards[target].IsExhausted)
             {
                 cards[target] = cards[target] with { IsExhausted = false };
-                events.Add(new("UNIT_READIED", "征服技能使所选单位活跃", new Dictionary<string, object?> {
+                events.Add(CaptureUnitReadied(new GameEvent("UNIT_READIED", "征服技能使所选单位活跃", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target,
-                    ["reason"] = item.EffectKind }));
+                    ["reason"] = item.EffectKind }), state.PlayerZones, cards, target, true));
             }
         }
         else if (context.Kind != "EXHAUST_DECK_PLAY" && cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration

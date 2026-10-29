@@ -24035,6 +24035,14 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
         foreach (var trigger in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
+                errors.Add("invalid captured unit event trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)
+                || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
+                    || !CoreRuleEngine.ValidUnitEventTargets(item)))
+                errors.Add("invalid captured unit event stack");
+        foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 errors.Add("invalid source play draw trigger");
         foreach (var item in state.StackItems)
@@ -25359,7 +25367,7 @@ public static partial class MatchRecoveryValidator
                 || item.TargetGenerations is not { Count: 1 }
                 || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
-                || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
+                || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.UnitEvent is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
                 || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.EmpowerOtherObserver is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
@@ -27644,6 +27652,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
+                && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
@@ -27771,6 +27780,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
+                && !(trigger.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
