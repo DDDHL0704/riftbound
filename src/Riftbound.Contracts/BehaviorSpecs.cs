@@ -57,6 +57,7 @@ public static class BehaviorEffectFormulaKinds
 public static class TriggerKinds
 {
     public const string SourceUnitPlayedDestroyEquipmentGrantTurnPlay = "SOURCE_UNIT_PLAYED_DESTROY_EQUIPMENT_GRANT_TURN_PLAY";
+    public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
@@ -694,7 +695,8 @@ public sealed record StaticAbilitySpec(
     bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
-    bool? RequiresSameNameCardInControllerGraveyard = null);
+    bool? RequiresSameNameCardInControllerGraveyard = null,
+    bool? RequiresSourceOutsideBattle = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
