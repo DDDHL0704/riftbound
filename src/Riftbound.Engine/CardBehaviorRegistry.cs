@@ -299,12 +299,18 @@ public sealed record CardBehaviorDefinition(
     int? BasePowerUntilEndOfTurn = null,
     int PreventDamageUntilEndOfTurn = 0,
     string TargetRequiresEnemyTraitThreat = "",
-    bool AllowsPlayToOpenBattlefield = false)
+    bool AllowsPlayToOpenBattlefield = false,
+    bool EachPlayerKeepsOneUnitBeforeDestroyingOthers = false,
+    bool CannotBeCountered = false,
+    bool IgnoresSpellshield = false,
+    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
 
 public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
+public sealed record ConditionalTargetRemovalSpec(int MaximumMight, string Removal,
+    string OtherwiseRemoval = "", bool RemoveEmpowermentFirst = false);
 
 public static class CardDamageConditionKinds
 {
@@ -350,6 +356,7 @@ public static class CardTargetScopes
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnitAtSourceLocation = "ENEMY_UNIT_AT_SOURCE_LOCATION";
     public const string EnemyUnit = "ENEMY_UNIT";
+    public const string EnemyUnitOrEquipment = "ENEMY_UNIT_OR_EQUIPMENT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
@@ -509,6 +516,31 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
         new("VEN·111", "米娜·捷足", 6, "MINA_SWIFTFOOT_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
+        new("VEN·090", "末日决斗", 8, "FINAL_DUEL_KEEP_ONE_UNIT_EACH", 0, 0,
+            DestroysAllUnits: true, EachPlayerKeepsOneUnitBeforeDestroyingOthers: true),
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_RETURN_FRIENDLY", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, Mode: "RETURN_FRIENDLY", ReturnsTargetToHand: true,
+            CanPlayDuringPriority: true),
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_REDUCE_ENEMY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, Mode: "REDUCE_ENEMY", PowerModifierAmount: -2,
+            CanPlayDuringPriority: true),
+        new("VEN·106", "风灵瞬转", 3, "SPIRIT_SHIFT_CONDITIONAL_REMOVAL", 0, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ConditionalTargetRemoval: new(3, "BANISH", "RETURN_TO_HAND")),
+        new("VEN·127", "血戮", 2, "BLOODLETTING_CONDITIONAL_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, FlowCost: new(4, 2, [RuneTrait.Yellow]),
+            ConditionalTargetRemoval: new(3, "DESTROY", RemoveEmpowermentFirst: true)),
+        new("VEN·015", "暴怒箴言", 1, "INVOCATION_OF_FURY_DAMAGE", 4, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:green",
+            CanPlayDuringSpellDuel: true, CannotBeCountered: true),
+        new("VEN·061", "洞察箴言", 1, "INVOCATION_OF_INSIGHT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:orange",
+            PowerModifierAmount: -5, CanPlayDuringPriority: true, IgnoresSpellshield: true),
+        new("VEN·107", "不和箴言", 1, "INVOCATION_OF_DISCORD_RETURN", 0, 0,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:yellow",
+            ReturnsTargetToHand: true, MinTargetCount: 0, AnyNumberOfTargets: true, MaxTotalTargetPower: 5),
+        new("VEN·131", "团结箴言", 2, "INVOCATION_OF_UNITY_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnitOrEquipment, TargetRequiredTag: "COLOR:purple", DestroysTarget: true),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

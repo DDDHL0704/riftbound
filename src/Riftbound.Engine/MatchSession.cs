@@ -13191,7 +13191,7 @@ internal static class ActionPromptBuilder
             || choicesByIndex
                 .SelectMany(choiceIds => choiceIds)
                 .Distinct(StringComparer.Ordinal)
-                .Any(objectId => SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0);
+                .Any(objectId => !behavior.IgnoresSpellshield && SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0);
     }
 
     private static bool IsLegalPlayCardTargetSelection(
@@ -13250,7 +13250,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
-        var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
+        var ward = behavior.IgnoresSpellshield ? 0 : targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
         return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
             && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
     }
@@ -13423,6 +13423,9 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyUnitAtSourceLocation => IsPromptEnemyFieldObject(state, playerId, objectId)
                 && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsPromptOpponentControlledFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => false,
@@ -15298,7 +15301,8 @@ internal static class ActionPromptBuilder
 
     private static int PromptMaximumWardPower(MatchState state, string playerId, CardBehaviorDefinition behavior)
     {
-        if (behavior.RequiredTargetCount <= 0 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment) return 0;
+        if (behavior.RequiredTargetCount <= 0 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
+            || behavior.IgnoresSpellshield) return 0;
         var taxes = state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields))
             .Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).ToArray();
         return Math.Max(taxes.Sum(), taxes.DefaultIfEmpty().Max() * behavior.RequiredTargetCount)
@@ -17102,6 +17106,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyUnitThenFriendlyEquipment => "友方单位，然后可选同控制者武装",
             CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
             CardTargetScopes.EnemyUnit => "敌方单位",
+            CardTargetScopes.EnemyUnitOrEquipment => "敌方单位或装备",
             CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",
             CardTargetScopes.Battlefield => "战场",
             CardTargetScopes.OpponentHandCard => "对手手牌",

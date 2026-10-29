@@ -21208,7 +21208,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceLocation => IsEnemyFieldObject(state, playerId, objectId)
                 && IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
-            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId)
+                && IsFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsEnemyFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
@@ -21829,6 +21833,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         spellshieldTaxTargetObjectIds = [];
         if (behavior.PlaysSourceToBaseAsUnit
             || behavior.PlaysSourceToBaseAsEquipment
+            || behavior.IgnoresSpellshield
             || targetObjectIds.Count == 0)
         {
             return 0;
@@ -24927,7 +24932,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.DestroysAllUnits)
         {
             var allUnitTargetObjectIds = GetFieldUnitObjectIds(playerZones, cardObjects).ToArray();
-            var allUnitTargetObjectIdSet = allUnitTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (behavior.EachPlayerKeepsOneUnitBeforeDestroyingOthers) {
+                var survivors = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var player in playerZones.Keys.OrderBy(p => p == state.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal)) {
+                    var legal = GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, player).Order(StringComparer.Ordinal).ToArray();
+                    if (legal.Length == 0) continue;
+                    var choice = RuleChoices.Value!.Choose(player, "选择一名受你控制的单位，其他单位将被摧毁。",
+                        legal.Select(id => new RuleChoiceOption(id, cardObjects[id].CardNo is { } no ? OfficialCardSourceIdentityGroups.DisplayName(no) : "单位", [id])).ToArray(),
+                        kind: "MASS_DESTRUCTION_SURVIVOR", preview: state);
+                    survivors.Add(choice);
+                    events.Add(new("MASS_DESTRUCTION_SURVIVOR_CHOSEN", "玩家选择保留一名单位", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = stackItem.SourceObjectId, ["playerId"] = player, ["unitObjectId"] = choice }));
+                }
+                allUnitTargetObjectIds = allUnitTargetObjectIds.Where(id => !survivors.Contains(id)).ToArray();
+            }
             using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, allUnitTargetObjectIds);
             events.AddRange(replacements.Events);
             foreach (var targetObjectId in allUnitTargetObjectIds.Where(id => !replacements.Replaced.Contains(id)))
@@ -25838,13 +25856,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["secondDestinationZone"] = targetDestinationZone
                 }));
         }
-        else if (behavior.RequiredTargetCount > 0
+        else if (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
+                ApplyConditionalRemovalEmpowerInstruction(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                    stackItem, behavior, cardObjects, events);
+                var removalState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    behavior.DestroysTarget ? stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : [], stackItem);
+                    stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)
+                        && (behavior.DestroysTarget || ConditionalRemovalAction(removalState, behavior, id) == "DESTROY")).ToArray(), stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
@@ -26102,7 +26124,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    if (behavior.DestroysTarget
+                    var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
+                    if (removalAction == "BANISH"
+                        && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
+                    {
+                        events.Add(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标单位", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["playerId"] = banishedRemoval.OwnerPlayerId, ["destinationZone"] = banishedRemoval.DestinationZone,
+                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }));
+                        continue;
+                    }
+                    if ((behavior.DestroysTarget || removalAction == "DESTROY")
                         && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
                         events.AddRange(BuildFieldRemovalEvents(
@@ -26156,7 +26188,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryGetBattlefieldUnitReturnContext(
                             playerZones,
                             cardObjects,
@@ -26208,7 +26240,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.ReturnsTargetToHand
+                    if ((behavior.ReturnsTargetToHand || removalAction == "RETURN_TO_HAND")
                         && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var normalReturnedOwnerPlayerId, out var normalReturnedWasEquipment))
                     {
                         events.Add(BuildReturnedToHandEvent(
@@ -27955,6 +27987,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (EmpoweredSpellRules.PreventsCounter(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetStackItem.ControllerId))
             return false;
+
+        if (!StackObjectRules.IsAbility(targetStackItem)
+            && CardBehaviorRegistry.TryGetByCardNo(targetStackItem.CardNo, out var targetBehavior)
+            && targetBehavior.CannotBeCountered) return false;
 
         if (StackObjectRules.IsAbility(targetStackItem))
         {

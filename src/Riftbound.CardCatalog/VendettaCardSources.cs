@@ -26,7 +26,10 @@ public static class VendettaCardSources
             (Id: 37780L, CardNo: "VEN·085"), (Id: 37719L, CardNo: "VEN·031"), (Id: 37729L, CardNo: "VEN·040"),
             (Id: 37816L, CardNo: "VEN·116"), (Id: 37826L, CardNo: "VEN·126"), (Id: 37986L, CardNo: "VEN·034"),
             (Id: 37758L, CardNo: "VEN·066"), (Id: 37815L, CardNo: "VEN·115"), (Id: 37687L, CardNo: "VEN·002"),
-            (Id: 37701L, CardNo: "VEN·016"), (Id: 37792L, CardNo: "VEN·095"), (Id: 37809L, CardNo: "VEN·111") }
+            (Id: 37701L, CardNo: "VEN·016"), (Id: 37792L, CardNo: "VEN·095"), (Id: 37809L, CardNo: "VEN·111"),
+            (Id: 37786L, CardNo: "VEN·090"), (Id: 37743L, CardNo: "VEN·052"), (Id: 37803L, CardNo: "VEN·106"),
+            (Id: 37827L, CardNo: "VEN·127"), (Id: 37700L, CardNo: "VEN·015"), (Id: 37752L, CardNo: "VEN·061"),
+            (Id: 37804L, CardNo: "VEN·107"), (Id: 37831L, CardNo: "VEN·131") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             // The upstream gallery labels VEN token printings as ordinary units.
             // CN 187.1 and 187.10 define their actual token category.
