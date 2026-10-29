@@ -38,7 +38,12 @@ public sealed record P4ActivatedAbilityDefinition(
     bool SupportsCopiedRuleText = false,
     int PowerModifierAmount = 0,
     int MinimumPowerAfterModifier = 0,
-    string SourceRequiredTag = "");
+    string SourceRequiredTag = "",
+    SimpleActivatedEffectSpec? SimpleEffect = null,
+    int? GeneratedManaIfSourceEmpowered = null);
+
+public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
+    int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -237,6 +242,23 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("BOOK_REMOVE_EMPOWER_DRAW", "VEN·054", "BOOK_REMOVE_EMPOWER_DRAW", "可疑之书", 1, 0, 0,
+            false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, DrawCount: 1)),
+        new("HEXTECH_DISC_CREATE_ROBOT", "VEN·087", "HEXTECH_DISC_CREATE_ROBOT", "海克斯圆盘", 1, 0, 0,
+            false, true, 0, false, "官方中文：解除强化、支付1并横置，打出3战力机器人。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, CreatedRobotCount: 1)),
+        new("HEXTECH_EQUATION_EMPOWER_EQUIPMENT", "VEN·062", "HEXTECH_EQUATION_EMPOWER_EQUIPMENT", "海克斯方程式", 0, 0, 1,
+            false, true, 0, true, "官方中文：横置，强化另一件装备。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(EmpowersOtherEquipment: true)),
+        new("EGG_REACTION_GAIN_MANA", "VEN·075", "EGG_REACTION_GAIN_MANA", "剑头蛟的卵", 0, 0, 0,
+            false, true, 0, false, "官方中文：反应横置，获得1法力，已强化改为2。",
+            IsResourceSkill: true, ReactionSpeed: true, GeneratedMana: 1,
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            GeneratedManaIfSourceEmpowered: 2),
         new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
             1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
             AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),

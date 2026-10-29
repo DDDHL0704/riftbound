@@ -456,6 +456,12 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·054", "可疑之书", 3, "SUSPICIOUS_BOOK_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·062", "海克斯方程式", 2, "HEXTECH_EQUATION_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·075", "剑头蛟的卵", 3, "JAWFISH_EGG_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·087", "海克斯圆盘", 4, "HEXTECH_DISC_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
