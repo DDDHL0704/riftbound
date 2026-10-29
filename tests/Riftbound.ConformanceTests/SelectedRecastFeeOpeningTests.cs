@@ -28,6 +28,7 @@ public sealed class SelectedRecastFeeOpeningTests
         var journal = new Journal(); var engine = new CoreRuleEngine();
         var options = new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false);
         IMatchSession session = new MatchSession(initial, engine, journal, NoopMatchPlayerStore.Instance, options);
+        var verifyColdRecoveryAfterEveryCommand = true;
         OfficialDecklist? deck = null; ResolutionResult? core = null, native = null; object? forgery = null;
         PlayCostQuoteDto? defaultQuote = null, selectedQuote = null;
         try
@@ -50,18 +51,28 @@ public sealed class SelectedRecastFeeOpeningTests
             await Act("alice", new ReadyCommand()); await Act("bob", new ReadyCommand());
             await Act(State().ActivePlayerId, new MulliganCommand([]));
             await Act(State().OpeningSecondActionPlayerId!, new MulliganCommand([]));
+            // Natural draws and rune channeling are setup for the payment assertion. Replaying the
+            // entire accepted action log after every EndTurn makes this fixture quadratic in the
+            // number of setup turns, while the critical payment/refusal stages below still perform
+            // full cold recovery checks.
+            verifyColdRecoveryAfterEveryCommand = false;
             for (var turns = 0; State().TurnPlayerId != actor || Runes().Length < 12
                 || Hand(Parent) is null || Hand(Gift) is null || Hand(Unit) is null; turns++)
             {
                 Assert.True(turns < 70 && State().Status == MatchStatuses.InProgress);
                 await Act(State().TurnPlayerId, new EndTurnCommand());
             }
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.All(State().RunePools.Values, p => Assert.Equal(RunePool.Empty, p));
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(Unit)!;
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             var red = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R01");
+            verifyColdRecoveryAfterEveryCommand = false;
             foreach (var id in Runes().Except(purple)) await Act(actor, new TapRuneCommand(id));
             foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            verifyColdRecoveryAfterEveryCommand = true;
+            await Cold();
             Assert.Equal(10, State().RunePools[actor].Mana);
             var deckCount = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [unit])); await Drain();
@@ -203,7 +214,8 @@ public sealed class SelectedRecastFeeOpeningTests
             if (!accepted) { Assert.Equal(before, MatchStateHasher.Hash(result.State)); Assert.Empty(result.Events); }
             var count = journal.Entries.Count; var duplicate = await Submit();
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
-            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State)); await Cold();
+            Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(duplicate.State));
+            if (verifyColdRecoveryAfterEveryCommand) await Cold();
         }
         async Task Drain()
         {
