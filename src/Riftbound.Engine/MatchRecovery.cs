@@ -18901,7 +18901,7 @@ public static partial class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMightySkill(authoritativeTrigger.MightySkill))) errors.Add("spectator captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
@@ -19142,7 +19142,7 @@ public static partial class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMightySkill(authoritativeTrigger.MightySkill))) errors.Add("snapshot captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
@@ -23703,21 +23703,22 @@ public static partial class MatchRecoveryValidator
         return true;
     }
 
-    private static MightySkillContext? ReadMightySkillView(object? payload)
+    private static MightySkillView? ReadMightySkillView(object? payload)
     {
         try {
             var json = JsonSerializer.SerializeToElement(payload);
             return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("mightySkill", out var raw)
                 && raw.ValueKind != JsonValueKind.Null
-                ? raw.Deserialize<MightySkillContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                ? raw.Deserialize<MightySkillView>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
         } catch (JsonException) { return null; }
     }
 
     private static void ValidateMightySkillPayload(object? payload, string? effect, List<string> errors)
     {
         var context = ReadMightySkillView(payload);
-        if (effect is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect || context is not null)
-            if (context is null || context.Kind != effect || !CoreRuleEngine.ValidMightySkillFrame(context))
+        if (effect is CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect or CoreRuleEngine.MightyEmpowerEffect || context is not null)
+            if (context is null || context.Kind != effect || context.BeforeMight >= context.AfterMight
+                || effect is not (CoreRuleEngine.MightyReadyEffect or CoreRuleEngine.MightyRuneEffect or CoreRuleEngine.MightyEmpowerEffect))
                 errors.Add("invalid public captured Mighty transition");
     }
 
@@ -23729,7 +23730,7 @@ public static partial class MatchRecoveryValidator
             TryReadObjectString(payload, "effectKind", out var effect);
             ValidateMightySkillPayload(payload, effect, errors);
             var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
-            if (MatchStateHasher.HashValue(ReadMightySkillView(payload)) != MatchStateHasher.HashValue(expected?.MightySkill))
+            if (MatchStateHasher.HashValue(ReadMightySkillView(payload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicMightySkill(expected?.MightySkill)))
                 errors.Add($"{label} captured Mighty transition differs from authoritative state");
         }
     }
@@ -24570,6 +24571,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid captured weaponmaster ability");
             if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
             if (!EmpowerRules.Valid(state, item)) errors.Add("invalid captured empower activation");
+            if (!SelfMightRules.Valid(state, item)) errors.Add("invalid captured self Might activation");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
@@ -34044,7 +34046,8 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind
+                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item)
+                || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
