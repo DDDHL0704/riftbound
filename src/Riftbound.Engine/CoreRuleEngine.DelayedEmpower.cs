@@ -92,7 +92,7 @@ public sealed partial class CoreRuleEngine
             || !IsObjectOnField(state.PlayerZones, target)
             || item.EffectKind == TemporaryRemoveEmpowerEffect && !unit.IsEmpowered) return;
         var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(target, unit.ObjectGeneration),
-            item.EffectKind == TemporaryEmpowerEffect);
+            item.EffectKind == TemporaryEmpowerEffect, item.ControllerId);
         cards[target] = changed.CardObjects[target];
         events.AddRange(changed.Events);
         // CN 359.3.e.16: a window already passed does not create a delayed ability.
@@ -133,6 +133,6 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidDelayedEmpowerStack(state, item)) throw new InvalidOperationException("Invalid delayed empower skill.");
         var context = item.DelayedEmpower!;
-        return ApplyEmpowerStatusAction(state, context.Unit, context.CreatingEffectKind == TemporaryRemoveEmpowerEffect);
+        return ApplyEmpowerStatusAction(state, context.Unit, context.CreatingEffectKind == TemporaryRemoveEmpowerEffect, context.ControllerId);
     }
 }
