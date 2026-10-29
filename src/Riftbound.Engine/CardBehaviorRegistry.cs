@@ -2884,6 +2884,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·092", "雷克顿", 5, "VEN_RENEKTON_MIGHT_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·092a", "雷克顿", 5, "VEN_RENEKTON_MIGHT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·177", "雷克顿", 5, "VEN_RENEKTON_ALT_MIGHT_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·088", "杰斯 · 举锤待发", 4, "VEN_JAYCE_READIED_KEYWORD_PLAY_UNIT", 0, 0,

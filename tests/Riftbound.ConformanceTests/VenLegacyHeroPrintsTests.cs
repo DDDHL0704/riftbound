@@ -105,7 +105,9 @@ public sealed class VenLegacyHeroPrintsTests
     {
         var state = Position(no) with { PlayerScores = new Dictionary<string, int> { ["P1"] = score, ["P2"] = 5 } };
         var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", no, []));
-        int Might(MatchState current) => ResolutionResult.SnapshotEffectivePower(current, current.CardObjects["UNIT"], current.ObjectLocations["UNIT"]);
+        int Might(MatchState current) => CurrentPowerTargetTests.Snapshot(current)
+            .GetProperty("players").GetProperty(current.ObjectLocations["UNIT"].PlayerId)
+            .GetProperty("objects").GetProperty("UNIT").GetProperty("effectivePower").GetInt32();
         Assert.Equal(3 + score, Might(game.State));
         var changedScore = game.State with { PlayerScores = new Dictionary<string, int> { ["P1"] = 6, ["P2"] = 5 } };
         Assert.Equal(9, Might(changedScore));

@@ -13,7 +13,7 @@ public sealed class RenektonMightEmpowerTests
     private static MatchState Position(string no = "VEN·092") => EmpowerTests.Position(no);
 
     [Theory]
-    [InlineData("VEN·092", 37788)] [InlineData("VEN·177", 37880)]
+    [InlineData("VEN·092", 37788)] [InlineData("VEN·092a", 37789)] [InlineData("VEN·177", 37880)]
     public async Task ExactPrintingsRetainManaCostMightThresholdAndConditionalKeywords(string no, long id)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
@@ -33,7 +33,7 @@ public sealed class RenektonMightEmpowerTests
     }
 
     [Theory]
-    [InlineData("VEN·092")] [InlineData("VEN·177")]
+    [InlineData("VEN·092")] [InlineData("VEN·092a")] [InlineData("VEN·177")]
     public async Task SixPaidActivationsReachTenThenASeparateRespondableSkillEmpowersTheSameUnit(string no)
     {
         var game = await AtThreshold(Position(no), no);
@@ -69,7 +69,7 @@ public sealed class RenektonMightEmpowerTests
         return game;
     }
 
-    public static IEnumerable<object[]> Illegal() => new[] { "VEN·092", "VEN·177" }.SelectMany(no =>
+    public static IEnumerable<object[]> Illegal() => new[] { "VEN·092", "VEN·092a", "VEN·177" }.SelectMany(no =>
         new[] { "mana", "target", "cost", "opponent", "hidden", "hand", "instance", "spell-only" }
             .Select(branch => new object[] { no, branch }));
     [Theory]
