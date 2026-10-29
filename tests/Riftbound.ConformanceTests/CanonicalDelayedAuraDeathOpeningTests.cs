@@ -30,8 +30,10 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             var valid = OfficialDeckValidator.Validate(deck, catalog); Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
         }
+        // Keep the same first player and battlefields while drawing the required cards sooner.
+        // Setup still uses the real shuffle, natural draws and channeling, with no state injection.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-DELAYED-AURA-DEATH",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 249881 };
         var game = new Game(initial);
         try
         {
