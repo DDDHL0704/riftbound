@@ -385,6 +385,14 @@ public static class TriggerParser
                 PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
+        var selfActionPower = Regex.Match(text,
+            @"当你选择我为目标[、,，]?或让我变为活跃状态时[，,]\s*(?:给予|让)我(?:在)?本回合内\{\{S\}\}\+(?<might>[0-9一两二三四五六七八九十]+)。?",
+            RegexOptions.CultureInvariant);
+        if (selfActionPower.Success)
+            triggers.Add(new(TriggerKinds.ControllerTargetedOrReadiedSourcePower, TriggerTimings.ControllerTargetedOrReadiedSource,
+                selfActionPower.Value, "Controller targeting and ready instructions each earn a separate self Might ability.",
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(selfActionPower.Groups["might"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn));
         var equipmentDraw = Regex.Match(text,
             @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
             RegexOptions.CultureInvariant);

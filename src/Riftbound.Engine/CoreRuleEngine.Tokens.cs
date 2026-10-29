@@ -22,7 +22,13 @@ public sealed partial class CoreRuleEngine
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
+            context is { Kind: SelfActionPowerKind, SelfAction: { } action }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, SelfAction = action with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], action.FaceRevision, action.CapturedTick) ?? string.Empty) } }
+                : context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, EmpoweredTransition = birth with {
