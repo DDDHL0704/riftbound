@@ -173,7 +173,8 @@ def main():
     parser.add_argument('--match', action='append', default=[], help='Additional test-name token for focus; repeatable')
     parser.add_argument('--include-games', action='store_true', help='Explicitly allow matched full-game tests in focus')
     parser.add_argument('--l2-only', action='store_true', help='Focus excludes only explicitly declared full-opening L3 acceptance methods')
-    parser.add_argument('--jobs', type=int, default=min(4, os.cpu_count() or 1))
+    parser.add_argument('--jobs', type=int, default=min(4, os.cpu_count() or 1)
+                        if os.environ.get('GITHUB_ACTIONS') == 'true' else 1)
     parser.add_argument('--timings', type=Path, help='Prior TRX or timing JSON, used only to balance full shards')
     parser.add_argument('--expect-trx', type=Path, help='Full benchmark only: require exact case parity with this baseline')
     parser.add_argument('--output', type=Path)
@@ -196,18 +197,17 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     if (output / 'plan.json').exists():
         parser.error('Output already contains a run; use a new directory to avoid stale evidence.')
-    local = Path.home() / '.dotnet' / ('dotnet.exe' if os.name == 'nt' else 'dotnet')
-    dotnet = str(local) if local.exists() else shutil.which('dotnet')
+    # PATH may select a machine-wide resource limiter; never bypass it with a home SDK.
+    dotnet = shutil.which('dotnet')
     if not dotnet:
-        raise ValueError('dotnet SDK not found.')
+        raise ValueError('dotnet SDK not found on PATH.')
     env = dict(os.environ)
-    env.setdefault('DOTNET_ROOT', str(Path(dotnet).resolve().parent))
     start = time.monotonic()
     print(f'Incremental build; evidence: {output}', flush=True)
     with (output / 'build.log').open('w') as log:
         # Keep project builds in one MSBuild node; test-process sharding remains independent.
         subprocess.run([dotnet, 'build', str(PROJECT), '-m:1', '-v:q', '--nologo'], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
-    discovery = subprocess.run([dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '--list-tests', '-v:q'],
+    discovery = subprocess.run([dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '-m:1', '--list-tests', '-v:q'],
                                cwd=ROOT, env=env, capture_output=True, text=True, check=True)
     (output / 'discovery.log').write_text(discovery.stdout + discovery.stderr)
     methods = discover(discovery.stdout)
@@ -239,7 +239,7 @@ def main():
                 directory = output / shard['name']
                 directory.mkdir()
                 log = (directory / 'test.log').open('w')
-                command = [dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '-v:q', '--filter', shard['filter'],
+                command = [dotnet, 'test', str(PROJECT), '--no-build', '--no-restore', '-m:1', '-v:q', '--filter', shard['filter'],
                            '--results-directory', str(directory), '--logger', 'trx;LogFileName=results.trx']
                 process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=os.name != 'nt')
                 running.append((process, log, shard, directory, time.monotonic()))

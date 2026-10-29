@@ -1,6 +1,8 @@
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
@@ -17,6 +19,78 @@ PASSING_TRX = '''<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamT
 </TestRun>'''
 
 class RuleRunnerTests(unittest.TestCase):
+    def run_with_wrapper(self, github_actions='', extra_args=(), dotnet_root='/inherited/sdk'):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / 'tests/Riftbound.ConformanceTests'
+            assembly = project / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll'
+            assembly.parent.mkdir(parents=True)
+            assembly.write_bytes(b'test assembly')
+            local = root / 'home/.dotnet/dotnet'
+            local.parent.mkdir(parents=True)
+            local.touch()
+            wrapper = str(root / 'bin/dotnet')
+            output = root / 'output'
+            discovery = 'Available tests:\n    ' + runner.PREFIX + 'Rules.Theory(a: 1)\n'
+            discovery += '    ' + runner.PREFIX + 'Rules.Theory(a: 2)\n'
+
+            def start_test(command, **kwargs):
+                directory = Path(command[command.index('--results-directory') + 1])
+                (directory / 'results.trx').write_text(PASSING_TRX)
+                return SimpleNamespace(poll=lambda: 0)
+
+            with patch.object(runner, 'ROOT', root), patch.object(runner, 'PROJECT', project), \
+                    patch.object(runner.Path, 'home', return_value=root / 'home'), \
+                    patch.object(runner.shutil, 'which', return_value=wrapper), \
+                    patch.object(runner.os, 'cpu_count', return_value=10), \
+                    patch.dict(runner.os.environ, {'GITHUB_ACTIONS': github_actions,
+                                                  **({'DOTNET_ROOT': dotnet_root} if dotnet_root is not None else {})}), \
+                    patch.object(runner, 'load_weights', return_value={}), \
+                    patch.object(runner.subprocess, 'run', return_value=SimpleNamespace(stdout=discovery, stderr='')) as run, \
+                    patch.object(runner.subprocess, 'Popen', side_effect=start_test) as popen, \
+                    patch.object(runner.sys, 'argv', ['test-rules.py', 'focus', '--match', 'Rules.Theory',
+                                                   '--output', str(output), *extra_args]):
+                if dotnet_root is None:
+                    runner.os.environ.pop('DOTNET_ROOT', None)
+                self.assertEqual(0, runner.main())
+            self.assertEqual('PASSED', json.loads((output / 'summary.json').read_text())['status'])
+            for call in [*run.call_args_list, *popen.call_args_list]:
+                self.assertEqual(wrapper, call.args[0][0])
+                self.assertIn('-m:1', call.args[0])
+                if dotnet_root is None:
+                    self.assertNotIn('DOTNET_ROOT', call.kwargs['env'])
+                else:
+                    self.assertEqual(dotnet_root, call.kwargs['env']['DOTNET_ROOT'])
+            test_command = popen.call_args.args[0]
+            self.assertIn('--filter', test_command)
+            self.assertIn('FullyQualifiedName~Rules.Theory', test_command[test_command.index('--filter') + 1])
+            return json.loads((output / 'plan.json').read_text())
+
+    def test_path_wrapper_and_inherited_sdk_are_used_for_every_filtered_command(self):
+        self.assertEqual(1, self.run_with_wrapper()['jobs'])
+
+    def test_wrapper_directory_is_not_invented_as_sdk_root(self):
+        self.assertEqual(1, self.run_with_wrapper(dotnet_root=None)['jobs'])
+
+    def test_ci_keeps_parallel_default_and_explicit_jobs_still_take_precedence(self):
+        self.assertEqual(4, self.run_with_wrapper(github_actions='true')['jobs'])
+        self.assertEqual(1, self.run_with_wrapper(github_actions='true', extra_args=['--jobs', '1'])['jobs'])
+
+    def test_missing_path_sdk_does_not_fall_back_to_home_install(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            local = root / '.dotnet/dotnet'
+            local.parent.mkdir()
+            local.touch()
+            with patch.object(runner.Path, 'home', return_value=root), \
+                    patch.object(runner.shutil, 'which', return_value=None), \
+                    patch.object(runner.subprocess, 'run') as run, \
+                    patch.object(runner.sys, 'argv', ['test-rules.py', 'focus', '--match', 'Rules',
+                                                   '--output', str(root / 'output')]):
+                with self.assertRaisesRegex(ValueError, 'not found on PATH'):
+                    runner.main()
+                run.assert_not_called()
+
     def report_xml(self, text):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'results.trx'
