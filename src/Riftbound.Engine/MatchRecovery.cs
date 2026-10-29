@@ -24572,7 +24572,6 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
             if (!EmpowerRules.Valid(state, item)) errors.Add("invalid captured empower activation");
             if (!SelfMightRules.Valid(state, item)) errors.Add("invalid captured self Might activation");
-        foreach (var item in state.StackItems)
             if (!RecycleMightRules.Valid(state, item)) errors.Add("invalid captured recycle-cost ability");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
