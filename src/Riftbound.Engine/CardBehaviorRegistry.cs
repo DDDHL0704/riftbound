@@ -353,6 +353,7 @@ public static class CardTargetScopes
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
+    public const string EnemyThenFriendlyUnits = "ENEMY_THEN_FRIENDLY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
@@ -9197,10 +9198,46 @@ public static class CardBehaviorRegistry
             DrawCount: 4)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
+    [
+        new("RAD·179*/167", "厄斐琉斯", 4, "RAD_179_STAR_APHELIOS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·179/167", "厄斐琉斯", 4, "RAD_179_APHELIOS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·180*/167", "伊泽瑞尔", 4, "RAD_180_STAR_EZREAL_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·180/167", "伊泽瑞尔", 4, "RAD_180_EZREAL_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·181*/167", "永恩", 5, "RAD_181_STAR_YONE_PLAY_UNIT", 0, 0,
+            ConquestDamage: new(RequiresUncontrolledBattlefield: true),
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|百炼"),
+        new("RAD·181/167", "永恩", 5, "RAD_181_YONE_PLAY_UNIT", 0, 0,
+            ConquestDamage: new(RequiresUncontrolledBattlefield: true),
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|百炼"),
+        new("RAD·182*/167", "凯隐", 6, "RAD_182_STAR_KAYN_PLAY_UNIT", 0, 0,
+            DamageImmunityAfterMoves: 2,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "游走"),
+        new("RAD·182/167", "凯隐", 6, "RAD_182_KAYN_PLAY_UNIT", 0, 0,
+            DamageImmunityAfterMoves: 2,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "游走"),
+        new("RAD·183*/167", "瑟提", 4, "RAD_183_STAR_SETT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "壁垒"),
+        new("RAD·183/167", "瑟提", 4, "RAD_183_SETT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "壁垒")
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
+    [
+        new("RAD·144/167", "轮回绝境", 2, "REALM_OF_DEATH_MIGHT_THEN_MUTUAL_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.EnemyThenFriendlyUnits,
+            PowerModifierAmount: -2, SecondaryPowerModifierAmount: 2,
+            DealsMutualTargetPowerDamage: true)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

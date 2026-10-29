@@ -97,8 +97,10 @@ public sealed partial class CoreRuleEngine
     private static bool CanDealCombatDamage(MatchState state, CardObjectState source)
         => !AttachedRuleTextRules.Instances(state, source).Any(instance =>
             CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
-                ability => ability.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage, out var spec)
-            && !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits));
+                ability => ability.Kind is StaticAbilityKinds.UnitCannotDealCombatDamage
+                    or StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage, out var spec)
+            && (spec.Kind == StaticAbilityKinds.UnitCannotDealCombatDamage
+                || !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits)));
 
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)
     {

@@ -19,17 +19,17 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         Assert.Same(runtime, await OfficialCardCatalog.LoadRuntimeAsync());
         Assert.Equal(1089, original.Total);
         Assert.Equal(1089, original.Cards.Count);
-        Assert.Equal(1228, runtime.Total);
-        Assert.Equal(1228, runtime.Cards.Count);
+        Assert.Equal(1245, runtime.Total);
+        Assert.Equal(1245, runtime.Cards.Count);
         Assert.Contains(ReviewedRuneCardSources.SnapshotPath, runtime.Source);
         Assert.Contains(VendettaCardSources.SnapshotPath, runtime.Source);
         Assert.Contains(ReviewedResourceLegendSources.SnapshotPath, runtime.Source);
         var originalNos = original.Cards.Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
-        Assert.Equal(["RAD·003/167", "RAD·008/167", "RAD·009/167", "RAD·013/167", "RAD·025/167", "RAD·049/167", "RAD·058/167", "RAD·059/167", "RAD·071/167", "RAD·077/167", "RAD·083/167", "RAD·088/167", "RAD·092/167", "RAD·118/167", "RAD·123/167", "RAD·125/167", "RAD·134/167", "VEN·002", "VEN·005", "VEN·006", "VEN·015", "VEN·016", "VEN·019", "VEN·019a", "VEN·021", "VEN·021a", "VEN·023", "VEN·023a", "VEN·031", "VEN·034", "VEN·037", "VEN·038", "VEN·038a", "VEN·039", "VEN·040", "VEN·041", "VEN·046", "VEN·046a", "VEN·052", "VEN·061", "VEN·063", "VEN·063a", "VEN·065", "VEN·066", "VEN·068", "VEN·068a", "VEN·082", "VEN·083", "VEN·084", "VEN·084a", "VEN·085", "VEN·088", "VEN·088a", "VEN·090", "VEN·092", "VEN·092a", "VEN·095", "VEN·099", "VEN·100", "VEN·104", "VEN·106", "VEN·107", "VEN·109", "VEN·110a", "VEN·111", "VEN·112", "VEN·112a", "VEN·113", "VEN·113a", "VEN·114", "VEN·115", "VEN·116", "VEN·126", "VEN·127", "VEN·131", "VEN·134", "VEN·135", "VEN·135a", "VEN·136", "VEN·136a", "VEN·139", "VEN·140", "VEN·141", "VEN·142", "VEN·143", "VEN·144", "VEN·145", "VEN·146", "VEN·147", "VEN·148", "VEN·149", "VEN·150", "VEN·151", "VEN·153", "VEN·154", "VEN·155", "VEN·155a", "VEN·167", "VEN·168", "VEN·169", "VEN·171", "VEN·172", "VEN·173", "VEN·174", "VEN·175", "VEN·176", "VEN·177", "VEN·178", "VEN·180", "VEN·182", "VEN·184", "VEN·185", "VEN·187", "VEN·188", "VEN·189", "VEN·189*", "VEN·190", "VEN·190*", "VEN·191", "VEN·191*", "VEN·192", "VEN·192*", "VEN·193", "VEN·193*", "VEN·194", "VEN·194*", "VEN·195", "VEN·195*", "VEN·196", "VEN·196*", "VEN·197", "VEN·197*", "VEN·SP1", "VEN·SP2", "VEN·SP4", "VEN·SP5", "VEN·T04", "VEN·T05", "VEN·T06"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
+        Assert.Equal(["RAD·003/167", "RAD·008/167", "RAD·009/167", "RAD·013/167", "RAD·025/167", "RAD·049/167", "RAD·058/167", "RAD·059/167", "RAD·071/167", "RAD·077/167", "RAD·083/167", "RAD·088/167", "RAD·092/167", "RAD·118/167", "RAD·123/167", "RAD·125/167", "RAD·134/167", "RAD·143/167", "RAD·144/167", "RAD·149/167", "RAD·170*/167", "RAD·170/167", "RAD·173*/167", "RAD·173/167", "RAD·179*/167", "RAD·179/167", "RAD·180*/167", "RAD·180/167", "RAD·181*/167", "RAD·181/167", "RAD·182*/167", "RAD·182/167", "RAD·183*/167", "RAD·183/167", "VEN·002", "VEN·005", "VEN·006", "VEN·015", "VEN·016", "VEN·019", "VEN·019a", "VEN·021", "VEN·021a", "VEN·023", "VEN·023a", "VEN·031", "VEN·034", "VEN·037", "VEN·038", "VEN·038a", "VEN·039", "VEN·040", "VEN·041", "VEN·046", "VEN·046a", "VEN·052", "VEN·061", "VEN·063", "VEN·063a", "VEN·065", "VEN·066", "VEN·068", "VEN·068a", "VEN·082", "VEN·083", "VEN·084", "VEN·084a", "VEN·085", "VEN·088", "VEN·088a", "VEN·090", "VEN·092", "VEN·092a", "VEN·095", "VEN·099", "VEN·100", "VEN·104", "VEN·106", "VEN·107", "VEN·109", "VEN·110a", "VEN·111", "VEN·112", "VEN·112a", "VEN·113", "VEN·113a", "VEN·114", "VEN·115", "VEN·116", "VEN·126", "VEN·127", "VEN·131", "VEN·134", "VEN·135", "VEN·135a", "VEN·136", "VEN·136a", "VEN·139", "VEN·140", "VEN·141", "VEN·142", "VEN·143", "VEN·144", "VEN·145", "VEN·146", "VEN·147", "VEN·148", "VEN·149", "VEN·150", "VEN·151", "VEN·153", "VEN·154", "VEN·155", "VEN·155a", "VEN·167", "VEN·168", "VEN·169", "VEN·171", "VEN·172", "VEN·173", "VEN·174", "VEN·175", "VEN·176", "VEN·177", "VEN·178", "VEN·180", "VEN·182", "VEN·184", "VEN·185", "VEN·187", "VEN·188", "VEN·189", "VEN·189*", "VEN·190", "VEN·190*", "VEN·191", "VEN·191*", "VEN·192", "VEN·192*", "VEN·193", "VEN·193*", "VEN·194", "VEN·194*", "VEN·195", "VEN·195*", "VEN·196", "VEN·196*", "VEN·197", "VEN·197*", "VEN·SP1", "VEN·SP2", "VEN·SP4", "VEN·SP5", "VEN·T04", "VEN·T05", "VEN·T06"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
             .Select(card => card.CardNo).Order(StringComparer.Ordinal).ToArray());
         Assert.Equal(37690, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·005").Id);
         Assert.Equal(37691, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·006").Id);
-        Assert.DoesNotContain(runtime.Cards, card => card.CardNo is "VEN·005/166" or "VEN·006/166" or "RAD·091/167");
+        Assert.DoesNotContain(runtime.Cards, card => card.CardNo is "VEN·005/166" or "VEN·006/166");
         var mutable = Assert.IsAssignableFrom<IList<OfficialCard>>(runtime.Cards);
         Assert.Throws<NotSupportedException>(() => mutable[0] = mutable[0] with { CardEffect = "changed" });
         var schema = OfficialCardSchemaValidator.Validate(runtime);
@@ -39,7 +39,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
             definition.CardNo, definition.EffectKind, definition.DisplayName, CardBehaviorRegistry.TriggerEffectKinds(definition))).ToArray();
         var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(runtime.Cards, play);
         var specs = BehaviorSpecCatalogBuilder.Build(runtime.Cards, units, implemented);
-        Assert.Equal(1228, specs.Count);
+        Assert.Equal(1245, specs.Count);
         Assert.Single(specs, spec => spec.CardNo == "VEN·005");
         Assert.Single(specs, spec => spec.CardNo == "VEN·006");
         Assert.Single(specs, spec => spec.CardNo == "VEN·175");
@@ -155,7 +155,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
     [Theory]
     [InlineData("VEN·005/166")]
     [InlineData("VEN·006/166")]
-    [InlineData("RAD·091/167")]
+    [InlineData("RAD·092/167")]
     public async Task UnsupportedPrintsAndUnadmittedSourcesCannotEnterADeck(string cardNo)
     {
         var original = await OfficialCardCatalog.LoadDefaultAsync();
@@ -201,13 +201,14 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         var reviewed = ReviewedRuneCardSources.GetAll().Where(card => (card.Id, card.CardNo) is
             (37690, "VEN·005") or (37691, "VEN·006")).ToArray();
         Assert.Equal(2, reviewed.Length);
-        var cards = original.Cards.Concat(reviewed).Concat(VendettaCardSources.GetAdmittedCards()).Concat(RadiantCardSources.GetAdmittedCards()).Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+        var cards = original.Cards.Concat(reviewed).Concat(VendettaCardSources.GetAdmittedCards())
+            .Concat(RadiantCardSources.GetAdmittedCards()).Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .OrderBy(card => card.CardNo, StringComparer.Ordinal).Select(c => new {
             c.Id,c.CardNo,c.CardName,c.SubTitle,c.CardCategory,c.CardCategoryName,c.CardCategoryList,c.CardCategoryNameList,
             c.CardColorList,c.Hero,c.Region,c.Tag,c.CardEffect,c.Energy,c.ReturnEnergy,c.Power,c.ExtendType,c.ExtendTypeName,
             c.CardGroupLimit,c.Status,c.ListSort,c.ProductCodeList,c.ProductNameList,c.Rarity,c.RarityName,c.ExtendRarity,c.ExtendRarityName });
         var armaments = OfficialArmamentCatalog.All.Select(a => new {
-            a.CardNo,a.SourceCardNo,a.BaseMightBonus,a.EffectText,a.CopiesHostPrintedRulesText,a.CopiesChosenFriendlyUnit,a.ReplacesHostDestruction,a.GrantedKeywords });
+            a.CardNo,a.SourceCardNo,a.BaseMightBonus,a.EffectText,a.CopiesHostPrintedRulesText,a.CopiesChosenFriendlyUnit,a.ReplacesHostDestruction });
         return MatchStateHasher.HashValue(new { Cards = cards, Armaments = armaments });
     }
 

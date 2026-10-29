@@ -77,6 +77,8 @@ public sealed partial class CoreRuleEngine
                 stackItem.SourceObjectId,
                 behavior.CardNo,
                 playerExperience,
+                TryParseBattlefieldDestination(stackItem.Destination, out var entryBattlefieldId) ? entryBattlefieldId : null,
+                countsAsPlay,
                 out var entryStaticAbilitySourceObjectId,
                 out var entryStaticAbilitySourceState,
                 out var entryStaticAbility);

@@ -4,10 +4,14 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    private static TriggerSpec? CombatMightSpec(string? cardNo) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo)
-        .FirstOrDefault(t => t.Kind == TriggerKinds.UnitAttackOrDefendPowerModifier
-            && t.Timing == TriggerTimings.UnitAttackOrDefend && t.TargetScope == TriggerTargetScopes.EnemyUnitHere
-            && t.Duration == "UNTIL_END_OF_TURN" && t.PowerDelta is < 0 && t.MinimumPowerAfterModifier is > 0);
+    internal const string CombatMightDamageKind = "COMBAT_SOURCE_MIGHT_DAMAGE";
+    private static readonly string[] CombatMightKinds = ["COMBAT_MIGHT", CombatMightDamageKind];
+    private static TriggerSpec? CombatMightSpec(string? cardNo, string kind = "COMBAT_MIGHT")
+        => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo).FirstOrDefault(t =>
+            t.Timing == TriggerTimings.UnitAttackOrDefend && t.TargetScope == TriggerTargetScopes.EnemyUnitHere
+            && (kind == CombatMightDamageKind ? t.Kind == TriggerKinds.UnitAttackOrDefendSourceMightDamage
+                : t.Kind == TriggerKinds.UnitAttackOrDefendPowerModifier && t.Duration == "UNTIL_END_OF_TURN"
+                    && t.PowerDelta is < 0 && t.MinimumPowerAfterModifier is > 0));
 
     private static TriggerQueueItemState[] CaptureCombatMightTriggers(MatchState state, IEnumerable<string> participants,
         string battlefield, string timing, string? returnFocusPlayer = null)
@@ -16,13 +20,16 @@ public sealed partial class CoreRuleEngine
         foreach (var id in participants.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)) {
             if (!state.CardObjects.TryGetValue(id, out var source) || !IsFaceUpNonStandbyUnit(source)) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, source)) {
-                if (CombatMightSpec(instance.CardNo) is null) continue;
-                var context = new FieldTriggerContext(instance.CardNo, "COMBAT_MIGHT", source.ObjectGeneration,
+              foreach (var kind in CombatMightKinds) {
+                if (CombatMightSpec(instance.CardNo, kind) is null) continue;
+                var context = new FieldTriggerContext(instance.CardNo, kind, source.ObjectGeneration,
                     battlefield, returnFocusPlayer) {
                     SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin,
                     SourceTokenFactoryCardNo = IsTokenObject(source) ? source.TokenFactoryCardNo ?? source.CardNo : null };
-                queue.Add(new($"combat-might-{state.Tick + 1}-{id}-{instance.Id}", source.ControllerId!, id,
+                var prefix = kind == CombatMightDamageKind ? "combat-might-damage" : "combat-might";
+                queue.Add(new($"{prefix}-{state.Tick + 1}-{id}-{instance.Id}", source.ControllerId!, id,
                     FieldTriggerEffect, "BATTLE_ROLES_ESTABLISHED", timing) { FieldContext = context });
+              }
             }
         }
         return queue.ToArray();
@@ -48,15 +55,15 @@ public sealed partial class CoreRuleEngine
         if (!result.Accepted) return result;
         FieldTriggerContext? Update(string sourceId, FieldTriggerContext? context)
         {
-            if (context is not { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind }) return context;
+            if (context is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind }) return context;
             var location = CombatMightSourceLocation(result.State, sourceId, context.SourceGeneration)
                 ?? CombatMightSourceLocation(before, sourceId, context.SourceGeneration);
             return location is null || location == context.SourceLocation ? context : context with { SourceLocation = location };
         }
         var state = result.State with {
-            StackItems = result.State.StackItems.Select(i => i.FieldContext is not { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind } ? i
+            StackItems = result.State.StackItems.Select(i => i.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind } ? i
                 : i with { FieldContext = Update(i.SourceObjectId, i.FieldContext) }).ToArray(),
-            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is not { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind } ? t
+            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is not { Kind: "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind } ? t
                 : t with { FieldContext = Update(t.SourceObjectId, t.FieldContext) }).ToArray() };
         return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
@@ -76,7 +83,7 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == "RECYCLE_BOON") return ValidRecycledBoonSource(state, context, sourceId, controller);
         if (context.Kind == "ENEMY_ATTACK_MIGHT")
             return ValidEnemyAttackMightState(state, context, sourceId, controller);
-        if (context.Kind is not ("COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind)) return true;
+        if (context.Kind is not ("COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind)) return true;
         if (string.IsNullOrWhiteSpace(sourceId) || !state.Seats.ContainsKey(controller)
             || !ValidCapturedFieldSource(state, context, sourceId)
             || context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)
