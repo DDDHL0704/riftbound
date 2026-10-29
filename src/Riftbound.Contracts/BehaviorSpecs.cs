@@ -441,6 +441,7 @@ public static class StaticAbilityKinds
 
 public static class ReplacementKinds
 {
+    public const string SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn = "SOURCE_UNIT_DESTROYED_DESTROY_FRIENDLY_RECALL_EXHAUSTED_ONCE_PER_TURN";
     public const string AttachedUnitDestroyedDestroySourceRecallExhausted =
         "ATTACHED_UNIT_DESTROYED_DESTROY_SOURCE_RECALL_EXHAUSTED";
     public const string OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted =

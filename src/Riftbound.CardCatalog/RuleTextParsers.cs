@@ -2619,6 +2619,11 @@ public static class ReplacementParser
 
     private static string DetermineKind(string segment)
     {
+        if (Regex.IsMatch(segment,
+            @"^每回合限一次[，,]\s*如果我将被摧毁[，,]\s*则你可以选择改为摧毁一名友方单位[，,]\s*以此移除我所受伤害[、,，]\s*让我变为休眠状态[、,，]\s*并将我召回$",
+            RegexOptions.CultureInvariant))
+            return ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn;
+
         if (segment.Contains("你在此处控制的另一名单位被摧毁", StringComparison.Ordinal)
             && segment.Contains("战力低于我", StringComparison.Ordinal)
             && segment.Contains("改为移除其所受伤害", StringComparison.Ordinal)
@@ -2648,6 +2653,9 @@ public static class ReplacementParser
 
     private static string DetermineAppliesTo(string segment)
     {
+        if (DetermineKind(segment) == ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn)
+            return "source-unit-destroyed";
+
         if (DetermineKind(segment) == ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
             || segment.Contains("友方单位被摧毁", StringComparison.Ordinal))
         {
