@@ -5221,7 +5221,7 @@ public sealed record ResolutionResult(
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
+                    ? DamageImmunityRules.CannotTakeDamage(state, cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -5294,7 +5294,7 @@ public sealed record ResolutionResult(
                 Index = index,
                 Priority = CoreRuleEngine.CombatDamageTargetPriorityFor(state, objectId)
             })
-            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
+            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && DamageImmunityRules.CannotTakeDamage(state, card) ? 0 : 1)
             .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => item.ObjectId)
@@ -6846,10 +6846,10 @@ public sealed record ResolutionResult(
         if (cardObject.DamageMarkedByPlayerIds is { Count: > 0 } damageMarkers)
             view["damageMarkedByPlayerIds"] = damageMarkers.ToArray();
         if (cardObject.MovementCountThisTurn > 0)
-        {
             view["movementCountThisTurn"] = cardObject.MovementCountThisTurn;
-            view["cannotTakeDamage"] = UnitMovementRules.CannotTakeDamage(cardObject);
-        }
+        var cannotTakeDamage = DamageImmunityRules.CannotTakeDamage(state, cardObject);
+        if (cardObject.MovementCountThisTurn > 0 || cannotTakeDamage)
+            view["cannotTakeDamage"] = cannotTakeDamage;
         if (cardObject.IsFaceDown && CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
         {
             view["canInspectFaceDown"] = true;
@@ -15637,7 +15637,7 @@ internal static class ActionPromptBuilder
             ["existingDamage"] = existingDamage,
             ["lethalDamageThreshold"] = lethalDamageThreshold,
             // Zero means no mandatory assignment for these IDs, never lethal damage.
-            ["damageImmuneTargetIds"] = ResolutionResult.BattleParticipantObjectIds(battle).Where(id => UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray(),
+            ["damageImmuneTargetIds"] = ResolutionResult.BattleParticipantObjectIds(battle).Where(id => DamageImmunityRules.CannotTakeDamage(state, state.CardObjects[id])).ToArray(),
             ["requiredAssignments"] = requiredAssignmentsForPrompt,
             ["allRequiredAssignments"] = requiredAssignments,
             ["submittedAssignments"] = ResolutionResult.BattleDamageAssignmentLedgerFor(state, battle),

@@ -2863,6 +2863,19 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var selfDamageImmunity = Regex.Match(segment,
+                @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:我获得\{\{S\}\}\+\d+[，,]且)?(?<outside>除非我处于战斗中，否则)?我无法受到伤害。?$",
+                RegexOptions.CultureInvariant);
+            if (selfDamageImmunity.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitDamageImmunity,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Damage immunity follows current empowerment and combat presence.",
+                    RequiresSourceOutsideBattle: selfDamageImmunity.Groups["outside"].Success ? true : null,
+                    RequiresSourceEmpowered: selfDamageImmunity.Groups["empowered"].Success ? true : null));
+                continue;
+            }
+
             var sourceUnitEnemySpellSkillTargetProtectionMatch = Regex.Match(
                 segment,
                 @"^(?:\{\{等级(?<level>\d+)>\}\}\s*)?(?:我无法被敌方法术和技能选作目标|敌方法术和技能无法将我选作目标)。?$",

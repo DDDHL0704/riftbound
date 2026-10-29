@@ -2302,7 +2302,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var source = side.FirstOrDefault(requiredSources.Contains);
             if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
-            var requiredTargets = targets.Where(id => !UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray();
+            var requiredTargets = targets.Where(id => !DamageImmunityRules.CannotTakeDamage(state, state.CardObjects[id])).ToArray();
             var targetPriority = targets.ToDictionary(id => id,
                 id => state.CardObjects.TryGetValue(id, out var card)
                     ? BattleDamageAssignmentPriority(state, state.PlayerZones, id, card) : 1,
@@ -2439,6 +2439,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         foreach (var assignment in assignments)
         {
             var damageApplication = ApplyDamageToCardObject(
+                state,
                 cardObjects,
                 EffectiveFieldControllerId(state.PlayerZones, assignment.SourceObjectId, state.CardObjects[assignment.SourceObjectId])!,
                 assignment.TargetObjectId,
@@ -2541,7 +2542,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, cardObject)
                     : 1
             })
-            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
+            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && DamageImmunityRules.CannotTakeDamage(state, card) ? 0 : 1)
             .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => item.ObjectId)
@@ -12144,12 +12145,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         combatEvents.AddRange(battlefieldRevealSpellTrigger.Events);
         var hasMultipleAttackers = attackerObjectIds.Count > 1;
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
-        var defenderAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, defenderObjectIds, defenderStates);
+        var combatState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
+        var defenderAssignments = BuildBattleDamageAssignmentOrder(combatState, playerZones, defenderObjectIds, defenderStates);
         var defendingUnitCount = defenderAssignments.Count;
         var readyEnemyUnitCount = defenderStates.Values.Count(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
         combatEvents.AddRange(ResolveSourceAttackDamageToFirstDefenderTriggers(
-            playerZones,
+            combatState, playerZones,
             cardObjects,
             intent.PlayerId,
             battlefieldId,
@@ -12206,9 +12208,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (!UnitMovementRules.CannotTakeDamage(defenderState))
+                    if (!DamageImmunityRules.CannotTakeDamage(combatState, defenderState))
                         assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
                     var attackerDamageApplication = ApplyDamageToCardObject(
+                        state,
                         cardObjects,
                         intent.PlayerId,
                         assignment.ObjectId,
@@ -12234,7 +12237,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             }
 
-            var attackerAssignments = BuildBattleDamageAssignmentOrder(state, playerZones, attackerObjectIds, attackerStates);
+            var attackerAssignments = BuildBattleDamageAssignmentOrder(combatState, playerZones, attackerObjectIds, attackerStates);
             foreach (var assignment in defenderAssignments)
             {
                 var defenderState = defenderStates[assignment.ObjectId];
@@ -12289,6 +12292,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     var defenderDamageApplication = ApplyDamageToCardObject(
+                        state,
                         cardObjects,
                         defendingPlayerId!,
                         attackerAssignment.ObjectId,
@@ -12320,7 +12324,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ApplySubmittedCombatDamage(submittedDamage, cardObjects, damageTriggeredDestroyTargetObjectIds, combatEvents);
             assignedOverkillDamageToEnemyUnits = submittedDamage.Assignments
                 .Where(assignment => attackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
-                    && !UnitMovementRules.CannotTakeDamage(cardObjects[assignment.TargetObjectId]))
+                    && !DamageImmunityRules.CannotTakeDamage(combatState, cardObjects[assignment.TargetObjectId]))
                 .GroupBy(assignment => assignment.TargetObjectId)
                 .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage) - submittedDamage.LethalThreshold.GetValueOrDefault(group.Key)));
         }
@@ -13109,6 +13113,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<GameEvent> ResolveSourceAttackDamageToFirstDefenderTriggers(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -13164,6 +13169,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["damageAmount"] = damageAmount
                 }));
             var damageApplication = ApplyDamageToCardObject(
+                state,
                 cardObjects,
                 playerId,
                 targetObjectId,
@@ -17712,7 +17718,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 Role = BattleDamageAssignmentRole(state, playerZones, objectId, defenderStates[objectId]),
                 Priority = BattleDamageAssignmentPriority(state, playerZones, objectId, defenderStates[objectId])
             })
-            .OrderBy(item => UnitMovementRules.CannotTakeDamage(defenderStates[item.ObjectId]) ? 0 : 1)
+            .OrderBy(item => DamageImmunityRules.CannotTakeDamage(state, defenderStates[item.ObjectId]) ? 0 : 1)
             .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => new BattleDamageAssignmentTarget(item.ObjectId, item.Role))
@@ -17758,7 +17764,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState cardObject)
     {
-        if (UnitMovementRules.CannotTakeDamage(cardObject)) return 1;
+        if (DamageImmunityRules.CannotTakeDamage(state, cardObject)) return 1;
         if ((HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark) || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.Bulwark))
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
@@ -24244,6 +24250,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState[]? updatedStackItems = null;
         PendingPaymentState? pendingPayment = null;
         IReadOnlyDictionary<string, ObjectLocationState>? resolvedObjectLocations = null;
+        MatchState DamageFrame() => state with { PlayerZones = playerZones,
+            ObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones) };
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -25401,6 +25409,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         && cardObjects.ContainsKey(secondTargetObjectId))
                     {
                         var damageApplication = ApplyDamageToCardObject(
+                            DamageFrame(),
                             cardObjects,
                             EffectiveFieldControllerId(playerZones, firstTargetObjectId, cardObjects[firstTargetObjectId])!,
                             secondTargetObjectId,
@@ -25422,6 +25431,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         && cardObjects.ContainsKey(firstTargetObjectId))
                     {
                         var damageApplication = ApplyDamageToCardObject(
+                            DamageFrame(),
                             cardObjects,
                             EffectiveFieldControllerId(playerZones, secondTargetObjectId, cardObjects[secondTargetObjectId])!,
                             firstTargetObjectId,
@@ -25459,6 +25469,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.ContainsKey(targetObjectId))
                 {
                     var damageApplication = ApplyDamageToCardObject(
+                        DamageFrame(),
                         cardObjects,
                         EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, cardObjects[stackItem.SourceObjectId])!,
                         targetObjectId,
@@ -25480,6 +25491,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.ContainsKey(stackItem.SourceObjectId))
                 {
                     var damageApplication = ApplyDamageToCardObject(
+                        DamageFrame(),
                         cardObjects,
                         EffectiveFieldControllerId(playerZones, targetObjectId, cardObjects[targetObjectId])!,
                         stackItem.SourceObjectId,
@@ -25514,6 +25526,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.ContainsKey(damagedTargetObjectId))
                 {
                     var damageApplication = ApplyDamageToCardObject(
+                        DamageFrame(),
                         cardObjects,
                         stackItem.ControllerId,
                         damagedTargetObjectId,
@@ -25560,6 +25573,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.ContainsKey(damagedTargetObjectId))
                 {
                     var damageApplication = ApplyDamageToCardObject(
+                        DamageFrame(),
                         cardObjects,
                         stackItem.ControllerId,
                         damagedTargetObjectId,
@@ -25852,6 +25866,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     if (damageAmount > 0)
                     {
                         var damageApplication = ApplyDamageToCardObject(
+                            DamageFrame(),
                             cardObjects,
                             stackItem.ControllerId,
                             targetObjectId,
@@ -27158,6 +27173,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 battlefieldObjectId))
             {
                 var damageApplication = ApplyDamageToCardObject(
+                    state,
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,
@@ -27787,6 +27803,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PreventSpellAndSkillDamageThisTurnEffectId,
                 StringComparer.Ordinal);
             var damageApplication = ApplyDamageToCardObject(
+                state,
                 cardObjects,
                 stackItem.ControllerId,
                 targetObjectId,
@@ -28508,7 +28525,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects };
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
         foreach (var targetObjectId in GetBattlefieldUnitObjectIds(playerZones, cardObjects))
         {
             // Controller-wide bonuses are already included once by the caller.
@@ -28517,6 +28535,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
                 : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
+                current,
                 cardObjects,
                 stackItem.ControllerId,
                 targetObjectId,
@@ -28607,7 +28626,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects };
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
         foreach (var targetObjectId in GetEnemyCombatObjectIds(playerZones, cardObjects, stackItem.ControllerId))
         {
             // Controller-wide bonuses are already included once by the caller.
@@ -28616,6 +28636,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
                 : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
+                current,
                 cardObjects,
                 stackItem.ControllerId,
                 targetObjectId,
@@ -28631,6 +28652,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static DamageApplicationResult ApplyDamageToCardObject(
+        MatchState state,
         Dictionary<string, CardObjectState> cardObjects,
         string damageControllerId,
         string targetObjectId,
@@ -28647,8 +28669,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
             ? existingTarget
             : new CardObjectState(targetObjectId);
-        if (UnitMovementRules.CannotTakeDamage(targetState))
-            return new DamageApplicationResult(0, damageAmount, true, "MOVEMENT_DAMAGE_IMMUNITY");
+        var current = state with { CardObjects = cardObjects };
+        if (DamageImmunityRules.Effect(current, targetState) is { } immunity)
+            return immunity == "MOVEMENT_DAMAGE_IMMUNITY"
+                ? new DamageApplicationResult(0, damageAmount, true, immunity)
+                : new DamageApplicationResult(0, damageAmount, true, immunity)
+                { Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
+                    TargetTokenFactoryCardNo = targetState.TokenFactoryCardNo };
         var preventsWithTargetEffect = !preventDamage
             && targetState.UntilEndOfTurnEffects.Contains(
                 PreventNextDamageThisTurnEffectId,
@@ -31059,6 +31086,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
 
                 var damageApplication = ApplyDamageToCardObject(
+                    state,
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,

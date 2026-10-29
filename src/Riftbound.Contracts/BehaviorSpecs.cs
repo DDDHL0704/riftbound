@@ -391,6 +391,7 @@ public static class StaticAbilityKinds
         "SAME_BATTLEFIELD_EPHEMERAL_TURN_START_SUPPRESSION";
     public const string SourceUnitEnemySpellSkillTargetProtection =
         "SOURCE_UNIT_ENEMY_SPELL_SKILL_TARGET_PROTECTION";
+    public const string SourceUnitDamageImmunity = "SOURCE_UNIT_DAMAGE_IMMUNITY";
 }
 
 public static class ReplacementKinds
@@ -693,7 +694,10 @@ public sealed record StaticAbilitySpec(
     bool? RequiresBattlefieldDestination = null,
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
-    bool? RequiresSameNameCardInControllerGraveyard = null);
+    bool? RequiresSameNameCardInControllerGraveyard = null,
+    bool? RequiresSourceOutsideBattle = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresSourceEmpowered = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
