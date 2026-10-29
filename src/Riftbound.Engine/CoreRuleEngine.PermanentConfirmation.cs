@@ -25,6 +25,9 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, List<GameEvent> events)
     {
         var ability = item with { SourceConfirmed = true };
+        if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var paid)
+            && paid.PlayTriggerBanishesGraveyardCardAsCost)
+            ability = ability with { PermanentPlaySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };
         if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var copyBehavior)
             && copyBehavior.CreatedBaseUnitTokensCopySource)
             ability = ability with { SelfCopySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };

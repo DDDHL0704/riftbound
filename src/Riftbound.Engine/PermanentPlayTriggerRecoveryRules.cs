@@ -28,12 +28,14 @@ internal static class PermanentPlayTriggerRecoveryRules
             && item.Destination.Length > "BATTLEFIELD:".Length;
         var here = item.SourceConfirmed && battlefield && HereDamageSources.Value.Contains(item.CardNo)
             && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var hereBehavior) && item.EffectKind == hereBehavior.EffectKind;
+        var graveyardCost = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var paid)
+            && paid.PlayTriggerBanishesGraveyardCardAsCost && item.EffectKind == paid.EffectKind;
         if (item.PermanentPlaySource is { } binding
-            ? !here || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
+            ? !(here || graveyardCost) || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
                 || !state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration < binding.Generation
                 || item.PlayedFromStandby is { } standby && binding.Generation != standby.SourceGeneration + 1
                 || !state.CardPlays.Resolved.Any(play => play.Source == binding && play.CardNo == item.CardNo)
-            : here) return false;
+            : here || graveyardCost) return false;
 
         if (!item.SourceConfirmed || !BattlefieldOnlySources.Value.Contains(item.CardNo)
             || !CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior)

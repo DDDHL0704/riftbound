@@ -299,7 +299,8 @@ public sealed record CardBehaviorDefinition(
     int CostReductionBattlefieldUnitCount = 0,
     int StaticFlowSpellCostReductionMana = 0,
     int StaticFlowSpellCostReductionMinimumManaCost = 0,
-    OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null)
+    OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
+    bool PlayTriggerBanishesGraveyardCardAsCost = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -467,6 +468,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·101", "劲风修士", 2, "ZEPHYR_MONK_PAID_PLAY_ASSAULT", 0, 1,
+            StatusEffectId: "COMBAT_KEYWORD:强攻2", TargetScope: CardTargetScopes.AnyUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人",
+            TargetEffectAdditionalManaCost: 1, PlayTriggerBanishesGraveyardCardAsCost: true),
         new("VEN·120", "雷霆之怒 玛萨", 4, "THUNDERFIST_PAID_PLAY_STUN", 0, 1,
             StatusEffectId: "STUNNED", TargetScope: CardTargetScopes.EnemyBattlefieldUnit, MinTargetCount: 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
