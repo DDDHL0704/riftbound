@@ -120,12 +120,13 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectLong(e.Event.Payload, "totalPowerCost", out var power) && power == receipt.Power
                 && TryReadObjectLong(e.Event.Payload, "experienceCost", out var experience) && experience == 0)
                 .Take(2).ToArray();
+            // Typed callers retain their original arguments; the payment executor trims text.
             if (payments.Length != 1 || !commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
                 && command.CommandType == CommandTypes.PayCost && command.CompletedTick == payments[0].Tick
                 && command.StartedEventSequence < payments[0].Sequence && command.CompletedEventSequence >= payments[0].Sequence
                 && (command.RawCommand ?? command.TypedCommand?.Value) is { } input
-                && TryReadObjectString(input, "paymentId", out var id) && id == paymentId
-                && TryReadObjectString(input, "paymentWindow", out var window) && window == "TRIGGER_PAYMENT"
+                && TryReadObjectString(input, "paymentId", out var id) && id?.Trim() == paymentId
+                && TryReadObjectString(input, "paymentWindow", out var window) && window?.Trim() == "TRIGGER_PAYMENT"
                 && ValidUnitConquestPaymentResourceHistory(command, input, payments[0], receipt.Mana, events)))
                 errors.Add("captured unit conquest return receipt is not bound to accepted payment history");
         }
@@ -134,10 +135,12 @@ public static partial class MatchRecoveryValidator
     private static bool ValidUnitConquestPaymentResourceHistory(RecoveredCommand command, object input,
         RecoveredEvent payment, int manaCost, IReadOnlyList<RecoveredEvent> events)
     {
-        if (!TryReadObjectStringList(input, "paymentChoiceIds", out var choices)
-            || !TryReadObjectStringList(payment.Event.Payload, "paymentChoiceIds", out var paidChoices)
-            || !choices.SequenceEqual(paidChoices)
-            || choices.Distinct(StringComparer.Ordinal).Count() != choices.Count) return false;
+        if (!TryReadObjectStringList(input, "paymentChoiceIds", out var submittedChoices)
+            || submittedChoices.Any(string.IsNullOrWhiteSpace)
+            || !TryReadObjectStringList(payment.Event.Payload, "paymentChoiceIds", out var paidChoices)) return false;
+        var choices = submittedChoices.Select(choice => choice.Trim()).ToArray();
+        if (!choices.SequenceEqual(paidChoices)
+            || choices.Distinct(StringComparer.Ordinal).Count() != choices.Length) return false;
         var taps = new List<string>();
         var spendCount = 0;
         foreach (var choice in choices)

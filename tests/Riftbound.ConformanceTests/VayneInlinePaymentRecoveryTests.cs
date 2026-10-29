@@ -8,6 +8,36 @@ namespace Riftbound.ConformanceTests;
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
     [Theory]
+    [InlineData("PAY")]
+    [InlineData("SPEND_MANA:1")]
+    public async Task VayneTypedPaddedInlinePaymentSurvivesColdRecoveryAndReplay(string spend)
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 0, includeRune: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var session = MatchSession.Restore(VayneRecoveryFrame(initial, game, game.State),
+            new CoreRuleEngine(), game);
+        var choices = new[] { "TAP_RUNE:VAYNE-RUNE", spend };
+        var command = new PayCostCommand(" \t" + payment.PaymentId + " ",
+            " " + payment.PaymentWindow + "\n", choices.Select(choice => " \t" + choice + " \n").ToArray());
+        var paid = await session.SubmitAsync("P1", "padded-vayne-inline-payment", command, null, default);
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(game.Commands().Last().RawCommand);
+        Assert.NotNull(game.Commands().Last().TypedCommand);
+        Assert.True(paid.State.CardObjects["VAYNE-RUNE"].IsExhausted);
+        Assert.Equal(0, paid.State.RunePools["P1"].Mana);
+        Assert.Equal(choices, Assert.Single(paid.Events, e => e.Kind == "COST_PAID").Payload["paymentChoiceIds"]);
+        var frame = VayneRecoveryFrame(initial, game, paid.State);
+        Assert.Empty(frame.ValidationErrors);
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, options), options)!;
+        var restored = MatchSession.Restore(decoded, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        Assert.Equal(MatchStateHasher.HashValue(paid.Snapshots["P1"]), MatchStateHasher.HashValue(restored.SnapshotFor("P1")));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), paid.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
+    [Theory]
     [InlineData(0, "PAY")]
     [InlineData(0, "SPEND_MANA:1")]
     [InlineData(1, "SPEND_MANA:1")]
@@ -69,6 +99,21 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
             Events = frame.Events.Select(e => e.Event.Kind == "COST_PAID"
                 ? e with { Event = e.Event with { Payload = new Dictionary<string, object?>(e.Event.Payload) {
                     ["paymentChoiceIds"] = choices } } } : e).ToArray() };
+        AssertVaynePaymentHistoryRejected(forged);
+    }
+
+    [Fact]
+    public async Task VayneInlinePaymentRecoveryRejectsNoncanonicalReceiptChoices()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 0, includeRune: true);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var choices = new[] { "TAP_RUNE:VAYNE-RUNE", "SPEND_MANA:1" };
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, choices));
+        var frame = VayneRecoveryFrame(initial, game, game.State);
+        var forged = frame with { Events = frame.Events.Select(e => e.Event.Kind == "COST_PAID"
+            && Equals(e.Event.Payload.GetValueOrDefault("paymentId"), payment.PaymentId)
+            ? e with { Event = e.Event with { Payload = new Dictionary<string, object?>(e.Event.Payload) {
+                ["paymentChoiceIds"] = choices.Select(choice => " " + choice + " ").ToArray() } } } : e).ToArray() };
         AssertVaynePaymentHistoryRejected(forged);
     }
 

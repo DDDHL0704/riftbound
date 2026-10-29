@@ -7,6 +7,34 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
+    [Theory]
+    [InlineData("PAY")]
+    [InlineData("SPEND_MANA:1")]
+    public async Task VayneTypedPaddedPaymentSurvivesColdRecoveryAndReplay(string spend)
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 1);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        var session = MatchSession.Restore(VayneRecoveryFrame(initial, game, game.State),
+            new CoreRuleEngine(), game);
+        var command = new PayCostCommand(" \t" + payment.PaymentId + " ",
+            " " + payment.PaymentWindow + "\n", [" \t" + spend + " \n"]);
+        var paid = await session.SubmitAsync("P1", "padded-vayne-payment", command, null, default);
+        Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Null(game.Commands().Last().RawCommand);
+        Assert.NotNull(game.Commands().Last().TypedCommand);
+        Assert.Equal(new[] { spend }, Assert.Single(paid.Events, e => e.Kind == "COST_PAID").Payload["paymentChoiceIds"]);
+        Assert.Contains(AttackerObjectId, paid.State.PlayerZones["P1"].Battlefields);
+        var frame = VayneRecoveryFrame(initial, game, paid.State);
+        Assert.Empty(frame.ValidationErrors);
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var decoded = JsonSerializer.Deserialize<MatchRecoveryFrame>(JsonSerializer.Serialize(frame, options), options)!;
+        var restored = MatchSession.Restore(decoded, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        Assert.Equal(MatchStateHasher.HashValue(paid.Snapshots["P1"]), MatchStateHasher.HashValue(restored.SnapshotFor("P1")));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), paid.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     [Fact]
     public async Task VayneForgedPaidReceiptWithoutPaymentHistoryCannotRestore()
     {
