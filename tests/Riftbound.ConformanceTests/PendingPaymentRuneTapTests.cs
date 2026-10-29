@@ -17,6 +17,7 @@ public sealed class PendingPaymentRuneTapTests
     [InlineData("ordinary")]
     [InlineData("mighty")]
     [InlineData("trigger-cost")]
+    [InlineData("target-cost")]
     [InlineData("insight")]
     [InlineData("tempered")]
     public async Task TheSharedPaymentEntryAcquiresManaForEveryPaymentContinuation(string window)
@@ -156,6 +157,10 @@ public sealed class PendingPaymentRuneTapTests
             PendingPayment = new("inline-test", "TEST_PAYMENT", "P1", manaCost: 1, legalPaymentChoiceIds: ["SPEND_MANA:1"]) };
         if (window == "mighty") return (await TriggerPaymentTests.ResolveFioraPowerfulReadyTriggerAsync(
             AddRune(TriggerPaymentTests.BuildFioraPowerfulReadyState(yellowPower: 1)), new CoreRuleEngine())).State;
+        if (window == "target-cost") {
+            var state = AddRune(await SivirPaymentTriggerTests.PendingWardPosition("SFD·203/221"));
+            return state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(0, 1) } };
+        }
         if (window == "trigger-cost") return (await Act(AddRune(OfficialTriggerCostTests.Position("SFD·214/221")), "P1", new PassPriorityCommand())).State;
         if (window == "insight") {
             var state = AddRune(OfficialInsightSourceTests.Diana(), "P2");

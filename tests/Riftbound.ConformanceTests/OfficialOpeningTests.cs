@@ -12565,7 +12565,7 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
-    public Task OppositePlayerFirstTurnReadyWaitPromptAcceptsWithoutMutation()
+    public Task OppositePlayerFirstTurnReadyWaitPromptRejectsWithoutMutation()
     {
         return AssertOppositePlayerFirstTurnReadyWaitPromptAcceptsWithoutMutation(
             "official-opposite-player-first-turn-ready-wait-prompt-room",
@@ -12574,7 +12574,7 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
-    public Task PromptIdOnlyOppositePlayerFirstTurnReadyWaitPromptAcceptsWithoutMutation()
+    public Task PromptIdOnlyOppositePlayerFirstTurnReadyWaitPromptRejectsWithoutMutation()
     {
         return AssertOppositePlayerFirstTurnReadyWaitPromptAcceptsWithoutMutation(
             "official-opposite-player-first-turn-ready-wait-prompt-id-room",
@@ -14511,6 +14511,15 @@ public sealed class OfficialOpeningTests
         Assert.Equal(accepted.Prompts[context.SecondPlayerId].SnapshotTick, replay.Prompts[context.SecondPlayerId].SnapshotTick);
     }
 
+    private static void AssertWaitPromptRejection(ResolutionResult result, JsonElement raw, string ruleCode, string ruleMessage)
+    {
+        // Snapshot-only callers still receive the ordinary rule rejection. A current
+        // prompt ID also binds the command to the actions offered in that prompt.
+        var hasPromptId = raw.TryGetProperty("promptId", out _);
+        Assert.Equal(hasPromptId ? ErrorCodes.PromptExpired : ruleCode, result.ErrorCode);
+        Assert.Equal(hasPromptId ? "当前提示未提供此操作，请按最新提示重新选择。" : ruleMessage, result.ErrorMessage);
+    }
+
     private static async Task AssertOppositePlayerFirstTurnEndTurnWaitPromptRejectsWithoutMutation(
         string sessionName,
         string intentId,
@@ -14531,8 +14540,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("结束回合只能由当前玩家在开放主阶段提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "结束回合只能由当前玩家在开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14848,8 +14857,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("起手调整只能在开局调度阶段提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "起手调整只能在开局调度阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14898,8 +14907,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过只能由当前玩家在可让过窗口中提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "让过只能由当前玩家在可让过窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -14951,8 +14960,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过优先权只能在优先行动窗口中提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "让过优先权只能在优先行动窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15004,8 +15013,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("让过焦点只能在法术对决焦点窗口中提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "让过焦点只能在法术对决焦点窗口中提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15057,8 +15066,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("移动单位只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "移动单位只能在当前玩家的开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15110,8 +15119,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前声明战斗路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.UnsupportedCommand, "当前声明战斗路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15163,8 +15172,10 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("暂不支持该卡牌或模式：missing-card ", rejected.ErrorMessage);
+        var hasPromptId = rawCommandFactory(waitPrompt).TryGetProperty("promptId", out _);
+        Assert.Equal(hasPromptId ? ErrorCodes.PromptExpired : ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
+        Assert.Equal(hasPromptId ? "当前提示未提供此操作，请按最新提示重新选择。"
+            : "暂不支持该卡牌或模式：missing-card ", rejected.ErrorMessage);
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15216,8 +15227,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前启动技能路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.UnsupportedCommand, "当前启动技能路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15269,8 +15280,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "当前玩家没有使用符文资源的行动权或焦点。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15322,8 +15333,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前玩家没有使用符文资源的行动权或焦点。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "当前玩家没有使用符文资源的行动权或焦点。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15375,8 +15386,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("待命埋伏只能在当前玩家的开放主阶段提交。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "待命埋伏只能在当前玩家的开放主阶段提交。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15428,8 +15439,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("暂不支持该牌的待命翻开行为：missing-card", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.UnsupportedCardBehavior, "暂不支持该牌的待命翻开行为：missing-card");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15481,8 +15492,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, rejected.ErrorCode);
-        Assert.Equal("当前传奇行动尚未由服务端开放。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.UnsupportedCardBehavior, "当前传奇行动尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15534,8 +15545,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, rejected.ErrorCode);
-        Assert.Equal("当前装备装配路径尚未由服务端开放。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.UnsupportedCommand, "当前装备装配路径尚未由服务端开放。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15588,8 +15599,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前没有服务端支付窗口可处理 PAY_COST。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "当前没有服务端支付窗口可处理 PAY_COST。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15643,8 +15654,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InvalidPayload, rejected.ErrorCode);
-        Assert.Equal("ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.InvalidPayload, "ASSIGN_COMBAT_DAMAGE 需要 battleId、battlefieldId 与非空 assignments。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15698,8 +15709,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InvalidPayload, rejected.ErrorCode);
-        Assert.Equal("ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.InvalidPayload, "ORDER_TRIGGERS 需要非空且不重复的 orderedTriggerIds。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -15753,8 +15764,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "当前没有服务端手牌选择窗口可处理 CHOOSE_HAND_CARDS。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);
@@ -16080,9 +16091,16 @@ public sealed class OfficialOpeningTests
             rawCommandFactory(waitPrompt),
             CancellationToken.None);
 
-        Assert.True(accepted.Accepted, accepted.ErrorMessage);
-        Assert.Null(accepted.ErrorCode);
-        Assert.Null(accepted.ErrorMessage);
+        var hasPromptId = rawCommandFactory(waitPrompt).TryGetProperty("promptId", out _);
+        Assert.Equal(!hasPromptId, accepted.Accepted);
+        if (hasPromptId)
+            AssertWaitPromptRejection(accepted, rawCommandFactory(waitPrompt), ErrorCodes.PromptExpired,
+                "当前提示未提供此操作，请按最新提示重新选择。");
+        else
+        {
+            Assert.Null(accepted.ErrorCode);
+            Assert.Null(accepted.ErrorMessage);
+        }
         Assert.Empty(accepted.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(accepted.State));
         Assert.Equal(context.Accepted.State.Tick, accepted.State.Tick);
@@ -16136,8 +16154,8 @@ public sealed class OfficialOpeningTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.PhaseNotAllowed, rejected.ErrorCode);
-        Assert.Equal("对局开始后不能更改卡组。", rejected.ErrorMessage);
+        AssertWaitPromptRejection(rejected, rawCommandFactory(context, waitPrompt),
+            ErrorCodes.PhaseNotAllowed, "对局开始后不能更改卡组。");
         Assert.Empty(rejected.Events);
         Assert.Equal(context.AcceptedHash, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(context.Accepted.State.Tick, rejected.State.Tick);

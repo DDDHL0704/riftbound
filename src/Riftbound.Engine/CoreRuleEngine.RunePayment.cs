@@ -30,7 +30,8 @@ public sealed partial class CoreRuleEngine
 
         var events = result.Events.Select(e =>
         {
-            if (e.Kind != "COST_PAID") return e;
+            if (e.Kind != "COST_PAID" || !e.Payload.TryGetValue("paymentId", out var paidId)
+                || !Equals(paidId, payment.PaymentId)) return e;
             var payload = new Dictionary<string, object?>(e.Payload, StringComparer.Ordinal)
             {
                 ["paymentChoiceIds"] = choices.ToArray(),
