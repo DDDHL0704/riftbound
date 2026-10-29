@@ -7667,6 +7667,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, events);
 
+        CaptureImmediateTargetSelection(events, playerZones, cardObjects, targetObjectIds,
+            intent.PlayerId, $"legend-action-{state.Tick + 1}");
+
         switch (ability.EffectKind)
         {
             case LegendAbilityEffectKinds.DrawOne:
@@ -7781,6 +7784,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 break;
             case LegendAbilityEffectKinds.ReadyFriendlyUnit:
                 ReadyLegendFriendlyUnit(
+                    playerZones,
                     cardObjects,
                     targetObjectIds[0],
                     intent.PlayerId,
@@ -14852,6 +14856,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ReadyLegendFriendlyUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         string playerId,
@@ -14869,7 +14874,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             IsExhausted = false
         };
-        events.Add(new GameEvent(
+        events.Add(CaptureSelfReady(new GameEvent(
             "UNIT_READIED",
             $"{targetObjectId} 变为活跃状态",
             new Dictionary<string, object?>
@@ -14881,7 +14886,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["isExhausted"] = false,
                 ["abilityId"] = abilityId,
                 ["reason"] = "FRIENDLY_UNIT_TARGETED_READY"
-            }));
+            }), targetState, playerId, playerZones, cardObjects));
     }
 
     private static bool TryGetFirstExhaustedLegend(
@@ -15542,7 +15547,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 IsExhausted = false
             };
-            events.Add(new GameEvent(
+            events.Add(CaptureSelfReady(new GameEvent(
                 "UNIT_READIED",
                 $"{unitObjectId} 因征服效果变为活跃状态",
                 new Dictionary<string, object?>
@@ -15554,7 +15559,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["isExhausted"] = false,
                     ["effectId"] = readyEffectId,
                     ["reason"] = unitConquestReadySelfTrigger.Kind
-                }));
+                }), unitState, playerId, playerZones, cardObjects));
             drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
             return true;
         }
@@ -18960,7 +18965,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind)
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -20079,24 +20084,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return TurnStartReadyResult.Empty;
         }
 
+        var readyEvent = new GameEvent("OBJECTS_READIED", $"{turnPlayerId} 回合开始时重置横置对象",
+            new Dictionary<string, object?> { ["playerId"] = turnPlayerId, ["objectIds"] = readiedObjectIds,
+                ["count"] = readiedObjectIds.Length, ["timing"] = MatchPhases.TurnStart });
         foreach (var objectId in readiedObjectIds)
         {
+            readyEvent = CaptureSelfReady(readyEvent, cardObjects[objectId], turnPlayerId, playerZones, cardObjects);
             cardObjects[objectId] = cardObjects[objectId] with { IsExhausted = false };
         }
-
-        return new TurnStartReadyResult(
-            [
-                new GameEvent(
-                    "OBJECTS_READIED",
-                    $"{turnPlayerId} 回合开始时重置横置对象",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = turnPlayerId,
-                        ["objectIds"] = readiedObjectIds,
-                        ["count"] = readiedObjectIds.Length,
-                        ["timing"] = MatchPhases.TurnStart
-                    })
-            ]);
+        return new TurnStartReadyResult([readyEvent]);
     }
 
     private static bool IsRuneObject(string objectId, CardObjectState cardObject)
@@ -20872,6 +20868,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.UnitEquipmentOrRune => IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
@@ -20951,6 +20948,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             _ => IsBattlefieldObject(state, objectId)
         };
     }
+
+    internal static bool IsFieldUnitEquipmentOrRune(MatchState state, string objectId)
+        => IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
+            && (FieldObjectTypeRules.IsVisibleUnit(card)
+                || card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || card.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal));
 
     private static bool IsControlledFieldObject(MatchState state, string playerId, string objectId)
     {
@@ -22882,7 +22886,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playedSourceObjectId"] = stackItem.SourceObjectId,
                     ["wasExhausted"] = wasExhausted
                 }));
-            events.Add(new GameEvent(
+            events.Add(CaptureSelfReady(new GameEvent(
                 "UNIT_READIED",
                 $"{sourceObjectId} 变为活跃状态",
                 new Dictionary<string, object?>
@@ -22895,7 +22899,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = effectKind,
                     ["playedCardNo"] = stackItem.CardNo,
                     ["playedSourceObjectId"] = stackItem.SourceObjectId
-                }));
+                }), sourceState, playerId, playerZones, cardObjects));
         }
     }
 
@@ -23249,7 +23253,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
         cardObjects[stackItem.SourceObjectId] = nextSourceState;
 
-        events.Add(new GameEvent(
+        events.Add(CaptureSelfReady(new GameEvent(
             "UNIT_READIED",
             $"{behavior.DisplayName}因可选额外费用变为活跃状态",
             new Dictionary<string, object?>
@@ -23260,7 +23264,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["wasExhausted"] = wasExhausted,
                 ["isExhausted"] = false,
                 ["reason"] = "SOURCE_OPTIONAL_POWER_READY"
-            }));
+            }), sourceState, stackItem.ControllerId, cards: cardObjects));
         events.Add(new GameEvent(
             "POWER_MODIFIED_UNTIL_END_OF_TURN",
             $"{behavior.DisplayName}因可选额外费用临时修正战力",
@@ -23593,6 +23597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
@@ -24933,7 +24938,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         behavior,
                         stackItem,
                         targetObjectId,
-                        out var readyEvent);
+                        out var readyEvent, playerZones, cardObjects);
                     cardObjects[targetObjectId] = targetState;
                     if (readyEvent is not null)
                     {
@@ -25281,7 +25286,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     readyTargetObjectId,
-                    out var readyEvent);
+                    out var readyEvent, playerZones, cardObjects);
                 cardObjects[readyTargetObjectId] = readiedTargetState;
                 if (readyEvent is not null)
                 {
@@ -25745,7 +25750,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             behavior,
                             stackItem,
                             targetObjectId,
-                            out var readyEvent);
+                            out var readyEvent, playerZones, cardObjects);
                         if (readyEvent is not null)
                         {
                             events.Add(readyEvent);
@@ -26178,7 +26183,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 foreach (var id in movedTargets)
                 {
                     if (!cardObjects.TryGetValue(id, out var unit)) continue;
-                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent);
+                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent, playerZones, cardObjects);
                     if (readyEvent is not null) events.Add(readyEvent);
                 }
             if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
@@ -27308,7 +27313,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
-            events.Add(new GameEvent(
+            events.Add(CaptureSelfReady(new GameEvent(
                 "UNIT_READIED",
                 "猩红玫瑰让单位变为活跃状态",
                 new Dictionary<string, object?>
@@ -27320,7 +27325,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["isExhausted"] = false,
                     ["abilityId"] = P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityId,
                     ["stackItemId"] = stackItem.StackItemId
-                }));
+                }), targetState, stackItem.ControllerId, playerZones, cardObjects));
         }
 
         return new StackResolutionResult(
@@ -30307,7 +30312,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["trigger"] = boonGrantedTrigger.Kind,
                     ["effectKind"] = boonGrantedTrigger.Kind
                 }));
-            nextBoonEvents.Add(new GameEvent(
+            nextBoonEvents.Add(CaptureSelfReady(new GameEvent(
                 "UNIT_READIED",
                 $"{targetObjectId} 变为活跃状态",
                 new Dictionary<string, object?>
@@ -30319,7 +30324,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["wasExhausted"] = wasExhausted,
                     ["isExhausted"] = false,
                     ["reason"] = boonGrantedTrigger.Kind
-                }));
+                }), targetState, stackItem.ControllerId));
         }
 
         boonEvents = nextBoonEvents;
@@ -30380,7 +30385,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         string targetObjectId,
-        out GameEvent? readyEvent)
+        out GameEvent? readyEvent,
+        IReadOnlyDictionary<string, PlayerZones>? zones = null,
+        IReadOnlyDictionary<string, CardObjectState>? cards = null)
     {
         if (CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
@@ -30393,9 +30400,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             IsExhausted = false
         };
+        var (eventKind, objectType) = targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            ? ("RUNE_READIED", "符文")
+            : targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                ? ("EQUIPMENT_READIED", "装备") : ("UNIT_READIED", "单位");
         readyEvent = new GameEvent(
-            "UNIT_READIED",
-            $"{behavior.DisplayName}让单位变为活跃状态",
+            eventKind,
+            $"{behavior.DisplayName}让{objectType}变为活跃状态",
             new Dictionary<string, object?>
             {
                 ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -30404,6 +30417,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["isExhausted"] = nextTargetState.IsExhausted
             });
 
+        readyEvent = CaptureSelfReady(readyEvent, targetState, stackItem.ControllerId, zones, cards);
         return nextTargetState;
     }
 

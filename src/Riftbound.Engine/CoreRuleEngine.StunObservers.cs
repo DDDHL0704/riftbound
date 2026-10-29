@@ -154,7 +154,7 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones, source.ObjectId) && StunReadyBehavior(context.CardNo) is { } behavior) {
             var effect = behavior with { ManaCost = 0, EffectKind = behavior.SourceStunEnemyUnitTriggerEffectKind,
                 PowerModifierAmount = behavior.SourcePowerOnControllerStunsEnemyUnitAmount };
-            source = ApplyReadyState(source, effect, item, source.ObjectId, out var ready);
+            source = ApplyReadyState(source, effect, item, source.ObjectId, out var ready, state.PlayerZones, cards);
             if (ready is not null) events.Add(ready);
             cards[source.ObjectId] = ApplyPowerModifier(state, source, effect, item, source.ObjectId,
                 effect.PowerModifierAmount, out var power);

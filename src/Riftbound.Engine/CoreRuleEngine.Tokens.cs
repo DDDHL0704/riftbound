@@ -35,6 +35,12 @@ public sealed partial class CoreRuleEngine
                 ? context with { SourceCeasedToExist = true, StunObserver = stun with {
                     CeasedSource = new(result.State.Tick, context.Origin?.CardNo
                         ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], stun.SourceFaceRevision, stun.CapturedTick) ?? string.Empty) } }
+                : context is { Kind: SelfActionPowerKind, SelfAction: { } action }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, SelfAction = action with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], action.FaceRevision, action.CapturedTick) ?? string.Empty) } }
                 : context is { Kind: EmpoweredBanishKind, EmpoweredTransition: { } birth }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo

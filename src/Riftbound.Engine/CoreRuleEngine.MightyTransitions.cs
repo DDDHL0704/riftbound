@@ -297,9 +297,9 @@ public sealed partial class CoreRuleEngine
             if (cards.TryGetValue(context.Unit.ObjectId, out var target) && target.ObjectGeneration == context.Unit.Generation
                 && IsVisibleFieldUnitObject(cards, target.ObjectId) && IsObjectOnField(zones, target.ObjectId)) {
                 cards[target.ObjectId] = target with { IsExhausted = false };
-                events.Add(new("UNIT_READIED", "强力技能结算活跃单位", new Dictionary<string, object?> {
+                events.Add(CaptureSelfReady(new("UNIT_READIED", "强力技能结算活跃单位", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                    ["targetObjectId"] = target.ObjectId, ["reason"] = item.EffectKind }));
+                    ["targetObjectId"] = target.ObjectId, ["reason"] = item.EffectKind }), target, item.ControllerId, state.PlayerZones, cards));
             }
         } else {
             var called = CallRunes(zones, cards, item.ControllerId, MightySkillDefinition(context.CardNo)!.RuneCallCount!.Value);

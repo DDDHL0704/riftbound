@@ -315,6 +315,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string UnitEquipmentOrRune = "UNIT_EQUIPMENT_OR_RUNE";
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
@@ -496,6 +497,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人|待命"),
         new("VEN·135a", "凯南 · 御衡之心", 3, "VEN_KENNEN_STUN_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人|待命"),
+        new("VEN·174", "艾瑞莉娅 · 虔心承志", 5, "VEN_IRELIA_SELF_ACTION_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "法盾"),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
@@ -553,6 +556,8 @@ public static class CardBehaviorRegistry
         new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
             ExtraDamagePerSameNameInControllerGraveyard: 1),
+        new("VEN·150", "加速之门", 3, "VEN_ACCELERATION_GATE_READY_OBJECTS", 0, 4,
+            TargetScope: CardTargetScopes.UnitEquipmentOrRune, MinTargetCount: 0, ReadiesTarget: true),
         new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
             StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,

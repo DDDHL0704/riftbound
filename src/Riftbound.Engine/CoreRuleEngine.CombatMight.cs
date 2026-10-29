@@ -65,6 +65,7 @@ public sealed partial class CoreRuleEngine
         string controller, string effect, string? cardNo = null)
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
+        if (context.Kind == SelfActionPowerKind) return ValidSelfActionSource(state, context, sourceId, controller);
         if (BattleLimitedMarkers.Kind(context.Kind)) return ValidBattleLimitedContextState(state, context, sourceId, controller, effect, cardNo);
         if (IsStunObserverKind(context.Kind)) return ValidStunObserverSource(state, context, sourceId, controller);
         if (context.Kind == EmpoweredBanishKind) return ValidEmpoweredBanishSource(state, context, sourceId, controller);
