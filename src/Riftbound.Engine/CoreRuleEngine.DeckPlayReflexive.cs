@@ -84,7 +84,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidDeckPlayReflexive(state, item) || !item.DeckPlayReflexive!.Confirmed)
             throw new InvalidOperationException("Invalid deck-play reflexive ability.");
-        return item.DeckPlayReflexive.Played is { } played ? ApplyEmpowerAction(state, played) : NoopStackResolutionResult(state);
+        return item.DeckPlayReflexive.Played is { } played ? ApplyEmpowerAction(state, played, item.ControllerId) : NoopStackResolutionResult(state);
     }
 
     internal static bool ValidDeckPlayReflexive(MatchState state, StackItemState item)
