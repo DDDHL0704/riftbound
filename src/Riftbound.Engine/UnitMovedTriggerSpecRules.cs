@@ -43,6 +43,8 @@ internal static class UnitMovedTriggerSpecRules
                 && (IsMovementUnitTokenTrigger(trigger)
                     || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
+                    || trigger.Kind == TriggerKinds.UnitFirstMovementMillPlayer && trigger.MillCount > 0 && trigger.OncePerTurn == true
+                    || trigger.Kind == TriggerKinds.UnitMovedAllPlayersDrawOrDiscard && trigger.DrawCount > 0 && trigger.DiscardCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);

@@ -43,6 +43,14 @@ public sealed partial class CoreRuleEngine
             && destroyedCosts.Any(id => state.ObjectLocations.TryGetValue(id, out var location)
                 && location.Zone == "BATTLEFIELD" && "BATTLEFIELD:" + location.BattlefieldObjectId == destination);
 
+    // CN 170.11.c: an open battlefield is both unoccupied and uncontrolled.
+    private static bool OpenBattlefieldPlayAllowed(MatchState state, CardBehaviorDefinition behavior, string destination)
+        => behavior.AllowsPlayToOpenBattlefield && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { ControllerId: null } field
+            && !state.CardObjects.Values.Any(unit => FieldObjectTypeRules.IsVisibleUnit(unit)
+                && state.ObjectLocations.TryGetValue(unit.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
+                && at.BattlefieldObjectId == field.ObjectId && IsObjectOnField(state.PlayerZones, unit.ObjectId));
+
     internal static IReadOnlyList<ActionPromptChoiceDto> UnitPlayDestinationChoices(MatchState state, string player,
         CardBehaviorDefinition behavior)
     {
@@ -56,6 +64,7 @@ public sealed partial class CoreRuleEngine
         foreach (var field in state.CardObjects.Values.Where(c => IsBattlefieldCardObject(c) && IsObjectOnField(state.PlayerZones, c.ObjectId))) {
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if ((IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
+                    || OpenBattlefieldPlayAllowed(state, behavior, destination)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)
                     || behavior.AllowsPlayAtDestroyedAdditionalCostLocation && state.CardObjects.Values.Any(unit =>
