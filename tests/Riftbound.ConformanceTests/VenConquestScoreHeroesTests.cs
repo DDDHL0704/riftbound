@@ -38,7 +38,7 @@ public sealed class VenConquestScoreHeroesTests
         Assert.Equal(32, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
         await Conquer(game); Assert.Equal(1, game.State.PlayerScores["P1"]);
-        Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -76,7 +76,7 @@ public sealed class VenConquestScoreHeroesTests
     {
         var game = new Driver(Position(no)); await Conquer(game);
         Assert.Equal(1, game.State.PlayerScores["P1"]);
-        Assert.DoesNotContain(game.State.StackItems, i => i.ConquestScore is not null); await game.Replay();
+        Assert.DoesNotContain(game.State.StackItems, i => i.ConquestSource is not null); await game.Replay();
     }
 
     [Theory]
@@ -100,7 +100,7 @@ public sealed class VenConquestScoreHeroesTests
     {
         var state = AttackDamageDistributionTests.Spell(Position("VEN·046", empowered: true), "REVERSE", "VEN·035", "P1");
         var game = new Driver(state); await Conquer(game);
-        Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Act("P1", new PlayCardCommand("REVERSE", "VEN·035", ["UNIT"], Mode: "REMOVE_THEN_EMPOWER"));
         await game.Top(); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
@@ -116,7 +116,7 @@ public sealed class VenConquestScoreHeroesTests
         var game = new Driver(state); await game.Act("P1", new PassPriorityCommand());
         Assert.Single(game.State.StackItems, item => item.HeldContext?.Kind == "ACTIVATE_CONQUEST");
         await game.Top();
-        Assert.Equal(empowered, game.State.StackItems.Any(item => item.ConquestScore?.Reason == "BATTLEFIELD_HELD"));
+        Assert.Equal(empowered, game.State.StackItems.Any(item => item.ConquestSource?.Reason == "BATTLEFIELD_HELD"));
         Assert.Equal(1, game.State.PlayerScores["P1"]);
         if (empowered) { await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); }
         await game.Replay();
@@ -136,7 +136,7 @@ public sealed class VenConquestScoreHeroesTests
             PlayerScores = new Dictionary<string, int> { ["P1"] = 7, ["P2"] = 0 } };
         var game = new Driver(state); await Conquer(game);
         Assert.Equal(7, game.State.PlayerScores["P1"]); Assert.Contains("DRAW1", game.State.PlayerZones["P1"].Hand);
-        Assert.Single(game.State.StackItems, item => item.ConquestScore is not null);
+        Assert.Single(game.State.StackItems, item => item.ConquestSource is not null);
         await game.Top(); Assert.Equal(8, game.State.PlayerScores["P1"]);
         Assert.Equal(MatchStatuses.Finished, game.State.Status); Assert.Equal("P1", game.State.WinnerPlayerId);
         await game.Replay();
@@ -161,10 +161,10 @@ public sealed class VenConquestScoreHeroesTests
         await game.Top();
         await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
         await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
-        var earned = game.State.TriggerQueue.Where(t => t.ConquestScore is not null).ToArray();
+        var earned = game.State.TriggerQueue.Where(t => t.ConquestSource is not null).ToArray();
         Assert.Equal(2, earned.Length);
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: earned.Select(t => t.TriggerId).ToArray()));
-        Assert.Equal(2, game.State.StackItems.Count(item => item.ConquestScore is not null));
+        Assert.Equal(2, game.State.StackItems.Count(item => item.ConquestSource is not null));
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]);
         await game.Top(); Assert.Equal(3, game.State.PlayerScores["P1"]); await game.Replay();
     }
@@ -205,7 +205,7 @@ public sealed class VenConquestScoreHeroesTests
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal("远谋卓识", card.SubTitle);
         var game = new Driver(WithPlays(no)); await PlayTypes(game, 7); await Conquer(game);
-        Assert.Equal(1, game.State.PlayerScores["P1"]); Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        Assert.Equal(1, game.State.PlayerScores["P1"]); Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -216,7 +216,7 @@ public sealed class VenConquestScoreHeroesTests
     {
         var game = new Driver(WithPlays(no)); await PlayTypes(game, mask); await Conquer(game);
         Assert.Equal(1, game.State.PlayerScores["P1"]);
-        Assert.DoesNotContain(game.State.StackItems, i => i.ConquestScore is not null); await game.Replay();
+        Assert.DoesNotContain(game.State.StackItems, i => i.ConquestSource is not null); await game.Replay();
     }
 
     [Theory]
@@ -226,7 +226,7 @@ public sealed class VenConquestScoreHeroesTests
         var game = new Driver(WithPlays(no)); await PlayTypes(game, 7, counter: true);
         Assert.Contains(game.State.CardPlays.Finalized, p => p.Source.ObjectId == "SPELL");
         Assert.DoesNotContain(game.State.CardPlays.Resolved, p => p.Source.ObjectId == "SPELL");
-        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -248,7 +248,7 @@ public sealed class VenConquestScoreHeroesTests
             await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         Assert.Contains("SPELL", game.State.PlayerZones["P1"].Hand);
         Assert.Contains(game.State.CardPlays.Finalized, play => play.Source.ObjectId == "SPELL");
-        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -263,7 +263,7 @@ public sealed class VenConquestScoreHeroesTests
         await game.Act("P1", new PlayCardCommand("BODY", "VEN·058", [], Destination: "BASE"));
         await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", [])); await game.Top();
         Assert.Equal(3, Assert.Single(game.State.CardPlays.Finalized, p => p.Source.ObjectId == "BODY").Types & 3);
-        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestScore is not null);
+        await Conquer(game); Assert.Single(game.State.StackItems, i => i.ConquestSource is not null);
         await game.Top(); Assert.Equal(2, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -274,7 +274,7 @@ public sealed class VenConquestScoreHeroesTests
         var game = new Driver(WithPlays(no, tokenSpell: true)); await PlayTypes(game, 6, tokenSpell: true);
         Assert.True(game.State.CardObjects.Values.Count(card => card.CardNo == "UNL·T02") >= 4);
         Assert.DoesNotContain(game.State.CardPlays.Finalized, p => (p.Types & 1) != 0);
-        await Conquer(game); Assert.DoesNotContain(game.State.StackItems, i => i.ConquestScore is not null);
+        await Conquer(game); Assert.DoesNotContain(game.State.StackItems, i => i.ConquestSource is not null);
         Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -295,12 +295,12 @@ public sealed class VenConquestScoreHeroesTests
     public async Task RecoveryRejectsAlteredScoreSourceAndConquestConditions()
     {
         var game = new Driver(Position("VEN·046", empowered: true)); await Conquer(game);
-        var state = game.State; var item = Assert.Single(state.StackItems); var context = item.ConquestScore!;
-        foreach (var changed in new[] { item with { ConquestScore = null },
-            item with { ConquestScore = context with { SourceWasEmpowered = false } },
-            item with { ConquestScore = context with { Source = context.Source with { Generation = context.Source.Generation + 1 } } },
-            item with { ConquestScore = context with { BattlefieldId = "MISSING" } },
-            item with { ConquestScore = context with { ControllerId = "P2" } } })
-            Assert.Contains("invalid conquest score stack", OfficialInsightAndSpellLockTests.Errors(state with { StackItems = [changed] }));
+        var state = game.State; var item = Assert.Single(state.StackItems); var context = item.ConquestSource!;
+        foreach (var changed in new[] { item with { ConquestSource = null },
+            item with { ConquestSource = context with { SourceWasEmpowered = false } },
+            item with { ConquestSource = context with { Source = context.Source with { Generation = context.Source.Generation + 1 } } },
+            item with { ConquestSource = context with { BattlefieldId = "MISSING" } },
+            item with { ConquestSource = context with { ControllerId = "P2" } } })
+            Assert.Contains("invalid conquest source stack", OfficialInsightAndSpellLockTests.Errors(state with { StackItems = [changed] }));
     }
 }

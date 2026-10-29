@@ -73,13 +73,8 @@ internal static class UnitConquestTriggerSpecRules
             TriggerKinds.UnitConquestAttackOverkillGainScore => trigger.RequiredOverkillDamage is > 0
                 && trigger.ScoreAmount is > 0,
             TriggerKinds.UnitConquestCreateDormantGold => trigger.CreatedTokenCount is > 0,
-            TriggerKinds.UnitConquestDrawOne => trigger.DrawCount is > 0,
             TriggerKinds.UnitConquestDrawOneOrCallRune => trigger.DrawCount is > 0
                 && trigger.RuneCallCount is > 0,
-            TriggerKinds.UnitConquestGrantSelfBoon => string.Equals(
-                trigger.TargetScope,
-                TriggerTargetScopes.SourceUnit,
-                StringComparison.Ordinal),
             TriggerKinds.UnitConquestReadySelfOncePerTurn => string.Equals(
                 trigger.TargetScope,
                 TriggerTargetScopes.SourceUnit,

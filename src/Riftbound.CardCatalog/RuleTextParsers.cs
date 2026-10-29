@@ -940,7 +940,7 @@ public static class TriggerParser
 
         var unitConquestGrantSelfBoonMatch = Regex.Match(
             segment,
-            @"当我被打出时、或当我征服一处战场时，给予我增益。?$",
+            @"当(?:我被打出时、或|你打出我时，或)当我征服一处战场时，给予我增益。?$",
             RegexOptions.CultureInvariant);
         if (unitConquestGrantSelfBoonMatch.Success)
         {
