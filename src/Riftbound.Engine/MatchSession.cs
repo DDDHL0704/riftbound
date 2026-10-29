@@ -1207,6 +1207,9 @@ public sealed record PendingHandChoiceState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathDrawContext? LastBreathDraw { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SourcePlayDrawContext? SourcePlayDraw { get; init; }
+
     private static string Normalize(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -4627,7 +4630,8 @@ public sealed record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw };
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw,
+                SourcePlayDraw = pendingHandChoice.SourcePlayDraw };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -4901,6 +4905,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.SourcePlayDraw is not null) return trigger.EffectKind == CoreRuleEngine.SourcePlayDiscardEffect ? "打出时弃牌" : "打出时抽牌";
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -4930,6 +4935,8 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.SourcePlayDraw is not null) return trigger.EffectKind == CoreRuleEngine.SourcePlayDiscardEffect
+            ? "打出时弃牌；双方响应后结算。" : "打出时抽牌；双方响应后结算。";
         if (trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null) return "赢得战斗：抽一张牌；双方响应后结算。";
         if (trigger.KhazixBattleWin is not null) return "赢得战斗：获得1经验；双方响应后结算。";
         if (trigger.DravenBattleDeathScore is not null) return "战斗中被摧毁：选择一名对手获得1分；双方响应后结算。";
@@ -4961,7 +4968,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.SourcePlayDraw is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -5584,7 +5591,7 @@ public sealed record ResolutionResult(
         var hiddenSource = IsHiddenStackSourceForViewer(state, item, viewerPlayerId);
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
-        var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
+        var sourceId = hiddenSource ? "HIDDEN" : item.SourcePlayDraw is not null || item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
             || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
@@ -5652,7 +5659,8 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && item.UnitPlayMight is not null) view["abilityLabel"] = "打出单位：本回合战力 +1";
         if (!hiddenSource && state.TriggerQueue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)) view["awaitingTriggerOrder"] = true;
-        if (!hiddenSource && item.SourcePlayDraw is not null) view["abilityLabel"] = "其他装备条件抽牌";
+        if (!hiddenSource && item.SourcePlayDraw is not null) view["abilityLabel"] = item.EffectKind == CoreRuleEngine.SourcePlayDiscardEffect
+            ? "打出时弃牌" : "其他装备条件抽牌";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
         if (!hiddenSource && item.DamageDistribution is not null) {
             view["damageDistribution"] = item.DamageDistribution;
@@ -5889,7 +5897,7 @@ public sealed record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.SourcePlayDraw is null ? choice.SourceObjectId
                 : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"
@@ -15478,7 +15486,7 @@ internal static class ActionPromptBuilder
             ["drawCount"] = choice.DrawCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.LastBreathDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.LastBreathDraw is null && choice.SourcePlayDraw is null ? choice.SourceObjectId
                 : ResolutionResult.VisibleObjectIdForViewer(state, choice.SourceObjectId, playerId),
             ["effectKind"] = choice.EffectKind,
             ["serverHandChoiceState"] = ownChoice ? "PENDING" : "WAITING"

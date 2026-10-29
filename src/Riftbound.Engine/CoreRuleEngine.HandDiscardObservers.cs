@@ -89,7 +89,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "弃牌触发技能结算", new Dictionary<string, object?> {
             ["triggerId"] = item.StackItemId, ["playerId"] = c.ControllerId, ["controllerId"] = c.ControllerId,
             ["sourceObjectId"] = c.Source.ObjectId, ["effectKind"] = c.Kind,
-            ["triggeredByEventKind"] = c.TriggeredByEventKind, ["discardSourceObjectId"] = c.DiscardSourceObjectId,
+            ["triggeredByEventKind"] = c.TriggeredByEventKind,
+            ["discardSourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, c.DiscardSourceObjectId, "__spectator__"),
             ["discardedObjectIds"] = c.DiscardedCards.Select(d => d.ObjectId).ToArray(), ["discardedCount"] = c.DiscardedCards.Count } ) };
         // An earned skill survives its text or controller changing. "Me" still
         // refers to the original field object, never a later incarnation.
