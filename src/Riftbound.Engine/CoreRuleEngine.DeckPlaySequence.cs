@@ -265,9 +265,10 @@ public sealed partial class CoreRuleEngine
                 ObjectGeneration = checked(old.ObjectGeneration + 1) };
             zones[owner] = zones[owner] with { MainDeck = RemoveFromZone(zones[owner].MainDeck, id), Banished = zones[owner].Banished.Append(id).ToArray() };
             picked[owner] = new(id, cards[id].ObjectGeneration);
-            events.Add(new("CARD_BANISHED", "所选牌被放逐，等待再次打出", new Dictionary<string,object?> {
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "所选牌被放逐，等待再次打出", new Dictionary<string,object?> {
                 ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-                ["cardNo"] = cards[id].CardNo, ["destinationZone"] = "BANISHED" }));
+                ["cardNo"] = cards[id].CardNo, ["destinationZone"] = "BANISHED" }),
+                zones, cards, c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : owner, [id]));
             if (c.Kind != "EACH_PLAYER_LOOK_PLAY")
                 queue.Add(AddDeckPlayPendingCard(item, c, owner, picked[owner], queue.Count, zones, cards, stack, events));
         }

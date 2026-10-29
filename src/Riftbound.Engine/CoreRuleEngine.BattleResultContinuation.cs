@@ -26,9 +26,12 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = RecordHandDiscardObservers(result);
+            result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);
+            result = QueueOwnedBanishObservers(result);
             result = QueueEmpowerInteractions(state, result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
@@ -38,6 +41,7 @@ public sealed partial class CoreRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueuePaidUnitPlayStuns(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
             result = QueueUnitPlayMight(state, result);
@@ -52,6 +56,7 @@ public sealed partial class CoreRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
