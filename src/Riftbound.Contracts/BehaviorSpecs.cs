@@ -37,6 +37,10 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string ConsumeSourceBoonGrantSelfMight = "CONSUME_SOURCE_BOON_GRANT_SELF_MIGHT";
+    public const string ManaGrantSelfMight = "MANA_GRANT_SELF_MIGHT";
+    public const string RecycleGraveyardCardGrantSelfMight = "RECYCLE_GRAVEYARD_CARD_GRANT_SELF_MIGHT";
+    public const string SwiftSwapSelfWithNamedControlledUnit = "SWIFT_SWAP_SELF_WITH_NAMED_CONTROLLED_UNIT";
     public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
@@ -61,9 +65,13 @@ public static class TriggerKinds
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
     public const string ControllerOpponentTurnPlayCreateMinion = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
     public const string SourceUnitPlayedDestroyEquipmentGrantTurnPlay = "SOURCE_UNIT_PLAYED_DESTROY_EQUIPMENT_GRANT_TURN_PLAY";
+    public const string ControllerTargetedOrReadiedSourcePower = "CONTROLLER_TARGETED_OR_READIED_SOURCE_POWER";
     public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
+    public const string SourceMightReachedEmpower = "SOURCE_MIGHT_REACHED_EMPOWER";
+    public const string UnitConquestCreateUnitToken = "UNIT_CONQUEST_CREATE_UNIT_TOKEN";
+    public const string SourceUnitPlayedOrScoredCreateUnit = "SOURCE_UNIT_PLAYED_OR_SCORED_CREATE_UNIT";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
     public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
@@ -223,7 +231,10 @@ public static class TriggerKinds
     public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
+    public const string UnitAttackStunEnemyHere = "UNIT_ATTACK_STUN_ENEMY_HERE";
+    public const string UnitAttackPayExperienceSourceMightDamage = "UNIT_ATTACK_PAY_EXPERIENCE_SOURCE_MIGHT_DAMAGE";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
+    public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
@@ -274,8 +285,11 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
+    public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
     public const string SourceReadied = "SOURCE_READIED";
     public const string SourcePlayedOrFirstEquipmentPlayed = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_PLAYED";
+    public const string SourceUnitPlayedOrScored = "SOURCE_UNIT_PLAYED_OR_SCORED";
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
@@ -329,6 +343,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
+    public const string ControlledUnitInGraveyard = "CONTROLLED_UNIT_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";
@@ -416,6 +431,7 @@ public static class StaticAbilityKinds
         "SAME_BATTLEFIELD_EPHEMERAL_TURN_START_SUPPRESSION";
     public const string SourceUnitEnemySpellSkillTargetProtection =
         "SOURCE_UNIT_ENEMY_SPELL_SKILL_TARGET_PROTECTION";
+    public const string SourceUnitDamageImmunity = "SOURCE_UNIT_DAMAGE_IMMUNITY";
 }
 
 public static class ReplacementKinds
@@ -430,11 +446,13 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPowerWithSameLocationEnemy = "SOURCE_OBJECT_POWER_WITH_SAME_LOCATION_ENEMY";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
+    public const string SourceControllerScorePower = "SOURCE_CONTROLLER_SCORE_POWER";
     public const string SameLocationEnemyFilteredPower = "SAME_LOCATION_ENEMY_FILTERED_POWER";
     public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string SourceObjectFilteredKeyword = "SOURCE_OBJECT_FILTERED_KEYWORD";
@@ -671,6 +689,7 @@ public sealed record TriggerSpec(
     int? MaximumControlledRunes = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? EmpoweredDamageAmount = null,
+    int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? ObjectReadyCount = null);
 
@@ -706,7 +725,8 @@ public sealed record ActivatedAbilitySpec(
     bool? RecycleUnplayedLookedCards = null,
     string? PlayCardFilter = null,
     int? PowerModifierAmount = null,
-    int? MinimumPowerAfterModifier = null);
+    int? MinimumPowerAfterModifier = null,
+    string? TargetUnitName = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,
@@ -726,7 +746,9 @@ public sealed record StaticAbilitySpec(
     bool? RequiresUnitDestroyedThisTurn = null,
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
     bool? RequiresSameNameCardInControllerGraveyard = null,
-    bool? RequiresSourceOutsideBattle = null);
+    bool? RequiresSourceOutsideBattle = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresSourceEmpowered = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

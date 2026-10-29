@@ -17,6 +17,9 @@ internal static class ReviewedCardErrata
         // SHA256 13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d.
         : id == 33075 && cardNo == "SFD·003/221"
             ? "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1}}（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻2}}。（如果它是进攻方，则{{S}}+2。）"
+        // CN OGN errata, 蔚 - 铲除者: recycling is the activation cost (CN 417.3).
+        : (id == 31244 && cardNo == "OGN·036/298" || id == 34840 && cardNo == "ARC-001/006")
+            ? "{{游走}}（我可以向其他战场进行移动。）\n从你的废牌堆回收一张卡牌：给予我在本回合内{{S}}+1。"
         : (id == 31473 && cardNo == "OGN·235/298" || id == 33346 && cardNo == "SFD·237/221"
             || id == 33347 && cardNo == "SFD·237*/221")
             // Current CN DOC-16-P005-B003, SHA256 1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c.
