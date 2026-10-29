@@ -195,6 +195,88 @@ public sealed partial class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4Sfd180aFioraTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sfd-180a-fiora-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SFD-180A-FIORA-MAIN-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-UNIT-SFD-180A-FIORA"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-SFD-180A-FIORA-TARGET-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-SFD-180A-FIORA-TARGET-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-SFD-180A-FIORA-TARGET-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-BASE-SFD-180A-FIORA-TARGET-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivatedAbilityCatalogListsRegisteredSkillsAndChecksBlossomText()
+    {
+        Assert.Equal(
+            [
+                "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER",
+                "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
+                "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
+                "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
+                "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
+                "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
+                "ENERGY_CHANNEL_REACTION_EXHAUST_GAIN_1_MANA",
+                "EZREAL_PAY_BLUE_SWIFT_MOVE_TO_BASE",
+                "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS",
+                "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",
+                "GATEKEEPER_MADULI_PAY_PURPLE_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD",
+                "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+                "GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+                "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA",
+                "HONEYFRUIT_REACTION_EXHAUST_GAIN_GENERIC_POWER",
+                "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER",
+                "JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER",
+                "LUX_REACTION_EXHAUST_GAIN_2_SPELL_ONLY_MANA",
+                "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER",
+                "NEXT_SPELL_ECHO",
+                "OGN_090_298_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
+                "OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST",
+                "OGN_DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
+                "OGN_FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",
+                "OGN_INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER",
+                "OGN_POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
+                "OGN_RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
+                "OGN_UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER",
+                "PAY_2_RED_DOUBLE_POWER",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
+                "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
+                "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
+                "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
+                "SCRYING_BLOSSOM_DESTROY_INSIGHT_DRAW_EXPERIENCE",
+                "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
+                "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER"
+            ],
+            P4ActivatedAbilityCatalog.GetAll()
+                .Select(definition => definition.AbilityId)
+                .OrderBy(abilityId => abilityId, StringComparer.Ordinal));
+
+        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var card = officialCatalog.Cards.Single(card => card.CardNo == "UNL-136/219");
+        Assert.Contains("摧毁此牌，支付{{1}}，{{横置}}", card.CardEffect);
+        Assert.Contains("{{洞察2}}，然后抽一张牌。获得1经验", card.CardEffect);
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(P4ActivatedAbilityCatalog.ScryingBlossomAbilityId, out var ability));
+        Assert.Equal(1, ability.ManaCost);
+        Assert.True(ability.ExhaustsSourceAsCost);
+        Assert.False(ability.IsResourceSkill);
+    }
+
+    [Fact]
     public async Task P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield()
     {
         var baseState = BattlefieldDefendMoveToBaseState();
