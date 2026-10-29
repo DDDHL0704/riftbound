@@ -109,7 +109,8 @@ public sealed class VenStaticLimitUnitTests
     [InlineData(false)]
     public async Task EldersControllerOrdersSpellImmunityAndFinitePreventionBeforeUnitDamage(bool immunityFirst)
     {
-        var state = AddRunes(WithSourceInPlay(Position("VEN·025")), "P1", 7, inDeck: false);
+        var state = LocalDestructionRecallTests.At(WithSourceInPlay(Position("VEN·025")), "UNIT", "P1", "BATTLEFIELD", "BF");
+        state = AddRunes(state, "P1", 7, inDeck: false);
         state = AttackDamageDistributionTests.Spell(state, "SHIELD", "VEN·126", "P2");
         state = AttackDamageDistributionTests.Spell(state, "HIT", "VEN·059", "P2");
         state = AttackDamageDistributionTests.Spell(state, "DUEL", "VEN·083", "P2")
