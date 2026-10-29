@@ -20,11 +20,11 @@ public sealed class Ven093And122SubmittedSelfConsumers
             await game.WaitFor(actor, 6, "VEN·093"); await game.ColdCheckpoint();
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             var unit = game.Hand(actor, "VEN·093").First(); var runes = game.Runes(actor);
-            foreach (var id in runes.Take(4)) await Act(actor, new TapRuneCommand(id));
+            await Act(actor, new TapRuneCommand(runes[0], runes.Take(4).ToArray()));
             var prefix = game.Events().Length; await Act(actor, new PlayCardCommand(unit, "VEN·093", []));
             Arena.Cost(game.Events().Skip(prefix), 4, 0); Assert.Equal(4, game.Might(actor, unit));
             var generation = game.State.CardObjects[unit].ObjectGeneration;
-            foreach (var id in runes.Skip(4).Take(2)) await Act(actor, new TapRuneCommand(id));
+            await Act(actor, new TapRuneCommand(runes[4], runes.Skip(4).Take(2).ToArray()));
             prefix = game.Events().Length; await Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Arena.Cost(game.Events().Skip(prefix), 2, 0); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             Assert.Equal(4, game.Might(actor, unit)); Assert.True(game.State.CardObjects[unit].IsExhausted);
@@ -64,10 +64,10 @@ public sealed class Ven093And122SubmittedSelfConsumers
             var enemy = Arena.Other(actor); await game.WaitFor(actor, 5, "VEN·122"); await game.ColdCheckpoint();
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
             var unit = game.Hand(actor, "VEN·122").First(); var runes = game.Runes(actor);
-            foreach (var id in runes.Take(3)) await Act(actor, new TapRuneCommand(id));
+            await Act(actor, new TapRuneCommand(runes[0], runes.Take(3).ToArray()));
             var prefix = game.Events().Length; await Act(actor, new PlayCardCommand(unit, "VEN·122", []));
             Arena.Cost(game.Events().Skip(prefix), 3, 0); Assert.Equal(3, game.Might(actor, unit));
-            foreach (var id in runes.Skip(3).Take(2)) await Act(actor, new TapRuneCommand(id));
+            await Act(actor, new TapRuneCommand(runes[3], runes.Skip(3).Take(2).ToArray()));
             prefix = game.Events().Length; await Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
             Arena.Cost(game.Events().Skip(prefix), 2, 0); Assert.False(game.State.CardObjects[unit].IsEmpowered);
             while (game.State.StackItems.Count > 0) await Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
@@ -78,13 +78,13 @@ public sealed class Ven093And122SubmittedSelfConsumers
             Assert.Equal(4, game.Might(actor, unit));
             Assert.Equal(0, game.State.RunePools[enemy].Mana); Assert.Equal(0, game.State.RunePools[enemy].TotalPower);
             var resources = game.Runes(enemy); var source = game.Hand(enemy, ability ? OrbOfRegretTests.Card : "UNL-066/219").First();
-            foreach (var id in resources.Take(ability ? 1 : 7)) await Act(enemy, new TapRuneCommand(id));
+            await Act(enemy, new TapRuneCommand(resources[0], resources.Take(ability ? 1 : 7).ToArray()));
             if (ability)
             {
                 prefix = game.Events().Length; await Act(enemy, new PlayCardCommand(source, OrbOfRegretTests.Card, []));
                 Arena.Cost(game.Events().Skip(prefix), 1, 0); Assert.False(game.State.CardObjects[source].IsExhausted);
             }
-            await Act(enemy, new RecycleRuneCommand(resources[0])); await Act(enemy, new RecycleRuneCommand(resources[1]));
+            await Act(enemy, new RecycleRuneCommand(resources[0], resources.Take(2).ToArray()));
             Assert.Equal(2, game.State.RunePools[enemy].TotalPower); prefix = game.Events().Length;
             if (ability) await Act(enemy, new ActivateAbilityCommand(source, OrbOfRegretTests.Ability, [unit]));
             else await Act(enemy, new PlayCardCommand(source, "UNL-066/219", [unit]));
