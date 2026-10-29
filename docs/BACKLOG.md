@@ -33,9 +33,10 @@
   - 询价接口缺目标时不给原因（S4）；
   - 拒绝原因是英文（S6）；
   - 候选与错误码不准确（S7、S8）。
-- [ ] **P1-5 处理两个旧 PR**：
-  - #158（S3–S6 严格重连验收，可合并状态）：同步 main 后跑 L2，绿了就合；已被后续改动覆盖的话就关闭。
-  - #194（把 S7 接入夜间验收）：与 main 冲突，按需重做或关闭。
+- [x] **P1-5 处理旧 PR**。#272 已合入，六片完整规则、`L2 required` 与验收驱动检查全部通过；#231 的替代交付继续在 P1-1 跟踪。
+  - #158（S3–S6 严格重连验收）：已被后续改动覆盖，复核后保持关闭。
+  - #194（把 S7 接入夜间验收）：旧 PR 已关闭；仍适用的施加移动费用已由 #272 接入默认付款重连夜间验收，覆盖真实 SQL、进程重启、恢复与回放。
+  - 已复核 #158：保持关闭；严格 Joined 令牌、SQL 不变基线、付款重连和协调伪造负控已在 main，相关共享助手与测试逐字一致。网络消费者的后续差异来自额外减费与受限法力适配。
 
 ## P2 · 卡牌（B 线）
 
@@ -53,7 +54,7 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
-- [ ] **P3-2 L2 提速**（`a/l2-row-balance`）：
+- [ ] **P3-2 L2 提速**（`a/l2-gc-balance`）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
@@ -61,8 +62,13 @@
   - [x] [PR #264](https://github.com/DDDHL0704/riftbound/pull/264) 最初因浅克隆缺少 Git 祖先而拒绝文档豁免；[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 保留两层历史，并在选择分片前完成两次范围核对，判定不了时退回完整规则。同步后真实重验 [40863258647](https://github.com/DDDHL0704/riftbound/actions/runs/40863258647) 的 prepare、文档凭据核对及 `L2 required` 全部通过，规则套件按预期跳过，门槛结果为 `DOCUMENTATION_EXEMPTION_VERIFIED`；#264 已合入；
   - #256 六片完整通过；shard-5 从 04:47:44 到 08:00:58 UTC 完成 2,875 条测试，用时约 193 分钟，并非卡死。VEN013/103 单条合法开局分别耗时 49/107 分钟；#263 的[完整 L2 40852494017](https://github.com/DDDHL0704/riftbound/actions/runs/40852494017) 覆盖 8,883 个方法、17,748 条用例，最慢分片仍需 74 分钟，其中 P2 单条约 62 分钟；
   - [PR #266](https://github.com/DDDHL0704/riftbound/pull/266) 已合入；[40867854592](https://github.com/DDDHL0704/riftbound/actions/runs/40867854592) 六片及 `L2 required` 全部通过：8,905 个方法、17,804 条用例，较 #263 原始清单零移除。最慢片约 44 分钟，VEN013/103 P2 单条约 6 分钟。本地 136 条定向用例也已逐条对齐原清单通过；保留关键阶段冷恢复与完整原始历史校验。30 分钟目标尚未达到，`a/l2-scheduling` 用这次完整 Release 实测刷新权重并平衡每个测试类内的串行负载；四、五片的工作量下界分别约 42、34 分钟，本轮继续保留六片；
-  - [PR #267](https://github.com/DDDHL0704/riftbound/pull/267) 已合入；[40881439549](https://github.com/DDDHL0704/riftbound/actions/runs/40881439549) 完整 8,905 个方法、17,804 条用例及门槛全部通过，原始清单逐条一致。六片实测约 38.6 / 30.1 / 37.3 / 40.6 / 39.5 / 19.0 分钟，30 分钟目标仍未达到。`a/l2-row-balance` 使用本次完整实测更新权重，并将安全可枚举参数行的拆分阈值从 20 分钟降到 10 分钟，分散 HeldTax 等 10–20 分钟整方法的串行负载；完整清单和参数选择校验保持。墓地付款夹具提速在 `a/ven010-openings` 定向验证中；
-  - main 的 [40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172) 被 #260 的新提交取消；后续 [40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883)（固定 `25913d6a`）已完成，六片全部 17,804 条用例及 `L2 required` 通过，恢复合入后的主干完整验证。已让包含 #266 新夹具的 main [40880177592](https://github.com/DDDHL0704/riftbound/actions/runs/40880177592) 接替刚启动的旧版本 40863395876。包含 #266 的该次 main 运行现已完整通过。PR 与 main 的并发组隔离，#263 保留运行中的 main、待跑只留最新；文档豁免只适用于 PR，main 推送始终全量；
+  - [PR #267](https://github.com/DDDHL0704/riftbound/pull/267) 已合入；[40881439549](https://github.com/DDDHL0704/riftbound/actions/runs/40881439549) 完整 8,905 个方法、17,804 条用例及门槛全部通过，原始清单逐条一致。六片实测约 38.6 / 30.1 / 37.3 / 40.6 / 39.5 / 19.0 分钟；
+  - [PR #268](https://github.com/DDDHL0704/riftbound/pull/268) 已合入：用 #267 实测更新权重，将安全可枚举参数行的拆分阈值从 20 分钟降到 10 分钟。[40899479233](https://github.com/DDDHL0704/riftbound/actions/runs/40899479233) 完整 8,992 个方法、18,018 条用例及门槛全部通过；原 17,804 条零移除，新增 214 条恰好来自 #265 的十个机制测试类。六片实测约 19.8 / 32.4 / 42.0 / 42.2 / 41.0 / 22.9 分钟，30 分钟目标未达到；
+  - [PR #269](https://github.com/DDDHL0704/riftbound/pull/269) 已合入：减少 VEN010 自然等牌与重复准备恢复，将销毁夹具连续横置合成生产批量命令，并优先启动慢测试集合。[40909584287](https://github.com/DDDHL0704/riftbound/actions/runs/40909584287) 完整 8,996 个方法、18,030 条用例及门槛全部通过，旧 18,018 条零移除；六片实测约 32.3 / 27.6 / 39.8 / 27.2 / 35.4 / 37.6 分钟，慢类已在各片起点启动，30 分钟目标仍未达到；
+  - [PR #273](https://github.com/DDDHL0704/riftbound/pull/273) 已合入：取消关键词精确查找的临时集合分配，保留空白修剪、Ordinal 与运行时标签语义，并用 #269 实测刷新权重。[40919287657](https://github.com/DDDHL0704/riftbound/actions/runs/40919287657) 完整 9,186 个方法、18,477 条用例及门槛全部通过；相对固定 main 的 18,457 条零移除，新增 20 条解析测试。六片实测约 37.4 / 38.9 / 40.3 / 26.5 / 39.8 / 34.0 分钟，30 分钟目标仍未达到；
+  - [PR #276](https://github.com/DDDHL0704/riftbound/pull/276) 已合入：完整规则和夜验的实际测试进程启用 Server GC，并记录 testhost 的 GC、分配、暂停、CPU 与内存。[40927908912](https://github.com/DDDHL0704/riftbound/actions/runs/40927908912) 完整 9,186 个方法、18,477 条用例及门槛全部通过，原清单和六片选择器逐条一致；六个 testhost 均确认四核 Server GC，峰值进程树内存约 1.2–1.6 GiB。六片实测约 28.1 / 32.4 / 15.9 / 14.8 / 16.1 / 27.4 分钟，整次约 35.2 分钟，30 分钟目标仍未达到；
+  - `a/l2-gc-balance` 用 #276 的六片完整实测刷新方法与参数行权重，平衡 Server GC 下的负载；原 18,477 条用例 Counter 完全保留。按上次逐用例耗时重分配后，六片四 worker 的工作量下界约 22.1–22.3 分钟，仍需本 PR 的实际完整 CI 验证。增加一次 CPU 型号和亲和性内逻辑/物理核心拓扑记录，便于区分不同 runner；诊断不可用时不影响规则执行，六片和门槛保持；
+  - main 的 [40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172) 被 #260 的新提交取消；后续 [40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883)（固定 `25913d6a`）已完成，六片全部 17,804 条用例及 `L2 required` 通过，恢复合入后的主干完整验证。已让包含 #266 新夹具的 main [40880177592](https://github.com/DDDHL0704/riftbound/actions/runs/40880177592) 接替刚启动的旧版本 40863395876。包含 #266 的该次 main 运行现已完整通过。包含 #269 的固定 `94092d89` main [40917321493](https://github.com/DDDHL0704/riftbound/actions/runs/40917321493) 也完整通过 18,457 条用例与门槛。后续固定 `d9f26d83` 的 main [40913724782](https://github.com/DDDHL0704/riftbound/actions/runs/40913724782) 也完整通过 18,445 条用例与门槛，已包含 #254 新卡。PR 与 main 的并发组隔离，#263 保留运行中的 main、待跑只留最新；文档豁免只适用于 PR，main 推送始终全量；
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
