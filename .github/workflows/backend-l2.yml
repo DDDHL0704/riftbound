@@ -79,7 +79,7 @@ jobs:
       - name: Build API and conformance once and enumerate the complete L2 input
         if: steps.scope.outputs.tier != 'DOCS'
         id: plan
-        run: python3 scripts/l2-distributed.py prepare --commit "$GITHUB_SHA" --shards 8 --output var/qa/l2-prepared --github-output "$GITHUB_OUTPUT"
+        run: python3 scripts/l2-distributed.py prepare --commit "$GITHUB_SHA" --shards 9 --output var/qa/l2-prepared --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() && steps.scope.outputs.tier != 'DOCS' }}
         with:
@@ -111,12 +111,12 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      # Current complete ARM64 measurements need 32.4 / 27.8 minutes of
-      # execution with six / seven shards, before preparation and aggregation.
-      # Eight shards keep two complete runs within the 20-job account quota.
-      max-parallel: 8
+      # Current complete ARM64 measurements need at least 26.0 minutes of
+      # execution with eight shards, before 3.7 minutes of CI overhead.
+      # Nine shards leave margin and two rule runs use 18 of the 20 job slots.
+      max-parallel: 9
       matrix:
-        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8]
+        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8, shard-9]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

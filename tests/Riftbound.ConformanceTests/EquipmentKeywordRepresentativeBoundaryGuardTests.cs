@@ -82,7 +82,7 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
             "MatchSession.cs");
 
         Assert.DoesNotContain("SpinningAxeCardNo", File.ReadAllText(coreRuleEnginePath), StringComparison.Ordinal);
-        Assert.DoesNotContain("SpinningAxeCardNo", File.ReadAllText(matchSessionPath), StringComparison.Ordinal);
+        Assert.DoesNotContain("SpinningAxeCardNo", SourceFileParts.ReadAllText(matchSessionPath), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
             "MatchSession.cs");
 
         Assert.DoesNotContain("SentinelAdeptCardNo", File.ReadAllText(coreRuleEnginePath), StringComparison.Ordinal);
-        Assert.DoesNotContain("SentinelAdeptCardNo", File.ReadAllText(matchSessionPath), StringComparison.Ordinal);
+        Assert.DoesNotContain("SentinelAdeptCardNo", SourceFileParts.ReadAllText(matchSessionPath), StringComparison.Ordinal);
     }
 
     private static string RepositoryRoot()

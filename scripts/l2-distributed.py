@@ -118,7 +118,7 @@ def validate_plan(plan, text):
     if (plan.get('schemaVersion') != 3
             or set(plan['methods']) != expected or len(plan['methods']) != len(expected)
             or not names or len(set(names)) != len(names)
-            or any(not re.fullmatch(r'shard-[1-8]', name) for name in names)
+            or any(not re.fullmatch(r'shard-[1-9]', name) for name in names)
             or any(not shard['methods'] for shard in plan['shards'])
             or set(plan['cases']) != expected
             or set(plan['deferredL3Methods']) != deferred
