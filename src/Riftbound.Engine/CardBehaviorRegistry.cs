@@ -293,10 +293,25 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    int CostReductionPower = 0,
+    string CostReductionPowerTrait = "",
+    int CostReductionBattlefieldUnitCount = 0,
+    int StaticFlowSpellCostReductionMana = 0,
+    int StaticFlowSpellCostReductionMinimumManaCost = 0,
+    OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
+    bool PlayTriggerBanishesGraveyardCardAsCost = false,
+    SourceStaticLimitsSpec? SourceStaticLimits = null,
+    int EndStepSelfDestructionDamage = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 0, int? GenericPowerIfEmpowered = null);
+public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
+    bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
+    int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
+    bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -404,6 +419,9 @@ public static class CardCostReductionConditionKinds
     public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
+    public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
+    public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
+    public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -456,10 +474,69 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·101", "劲风修士", 2, "ZEPHYR_MONK_PAID_PLAY_ASSAULT", 0, 1,
+            StatusEffectId: "COMBAT_KEYWORD:强攻2", TargetScope: CardTargetScopes.AnyUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人",
+            TargetEffectAdditionalManaCost: 1, PlayTriggerBanishesGraveyardCardAsCost: true),
+        new("VEN·120", "雷霆之怒 玛萨", 4, "THUNDERFIST_PAID_PLAY_STUN", 0, 1,
+            StatusEffectId: "STUNNED", TargetScope: CardTargetScopes.EnemyBattlefieldUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
+            TargetEffectAdditionalPowerCost: 1, TargetEffectAdditionalPowerTrait: RuneTrait.Yellow),
+        new("VEN·045", "抑制之盔", 4, "SUPPRESSION_HELM_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, OpponentSpellCostIncrease: new(1, GenericPowerIfEmpowered: 1)),
+        new("VEN·064", "广场守卫", 10, "UNIT_PLAY:VEN·064", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: CardObjectTags.Spellshield,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControlledFieldEquipmentCount, CostReductionMana: 1),
+        new("VEN·096", "影刃潜伏者", 5, "UNIT_PLAY:VEN·096", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            CostReductionConditionKind: CardCostReductionConditionKinds.SameNameInControllerGraveyard, CostReductionMana: 2),
+        new("VEN·098", "观星者", 5, "UNIT_PLAY:VEN·098", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            StaticFlowSpellCostReductionMana: 2, StaticFlowSpellCostReductionMinimumManaCost: 1),
+        new("VEN·119", "律法守护者", 5, "UNIT_PLAY:VEN·119", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControlledBattlefieldUnitCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Yellow,
+            CostReductionBattlefieldUnitCount: 2),
+        new("VEN·132", "坠落猫咪", 2, "FALLING_CAT_DECLARE_SPELL_NAME", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "猫科",
+            SourceStaticLimits: new(DeclaresSpellNameAndProhibitsItOnEnemyBattlefield: true)),
+        new("VEN·004", "沙丘冲浪者", 3, "DUNE_SURFER_STATIC_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            SourceStaticLimits: new(CombatDamageIgnoresBulwarkHere: true)),
+        new("VEN·025", "圣职尊者", 5, "SACRED_ELDER_RUNE_IMMUNITY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            SourceStaticLimits: new(EnemySpellSkillDamageImmunityMinimumRunes: 7)),
+        new("VEN·029", "老老魄罗", 2, "ELDER_PORO_TURN_RESTRICTED_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "魄罗",
+            SourceStaticLimits: new(UnplayableThroughControllerTurn: 3)),
+        new("VEN·036", "砂岩奇美拉", 7, "SANDSTONE_CHIMERA_CHANNEL_LIMIT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8,
+            SourceStaticLimits: new(BattlefieldStageRuneCallLimit: 1)),
+        new("VEN·053", "章獭", 2, "OTTERPUS_EARLY_SCORE_REPLACEMENT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2,
+            SourceStaticLimits: new(BattlefieldScoreDrawThroughPlayerTurn: 2)),
+        new("VEN·018", "怒火放大器", 4, "FURY_AMPLIFIER_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·076", "维修专家", 3, "MAINTENANCE_EXPERT_UNIT", 0, 0, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·097", "小蜘蛛", 3, "SPIDERLING_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "蜘蛛|待命"),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·133", "发光石", 2, "EQUIPMENT_PLAY:VEN·133", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, EndStepSelfDestructionDamage: 5),
+        new("VEN·077", "帝国工具", 4, "IMPERIAL_TOOL_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·060", "天际漫游者", 4, "SKY_STRIDER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·125", "冰原饿狼", 4, "TUNDRA_HUNTER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "犬形"),
+        new("VEN·054", "可疑之书", 3, "SUSPICIOUS_BOOK_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·062", "海克斯方程式", 2, "HEXTECH_EQUATION_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·075", "剑头蛟的卵", 3, "JAWFISH_EGG_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·087", "海克斯圆盘", 4, "HEXTECH_DISC_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

@@ -357,12 +357,14 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
     public const string ControllerRuneCallExtraExhausted = "CONTROLLER_RUNE_CALL_EXTRA_EXHAUSTED";
     public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
+    public const string UnitEquipmentCountSelfKeywords = "UNIT_EQUIPMENT_COUNT_SELF_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";
     public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
@@ -372,6 +374,10 @@ public static class StaticAbilityKinds
     public const string FriendlyFilteredUnitsEnterReady = "FRIENDLY_FILTERED_UNITS_ENTER_READY";
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
     public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
+    public const string BattlefieldIgnoreSpellshield = "BATTLEFIELD_IGNORE_SPELLSHIELD";
+    public const string BattlefieldReactionPowerIncrease = "BATTLEFIELD_REACTION_POWER_INCREASE";
+    public const string BattlefieldFriendlyTargetSpellPowerReduction = "BATTLEFIELD_FRIENDLY_TARGET_SPELL_POWER_REDUCTION";
+    public const string BattlefieldEmpowerCostReduction = "BATTLEFIELD_EMPOWER_COST_REDUCTION";
     public const string BattlefieldEchoCostReduction = "BATTLEFIELD_ECHO_COST_REDUCTION";
     public const string BattlefieldEquipmentCostReduction = "BATTLEFIELD_EQUIPMENT_COST_REDUCTION";
     public const string BattlefieldGrantUnitExperienceAbility =
@@ -406,6 +412,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string SourceOtherSameNameUnitCountPower = "SOURCE_OTHER_SAME_NAME_UNIT_COUNT_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
@@ -459,6 +466,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameLocationOtherFriendlySameNameUnits = "SAME_LOCATION_OTHER_FRIENDLY_SAME_NAME_UNITS";
     public const string SameLocationEnemyFilteredPublicUnits = "SAME_LOCATION_ENEMY_FILTERED_PUBLIC_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
@@ -716,7 +724,9 @@ public sealed record StaticAuraSpec(
     int? RequiredPlayerExperience = null,
     string? PowerMultiplierZone = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MinimumPowerAfterModifier = null);
+    int? MinimumPowerAfterModifier = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? PowerDeltaIfSourceEmpowered = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

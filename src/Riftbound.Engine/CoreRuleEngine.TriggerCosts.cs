@@ -2,17 +2,21 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Discarded = null, int Power = 0, int Mana = 0, ObjectBinding? DestructionTarget = null);
+public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Discarded = null, int Power = 0, int Mana = 0, ObjectBinding? DestructionTarget = null, ObjectBinding? Banished = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string TriggerCostWindow = "TRIGGER_COST_CONFIRMATION";
     internal const string OptionalTriggerWindow = "TRIGGER_OPTIONAL_CONFIRMATION";
-    private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0, int Mana = 0, bool DestroyLocalUnit = false, string? PowerTrait = null);
+    private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0, int Mana = 0, bool DestroyLocalUnit = false, string? PowerTrait = null, bool BanishGraveyardCard = false);
 
     // CN 204.1.c: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.GraveyardPlay is { } graveyard && GraveyardPlaySpec(graveyard.CardNo) is { } graveyardSpec ? new(Power: graveyardSpec.PowerCost!.Value, Mana: graveyardSpec.ManaCost!.Value, PowerTrait: graveyardSpec.PowerCostTrait) : CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenReadyPowerTrait : null) : item.SivirRuneRecycle is not null ? new(Exhaust: true) : item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
+    private static bool HasPlayGraveyardBanishCost(StackItemState item) => item.SourceConfirmed
+        && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayTriggerBanishesGraveyardCardAsCost
+        && item.EffectKind == behavior.EffectKind && TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts);
+
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => HasPlayGraveyardBanishCost(item) ? new(BanishGraveyardCard: true) : item.GraveyardPlay is { } graveyard && GraveyardPlaySpec(graveyard.CardNo) is { } graveyardSpec ? new(Power: graveyardSpec.PowerCost!.Value, Mana: graveyardSpec.ManaCost!.Value, PowerTrait: graveyardSpec.PowerCostTrait) : CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenReadyPowerTrait : null) : item.SivirRuneRecycle is not null ? new(Exhaust: true) : item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
@@ -25,7 +29,7 @@ public sealed partial class CoreRuleEngine
     };
     internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;
 
-    private static bool ValidLeadingCostContext(StackItemState item) => item.GraveyardPlay is { } graveyard ? item.EffectKind == GraveyardPlayEffect && item.CardNo == graveyard.CardNo && item.ControllerId == graveyard.ControllerId && item.SourceObjectId == graveyard.Source.ObjectId && GraveyardPlaySpec(graveyard.CardNo) is not null : item.CreatedTokenReady is not null ? CreatedTokenReadyHasPayment(item) && item.EffectKind == CreatedTokenReadyEffect && item.CardNo == item.CreatedTokenReady.CardNo : item.SivirRuneRecycle is { } sivir ? ValidSivirRuneContext(sivir, item.EffectKind, item.CardNo) : item.BattlefieldConquestMight is { } conquestMight ? ValidBattlefieldConquestMightFrame(conquestMight) && item.CardNo == conquestMight.CardNo && item.SourceObjectId == conquestMight.Source.ObjectId && item.ControllerId == conquestMight.ControllerId && item.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw  : item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
+    private static bool ValidLeadingCostContext(StackItemState item) => HasPlayGraveyardBanishCost(item) ? item.PermanentPlaySource is { Generation: >= 0 } source && source.ObjectId == item.SourceObjectId : item.GraveyardPlay is { } graveyard ? item.EffectKind == GraveyardPlayEffect && item.CardNo == graveyard.CardNo && item.ControllerId == graveyard.ControllerId && item.SourceObjectId == graveyard.Source.ObjectId && GraveyardPlaySpec(graveyard.CardNo) is not null : item.CreatedTokenReady is not null ? CreatedTokenReadyHasPayment(item) && item.EffectKind == CreatedTokenReadyEffect && item.CardNo == item.CreatedTokenReady.CardNo : item.SivirRuneRecycle is { } sivir ? ValidSivirRuneContext(sivir, item.EffectKind, item.CardNo) : item.BattlefieldConquestMight is { } conquestMight ? ValidBattlefieldConquestMightFrame(conquestMight) && item.CardNo == conquestMight.CardNo && item.SourceObjectId == conquestMight.Source.ObjectId && item.ControllerId == conquestMight.ControllerId && item.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw  : item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
         : item.HeldContext is { } held
         && LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo
         && (HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
@@ -34,6 +38,10 @@ public sealed partial class CoreRuleEngine
 
     private static string[] TriggerCostChoices(MatchState state, StackItemState item)
     {
+        if (LeadingTriggerCost(item) is { BanishGraveyardCard: true })
+            return ValidLeadingCostContext(item) && item.TriggerCost is null
+                ? state.PlayerZones.Values.SelectMany(z => z.Graveyard).Where(id => state.CardObjects.TryGetValue(id, out var card)
+                    && !TokenObjectRules.IsToken(card)).Order(StringComparer.Ordinal).ToArray() : [];
         if (LeadingTriggerCost(item) is { DestroyLocalUnit: true })
             return ValidLeadingCostContext(item) && item.TriggerCost is null
                 ? HeldUnitsAt(state, item.BattlefieldStart!.BattlefieldObjectId, item.ControllerId)
@@ -52,14 +60,14 @@ public sealed partial class CoreRuleEngine
     }
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
-            TriggerCostChoices(state, item), [item.BattlefieldStart?.BattlefieldObjectId ?? item.LegendConquest?.BattlefieldId ?? (item.SivirRuneRecycle is not null ? item.SourceObjectId : item.HeldContext!.BattlefieldObjectId)],
-            LeadingTriggerCost(item) is { DestroyLocalUnit: true } ? "选择摧毁此战场的一名友方单位以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : item.HeldContext?.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext?.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
+        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false, BanishGraveyardCard: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
+            TriggerCostChoices(state, item), [item.BattlefieldStart?.BattlefieldObjectId ?? item.LegendConquest?.BattlefieldId ?? item.HeldContext?.BattlefieldObjectId ?? item.SourceObjectId],
+            LeadingTriggerCost(item) is { BanishGraveyardCard: true } ? "选择从任意废牌堆放逐一张牌作为技能费用；不选则放弃。确认后双方可以响应。" : LeadingTriggerCost(item) is { DestroyLocalUnit: true } ? "选择摧毁此战场的一名友方单位以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。" : item.HeldContext?.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext?.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
 
-    private static long TriggerCostSourceGeneration(StackItemState item) => item.GraveyardPlay?.Source.Generation ?? item.CreatedTokenReady?.Source.Generation ?? item.SivirRuneRecycle?.SourceGeneration ?? item.BattlefieldConquestMight?.Source.Generation ?? item.AttachmentObserver?.SourceGeneration ?? item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
+    private static long TriggerCostSourceGeneration(StackItemState item) => item.PermanentPlaySource?.Generation ?? item.GraveyardPlay?.Source.Generation ?? item.CreatedTokenReady?.Source.Generation ?? item.SivirRuneRecycle?.SourceGeneration ?? item.BattlefieldConquestMight?.Source.Generation ?? item.AttachmentObserver?.SourceGeneration ?? item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
 
     private static PendingPaymentState TriggerCostPayment(StackItemState item)
         => new("TRIGGER-COST:" + item.StackItemId, TriggerCostWindow, item.ControllerId,
@@ -87,7 +95,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item is null || item.HeldContext is null && item.BattlefieldStart is null && item.LegendConquest?.Kind != "EXHAUST_DECK_PLAY" && item.SivirRuneRecycle is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }) return false;
+        if (item is null || item.HeldContext is null && item.BattlefieldStart is null && item.LegendConquest?.Kind != "EXHAUST_DECK_PLAY" && item.SivirRuneRecycle is null && !HasPlayGraveyardBanishCost(item) || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }) return false;
         var expected = TriggerCostChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
@@ -119,6 +127,9 @@ public sealed partial class CoreRuleEngine
         if (!ValidLeadingCostContext(item) || receipt.Source is null || receipt.Source.ObjectId != item.SourceObjectId
             || receipt.Source.Generation != TriggerCostSourceGeneration(item)) return false;
         var cost = LeadingTriggerCost(item)!;
+        if (cost.BanishGraveyardCard ? receipt.Banished is not { } banished
+                || !state.CardObjects.TryGetValue(banished.ObjectId, out var gone) || banished.Generation >= gone.ObjectGeneration
+            : receipt.Banished is not null) return false;
         if (cost.DestroyLocalUnit ? receipt.DestructionTarget is not { Generation: >= 0 } paid
                 || string.IsNullOrWhiteSpace(paid.ObjectId) || paid.ObjectId == item.SourceObjectId
             : receipt.DestructionTarget is not null) return false;
@@ -159,6 +170,18 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "触发技能的费用选择已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         if (selected.Count == 0) return CompleteTriggerCost(state, item, null, []);
+        if (LeadingTriggerCost(item) is { BanishGraveyardCard: true }) {
+            var banishZones = NormalizeZonesForSeats(state); var id = selected[0];
+            var owner = banishZones.Single(p => p.Value.Graveyard.Contains(id)).Key;
+            var paid = new ObjectBinding(id, state.CardObjects[id].ObjectGeneration);
+            banishZones[owner] = banishZones[owner] with { Graveyard = RemoveFromZone(banishZones[owner].Graveyard, id),
+                Banished = [..banishZones[owner].Banished, id] };
+            var banishNext = state with { PlayerZones = banishZones, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, banishZones) };
+            return CompleteTriggerCost(banishNext, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Banished: paid),
+                [new("CARD_BANISHED", "放逐废牌堆卡牌作为触发技能费用", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
+                    ["sourceZone"] = "GRAVEYARD", ["destinationZone"] = "BANISHED" })]);
+        }
         if (LeadingTriggerCost(item) is { DestroyLocalUnit: true })
             return PayTriggerDestructionCost(state, item, selected[0]);
         if (LeadingTriggerCost(item) is { Exhaust: false })
