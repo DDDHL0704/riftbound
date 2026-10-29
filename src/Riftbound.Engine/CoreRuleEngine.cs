@@ -21135,6 +21135,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.UnitEquipmentOrRune => IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
@@ -21213,6 +21214,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             _ => IsBattlefieldObject(state, objectId)
         };
     }
+
+    internal static bool IsFieldUnitEquipmentOrRune(MatchState state, string objectId)
+        => IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
+            && (FieldObjectTypeRules.IsVisibleUnit(card)
+                || card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || card.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal));
 
     private static bool IsControlledFieldObject(MatchState state, string playerId, string objectId)
     {
@@ -23900,6 +23908,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
@@ -30696,9 +30705,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             IsExhausted = false
         };
+        var (eventKind, objectType) = targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            ? ("RUNE_READIED", "符文")
+            : targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                ? ("EQUIPMENT_READIED", "装备") : ("UNIT_READIED", "单位");
         readyEvent = new GameEvent(
-            "UNIT_READIED",
-            $"{behavior.DisplayName}让单位变为活跃状态",
+            eventKind,
+            $"{behavior.DisplayName}让{objectType}变为活跃状态",
             new Dictionary<string, object?>
             {
                 ["sourceObjectId"] = stackItem.SourceObjectId,

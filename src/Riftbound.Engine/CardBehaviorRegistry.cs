@@ -312,6 +312,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string UnitEquipmentOrRune = "UNIT_EQUIPMENT_OR_RUNE";
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
@@ -515,6 +516,8 @@ public static class CardBehaviorRegistry
         new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
             ExtraDamagePerSameNameInControllerGraveyard: 1),
+        new("VEN·150", "加速之门", 3, "VEN_ACCELERATION_GATE_READY_OBJECTS", 0, 4,
+            TargetScope: CardTargetScopes.UnitEquipmentOrRune, MinTargetCount: 0, ReadiesTarget: true),
         new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
             StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,

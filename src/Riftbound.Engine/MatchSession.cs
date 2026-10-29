@@ -13359,6 +13359,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
+            CardTargetScopes.UnitEquipmentOrRune => CoreRuleEngine.IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
@@ -17060,6 +17061,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
             CardTargetScopes.BaseUnit => "基地单位",
             CardTargetScopes.AnyUnit => "任意单位",
+            CardTargetScopes.UnitEquipmentOrRune => "单位、装备或符文",
             CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
             CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
