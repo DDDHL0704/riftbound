@@ -41,14 +41,21 @@ class DailyWorkflowTests(unittest.TestCase):
         for pattern in ["-p 'test_l2*.py'", '-p test_ci_change_scope.py', '-p test_rules_runner.py']:
             self.assertIn(pattern, jobs['prepare'])
 
-    def test_only_verified_docs_skip_the_build_and_rules_and_are_rechecked_at_the_gate(self):
+    def test_docs_are_rechecked_before_selecting_jobs_and_the_gate_only_verifies_receipts(self):
         jobs = self.jobs()
         self.assertNotRegex(jobs['prepare'], r'(?m)^    if:')
         self.assertIn("if: needs.prepare.outputs.tier != 'DOCS'", jobs['rule_suite'])
         self.assertIn("if: steps.scope.outputs.tier != 'DOCS'", jobs['prepare'])
         self.assertIn('scripts/ci-change-scope.py --event', jobs['prepare'])
-        self.assertIn('--require-docs', jobs['l2_required'])
+        self.assertIn('--recheck var/qa/l2-quality/scope-candidate.json', jobs['prepare'])
+        self.assertLess(jobs['prepare'].index('--recheck'), jobs['prepare'].index('actions/setup-dotnet@'))
+        self.assertIn('--verify-docs-receipt var/qa/l2-quality', jobs['l2_required'])
+        self.assertIn('--checkout var/qa/l2-gate/checkout.json', jobs['l2_required'])
+        self.assertNotIn('--require-docs', jobs['l2_required'])
         self.assertIn("if: needs.prepare.outputs.tier == 'DOCS'", jobs['l2_required'])
+        # An uncertain scope emits L3 and therefore enters the normal full-build/six-shard path.
+        self.assertNotIn("outputs.tier == 'L2'", self.workflow())
+        self.assertNotIn("outputs.tier == 'L1'", self.workflow())
         # L1/L2 scope results also have full=false. Only DOCS may skip the suite.
         self.assertNotIn('outputs.full', self.workflow())
 
@@ -74,7 +81,7 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertEqual(5, text.count('--event-sha "$GITHUB_SHA"'))
         self.assertIn('--commit "$GITHUB_SHA"', text)
         self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', text)
-        self.assertIn('cancel-in-progress: true', text)
+        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", text)
         triggers = text.split('permissions:', 1)[0]
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)

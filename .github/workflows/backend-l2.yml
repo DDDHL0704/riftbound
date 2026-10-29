@@ -10,10 +10,11 @@ on:
 permissions:
   contents: read
 
-# Verify the newest revision of each PR or branch; obsolete main runs release runners too.
+# PR revisions replace their predecessors. Let the active main verification finish;
+# GitHub keeps only the latest pending main revision in the same group.
 concurrency:
   group: l2-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -46,11 +47,16 @@ jobs:
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
       - name: Check committed formatting
         run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
-      - name: Determine whether only reviewed documentation changed
+      - name: Inspect the fixed Git change scope
+        run: >-
+          python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
+          --head "$GITHUB_SHA" --output var/qa/l2-quality/scope-candidate.json
+      - name: Recheck scope before selecting jobs; uncertainty runs the complete suite
         id: scope
         run: >-
           python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
-          --head "$GITHUB_SHA" --output var/qa/l2-quality/scope.json --github-output "$GITHUB_OUTPUT"
+          --head "$GITHUB_SHA" --recheck var/qa/l2-quality/scope-candidate.json
+          --output var/qa/l2-quality/scope.json --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
@@ -145,7 +151,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.sha }}
-          # Rechecking a docs merge needs its base parent in the shallow graph.
+          # Keep the base parent available; scope selection happens in prepare.
           fetch-depth: 2
       - name: Require successful preparation and the expected rule-suite outcome
         env:
@@ -164,11 +170,16 @@ jobs:
           PYGATE
       - name: Verify exact aggregate checkout
         run: python3 scripts/ci-candidate.py --expected "$GITHUB_SHA" --event-sha "$GITHUB_SHA" --output var/qa/l2-gate/checkout.json
-      - name: Recheck the documentation exemption from the actual Git input
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: l2-quality
+          path: var/qa/l2-quality
+      - name: Verify the documentation exemption for this checkout and workflow attempt
         if: needs.prepare.outputs.tier == 'DOCS'
         run: >-
           python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
-          --head "$GITHUB_SHA" --require-docs --output var/qa/l2-gate/documentation.json
+          --head "$GITHUB_SHA" --verify-docs-receipt var/qa/l2-quality
+          --checkout var/qa/l2-gate/checkout.json --output var/qa/l2-gate/documentation.json
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         if: needs.prepare.outputs.tier != 'DOCS'
         with:
@@ -190,11 +201,6 @@ jobs:
         id: targeted
         if: needs.prepare.outputs.tier != 'DOCS'
         run: python3 scripts/run-l2-targeted.py --commit "$GITHUB_SHA" --prepared var/qa/l2-prepared --inputs var/qa/l2-shards --output var/qa/l2-targeted
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        if: needs.prepare.outputs.tier != 'DOCS'
-        with:
-          name: l2-quality
-          path: var/qa/l2-quality
       - name: Require all children, fixed identities and exact original case coverage
         if: needs.prepare.outputs.tier != 'DOCS'
         env:

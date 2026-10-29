@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -7,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('ci_scope', Path(__file__).parents[1] / 'ci-change-scope.py')
 scope = importlib.util.module_from_spec(spec)
@@ -175,6 +177,115 @@ class ScopeTests(unittest.TestCase):
                     self.assertFalse(result['full'])
                 else:
                     self.assertTrue(result['full'], result)
+
+    def test_early_recheck_cli_uses_full_suite_when_history_disappears(self):
+        self.write('scripts/ci-change-scope.py', Path(scope.__file__).read_text())
+        self.base = self.commit()
+        self.git('checkout', '-qb', 'docs-change')
+        self.write('docs/BACKLOG.md', 'complete a task\n')
+        self.commit()
+        self.git('checkout', '-qB', 'candidate', self.base)
+        self.git('merge', '--no-ff', '--no-edit', 'docs-change')
+        head = self.git('rev-parse', 'HEAD')
+        event = self.repo / '.git/event.json'
+        event.write_text(json.dumps({'pull_request': {'base': {'sha': self.base}}}))
+        previous = self.repo / '.git/scope-candidate.json'
+        command = ['python3', str(self.repo / 'scripts/ci-change-scope.py'), '--event', str(event),
+                   '--event-name', 'pull_request', '--head', head, '--output', str(previous)]
+        subprocess.run(command, check=True, capture_output=True)
+        self.assertEqual('DOCS', json.loads(previous.read_text())['tier'])
+        clone = self.repo.parent / (self.repo.name + '-early-recheck')
+        self.addCleanup(shutil.rmtree, clone)
+        subprocess.run(['git', 'clone', '-q', '--depth=1', self.repo.as_uri(), str(clone)],
+                       check=True, capture_output=True)
+        output, github_output = clone / '.git/scope.json', clone / '.git/github-output'
+        command[1] = str(clone / 'scripts/ci-change-scope.py')
+        command[-1] = str(output)
+        subprocess.run(command + ['--recheck', str(previous), '--github-output', str(github_output)],
+                       check=True, capture_output=True)
+        decision = json.loads(output.read_text())
+        self.assertEqual(('L3', True, 'full'), (decision['tier'], decision['full'], decision['profile']))
+        self.assertIn('tier=L3', github_output.read_text())
+        self.assertIn('full=true', github_output.read_text())
+
+    def docs_receipt(self):
+        self.write('docs/BACKLOG.md', 'completed a task\n')
+        head = self.commit()
+        event = {'before': self.base}
+        decision = self.decision()
+        decision.update(scope.scope_context('push', event, head),
+                        ruleAndPackagingExecution='NOT_RUN_DOCUMENTATION_ONLY')
+        directory = self.repo / '.git/docs-artifact'
+        directory.mkdir()
+        previous = directory / 'scope-candidate.json'
+        previous.write_text(json.dumps(decision))
+        final = scope.recheck(dict(decision), previous)
+        (directory / 'scope.json').write_text(json.dumps(final))
+        checkout = dict(status='FIXED_CANDIDATE_CHECKOUT_VERIFIED', actualSha=head, expectedSha=head,
+                        eventSha=head, treeSha=self.git('rev-parse', 'HEAD^{tree}'),
+                        sourceIndexSha256=hashlib.sha256(scope.git(self.repo, 'ls-tree', '-rz', 'HEAD')).hexdigest(),
+                        runId=os.environ.get('GITHUB_RUN_ID'), runAttempt=os.environ.get('GITHUB_RUN_ATTEMPT'))
+        (directory / 'checkout.json').write_text(json.dumps(checkout))
+        gate = self.repo / '.git/gate-checkout.json'
+        gate.write_text(json.dumps(checkout))
+        return directory, gate, event, head
+
+    @patch.dict(os.environ, {'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '2'})
+    def test_recheck_preserves_docs_but_defaults_to_full_for_missing_stale_or_invalid_input(self):
+        directory, _, _, _ = self.docs_receipt()
+        path = directory / 'scope-candidate.json'
+        original = path.read_bytes()
+        current = json.loads(original)
+        self.assertEqual('DOCS', scope.recheck(dict(current), path)['tier'])
+        for value in [b'invalid json', b'[]', json.dumps(dict(current, headSha='2'*40)).encode(),
+                      json.dumps(dict(current, baseSha='3'*40)).encode(),
+                      json.dumps(dict(current, tier='L3', full=True)).encode()]:
+            with self.subTest(value=value):
+                path.write_bytes(value)
+                result = scope.recheck(dict(current), path)
+                self.assertEqual(('L3', True, 'full'), (result['tier'], result['full'], result['profile']))
+        path.unlink()
+        self.assertTrue(scope.recheck(dict(current), path)['full'])
+
+    @patch.dict(os.environ, {'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '2'})
+    def test_docs_gate_checks_fixed_receipts_without_a_second_git_scope_classification(self):
+        directory, gate, event, head = self.docs_receipt()
+        with patch.object(scope, 'git', side_effect=AssertionError('No late Git scope selection')):
+            result = scope.verify_docs_receipt(directory, gate, 'push', event, head)
+        self.assertEqual('DOCUMENTATION_EXEMPTION_VERIFIED', result['status'])
+
+    @patch.dict(os.environ, {'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '2'})
+    def test_docs_gate_rejects_tampered_cross_input_and_missing_receipts(self):
+        directory, gate, event, head = self.docs_receipt()
+        paths = [directory / name for name in ['scope-candidate.json', 'scope.json', 'checkout.json']] + [gate]
+        originals = {path: path.read_bytes() for path in paths}
+        mutations = [
+            (paths[0], 'baseSha', '3'*40), (paths[0], 'changes', []),
+            (paths[1], 'headSha', '2'*40), (paths[1], 'eventSha256', 'stale'),
+            (paths[1], 'selectorSha256', 'old-selector'), (paths[1], 'priorScopeSha256', 'unlinked'),
+            (paths[1], 'full', True), (paths[1], 'runId', '124'), (paths[1], 'runAttempt', '1'),
+            (paths[1], 'changes', [dict(path='src/Rule.cs', oldMode='100644', newMode='100644', status='M')]),
+            (paths[2], 'actualSha', '2'*40), (paths[2], 'runId', '124'),
+            (paths[3], 'treeSha', '3'*40), (paths[3], 'sourceIndexSha256', 'different-tree'),
+            (paths[3], 'status', 'FIXED_CANDIDATE_CHECKOUT_REJECTED'),
+        ]
+        for path, key, value in mutations:
+            with self.subTest(file=path.name, key=key):
+                data = json.loads(originals[path]); data[key] = value
+                path.write_text(json.dumps(data))
+                with self.assertRaises(ValueError):
+                    scope.verify_docs_receipt(directory, gate, 'push', event, head)
+                path.write_bytes(originals[path])
+        for path in paths:
+            with self.subTest(missing=path):
+                path.unlink()
+                with self.assertRaises(OSError):
+                    scope.verify_docs_receipt(directory, gate, 'push', event, head)
+                path.write_bytes(originals[path])
+        with self.assertRaises(ValueError):
+            scope.verify_docs_receipt(directory, gate, 'push', {'before': '3'*40}, head)
+        with self.assertRaises(ValueError):
+            scope.verify_docs_receipt(directory, gate, 'workflow_dispatch', event, head)
 
     def test_malformed_events_and_raw_diff_fail_closed(self):
         head = self.git('rev-parse', 'HEAD')
