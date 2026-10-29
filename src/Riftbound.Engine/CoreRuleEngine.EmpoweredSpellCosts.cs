@@ -59,7 +59,9 @@ public sealed partial class CoreRuleEngine
         int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
         IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0)
     {
-        var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower);
+        var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower)
+            + SourceNextSpellCostReductionEffects(state, player)
+                .Where(s => s.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(s => s.GenericPower);
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
             .SelectMany(a => ReduceSpellPower(a.GenericPower, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction), reduction))
             .DistinctBy(a => (a.ChoiceId, a.GenericPower, PrintedPowerCostRules.ChoiceId(a.TypedPower))).ToArray();

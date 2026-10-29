@@ -136,7 +136,7 @@ public sealed partial class CoreRuleEngine
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
-        if (NeedsUnitEventTarget(item)) return PrepareUnitEventTarget(result, item);
+        if (NeedsUnitEventTarget(item) && item.TargetGenerations is null) return PrepareUnitEventTarget(result, item);
         if (item.UnitPlayMight is not null) return PrepareUnitPlayMight(result, item);
         if (item.MightySkill is { Confirmed: false }) return PrepareMightySkill(result, item);
         if (NeedsAttachmentModeConfirmation(item)) return PrepareAttachmentMode(result, item);

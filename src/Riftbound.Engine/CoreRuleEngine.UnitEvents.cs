@@ -49,6 +49,23 @@ public sealed partial class CoreRuleEngine
             .Select(o => o with { Context = o.Context with { Other = new(new(entered.ObjectId, entered.ObjectGeneration), entered.CardNo!,
                 entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } }).ToArray());
 
+    private static void CaptureSelfDiscardEvents(IReadOnlyDictionary<string, CardObjectState> cards, string player,
+        string eventKind, IReadOnlyList<string> discarded, List<GameEvent> events)
+    {
+        var observations = discarded.Distinct(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
+            && UnitEventSpec(card.CardNo)?.Timing == "SELF_DISCARDED").Select(id => cards[id])
+            .Select(card => new UnitEventObservation(card.ObjectId, player, new(card.CardNo!, card.ObjectGeneration,
+                card.CopyFaceTransitions?.Count ?? 0, 0, "SELF_DISCARDED", card.TokenFactoryCardNo))).ToArray();
+        var index = events.FindLastIndex(e => e.Kind == eventKind);
+        if (observations.Length > 0 && index >= 0) events[index] = WithUnitEvents(events[index], observations);
+    }
+
+    private static UnitEventObservation[] CaptureFirstCardObservers(IReadOnlyDictionary<string, PlayerZones>? zones,
+        IReadOnlyDictionary<string, CardObjectState>? cards, string player)
+        => zones is null || cards is null ? [] : CaptureUnitEvents(zones, cards,
+            zones.GetValueOrDefault(player)?.Battlefields ?? [], "FIRST_CARD_PLAYED")
+                .Where(o => o.Controller == player).ToArray();
+
     // Record at the instruction, so ready-then-exhaust and departure later in
     // the same command cannot erase or invent an earned trigger (CN383.2.c).
     private static GameEvent CaptureUnitReadied(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
@@ -142,7 +159,7 @@ public sealed partial class CoreRuleEngine
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && UnitEventSpec(c.CardNo)?.Effect is "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE";
+        && UnitEventSpec(c.CardNo)?.Effect is "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" or "MOVE_ENEMIES_TO_BASE" or "MIGHT_FRIENDLY";
     internal static bool ValidUnitEventTargets(StackItemState item)
         => item.TargetGenerations is null || NeedsUnitEventTarget(item) && item.TargetObjectIds.Count > 0
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.AnyNumberOfTargets || item.TargetObjectIds.Count == 1)
@@ -153,6 +170,8 @@ public sealed partial class CoreRuleEngine
         => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && (UnitEventSpec(item.UnitEvent!.CardNo)!.Effect switch {
                 "READY_ANOTHER_FRIENDLY" => c.ObjectId != item.SourceObjectId && IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
+                "MIGHT_FRIENDLY" => IsFaceUpNonStandbyUnit(c)
                     && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
                 "MATCH_GREATER_POWER" => IsFaceUpNonStandbyUnit(c) && c.ObjectId != item.SourceObjectId
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var loc) && loc.Zone == item.UnitEvent.Here!.Zone
@@ -205,10 +224,26 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = UnitEventSpec(context.CardNo)!;
-        if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration));
+        if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {
+            CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var reducer);
+            var marker = BuildSourceNextSpellCostReductionEffectId(reducer, item.ControllerId, item.SourceObjectId);
+            return NoopStackResolutionResult(state) with {
+                UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, marker),
+                Events = [new("NEXT_CARD_COST_REDUCTION_GRANTED", "本回合下一张卡牌减费", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["manaReduction"] = reducer.SourceNextSpellCostReductionMana,
+                    ["powerReduction"] = reducer.SourceNextSpellCostReductionGenericPower })] };
+        }
+        if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration), item.ControllerId);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "MIGHT_FRIENDLY" && item.TriggerCost is not null && item.TargetObjectIds.SingleOrDefault() is { } buffed
+            && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
+            var behavior = new CardBehaviorDefinition(context.CardNo, "弃牌触发战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
+            cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);
+            events.Add(power);
+        }
         if (spec.Effect == "BANISH_ENTERED_EQUIPMENT" && item.TriggerCost?.SourceWasBanished == true
             && context.Other is { } entered && cards.TryGetValue(entered.Binding.ObjectId, out var equipment)
             && equipment.ObjectGeneration == entered.Binding.Generation && equipment.Tags.Contains(CardObjectTags.EquipmentCard)

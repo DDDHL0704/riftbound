@@ -3659,9 +3659,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects = untilEndOfTurnEffects
                 .Where(effect => !EchoCostRules.IsGrant(effect, intent.PlayerId)).ToArray();
         }
-        var nextSpellCostReductionConsumedEffects = IsSpellPlayBehavior(behavior)
-            ? SourceNextSpellCostReductionEffects(state, intent.PlayerId)
-            : Array.Empty<SourceNextSpellCostReductionEffect>();
+        var nextSpellCostReductionConsumedEffects = SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+            .Where(effect => effect.AppliesToAllCards || IsSpellPlayBehavior(behavior)).ToArray();
         foreach (var effect in nextSpellCostReductionConsumedEffects)
         {
             untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effect.EffectId);
@@ -3707,7 +3706,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (cardObjects.TryGetValue(command.SourceObjectId, out var historySource)
             || PrintedCardFactory.TryCreate(command.SourceObjectId, intent.PlayerId, command.CardNo, out historySource))
             events[0] = CaptureCardPlayHistory(events[0], historySource, intent.PlayerId,
-                stackItem.StackItemId, false, "STACK");
+                stackItem.StackItemId, false, "STACK", playerZones, cardObjects);
         if (stackItem.FlowPlay is not null)
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                 ["playedWithFlow"] = true, ["sourceZone"] = "GRAVEYARD" } };
@@ -3782,7 +3781,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["effectRepeatCount"] = plan.EffectRepeatCount
                 }));
         }
-        if (nextSpellCostReductionConsumedEffects.Count > 0)
+        if (nextSpellCostReductionConsumedEffects.Length > 0)
         {
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
@@ -4777,7 +4776,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             effectId,
             effectKind,
             sourceObjectId,
-            behavior.SourceNextSpellCostReductionMana);
+            behavior.SourceNextSpellCostReductionMana, behavior.SourceNextSpellCostReductionGenericPower,
+            behavior.SourceNextSpellCostReductionAppliesToAllCards);
         return true;
     }
 
@@ -10078,6 +10078,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (discardedObjectIds.Count == 0) return;
+        CaptureSelfDiscardEvents(cardObjects, playerId, triggeredByEventKind, discardedObjectIds, events);
         var frame = RuleChoices.Value!;
         var observers = new List<HandDiscardObserverContext>();
         foreach (var source in cardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
@@ -29170,7 +29171,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playedEvent = CaptureEquipmentPlayed(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId);
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
-            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD");
+            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD", playerZones, cardObjects);
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 
@@ -34660,7 +34661,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string EffectId,
         string EffectKind,
         string SourceObjectId,
-        int Mana);
+        int Mana, int GenericPower, bool AppliesToAllCards);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
