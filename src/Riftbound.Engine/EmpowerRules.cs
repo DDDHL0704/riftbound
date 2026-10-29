@@ -23,8 +23,11 @@ internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, Empo
 internal static class EmpowerRules
 {
     internal const string Effect = "EMPOWER_ACTIVATION";
+    // CN 423.1: a discarded spell is a spell card in its controller's hand.
+    internal static bool RequiresSpellDiscard(EmpowerCostSpec cost)
+        => cost.AdditionalCost is "弃置一张法术牌" or "弃置一个法术";
     internal static bool RequiresHandDiscard(EmpowerCostSpec cost)
-        => !cost.SupportedResources && (cost.AdditionalCost is "弃置一张手牌" or "弃置一张法术牌") && !cost.Exhaust
+        => !cost.SupportedResources && (cost.AdditionalCost == "弃置一张手牌" || RequiresSpellDiscard(cost)) && !cost.Exhaust
             && cost.Mana == 0 && cost.Power == 0 && cost.TypedPower.Count == 0;
     internal static bool RequiresFriendlyUnitDestruction(EmpowerCostSpec cost)
         => !cost.SupportedResources && cost.AdditionalCost == "摧毁一名友方单位" && !cost.Exhaust
@@ -144,7 +147,7 @@ public sealed partial class CoreRuleEngine
                 && state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown && !IsTokenObject(card)
                 && !card.Tags.Contains(CardObjectTags.RuneCard)
                 && card.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.SpellCard or CardObjectTags.EquipmentCard)
-                && (cost.AdditionalCost != "弃置一张法术牌" || card.Tags.Contains(CardObjectTags.SpellCard)))
+                && (!EmpowerRules.RequiresSpellDiscard(cost) || card.Tags.Contains(CardObjectTags.SpellCard)))
             .Distinct(StringComparer.Ordinal).ToArray();
 
     internal static bool TrySelectEmpowerHandDiscardCost(MatchState state, string actor, string source,

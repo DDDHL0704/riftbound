@@ -2925,6 +2925,7 @@ public static class StaticAbilityParser
                     segment, BehaviorImplementationStatuses.Unimplemented,
                     "Enemy spell and skill target protection applies while the source is outside combat.",
                     RequiresSourceOutsideBattle: true));
+                continue;
             }
 
             var selfDamageImmunity = Regex.Match(segment,
