@@ -41,7 +41,8 @@ public static partial class MatchRecoveryValidator
                     ? (boon.Source, boon.ConquestTick, "CONQUEST-BOON-DRAW", CoreRuleEngine.ValidBattlefieldConquestConsumeBoonContext(
                         state, boon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
                     : (null, -1L, "", false);
-        if (!valid || source is null || item.StackItemId != $"ordered-{kind}:{tick}:{source.ObjectId}") return false;
+        if (!valid || source is null || item.StackItemId != $"ordered-{kind}:{tick}:{source.ObjectId}"
+            || !CoreRuleEngine.ValidDepartedTokenTargets(state, item)) return false;
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(new StackItemState(
             item.StackItemId, item.ControllerId, item.SourceObjectId, item.EffectKind, item.CardNo,
             targetObjectIds: item.BattlefieldConquestReadyEquipment is null ? null : item.TargetObjectIds,
@@ -49,7 +50,8 @@ public static partial class MatchRecoveryValidator
             targetGenerations: item.BattlefieldConquestReadyEquipment is null ? null : item.TargetGenerations) {
             BattlefieldConquestDiscardDraw = item.BattlefieldConquestDiscardDraw,
             BattlefieldConquestReadyEquipment = item.BattlefieldConquestReadyEquipment,
-            BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, TriggerCost = item.TriggerCost });
+            BattlefieldConquestConsumeBoon = item.BattlefieldConquestConsumeBoon, TriggerCost = item.TriggerCost,
+            DepartedTokenTargets = item.DepartedTokenTargets });
     }
 
     private static bool ValidBattlefieldConquestEquipmentTarget(MatchState state, StackItemState item,
