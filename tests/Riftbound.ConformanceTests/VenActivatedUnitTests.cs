@@ -90,6 +90,22 @@ public sealed class VenActivatedUnitTests
         await Reject(game.State, new ActivateAbilityCommand("UNIT", "TUNDRA_HUNTER_READY", [])); await game.Replay();
     }
 
+    [Fact]
+    public async Task HuntersPaidSkillDoesNotReadyOrBuffItsNewHandIncarnation()
+    {
+        var initial = AttackDamageDistributionTests.Spell(InBase("VEN·125"), "SPELL", "SFD·080/221", "P1");
+        initial = AttackDamageDistributionTests.Spell(initial, "BOUNCE", "OGN·104/298", "P1");
+        initial = LocalDestructionRecallTests.At(initial, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["UNIT"] = initial.CardObjects["UNIT"] with { IsExhausted = true } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("SPELL", "SFD·080/221", ["ENEMY"])); await game.Top();
+        await game.Act("P1", new ActivateAbilityCommand("UNIT", "TUNDRA_HUNTER_READY", []));
+        await game.Act("P1", new PlayCardCommand("BOUNCE", "OGN·104/298", ["UNIT"])); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); await game.Top();
+        Assert.Equal(4, game.State.CardObjects["UNIT"].Power); Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
     private static MatchState InBase(string no)
     {
         var state = LocalDestructionRecallTests.At(VenUnitEntryBasicTests.Position(no), "UNIT", "P1", "BASE");
