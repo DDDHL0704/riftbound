@@ -94,9 +94,11 @@ public sealed class OptionalManaTriggerPromptTests
         }
         if (branch == "vayne")
         {
-            var trigger = Assert.Single(driver.State.TriggerQueue);
+            Assert.Empty(driver.State.TriggerQueue);
+            var trigger = Assert.Single(driver.State.StackItems);
             Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, trigger.EffectKind);
-            await driver.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [trigger.TriggerId]));
+            var payment = Assert.IsType<PendingPaymentState>(driver.State.PendingPayment);
+            Assert.Equal(trigger.StackItemId, payment.ResolvingStackItemId);
         }
         return driver;
     }
@@ -108,6 +110,7 @@ public sealed class OptionalManaTriggerPromptTests
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value);
         var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value);
+        locations["BF"] = new("P2", "BATTLEFIELD", "BF");
         cards["UNIT"] = cards["UNIT"] with { CardNo = branch == "vayne" ? "OGN·035/298" : branch == "icevale" ? "UNL-065/219" : "SFD·125/221" };
         if (branch == "legend")
         {
