@@ -284,8 +284,11 @@ class DistributedL2Tests(unittest.TestCase):
     def test_missing_or_repeated_parameter_row_fails_even_with_matching_trx_counters(self):
         shard = next(s for s in self.plan['shards'] if self.dynamic in s['methods'])
         folder = self.inputs / shard['name']
-        rows = [case for m in shard['methods'] for case in self.plan['cases'][m]]
-        for changed in [rows[:-1], rows + [rows[0]]]:
+        rows = D.SELECT.case_names(shard, self.plan['cases'])
+        target_row = self.plan['cases'][self.dynamic][0]
+        missing = rows.copy()
+        missing.remove(target_row)
+        for changed in [missing, rows + [target_row]]:
             with self.subTest(changed=changed):
                 self.trx(folder / 'results.trx', changed)
                 receipt = D.read(folder / 'receipt.json')
@@ -422,6 +425,40 @@ class DistributedL2Tests(unittest.TestCase):
         row = self.theory + '(x: 1)'
         self.assertEqual([dict(kind='method', method=self.theory)],
                          D.SELECT.selectors([row], {self.theory: [row]}, {row: 1000000}))
+
+    def test_serial_class_work_cannot_hide_behind_equal_total_shard_weights(self):
+        prefix = D.RULES.PREFIX
+        weights = {prefix + 'Serial.First': 100, prefix + 'Serial.Second': 90,
+                   prefix + 'Other.First': 99, prefix + 'Third.First': 98}
+        cases = {method: [method] for method in weights}
+        units = [dict(kind='method', method=method) for method in cases]
+        shards = D.SELECT.partition(units, cases, weights, 2)
+        D.SELECT.validate(shards, cases, list(cases))
+        self.assertCountEqual(list(cases), [name for shard in shards for name in D.SELECT.case_names(shard, cases)])
+        serial_shards = {shard['name'] for shard in shards
+                         if any(unit['method'].startswith(prefix + 'Serial.') for unit in shard['selectors'])}
+        self.assertEqual(2, len(serial_shards))
+        bounds = []
+        for shard in shards:
+            classes = {}
+            for method in shard['methods']:
+                cls = method.rsplit('.', 1)[0]
+                classes[cls] = classes.get(cls, 0) + weights[method]
+            bounds.append(max(shard['estimatedSeconds'] / 4, max(classes.values())))
+        self.assertEqual(100, max(bounds))  # Equal total work alone puts 190 serial seconds together.
+
+    def test_class_spread_remains_useful_when_another_class_sets_the_shard_budget(self):
+        prefix = D.RULES.PREFIX
+        weights = {prefix + 'Giant.First': 1000, prefix + 'Serial.First': 100,
+                   prefix + 'Serial.Second': 90, prefix + 'Other.First': 99, prefix + 'Third.First': 98}
+        cases = {method: [method] for method in weights}
+        shards = D.SELECT.partition([dict(kind='method', method=method) for method in cases], cases, weights, 2)
+        D.SELECT.validate(shards, cases, list(cases))
+        # A dominant unrelated class must not make both smaller serial methods
+        # accumulate in the same shard just because their combined time fits its budget.
+        serial_shards = {shard['name'] for shard in shards
+                         if any(unit['method'].startswith(prefix + 'Serial.') for unit in shard['selectors'])}
+        self.assertEqual(2, len(serial_shards))
 
     def test_partial_rows_never_overlap_a_whole_method_or_repeat_in_another_shard(self):
         plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400}, 6)
