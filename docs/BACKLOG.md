@@ -58,7 +58,7 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
-- [ ] **P3-2 L2 提速**（`a/l2-arm64`）：
+- [ ] **P3-2 L2 提速**（`a/l2-arm-balance`）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
@@ -72,9 +72,10 @@
   - [PR #273](https://github.com/DDDHL0704/riftbound/pull/273) 已合入：取消关键词精确查找的临时集合分配，保留空白修剪、Ordinal 与运行时标签语义，并用 #269 实测刷新权重。[40919287657](https://github.com/DDDHL0704/riftbound/actions/runs/40919287657) 完整 9,186 个方法、18,477 条用例及门槛全部通过；相对固定 main 的 18,457 条零移除，新增 20 条解析测试。六片实测约 37.4 / 38.9 / 40.3 / 26.5 / 39.8 / 34.0 分钟，30 分钟目标仍未达到；
   - [PR #276](https://github.com/DDDHL0704/riftbound/pull/276) 已合入：完整规则和夜验的实际测试进程启用 Server GC，并记录 testhost 的 GC、分配、暂停、CPU 与内存。[40927908912](https://github.com/DDDHL0704/riftbound/actions/runs/40927908912) 完整 9,186 个方法、18,477 条用例及门槛全部通过，原清单和六片选择器逐条一致；六个 testhost 均确认四核 Server GC，峰值进程树内存约 1.2–1.6 GiB。六片实测约 28.1 / 32.4 / 15.9 / 14.8 / 16.1 / 27.4 分钟，整次约 35.2 分钟，30 分钟目标仍未达到；
   - [PR #277](https://github.com/DDDHL0704/riftbound/pull/277) 已合入：按 #276 完整实测刷新权重并记录 CPU 拓扑。[40934738477](https://github.com/DDDHL0704/riftbound/actions/runs/40934738477) 完整 9,186 个方法、18,477 条用例与门槛全部通过，原 Counter 逐条一致。六片实测约 31.4 / 30.4 / 32.4 / 22.5 / 31.1 / 33.2 分钟，整次 37.0 分钟，30 分钟目标未达到；五片使用 EPYC 7763，一片使用 EPYC 9V74，均观测为四逻辑处理器、两核心。
-  - `a/l2-arm64` 将 L2 的固定构建和六片执行改用公开仓库免费的四核 ARM64 标准 runner，保留原完整清单、耗时权重、六片与全部门槛；用本 PR 的完整 CI 实测性能和架构兼容性，再决定是否可减少分片。
+  - [PR #278](https://github.com/DDDHL0704/riftbound/pull/278) 已合入：L2 固定构建和六片执行改用公开仓库免费的四核 ARM64 标准 runner。[40940869443](https://github.com/DDDHL0704/riftbound/actions/runs/40940869443) 完整 9,186 个方法、18,477 条用例及门槛全部通过，原 Counter 与六片选择器逐条一致；Linux aarch64 的参数行预检及负控通过，六个 testhost 均确认四核 Server GC。六片实测约 25.7 / 23.7 / 26.4 / 23.7 / 24.1 / 24.4 分钟，整次 **29 分 59 秒**，首次进入 30 分钟，但余量只有一秒。
+  - `a/l2-arm-balance` 用 #278 完整 ARM64 实测刷新耗时权重，保留全部用例和门槛。对该次原始 TRX 的历史工作量模拟，最慢片下界由 26.1 分钟降到 24.5 分钟；模拟不代替本 PR 的真实完整 CI。总工作量约 586.4 用例分钟，五片四 worker 的工作量下界已需 29.3 分钟，尚未计构建与汇总，因此继续保留六片。
   - main 的 [40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172) 被 #260 的新提交取消；后续 [40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883)（固定 `25913d6a`）已完成，六片全部 17,804 条用例及 `L2 required` 通过，恢复合入后的主干完整验证。已让包含 #266 新夹具的 main [40880177592](https://github.com/DDDHL0704/riftbound/actions/runs/40880177592) 接替刚启动的旧版本 40863395876。包含 #266 的该次 main 运行现已完整通过。包含 #269 的固定 `94092d89` main [40917321493](https://github.com/DDDHL0704/riftbound/actions/runs/40917321493) 也完整通过 18,457 条用例与门槛。后续固定 `d9f26d83` 的 main [40913724782](https://github.com/DDDHL0704/riftbound/actions/runs/40913724782) 也完整通过 18,445 条用例与门槛，已包含 #254 新卡。PR 与 main 的并发组隔离，#263 保留运行中的 main、待跑只留最新；文档豁免只适用于 PR，main 推送始终全量；
-  - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）已完整通过 9,186 个方法、18,477 条用例与门槛，清单与 #276 一致；包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646) 接续运行。
+  - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）及包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646)（固定 `b17468bc`）均已完整通过 9,186 个方法、18,477 条用例与门槛，原 Counter 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
