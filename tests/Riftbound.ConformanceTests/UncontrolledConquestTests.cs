@@ -25,6 +25,8 @@ public sealed class UncontrolledConquestTests
     [InlineData("SFD·116/221")]
     [InlineData("SFD·233/221")]
     [InlineData("SFD·233*/221")]
+    [InlineData("RAD·181*/167")]
+    [InlineData("RAD·181/167")]
     public async Task EveryCurrentPrintingConfirmsEnemyBaseTargetBeforeResponse(string no)
     {
         var conquered=await ConquestLifecycleRegressionTests.Conquer(Position(no));
@@ -126,11 +128,14 @@ public sealed class UncontrolledConquestTests
         var restored=OfficialInsightAndSpellLockTests.Restore(opened.State);var selected=await Choose(restored);Restore(selected.State);
         var done=await Top(OfficialInsightAndSpellLockTests.Restore(selected.State));Assert.Equal(5,done.State.CardObjects["ENEMY"].Damage);
     }
+    public static IEnumerable<object[]> InvalidPrintingChoices() => new[] { "SFD·116/221", "RAD·181*/167", "RAD·181/167" }
+        .SelectMany(no => new[] { (Player: "P2", Target: "ENEMY"), (Player: "P1", Target: "UNIT"), (Player: "P1", Target: "") }
+            .Select(choice => new object[] { no, choice.Player, choice.Target }));
     [Theory]
-    [InlineData("P2", "ENEMY")] [InlineData("P1", "UNIT")] [InlineData("P1", "")]
-    public async Task InvalidPlayerTargetOrMandatoryDeclineIsAtomic(string player,string target)
+    [MemberData(nameof(InvalidPrintingChoices))]
+    public async Task InvalidPlayerTargetOrMandatoryDeclineIsAtomic(string no,string player,string target)
     {
-        var opened=await ConquestLifecycleRegressionTests.Conquer(Position());var c=opened.State.PendingCardChoice!;
+        var opened=await ConquestLifecycleRegressionTests.Conquer(Position(no));var c=opened.State.PendingCardChoice!;
         var cmd=new ChooseCardsCommand(c.ChoiceId,c.ChoiceWindow,target.Length==0?[]:[target]);
         var bad=await new CoreRuleEngine().ResolveAsync(opened.State,new("bad",player,cmd.CmdType),cmd,default);
         Assert.False(bad.Accepted);Assert.Equal(MatchStateHasher.Hash(opened.State),MatchStateHasher.Hash(bad.State));

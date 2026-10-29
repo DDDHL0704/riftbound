@@ -9,9 +9,9 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class AttachmentModeTests
 {
-    internal static MatchState Position()
+    internal static MatchState Position(string cardNo = "SFD·049/221")
     {
-        var s = AttachedRuleTextTests.Position("SFD·049/221", 0);
+        var s = AttachedRuleTextTests.Position(cardNo, 0);
         var cards = new Dictionary<string, CardObjectState>(s.CardObjects);
         var locations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations);
         foreach (var id in new[] { "MR1", "MR2", "RD1", "RD2" }) {
@@ -56,11 +56,14 @@ public sealed class AttachmentModeTests
         OfficialGraveyardRecastTests.Restore(result.State); ArmamentMightTests.PublicRecovery(result.State);
     }
 
+    public static IEnumerable<object[]> PrintingModes() => new[] { "SFD·049/221", "RAD·179*/167", "RAD·179/167" }
+        .SelectMany(no => new[] { "READY_RUNES", "CHANNEL_RUNE", "GRANT_BOON" }.Select(mode => new object[] { no, mode }));
+
     [Theory]
-    [InlineData("READY_RUNES")] [InlineData("CHANNEL_RUNE")] [InlineData("GRANT_BOON")]
-    public async Task ConfirmedModeRecordsUseAndWaitsForResponsesBeforeItsEffect(string mode)
+    [MemberData(nameof(PrintingModes))]
+    public async Task ConfirmedModeRecordsUseAndWaitsForResponsesBeforeItsEffect(string cardNo, string mode)
     {
-        var result = await AttachedRuleTextTests.Attach(Position());
+        var result = await AttachedRuleTextTests.Attach(Position(cardNo));
         result = await Choose(result.State, mode);
         if (mode == "READY_RUNES") result = await Choose(result.State, "MR1", "MR2");
         if (mode == "GRANT_BOON") result = await Choose(result.State, "HOST");
@@ -206,10 +209,11 @@ public sealed class AttachmentModeTests
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged)); Restore(result.State);
     }
 
-    [Fact]
-    public async Task ModeWithInsufficientRequiredRuneTargetsCannotBeConfirmed()
+    [Theory]
+    [InlineData("SFD·049/221")] [InlineData("RAD·179*/167")] [InlineData("RAD·179/167")]
+    public async Task ModeWithInsufficientRequiredRuneTargetsCannotBeConfirmed(string cardNo)
     {
-        var result = await AttachedRuleTextTests.Attach(AttachedRuleTextTests.Position("SFD·049/221", 0));
+        var result = await AttachedRuleTextTests.Attach(AttachedRuleTextTests.Position(cardNo, 0));
         Assert.Equal(new[] { "CHANNEL_RUNE", "GRANT_BOON" }, result.State.PendingCardChoice!.LegalObjectIds);
         result = await Choose(result.State, "CHANNEL_RUNE");
         Assert.Empty(result.State.StackItems[0].TargetObjectIds);
