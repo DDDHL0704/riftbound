@@ -2510,6 +2510,7 @@ public static class ActivatedAbilityParser
                 var parts = segment.Split(['：', ':'], 2, StringSplitOptions.TrimEntries);
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
+                if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
                 if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
                 {
                     return typedResourceSkill;
@@ -2568,6 +2569,19 @@ public static class ActivatedAbilityParser
         }
 
         return segments;
+    }
+
+    private static bool TryParseSourceBoonMight(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var match = Regex.Match(effect, @"^(?:给予我在本回合内|让我本回合内)\{\{S\}\}\+(?<amount>\d+)[。.]?$", RegexOptions.CultureInvariant);
+        if (cost != "消耗我的增益" || !match.Success
+            || !int.TryParse(match.Groups["amount"].Value, out var amount) || amount <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Implemented, "Consume the source's boon as an ordinary activated ability cost.",
+            Kind: ActivatedAbilityKinds.ConsumeSourceBoonGrantSelfMight, ExhaustsSourceAsCost: false,
+            ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0, PowerModifierAmount: amount);
+        return true;
     }
 
     private static bool TryParseTargetedPowerModifier(string cost, string effect, out ActivatedAbilitySpec ability)
