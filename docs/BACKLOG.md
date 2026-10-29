@@ -50,7 +50,7 @@
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
-- [x] **P3-1 拆分巨型文件**：分支 `a/split-large-files` 按领域纯搬移三个大文件，原 `MatchSession.cs`、`MatchRecovery.cs` 和 `ConformanceFixtureRunnerTests.cs` 分别降至 4,670、3,920 和 240 行。
+- [x] **P3-1 拆分巨型文件**：分支 `a/split-large-files` 按领域纯搬移三个大文件，原 `MatchSession.cs`、`MatchRecovery.cs` 和 `ConformanceFixtureRunnerTests.cs` 分别降至 4,685、3,939 和 240 行。
   - 保留全部成员正文、测试名称及各类型字段和属性的初始化顺序；当前 B/C/D PR 涉及的成员仍在原文件，源码检查会读取对应目录中的全部拆分文件。定向回归 2,341/2,341 通过，同步 #260 后杰斯两个测试类的 56 条用例、同步 #265 后十个机制测试类的 214 条用例均逐条对齐原清单通过，零跳过。4,219 个成员正文和字段、属性顺序已与 #265 main 核对一致；完整规则套件和 `L2 required` 继续由 PR CI 执行。
 - [ ] **P3-2 L2 提速**（`a/l2-scheduling`）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验的最终结果仍须读取；
