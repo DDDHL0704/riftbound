@@ -46,6 +46,7 @@ public sealed partial class CoreRuleEngine
             || scope==CardTargetScopes.FriendlyMainDeckCard && index>=behavior.MainDeckLookTargetStartIndex
             || scope==CardTargetScopes.FriendlyHandCardThenBattlefieldUnit && index==0
             || (scope is CardTargetScopes.FriendlyUnitThenStackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell) && index>0
+            || behavior.TargetReferencedMovement is { ReferenceIsBattlefield: true } movement && index == movement.MovingTargetIndex
             || behavior.SwapsSourceWithFirstTargetLocation || behavior.SwapsTargetLocations && index>0)return true;
         return state.CardObjects.TryGetValue(origin.Battlefield.ObjectId,out var field) && field.ObjectGeneration==origin.Battlefield.Generation
             && state.ObjectLocations.TryGetValue(target,out var location) && location.Zone=="BATTLEFIELD"

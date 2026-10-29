@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public enum RevealedHandAction { Recycle, DiscardDraw, RevealOnly }
-public sealed record RevealedHandChoiceSpec(RevealedHandAction Action, string ForbiddenTag = "", int ExperienceCost = 0, bool Optional = false);
+public sealed record RevealedHandChoiceSpec(RevealedHandAction Action, string ForbiddenTag = "", int ExperienceCost = 0, bool Optional = false, string RequiredTag = "");
 public sealed record RevealedHandChoiceContext(string StackItemId, int ExecutionIndex, string OwnerId, IReadOnlyDictionary<string, long> Cards);
 
 public sealed partial class CoreRuleEngine
@@ -20,7 +20,8 @@ public sealed partial class CoreRuleEngine
 
     private static string[] RevealedHandChoices(MatchState state, string controller, RevealedHandChoiceSpec spec, IEnumerable<string> hand)
         => spec.Action == RevealedHandAction.RevealOnly || state.PlayerExperience.GetValueOrDefault(controller) < spec.ExperienceCost ? []
-            : hand.Where(id => string.IsNullOrEmpty(spec.ForbiddenTag) || !state.CardObjects[id].Tags.Contains(spec.ForbiddenTag)).ToArray();
+            : hand.Where(id => (string.IsNullOrEmpty(spec.ForbiddenTag) || !state.CardObjects[id].Tags.Contains(spec.ForbiddenTag))
+                && (string.IsNullOrEmpty(spec.RequiredTag) || state.CardObjects[id].Tags.Contains(spec.RequiredTag))).ToArray();
 
     private static StackResolutionResult BeginRevealedHandChoice(MatchState state, StackItemState item, RevealedHandChoiceSpec spec)
     {
@@ -29,7 +30,9 @@ public sealed partial class CoreRuleEngine
         var hand = state.PlayerZones[owner].Hand.Order(StringComparer.Ordinal).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration);
         var legal = RevealedHandChoices(state, item.ControllerId, spec, hand.Keys);
         var reason = spec.Action == RevealedHandAction.RevealOnly ? "对手已展示手牌。确认后，本回合可查看该对手场上正面朝下的卡牌，并获得1经验。手牌随后恢复隐藏。"
-            : spec.Action == RevealedHandAction.Recycle ? "对手已展示手牌：必须选择一张非单位卡牌让其回收；没有可选牌时继续。"
+            : spec.Action == RevealedHandAction.Recycle ? string.IsNullOrEmpty(spec.RequiredTag)
+                ? "对手已展示手牌：必须选择一张非单位卡牌让其回收；没有可选牌时继续。"
+                : "对手已展示手牌：必须选择一张具有灵光（蓝色）特性的卡牌让其回收；没有可选牌时继续。"
             : $"对手已展示手牌：选择一张牌并确认，将支付 {spec.ExperienceCost} 经验，让对手弃置该牌并抽一张；也可以不选放弃。";
         if (state.PlayerExperience.GetValueOrDefault(item.ControllerId) < spec.ExperienceCost) reason += " 当前经验不足，只能继续。";
         var choice = new PendingCardChoiceState($"HAND-{item.StackItemId}-{item.CompletedHandExecutions}", "REVEALED_HAND_EFFECT", item.ControllerId,

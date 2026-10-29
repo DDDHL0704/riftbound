@@ -181,8 +181,9 @@ public sealed class HandDiscardObserverOpeningTests(ITestOutputHelper output)
         => s.PlayerZones[player].Base.Where(id => s.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
     private static async Task Tap(Opening run, string actor)
     {
-        foreach (var rune in Runes(run.State, actor).Where(id => !run.State.CardObjects[id].IsExhausted).ToArray())
-            await run.Submit(actor, new TapRuneCommand(rune));
+        var runes = Runes(run.State, actor).Where(id => !run.State.CardObjects[id].IsExhausted).ToArray();
+        foreach (var batch in runes.Chunk(12))
+            await run.Submit(actor, new TapRuneCommand(batch[0], batch));
     }
     private static async Task Drain(Opening run)
     {

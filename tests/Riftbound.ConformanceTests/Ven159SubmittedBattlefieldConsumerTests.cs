@@ -27,7 +27,9 @@ public sealed class Ven159SubmittedBattlefieldConsumerTests
             {
                 await game.WaitFor(player, 11, Arena.WallNo, Arena.GuardNo); var runes = game.Runes(player);
                 Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
-                foreach (var id in runes.Take(10)) await game.Act(player, new TapRuneCommand(id));
+                // Use the same ten real runes in one production resource command.
+                // Every following cold checkpoint still replays all funding events.
+                await game.Tap(player, 10);
                 await game.Act(player, new RecycleRuneCommand(runes[0]));
                 walls[player] = game.Hand(player, Arena.WallNo).First(); guards[player] = game.Hand(player, Arena.GuardNo).First();
                 await game.Act(player, new PlayCardCommand(walls[player], Arena.WallNo, [])); Assert.Equal(4, game.State.RunePools[player].Mana);
