@@ -308,6 +308,33 @@ def run_logged(command, output):
         subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
 
 
+def processor_identity(cpuinfo=Path('/proc/cpuinfo'), topology=Path('/sys/devices/system/cpu'), affinity=None):
+    identity = dict(architecture=platform.machine())
+    try:
+        identity['modelNames'] = sorted({line.split(':', 1)[1].strip() for line in cpuinfo.read_text().splitlines()
+                                        if ':' in line and line.split(':', 1)[0].strip() in {'model name', 'Hardware'}})
+    except OSError as error:
+        identity['modelReadError'] = str(error)
+    try:
+        cpus = sorted(affinity if affinity is not None else os.sched_getaffinity(0)
+                      if hasattr(os, 'sched_getaffinity') else range(os.cpu_count() or 1))
+        if not cpus:
+            raise ValueError('No CPUs in the observed affinity.')
+        cores = []
+        for cpu in cpus:
+            folder = topology / f'cpu{cpu}' / 'topology'
+            socket = int((folder / 'physical_package_id').read_text())
+            core = int((folder / 'core_id').read_text())
+            if min(socket, core) < 0:
+                raise ValueError('Physical CPU topology is unavailable.')
+            cores.append(dict(cpu=cpu, socket=socket, core=core))
+        identity.update(affinityLogicalCpuCount=len(cpus), affinityCpuTopology=cores,
+                        affinityPhysicalCoreCount=len({(row['socket'], row['core']) for row in cores}))
+    except (OSError, ValueError) as error:
+        identity['topologyReadError'] = str(error)
+    return identity
+
+
 def process_sample(pid):
     sample = dict(atUtc=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), processId=pid,
                   hostProcessorCount=os.cpu_count(), processes=[])
@@ -334,6 +361,9 @@ def process_sample(pid):
 
 
 def run_visible(command, log_path, runtime_path, context, interval=60, env=None):
+    # A vCPU count alone cannot distinguish SMT siblings or different CPU models.
+    # This observation never changes the fixed selectors or worker count.
+    context = dict(context, processorIdentity=processor_identity())
     began = time.monotonic()
     samples, offset = [], 0
     sample_path = Path(runtime_path).with_suffix('.jsonl')
@@ -488,7 +518,13 @@ def execute_shard(prepared, output, commit, name):
     code = run_visible(command, output / 'test.log', output / 'execution-runtime.json',
                        dict(commit=commit, sdkVersion=sdk, testAssemblySha256=plan['testAssemblySha256'], shard=name,
                             moduleRuntime=read(output / 'module-audit.json').get('runtime')),
-                       env=dict(os.environ, RIFTBOUND_TEST_COLLECTION_ORDER=str(output / 'selection.json')))
+                       # Each CI testhost runs four CPU-bound collections. Server GC
+                       # collects their allocation-heavy recovery work in parallel.
+                       # This applies only to execution, including the nightly shards;
+                       # local processor limits and every exact selector are preserved.
+                       env=dict(os.environ, DOTNET_gcServer='1',
+                                RIFTBOUND_TEST_COLLECTION_ORDER=str(output / 'selection.json'),
+                                RIFTBOUND_TEST_RUNTIME_DIR=str(output / 'testhost-runtime')))
     receipt = dict(status='FAILED', exitCode=code, commit=commit, shard=name, sdkVersion=sdk,
                    planSha256=digest(prepared / 'plan.json'), bundleManifestSha256=plan['bundleManifestSha256'],
                    testAssemblySha256=plan['testAssemblySha256'], moduleAuditSha256=digest(output / 'module-audit.json'),
