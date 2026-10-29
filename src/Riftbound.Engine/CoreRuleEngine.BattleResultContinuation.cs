@@ -71,7 +71,19 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return StampNewTriggerQueueTimes(state, RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(completed))));
+            return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
+                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(completed)))));
+    }
+
+    // MatchState uses a sorted set of turn markers when deserializing. Publish
+    // the same order after every instruction so recovery preserves state hashes.
+    private static ResolutionResult NormalizeTurnEffectMarkers(ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var effects = result.State.UntilEndOfTurnEffects.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        if (effects.SequenceEqual(result.State.UntilEndOfTurnEffects)) return result;
+        var next = result.State with { UntilEndOfTurnEffects = effects };
+        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";
