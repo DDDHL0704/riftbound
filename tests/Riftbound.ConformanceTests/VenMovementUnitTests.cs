@@ -124,22 +124,33 @@ public sealed class VenMovementUnitTests
     }
 
     [Theory]
-    [InlineData("DRAW")] [InlineData("DISCARD")]
-    public async Task MinaConfirmsOneModeBeforeResponsesAndEachPlayerMakesTheirOwnPrivateHandChoice(string mode)
+    [InlineData("DRAW", "P1")] [InlineData("DISCARD", "P1")]
+    [InlineData("DRAW", "P2")] [InlineData("DISCARD", "P2")]
+    public async Task MinaConfirmsOneModeBeforeResponsesAndEachPlayerMakesTheirOwnPrivateHandChoice(string mode, string controller)
     {
-        var initial = AddHandCards(Position("VEN·111")); var game = new Driver(initial); await Move(game); await Choose(game, mode);
+        var initial = AddHandCards(Position("VEN·111"));
+        if (controller == "P2") initial = initial with {
+            TurnPlayerId = "P2", ActivePlayerId = "P2",
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) { ["UNIT"] = initial.CardObjects["UNIT"] with { OwnerId = "P2", ControllerId = "P2" } },
+            PlayerZones = initial.PlayerZones.ToDictionary(p => p.Key, p => p.Value with { Base = p.Key == "P1" ? p.Value.Base.Where(id => id != "UNIT").ToArray() : [..p.Value.Base, "UNIT"] }),
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P2", "BASE") }
+        };
+        var game = new Driver(initial);
+        await game.Act(controller, new MoveUnitCommand("UNIT", "BASE", controller == "P1" ? "BATTLEFIELD:BF" : "BATTLEFIELD:OTHER"));
+        await Choose(game, mode);
         Assert.Equal(mode, Assert.Single(game.State.StackItems).MovementObserver!.Mode);
         Assert.Single(game.State.PlayerZones["P1"].Hand); Assert.Single(game.State.PlayerZones["P2"].Hand);
         await game.Top();
         if (mode == "DISCARD") {
-            Assert.Equal("P1", game.State.PendingRuleChoice!.Request.PlayerId);
-            Assert.DoesNotContain("P1-HAND", JsonSerializer.Serialize(game.PromptFor("P2")));
-            await Choose(game, "P1-HAND");
-            Assert.Equal("P2", game.State.PendingRuleChoice!.Request.PlayerId);
-            Assert.DoesNotContain("P2-HAND", JsonSerializer.Serialize(game.PromptFor("P1")));
+            var other = controller == "P1" ? "P2" : "P1";
+            Assert.Equal(controller, game.State.PendingRuleChoice!.Request.PlayerId);
+            Assert.DoesNotContain(controller + "-HAND", JsonSerializer.Serialize(game.PromptFor(other)));
+            await Choose(game, controller + "-HAND");
+            Assert.Equal(other, game.State.PendingRuleChoice!.Request.PlayerId);
+            Assert.DoesNotContain(other + "-HAND", JsonSerializer.Serialize(game.PromptFor(controller)));
             // Both decisions precede the simultaneous discard publication.
-            Assert.Contains("P1-HAND", game.State.PlayerZones["P1"].Hand);
-            await Choose(game, "P2-HAND");
+            Assert.Contains(controller + "-HAND", game.State.PlayerZones[controller].Hand);
+            await Choose(game, other + "-HAND");
         }
         foreach (var p in new[] { "P1", "P2" }) {
             if (mode == "DRAW") { Assert.Contains(p + "-DRAW-1", game.State.PlayerZones[p].Hand); Assert.Equal(2, game.State.PlayerZones[p].Hand.Count); }

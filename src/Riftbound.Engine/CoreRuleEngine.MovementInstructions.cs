@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
         }
         else if (context.Kind == TriggerKinds.UnitMovedAllPlayersDrawOrDiscard)
         {
-            var players = state.Seats.Keys.Order(StringComparer.Ordinal).ToArray();
+            var players = state.Seats.Keys.OrderBy(p => p == state.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal).ToArray();
             if (context.Mode == "DRAW")
             {
                 var scores = state.PlayerScores; var rng = state.RngCursor; var winner = state.WinnerPlayerId;
