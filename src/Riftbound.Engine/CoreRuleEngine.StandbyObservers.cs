@@ -52,10 +52,24 @@ public sealed partial class CoreRuleEngine
         var c=item.StandbyObserver!;
         if(!state.CardObjects.TryGetValue(c.Source.ObjectId,out var source) || source.ObjectGeneration!=c.Source.Generation
             || !IsObjectOnField(state.PlayerZones,source.ObjectId) || !FieldObjectTypeRules.IsVisibleUnit(source))return NoopStackResolutionResult(state);
-        var amount=StandbyRules.PlayedSelfMight(c.CardNo);
+        var effect=StandbyRules.PlayedSelfEffect(c.CardNo)!;
+        var amount=effect.Might;
         var behavior=new CardBehaviorDefinition(c.CardNo,"从待命打出的触发",0,StandbyPlayedEffect,0,0,PowerModifierAmount:amount);
         var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value);
+        var events=new List<GameEvent>();
+        if(effect.ReadiesSelf && source.IsExhausted && !AttachedRuleTextRules.Instances(state,source)
+            .Any(instance=>CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
+        {
+            AddReadiedObservation(state.PlayerZones,cards,source,events);
+            var beforeReady=source;
+            source=source with {IsExhausted=false};
+            cards[source.ObjectId]=source;
+            events.Add(CaptureSelfReady(new("UNIT_READIED","从正面朝下打出卡牌的技能使来源活跃",new Dictionary<string,object?> {
+                ["playerId"]=item.ControllerId,["sourceObjectId"]=source.ObjectId,["targetObjectId"]=source.ObjectId,
+                ["reason"]=item.EffectKind,["wasExhausted"]=true,["isExhausted"]=false }),beforeReady,item.ControllerId,state.PlayerZones,cards));
+        }
         cards[source.ObjectId]=ApplyPowerModifier(state,source,behavior,item,source.ObjectId,amount,out var changed);
-        return NoopStackResolutionResult(state) with {CardObjects=cards,Events=[changed]};
+        events.Add(changed);
+        return NoopStackResolutionResult(state) with {CardObjects=cards,Events=events};
     }
 }
