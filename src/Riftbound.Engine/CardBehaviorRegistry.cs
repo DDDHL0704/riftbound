@@ -119,7 +119,7 @@ public sealed record CardBehaviorDefinition(
     bool OptionalEquipmentAfterMovement = false,
     string OptionalEquipmentRequiredTag = "",
     bool GrantsConquestReturnToBaseAfterMovement = false,
-    bool CreatesGoldWhenTargetDestroyedThisTurn = false,
+    DelayedDestructionRewardSpec? DelayedDestructionReward = null,
     SourceReplaySpec? SourceReplay = null,
     int FriendlyBoonBonusUntilEndOfTurn = 0,
     int DamageAlternativeDrawCount = 0,
@@ -303,6 +303,11 @@ public sealed record CardBehaviorDefinition(
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
     int? PowerModifierAmountIfTargetEmpowered = null,
+    int? ChosenMovementTargetIndex = null,
+    int? DestroyTargetIndex = null,
+    TargetPowerComparisonSpec? TargetPowerComparison = null,
+    int DamageConditionRuneCount = 0,
+    GrantedActivatedAbilitySpec? GrantsActivatedAbilityUntilEndOfTurn = null,
     OptionalPowerModifierSpec? OptionalPowerModifier = null,
     bool CounterRequiresOpponentOtherSpellThisTurn = false,
     int? BasePowerUntilEndOfTurn = null,
@@ -326,6 +331,7 @@ public static class CardDamageConditionKinds
     public const string None = "NONE";
     public const string ControllerHasFaceDownCard = "CONTROLLER_HAS_FACE_DOWN_CARD";
     public const string TargetIsAttacking = "TARGET_IS_ATTACKING";
+    public const string ControllerHasAtLeastRunes = "CONTROLLER_HAS_AT_LEAST_RUNES";
 }
 
 public static class CardTargetScopes
@@ -1025,7 +1031,7 @@ public static class CardBehaviorRegistry
             3,
             1,
             TargetScope: CardTargetScopes.EnemyUnit,
-            CreatesGoldWhenTargetDestroyedThisTurn: true),
+            DelayedDestructionReward: new(EquipmentTokenName: "金币")),
         new(
             "OGN·260/298",
             "狂风绝息斩",
@@ -9073,6 +9079,26 @@ public static class CardBehaviorRegistry
             0,
             0,
             DynamicDrawCountKind: CardDynamicDrawCountKinds.ControllerPowerfulUnits),
+        new("VEN·140", "我流奥义！隼舞", 1, "DAMAGE_OPTIONAL_ENEMY_THEN_MOVE_FRIENDLY", 2, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, MinTargetCount: 1,
+            DamageTargetIndex: 1, MovesTargetsToChosenLocation: true, ChosenMovementTargetIndex: 0,
+            FlowCost: new(3, 1, [])),
+        new("VEN·148", "奥义！影缚", 2, "MOVE_ENEMY_TO_FRIENDLY_FIELD_BUFF_PAIR", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: true, FriendlyPowerModifier: 1,
+                RequiredFriendlyUnitCount: 2), FlowCost: new(5, 2, [])),
+        new("VEN·154", "公开处刑", 2, "DESTROY_ENEMY_WEAKER_THAN_CHOSEN_FRIENDLY", 0, 2,
+            DestroysTarget: true, TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            DestroyTargetIndex: 1, TargetPowerComparison: new(1, 0), FlowCost: new(5, 2, [])),
+        new("VEN·146", "汲魂痛击", 4, "SIPHONING_STRIKE_DAMAGE_DELAYED_RUNE", 4, 1,
+            DamageConditionKind: CardDamageConditionKinds.ControllerHasAtLeastRunes,
+            ConditionalDamageAmount: 7, DamageConditionRuneCount: 7,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            DelayedDestructionReward: new(RuneCallCount: 1)),
+        new("VEN·142", "终极统治", 4, "DOUBLE_UNIT_POWER_GRANT_READY_ACTIVATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, CanPlayDuringSpellDuel: true,
+            UsesTargetCurrentPowerAsPowerModifier: true,
+            GrantsActivatedAbilityUntilEndOfTurn: new(CoreRuleEngine.GrantedReadySelfKind, 2)),
         new("VEN·112", "劫 - 落影无声", 5, "UNIT_NAMED_SWIFT_SWAP_PLAY:VEN·112", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "英雄"),
         new("VEN·112a", "劫 - 落影无声", 5, "UNIT_NAMED_SWIFT_SWAP_PLAY:VEN·112a", 0, 0,

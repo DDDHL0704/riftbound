@@ -4,7 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
     int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false, int BattlefieldTargetIndex = 0,
-    int? DamageFromUnitTargetIndex = null, int? PrimaryEnemyTargetIndex = null);
+    int? DamageFromUnitTargetIndex = null, int? PrimaryEnemyTargetIndex = null,
+    int? RequiredFriendlyUnitCount = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -62,6 +63,8 @@ public sealed partial class CoreRuleEngine
             // is collected after movement and neither pays Ward nor gets retargeted.
             var affected = cards.Keys.Where(id => BattlefieldLocalRules.AtUnit(current, id)?.ObjectId == field)
                 .Order(StringComparer.Ordinal).ToArray();
+            var friendlyCountMatches = spec.RequiredFriendlyUnitCount is not { } required
+                || affected.Count(id => IsPlayerControlledFieldUnitObject(current, item.ControllerId, id)) == required;
             // Snapshot simultaneous damage bonuses and group Might before
             // changing any member of the affected group.
             var instructionState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
@@ -81,7 +84,7 @@ public sealed partial class CoreRuleEngine
                         BuildDamagePayload(item.SourceObjectId, id, damage)));
                 }
                 var delta = IsPlayerControlledFieldUnitObject(current, item.ControllerId, id)
-                    ? spec.FriendlyPowerModifier : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
+                    ? (friendlyCountMatches ? spec.FriendlyPowerModifier : 0) : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
                         ? spec.EnemyPowerModifier : 0;
                 if (delta == 0) continue;
                 cards[id] = ApplyPowerModifier(instructionState, cards[id], behavior, item, id, delta, out var powerEvent);

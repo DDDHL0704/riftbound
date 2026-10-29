@@ -4119,9 +4119,9 @@ public static partial class MatchRecoveryValidator
                     && OptionalStringSnapshotValueMatches(effectPayload, "targetObjectId", expected.TargetObjectId);
                 if (!sourceMatches)
                     errors.Add($"snapshot for {view.PlayerId} timing continuous effect {id} source provenance disagrees with authoritative state");
-                // A resolved modifier keeps its public source reference even when
-                // that source enters a private zone. Only the exact authoritative
-                // reference may be absent from the current visible objects.
+                // A resolved modifier can outlive its visible source. Accept
+                // only the exact public provenance; a new hidden source object
+                // is represented by HIDDEN in the public continuous effects.
                 if (sourceMatches && knownObjectIds?.Contains(expected.TargetObjectId ?? string.Empty) == true)
                     historicalSource = expected.SourceObjectId;
             }
@@ -10878,7 +10878,8 @@ public static partial class MatchRecoveryValidator
             objectId,
             objectPayload,
             "untilEndOfTurnEffects",
-            cardObject.UntilEndOfTurnEffects.Where(text => !BattleLimitedMarkers.PrivateMarker(text)).ToArray(),
+            cardObject.UntilEndOfTurnEffects.Where(text => !BattleLimitedMarkers.PrivateMarker(text))
+                .Select(CoreRuleEngine.PublicTemporaryActivationEffect).ToArray(),
             "until-end-of-turn effects",
             "until-end-of-turn effect",
             errors);
@@ -13547,6 +13548,7 @@ public static partial class MatchRecoveryValidator
         var seenSequences = new HashSet<int>();
         var validSequences = new List<int>();
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var authoritativeEffectsById = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
@@ -13562,7 +13564,8 @@ public static partial class MatchRecoveryValidator
             var effectValues = ValidateSpectatorContinuousEffectPayloadValues(
                 spectatorEffect,
                 knownObjectIds,
-                errors);
+                errors,
+                authoritativeEffectsById);
             if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
                 errors.Add(
@@ -13582,7 +13585,6 @@ public static partial class MatchRecoveryValidator
             validSequences,
             errors);
 
-        var authoritativeEffectsById = BuildAuthoritativeContinuousEffectsById(authoritativeEffects);
         ValidateSpectatorContinuousEffectAuthoritativeKeySet(
             spectatorEffects,
             authoritativeEffectsById,
@@ -14884,7 +14886,8 @@ public static partial class MatchRecoveryValidator
     private static (string? EffectId, int? Sequence) ValidateSpectatorContinuousEffectPayloadValues(
         object? effectPayload,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors,
+        IReadOnlyDictionary<string, ContinuousEffectState> authoritativeEffects)
     {
         const string effectLabel = "spectator replay frame timing continuous effect item";
         var effectValues = ValidateContinuousEffectScalarPayloadValues(effectPayload, effectLabel, errors);
@@ -14973,12 +14976,25 @@ public static partial class MatchRecoveryValidator
             "deferred LayerEngine residual",
             errors);
         ValidateContinuousEffectStaticAuraDependencyListConsistency(effectPayload, effectLabel, errors);
+        // The public source of a resolved modifier may now be hidden. The
+        // authoritative keyed comparison below still verifies every field.
+        string? historicalSource = null;
+        if (effectValues.EffectId is { } id && authoritativeEffects.TryGetValue(id, out var expected)
+            && expected.Scope == "OBJECT" && expected.Layer == ContinuousEffectLayers.PowerModifier
+            && expected.Duration == "UNTIL_END_OF_TURN" && expected.SourceObjectId == "HIDDEN"
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourceObjectId", expected.SourceObjectId)
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourceCardNo", expected.SourceCardNo)
+            && OptionalStringSnapshotValueMatches(effectPayload, "sourcePath", expected.SourcePath)
+            && OptionalStringSnapshotValueMatches(effectPayload, "targetObjectId", expected.TargetObjectId)
+            && knownObjectIds.Contains(expected.TargetObjectId ?? string.Empty))
+            historicalSource = expected.SourceObjectId;
         ValidateContinuousEffectObjectReferences(
             effectPayload,
             effectLabel,
             knownObjectIds,
             "object registry",
-            errors);
+            errors,
+            historicalSource);
         return effectValues;
     }
 
@@ -23393,6 +23409,7 @@ public static partial class MatchRecoveryValidator
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateTemporaryActivationStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
             ValidateLastBreathUnitCreationViews(view.Snapshot.Stack, errors);
             ValidateLastBreathRuneCallViews(view.Snapshot.Stack, errors);
@@ -24635,8 +24652,28 @@ public static partial class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTemporaryActivationStackViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(item => item.StackItemId == id)?.TemporaryActivation;
+            TryReadObjectString(payload, "grantedAbilityId", out var ability);
+            if (ability != (expected is null ? null : CoreRuleEngine.TemporaryActivationId(expected.Grant)))
+                errors.Add("public granted activation differs from authoritative state");
+            if (expected is not null) {
+                TryReadObjectString(payload, "abilityLabel", out var label);
+                if (label != "本回合获得的活跃技能") errors.Add("invalid public granted activation label");
+            }
+            if (TryReadObjectValue(payload, "temporaryActivation", out _))
+                errors.Add("public granted activation exposes private source binding");
+        }
+    }
+
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        if (!CoreRuleEngine.ValidCurrentTemporaryActivations(state)) errors.Add("invalid temporary activated ability grant");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidTemporaryActivation(state, item)) errors.Add("invalid captured temporary activation");
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (!CoreRuleEngine.ValidTurnFlowGrants(state)) errors.Add("invalid temporary flow grant");
@@ -32721,6 +32758,7 @@ public static partial class MatchRecoveryValidator
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
+        ValidateTemporaryActivationStackViews(stackItems, authoritativeState, errors);
         ValidateDelayedEmpowerViews(stackItems, errors);
         ValidateLastBreathUnitCreationViews(stackItems, errors);
         ValidateLastBreathRuneCallViews(stackItems, errors);
@@ -34262,7 +34300,7 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
+                || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
