@@ -81,6 +81,9 @@ public static class CardPermissionKeywordRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(behavior);
 
+        if (!CoreRuleEngine.PrintedPlayTurnAllowed(state, playerId, behavior))
+            return Rejected($"此单位在你的前 {behavior.SourceStaticLimits!.UnplayableThroughControllerTurn} 个回合中无法打出。");
+
         if (IsSpellPlayProhibited(state, playerId, behavior))
             return Rejected(SpellPlayProhibitionReason);
 

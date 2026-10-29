@@ -293,10 +293,15 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    SourceStaticLimitsSpec? SourceStaticLimits = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn = 0,
+    bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
+    int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -456,6 +461,21 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·004", "沙丘冲浪者", 3, "DUNE_SURFER_STATIC_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            SourceStaticLimits: new(CombatDamageIgnoresBulwarkHere: true)),
+        new("VEN·025", "圣职尊者", 5, "SACRED_ELDER_RUNE_IMMUNITY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            SourceStaticLimits: new(EnemySpellSkillDamageImmunityMinimumRunes: 7)),
+        new("VEN·029", "老老魄罗", 2, "ELDER_PORO_TURN_RESTRICTED_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "魄罗",
+            SourceStaticLimits: new(UnplayableThroughControllerTurn: 3)),
+        new("VEN·036", "砂岩奇美拉", 7, "SANDSTONE_CHIMERA_CHANNEL_LIMIT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8,
+            SourceStaticLimits: new(BattlefieldStageRuneCallLimit: 1)),
+        new("VEN·053", "章獭", 2, "OTTERPUS_EARLY_SCORE_REPLACEMENT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2,
+            SourceStaticLimits: new(BattlefieldScoreDrawThroughPlayerTurn: 2)),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
