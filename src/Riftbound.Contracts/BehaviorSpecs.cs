@@ -357,6 +357,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
     public const string ControllerRuneCallExtraExhausted = "CONTROLLER_RUNE_CALL_EXTRA_EXHAUSTED";
     public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
@@ -373,6 +374,10 @@ public static class StaticAbilityKinds
     public const string FriendlyFilteredUnitsEnterReady = "FRIENDLY_FILTERED_UNITS_ENTER_READY";
     public const string BattlefieldPreventMoveToBase = "BATTLEFIELD_PREVENT_MOVE_TO_BASE";
     public const string BattlefieldPreventUnitPlay = "BATTLEFIELD_PREVENT_UNIT_PLAY";
+    public const string BattlefieldIgnoreSpellshield = "BATTLEFIELD_IGNORE_SPELLSHIELD";
+    public const string BattlefieldReactionPowerIncrease = "BATTLEFIELD_REACTION_POWER_INCREASE";
+    public const string BattlefieldFriendlyTargetSpellPowerReduction = "BATTLEFIELD_FRIENDLY_TARGET_SPELL_POWER_REDUCTION";
+    public const string BattlefieldEmpowerCostReduction = "BATTLEFIELD_EMPOWER_COST_REDUCTION";
     public const string BattlefieldEchoCostReduction = "BATTLEFIELD_ECHO_COST_REDUCTION";
     public const string BattlefieldEquipmentCostReduction = "BATTLEFIELD_EQUIPMENT_COST_REDUCTION";
     public const string BattlefieldGrantUnitExperienceAbility =

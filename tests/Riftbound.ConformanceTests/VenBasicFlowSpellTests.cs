@@ -255,7 +255,7 @@ public sealed class VenBasicFlowSpellTests
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
-            Assert.True(errors.Count == 0, string.Join("\n", errors));
+            Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
             var frame = new MatchRecoveryFrame(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
             session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             if (expectedAccepted) {

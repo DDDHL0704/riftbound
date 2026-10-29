@@ -8355,7 +8355,8 @@ public static partial class MatchRecoveryValidator
         string itemLabel,
         List<string> errors,
         Func<string, bool>? isKnownValue = null,
-        bool allowRepeatedHiddenTargets = false)
+        bool allowRepeatedHiddenTargets = false,
+        bool allowRepeatedValues = false)
     {
         if (!TryReadObjectValue(payload, key, out var listPayload)
             || IsNullSnapshotPayloadValue(listPayload))
@@ -8370,7 +8371,7 @@ public static partial class MatchRecoveryValidator
             return null;
         }
 
-        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue, allowRepeatedHiddenTargets);
+        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue, allowRepeatedHiddenTargets, allowRepeatedValues);
     }
 
     private static IReadOnlyList<string>? ValidateSnapshotPayloadOptionalStringListValues(
@@ -8596,7 +8597,8 @@ public static partial class MatchRecoveryValidator
         string itemLabel,
         List<string> errors,
         Func<string, bool>? isKnownValue = null,
-        bool allowRepeatedHiddenTargets = false)
+        bool allowRepeatedHiddenTargets = false,
+        bool allowRepeatedValues = false)
     {
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
         var normalizedValues = new List<string>();
@@ -8620,7 +8622,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid");
             }
 
-            if (!seenValues.Add(normalizedValue) && !(allowRepeatedHiddenTargets && normalizedValue == "HIDDEN"))
+            if (!seenValues.Add(normalizedValue) && !allowRepeatedValues && !(allowRepeatedHiddenTargets && normalizedValue == "HIDDEN"))
             {
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is duplicated");
             }
@@ -25090,6 +25092,8 @@ public static partial class MatchRecoveryValidator
             BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
         ValidateTargetedPowerAbilityStackValues(authoritativeState, errors);
+        foreach (var item in authoritativeState.StackItems.Where(i => i is not null))
+            if (!CoreRuleEngine.ValidSimpleActivation(authoritativeState, item)) errors.Add($"stack item {item.StackItemId} printed activation context is invalid");
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
             knownObjectIds,
@@ -25390,6 +25394,10 @@ public static partial class MatchRecoveryValidator
                 || source.ObjectGeneration == context.SourceGeneration
                     && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
                         || !source.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal))
+                || (ability.PowerModifierAmountIfSourceEmpowered is null ? context.LastKnownSourceEmpowered is not null
+                    : context.LastKnownSourceEmpowered is null || source.ObjectGeneration == context.SourceGeneration
+                        && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
+                        && context.LastKnownSourceEmpowered != source.IsEmpowered)
                 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
                 || item.TargetObjectIds is not { Count: 1 }
                 || item.TargetGenerations is not { Count: 1 }
@@ -27695,6 +27703,10 @@ public static partial class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, stackItem))
+                foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
+            if (stackItem.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
+                foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                 && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
@@ -32508,6 +32520,10 @@ public static partial class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, original))
+                    foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
+                if (original.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, original))
+                    foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                     && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
@@ -32824,7 +32840,10 @@ public static partial class MatchRecoveryValidator
             payloadLabel,
             "target object id",
             errors,
-            allowRepeatedHiddenTargets: true); // Keyed state comparison below still requires exact redaction and multiplicity.
+            allowRepeatedHiddenTargets: true,
+            allowRepeatedValues: TryReadObjectString(stackItem, "cardNo", out var targetCardNo)
+                && targetCardNo is not null && CardBehaviorRegistry.TryGetByCardNo(targetCardNo, out var targetBehavior) && targetBehavior.AllowsRepeatedTargets);
+        // Keyed state comparison below still requires exact target order and multiplicity.
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             stackItem,
             "damageAmount",

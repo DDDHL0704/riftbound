@@ -30,7 +30,11 @@ public static class VendettaCardSources
             (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*"), (Id: 37832L, CardNo: "VEN·132"),
             (Id: 37689L, CardNo: "VEN·004"), (Id: 37713L, CardNo: "VEN·025"), (Id: 37717L, CardNo: "VEN·029"),
             (Id: 37724L, CardNo: "VEN·036"), (Id: 37744L, CardNo: "VEN·053"), (Id: 37703L, CardNo: "VEN·018"),
-            (Id: 37770L, CardNo: "VEN·076"), (Id: 37936L, CardNo: "VEN·097") }
+            (Id: 37770L, CardNo: "VEN·076"), (Id: 37936L, CardNo: "VEN·097"), (Id: 37861L, CardNo: "VEN·158"),
+            (Id: 37863L, CardNo: "VEN·160"), (Id: 37866L, CardNo: "VEN·163"), (Id: 37867L, CardNo: "VEN·164"),
+            (Id: 37864L, CardNo: "VEN·161"), (Id: 37745L, CardNo: "VEN·054"), (Id: 37751L, CardNo: "VEN·060"),
+            (Id: 37753L, CardNo: "VEN·062"), (Id: 37769L, CardNo: "VEN·075"), (Id: 37771L, CardNo: "VEN·077"),
+            (Id: 37782L, CardNo: "VEN·087"), (Id: 37825L, CardNo: "VEN·125"), (Id: 37833L, CardNo: "VEN·133") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),

@@ -79,6 +79,8 @@ public sealed partial class CoreRuleEngine
         Adjust("已强化法术减费", -plan.EmpoweredSpellCostReductionMana, -plan.EmpoweredSpellCostReductionPower);
         Adjust("战场增费", plan.BattlefieldHeldUnitCostIncreaseMana);
         Adjust("对手法术增费", plan.OpponentSpellCostIncreaseMana, plan.OpponentSpellCostIncreasePower);
+        Adjust("战场反应增费", 0, plan.BattlefieldReactionPowerIncrease);
+        Adjust("战场友方目标减费", 0, -plan.BattlefieldSpellPowerReduction);
         Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,

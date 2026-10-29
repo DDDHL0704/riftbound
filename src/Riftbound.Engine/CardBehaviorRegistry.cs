@@ -301,7 +301,8 @@ public sealed record CardBehaviorDefinition(
     int StaticFlowSpellCostReductionMinimumManaCost = 0,
     OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
     bool PlayTriggerBanishesGraveyardCardAsCost = false,
-    SourceStaticLimitsSpec? SourceStaticLimits = null)
+    SourceStaticLimitsSpec? SourceStaticLimits = null,
+    int EndStepSelfDestructionDamage = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -523,6 +524,19 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·133", "发光石", 2, "EQUIPMENT_PLAY:VEN·133", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, EndStepSelfDestructionDamage: 5),
+        new("VEN·077", "帝国工具", 4, "IMPERIAL_TOOL_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·060", "天际漫游者", 4, "SKY_STRIDER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·125", "冰原饿狼", 4, "TUNDRA_HUNTER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "犬形"),
+        new("VEN·054", "可疑之书", 3, "SUSPICIOUS_BOOK_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·062", "海克斯方程式", 2, "HEXTECH_EQUATION_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·075", "剑头蛟的卵", 3, "JAWFISH_EGG_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentIsExhausted: true),
+        new("VEN·087", "海克斯圆盘", 4, "HEXTECH_DISC_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

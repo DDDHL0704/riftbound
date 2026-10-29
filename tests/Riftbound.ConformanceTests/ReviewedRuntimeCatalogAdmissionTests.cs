@@ -19,13 +19,13 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         Assert.Same(runtime, await OfficialCardCatalog.LoadRuntimeAsync());
         Assert.Equal(1089, original.Total);
         Assert.Equal(1089, original.Cards.Count);
-        Assert.Equal(1126, runtime.Total);
-        Assert.Equal(1126, runtime.Cards.Count);
+        Assert.Equal(1139, runtime.Total);
+        Assert.Equal(1139, runtime.Cards.Count);
         Assert.Contains(ReviewedRuneCardSources.SnapshotPath, runtime.Source);
         Assert.Contains(VendettaCardSources.SnapshotPath, runtime.Source);
         Assert.Contains(ReviewedResourceLegendSources.SnapshotPath, runtime.Source);
         var originalNos = original.Cards.Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal);
-        Assert.Equal(["VEN·004", "VEN·005", "VEN·006", "VEN·018", "VEN·019", "VEN·019a", "VEN·025", "VEN·029", "VEN·036", "VEN·038", "VEN·038a", "VEN·045", "VEN·053", "VEN·064", "VEN·076", "VEN·096", "VEN·097", "VEN·098", "VEN·101", "VEN·119", "VEN·120", "VEN·132", "VEN·139", "VEN·141", "VEN·147", "VEN·151", "VEN·153", "VEN·189", "VEN·189*", "VEN·190", "VEN·190*", "VEN·193", "VEN·193*", "VEN·195", "VEN·195*", "VEN·196", "VEN·196*"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
+        Assert.Equal(["VEN·004", "VEN·005", "VEN·006", "VEN·018", "VEN·019", "VEN·019a", "VEN·025", "VEN·029", "VEN·036", "VEN·038", "VEN·038a", "VEN·045", "VEN·053", "VEN·054", "VEN·060", "VEN·062", "VEN·064", "VEN·075", "VEN·076", "VEN·077", "VEN·087", "VEN·096", "VEN·097", "VEN·098", "VEN·101", "VEN·119", "VEN·120", "VEN·125", "VEN·132", "VEN·133", "VEN·139", "VEN·141", "VEN·147", "VEN·151", "VEN·153", "VEN·158", "VEN·160", "VEN·161", "VEN·163", "VEN·164", "VEN·189", "VEN·189*", "VEN·190", "VEN·190*", "VEN·193", "VEN·193*", "VEN·195", "VEN·195*", "VEN·196", "VEN·196*"], runtime.Cards.Where(card => !originalNos.Contains(card.CardNo))
             .Select(card => card.CardNo).Order(StringComparer.Ordinal).ToArray());
         Assert.Equal(37690, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·005").Id);
         Assert.Equal(37691, Assert.Single(runtime.Cards, card => card.CardNo == "VEN·006").Id);
@@ -39,7 +39,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
             definition.CardNo, definition.EffectKind, definition.DisplayName, CardBehaviorRegistry.TriggerEffectKinds(definition))).ToArray();
         var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(runtime.Cards, play);
         var specs = BehaviorSpecCatalogBuilder.Build(runtime.Cards, units, implemented);
-        Assert.Equal(1126, specs.Count);
+        Assert.Equal(1139, specs.Count);
         Assert.Single(specs, spec => spec.CardNo == "VEN·005");
         Assert.Single(specs, spec => spec.CardNo == "VEN·006");
         Assert.Single(specs, spec => spec.CardNo == "VEN·019");
