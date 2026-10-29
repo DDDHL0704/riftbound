@@ -124,7 +124,9 @@ public sealed class VenStaticLimitUnitTests
         var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
         Assert.Equal("P1", choice.Request.PlayerId);
         Assert.Equal("DAMAGE_REPLACEMENT_ORDER", choice.Request.Kind);
-        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [immunityFirst ? "ALL" : budget]));
+        var option = immunityFirst ? "ALL" : choice.Request.Options.Single(o =>
+            o.Id.StartsWith("DAMAGE_PREVENTION_THIS_TURN:", StringComparison.Ordinal)).Id;
+        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [option]));
         Assert.EndsWith(immunityFirst ? ":7" : ":3", Assert.Single(game.State.CardObjects["UNIT"].UntilEndOfTurnEffects,
             effect => effect.StartsWith("DAMAGE_PREVENTION_THIS_TURN:", StringComparison.Ordinal)));
         Assert.Equal(0, game.State.CardObjects["UNIT"].Damage);
