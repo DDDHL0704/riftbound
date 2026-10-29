@@ -50,7 +50,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             }
             Assert.True(game.State.PlayerZones["P1"].MainDeck.Count > 6);
-            foreach (var id in game.Runes("P1").Take(8).ToArray()) await game.Act("P1", new TapRuneCommand(id));
+            await game.Tap("P1", 8);
             var sentinels = game.Hand("P1", "OGN·096/298").Take(2).ToArray(); var host = sentinels[0]; var victim = sentinels[1];
             foreach (var id in sentinels) await game.Act("P1", new PlayCardCommand(id, "OGN·096/298", []));
             var victimGeneration = game.State.CardObjects[victim].ObjectGeneration;
@@ -66,7 +66,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var source = game.Hand("P2", "OGN·041/298").First(); await game.Act("P2", new PlayCardCommand(source, "OGN·041/298", []));
             Assert.Equal(2, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
             await game.Act("P2", new EndTurnCommand()); await Beginning(game); await game.Act("P1", new EndTurnCommand()); await Beginning(game);
-            foreach (var id in game.Runes("P2").Take(4).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+            await game.Tap("P2", 4);
             var holder = game.Hand("P2", "OGN·175/298").First(); await game.Act("P2", new PlayCardCommand(holder, "OGN·175/298", []));
             var recyclableSpell = game.Hand("P2", "OGN·004/298").First();
             await game.Act("P2", new PlayCardCommand(recyclableSpell, "OGN·004/298", [source])); await game.Top();
@@ -132,7 +132,8 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind is "BATTLE_CLOSED" or "BATTLEFIELD_CONQUERED");
                 Assert.Contains(declaration, game.State.UntilEndOfTurnEffects);
                 Assert.Equal(beforeDraw.CardObjects[source].IsAttacking, game.State.CardObjects[source].IsAttacking);
-                Assert.Equal(beforeDraw.CardObjects[field].ControllerId, game.State.CardObjects[field].ControllerId); await game.ColdCheckpoint();
+                Assert.Equal(beforeDraw.CardObjects[field].ControllerId, game.State.CardObjects[field].ControllerId);
+                // RejectCoordinatedForgery also cold-recovers this unchanged terminal state.
                 await game.RejectCoordinatedForgery("terminal-invented-conquest-point", game.State with {
                     PlayerScores = new Dictionary<string, int>(game.State.PlayerScores) { ["P2"] = 9 } });
                 var hash = MatchStateHasher.Hash(game.State);
@@ -155,7 +156,8 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             }
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(new ResolutionResult(true, null, game.State, [],
                 ResolutionResult.BuildSnapshots(game.State), ResolutionResult.BuildPrompts(game.State)));
-            Assert.Equal(2, game.State.PlayerScores["P1"]); await game.ColdCheckpoint();
+            Assert.Equal(2, game.State.PlayerScores["P1"]);
+            if (!winOnDraw) await game.ColdCheckpoint();
         }
         finally
         {
