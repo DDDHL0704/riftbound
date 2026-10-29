@@ -3084,6 +3084,26 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var unitPlayGrant = Regex.Match(segment,
+                @"任何玩家都可以选择支付((?:\{\{A\}\})+)，作为打出“([^”]+)”属性单位的额外费用",
+                RegexOptions.CultureInvariant);
+            if (unitPlayGrant.Success && text.Contains("若如此做，则将其打出到此战场", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.BattlefieldFilteredUnitPlayAdditionalPower,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Optional additional generic power grants a unit play location; ordinary prohibitions still apply.",
+                    Regex.Matches(unitPlayGrant.Groups[1].Value, @"\{\{A\}\}").Count,
+                    TargetFilter: StaticAuraTargetFilters.TagPrefix + unitPlayGrant.Groups[2].Value));
+                continue;
+            }
+            if (segment.Contains("你只能将我打出到你本回合征服的战场上", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitPlayOnlyToConqueredBattlefieldThisTurn,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Unit play is restricted to battlefields conquered by its controller during the current turn."));
+                continue;
+            }
+
             if (segment.Contains("单位无法被打出到此处", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(

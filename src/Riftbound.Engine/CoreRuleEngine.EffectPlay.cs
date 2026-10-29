@@ -11,6 +11,10 @@ public sealed record PendingEffectPlayState(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SourceReplayContinuation? SourceReplay { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectLocationState? OriginalLocation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? OriginalBattlefield { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -119,17 +123,37 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
             ? pending.IgnoreAllCosts ? behavior with {
                 IgnorePrintedPowerCost = true,
-                MaySacrificeUnitForPrintedCostReduction = false,
                 RequiresDestroyFriendlyUnitAdditionalCost = false,
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
                 RequiresReturnFriendlyEquipmentAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 
-    internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId)
+    internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId, CardBehaviorDefinition? behavior = null)
+    {
+        var ordinary = OrdinaryEffectPlayDestinations(state, playerId);
+        IEnumerable<CardBehaviorDefinition> behaviors = behavior is not null ? [behavior] : EffectPlaySources(state, playerId)
+            .Select(id => state.CardObjects.GetValueOrDefault(id)?.CardNo)
+            .Select(no => CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var found) ? found : null)
+            .OfType<CardBehaviorDefinition>();
+        return ordinary.Concat(behaviors.SelectMany(b => BattlefieldUnitPlayGrants(state, playerId, b))
+                .Select(g => "BATTLEFIELD:" + g.Field.ObjectId))
+            .Where(destination => behavior is null || UnitPlayLocationRestrictionAllows(state, playerId, behavior, destination))
+            .Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static IReadOnlyList<string> OrdinaryEffectPlayDestinations(MatchState state, string playerId)
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.DestinationPolicy == "ORIGINAL_LOCATION")
+        {
+            if (pending.OriginalLocation is { Zone: "BASE" } at)
+                return at.PlayerId == playerId ? ["BASE"] : [];
+            var destination = "BATTLEFIELD:" + pending.OriginalBattlefield?.ObjectId;
+            return IsForcedEffectPlayDestination(state, playerId, destination)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination) ? [destination] : [];
+        }
         if (pending.Parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" }
             && pending.Sources.Keys.SingleOrDefault() is { } chosen && state.CardObjects.TryGetValue(chosen, out var selected)
             && !selected.Tags.Contains(CardObjectTags.UnitCard)) return ["BASE"];
@@ -244,7 +268,8 @@ public sealed partial class CoreRuleEngine
             // play. A printed pip alone is not proof of a nonzero final fee.
             var hasPowerPrice = TrySelectPlayPowerCost(state, p.PlayerId, behavior, null, pool,
                 SourceReplayPowerCost(state, p.PlayerId), new Dictionary<string, int>(), out var generic, out var typed);
-            return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
+            return !EffectPlayIgnoresAllCosts(state, p.PlayerId) && BattlefieldUnitPlayCostChoices(state, p.PlayerId, behavior).Count > 0
+                || CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
                 || hasPowerPrice && (generic > 0 || typed.Values.Any(amount => amount > 0));
         });
     }
@@ -257,6 +282,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var actor = parent.ControllerId;
         var sourceZone = behavior.EffectPlaySourceZone;
+        ObjectLocationState? originalLocation = null;
+        ObjectBinding? originalBattlefield = null;
         IReadOnlyList<string> sources = sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
         if (sourceZone == "BANISHED")
         {
@@ -264,6 +291,13 @@ public sealed partial class CoreRuleEngine
             if (sources.Count > 0 && cards.TryGetValue(sources[0], out var target))
             {
                 var id = sources[0];
+                if (behavior.EffectPlayDestination == "ORIGINAL_LOCATION")
+                {
+                    originalLocation = state.ObjectLocations.GetValueOrDefault(id);
+                    if (originalLocation is { Zone: "BATTLEFIELD", BattlefieldObjectId: { } fieldId }
+                        && BattlefieldLocalRules.Battlefield(state, fieldId) is { } field)
+                        originalBattlefield = new(fieldId, field.ObjectGeneration);
+                }
                 actor = NonFieldDestinationOwner(zones, target, parent.ControllerId);
                 DetachEquipmentFromRemovedHost(cards, id);
                 foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with {
@@ -279,7 +313,9 @@ public sealed partial class CoreRuleEngine
                     sources = [];
                 }
                 events.Add(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED" }));
+                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED",
+                    ["originalLocation"] = originalLocation, ["originalBattlefield"] = originalBattlefield,
+                    ["parentStackItemId"] = parent.StackItemId, ["targetGeneration"] = target.ObjectGeneration }));
             }
         }
         sources = sources.Where(id => cards.TryGetValue(id, out var card) && EffectPlaySourceMatches(card, behavior)).ToArray();
@@ -295,7 +331,8 @@ public sealed partial class CoreRuleEngine
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,
             sourceZone, sources.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             behavior.EffectPlayIgnoreBaseMana, behavior.EffectPlayIgnoreBasePower, behavior.EffectPlayManaReduction,
-            behavior.EffectPlayDestination, behavior.EffectPlayOptional);
+            behavior.EffectPlayDestination, behavior.EffectPlayOptional) {
+                OriginalLocation = originalLocation, OriginalBattlefield = originalBattlefield };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

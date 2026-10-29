@@ -43,6 +43,14 @@ public sealed partial class CoreRuleEngine
             && destroyedCosts.Any(id => state.ObjectLocations.TryGetValue(id, out var location)
                 && location.Zone == "BATTLEFIELD" && "BATTLEFIELD:" + location.BattlefieldObjectId == destination);
 
+    // CN 170.11.c: an open battlefield is both unoccupied and uncontrolled.
+    private static bool OpenBattlefieldPlayAllowed(MatchState state, CardBehaviorDefinition behavior, string destination)
+        => behavior.AllowsPlayToOpenBattlefield && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && BattlefieldLocalRules.Battlefield(state, destination[12..]) is { ControllerId: null } field
+            && !state.CardObjects.Values.Any(unit => FieldObjectTypeRules.IsVisibleUnit(unit)
+                && state.ObjectLocations.TryGetValue(unit.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
+                && at.BattlefieldObjectId == field.ObjectId && IsObjectOnField(state.PlayerZones, unit.ObjectId));
+
     internal static IReadOnlyList<ActionPromptChoiceDto> UnitPlayDestinationChoices(MatchState state, string player,
         CardBehaviorDefinition behavior)
     {
@@ -51,11 +59,14 @@ public sealed partial class CoreRuleEngine
         if (CardBehaviorRegistry.TryGetByCardNoAndMode(behavior.CardNo, behavior.Mode, out var printed))
             behavior = EffectPlayBehavior(state, player, printed);
         var choices = new List<ActionPromptChoiceDto>();
-        if (CardPermissionKeywordRules.EvaluatePlayTiming(state, player, behavior).IsAllowed)
+        if (CardPermissionKeywordRules.EvaluatePlayTiming(state, player, behavior).IsAllowed
+            && UnitPlayLocationRestrictionAllows(state, player, behavior, "BASE"))
             choices.Add(new("BASE", "基地"));
         foreach (var field in state.CardObjects.Values.Where(c => IsBattlefieldCardObject(c) && IsObjectOnField(state.PlayerZones, c.ObjectId))) {
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if ((IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
+                    || OpenBattlefieldPlayAllowed(state, behavior, destination)
+                    || BattlefieldUnitPlayGrants(state, player, behavior).Any(g => g.Field.ObjectId == field.ObjectId)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)
                     || behavior.AllowsPlayAtDestroyedAdditionalCostLocation && state.CardObjects.Values.Any(unit =>
@@ -64,6 +75,7 @@ public sealed partial class CoreRuleEngine
                         && at.BattlefieldObjectId == field.ObjectId))
                 && CardPermissionKeywordRules.EvaluatePlayTiming(state, player,
                     AmbushTimingBehavior(state, player, behavior, destination)).IsAllowed
+                && UnitPlayLocationRestrictionAllows(state, player, behavior, destination)
                 && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination))
                 choices.Add(new(destination, field.ObjectId));
         }
@@ -71,7 +83,8 @@ public sealed partial class CoreRuleEngine
         // Ambush always requires a real occupied battlefield.
         if (state.BattlefieldStates.Count == 0 && CardPermissionKeywordRules.EvaluatePlayTiming(state, player, behavior).IsAllowed) {
             var destination = "BATTLEFIELD:" + player + "-MAIN";
-            if (!HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination)) choices.Add(new(destination, "己方主战场"));
+            if (UnitPlayLocationRestrictionAllows(state, player, behavior, destination)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, player, destination)) choices.Add(new(destination, "己方主战场"));
         }
         return choices;
     }
