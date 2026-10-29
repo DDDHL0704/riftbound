@@ -92,7 +92,7 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('python3 scripts/l2-distributed.py prepare', daily)
         self.assertIn('python3 scripts/l2-distributed.py shard', daily)
         self.assertIn('python3 scripts/l2-distributed.py aggregate', daily)
-        self.assertIn('needs: [quality, prepare, rule_suite, targeted]', daily)
+        self.assertIn('needs: [prepare, rule_suite]', daily)
         self.assertIn('fail-fast: false', daily)
         self.assertNotIn('scripts/test-rules.py full', daily)
         self.assertNotIn('services:', daily)
