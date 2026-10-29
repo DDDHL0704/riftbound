@@ -71,7 +71,8 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertIn('retention-days: 90', jobs['related_network'])
         self.assertEqual(1, text.count("cron:"))
         self.assertNotIn('--commit "$GITHUB_SHA"', text)
-        self.assertEqual(2, text.count('--commit "$RIFTBOUND_FIXED_COMMIT"'))
+        for job in ['rule_prepare', 'rule_shards', 'rule_suite', 'postgres', 'rules']:
+            self.assertIn('--commit "$RIFTBOUND_FIXED_COMMIT"', jobs[job])
         self.assertIn('RIFTBOUND_FIXED_COMMIT: ${{ needs.scope.outputs.commit }}', jobs['postgres_partitions'])
         partition = (ROOT / 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs').read_text()
         self.assertIn('Environment.GetEnvironmentVariable("RIFTBOUND_FIXED_COMMIT") ?? Environment.GetEnvironmentVariable("GITHUB_SHA")', partition)
