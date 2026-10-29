@@ -18109,7 +18109,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 rejection = Reject(state, "当前没有从废牌堆正常打出此牌的权限。", ErrorCodes.InvalidTarget); return false;
             }
             behavior = behavior with { AppliedFlowCost = null };
-            command = command with { OptionalCosts = command.OptionalCosts!.Where(c => c != NormalGraveyardPlayChoice).ToArray() };
         }
         if (!TurnEquipmentPlayRules.TryApply(state, intent.PlayerId, command.SourceObjectId, command.OptionalCosts, behavior, out behavior))
         {

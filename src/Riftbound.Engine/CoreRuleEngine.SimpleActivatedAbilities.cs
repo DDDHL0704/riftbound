@@ -166,7 +166,8 @@ public sealed partial class CoreRuleEngine
                         || context.TargetTokenFactories?.GetValueOrDefault(id) != target.TokenFactoryCardNo
                     : context.TargetTokenFactories?.ContainsKey(id) != true)))) return false;
         var expected = SimpleActivationStackItem(context, item.ControllerId, item.CardNo!, ability, item.TargetObjectIds)
-            with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan };
+            with { TargetGenerations = item.TargetGenerations, TokenEntryPlan = item.TokenEntryPlan,
+                DepartedTokenTargets = item.DepartedTokenTargets };
         return MatchStateHasher.HashValue(item) == MatchStateHasher.HashValue(expected)
             && (item.TokenEntryPlan is null || ability.SimpleEffect!.CreatedRobotCount > 0 && ValidTokenEntryPlan(state, item));
     }
