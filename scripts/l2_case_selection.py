@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 import math
 import xml.etree.ElementTree as ET
 
-SPLIT_MIN_SECONDS = 1200
+SPLIT_MIN_SECONDS = 600
 ESTIMATED_CLASS_WORKERS = 4
 
 
