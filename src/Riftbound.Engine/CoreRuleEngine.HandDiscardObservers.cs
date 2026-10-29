@@ -101,7 +101,7 @@ public sealed partial class CoreRuleEngine
         var behavior = new CardBehaviorDefinition(c.CardNo, "弃牌触发", 0, c.Kind, 0, 0,
             PowerModifierAmount: spec.PowerDelta.GetValueOrDefault());
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready);
+        source = ApplyReadyState(source, behavior, item, source.ObjectId, out var ready, state.PlayerZones, cards);
         if (ready is not null) events.Add(ready);
         source = ApplyPowerModifier(state, source, behavior, item, source.ObjectId,
             spec.PowerDelta.GetValueOrDefault(), out var power);

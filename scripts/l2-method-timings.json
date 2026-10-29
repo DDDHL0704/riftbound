@@ -844,6 +844,14 @@
     "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.SameExecutionObservationIsConfirmedFirstAndNeverBecomesTheNormalSelectionsReflexiveReference": 2.1474,
     "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads": 2.2994,
     "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms": 6.7802,
-    "Riftbound.ConformanceTests.ZenithBladeMovementTests.ActualVexEntryRestrictionBlocksMovingTheNewUnitWhileTheStunOnlyChoiceRemainsLegal": 1.0286
+    "Riftbound.ConformanceTests.ZenithBladeMovementTests.ActualVexEntryRestrictionBlocksMovingTheNewUnitWhileTheStunOnlyChoiceRemainsLegal": 1.0286,
+    "Riftbound.ConformanceTests.SelectedRecastFeeOpeningTests.ChosenHasteFeeCanBeRefusedWithoutForcingTheFreeAlternative": 14060.051,
+    "Riftbound.ConformanceTests.MandatoryRecastOpeningTests.RealRoomAndDeckHistoryPreserveRefusalPaymentAndZeroCostAcrossColdReload": 5202.938,
+    "Riftbound.ConformanceTests.CanonicalDelayedAuraDeathOpeningTests.LegalLeonaAndJinxOpeningsKeepTheChosenInverseOrderAndConditionalDeathThroughColdRecovery": 3050.848
+  },
+  "supplementalTimingSource": {
+    "runId": 40733068068,
+    "commit": "a81ec9703d8aca3f7cd22f2abbf832c09b0888ff",
+    "purpose": "Add newly discovered parameterized methods to duration balancing; membership and results are never reused."
   }
 }
