@@ -82,7 +82,7 @@ public sealed partial class CoreRuleEngine
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId))
-                    .Concat(FlowPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
+                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };

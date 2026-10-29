@@ -3071,7 +3071,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                 state.UntilEndOfTurnEffects,
                 intent.PlayerId,
-                submittedObjectIds)
+                submittedObjectIds, playerZones)
             .ToArray();
         var drawApplication = ApplyDrawToPlayer(
             state,
@@ -3261,7 +3261,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, UnitEvent = trigger.UnitEvent };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitEvent = trigger.UnitEvent, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -3554,7 +3554,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LastStandbyPlay = behavior.StandbyPlayFrom, ObjectGeneration = hidden.ObjectGeneration + 1,
                 Tags = hidden.Tags.Where(tag => tag != CardObjectTags.Standby).ToArray() };
         }
-        if ((state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") } || behavior.AppliedFlowCost is not null)
+        if ((state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") } || behavior.AppliedFlowCost is not null
+                || NormalGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
             && PrintedCardFactory.TryRestoreOutsidePlay(replayed, replayed.OwnerId ?? intent.PlayerId, out var printedReplay))
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
@@ -3659,9 +3660,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects = untilEndOfTurnEffects
                 .Where(effect => !EchoCostRules.IsGrant(effect, intent.PlayerId)).ToArray();
         }
-        var nextSpellCostReductionConsumedEffects = IsSpellPlayBehavior(behavior)
-            ? SourceNextSpellCostReductionEffects(state, intent.PlayerId)
-            : Array.Empty<SourceNextSpellCostReductionEffect>();
+        var nextSpellCostReductionConsumedEffects = SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+            .Where(effect => effect.AppliesToAllCards || IsSpellPlayBehavior(behavior)).ToArray();
         foreach (var effect in nextSpellCostReductionConsumedEffects)
         {
             untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effect.EffectId);
@@ -3707,7 +3707,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (cardObjects.TryGetValue(command.SourceObjectId, out var historySource)
             || PrintedCardFactory.TryCreate(command.SourceObjectId, intent.PlayerId, command.CardNo, out historySource))
             events[0] = CaptureCardPlayHistory(events[0], historySource, intent.PlayerId,
-                stackItem.StackItemId, false, "STACK");
+                stackItem.StackItemId, false, "STACK", playerZones, cardObjects);
         if (stackItem.FlowPlay is not null)
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                 ["playedWithFlow"] = true, ["sourceZone"] = "GRAVEYARD" } };
@@ -3782,7 +3782,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["effectRepeatCount"] = plan.EffectRepeatCount
                 }));
         }
-        if (nextSpellCostReductionConsumedEffects.Count > 0)
+        if (nextSpellCostReductionConsumedEffects.Length > 0)
         {
             events.Add(new GameEvent(
                 "TRIGGER_RESOLVED",
@@ -3889,7 +3889,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
             untilEndOfTurnEffects,
             intent.PlayerId,
-            discardedOptionalCostObjectIds);
+            discardedOptionalCostObjectIds, playerZones);
 
         var targetSelectionTriggers = CaptureSpellTriggers(state with { PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = objectLocations, UntilEndOfTurnEffects = untilEndOfTurnEffects }, stackItem, behavior,
@@ -4549,9 +4549,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<string> MarkPlayerDiscardedHandCardsThisTurn(
         IReadOnlyList<string> existingEffectIds,
         string playerId,
-        IReadOnlyCollection<string> discardedObjectIds)
+        IReadOnlyCollection<string> discardedObjectIds, IReadOnlyDictionary<string, PlayerZones> playerZones)
     {
-        return discardedObjectIds.Count > 0
+        return discardedObjectIds.Any(id => playerZones[playerId].Graveyard.Contains(id))
             ? AddUntilEndOfTurnEffect(existingEffectIds, BuildDiscardedHandCardThisTurnEffectId(playerId))
             : existingEffectIds;
     }
@@ -4777,7 +4777,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             effectId,
             effectKind,
             sourceObjectId,
-            behavior.SourceNextSpellCostReductionMana);
+            behavior.SourceNextSpellCostReductionMana, behavior.SourceNextSpellCostReductionGenericPower,
+            behavior.SourceNextSpellCostReductionAppliesToAllCards);
         return true;
     }
 
@@ -10077,7 +10078,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> discardedObjectIds,
         List<GameEvent> events)
     {
+        discardedObjectIds = RecordActualHandDiscards(playerZones, playerId, triggeredByEventKind, discardedObjectIds, events);
         if (discardedObjectIds.Count == 0) return;
+        CaptureSelfDiscardEvents(cardObjects, playerId, triggeredByEventKind, discardedObjectIds, events);
         var frame = RuleChoices.Value!;
         var observers = new List<HandDiscardObserverContext>();
         foreach (var source in cardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
@@ -12951,12 +12954,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             var ownerZones = playerZones[ownerPlayerId];
-            playerZones[ownerPlayerId] = ownerZones with
-            {
-                Graveyard = ownerZones.Graveyard.Contains(objectId, StringComparer.Ordinal)
-                    ? ownerZones.Graveyard
-                    : ownerZones.Graveyard.Concat([objectId]).ToArray()
-            };
+            playerZones[ownerPlayerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, ownerPlayerId, ownerZones, [objectId]);
+            var destinationZone = playerZones[ownerPlayerId].Banished.Contains(objectId) ? "BANISHED" : "GRAVEYARD";
             cardObjects[objectId] = cardObject with
             {
                 Damage = 0, DamageMarkedByPlayerIds = null,
@@ -12970,7 +12969,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["objectId"] = objectId,
                 ["ownerPlayerId"] = ownerPlayerId,
                 ["previousControllerId"] = EffectiveFieldControllerId(playerZones, objectId, cardObject),
-                ["destinationZone"] = "GRAVEYARD"
+                ["destinationZone"] = destinationZone
             });
         }
 
@@ -18095,6 +18094,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
         behavior = PlaySourceKeywordBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
+        var normalGraveyardChoices = (command.OptionalCosts ?? []).Count(c => c == NormalGraveyardPlayChoice);
+        if (normalGraveyardChoices > 0) {
+            if (normalGraveyardChoices != 1 || !NormalGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId)) {
+                rejection = Reject(state, "当前没有从废牌堆正常打出此牌的权限。", ErrorCodes.InvalidTarget); return false;
+            }
+            behavior = behavior with { AppliedFlowCost = null };
+            command = command with { OptionalCosts = command.OptionalCosts!.Where(c => c != NormalGraveyardPlayChoice).ToArray() };
+        }
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
@@ -21104,6 +21111,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             ChampionZone = RemoveFromZone(zones.ChampionZone, sourceObjectId),
             Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" || FlowPlaySources(state, playerId).Contains(sourceObjectId)
+                || NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId)
                 ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
             Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
             MainDeck = state.PendingEffectPlay?.SourceZone == "MAIN_DECK" ? RemoveFromZone(zones.MainDeck, sourceObjectId) : zones.MainDeck,
@@ -24718,7 +24726,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                 untilEndOfTurnEffects,
                 stackItem.ControllerId,
-                discardedTargetObjectIds).ToList();
+                discardedTargetObjectIds, playerZones).ToList();
         }
 
         if (behavior.DiscardsTargetFromOwnerHand)
@@ -24764,7 +24772,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                     untilEndOfTurnEffects,
                     discardPlayerId,
-                    discardedTargetObjectIds).ToList();
+                    discardedTargetObjectIds, playerZones).ToList();
             }
         }
 
@@ -25299,7 +25307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                     untilEndOfTurnEffects,
                     discardPlayerId,
-                    discardedObjectIds).ToList();
+                    discardedObjectIds, playerZones).ToList();
             }
 
             var perPlayerDrawCount = ResolveDrawCount(state, playerZones, cardObjects, stackItem.ControllerId, behavior, resolvedObjectLocations);
@@ -27347,7 +27355,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
                         untilEndOfTurnEffects,
                         stackItem.ControllerId,
-                        discardedObjectIds)
+                        discardedObjectIds, playerZones)
                     .ToArray();
             }
         }
@@ -27896,6 +27904,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         destination = FlowStackExitDestination(cards, item, destination);
         var card = cards.GetValueOrDefault(item.SourceObjectId) ?? new CardObjectState(item.SourceObjectId, cardNo: item.CardNo);
         var owner = NonFieldDestinationOwner(zones, card, item.ControllerId);
+        if (destination == "GRAVEYARD" && RedirectsGraveyardEntry(zones, cards, owner, item.SourceObjectId)) destination = "BANISHED";
         var own = zones[owner];
         zones[owner] = destination switch
         {
@@ -27949,6 +27958,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         destinationZone = FlowStackExitDestination(cardObjects, targetStackItem, destinationZone);
         var destinationOwner = MoveStackSpellToOwnerZone(playerZones, cardObjects, targetStackItem, destinationZone);
+        if (destinationZone == "GRAVEYARD" && playerZones[destinationOwner].Banished.Contains(targetStackItem.SourceObjectId))
+            destinationZone = "BANISHED";
 
         counteredEvent = new GameEvent(
             "STACK_ITEM_COUNTERED",
@@ -29170,7 +29181,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playedEvent = CaptureEquipmentPlayed(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId);
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
-            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD");
+            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD", playerZones, cardObjects);
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 
@@ -31595,6 +31606,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
             var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             var owner = NonFieldDestinationOwner(playerZones, targetState, playerId);
+            var goesToBanish = banish || RedirectsGraveyardEntry(playerZones, cardObjects, owner, targetObjectId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
@@ -31603,14 +31615,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var ownerZones = playerZones[owner];
             playerZones[owner] = ownerZones with
             {
-                Graveyard = banish || ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                Graveyard = goesToBanish || ownerZones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
                     ? ownerZones.Graveyard : ownerZones.Graveyard.Concat([targetObjectId]).ToArray(),
-                Banished = banish && !ownerZones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
+                Banished = goesToBanish && !ownerZones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
                     ? ownerZones.Banished.Concat([targetObjectId]).ToArray() : ownerZones.Banished
             };
             ResetCardOutsidePlay(playerZones, cardObjects, targetObjectId, targetState, owner);
-            removalResult = new FieldRemovalResult(owner, banish ? "BANISHED" : "GRAVEYARD",
-                banish, false, wasEquipment, wasUnit, detachedEquipmentObjectIds);
+            removalResult = new FieldRemovalResult(owner, goesToBanish ? "BANISHED" : "GRAVEYARD",
+                goesToBanish, false, wasEquipment, wasUnit, detachedEquipmentObjectIds);
             return true;
         }
 
@@ -31902,13 +31914,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        playerZones[playerId] = zones with
-        {
-            Hand = RemoveFromZone(zones.Hand, targetObjectId),
-            Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
-                ? zones.Graveyard
-                : zones.Graveyard.Concat([targetObjectId]).ToArray()
-        };
+        playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
+            zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
         return true;
     }
 
@@ -31950,13 +31957,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            playerZones[playerId] = zones with
-            {
-                Hand = RemoveFromZone(zones.Hand, targetObjectId),
-                Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Graveyard
-                    : zones.Graveyard.Concat([targetObjectId]).ToArray()
-            };
+            playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
+                zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
             ownerPlayerId = playerId;
             return true;
         }
@@ -31982,16 +31984,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             .ToArray();
         var discardedObjectIdSet = discardedObjectIds.ToHashSet(StringComparer.Ordinal);
-        playerZones[playerId] = zones with
-        {
-            Hand = zones.Hand
-                .Where(objectId => !discardedObjectIdSet.Contains(objectId))
-                .ToArray(),
-            Graveyard = zones.Graveyard
-                .Concat(discardedObjectIds.Where(objectId =>
-                    !zones.Graveyard.Contains(objectId, StringComparer.Ordinal)))
-                .ToArray()
-        };
+        playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
+            zones with { Hand = zones.Hand.Where(objectId => !discardedObjectIdSet.Contains(objectId)).ToArray() }, discardedObjectIds);
         return true;
     }
 
@@ -32783,12 +32777,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             var ownerZones = playerZones[ownerPlayerId];
-            playerZones[ownerPlayerId] = ownerZones with
-            {
-                Graveyard = ownerZones.Graveyard.Contains(objectId, StringComparer.Ordinal)
-                    ? ownerZones.Graveyard
-                    : ownerZones.Graveyard.Concat([objectId]).ToArray()
-            };
+            playerZones[ownerPlayerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, ownerPlayerId, ownerZones, [objectId]);
+            var destinationZone = playerZones[ownerPlayerId].Banished.Contains(objectId) ? "BANISHED" : "GRAVEYARD";
             cardObjects[objectId] = cardObject with
             {
                 Damage = 0, DamageMarkedByPlayerIds = null,
@@ -32797,7 +32787,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 IsDefending = false,
                 ControllerId = ownerPlayerId
             };
-            objectLocations[objectId] = new ObjectLocationState(ownerPlayerId, "GRAVEYARD");
+            objectLocations[objectId] = new ObjectLocationState(ownerPlayerId, destinationZone);
 
             if (!removedByBattlefield.TryGetValue(location.BattlefieldObjectId, out var removed))
             {
@@ -32809,7 +32799,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["objectId"] = objectId,
                 ["ownerPlayerId"] = ownerPlayerId,
                 ["previousControllerId"] = previousControllerId,
-                ["destinationZone"] = "GRAVEYARD"
+                ["destinationZone"] = destinationZone
             });
         }
 
@@ -33182,7 +33172,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var i = 0; i < drawCount && result.WinnerPlayerId is null; i++)
         {
-            result = DrawOne(
+            result = TakeTopCardWithBurnout(
                 state with
                 {
                     PlayerScores = result.PlayerScores,
@@ -34114,7 +34104,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && state.TurnNumber == turnPlayerIndex + 1;
     }
 
-    private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)
+    private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)
     {
         var playerScores = NormalizeScoresForSeats(state);
         var mainDeck = zones.MainDeck.ToList();
@@ -34660,7 +34650,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string EffectId,
         string EffectKind,
         string SourceObjectId,
-        int Mana);
+        int Mana, int GenericPower, bool AppliesToAllCards);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

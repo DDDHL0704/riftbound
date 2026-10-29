@@ -50,6 +50,8 @@ public sealed partial class CoreRuleEngine
                     break;
                 case "START":
                     state = state with { PlayerScores = NormalizeScoresForSeats(state), TurnStartStep = "SCORE" };
+                    events.Add(CapturePhaseCardEvents(new("START_PHASE_BEGAN", "进入开始阶段",
+                        new Dictionary<string, object?> { ["turnPlayerId"] = player }), zones, cards, player, "START"));
                     state = QueueEphemeralStartAbilities(state, events);
                     state = QueueBattlefieldStartAbilities(state, events);
                     state = QueueBeginningDrawAbilities(state, events);
@@ -85,6 +87,10 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
+                    if (ActiveFieldCardBehaviors(zones, cards, player).Any(b => b.SkipsDrawPhase)) {
+                        events.Add(new("DRAW_PHASE_SKIPPED", "卡牌效果跳过抽牌阶段", new Dictionary<string, object?> { ["playerId"] = player }));
+                        state = state with { TurnStartStep = "MAIN" }; break;
+                    }
                     var draw = DrawCards(state, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
@@ -97,7 +103,8 @@ public sealed partial class CoreRuleEngine
                 case "MAIN":
                     var pools = ClearRunePools(state).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
                     events.Add(new("RUNE_POOL_CLEARED", "所有玩家的符文池已清空", new Dictionary<string, object?> { ["playerIds"] = state.Seats.Keys.Order().ToArray() }));
-                    events.Add(new("MAIN_PHASE_BEGAN", "进入主阶段", new Dictionary<string, object?> { ["turnPlayerId"] = player }));
+                    events.Add(CapturePhaseCardEvents(new("MAIN_PHASE_BEGAN", "进入主阶段",
+                        new Dictionary<string, object?> { ["turnPlayerId"] = player }), zones, cards, player, "MAIN"));
                     var due = state.DelayedResourceGains.Where(d => d.ControllerId == player && d.DueTurn <= state.TurnNumber).ToArray();
                     foreach (var delayed in due)
                     {

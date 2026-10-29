@@ -4,7 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
-    bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false);
+    bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
+    int LeadingDestroyOtherFriendlyPermanents = 0);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -32,6 +33,7 @@ public sealed record CardBehaviorDefinition(
     ConquestDamageSpec? ConquestDamage = null,
     MovementScoreSpec? MovementScore = null,
     UnitEventAbilitySpec? UnitEventAbility = null,
+    bool GrantsNormalGraveyardPlay = false, bool SkipsDrawPhase = false, bool BanishesNonDeckGraveyardEntries = false,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
@@ -209,6 +211,8 @@ public sealed record CardBehaviorDefinition(
     int LevelDrawOnPlayCount = 0,
     int SourceNextSpellCostReductionMana = 0,
     string SourceNextSpellCostReductionEffectKind = "",
+    bool SourceNextSpellCostReductionAppliesToAllCards = false,
+    int SourceNextSpellCostReductionGenericPower = 0,
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
     string SourceBoonRequiredControlledUnitTag = "",
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
@@ -462,6 +466,26 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·022", "无尽秘藏", 5, "EQUIPMENT_PLAY:VEN·022", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY", "BANISH_HAND_GRAVEYARD_BURN", 7),
+            GrantsNormalGraveyardPlay: true, SkipsDrawPhase: true, BanishesNonDeckGraveyardEntries: true),
+        new("VEN·108", "遗落圣物", 5, "EQUIPMENT_PLAY:VEN·108", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY_OR_START", "BURN_MIGHT_FRIENDLY")),
+        new("VEN·067", "瓶中星海", 10, "EQUIPMENT_PLAY:VEN·067", 0, 0,
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("MAIN", "SCORE", 1, LeadingDestroyOtherFriendlyPermanents: 3)),
+        new("VEN·044", "星界灵鹭", 7, "UNIT_PLAY:VEN·044", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "鸟类",
+            UnitEventAbility: new("FIRST_CARD_PLAYED", "NEXT_CARD_COST_REDUCTION"),
+            SourceNextSpellCostReductionMana: 2, SourceNextSpellCostReductionEffectKind: "HERON_NEXT_CARD_COST_REDUCTION",
+            SourceNextSpellCostReductionAppliesToAllCards: true, SourceNextSpellCostReductionGenericPower: 2),
+        new("VEN·094", "面具之母", 3, "UNIT_PLAY:VEN·094", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "灵体",
+            UnitEventAbility: new("SELF_DISCARDED", "MIGHT_FRIENDLY", 2, LeadingManaCost: 1)),
+        new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·102", "拉文布鲁姆级长", 3, "UNIT_PLAY:VEN·102", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
             UnitEventAbility: new("OPPONENT_EQUIPMENT_PLAYED", "BANISH_ENTERED_EQUIPMENT", Optional: true, LeadingSelfBanish: true)),

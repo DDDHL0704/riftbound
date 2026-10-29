@@ -1072,7 +1072,9 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE",
+        "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "START_PHASE_BEGAN",
+        "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [

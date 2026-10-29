@@ -209,7 +209,7 @@ public sealed partial class CoreRuleEngine
                 ["targetObjectId"] = discarded.ObjectId, ["destinationZone"] = "GRAVEYARD", ["reason"] = "REQUIRED_COST" }));
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, intent.PlayerId, "CARD_DISCARDED",
                 source.ObjectId, [discarded.ObjectId], events);
-            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId]);
+            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId], zones);
             locations = ReconcileObjectLocations(locations, zones);
         }
         if (cost.Exhaust) cards[source.ObjectId] = cards[source.ObjectId] with { IsExhausted = true };
