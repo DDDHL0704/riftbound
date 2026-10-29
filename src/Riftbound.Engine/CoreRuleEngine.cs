@@ -5183,6 +5183,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
             return ResolveTargetedPowerModifierAbility(state, intent, command, ability);
 
+        if (ability.SimpleEffect is not null)
+            return ResolveSimpleActivation(state, intent, command, ability);
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             return ResolveMalzaharResourceSkill(state, intent, command, ability);
@@ -24072,6 +24075,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
+        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var simpleAbility) && simpleAbility.SimpleEffect is not null)
+            return ResolveSimpleActivationEffect(state, stackItem, simpleAbility);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))

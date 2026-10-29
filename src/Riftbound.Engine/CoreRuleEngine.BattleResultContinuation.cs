@@ -49,6 +49,7 @@ public sealed partial class CoreRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = RecordTargetedPowerSourceStatus(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
@@ -64,7 +65,7 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return StampNewTriggerQueueTimes(state, completed);
+            return StampNewTriggerQueueTimes(state, RecordEnemyUnitTargets(state, completed));
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";
