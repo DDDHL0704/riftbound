@@ -48,6 +48,35 @@ public sealed class PlayRuneTapPaymentTests
         await driver.Replay();
     }
 
+    [Fact]
+    public async Task OneRemainingManaCapacityOffersEveryRuneButRejectsSelectingTwo()
+    {
+        var initial = Position() with {
+            RunePools = new Dictionary<string, RunePool> { ["P1"] = new(int.MaxValue - 1, 1), ["P2"] = RunePool.Empty } };
+        var candidate = Assert.Single(ResolutionResult.BuildPrompts(initial)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
+        var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
+        Assert.Equal(int.MaxValue, requirement["availableManaWithPaymentResources"]);
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
+        Assert.All(Taps, action => Assert.Contains(choices, choice => choice.Id == action));
+
+        var command = PlayCostPreviewTests.Command(Taps.Take(2).ToArray());
+        var before = MatchStateHasher.Hash(initial);
+        var rejected = await new CoreRuleEngine().ResolveAsync(initial, new("capacity-overflow", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(before, MatchStateHasher.Hash(initial));
+
+        foreach (var action in Taps)
+        {
+            var driver = new Driver(initial);
+            await driver.Act("P1", PlayCostPreviewTests.Command([action]));
+            Assert.Equal(int.MaxValue - 4, driver.State.RunePools["P1"].Mana);
+            Assert.Equal(action["TAP_RUNE:".Length..], Assert.Single(driver.Events(), e => e.Event.Kind == "RUNE_TAPPED").Event.Payload["sourceObjectId"]);
+            await driver.Replay();
+        }
+    }
+
     [Theory]
     [InlineData("duplicate")]
     [InlineData("recycle-first")]
