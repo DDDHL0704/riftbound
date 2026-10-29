@@ -9152,6 +9152,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·137/167", "莫德凯撒", 9, "RAD_137_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "灵体"),
+        new("RAD·137a/167", "莫德凯撒", 9, "RAD_137A_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "灵体"),
         new("RAD·179*/167", "厄斐琉斯", 4, "RAD_179_STAR_APHELIOS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("RAD·179/167", "厄斐琉斯", 4, "RAD_179_APHELIOS_PLAY_UNIT", 0, 0,

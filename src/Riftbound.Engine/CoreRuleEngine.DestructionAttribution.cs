@@ -24,6 +24,11 @@ public sealed partial class CoreRuleEngine
         if (item.DamageDestruction is { } damage)
             return new(damage.Source, damage.CardNo, damage.ControllerId, item.StackItemId,
                 responsible ?? damage.ControllerId, true);
+        // A captured skill belongs to its original field object even after
+        // that physical card moves to a private zone or returns to the field.
+        if (item.FieldContext is { } field)
+            return new(new(item.SourceObjectId, field.SourceGeneration), field.CardNo, item.ControllerId,
+                item.StackItemId, responsible ?? item.ControllerId, false);
         var source = AttributionSource(item.SourceObjectId);
         if (source is null || string.IsNullOrWhiteSpace(item.CardNo)) return null;
         return new(new(source.ObjectId, source.ObjectGeneration), item.CardNo, item.ControllerId,
