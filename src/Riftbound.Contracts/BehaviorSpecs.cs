@@ -409,6 +409,7 @@ public static class StaticAuraKinds
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
+    public const string SourceControllerScorePower = "SOURCE_CONTROLLER_SCORE_POWER";
     public const string SameLocationEnemyFilteredPower = "SAME_LOCATION_ENEMY_FILTERED_POWER";
     public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string SourceObjectFilteredKeyword = "SOURCE_OBJECT_FILTERED_KEYWORD";

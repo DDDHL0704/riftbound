@@ -244,8 +244,16 @@ internal static class StaticAuraSpecRules
     }
 
     internal static int SourceObjectPowerDelta(StaticAuraSpec aura, MatchState state, CardObjectState source)
-        => aura.PowerDeltaPerParticipant * (aura.PowerMultiplierZone == "GRAVEYARD"
-            ? state.PlayerZones.GetValueOrDefault(source.ControllerId ?? "")?.Graveyard.Count ?? 0 : 1);
+    {
+        var multiplier = aura.PowerMultiplierZone switch
+        {
+            "GRAVEYARD" => state.PlayerZones.GetValueOrDefault(source.ControllerId ?? "")?.Graveyard.Count ?? 0,
+            "CONTROLLER_SCORE" => state.PlayerScores.GetValueOrDefault(source.ControllerId ?? source.OwnerId ??
+                state.PlayerZones.FirstOrDefault(p => p.Value.Base.Contains(source.ObjectId) || p.Value.Battlefields.Contains(source.ObjectId)).Key ?? ""),
+            _ => 1
+        };
+        return aura.PowerDeltaPerParticipant * multiplier;
+    }
 
     public static bool IsSourceObjectPowerStaticAura(StaticAuraSpec aura)
     {
@@ -500,7 +508,7 @@ internal static class StaticAuraSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>> BuildStaticAuraMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

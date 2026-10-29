@@ -467,6 +467,8 @@ public static class CardBehaviorRegistry
             DestroysTarget: true, TargetScope: CardTargetScopes.Equipment, FlowCost: new(4, 1, [RuneTrait.Red])),
         new("VEN·110", "梅尔", 5, "VEN_110_EMPOWERED_BANISH_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("VEN·172", "德莱文 · 夸耀角斗士", 5, "OGN_DRAVEN_SCORE_STATIC_ZERO_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·130", "奥洛克将军", 5, "VEN_130_EMPOWERED_UNIT_AURA_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "崔法利"),
         new("VEN·057", "秘密线人", 3, "VEN_057_EMPOWERED_MOVE_DRAW_UNIT", 0, 0,
