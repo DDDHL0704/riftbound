@@ -19,6 +19,7 @@ public static class VendettaCardSources
 
     private static ImmutableArray<OfficialCard> Load()
     {
+        var catalog = Source.Value;
         return new[] { (Id: 37687L, CardNo: "VEN·002"), (Id: 37689L, CardNo: "VEN·004"), (Id: 37694L, CardNo: "VEN·009"),
             (Id: 37696L, CardNo: "VEN·011"), (Id: 37700L, CardNo: "VEN·015"), (Id: 37701L, CardNo: "VEN·016"),
             (Id: 37703L, CardNo: "VEN·018"), (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),

@@ -125,7 +125,7 @@ public sealed partial class CoreRuleEngine
             ? state.UntilEndOfTurnEffects.Append(SimpleActivationUse(source, ability.AbilityId)).ToArray()
             : state.UntilEndOfTurnEffects;
         if (ability.SimpleEffect.DiscardsEquipmentAsCost)
-            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]]);
+            effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [extras.Single()["DISCARD_HAND_CARD:".Length..]], zones);
         var next = state with { Tick = state.Tick + 1, ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed, PriorityPlayerId = intent.PlayerId, PassedPriorityPlayerIds = [],
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = paid.RunePools,
