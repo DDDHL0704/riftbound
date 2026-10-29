@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 import math
 import xml.etree.ElementTree as ET
 
-SPLIT_MIN_SECONDS = 1200
+SPLIT_MIN_SECONDS = 600
 ESTIMATED_CLASS_WORKERS = 4
 
 
@@ -70,6 +70,7 @@ def partition(units, cases, weights, count):
     for shard in bins:
         shard['selectors'].sort(key=key)
         shard['methods'] = sorted({unit['method'] for unit in shard['selectors']})
+        shard['estimatedClassSeconds'] = dict(sorted(class_loads[shard['name']].items()))
     return bins
 
 

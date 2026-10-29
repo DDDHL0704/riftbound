@@ -136,7 +136,7 @@ public sealed partial class CoreRuleEngine
                 return continued with { Events = events.Concat(continued.Events).ToArray() };
             }
         }
-        CompleteSpellSource(zones, cards, item, behavior);
+        CompleteSpellSource(zones, cards, item, behavior, events);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             PlayerScores = subsequentDraw.PlayerScores, RngCursor = subsequentDraw.RngCursor, WinnerPlayerId = subsequentDraw.WinnerPlayerId, Events = events,
             StackItems = state.StackItems.Where(s => s.StackItemId != item.StackItemId).ToArray(),
@@ -213,9 +213,18 @@ public sealed partial class CoreRuleEngine
     }
 
     private static void CompleteSpellSource(Dictionary<string, PlayerZones> zones,
-        Dictionary<string, CardObjectState> cards, StackItemState item, CardBehaviorDefinition behavior)
+        Dictionary<string, CardObjectState> cards, StackItemState item, CardBehaviorDefinition behavior, List<GameEvent> events)
     {
-        if (!behavior.PlaysSourceToBaseAsEquipment && !behavior.PlaysSourceToBaseAsUnit)
-            MoveStackSpellToOwnerZone(zones, cards, item, behavior.BanishesSourceOnResolution ? "BANISHED" : "GRAVEYARD");
+        if (behavior.PlaysSourceToBaseAsEquipment || behavior.PlaysSourceToBaseAsUnit) return;
+        var destination = FlowStackExitDestination(cards, item, behavior.BanishesSourceOnResolution ? "BANISHED" : "GRAVEYARD");
+        var alreadyBanished = zones.Values.Any(zone => zone.Banished.Contains(item.SourceObjectId, StringComparer.Ordinal));
+        MoveStackSpellToOwnerZone(zones, cards, item, destination);
+        if (destination == "BANISHED" && !alreadyBanished)
+        {
+            var actor = item.FlowPlay?.OwnerId ?? item.ControllerId;
+            var capture = CaptureOwnedBanishObservers(new("INTERNAL_OWNED_BANISH", "", new Dictionary<string, object?>()),
+                zones, cards, actor, [item.SourceObjectId]);
+            if (capture.Payload.ContainsKey(OwnedBanishCaptureKey)) events.Add(capture);
+        }
     }
 }

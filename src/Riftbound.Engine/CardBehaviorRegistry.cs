@@ -271,6 +271,8 @@ public sealed record CardBehaviorDefinition(
     bool GrantsFreeStandbyHidePermission = false,
     string EffectPlaySourceZone = "",
     bool EffectPlayIgnoreBaseMana = false,
+    int DestroyedEquipmentGrantsTurnPlayMaximumMana = 0,
+    string? AppliedEquipmentPlayGrant = null,
     bool EffectPlayIgnoreBasePower = false,
     int EffectPlayManaReduction = 0,
     string EffectPlayDestination = "ANY",
@@ -325,6 +327,7 @@ public static class CardDamageConditionKinds
 
 public static class CardTargetScopes
 {
+    public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
     public const string Battlefield = "BATTLEFIELD";
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
@@ -476,6 +479,38 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·021", "阿卡丽 · 游离之刃", 3, "VEN_AKALI_MOVEMENT_DAMAGE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·021a", "阿卡丽 · 游离之刃", 3, "VEN_AKALI_MOVEMENT_DAMAGE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·041", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
+        new("VEN·171", "锐雯 · 重铸而归", 3, "VEN_RIVEN_WEAPON_ATTACK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "百炼"),
+        new("VEN·136", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("VEN·136a", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("VEN·187", "安蓓萨 · 战狼尊母", 5, "VEN_AMBESSA_ATTACK_DESTROY_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("VEN·063", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
+        new("VEN·063a", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
+        new("VEN·178", "内瑟斯 · 亘古守知", 5, "VEN_NASUS_LOCAL_DEATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "犬形"),
+        new("VEN·046", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
+        new("VEN·046a", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
+        new("VEN·065", "斯维因 · 远谋卓识", 6, "VEN_SWAIN_PLAY_TYPES_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "恶魔|预知"),
+        new("VEN·173", "斯维因 · 远谋卓识", 6, "VEN_SWAIN_PLAY_TYPES_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "恶魔|预知"),
+        new("VEN·135", "凯南 · 御衡之心", 3, "VEN_KENNEN_STUN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人|待命"),
+        new("VEN·135a", "凯南 · 御衡之心", 3, "VEN_KENNEN_STUN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人|待命"),
         new("VEN·100", "深渊之触", 3, "ABYSSAL_TOUCH_CREATE_TENTACLES", 0, 0,
             CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "触手",
             CreatedBaseUnitTokenTags: "比尔吉沃特", FlowCost: new(3, 0, [])),
@@ -2799,6 +2834,10 @@ public static class CardBehaviorRegistry
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
             HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·175", "杰斯 · 推陈出新", 4, "VEN_JAYCE_EQUIPMENT_GRANT_PLAY_UNIT", 0, 1,
+            TargetRequiredTag: CardObjectTags.EquipmentCard, TargetScope: CardTargetScopes.FriendlyEquipment,
+            MinTargetCount: 0, DestroysTarget: true, DestroyedEquipmentGrantsTurnPlayMaximumMana: 7,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·088", "杰斯 · 举锤待发", 4, "VEN_JAYCE_READIED_KEYWORD_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("VEN·088a", "杰斯 · 举锤待发", 4, "VEN_JAYCE_READIED_KEYWORD_PLAY_UNIT", 0, 0,
@@ -5005,6 +5044,15 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
+            "VEN·176",
+            "维克托",
+            4,
+            "VEN_VIKTOR_OPPONENT_TURN_TOKEN_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
             "OGN·119/298",
             "阿狸",
             3,
@@ -5984,7 +6032,12 @@ public static class CardBehaviorRegistry
             4,
             "SFD_JAYCE_NO_OPTIONAL_EQUIPMENT_PLAY_UNIT",
             0,
-            0,
+            1,
+            TargetRequiredTag: CardObjectTags.EquipmentCard,
+            TargetScope: CardTargetScopes.FriendlyEquipment,
+            MinTargetCount: 0,
+            DestroysTarget: true,
+            DestroyedEquipmentGrantsTurnPlayMaximumMana: 7,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
         new(

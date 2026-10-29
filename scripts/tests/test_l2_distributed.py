@@ -416,10 +416,26 @@ class DistributedL2Tests(unittest.TestCase):
         shards = D.SELECT.partition(units, cases, weights, 2)
         D.SELECT.validate(shards, cases, discovery)
         self.assertEqual([3400, 3400], [shard['estimatedSeconds'] for shard in shards])
+        self.assertEqual([{D.RULES.PREFIX + 'ActualTests': 3400}] * 2,
+                         [shard['estimatedClassSeconds'] for shard in shards])
         self.assertCountEqual(discovery, [name for shard in shards for name in D.SELECT.case_names(shard, cases)])
         self.assertEqual(1, len(next(shard for shard in shards if rows[0] in D.SELECT.case_names(shard, cases))['selectors']))
         fallback = D.SELECT.partition(units, cases, {self.theory: 3600, other: 3200}, 2)
         self.assertEqual([3200, 3600], sorted(shard['estimatedSeconds'] for shard in fallback))
+
+    def test_sub_twenty_minute_theory_does_not_serialize_all_rows_in_one_shard(self):
+        rows = [self.theory + f'(x: {i})' for i in range(6)]
+        controls = [D.RULES.PREFIX + f'Control{i}.Fact' for i in range(2)]
+        cases = {self.theory: rows, **{method: [method] for method in controls}}
+        discovery = [*rows, *controls]
+        weights = {self.theory: 900, **{row: 150 for row in rows},
+                   **{method: 900 for method in controls}}
+        shards = D.SELECT.partition(D.SELECT.selectors(discovery, cases, weights), cases, weights, 3)
+        D.SELECT.validate(shards, cases, discovery)
+        loads = [sum(weights[unit['case']] for unit in shard['selectors']
+                     if unit['method'] == self.theory) for shard in shards]
+        self.assertEqual([300, 300, 300], loads)
+        self.assertCountEqual(discovery, [name for shard in shards for name in D.SELECT.case_names(shard, cases)])
 
     def test_case_duration_cannot_make_an_ineligible_method_split(self):
         row = self.theory + '(x: 1)'
