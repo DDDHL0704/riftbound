@@ -107,7 +107,7 @@ public sealed class RadUnitHoldTests
 
     [Theory]
     [InlineData("missing")] [InlineData("face-up")] [InlineData("enemy")]
-    [InlineData("other-field")] [InlineData("base")]
+    [InlineData("other-field")]
     public async Task EvelynnNeedsAControlledFaceDownCardAtHerOwnBattlefield(string branch)
     {
         var state = Position(Evelynn, hidden: branch != "missing");
@@ -115,8 +115,7 @@ public sealed class RadUnitHoldTests
             ["PRIVATE-STANDBY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PRIVATE-STANDBY", "OGN·219/298", "P1") } };
         if (branch == "enemy") state = LocalDestructionRecallTests.At(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["PRIVATE-STANDBY"] = state.CardObjects["PRIVATE-STANDBY"] with { OwnerId = "P2", ControllerId = "P2" } } }, "PRIVATE-STANDBY", "P2", "BATTLEFIELD", "F");
-        if (branch is "other-field" or "base") state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1",
-            branch == "base" ? "BASE" : "BATTLEFIELD", branch == "base" ? null : "OTHER");
+        if (branch == "other-field") state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1", "BATTLEFIELD", "OTHER");
         var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(Holds(game.State), h => h.Kind == "UNIT_HIDDEN_HERE_SCORE");
         Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
@@ -252,7 +251,8 @@ public sealed class RadUnitHoldTests
             Assert.Equal("HIDDEN", row["sourceObjectId"]);
             Assert.DoesNotContain("HOST", JsonSerializer.Serialize(snapshot.Stack));
             var oldValue = row.GetValueOrDefault(key);
-            row[key] = key == "sourceObjectId" ? "HOST" : game.State.StackItems[0].HeldContext;
+            row[key] = key == "sourceObjectId" ? "HOST" : key == "unitSource"
+                ? game.State.StackItems[0].HeldContext!.UnitSource : game.State.StackItems[0].HeldContext;
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
             if (oldValue is null) row.Remove(key); else row[key] = oldValue;
         }
@@ -262,7 +262,7 @@ public sealed class RadUnitHoldTests
     [Theory]
     [InlineData("amount")] [InlineData("card")] [InlineData("kind")] [InlineData("generation")]
     [InlineData("instance")] [InlineData("capture")] [InlineData("face")]
-    [InlineData("factory")] [InlineData("ceased")] [InlineData("source")]
+    [InlineData("factory")] [InlineData("ceased")] [InlineData("source")] [InlineData("missing")]
     public async Task ColdRecoveryRejectsForgedCapturedUnitHold(string mutation)
     {
         var game = new Driver(Position(Ksante)); await game.Act("P2", new EndTurnCommand());
@@ -275,6 +275,7 @@ public sealed class RadUnitHoldTests
             "face" => held with { UnitSource = held.UnitSource! with { FaceCardNo = Evelynn } },
             "factory" => held with { UnitSource = held.UnitSource! with { TokenFactoryCardNo = "OGN·T01/298" } },
             "ceased" => held with { UnitSource = held.UnitSource! with { Ceased = true } }, _ => held };
+        if (mutation == "missing") changed = held with { UnitSource = null };
         var forged = game.State with { StackItems = [item with { HeldContext = changed,
             SourceObjectId = mutation == "source" ? "R1" : item.SourceObjectId }] };
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged));

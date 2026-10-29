@@ -3710,6 +3710,7 @@ public static partial class MatchRecoveryValidator
             ValidateLastBreathDrawViews(view.Snapshot.Stack, errors);
             ValidateLastBreathBattlefieldDamageViews(view.Snapshot.Stack, errors);
             ValidateDestructionFamilyStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidatePrivateUnitHeldStackFields(view.Snapshot.Stack, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
@@ -5472,6 +5473,7 @@ public static partial class MatchRecoveryValidator
         ValidateLastBreathDrawViews(stackItems, errors);
         ValidateLastBreathBattlefieldDamageViews(stackItems, errors);
         ValidateDestructionFamilyStackViews(stackItems, authoritativeState, errors);
+        ValidatePrivateUnitHeldStackFields(stackItems, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
         ValidateDeckPlayPendingCardViews(stackItems, authoritativeState, errors);
