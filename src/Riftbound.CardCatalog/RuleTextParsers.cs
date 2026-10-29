@@ -336,6 +336,15 @@ public static class TriggerParser
             triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalPaidStun, TriggerTimings.SourceUnitPlayedOrAttack,
                 paidStun.Value, "Confirm a unit target, then pay the optional mana and any target costs together before responses.",
                 TargetScope: TriggerTargetScopes.AnyUnitOnField, ManaCost: ParseChineseNumber(paidStun.Groups["mana"].Value), Optional: true));
+        var discardDestroy = Regex.Match(text,
+            @"当你打出我时[，,]\s*或当我进攻时[，,]\s*你可以选择弃置一张手牌[，,]\s*以此摧毁一个单位或装备[。.]?",
+            RegexOptions.CultureInvariant);
+        if (discardDestroy.Success)
+            triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalDiscardDestroy, TriggerTimings.SourceUnitPlayedOrAttack,
+                discardDestroy.Value, "Confirm a unit or equipment target and pay one hand-card discard before responses; destroy only on resolution.",
+                TargetScope: TriggerTargetScopes.UnitOrEquipmentOnField, Optional: true,
+                DiscardCount: 1, DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
+                DestroyCount: 1));
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);
