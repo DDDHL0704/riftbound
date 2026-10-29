@@ -2949,6 +2949,9 @@ public sealed record MatchState
         string Condition,
         string Lifecycle) SourceObjectPowerStaticAuraProjectionMetadata(StaticAuraSpec aura)
     {
+        if (aura.Kind == StaticAuraKinds.SourceControllerScorePower)
+            return ("STATIC_AURA:SOURCE_SCORE_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
+                "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_SCORE");
         if (aura.PowerMultiplierZone == "GRAVEYARD")
             return ("STATIC_AURA:SOURCE_GRAVEYARD_POWER", "StaticAuraSpecRules.SourceObjectPowerDelta",
                 "SOURCE_PUBLIC_FIELD_UNIT", "RECOMPUTED_FROM_CURRENT_CONTROLLER_GRAVEYARD");

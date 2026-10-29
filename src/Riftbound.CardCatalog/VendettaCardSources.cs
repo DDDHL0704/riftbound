@@ -37,16 +37,16 @@ public static class VendettaCardSources
             (Id: 37846L, CardNo: "VEN·143"), (Id: 37848L, CardNo: "VEN·145"), (Id: 37850L, CardNo: "VEN·147"),
             (Id: 37852L, CardNo: "VEN·149"), (Id: 37853L, CardNo: "VEN·150"), (Id: 37854L, CardNo: "VEN·151"),
             (Id: 37856L, CardNo: "VEN·153"), (Id: 37858L, CardNo: "VEN·155"), (Id: 38299L, CardNo: "VEN·155a"),
-            (Id: 37870L, CardNo: "VEN·167"), (Id: 37874L, CardNo: "VEN·171"), (Id: 37876L, CardNo: "VEN·173"),
+            (Id: 37870L, CardNo: "VEN·167"), (Id: 37871L, CardNo: "VEN·168"), (Id: 37874L, CardNo: "VEN·171"), (Id: 37875L, CardNo: "VEN·172"), (Id: 37876L, CardNo: "VEN·173"),
             (Id: 37877L, CardNo: "VEN·174"), (Id: 37878L, CardNo: "VEN·175"), (Id: 37879L, CardNo: "VEN·176"),
             (Id: 37880L, CardNo: "VEN·177"), (Id: 37881L, CardNo: "VEN·178"), (Id: 37883L, CardNo: "VEN·180"),
-            (Id: 37888L, CardNo: "VEN·185"), (Id: 37890L, CardNo: "VEN·187"), (Id: 37891L, CardNo: "VEN·188"),
+            (Id: 37887L, CardNo: "VEN·184"), (Id: 37888L, CardNo: "VEN·185"), (Id: 37890L, CardNo: "VEN·187"), (Id: 37891L, CardNo: "VEN·188"),
             (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"), (Id: 37896L, CardNo: "VEN·191"),
             (Id: 37897L, CardNo: "VEN·191*"), (Id: 37898L, CardNo: "VEN·192"), (Id: 37899L, CardNo: "VEN·192*"),
             (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"), (Id: 37902L, CardNo: "VEN·194"),
             (Id: 37903L, CardNo: "VEN·194*"), (Id: 37942L, CardNo: "VEN·195"), (Id: 37905L, CardNo: "VEN·195*"),
             (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*"), (Id: 37908L, CardNo: "VEN·197"),
-            (Id: 37909L, CardNo: "VEN·197*"), (Id: 37916L, CardNo: "VEN·SP1"), (Id: 37919L, CardNo: "VEN·SP4"),
+            (Id: 37909L, CardNo: "VEN·197*"), (Id: 37916L, CardNo: "VEN·SP1"), (Id: 37917L, CardNo: "VEN·SP2"), (Id: 37919L, CardNo: "VEN·SP4"), (Id: 37920L, CardNo: "VEN·SP5"),
             (Id: 37924L, CardNo: "VEN·T04"), (Id: 37926L, CardNo: "VEN·T06") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             // The upstream gallery labels VEN token printings as ordinary units.
