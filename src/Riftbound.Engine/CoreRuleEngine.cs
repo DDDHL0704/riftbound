@@ -3591,7 +3591,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentCommit.ErrorMessage ?? $"Not enough resources to play {behavior.DisplayName}.",
+                paymentCommit.ErrorMessage ?? $"资源不足，无法打出{behavior.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
