@@ -23534,7 +23534,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         List<GameEvent> events)
     {
@@ -24507,9 +24506,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             TryResolveSourceUnitOptionalReadyPower(
-                playerZones, behavior,
-                stackItem,
                 playerZones,
+                behavior,
+                stackItem,
                 cardObjects,
                 events);
         }
