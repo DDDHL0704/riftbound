@@ -273,13 +273,13 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveEmpowerStack(MatchState state, StackItemState item)
     {
         if (!EmpowerRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured empower activation.");
-        return ApplyEmpowerAction(state, item.EmpowerActivation!.Source);
+        return ApplyEmpowerAction(state, item.EmpowerActivation!.Source, item.ControllerId);
     }
 
-    private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding)
-        => ApplyEmpowerStatusAction(state, binding, true);
+    private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding, string actor)
+        => ApplyEmpowerStatusAction(state, binding, true, actor);
 
-    private static StackResolutionResult ApplyEmpowerStatusAction(MatchState state, ObjectBinding binding, bool empowered)
+    private static StackResolutionResult ApplyEmpowerStatusAction(MatchState state, ObjectBinding binding, bool empowered, string actor)
     {
         if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration != binding.Generation
             || !(IsObjectOnField(state.PlayerZones, source.ObjectId)
@@ -297,6 +297,8 @@ public sealed partial class CoreRuleEngine
             if (interactions.Length > 0) payload[EmpowerInteractionCaptureKey] = interactions;
             var banish = CaptureEmpoweredBanish(state, cards, cards[source.ObjectId]);
             if (banish.Length > 0) payload[EmpoweredBanishCaptureKey] = banish;
+            var observers = CaptureEmpowerOtherObservers(state, cards, cards[source.ObjectId], actor);
+            if (observers.Length > 0) payload[EmpowerOtherCaptureKey] = observers;
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards,
             Events = [new(empowered ? "OBJECT_EMPOWERED" : "OBJECT_EMPOWER_REMOVED", empowered ? source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态" : "解除物体的强化状态", payload)] };
