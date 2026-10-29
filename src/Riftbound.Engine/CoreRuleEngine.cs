@@ -7335,7 +7335,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != ability.RequiredTargetCount
-            || IsLegendUnitKeywordEffect(ability.EffectKind) && targetObjectIds.Count != command.TargetObjectIds.Count)
+            || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7623,6 +7623,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
 
+        if (IsLegendDuelMovementEffect(ability.EffectKind))
+            return QueueLegendDuelMovement(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, events);
+
         if (IsLegendUnitKeywordEffect(ability.EffectKind))
             return QueueLegendUnitKeyword(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
@@ -7888,6 +7893,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.AkaliLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.AkaliLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AkaliLegendAbilityId),
+                "离群之刺传奇迅捷移动技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.MoveDuelUnit, RequiresBattlefieldTarget: true, TimingKind: LegendAbilityTimingKinds.QuickOpen,
+                ResolveOnlyOnControllerTurn: true, ReadyTargetIfSourceEmpowered: true),
             LegendActionAbilityCatalog.ShenLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.ShenLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ShenLegendAbilityId),
@@ -8213,6 +8224,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (IsLegendDuelMovementEffect(ability.EffectKind) && !IsLegendDuelUnit(state, playerId, targetObjectId)) return false;
         var location = FindFieldObjectLocation(state.PlayerZones, targetObjectId);
         if (ability.RequiresBattlefieldTarget
             && (location is null || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)))
@@ -18993,7 +19005,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.LegendUnitKeyword is null ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
@@ -23953,6 +23965,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.Tempered is not null) return ResolveTempered(state, stackItem);
         if (stackItem.AzirMovement is not null) return ResolveAzirMovement(state, stackItem);
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
+        if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
@@ -34497,6 +34510,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string RequiredControlledBattlefieldStaticAbilityKind = "",
         PowerPaymentPurpose GrantedPowerPurpose = PowerPaymentPurpose.Other,
         int PowerCost = 0,
+        bool ResolveOnlyOnControllerTurn = false,
+        bool ReadyTargetIfSourceEmpowered = false,
         string GrantedCombatKeyword = "");
 
     private static class LegendAbilityEffectKinds
@@ -34504,6 +34519,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";
+        public const string MoveDuelUnit = "LEGEND_MOVE_DUEL_UNIT";
         public const string GrantBoon = "GRANT_BOON";
         public const string GrantRoam = "GRANT_ROAM";
         public const string ReturnBattlefieldUnitAndCreateCoin = "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN";

@@ -270,7 +270,7 @@ public static class OfficialRuleDomainBehaviorCatalog
     {
         ArgumentNullException.ThrowIfNull(card);
 
-        return card.CardNo is "FND-259/298"
+        return card.CardNo is "VEN·139" or "VEN·189" or "VEN·189*" or "FND-259/298"
             or "OGN·259/298"
             or "OGN·305*/298"
             or "OGN·305/298"
