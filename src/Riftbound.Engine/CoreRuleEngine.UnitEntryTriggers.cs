@@ -42,6 +42,7 @@ public sealed partial class CoreRuleEngine
             ?? ev.Payload.GetValueOrDefault("playerId") as string ?? entered.ControllerId;
         if (player is null) return ev;
         ev = CaptureSourcePlayDraw(ev, zones, cards, entered, player);
+        ev = CaptureSourcePlayReadyObject(ev, zones, cards, entered);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
         ev = CaptureOtherUnitPlayed(ev, zones, cards, entered, player);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")

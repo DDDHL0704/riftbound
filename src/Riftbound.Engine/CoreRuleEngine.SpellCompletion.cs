@@ -261,6 +261,7 @@ public sealed partial class CoreRuleEngine
                 && card.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(card)
                 && !CardStaticAbilitySpecRules.CardCannotBecomeActive(card.CardNo))
             {
+                AddReadiedObservation(zones, cards, card, events);
                 cards[id] = card with { IsExhausted = false };
                 events.Add(CaptureUnitReadied(new GameEvent("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
                 {

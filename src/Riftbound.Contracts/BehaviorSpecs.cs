@@ -59,6 +59,8 @@ public static class TriggerKinds
     public const string BattlefieldConquerLowRunesPayDraw = "BATTLEFIELD_CONQUER_LOW_RUNES_PAY_DRAW";
     public const string BattlefieldHeldBurn = "BATTLEFIELD_HELD_BURN";
     public const string BattlefieldBattleStartMana = "BATTLEFIELD_BATTLE_START_MANA";
+    public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
+    public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
@@ -260,6 +262,8 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string SourceReadied = "SOURCE_READIED";
+    public const string SourcePlayedOrFirstEquipmentPlayed = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_PLAYED";
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
     public const string BattlefieldConquered = "BATTLEFIELD_CONQUERED";
@@ -285,6 +289,7 @@ public static class TriggerTimings
 
 public static class TriggerTargetScopes
 {
+    public const string OtherExhaustedFieldObject = "OTHER_EXHAUSTED_FIELD_OBJECT";
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
     public const string AllEnemyUnitsHere = "ALL_ENEMY_UNITS_HERE";
     public const string TriggeringAttacker = "TRIGGERING_ATTACKER";
@@ -541,7 +546,9 @@ public sealed record TargetSpec(
     bool Optional = false);
 
 public sealed record TriggerModeSpec(string Id, string Label,
-    int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null);
+    int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? GrantedKeyword = null);
 
 public sealed record TriggerSpec(
     string Kind,
@@ -646,7 +653,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? RequiresSourceEmpowered = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MaximumControlledRunes = null);
+    int? MaximumControlledRunes = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? ObjectReadyCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

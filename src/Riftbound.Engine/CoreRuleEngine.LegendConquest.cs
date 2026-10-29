@@ -93,6 +93,7 @@ public sealed partial class CoreRuleEngine
             if (item.TargetObjectIds.SingleOrDefault() is { } target && LegendConquestTargets(state, item).Contains(target)
                 && item.TargetGenerations?.GetValueOrDefault(target, -1) == cards[target].ObjectGeneration && cards[target].IsExhausted)
             {
+                AddReadiedObservation(state.PlayerZones, cards, cards[target], events);
                 cards[target] = cards[target] with { IsExhausted = false };
                 events.Add(CaptureUnitReadied(new GameEvent("UNIT_READIED", "征服技能使所选单位活跃", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target,

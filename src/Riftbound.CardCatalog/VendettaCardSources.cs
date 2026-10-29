@@ -28,7 +28,8 @@ public static class VendettaCardSources
             (Id: 37709L, CardNo: "VEN·022"), (Id: 37759L, CardNo: "VEN·067"), (Id: 37983L, CardNo: "VEN·044"),
             (Id: 37791L, CardNo: "VEN·094"), (Id: 37865L, CardNo: "VEN·162"), (Id: 37868L, CardNo: "VEN·165"),
             (Id: 37869L, CardNo: "VEN·166"), (Id: 37986L, CardNo: "VEN·034"), (Id: 37758L, CardNo: "VEN·066"),
-            (Id: 37815L, CardNo: "VEN·115"), (Id: 37860L, CardNo: "VEN·157") }
+            (Id: 37815L, CardNo: "VEN·115"), (Id: 37860L, CardNo: "VEN·157"), (Id: 37760L, CardNo: "VEN·068"),
+            (Id: 37761L, CardNo: "VEN·068a"), (Id: 37783L, CardNo: "VEN·088"), (Id: 37784L, CardNo: "VEN·088a") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
