@@ -7958,6 +7958,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.KsanteLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.KsanteLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.KsanteLegendAbilityId),
+                "纳祖芒荣耀传奇强攻技能", 1, 0, "SPEND_MANA:1", 1, RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantUnitKeyword, GrantedCombatKeyword: CardCombatKeywordNames.Assault,
+                GrantedCombatKeywordBasis: CardCombatKeywordNames.Steadfast),
             LegendActionAbilityCatalog.ZedLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.ZedLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.ZedLegendAbilityId),
@@ -13774,60 +13780,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
-        keywordBonus = CombatKeywordAmount(NonRuleDerivedTags(cardObject), combatKeyword)
-            + CombatKeywordAmount(cardObject.RuleDerivedTags ?? [], combatKeyword);
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSourceObjectKeywordStaticAuraBonus(
-                state,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveBattlefieldKeywordStaticAuraBonus(
-                state,
-                playerZones,
-                battlefieldId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveFriendlyFilteredUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        if (isAttacking)
-        {
-            keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
-        }
-
-        keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
-        keywordBonus += CopiedRuleTextKeywordAmount(state, cardObject, combatKeyword);
-
-        keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
-            state,
-            playerZones,
-            cardObject,
-            isAttacking,
-            defendingUnitCount,
-            battlefieldId,
-            combatKeyword);
-
-        if (!isAttacking
-            && string.Equals(objectId, battlefieldSteadfastObjectId, StringComparison.Ordinal))
-        {
-            keywordBonus += battlefieldSteadfastKeywordBonus;
-        }
+        keywordBonus = BaseCombatKeywordValue(state, playerZones, objectId, cardObject, combatKeyword,
+            isAttacking, defendingUnitCount, battlefieldId, battlefieldSteadfastObjectId, battlefieldSteadfastKeywordBonus)
+            + LinkedCombatKeywordValue(state, playerZones, cardObject, combatKeyword);
 
         staticPowerBonus += ResolveFriendlySingleDefendingUnitPowerBonus(
             state,
@@ -19035,7 +18990,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -25732,7 +25687,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     var damageAmount = ShouldApplyDamageToTarget(behavior, targetIndex)
-                        ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId)
+                        ? ResolveDamageAmount(behavior.DamageAmountFromFirstTargetCombatKeyword.Length == 0 ? state
+                            : state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                                ObjectLocations = resolvedObjectLocations ?? state.ObjectLocations }, stackItem, behavior, targetObjectId)
                         : 0;
                     if (behavior.BanishesIfDestroyedThisTurn)
                     {
@@ -33177,7 +33134,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? targetObjectId = null)
     {
         int damageAmount;
-        if (behavior.DamageAmountFromTargetMarkedDamage)
+        if (behavior.DamageAmountFromFirstTargetCombatKeyword.Length > 0)
+        {
+            // A prior instruction may have granted this keyword. An illegal or
+            // departed reference is "none", so even damage bonuses are ignored (359.3.e.12).
+            if (stackItem.TargetObjectIds.Count == 0
+                || !state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var reference)
+                || !IsFaceUpNonStandbyUnit(reference) || !IsObjectOnField(state.PlayerZones, reference.ObjectId)
+                || stackItem.TargetGenerations?.GetValueOrDefault(reference.ObjectId, -1) != reference.ObjectGeneration)
+                return 0;
+            damageAmount = CurrentCombatKeywordValue(state, reference, behavior.DamageAmountFromFirstTargetCombatKeyword);
+        }
+        else if (behavior.DamageAmountFromTargetMarkedDamage)
             damageAmount = targetObjectId is not null && state.CardObjects.TryGetValue(targetObjectId, out var markedTarget)
                 ? Math.Max(0, markedTarget.Damage) : 0;
         else if (behavior.DamageAmountFromFirstTargetManaCost
@@ -33214,6 +33182,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // extra damage before prevention (715). A non-damage instruction must
         // not be converted into damage by a numeric bonus.
         if (damageAmount == 0 && !behavior.DamageAmountFromTargetMarkedDamage
+            && behavior.DamageAmountFromFirstTargetCombatKeyword.Length == 0
             && !behavior.DamageAmountFromFirstTargetManaCost && !behavior.DamageAmountFromOptionalPowerCost
             && behavior.ExtraDamagePerSameNameInControllerGraveyard <= 0
             && behavior.DamageAmount == 0 && behavior.ConditionalDamageAmount == 0)
@@ -34453,7 +34422,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RequiresAnyEquipmentTarget = false,
         bool RequiresSourceEmpowered = false,
         bool BanishesGraveyardPermanentAsCost = false,
-        bool GrantsUnitOrEquipmentPlayOnlyPower = false);
+        bool GrantsUnitOrEquipmentPlayOnlyPower = false,
+        string GrantedCombatKeywordBasis = "");
 
     private static class LegendAbilityEffectKinds
     {

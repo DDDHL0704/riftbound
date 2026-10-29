@@ -317,7 +317,8 @@ public sealed record CardBehaviorDefinition(
     bool EachPlayerKeepsOneUnitBeforeDestroyingOthers = false,
     bool CannotBeCountered = false,
     bool IgnoresSpellshield = false,
-    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
+    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null,
+    string DamageAmountFromFirstTargetCombatKeyword = "")
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9152,6 +9153,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·045/167", "奎桑提", 4, "RAD_045_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: CardCombatKeywordNames.Steadfast),
+        new("RAD·045a/167", "奎桑提", 4, "RAD_045A_KSANTE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: CardCombatKeywordNames.Steadfast),
         new("RAD·179*/167", "厄斐琉斯", 4, "RAD_179_STAR_APHELIOS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("RAD·179/167", "厄斐琉斯", 4, "RAD_179_APHELIOS_PLAY_UNIT", 0, 0,
@@ -9180,6 +9185,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·148/167", "陀斧打击", 2, "KEYWORD_GRANT_THEN_REFERENCED_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits, CanPlayDuringSpellDuel: true,
+            StatusEffectId: "COMBAT_KEYWORD:坚守2", StatusEffectTargetIndex: 0, DamageTargetIndex: 1,
+            DamageAmountFromFirstTargetCombatKeyword: CardCombatKeywordNames.Steadfast),
         new("RAD·144/167", "轮回绝境", 2, "REALM_OF_DEATH_MIGHT_THEN_MUTUAL_DAMAGE", 0, 2,
             TargetScope: CardTargetScopes.EnemyThenFriendlyUnits,
             PowerModifierAmount: -2, SecondaryPowerModifierAmount: 2,

@@ -5,8 +5,9 @@ namespace Riftbound.Engine;
 internal static class TemporaryCombatKeywordRules
 {
     internal const string Prefix = "COMBAT_KEYWORD:";
+    internal const string ValueSourcePrefix = "COMBAT_KEYWORD_FROM:";
     internal static string AppliedEffectId(CardObjectState card, string definition)
-        => definition.StartsWith(Prefix, StringComparison.Ordinal)
+        => definition.StartsWith(Prefix, StringComparison.Ordinal) || definition.StartsWith(ValueSourcePrefix, StringComparison.Ordinal)
             ? definition + ":" + (card.UntilEndOfTurnEffects.Count(e => e.StartsWith(definition + ":", StringComparison.Ordinal)) + 1)
             : definition;
     private static IEnumerable<string> Keywords(CardObjectState card)
@@ -16,8 +17,18 @@ internal static class TemporaryCombatKeywordRules
         => Keywords(card).Sum(tag => CardCombatKeywordRules.KeywordAmount([tag], keyword));
     internal static bool Has(CardObjectState card, string keyword)
         => Keywords(card).Contains(keyword, StringComparer.Ordinal);
+    internal static IEnumerable<string> ValueSources(CardObjectState card, string keyword)
+        => card.UntilEndOfTurnEffects.Where(e => e.StartsWith(ValueSourcePrefix, StringComparison.Ordinal) && IsValid(e))
+            .Select(e => e.Split(':')).Where(p => p[1] == keyword).Select(p => p[2]);
     internal static bool IsValid(string effect)
     {
+        if (effect.StartsWith(ValueSourcePrefix, StringComparison.Ordinal)) {
+            var parts = effect.Split(':');
+            return parts.Length == 4 && parts[1] != parts[2]
+                && parts[1] is CardCombatKeywordNames.Assault or CardCombatKeywordNames.Steadfast
+                && parts[2] is CardCombatKeywordNames.Assault or CardCombatKeywordNames.Steadfast
+                && int.TryParse(parts[3], out var ordinal) && ordinal > 0;
+        }
         if (!effect.StartsWith(Prefix, StringComparison.Ordinal)) return true;
         var separator = effect.LastIndexOf(':');
         if (separator <= Prefix.Length || !int.TryParse(effect[(separator + 1)..], out var instance) || instance <= 0) return false;

@@ -180,6 +180,7 @@ public static class CardBasicActionRules
                 || behavior.DamagesSecondTargetByFirstTargetPower
                 || behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower
                 || behavior.DamageAmountFromFirstTargetManaCost
+                || behavior.DamageAmountFromFirstTargetCombatKeyword.Length > 0
                 || behavior.DamageAmountFromOptionalPowerCost);
     }
 
