@@ -43,6 +43,7 @@ public sealed partial class CoreRuleEngine
         if (player is null) return ev;
         ev = CaptureSourcePlayDraw(ev, zones, cards, entered, player);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
+        ev = CapturePaidUnitPlayStun(ev, zones, cards, entered);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureCardPlayHistory(ev, entered, player, ev.Payload.GetValueOrDefault("historyPlayId") as string,
                 true, ev.Kind == "UNIT_PLAYED_TO_BASE" ? "BASE" : "BATTLEFIELD");
@@ -95,10 +96,16 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         cards[id] = unit with { UntilEndOfTurnEffects = unit.UntilEndOfTurnEffects
             .Concat(["STUNNED", MovementRestrictionRules.ForPlayer(context.EnteringPlayerId)]).Distinct().Order(StringComparer.Ordinal).ToArray() };
+        if (!CanExecuteStun(unit))
+            return NoopStackResolutionResult(state) with { CardObjects = cards, Events = [
+                new("MOVEMENT_RESTRICTION_APPLIED", "薇古丝限制出牌者本回合移动该单位", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
+                    ["restrictedPlayerId"] = context.EnteringPlayerId, ["duration"] = "UNTIL_END_OF_TURN" })] };
+        var applied = new GameEvent("STATUS_EFFECT_APPLIED", "薇古丝眩晕进场单位，并限制出牌者本回合移动该单位", new Dictionary<string, object?> {
+            ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
+            ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN",
+            ["restrictedPlayerId"] = context.EnteringPlayerId });
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = [
-            new("STATUS_EFFECT_APPLIED", "薇古丝眩晕进场单位，并限制出牌者本回合移动该单位", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-                ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED", ["duration"] = "UNTIL_END_OF_TURN",
-                ["restrictedPlayerId"] = context.EnteringPlayerId })] };
+            CaptureStunObservers(applied, state.PlayerZones, cards, item, id)] };
     }
 }

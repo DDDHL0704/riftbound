@@ -27,6 +27,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
             result = RecordHandDiscardObservers(result);
+            result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
             result = QueueEmpowerOtherObservers(result);
             result = CaptureDuelChainFocus(state, result);
@@ -37,6 +38,7 @@ public sealed partial class CoreRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueuePaidUnitPlayStuns(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);

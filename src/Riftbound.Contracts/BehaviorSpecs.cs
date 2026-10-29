@@ -167,6 +167,7 @@ public static class TriggerKinds
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string SourceUnitPlayedOtherEquipmentDraw = "SOURCE_UNIT_PLAYED_OTHER_EQUIPMENT_DRAW";
+    public const string UnitAttackStunEnemyHere = "UNIT_ATTACK_STUN_ENEMY_HERE";
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
@@ -208,6 +209,7 @@ public static class TriggerKinds
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
+    public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
@@ -272,6 +274,7 @@ public static class TriggerTimings
     public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
     public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
     public const string UnitAttack = "UNIT_ATTACK";
+    public const string SourceUnitPlayedOrAttack = "SOURCE_UNIT_PLAYED_OR_ATTACK";
     public const string UnitAttackOrDefend = "UNIT_ATTACK_OR_DEFEND";
     public const string EnemyAttacksControlledBattlefield = "ENEMY_ATTACKS_CONTROLLED_BATTLEFIELD";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
@@ -302,6 +305,7 @@ public static class TriggerTargetScopes
     public const string OwnedRuneInBase = "OWNED_RUNE_IN_BASE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
+    public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
@@ -408,6 +412,7 @@ public static class StaticAuraKinds
 {
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
+    public const string SourceObjectPowerWithSameLocationEnemy = "SOURCE_OBJECT_POWER_WITH_SAME_LOCATION_ENEMY";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
     public const string SameLocationEnemyFilteredPower = "SAME_LOCATION_ENEMY_FILTERED_POWER";

@@ -322,6 +322,20 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var paidStun = Regex.Match(text,
+            @"当你打出我时[，,]\s*或当我进攻时[，,]\s*你可以选择支付\{\{(?<mana>[0-9一两二三四五六七八九十]+)\}\}[，,]\s*以此\{\{眩晕\}\}一名单位[。.]?",
+            RegexOptions.CultureInvariant);
+        if (paidStun.Success)
+            triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalPaidStun, TriggerTimings.SourceUnitPlayedOrAttack,
+                paidStun.Value, "Confirm a unit target, then pay the optional mana and any target costs together before responses.",
+                TargetScope: TriggerTargetScopes.AnyUnitOnField, ManaCost: ParseChineseNumber(paidStun.Groups["mana"].Value), Optional: true));
+        var attackStun = Regex.Match(text,
+            @"当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?",
+            RegexOptions.CultureInvariant);
+        if (attackStun.Success)
+            triggers.Add(new(TriggerKinds.UnitAttackStunEnemyHere, TriggerTimings.UnitAttack, attackStun.Value,
+                "Choose an enemy unit here and pay any ward cost before responses; recheck its location at resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, ManaCost: 0, Optional: false));
         var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
         if (otherEmpowered.Success)
             triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,
@@ -3212,6 +3226,19 @@ public static class StaticAuraParser
                     "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
                     StaticAuraParticipantScopes.SourceObject, 1, segment, BehaviorImplementationStatuses.Unimplemented,
                     "Current controller graveyard count is recomputed by the shared power layer.", PowerMultiplierZone: "GRAVEYARD"));
+                continue;
+            }
+            var sourceEnemyStatus = Regex.Match(segment,
+                @"^如果此处有一名被眩晕的敌方单位[，,]则我获得\{\{S\}\}\+(?<delta>\d+)[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (sourceEnemyStatus.Success && int.TryParse(sourceEnemyStatus.Groups["delta"].Value, out var sourceDelta) && sourceDelta > 0)
+            {
+                auras.Add(new(StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits, sourceDelta, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Recompute the fixed source bonus while at least one matching enemy occupies the same location.",
+                    TargetFilter: StaticAuraTargetFilters.Stunned, RequiredParticipantCount: 1));
                 continue;
             }
             var enemyStatusPower = Regex.Match(segment,

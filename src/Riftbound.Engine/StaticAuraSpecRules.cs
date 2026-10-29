@@ -345,7 +345,10 @@ internal static class StaticAuraSpecRules
             || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.SameLocationOtherFriendlyPublicUnits,
-                StringComparison.Ordinal);
+                StringComparison.Ordinal)
+            || aura.Kind == StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy
+                && aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits
+                && aura.TargetFilter == StaticAuraTargetFilters.Stunned;
     }
 
     public static bool IsFriendlyEquipmentCountToSourcePowerStaticAura(StaticAuraSpec aura)
@@ -500,7 +503,7 @@ internal static class StaticAuraSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>> BuildStaticAuraMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
