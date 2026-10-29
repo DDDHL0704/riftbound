@@ -221,7 +221,7 @@
         "P1-BASE-GIANT-001": {
           "damage": 3,
           "power": 5,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

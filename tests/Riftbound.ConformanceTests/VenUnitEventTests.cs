@@ -204,7 +204,7 @@ public sealed class VenUnitEventTests
     }
 
     [Theory]
-    [InlineData("OGN·009/298", 0, true)]
+    [InlineData("SFD·080/221", 0, true)]
     [InlineData("OGS·022/024", 1, false)]
     public async Task FinitePreventionRecordsOnlyActualDamageForThePorosBattleEndDraw(string hit, int damage, bool draws)
     {
