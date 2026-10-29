@@ -5157,6 +5157,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Never trust a caller-supplied in-process derived property. The raw
         // OptionalCosts are the only source of this selection on every replay.
         command = command with { OptionalCosts = costsWithoutManaSelection, ServerManaSourceSelection = selectedMana };
+        if (command.AbilityId.StartsWith("SOURCE-BOON-MIGHT:", StringComparison.Ordinal))
+            return ResolveSourceBoonMightActivation(state, intent, command);
         if (command.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal))
             return ResolveEmpowerActivation(state, intent, command);
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
@@ -19036,7 +19038,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.SourceBoonMight is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -24171,6 +24173,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (stackItem.EndAbility is not null) return stackItem.EffectKind == CreateEndAbilityEffect ? ResolveDelayedEndCreation(state, stackItem) : ResolveEndAbility(state, stackItem);
+        if (stackItem.EffectKind == SourceBoonMightRules.Effect) return ResolveSourceBoonMightStack(state, stackItem);
         if (stackItem.EffectKind == EmpowerRules.Effect) return ResolveEmpowerStack(state, stackItem);
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var activatedAbility)
             && string.Equals(
