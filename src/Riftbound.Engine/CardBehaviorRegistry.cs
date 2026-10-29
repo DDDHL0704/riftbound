@@ -295,7 +295,10 @@ public sealed record CardBehaviorDefinition(
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
     int? PowerModifierAmountIfTargetEmpowered = null,
     OptionalPowerModifierSpec? OptionalPowerModifier = null,
-    bool CounterRequiresOpponentOtherSpellThisTurn = false)
+    bool CounterRequiresOpponentOtherSpellThisTurn = false,
+    int? BasePowerUntilEndOfTurn = null,
+    int PreventDamageUntilEndOfTurn = 0,
+    string TargetRequiresEnemyTraitThreat = "")
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -471,6 +474,19 @@ public static class CardBehaviorRegistry
             OptionalPowerModifier: new(1, RuneTrait.Orange, 2)),
         new("VEN·085", "力量箴言", 1, "INVOCATION_OF_STRENGTH_RECYCLE_BLUE_HAND_CARD", 0, 0,
             HandChoice: new(RevealedHandAction.Recycle, RequiredTag: "COLOR:blue")),
+        new("VEN·031", "我流奥义！霞阵", 1, "TWILIGHT_SHROUD_PROTECT_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 1, StatusEffectId: TemporaryUnitEffectRules.EnemyTargetProtection,
+            FlowCost: new(2, 0, [])),
+        new("VEN·040", "专注箴言", 1, "FOCUS_MANTRA_BUFF_THREATENED_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 4, CanPlayDuringPriority: true, TargetRequiresEnemyTraitThreat: RuneTrait.Red),
+        new("VEN·116", "龙之形", 3, "DRAGON_FORM_SET_BASE_MIGHT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            BasePowerUntilEndOfTurn: 5, FlowCost: new(3, 0, [])),
+        new("VEN·126", "忍法！气合盾", 2, "SPIRIT_REFUGE_PREVENT_SEVEN_DAMAGE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            CanPlayDuringPriority: true, PreventDamageUntilEndOfTurn: 7),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

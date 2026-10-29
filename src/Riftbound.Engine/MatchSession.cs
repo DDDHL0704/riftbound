@@ -4416,7 +4416,8 @@ public sealed record MatchState
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
+            ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
     private static IReadOnlyList<string> LayerEngineFoundationResiduals()
@@ -5225,13 +5226,7 @@ public sealed record ResolutionResult(
 
     internal static IReadOnlyDictionary<string, int> BattleLethalDamageThresholdFor(MatchState state, BattleState battle)
     {
-        return BattleParticipantObjectIds(battle)
-            .ToDictionary(
-                objectId => objectId,
-                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
-                    : 0,
-                StringComparer.Ordinal);
+        return CoreRuleEngine.BuildCombatLethalDamageThreshold(state, battle);
     }
 
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> BattleRequiredAssignmentsFor(MatchState state, BattleState battle)
@@ -6875,7 +6870,8 @@ public sealed record ResolutionResult(
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
+            ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
     internal static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
@@ -13482,6 +13478,7 @@ internal static class ActionPromptBuilder
         int targetIndex)
     {
         return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
+            && TemporaryUnitEffectRules.ThreatAllowsTarget(state, playerId, objectId, behavior)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
             && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
