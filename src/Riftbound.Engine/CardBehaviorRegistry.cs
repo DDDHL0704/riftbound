@@ -4916,6 +4916,15 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
+            "VEN·176",
+            "维克托",
+            4,
+            "VEN_VIKTOR_OPPONENT_TURN_TOKEN_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
             "OGN·119/298",
             "阿狸",
             3,
