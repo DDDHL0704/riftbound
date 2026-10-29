@@ -62,9 +62,9 @@ public sealed class Ven010PaidCurrentGraveConsumers
             return result;
         }
         var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
-        var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
+        var opposing = ArrangeDisposalDeck(Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]));
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-010-CURRENT-GRAVE-" + actor + "-" + add,
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 666992 };
         var game = new CanonicalGame(initial);
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
             checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
@@ -139,7 +139,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
             return result;
         }
         var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
-        var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
+        var opposing = ArrangeDisposalDeck(Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]));
         var run = new CopiedDuelInsightOpeningTests.Opening(10010 + (actor == "P1" ? 0 : 2) + (add ? 0 : 1), OfficialDeckFormat.ChinaStandard20260724);
         string[] forgeryErrors = [];
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
@@ -216,13 +216,32 @@ public sealed class Ven010PaidCurrentGraveConsumers
 
     private static OfficialDecklist ArrangeGraveReactionDeck(OfficialDecklist deck)
     {
-        // Submit a fixed legal order with enough cards left for Moon's two draws;
-        // the normal opening still shuffles the deck and draws naturally.
+        // Submit the same legal cards in an order that naturally draws the required
+        // copies near the twelve-rune opening, leaving enough cards for Moon's draws.
+        // Both formats still use the normal production shuffle and draw commands.
         var cards = deck.MainDeck.ToArray();
         Assert.Equal(deck.ChampionCardNo, cards[0]);
-        Assert.Equal(new[] { Curse, Curse, Curse }, cards[4..7]);
-        foreach (var (from, to) in new[] { (4, 11), (5, 20), (6, 21) })
-            (cards[from], cards[to]) = (cards[to], cards[from]);
+        var required = new (string No, int[] Slots)[] {
+            (Unit, [23, 26, 38]), (Curse, [1, 11, 21]), (Moon, [5, 12, 22]) };
+        var slots = required.SelectMany(group => group.Slots).ToHashSet();
+        var rest = new Queue<string>(cards.Skip(1).Where(no => required.All(group => group.No != no)));
+        foreach (var (no, positions) in required)
+        {
+            Assert.Equal(positions.Length, deck.MainDeck.Count(card => card == no));
+            foreach (var position in positions) cards[position] = no;
+        }
+        for (var index = 1; index < cards.Length; index++)
+            if (!slots.Contains(index)) cards[index] = rest.Dequeue();
+        Assert.Empty(rest);
+        Assert.Equal(deck.MainDeck.Order(StringComparer.Ordinal), cards.Order(StringComparer.Ordinal));
+        return deck with { MainDeck = cards };
+    }
+
+    private static OfficialDecklist ArrangeDisposalDeck(OfficialDecklist deck)
+    {
+        var cards = deck.MainDeck.ToArray();
+        Assert.Equal(Dispose, cards[4]);
+        (cards[4], cards[23]) = (cards[23], cards[4]);
         return deck with { MainDeck = cards };
     }
 
