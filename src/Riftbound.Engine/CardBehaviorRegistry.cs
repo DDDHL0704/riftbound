@@ -467,6 +467,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·120", "雷霆之怒 玛萨", 4, "THUNDERFIST_PAID_PLAY_STUN", 0, 1,
+            StatusEffectId: "STUNNED", TargetScope: CardTargetScopes.EnemyBattlefieldUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人",
+            TargetEffectAdditionalPowerCost: 1, TargetEffectAdditionalPowerTrait: RuneTrait.Yellow),
         new("VEN·045", "抑制之盔", 4, "SUPPRESSION_HELM_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, OpponentSpellCostIncrease: new(1, GenericPowerIfEmpowered: 1)),
         new("VEN·064", "广场守卫", 10, "UNIT_PLAY:VEN·064", 0, 0,
