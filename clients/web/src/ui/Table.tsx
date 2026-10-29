@@ -14,6 +14,7 @@ import {
   type Selection,
 } from "../game/actions";
 import { cardInfo, cardName, paymentChoiceLabel } from "../game/cards";
+import { cue } from "../game/sound";
 import type { Choice, GameObject, Prompt, Snapshot, TableBattlefield } from "../game/types";
 import { Card, HoverPreview, type CardMark, type HoverHandler } from "./Card";
 import { ChainArrows, Dock, EventFx, Spotlight } from "./Overlay";
@@ -104,6 +105,41 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     if (promptType !== "MULLIGAN") setMulligan([]);
   }, [promptType]);
 
+  // The table needs about 1100 CSS px across. On a narrower touch screen (a tablet held upright, a
+  // phone) lay the page out at that width and let the browser scale it to fit, instead of
+  // reflowing the board; the lobby keeps the device width.
+  useEffect(() => {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    if (!meta || Math.min(screen.width, screen.height) >= TABLE_MIN_WIDTH || !matchMedia("(pointer: coarse)").matches) return;
+    const before = meta.content;
+    // Name the scale too: browsers keep the current zoom when only the layout width changes.
+    const scale = Math.min(1, document.documentElement.clientWidth / TABLE_MIN_WIDTH).toFixed(3);
+    meta.content = `width=${TABLE_MIN_WIDTH}, initial-scale=${scale}, minimum-scale=${scale}`;
+    return () => {
+      meta.content = before;
+    };
+  }, []);
+
+  // Where each of the opponent's board objects sits; when one arrives somewhere new (played,
+  // moved, returned) it glows for a moment so the change is easy to spot.
+  const [recent, setRecent] = useState<Set<string>>(new Set());
+  const oppPlaces = useRef<Map<string, string> | null>(null);
+  useEffect(() => {
+    const oppId = Object.keys(snapshot.players).find((id) => id !== meId);
+    if (!oppId) return;
+    const places = new Map<string, string>();
+    for (const id of snapshot.players[oppId]?.zones.base ?? []) places.set(id, "base");
+    for (const bf of snapshot.table?.battlefields ?? []) for (const id of bf.unitsBySide?.[oppId] ?? []) places.set(id, bf.battlefieldObjectId);
+    const before = oppPlaces.current;
+    oppPlaces.current = places;
+    if (!before) return;
+    const moved = [...places].filter(([id, at]) => before.get(id) !== at).map(([id]) => id);
+    if (!moved.length) return;
+    setRecent((cur) => new Set([...cur, ...moved]));
+    // Not cancelled by the next snapshot: each arrival clears only its own glow.
+    setTimeout(() => setRecent((cur) => new Set([...cur].filter((id) => !moved.includes(id)))), 2500);
+  }, [snapshot, meId]);
+
   // The one orchestrated moment: announce whose turn just began.
   const lastTurn = useRef<string>("");
   useEffect(() => {
@@ -114,7 +150,9 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
     lastTurn.current = key;
     if (first && snapshot.turnNumber > 1) return;
     setBanner(turnPlayer === meId ? "你的回合" : "对手回合");
-    const t = setTimeout(() => setBanner(null), 1500);
+    if (turnPlayer === meId) cue("turn");
+    // Short: a start-of-turn prompt often needs an answer right away and the strip sits over the fields.
+    const t = setTimeout(() => setBanner(null), 1100);
     return () => clearTimeout(t);
   }, [snapshot.turnNumber, snapshot.activePlayerId, snapshot.timing.turnPlayerId, snapshot.timing.phase, meId]);
 
@@ -128,7 +166,18 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       }
       // Space presses the dock's main button (pass / pass focus / end turn), outside text fields
       // and never while a selection is half built.
-      if (e.code === "Space" && !(e.target instanceof HTMLInputElement) && !document.querySelector(".pickbar, .menu, .runebar, .mulligan")) {
+      if (e.target instanceof HTMLInputElement || e.repeat) return;
+      // Enter confirms a half-built selection once it is complete.
+      if (e.key === "Enter") {
+        const confirm = [...document.querySelectorAll<HTMLButtonElement>(".pickbar:not(.pickbar--leaving) button")].find((b) => b.textContent?.startsWith("确认") && !b.disabled);
+        if (confirm) {
+          e.preventDefault();
+          confirm.click();
+        }
+      }
+      // T taps every ready rune.
+      if (e.key === "t" || e.key === "T") document.querySelector<HTMLButtonElement>(".dock__runes:not(:disabled)")?.click();
+      if (e.code === "Space" && !document.querySelector(".pickbar, .menu, .runebar, .mulligan")) {
         const button = document.querySelector<HTMLButtonElement>('.dock [data-hotkey="space"]:not(:disabled)');
         if (button) {
           e.preventDefault();
@@ -188,6 +237,35 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   /** Runes to tap before this card can be played, or null when tapping can't make it playable. */
   const autoPayNeed = (id: string): number | null => autoPay.get(id) ?? null;
+
+  // The server offers "hide in standby" only once the pool already holds the [A] it costs. When it
+  // is empty but a rune can be recycled and one of this player's battlefields has a free standby
+  // slot, offer the hide anyway: recycle one rune first, then hide from the fresh prompt.
+  const hideViaRecycle = useMemo(() => {
+    const ids = new Set<string>();
+    if (promptType !== "MAIN_ACTION" || (me.runePool.power ?? 0) >= 1 || !recycleIds.size) return ids;
+    const freeField = (snapshot.table?.battlefields ?? []).some((b) => b.controllerId === meId && !b.faceDownStandbyCount);
+    if (!freeField) return ids;
+    for (const id of [...me.zones.hand, ...me.zones.championZone])
+      if (!actions.get(id)?.some((a) => a.cmdType === "HIDE_CARD") && /\{\{待命\}\}/.test(cardInfo(objects[id]?.cardNo)?.effect ?? "")) ids.add(id);
+    return ids;
+  }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const hideAfterRecycle = async (id: string) => {
+    setMenuFor(null);
+    // Recycle an already tapped rune when there is one, so no mana is thrown away.
+    const rune = [...recycleIds].find((r) => !tapIds.has(r)) ?? [...recycleIds][0];
+    setBusy(true);
+    try {
+      const receipt = await runRuneCommand("RECYCLE_RUNE", [rune]);
+      if (!receipt?.accepted) return;
+    } finally {
+      setBusy(false);
+    }
+    const hide = objectActions(client.state.prompt).get(id)?.find((a) => a.cmdType === "HIDE_CARD");
+    if (hide) start(hide);
+    else client.toast("已回收符文（符能保留到本回合结束），但这张牌仍不能布置待命。");
+  };
 
   // Auto-pass: in a priority or focus window where this player has nothing at all to respond with,
   // pass after a short beat. Any playable card, ability or auto-payable card stops it.
@@ -384,7 +462,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       start(move);
       return;
     }
-    if (list.length || autoPayNeed(id) != null) setMenuFor(menuFor === id ? null : id);
+    if (list.length || autoPayNeed(id) != null || hideViaRecycle.has(id)) setMenuFor(menuFor === id ? null : id);
     else setMenuFor(null);
   };
 
@@ -459,10 +537,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
       marks.push("selected");
     if (pick && legal.has(id) && !inGroup) marks.push("legal");
     if (!pick && actions.has(id)) marks.push("playable");
-    else if (!pick && autoPayNeed(id) != null) marks.push("autopay");
+    else if (!pick && (autoPayNeed(id) != null || hideViaRecycle.has(id))) marks.push("autopay");
     if (o?.isAttacking) marks.push("attacking");
     if (o?.isDefending) marks.push("defending");
     if (drag?.active && drag.id === id) marks.push("dragging");
+    if (recent.has(id)) marks.push("recent");
     return marks;
   };
 
@@ -502,7 +581,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
         ? inHand
         : pick
           ? legal.has(id)
-          : actions.has(id) || autoPayNeed(id) != null || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
+          : actions.has(id) || autoPayNeed(id) != null || hideViaRecycle.has(id) || (isRune(id) && (tapIds.has(id) || recycleIds.has(id)));
     const draggable = inHand ? canDragHand(id) : canDragUnit(id);
     return (
       <div className="obj" key={id} data-oid={id}>
@@ -538,6 +617,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               setMenuFor(null);
               void playCard(id);
             }}
+            onHideAfterRecycle={hideViaRecycle.has(id) ? () => void hideAfterRecycle(id) : undefined}
             onPick={(a) => start(a)}
             onClose={() => setMenuFor(null)}
           />
@@ -549,6 +629,12 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const battlefields: TableBattlefield[] = snapshot.table?.battlefields ?? [];
   const zoneIds = zoneView ? snapshot.players[zoneView.playerId]?.zones[zoneView.zone] ?? [] : [];
   const winner = snapshot.timing.winnerPlayerId;
+  // The closing cue plays once, when the result arrives during this visit to the table.
+  const seenWinner = useRef(winner);
+  useEffect(() => {
+    if (winner && !seenWinner.current) cue(winner === meId ? "win" : "loss");
+    seenWinner.current = winner;
+  }, [winner, meId]);
   const myMainTurn = promptType === "MAIN_ACTION" && (snapshot.timing.turnPlayerId || snapshot.activePlayerId) === meId;
   const heroActions = (id: string) => (actions.get(id) ?? []).filter((a) => a.cmdType !== "MOVE_UNIT");
   const pickOtherActions = pick ? (actions.get(pick.action.sourceObjectId) ?? []).filter((a) => a.key !== pick.action.key) : [];
@@ -591,7 +677,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               />
             ))}
             {myMainTurn && !pick && !runeSel.length && (
-              <p className="tips">拖出手牌即可打出（法力不足会自动横置符文）· 点单位再点战场来移动，可连点多个单位一起移动 · 点符文可多选横置或回收</p>
+              <p className="tips">拖出手牌即可打出（法力不足会自动横置符文）· 点单位再点战场来移动，可连点多个单位一起移动 · 点符文可多选横置或回收 · 快捷键：空格 让过/结束回合，T 全部横置，Enter 确认，Esc 取消</p>
             )}
           </div>
 
@@ -687,6 +773,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               prompt={prompt}
               pending={state.pending || busy}
               autoPass={autoPass}
+              unused={myMainTurn ? [...actions].filter(([id, list]) => !isRune(id) && list.some((a) => a.cmdType !== "TAP_RUNE" && a.cmdType !== "RECYCLE_RUNE")).length + autoPay.size : 0}
               onToggleAutoPass={() => {
                 const next = !autoPass;
                 setAutoPass(next);
@@ -780,6 +867,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
               <p className="result__score">
                 {me.score} : {opp?.score ?? 0}
               </p>
+              <ResultStats tally={state.tally} meId={meId} oppId={opp?.id} turns={snapshot.turnNumber} />
               <button className="btn btn--primary" onClick={() => client.leaveRoom()}>
                 返回大厅
               </button>
@@ -805,16 +893,57 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   );
 }
 
+const TABLE_MIN_WIDTH = 1100;
+
+const STAT_ROWS: [string, string][] = [
+  ["CARD_PLAYED", "打出卡牌"],
+  ["BATTLEFIELD_CONQUERED", "征服战场"],
+  ["BATTLEFIELD_HELD", "据守战场"],
+  ["CARD_DRAWN", "抽牌"],
+];
+
+/** What each side did this match, as far as this tab saw it (a reload starts the count over). */
+function ResultStats({ tally, meId, oppId, turns }: { tally: ClientState["tally"]; meId: string; oppId?: string; turns: number }) {
+  const rows = STAT_ROWS.filter(([kind]) => tally[meId]?.[kind] || (oppId && tally[oppId]?.[kind]));
+  return (
+    <div className="result__stats">
+      <p className="muted">共 {turns} 回合</p>
+      {rows.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th />
+              <th>你</th>
+              <th>对手</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([kind, label]) => (
+              <tr key={kind}>
+                <th>{label}</th>
+                <td>{tally[meId]?.[kind] ?? 0}</td>
+                <td>{(oppId && tally[oppId]?.[kind]) ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 function ActionMenu({
   actions,
   autoPay,
   onAutoPay,
+  onHideAfterRecycle,
   onPick,
   onClose,
 }: {
   actions: ObjectAction[];
   autoPay: number | null;
   onAutoPay: () => void;
+  onHideAfterRecycle?: () => void;
   onPick: (a: ObjectAction) => void;
   onClose: () => void;
 }) {
@@ -824,6 +953,12 @@ function ActionMenu({
         <button role="menuitem" className="menu__item" onClick={onAutoPay}>
           <span>打出</span>
           <span className="menu__detail">自动横置 {autoPay} 枚符文</span>
+        </button>
+      )}
+      {onHideAfterRecycle && (
+        <button role="menuitem" className="menu__item" onClick={onHideAfterRecycle}>
+          <span>布置待命</span>
+          <span className="menu__detail">先回收 1 枚符文支付符能</span>
         </button>
       )}
       {actions.map((a) => (
