@@ -397,6 +397,14 @@ public static class TriggerParser
         if (nextDamageDestroy.Success)
             triggers.Add(new(TriggerKinds.SpellNextDamageOrInspiredDestroy, "UNIT_DAMAGED", nextDamageDestroy.Value,
                 "Confirmed Inspire destroys immediately; otherwise bind the original target's next damage this turn.", Duration: TriggerDurations.UntilEndOfTurn));
+        var movedBaseMight = Regex.Match(text,
+            @"(?:^|\n)当我移动时，你可以选择让另一名单位的基础战力在本回合内变为(?<might>[0-9]+)。?(?=$|\n)",
+            RegexOptions.CultureInvariant);
+        if (movedBaseMight.Success && int.TryParse(movedBaseMight.Groups["might"].Value, out var baseMight))
+            triggers.Add(new(TriggerKinds.UnitMovedSetOtherUnitBaseMight, TriggerTimings.UnitMoved,
+                movedBaseMight.Value.TrimStart(), "Optionally target another field unit; replace its base Might for this turn after responses.",
+                TargetScope: TriggerTargetScopes.OtherUnitOnField, Optional: true,
+                Duration: TriggerDurations.UntilEndOfTurn, BasePowerUntilEndOfTurn: baseMight));
         var movedOriginDamage = Regex.Match(text,
             @"当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成(?<normal>[0-9一两二三四五六七八九十]+)点伤害。\s*如果我\{\{已强化\}\}，则改为造成(?<empowered>[0-9一两二三四五六七八九十]+)点伤害。?",
             RegexOptions.CultureInvariant);
@@ -573,6 +581,7 @@ public static class TriggerParser
             .Where(segment => !graveyardPlay.Success || !graveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !turnDamageDestroy.Success || !turnDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !nextDamageDestroy.Success || !nextDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !movedBaseMight.Success || !segment.StartsWith("当我移动时，你可以选择让另一名单位的基础战力在本回合内变为", StringComparison.Ordinal))
             .Where(segment => !movedTypedDiscard.Success || !segment.StartsWith("当我移动时，抽一张牌，然后弃置一张手牌", StringComparison.Ordinal))
             .Where(segment => !movedReveal.Success || !segment.StartsWith("当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal)
                 && !segment.StartsWith("每当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal))
