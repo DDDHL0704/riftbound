@@ -6,6 +6,7 @@ import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/ty
 import { Card, EffectText, type HoverHandler } from "./Card";
 import { TEMPO_ACTIONS } from "./Overlay";
 import { cardInfo } from "../game/cards";
+import { guideSeen, SettingsPanel, TableGuide } from "./Guide";
 
 type RailProps = {
   state: ClientState;
@@ -28,6 +29,15 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
   const myTurn = (snapshot.timing.turnPlayerId || snapshot.activePlayerId) === meId;
   const actionable = Boolean(prompt?.actionable);
   const [confirmSurrender, setConfirmSurrender] = useState(false);
+  // The tour opens once per browser on the first table; both can be reopened from the footer.
+  // It waits until the opening hands are settled, so it never covers the mulligan.
+  const [panel, setPanel] = useState<"settings" | "guide" | null>(null);
+  const toured = useRef(guideSeen());
+  useEffect(() => {
+    if (toured.current || type === "MULLIGAN" || snapshot.timing.phase === "MULLIGAN" || snapshot.timing.roomStatus !== "IN_PROGRESS") return;
+    toured.current = true;
+    setPanel("guide");
+  }, [type, snapshot.timing.phase, snapshot.timing.roomStatus]);
 
   return (
     <aside className="rail" onClick={(e) => e.stopPropagation()}>
@@ -53,10 +63,15 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover }: Ra
 
       <Preview snapshot={snapshot} objects={objects} />
       <StackView snapshot={snapshot} objects={objects} meId={meId} onHover={onHover} />
-      <Log entries={state.log} objects={objects} />
+      <Log entries={state.log} objects={objects} meId={state.handle} />
 
       <footer className="rail__foot">
         <span className="muted">房间 {state.roomId}</span>
+        <button className="btn btn--ghost btn--small" onClick={() => setPanel(panel === "settings" ? null : "settings")} aria-expanded={panel === "settings"}>
+          设置
+        </button>
+        {panel === "settings" && <SettingsPanel onClose={() => setPanel(null)} onGuide={() => setPanel("guide")} />}
+        {panel === "guide" && <TableGuide onClose={() => setPanel(null)} />}
         {snapshot.timing.roomStatus === "IN_PROGRESS" &&
           (confirmSurrender ? (
             <span className="rail__confirm">
@@ -409,24 +424,30 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
     ? (steps.slice(1).flatMap((s) => s.choices) as Choice[]).filter((c, i, all) => all.findIndex((x) => x.id === c.id) === i)
     : md.paymentResourceChoices ?? [];
   const cost = md.cost as { mana?: number; power?: number; powerByTrait?: Record<string, number> } | undefined;
-  const pay = (ids: string[]) =>
-    client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+  const decline = (id: string) => client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [id] });
   // Runes may be tapped inside a payment window; when the pool is short, tap first and then pay.
   const readyRunes = (enabledCandidate(prompt, "TAP_RUNE")?.sources ?? []).map((r) => r.id);
   const missingMana = Math.max(0, (cost?.mana ?? 0) - (pool?.mana ?? 0));
+  const canTap = missingMana === 0 || readyRunes.length >= missingMana;
+  // Power the pool lacks is covered by recycling runes in the same payment; pick the unpicked ones.
+  const missingPower = Math.max(0, (cost?.power ?? 0) - (pool?.power ?? 0) - recycles.length);
+  const extraRecycles = recycleOptions.map((c) => c.id).filter((id) => !recycles.includes(id)).slice(0, missingPower);
+  const canPay = canTap && extraRecycles.length >= missingPower;
   const tapThenPay = async (ids: string[]) => {
-    if (missingMana > 0 && readyRunes.length >= missingMana) {
+    let fresh = md;
+    if (missingMana > 0) {
       const tap = readyRunes.slice(0, missingMana);
       const receipt = await client.submit({ cmdType: "TAP_RUNE", sourceObjectId: tap[0], sourceObjectIds: tap });
       if (!receipt?.accepted) return;
       // Pay against the fresh prompt the tap produced.
-      const fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
-      await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
-      return;
+      fresh = enabledCandidate(client.state.prompt, "PAY_COST")?.metadata ?? md;
     }
-    await pay(ids);
+    await client.submit({ cmdType: "PAY_COST", paymentId: fresh.paymentId, paymentWindow: fresh.paymentWindow, paymentChoiceIds: [...ids, ...recycles, ...extraRecycles] });
   };
-  const payLabel = (base: string) => (missingMana > 0 && readyRunes.length >= missingMana ? `横置 ${missingMana} 枚符文并${base}` : base);
+  const payLabel = (base: string) => {
+    const pre = [missingMana > 0 && `横置 ${missingMana} 枚符文`, missingPower > 0 && `回收 ${missingPower} 枚符文`].filter(Boolean).join("、");
+    return pre ? `${pre}并${base}` : base;
+  };
   const toggle = (id: string) => setRecycles((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
   return (
@@ -439,9 +460,7 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
           {pool && <span className="muted">（法力池：{pool.mana} 法力，{pool.power} 符能）</span>}
         </p>
       ) : null}
-      {missingMana > 0 && readyRunes.length < missingMana && (
-        <p className="small warn">法力不足，可用的未横置符文也不够，只能选择放弃。</p>
-      )}
+      {!canPay && <p className="small warn">{canTap ? "符能不足，可回收的符文也不够" : "法力不足，可用的未横置符文也不够"}，只能选择放弃。</p>}
       {recycleOptions.length > 0 && (
         <div className="panel__group">
           <p className="small">可回收符文来支付符能：</p>
@@ -461,14 +480,15 @@ function PayPanel({ prompt, objects, pool }: { prompt: Prompt | null; objects: R
             <button
               key={c.id}
               className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`}
-              onClick={() => void (/DECLINE/.test(c.id) ? pay([c.id]) : tapThenPay([c.id]))}
+              disabled={!/DECLINE/.test(c.id) && !canPay}
+              onClick={() => void (/DECLINE/.test(c.id) ? decline(c.id) : tapThenPay([c.id]))}
             >
               {/DECLINE/.test(c.id) ? c.label : payLabel(c.label)}
             </button>
           ))}
         </div>
       ) : (
-        <button className="btn btn--primary btn--wide" onClick={() => void tapThenPay(spend.map((c) => c.id))}>
+        <button className="btn btn--primary btn--wide" disabled={!canPay} onClick={() => void tapThenPay(spend.map((c) => c.id))}>
           {payLabel(spend.length ? spend.map((c) => c.label).join("，") : "确认支付")}
         </button>
       )}
@@ -567,8 +587,33 @@ function StackView({ snapshot, objects, meId, onHover }: { snapshot: Snapshot; o
 
 /** Server descriptions sometimes embed raw object ids; show card names instead. */
 function readable(text: string, objects: Record<string, GameObject>, pattern: RegExp | null) {
-  if (!pattern) return text;
-  return text.replace(/STACK-\d+-/g, "").replace(pattern, (id) => `「${cardName(objects[id]?.cardNo)}」`);
+  const named = pattern ? text.replace(/STACK-\d+-/g, "").replace(pattern, (id) => `「${cardName(objects[id]?.cardNo)}」`) : text;
+  return orderedItem(named) ?? named;
+}
+
+// Resolution lines for queued items carry the item's internal key, e.g.
+// "ordered-movement-87-1-「后巷酒吧」-BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER-「冰谷弓箭手」 结算".
+// Keep the card that owns the item (named right before its ability key, else the first card named)
+// and say what kind of item it was.
+const ORDERED_KINDS: [RegExp, string][] = [
+  [/LAST_BREATH|^TRIGGER-death-/, "绝念"],
+  [/^TRIGGER-/, "触发技能"],
+  [/^movement-/, "移动触发"],
+  [/^conquest-/, "征服效果"],
+  [/^held-/, "据守效果"],
+  [/^delayed-/, "延迟效果"],
+  [/^ephemeral-/, "瞬息效果"],
+  [/^copy-/, "复制效果"],
+  [/^(printed-)?predict-/, "预知"],
+];
+
+function orderedItem(text: string) {
+  const m = /^ordered-(\S+)\s+(\S+)$/.exec(text);
+  if (!m) return null;
+  const [, key, verb] = m;
+  const kind = ORDERED_KINDS.find(([re]) => re.test(key))?.[1] ?? "效果";
+  const source = /(「[^」]+」)-[A-Z][A-Z0-9_]*(?:-|$)/.exec(key)?.[1] ?? /「[^」]+」/.exec(key)?.[0];
+  return source ? `${source}的${kind}${verb}` : `${kind}${verb}`;
 }
 
 // A rune tap (or recycle) is followed by a "gained mana (power)" event saying the same thing.
@@ -589,26 +634,70 @@ function compact(entries: ClientState["log"]) {
   return out;
 }
 
-function Log({ entries, objects }: { entries: ClientState["log"]; objects: Record<string, GameObject> }) {
+// Bookkeeping the table already shows (mana in the pool, passes, phase steps); hidden unless the
+// player asks for the full record.
+const ROUTINE = new Set([
+  "MANA_GAINED", "RUNE_TAPPED", "POWER_GAINED", "RUNE_POOL_CLEARED", "PRIORITY_PASSED", "FOCUS_PASSED",
+  "TURN_START_BEGAN", "MAIN_PHASE_BEGAN", "OBJECTS_READIED", "TURN_END_CLEANUP_STARTED", "TURN_END_DECLARED",
+  "PERMANENT_CONFIRMED", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK", "UNTIL_END_OF_TURN_EXPIRED",
+  "CLEANUP_REPEATED", "STACK_ITEM_SUSPENDED", "COST_PAID", "RUNE_RECYCLED",
+]);
+const LOG_KEY = "riftbound.web.fullLog";
+
+function Log({ entries, objects, meId }: { entries: ClientState["log"]; objects: Record<string, GameObject>; meId: string }) {
   const ref = useRef<HTMLOListElement>(null);
+  const [full, setFull] = useState(() => {
+    try {
+      return localStorage.getItem(LOG_KEY) === "on";
+    } catch {
+      return false;
+    }
+  });
+  const toggle = () =>
+    setFull((on) => {
+      try {
+        localStorage.setItem(LOG_KEY, on ? "off" : "on");
+      } catch {
+        /* not remembered */
+      }
+      return !on;
+    });
   const pattern = useMemo(() => {
     const ids = Object.keys(objects).filter((id) => objects[id]?.cardNo).sort((a, b) => b.length - a.length);
     if (!ids.length) return null;
     return new RegExp(ids.map((id) => id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
   }, [objects]);
+  // Player handles read as "你" for this player; the opponent keeps the name they chose.
+  const me = useMemo(() => new RegExp(`(^|[^\\w])${meId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w]) ?`, "g"), [meId]);
+  const shown = full ? entries : entries.filter((e) => !ROUTINE.has(e.kind));
   useEffect(() => {
     ref.current?.scrollTo({ top: ref.current.scrollHeight });
-  }, [entries.length]);
+  }, [shown.length, full]);
   return (
     <section className="log" aria-label="对局记录">
-      <h3 className="rail__sub">对局记录</h3>
+      <h3 className="rail__sub log__head">
+        对局记录
+        <button className="log__mode" onClick={toggle} title={full ? "隐藏横置符文、让过等例行记录" : "显示包括例行步骤在内的全部记录"}>
+          {full ? "全部" : "关键"}
+        </button>
+      </h3>
       <ol ref={ref}>
-        {compact(entries).map(({ entry, count }) => (
-          <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
-            {readable(entry.text, objects, pattern)}
-            {count > 1 && <span className="log__count">×{count}</span>}
-          </li>
-        ))}
+        {compact(shown).map(({ entry, count }) => {
+          const text = readable(entry.text, objects, pattern).replace(me, "$1你");
+          // A new turn starts a new block in the record.
+          if (entry.kind === "TURN_PLAYER_ADVANCED")
+            return (
+              <li key={entry.id} className="log__turn">
+                {text.replace(/^回合推进至\s*/, "")}的回合
+              </li>
+            );
+          return (
+            <li key={entry.id} className={`log__item log__item--${entry.tone}`}>
+              {text}
+              {count > 1 && <span className="log__count">×{count}</span>}
+            </li>
+          );
+        })}
       </ol>
     </section>
   );
