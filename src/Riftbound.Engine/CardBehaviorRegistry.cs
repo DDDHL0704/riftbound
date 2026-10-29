@@ -3529,6 +3529,9 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "狩猎"),
         new(
+            "VEN·180", "卡兹克", 5, "VEN_KHAZIX_HUNT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "狩猎"),
+        new(
             "UNL-152/219",
             "黑色玫瑰要员",
             3,
