@@ -284,6 +284,10 @@ public sealed class AhriCombatMightTests
         // CN 260403 / current official API: the actual destruction is required.
         errata["SFD·084/221"] = ("当你打出我时，你可以选择摧毁一件友方装备，以此在本回合内可以从手牌中打出一件法力费用不高于{{7}}的装备，无视其法力费用（仍需支付所有符能费用）。",
             "当你打出我时，你可以选择摧毁一件友方装备。若如此做，则在本回合内，你可以选择从手牌中打出一件法力费用不高于{{7}}的装备，无视其法力费用（仍需支付所有符能费用）。");
+        // The exact Vi printings adopt the CN activation-cost erratum.
+        foreach (var printing in new[] { "OGN·036/298", "ARC-001/006" })
+            errata[printing] = ("{{游走}} （我可以向其他战场进行移动。）\n你可以从废牌堆回收一张卡牌，然后让我本回合内{{S}}+1（可重复执行）。",
+                "{{游走}}（我可以向其他战场进行移动。）\n从你的废牌堆回收一张卡牌：给予我在本回合内{{S}}+1。");
         // DOC-16-P005-B003 applies to these three current CN printings.
         foreach (var printing in new[] { "OGN·235/298", "SFD·237/221", "SFD·237*/221" })
             errata[printing] = ("{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",

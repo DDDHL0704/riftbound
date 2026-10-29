@@ -51,11 +51,14 @@ public sealed partial class CoreRuleEngine
         if (behavior.MovesTargetsToChosenLocation && (execution.MovementDeclarationPlayerId is null
             || !state.Seats.ContainsKey(execution.MovementDeclarationPlayerId))) return false;
         if (destination.Length == 0) return behavior.MinTargetCount == 0 && execution.TargetObjectIds.Count == 0;
+        var movesFriendlyUnit = behavior.TargetScope is CardTargetScopes.FriendlyUnit
+            or CardTargetScopes.FriendlyUnitThenFriendlyEquipment
+            || behavior.ChosenMovementTargetIndex == 0 && behavior.TargetScope is
+                CardTargetScopes.FriendlyThenEnemyUnits or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits;
         if (destination.StartsWith("BASE:", StringComparison.Ordinal))
             return behavior.MovesTargetsToChosenLocation && state.Seats.ContainsKey(destination[5..])
                 && (execution.TargetObjectIds.Count == 0 || behavior.TargetScope == CardTargetScopes.AnyUnit
-                    || (behavior.TargetScope is CardTargetScopes.FriendlyUnit
-                    or CardTargetScopes.FriendlyUnitThenFriendlyEquipment
+                    || (movesFriendlyUnit
                     ? destination[5..] == execution.MovementDeclarationPlayerId : destination[5..] != execution.MovementDeclarationPlayerId));
         return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(destination[12..], out var battlefield)
@@ -90,7 +93,7 @@ public sealed partial class CoreRuleEngine
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
                 TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
-                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0 || repeatedBehavior.DamageAlternativeDrawCount > 0 || repeatedBehavior.TurnUnitPlayGrantKind.Length > 0
+                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.DelayedDestructionReward is not null || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0 || repeatedBehavior.DamageAlternativeDrawCount > 0 || repeatedBehavior.TurnUnitPlayGrantKind.Length > 0
                         || repeatedBehavior.EffectKind is TemporaryEmpowerEffect or TemporaryRemoveEmpowerEffect) ? index : 0,
                 ResolutionDamageChoice = original.ResolutionDamageChoice?.ExecutionIndex == index ? original.ResolutionDamageChoice : null,
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
