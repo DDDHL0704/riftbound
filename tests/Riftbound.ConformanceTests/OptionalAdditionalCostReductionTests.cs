@@ -14,6 +14,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task ExplicitManaReductionMakesEchoAffordableAndKeepsTheDeclaredRepeat(string reducer)
     {
         var initial = Position(reducer, mana: 3);
@@ -67,6 +68,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public void PromptOffersTheExplicitReductionRouteForAnOtherwiseUnaffordableEcho(string reducer)
     {
         var initial = Position(reducer, mana: 3);
@@ -82,6 +84,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task GenericEchoPowerReductionPreservesTheSpellsPrintedPowerFee(string reducer)
     {
         const string reduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ECHO:POWER-any";
@@ -105,6 +108,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task TypedHasteReductionToZeroStillPaysTheDeclaredReadyEffect(string reducer)
     {
         const string reduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-red";
@@ -229,6 +233,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public void PromptOffersTheExplicitBlastCrewManaReduction(string reducer)
     {
         var initial = WithBattlefieldTarget(Position(reducer, 2, "SFD·013/221",
@@ -269,6 +274,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task CurrentSessionJournalsTheExplicitChoiceAndOriginalReplayMatches(string reducer)
     {
         var initial = Position(reducer, 3);
@@ -311,6 +317,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task GrantedEchoPowerChoiceBindsItsOwnPrintedAllocationAndPreservesBasePower(string reducer)
     {
         var initial = Position(reducer, 2, "SFD·182/221",
@@ -449,6 +456,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task ExplicitBlastCrewReductionPaysBeforeAnIndependentEntryTargetIsChosen(string reducer)
     {
         var initial = WithBattlefieldTarget(Position(reducer, 2, "SFD·013/221",

@@ -80,7 +80,7 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var destroyed = new HashSet<string>(StringComparer.Ordinal);
-        var damage = ApplyDamageToCardObject(cards, item.ControllerId, target, amount, destroyed,
+        var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, target, amount, destroyed,
             state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
         var payload = BuildDamagePayload(item.SourceObjectId, target, damage);
         payload["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__");

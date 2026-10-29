@@ -8,8 +8,11 @@ public sealed partial class CoreRuleEngine
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && PaidUnitStunSpec(behavior.CardNo) is null
+                && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
                 && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START")
+                && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
+                    || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))

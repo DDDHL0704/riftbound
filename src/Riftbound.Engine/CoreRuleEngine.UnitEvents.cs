@@ -94,7 +94,12 @@ public sealed partial class CoreRuleEngine
     // the same command cannot erase or invent an earned trigger (CN383.2.c).
     private static GameEvent CaptureUnitReadied(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, string unit, bool wasExhausted)
-        => !wasExhausted ? ev : WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [unit], "BECAME_READY"));
+    {
+        if (!wasExhausted) return ev;
+        if (cards.TryGetValue(unit, out var readied) && ev.Payload.GetValueOrDefault("playerId") is string actor)
+            return CaptureSelfReady(ev, readied with { IsExhausted = true }, actor, zones, cards);
+        return WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [unit], "BECAME_READY"));
+    }
 
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind)

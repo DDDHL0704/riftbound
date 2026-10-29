@@ -25,8 +25,11 @@ internal sealed record EmpowerAbility(string Id, RuleTextInstance Instance, Empo
 internal static class EmpowerRules
 {
     internal const string Effect = "EMPOWER_ACTIVATION";
+    // CN 423.1: a discarded spell is a spell card in its controller's hand.
+    internal static bool RequiresSpellDiscard(EmpowerCostSpec cost)
+        => cost.AdditionalCost is "弃置一张法术牌" or "弃置一个法术";
     internal static bool RequiresHandDiscard(EmpowerCostSpec cost)
-        => !cost.SupportedResources && (cost.AdditionalCost is "弃置一张手牌" or "弃置一张法术牌") && !cost.Exhaust
+        => !cost.SupportedResources && (cost.AdditionalCost == "弃置一张手牌" || RequiresSpellDiscard(cost)) && !cost.Exhaust
             && cost.Mana == 0 && cost.Power == 0 && cost.TypedPower.Count == 0;
     internal static bool RequiresFriendlyUnitDestruction(EmpowerCostSpec cost)
         => !cost.SupportedResources && cost.AdditionalCost == "摧毁一名友方单位" && !cost.Exhaust
@@ -39,13 +42,20 @@ internal static class EmpowerRules
         Cards.Value.ToDictionary(p => p.Key, p => (EmpowerParser.Parse(p.Value.CardEffect), EmpowerParser.Self(p.Value.CardEffect), EmpowerParser.SpellEffects(p.Value.CardEffect), EmpowerParser.SpellCostReductions(p.Value.CardEffect))));
     internal static IReadOnlyList<EmpowerSpec> Specs(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Specs : [];
     internal static EmpoweredSelfSpec Self(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Self : new(0, []);
+    private static readonly Lazy<int> MaximumSupportedCount = new(() => Profiles.Value.Values.Max(p => p.Self.MaximumCount));
+    internal static bool ValidCount(CardObjectState source)
+        => source.EmpowermentCount >= 0 && source.EmpowermentCount <= MaximumSupportedCount.Value;
     internal static IReadOnlyList<EmpoweredSpellSpec> SpellEffects(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Spells : [];
     internal static IReadOnlyList<EmpoweredSpellCostReductionSpec> SpellCostReductions(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.CostReductions : [];
     internal static int Might(MatchState state, CardObjectState source) => source.IsEmpowered && !source.IsFaceDown
         && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
-        ? AttachedRuleTextRules.Instances(state, source).Sum(i => Self(i.CardNo).Might) : 0;
+        ? AttachedRuleTextRules.Instances(state, source).Sum(i => Self(i.CardNo).Might
+            + Self(i.CardNo).MightPerCount * source.EmpowermentCount) : 0;
     internal static string[] Keywords(MatchState state, CardObjectState source) => !source.IsEmpowered || source.IsFaceDown
-        ? [] : AttachedRuleTextRules.Instances(state, source).SelectMany(i => Self(i.CardNo).Keywords).SelectMany(keyword => {
+        ? [] : AttachedRuleTextRules.Instances(state, source).SelectMany(i => {
+            var self = Self(i.CardNo);
+            return self.Keywords.Concat(source.EmpowermentCount == self.KeywordCount ? self.KeywordsAtCount ?? [] : []);
+        }).SelectMany(keyword => {
             foreach (var counted in new[] { CardObjectTags.Spellshield, CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast })
                 if (keyword.StartsWith(counted, StringComparison.Ordinal)) {
                     var suffix = keyword[counted.Length..]; var count = suffix.Length == 0 ? 1 : int.Parse(suffix);
@@ -64,8 +74,12 @@ internal static class EmpowerRules
     internal static int Mana(EmpowerSpec spec, EmpowerCostSpec cost, int runes)
         => Math.Max(0, cost.Mana - (spec.RuneLimit is { } limit && runes <= limit ? spec.ManaReductionAtMostRunes : 0)
             - (spec.ReduceManaPerRune ? runes : 0));
+    internal static int MaximumCount(MatchState state, CardObjectState source)
+        => AttachedRuleTextRules.Instances(state, source).Select(i => Self(i.CardNo).MaximumCount).DefaultIfEmpty(1).Max();
+    internal static bool CanEmpower(MatchState state, CardObjectState source)
+        => source.EmpowermentCount < MaximumCount(state, source);
     internal static bool CanActivate(MatchState state, string actor, CardObjectState source)
-        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && !source.IsEmpowered && !source.IsFaceDown && source.ControllerId == actor
+        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && CanEmpower(state, source) && !source.IsFaceDown && source.ControllerId == actor
             && state.PlayerZones.TryGetValue(actor, out var z)
             && (z.LegendZone.Contains(source.ObjectId)
                 || (source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.EquipmentCard))
@@ -138,7 +152,7 @@ public sealed partial class CoreRuleEngine
                 && state.CardObjects.TryGetValue(id, out var card) && !card.IsFaceDown && !IsTokenObject(card)
                 && !card.Tags.Contains(CardObjectTags.RuneCard)
                 && card.Tags.Any(tag => tag is CardObjectTags.UnitCard or CardObjectTags.SpellCard or CardObjectTags.EquipmentCard)
-                && (cost.AdditionalCost != "弃置一张法术牌" || card.Tags.Contains(CardObjectTags.SpellCard)))
+                && (!EmpowerRules.RequiresSpellDiscard(cost) || card.Tags.Contains(CardObjectTags.SpellCard)))
             .Distinct(StringComparer.Ordinal).ToArray();
 
     internal static bool TrySelectEmpowerHandDiscardCost(MatchState state, string actor, string source,
@@ -154,7 +168,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveEmpowerActivation(MatchState state, PlayerIntent intent, ActivateAbilityCommand command)
     {
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var source) || !EmpowerRules.CanActivate(state, intent.PlayerId, source))
-            return RejectWithCorePrompts(state, "请在你的开放主阶段选择一名尚未强化的公开单位。", ErrorCodes.InvalidTarget);
+            return RejectWithCorePrompts(state, "请在你的开放主阶段选择一个仍可强化的公开物体。", ErrorCodes.InvalidTarget);
         var ability = EmpowerRules.Abilities(state, source).FirstOrDefault(a => a.Id == command.AbilityId
             && (a.InstanceId is null ? string.IsNullOrEmpty(command.AbilityInstanceId) : a.InstanceId == command.AbilityInstanceId));
         if (ability is null || command.TargetObjectIds.Count != 0 || ability.Cost.Exhaust && source.IsExhausted)
@@ -291,10 +305,13 @@ public sealed partial class CoreRuleEngine
         if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration != binding.Generation
             || !(IsObjectOnField(state.PlayerZones, source.ObjectId)
                 || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(source.ObjectId)))
-            || source.IsEmpowered == empowered) return NoopStackResolutionResult(state);
-        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = empowered };
+            || (empowered ? !EmpowerRules.CanEmpower(state, source) : !source.IsEmpowered)) return NoopStackResolutionResult(state);
+        var count = source.EmpowermentCount + (empowered ? 1 : -1);
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        cards[source.ObjectId] = source with { EmpowermentCount = count };
         var payload = new Dictionary<string, object?> {
-            ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration };
+            ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration,
+            ["previousEmpowermentCount"] = source.EmpowermentCount, ["empowermentCount"] = count };
         if (empowered)
         {
             var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],

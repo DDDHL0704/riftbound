@@ -263,7 +263,9 @@ public static class OfficialRuleDomainBehaviorCatalog
     {
         ArgumentNullException.ThrowIfNull(card);
 
-        return card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal);
+        return card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal)
+            || System.Text.RegularExpressions.Regex.IsMatch(card.CardNo, @"(?:·|-)T[0-9]+$",
+                System.Text.RegularExpressions.RegexOptions.CultureInvariant);
     }
 
     public static bool IsImplementedLegendActionCard(OfficialCard card)

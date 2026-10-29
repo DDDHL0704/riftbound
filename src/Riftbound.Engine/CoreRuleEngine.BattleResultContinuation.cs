@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
             result = RecordBattlefieldConquests(result);
             result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
+            result = QueueSelfActionObservers(state, result);
             result = RecordHandDiscardObservers(result);
             result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
@@ -47,6 +48,7 @@ public sealed partial class CoreRuleEngine
             result = QueuePaidUnitPlayStuns(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
+            result = QueueSourceUnitTokens(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);
@@ -76,8 +78,11 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
+            // Checked target intents may become confirmed while earned skills
+            // are published. Observe those selections before opening responses.
+            completed = QueueSelfActionObservers(collected.State, completed);
             return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
-                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(completed)))));
+                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
     }
 
     // MatchState uses a sorted set of turn markers when deserializing. Publish

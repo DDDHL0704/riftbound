@@ -154,7 +154,7 @@ public sealed partial class CoreRuleEngine
         foreach (var id in zones[item.ControllerId].Base.Concat(zones[item.ControllerId].Battlefields)
             .Where(id => cards.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)).ToArray()) {
             var amount = ApplySpellSkillDamageBonuses(damageState, item.ControllerId, id, EndSpec(item.CardNo)!.DamageAmount!.Value);
-            var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, amount, lethal,
+            var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, amount, lethal,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
             events.Add(new("DAMAGE_APPLIED", "结束技能对控制者的单位造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));
         }

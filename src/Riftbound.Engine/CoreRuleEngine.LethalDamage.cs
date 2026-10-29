@@ -15,7 +15,7 @@ public sealed partial class CoreRuleEngine
 
     private static int RequiredLethalDamage(MatchState state, CardObjectState target, int power, string? assigningPlayer)
     {
-        if (UnitMovementRules.CannotTakeDamage(target)) return 0;
+        if (DamageImmunityRules.CannotTakeDamage(state, target)) return 0;
         var ordinary = System.Math.Max(0, System.Math.Max(1, power) - target.Damage);
         var beforePrevention = assigningPlayer is not null && assigningPlayer != EffectiveFieldControllerId(state.PlayerZones, target.ObjectId, target)
             && HasControllerLethalDamage(state, assigningPlayer)

@@ -5,13 +5,13 @@ namespace Riftbound.Engine;
 internal static class StackObjectRules
 {
     internal static bool IsAbility(StackItemState item)
-        => item.UnitEvent is not null || item.EmpowerInteraction is not null || item.DeckPlayReflexive is not null || item.DamageDestruction is not null || item.GraveyardPlay is not null
-            || item.EndAbility is not null || item.StandbyObserver is not null || item.EmpowerActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
+        => item.UnitEvent is not null || item.TemporaryActivation is not null || item.EmpowerInteraction is not null || item.DeckPlayReflexive is not null || item.DamageDestruction is not null || item.GraveyardPlay is not null
+            || item.EndAbility is not null || item.StandbyObserver is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
             || item.AttachmentObserver is not null || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.LegendDiscardDraw is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null
             || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
             || item.DeathRevealContext is not null || item.RecastContext is not null
             || item.SpellContext is not null || item.FieldContext is not null || item.InsightContext is not null
-            || item.SivirRuneRecycle is not null || item.ConquestToken is not null || item.ConquestScore is not null
+            || item.SivirRuneRecycle is not null || item.ConquestToken is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.NamedUnitSwap is not null || item.SourceUnitTokens is not null || item.ConquestFlow is not null
             || item.HandDiscardObserver is not null || item.MovementObserver is not null || item.DeathObserver is not null
             || item.DamageDistribution is not null || item.LocationDamage is not null || item.ReflexiveDuel is not null
             || item.UnitConquest is not null || item.LegendConquest is not null

@@ -162,9 +162,11 @@ public sealed partial class CoreRuleEngine
                 {
                     var unitCard = cards[unit];
                     var scoreController = EffectiveFieldControllerId(state.PlayerZones, unit, unitCard);
-                    var capturedScores = CaptureConquestScores(state, scoreController, field, [unit],
+                    var capturedScores = CaptureConquestSources(state, scoreController, field, [unit],
                         state.Tick + 1, "BATTLEFIELD_HELD").ToArray();
                     triggers.AddRange(capturedScores); events.AddRange(capturedScores.Select(BuildTriggerQueuedEvent));
+                    var flow = CaptureConquestFlow(state, unitCard.ControllerId ?? player, field, [unit], state.Tick, "BATTLEFIELD_HELD").ToArray();
+                    triggers.AddRange(flow); events.AddRange(flow.Select(BuildTriggerQueuedEvent));
                     if (!HasSupportedUnitConquestTriggerSpec(unitCard.CardNo)) continue;
                     var trigger = new TriggerQueueItemState($"activate-conquest-{state.Tick}-{unit}-{item.StackItemId}",
                         unitCard.ControllerId, unit, "HOLD_CONQUEST_UNIT", "BATTLEFIELD_HELD") {
