@@ -48,6 +48,49 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(self.base, result['baseSha'])
         self.assertEqual(['README.md'], [c['path'] for c in result['changes']])
 
+    def test_backlog_and_developer_notes_are_docs_but_test_consumed_docs_are_not(self):
+        for path in ['docs/BACKLOG.md', 'docs/CARD_BACKLOG.md', 'AGENTS.md',
+                     'docs/agents/domain.md']:
+            with self.subTest(path=path):
+                self.write(path, 'updated task\n')
+                self.commit()
+                self.assertEqual('DOCS', self.decision()['tier'])
+                self.git('reset', '--hard', self.base)
+        for path in ['docs/DEPLOYMENT.md', 'docs/legacy/rules-evidence-index.md',
+                     'docs/legacy/audit/current-manifest.json']:
+            with self.subTest(path=path):
+                self.write(path, 'changed test input\n')
+                self.commit()
+                self.assertNotEqual('DOCS', self.decision()['tier'])
+                self.git('reset', '--hard', self.base)
+
+    def test_require_docs_cli_rechecks_git_and_rejects_new_tests_even_when_full_is_false(self):
+        script = self.repo / 'scripts/ci-change-scope.py'
+        self.write(str(script.relative_to(self.repo)), Path(scope.__file__).read_text())
+        self.base = self.commit()
+        self.write('docs/BACKLOG.md', 'mark a task complete\n')
+        head = self.commit()
+        event = self.repo / '.git/docs-event.json'
+        event.write_text(json.dumps({'before': self.base}))
+
+        def run():
+            output = self.repo / '.git/docs-decision.json'
+            result = subprocess.run(['python3', str(script), '--event', str(event),
+                                     '--event-name', 'push', '--head', head,
+                                     '--require-docs', '--output', str(output)],
+                                    capture_output=True, text=True)
+            return result.returncode, json.loads(output.read_text())
+
+        code, decision = run()
+        self.assertEqual(0, code)
+        self.assertEqual('DOCS', decision['tier'])
+        self.write('tests/Riftbound.ConformanceTests/NewConsumerTests.cs', 'new test\n')
+        head = self.commit()
+        code, decision = run()
+        self.assertNotEqual(0, code)
+        self.assertEqual('L1', decision['tier'])
+        self.assertFalse(decision['full'])
+
     def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
         paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
                  'docs/legacy/evidence/ledger.json', 'data/official/card-catalog.json',
