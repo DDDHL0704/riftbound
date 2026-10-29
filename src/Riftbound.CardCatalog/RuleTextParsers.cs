@@ -348,6 +348,10 @@ public static class TriggerParser
         if (ownBanish.Success)
             triggers.Add(new(TriggerKinds.ControllerOwnedBanishEmpowerSource, "CARD_BANISHED", ownBanish.Value,
                 "When this controller banishes a card they own, empower the source on resolution."));
+        var opponentTurnPlay = Regex.Match(text, @"每当你在对手的回合内打出一张卡牌时，额外打出一名1\{\{S\}\}的“随从”到你的基地。", RegexOptions.CultureInvariant);
+        if (opponentTurnPlay.Success)
+            triggers.Add(new(TriggerKinds.ControllerOpponentTurnPlayCreateMinion, "CARD_PLAY_COMPLETED", opponentTurnPlay.Value,
+                "When this controller completes a card play during an opponent turn, play a minion to their base."));
         var outsideHandPlay = Regex.Match(text, @"当你从你的手牌以外的位置打出一张卡牌时，强化我。", RegexOptions.CultureInvariant);
         if (outsideHandPlay.Success)
             triggers.Add(new(TriggerKinds.ControllerOutsideHandPlayEmpowerSource, "CARD_PLAY_COMPLETED", outsideHandPlay.Value,

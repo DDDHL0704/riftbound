@@ -59,6 +59,7 @@ public static class TriggerKinds
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
+    public const string ControllerOpponentTurnPlayCreateMinion = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";

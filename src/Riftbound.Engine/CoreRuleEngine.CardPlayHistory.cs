@@ -103,13 +103,16 @@ public sealed partial class CoreRuleEngine
                             ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
                     }
                 }
-                if (CompletedPlayFromOutsideHand(confirmed, entry) && result.State.Status == MatchStatuses.InProgress)
+                if (result.State.Status == MatchStatuses.InProgress)
                 {
                     foreach (var (observer, ordinal) in observation.Observers.Select((value, ordinal) => (value, ordinal)))
                     {
-                        var context = observer.ToContext(entry, result.State.Tick);
+                        if (observer.Effect == OutsideHandPlayObserverEffect && !CompletedPlayFromOutsideHand(confirmed, entry)
+                            || observer.Effect == OpponentTurnPlayTokenEffect
+                                && (entry.PlayerId == before.TurnPlayerId || result.State.TurnNumber != before.TurnNumber)) continue;
+                        var context = observer.ToContext(entry, result.State.Tick, before.TurnPlayerId);
                         var trigger = new TriggerQueueItemState($"outside-hand-play-{result.State.Tick}-{index}-{ordinal}",
-                            entry.PlayerId, context.Source.ObjectId, OutsideHandPlayObserverEffect, "CARD_PLAY_COMPLETED")
+                            entry.PlayerId, context.Source.ObjectId, observer.Effect, "CARD_PLAY_COMPLETED")
                             { OutsideHandPlayObserver = context, SourceCardNo = context.CardNo };
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
