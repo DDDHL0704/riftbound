@@ -126,63 +126,6 @@ public static partial class MatchRecoveryValidator
             errors);
     }
 
-    private static string? ValidateStackItemPayloadValues(
-        object? stackItem,
-        string payloadLabel,
-        List<string> errors)
-    {
-        var stackItemId = ValidateSnapshotPayloadRequiredStringValue(
-            stackItem,
-            "stackItemId",
-            payloadLabel,
-            "stack item id",
-            errors);
-        ValidateSnapshotPayloadRequiredStringValue(
-            stackItem,
-            "controllerId",
-            payloadLabel,
-            "controller id",
-            errors);
-        ValidateSnapshotPayloadOptionalStringValue(
-            stackItem,
-            "sourceObjectId",
-            payloadLabel,
-            "source object id",
-            errors);
-        ValidateSnapshotPayloadRequiredStringValue(
-            stackItem,
-            "effectKind",
-            payloadLabel,
-            "effect kind",
-            errors);
-        ValidateSnapshotPayloadOptionalStringValue(
-            stackItem,
-            "cardNo",
-            payloadLabel,
-            "card no",
-            errors);
-        ValidateSnapshotPayloadRequiredStringListValues(
-            stackItem,
-            "targetObjectIds",
-            payloadLabel,
-            "target object id",
-            errors,
-            allowRepeatedHiddenTargets: true); // Keyed state comparison below still requires exact redaction and multiplicity.
-        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
-            stackItem,
-            "damageAmount",
-            payloadLabel,
-            "damage amount",
-            errors);
-        ValidateSnapshotPayloadOptionalStringValue(
-            stackItem,
-            "destination",
-            payloadLabel,
-            "destination",
-            errors);
-        return stackItemId;
-    }
-
     private static IReadOnlyList<string> ExtractStackItemIds(SnapshotDto snapshot)
     {
         if (snapshot.Stack is null)

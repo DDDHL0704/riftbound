@@ -1550,6 +1550,47 @@ public sealed partial record ResolutionResult(
         ];
     }
 
+    private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(
+        MatchState state,
+        TriggerQueueItemState item,
+        string viewerPlayerId)
+    {
+        var hiddenSource = IsHiddenTriggerSourceForViewer(state, item, viewerPlayerId);
+        var view = new Dictionary<string, object?>
+        {
+            ["triggerId"] = item.TriggerId,
+            ["controllerId"] = item.ControllerId,
+            ["sourceObjectId"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId),
+            ["sourceVisibility"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId) == "HIDDEN" ? "HIDDEN" : "VISIBLE",
+            ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
+            ["deathObserver"] = CoreRuleEngine.PublicDeathObserver(item.DeathObserver),
+            ["movementObserver"] = CoreRuleEngine.PublicMovementObserver(item.MovementObserver),
+            ["unitConquest"] = item.UnitConquest,
+            ["reflexiveDuel"] = item.ReflexiveDuel,
+            ["beginningRecycle"] = item.BeginningRecycle,
+            ["beginningDraw"] = item.BeginningDraw,
+            ["ephemeralStart"] = item.EphemeralStart,
+            ["battlefieldStart"] = item.BattlefieldStart,
+            ["triggeredByEventKind"] = item.TriggeredByEventKind
+        };
+        if (item.BeginningRune is not null) view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
+        if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
+        if (!hiddenSource && item.HandDiscardObserver is { } discard) {
+            view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
+            view["abilityLabel"] = CoreRuleEngine.HandDiscardObserverLabel(discard);
+        }
+        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
+        if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
+        if (!hiddenSource && item.DamageDestruction is not null) view["damageDestruction"] = item.DamageDestruction;
+        if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
+        if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
+        if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
+        return view;
+    }
+
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(
         MatchState state,
         PendingPaymentState payment)
@@ -1875,6 +1916,107 @@ internal static partial class ActionPromptBuilder
     private static class LegendActionManaCostReductionKinds
     {
         public const string FriendlyEphemeralFieldObjects = "FRIENDLY_EPHEMERAL_FIELD_OBJECTS";
+    }
+
+    private static ActionPromptCandidateDto BuildCandidate(
+        MatchState state,
+        string playerId,
+        string action,
+        bool promptActionable,
+        string promptReason)
+    {
+        var sources = AnnotatePromptChoiceObjectIds(SourcesFor(state, playerId, action));
+        var targets = AnnotatePromptChoiceObjectIds(TargetsFor(state, playerId, action));
+        var destinations = AnnotatePromptChoiceObjectIds(DestinationsFor(state, playerId, action));
+        var modes = AnnotatePromptChoiceObjectIds(ModesFor(state, playerId, action));
+        var optionalCosts = AnnotatePromptChoiceObjectIds(OptionalCostsFor(state, playerId, action));
+        var requiresSourceChoices = string.Equals(action, "PLAY_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "MOVE_UNIT", StringComparison.Ordinal)
+            || string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
+            || string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
+            || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
+            || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "REVEAL_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "TAP_RUNE", StringComparison.Ordinal)
+            || string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal)
+            || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
+        var requiresTargetChoices = string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
+            || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
+        var hasRequiredChoices = !requiresSourceChoices
+            || sources?.Count > 0;
+        hasRequiredChoices = hasRequiredChoices
+            && (!requiresTargetChoices || targets?.Count > 0);
+        var isSurrender = string.Equals(action, "SURRENDER", StringComparison.Ordinal);
+        var enabled = (promptActionable
+                || (isSurrender
+                    && string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+                    && state.Seats.ContainsKey(playerId)))
+            && !string.Equals(action, "WAIT", StringComparison.Ordinal)
+            && hasRequiredChoices;
+        var commandTemplate = CommandTemplateFor(action);
+        if (action == CommandTypes.ActivateAbility && commandTemplate is not null
+            && ActivateAbilitySourceRequirements(state, playerId).Any(r => r.AbilityInstanceId is not null))
+            commandTemplate = commandTemplate with { Bindings = commandTemplate.Bindings
+                .Append(RequirementMetadataBinding("abilityInstanceId", required: false, "abilityInstanceId")).ToArray() };
+        var selectionSteps = SelectionStepsFor(
+            requiresSourceChoices,
+            requiresTargetChoices,
+            sources,
+            targets,
+            destinations,
+            modes,
+            optionalCosts,
+            commandTemplate);
+        if (action == CommandTypes.ChooseHandCards && state.PendingHandChoice is { } handChoice
+            && handChoice.PlayerId == playerId)
+        {
+            var handChoices = AnnotatePromptChoiceObjectIds(PendingHandChoiceDtos(state, handChoice));
+            var steps = new List<ActionPromptSelectionStepDto>();
+            for (var index = 0; index < handChoice.RequiredCount; index++)
+                AddSelectionStep(steps, "target", $"第 {index + 1} 张弃牌", true, handChoices);
+            selectionSteps = steps;
+        }
+        if (action == CommandTypes.ChooseCards && state.PendingCardChoice is { } cardChoice
+            && cardChoice.PlayerId == playerId)
+        {
+            var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
+            var steps = new List<ActionPromptSelectionStepDto>();
+            for (var index = 0; index < cardChoice.MaxCount; index++)
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "选择已确认的武装；不选则跳过改贴" : cardChoice.ChoiceWindow == CoreRuleEngine.TemperedConfirmationWindow ? "选择你的武装；不选则放弃百炼" : cardChoice.ChoiceWindow == CoreRuleEngine.TemperedCostWindow ? "选择支付装配费用的卡牌" : cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == CoreRuleEngine.BattlefieldStartDrawEffect ? "选择支付摧毁费用的单位；不选则放弃" : cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? cardChoice.EffectKind == "HOLD_CHANNEL_OPTIONAL" ? "确认召出符文；不选则放弃" : "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.EffectKind == CoreRuleEngine.CreatedTokenReadyEffect ? "选择本次打出的至多两名士兵" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择技能目标" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+            selectionSteps = steps;
+        }
+        if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
+            && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
+        {
+            var steps = new List<ActionPromptSelectionStepDto>();
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ResourceConversionAmountKind ? "选择本次资源转换的数量，确认前不横置或支付" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.ImposedMovementPaymentKind ? "支付群体移动的施加费用；可先获得资源或放弃此次移动" : state.PendingRuleChoice?.Request.Kind == CoreRuleEngine.InstructionPowerPaymentKind ? "结算时选择符能数量；可先获得资源或支付 0" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "COUNTER_TARGET_MANA_PAYMENT" ? "支付法力保留法术，或不支付" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "DECK_REFLEXIVE_CREATE" ? "创建强化技能，或跳过": state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+                payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
+            if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
+                var resources = PendingPaymentResourceChoiceDtos(state, payment);
+                for (var index = 0; index < resources.Count; index++)
+                    AddSelectionStep(steps, "target", "可选回收符文以支付符能；放弃时不选", false, resources);
+            }
+            selectionSteps = steps;
+            commandTemplate = CommandTemplate(CommandTypes.PayCost,
+                CandidateMetadataBinding("paymentId", required: true, metadataKeys: ["paymentId"]),
+                CandidateMetadataBinding("paymentWindow", required: true, metadataKeys: ["paymentWindow"]),
+                SelectedTargetsBinding("paymentChoiceIds", required: true));
+        }
+        return new ActionPromptCandidateDto(
+            action,
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付群体移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
+            enabled,
+            enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
+            sources,
+            targets,
+            destinations,
+            modes,
+            optionalCosts,
+            MetadataFor(state, playerId, action),
+            selectionSteps,
+            commandTemplate,
+            ComposerFor(selectionSteps, commandTemplate),
+            PresentationFor(action));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? SourcesFor(

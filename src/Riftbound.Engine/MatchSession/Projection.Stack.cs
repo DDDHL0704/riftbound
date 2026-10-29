@@ -45,47 +45,6 @@ public sealed partial record ResolutionResult
             || string.Equals(kind, "COST_PAID", StringComparison.Ordinal);
     }
 
-    private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(
-        MatchState state,
-        TriggerQueueItemState item,
-        string viewerPlayerId)
-    {
-        var hiddenSource = IsHiddenTriggerSourceForViewer(state, item, viewerPlayerId);
-        var view = new Dictionary<string, object?>
-        {
-            ["triggerId"] = item.TriggerId,
-            ["controllerId"] = item.ControllerId,
-            ["sourceObjectId"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId),
-            ["sourceVisibility"] = OrderTriggerSourceObjectIdForViewer(state, item, viewerPlayerId) == "HIDDEN" ? "HIDDEN" : "VISIBLE",
-            ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
-            ["deathObserver"] = CoreRuleEngine.PublicDeathObserver(item.DeathObserver),
-            ["movementObserver"] = CoreRuleEngine.PublicMovementObserver(item.MovementObserver),
-            ["unitConquest"] = item.UnitConquest,
-            ["reflexiveDuel"] = item.ReflexiveDuel,
-            ["beginningRecycle"] = item.BeginningRecycle,
-            ["beginningDraw"] = item.BeginningDraw,
-            ["ephemeralStart"] = item.EphemeralStart,
-            ["battlefieldStart"] = item.BattlefieldStart,
-            ["triggeredByEventKind"] = item.TriggeredByEventKind
-        };
-        if (item.BeginningRune is not null) view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
-        if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
-        if (!hiddenSource && item.HandDiscardObserver is { } discard) {
-            view["handDiscardObserver"] = CoreRuleEngine.PublicHandDiscardObserver(discard);
-            view["abilityLabel"] = CoreRuleEngine.HandDiscardObserverLabel(discard);
-        }
-        if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
-        if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
-        if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
-        if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
-        if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
-        if (!hiddenSource && item.DamageDestruction is not null) view["damageDestruction"] = item.DamageDestruction;
-        if (!hiddenSource && item.GraveyardPlay is not null) view["graveyardPlay"] = item.GraveyardPlay;
-        if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
-        if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
-        return view;
-    }
-
     private static Dictionary<string, object?>? BuildPendingPaymentSnapshotView(
         MatchState state,
         PendingPaymentState? payment)

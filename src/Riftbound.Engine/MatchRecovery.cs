@@ -1198,6 +1198,360 @@ public static partial class MatchRecoveryValidator
         return errors;
     }
 
+    private static void ValidateSnapshotTimingTriggerQueuePayloadValues(
+        RecoveredPlayerView view,
+        List<string> errors,
+        MatchState? authoritativeState)
+    {
+        if (view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var triggerPayloads))
+        {
+            return;
+        }
+
+        ValidateLastBreathUnitCreationViews(triggerPayloads, errors);
+        ValidateLastBreathRuneCallViews(triggerPayloads, errors);
+        ValidateLastBreathDrawViews(triggerPayloads, errors);
+        ValidateLastBreathBattlefieldDamageViews(triggerPayloads, errors);
+
+        var knownPlayerIds = view.Snapshot.Players is null
+            ? null
+            : BuildNormalizedPlayerIdSet(view.Snapshot.Players.Keys);
+        var knownObjectIds = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var objectCardNos = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectCardNoIndex(view.Snapshot);
+        var objectPowers = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectPowerIndex(view.Snapshot);
+        var objectControllers = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectControllerIndex(view.Snapshot);
+        var objectFaceDowns = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectFaceDownIndex(view.Snapshot);
+        var objectTags = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectTagIndex(view.Snapshot);
+        var objectLocations = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotObjectLocationIndex(view.Snapshot);
+        var playerBattlefieldObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerBattlefieldObjectIdsByPlayer(view.Snapshot);
+        var playerBaseObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerBaseObjectIdsByPlayer(view.Snapshot);
+        var playerGraveyardObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerGraveyardObjectIdsByPlayer(view.Snapshot);
+        var playerFieldObjectIdsByPlayer = view.Snapshot.Players is null
+            ? null
+            : BuildSnapshotPlayerFieldObjectIdsByPlayer(view.Snapshot);
+        var knownBattlefieldStateObjectIds = BuildSnapshotBattlefieldStateObjectIds(view.Snapshot);
+        var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var triggerPayload in triggerPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(triggerPayload))
+            {
+                continue;
+            }
+
+            const string payloadLabel = "trigger queue item";
+            var triggerLabel = $"snapshot for {view.PlayerId} timing {payloadLabel}";
+            var triggerId = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "triggerId",
+                triggerLabel,
+                "trigger id",
+                errors);
+            if (triggerId is not null && !seenTriggerIds.Add(triggerId))
+            {
+                errors.Add($"{triggerLabel} trigger id {triggerId} is duplicated");
+            }
+
+            var controllerId = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "controllerId",
+                triggerLabel,
+                "controller id",
+                errors);
+            var sourceObjectId = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "sourceObjectId",
+                triggerLabel,
+                "source object id",
+                errors);
+            var sourceVisibility = ValidateTriggerQueueSourceVisibilityValue(
+                triggerPayload,
+                triggerLabel,
+                errors);
+            var effectKind = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "effectKind",
+                triggerLabel,
+                "effect kind",
+                errors);
+            var triggeredEventKind = ValidateSnapshotPayloadRequiredStringValue(
+                triggerPayload,
+                "triggeredByEventKind",
+                triggerLabel,
+                "triggered event kind",
+                errors);
+            ValidateTriggerQueuePromptFieldAbsence(triggerPayload, triggerLabel, errors);
+            ValidateTriggerQueueIdentityRedactionSentinelAbsence(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueTriggeredEventKindKnownValue(triggerLabel, triggeredEventKind, errors);
+            ValidateTriggerQueueControllerPlayerMembership(
+                triggerLabel,
+                controllerId,
+                knownPlayerIds,
+                "players",
+                errors);
+
+            ValidateTriggerQueueSourceRedactionConsistency(
+                triggerLabel,
+                sourceObjectId,
+                sourceVisibility,
+                effectKind,
+                errors,
+                HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
+                    || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
+            ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                sourceVisibility,
+                objectControllers,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                objectLocations,
+                "object locations",
+                playerBattlefieldObjectIdsByPlayer,
+                "player zones",
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
+                view.Snapshot.TurnNumber,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueJhinMovementResourceContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                objectControllers,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                objectLocations,
+                "object locations",
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
+                effectKind,
+                triggeredEventKind,
+                view.SnapshotTick,
+                errors);
+            ValidateTriggerQueueKogmawLastBreathContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                sourceVisibility,
+                objectControllers,
+                "objects",
+                knownObjectIds,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                objectLocations,
+                "object locations",
+                knownBattlefieldStateObjectIds,
+                "battlefield states",
+                effectKind,
+                triggeredEventKind,
+                errors, authoritativeState, view.PlayerId);
+            ValidateTriggerQueueOgsLuxHighCostSpellContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                sourceVisibility,
+                objectControllers,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                playerFieldObjectIdsByPlayer,
+                "player zones",
+                objectLocations,
+                "object locations",
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                sourceVisibility,
+                objectControllers,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                playerBaseObjectIdsByPlayer,
+                "player zones",
+                objectLocations,
+                "object locations",
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueWatchfulSentinelLastBreathDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors,
+            (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind))));
+            ValidateTriggerQueueSadPoroLastBreathDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueLoyalPoroLastBreathDrawContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueUndercoverAgentLastBreathContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueIroncladVanguardLastBreathCreateRobotsContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateTriggerQueueMuddyDredgerLastBreathCreateWarhawkContext(
+                triggerLabel,
+                triggerId,
+                sourceVisibility,
+                effectKind,
+                triggeredEventKind,
+                errors);
+            ValidateLastBreathMightPayload(triggerPayload, effectKind, errors);
+            ValidateBattlefieldConquestMightPayload(triggerPayload, effectKind, errors);
+            ValidateMightySkillPayload(triggerPayload, effectKind, errors);
+            ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+                triggerLabel,
+                triggerId,
+                controllerId,
+                sourceObjectId,
+                effectKind,
+                objectControllers,
+                "objects",
+                objectCardNos,
+                "objects",
+                objectPowers,
+                "objects",
+                objectFaceDowns,
+                "objects",
+                objectTags,
+                "objects",
+                objectLocations,
+                "object locations",
+                playerBaseObjectIdsByPlayer,
+                "player zones",
+                playerGraveyardObjectIdsByPlayer,
+                "player zones",
+                errors,
+                (HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))));
+            var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
+            if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
+            && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ceasedInsight
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+            ValidateTriggerQueueVisibleSourceObjectMembership(
+                triggerLabel,
+                sourceObjectId,
+                sourceVisibility,
+                knownObjectIds,
+                "objects",
+                errors);
+        }
+    }
+
     private static void ValidateContinuousEffectSourceObjectConsistency(
         string effectLabel,
         string? scope,
@@ -2373,6 +2727,883 @@ public static partial class MatchRecoveryValidator
 
         errors.Add(
             $"{effectLabel} battlefield static aura effective power {effectivePower.Value} must equal base power {basePower.Value} plus power delta {powerDelta.Value}");
+    }
+
+    private static void ValidateSpectatorTriggerQueuePayloads(
+        IReadOnlyDictionary<string, object?> timing,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        if (!timing.TryGetValue("triggerQueue", out var triggerQueuePayload)
+            || IsNullSnapshotPayloadValue(triggerQueuePayload))
+        {
+            errors.Add("spectator replay frame timing trigger queue is required");
+            if (authoritativeState.TriggerQueue.Count > 0)
+            {
+                AddSpectatorTriggerQueueCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeState.TriggerQueue.Count,
+                    errors);
+            }
+
+            ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
+            return;
+        }
+
+        if (!TryReadObjectListValue(triggerQueuePayload, out var spectatorTriggers))
+        {
+            errors.Add("spectator replay frame timing trigger queue payload is required");
+            if (authoritativeState.TriggerQueue.Count > 0)
+            {
+                AddSpectatorTriggerQueueCountMismatch(
+                    spectatorCount: 0,
+                    authoritativeCount: authoritativeState.TriggerQueue.Count,
+                    errors);
+            }
+
+            ReportMissingSpectatorTriggerQueueAuthoritativeKeySet(authoritativeState.TriggerQueue, errors);
+            return;
+        }
+
+        ValidateLastBreathUnitCreationViews(spectatorTriggers, errors);
+        ValidateLastBreathRuneCallViews(spectatorTriggers, errors);
+        ValidateLastBreathDrawViews(spectatorTriggers, errors);
+        ValidateLastBreathBattlefieldDamageViews(spectatorTriggers, errors);
+
+        var authoritativeTriggers = authoritativeState.TriggerQueue;
+        var validateAuthoritativeParity = spectatorTriggers.Count == authoritativeTriggers.Count;
+        if (!validateAuthoritativeParity)
+        {
+            AddSpectatorTriggerQueueCountMismatch(
+                spectatorTriggers.Count,
+                authoritativeTriggers.Count,
+                errors);
+        }
+
+        var seatPlayerIds = BuildNormalizedPlayerIdSet(authoritativeState.Seats.Keys);
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
+        var objectPowers = BuildAuthoritativeStateObjectPowerIndex(authoritativeState);
+        var objectControllers = BuildAuthoritativeStateObjectControllerIndex(authoritativeState);
+        var objectFaceDowns = BuildAuthoritativeStateObjectFaceDownIndex(authoritativeState);
+        var objectTags = BuildAuthoritativeStateObjectTagIndex(authoritativeState);
+        var battlefieldStateObjectIds = BuildAuthoritativeStateBattlefieldStateObjectIds(authoritativeState);
+        var playerBattlefieldObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerBattlefieldObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var playerBaseObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerBaseObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var playerGraveyardObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerGraveyardObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var playerFieldObjectIdsByPlayer =
+            BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
+        var seenTriggerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spectatorTrigger in spectatorTriggers)
+        {
+            if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
+            {
+                errors.Add("spectator replay frame timing trigger queue item payload is required");
+                continue;
+            }
+
+            ValidateSnapshotPayloadObjectPropertyNames(
+                spectatorTrigger,
+                "spectator replay frame timing trigger queue item",
+                errors);
+            ValidateSpectatorTriggerQueuePayloadValues(
+                spectatorTrigger,
+                seenTriggerIds,
+                seatPlayerIds,
+                knownObjectIds,
+                objectCardNos,
+                objectPowers,
+                objectControllers,
+                objectFaceDowns,
+                objectTags,
+                authoritativeState.ObjectLocations,
+                playerBattlefieldObjectIdsByPlayer,
+                playerBaseObjectIdsByPlayer,
+                playerGraveyardObjectIdsByPlayer,
+                playerFieldObjectIdsByPlayer,
+                battlefieldStateObjectIds,
+                authoritativeState.Tick,
+                authoritativeState.TurnNumber,
+                authoritativeState,
+                errors);
+        }
+
+        var authoritativeTriggersById = BuildAuthoritativeTriggerQueueById(authoritativeTriggers);
+
+        ValidateSpectatorTriggerQueueAuthoritativeKeySet(
+            spectatorTriggers,
+            authoritativeTriggersById,
+            errors);
+        ValidateSpectatorTriggerQueueKeyedAuthoritativeValues(
+            spectatorTriggers,
+            authoritativeTriggersById,
+            authoritativeState,
+            errors);
+
+        if (!validateAuthoritativeParity)
+        {
+            return;
+        }
+
+        var triggerIdsMatch = true;
+        var controllerIdsMatch = true;
+        var sourceObjectIdsMatch = true;
+        var sourceVisibilitiesMatch = true;
+        var effectKindsMatch = true;
+        var triggeredEventKindsMatch = true;
+
+        for (var index = 0; index < authoritativeTriggers.Count; index++)
+        {
+            var spectatorTrigger = spectatorTriggers[index];
+            if (!IsSnapshotPlayerPayloadObject(spectatorTrigger))
+            {
+                continue;
+            }
+
+            var authoritativeTrigger = authoritativeTriggers[index];
+            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+                authoritativeState,
+                authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
+            CompareHandDiscardObserverView(spectatorTrigger, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
+            CompareMovementObserverView(spectatorTrigger, authoritativeTrigger.MovementObserver, errors, "spectator");
+            if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(authoritativeTrigger.DeathObserver))) errors.Add("spectator captured death observer differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
+            CompareDestructionFamilyView(spectatorTrigger, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
+            var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
+            var expectedSourceObjectId = hiddenSource || privateBattleSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource || privateBattleSource ? "HIDDEN" : "VISIBLE";
+            var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
+
+            if (!TryReadObjectString(spectatorTrigger, "triggerId", out var triggerId)
+                || !string.Equals(triggerId, authoritativeTrigger.TriggerId, StringComparison.Ordinal))
+            {
+                triggerIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "controllerId", out var controllerId)
+                || !string.Equals(controllerId, authoritativeTrigger.ControllerId, StringComparison.Ordinal))
+            {
+                controllerIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "sourceObjectId", out var sourceObjectId)
+                || !string.Equals(sourceObjectId, expectedSourceObjectId, StringComparison.Ordinal))
+            {
+                sourceObjectIdsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "sourceVisibility", out var sourceVisibility)
+                || !string.Equals(sourceVisibility, expectedSourceVisibility, StringComparison.Ordinal))
+            {
+                sourceVisibilitiesMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "effectKind", out var effectKind)
+                || !string.Equals(effectKind, expectedEffectKind, StringComparison.Ordinal))
+            {
+                effectKindsMatch = false;
+            }
+
+            if (!TryReadObjectString(spectatorTrigger, "triggeredByEventKind", out var triggeredEventKind)
+                || !string.Equals(triggeredEventKind, authoritativeTrigger.TriggeredByEventKind, StringComparison.Ordinal))
+            {
+                triggeredEventKindsMatch = false;
+            }
+        }
+
+        if (!triggerIdsMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "ids",
+                authoritativeTriggers.Select(trigger => trigger.TriggerId),
+                spectatorTriggers,
+                "triggerId",
+                errors);
+        }
+
+        if (!controllerIdsMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "controller ids",
+                authoritativeTriggers.Select(trigger => trigger.ControllerId),
+                spectatorTriggers,
+                "controllerId",
+                errors);
+        }
+
+        if (!sourceObjectIdsMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "source object ids",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : trigger.SourceObjectId),
+                spectatorTriggers,
+                "sourceObjectId",
+                errors);
+        }
+
+        if (!sourceVisibilitiesMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "source visibilities",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : "VISIBLE"),
+                spectatorTriggers,
+                "sourceVisibility",
+                errors);
+        }
+
+        if (!effectKindsMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "effect kinds",
+                authoritativeTriggers.Select(trigger =>
+                    IsHiddenBattlefieldStandbyForSpectator(authoritativeState, trigger.SourceObjectId)
+                        ? "HIDDEN"
+                        : trigger.EffectKind),
+                spectatorTriggers,
+                "effectKind",
+                errors);
+        }
+
+        if (!triggeredEventKindsMatch)
+        {
+            AddSpectatorTriggerQueueStringAggregateMismatch(
+                "triggered event kinds",
+                authoritativeTriggers.Select(trigger => trigger.TriggeredByEventKind),
+                spectatorTriggers,
+                "triggeredByEventKind",
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorTriggerQueueKeyedAuthoritativeValues(
+        IReadOnlyList<object?> triggerPayloads,
+        IReadOnlyDictionary<string, TriggerQueueItemState> authoritativeTriggersById,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        foreach (var triggerPayload in triggerPayloads)
+        {
+            if (!IsSnapshotPlayerPayloadObject(triggerPayload)
+                || !TryReadObjectString(triggerPayload, "triggerId", out var triggerId)
+                || string.IsNullOrWhiteSpace(triggerId))
+            {
+                continue;
+            }
+
+            var normalizedTriggerId = triggerId.Trim();
+            if (!authoritativeTriggersById.TryGetValue(normalizedTriggerId, out var authoritativeTrigger))
+            {
+                continue;
+            }
+
+            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.HandDiscardObserver is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+                authoritativeState,
+                authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
+            CompareHandDiscardObserverView(triggerPayload, authoritativeTrigger.HandDiscardObserver, errors, "spectator");
+            CompareMovementObserverView(triggerPayload, authoritativeTrigger.MovementObserver, errors, "spectator");
+            if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(authoritativeTrigger.DeathObserver))) errors.Add("spectator captured death observer differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
+            CompareDestructionFamilyView(triggerPayload, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
+            var privateBattleSource = CapturedBattleSourceIsPrivate(authoritativeState, authoritativeTrigger);
+            var expectedSourceObjectId = hiddenSource || privateBattleSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
+            var expectedSourceVisibility = hiddenSource || privateBattleSource ? "HIDDEN" : "VISIBLE";
+            var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
+
+            ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
+                triggerPayload,
+                "controllerId",
+                "controller id",
+                authoritativeTrigger.ControllerId,
+                normalizedTriggerId,
+                errors);
+            ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
+                triggerPayload,
+                "sourceObjectId",
+                "source object id",
+                expectedSourceObjectId,
+                normalizedTriggerId,
+                errors);
+            ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
+                triggerPayload,
+                "sourceVisibility",
+                "source visibility",
+                expectedSourceVisibility,
+                normalizedTriggerId,
+                errors);
+            ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
+                triggerPayload,
+                "effectKind",
+                "effect kind",
+                expectedEffectKind,
+                normalizedTriggerId,
+                errors);
+            ValidateSpectatorTriggerQueueKeyedRequiredStringValue(
+                triggerPayload,
+                "triggeredByEventKind",
+                "triggered event kind",
+                authoritativeTrigger.TriggeredByEventKind,
+                normalizedTriggerId,
+                errors);
+        }
+    }
+
+    private static void ValidateSpectatorTriggerQueuePayloadValues(
+        object? triggerPayload,
+        HashSet<string> seenTriggerIds,
+        IReadOnlySet<string> seatPlayerIds,
+        IReadOnlySet<string> knownObjectIds,
+        IReadOnlyDictionary<string, string?> objectCardNos,
+        IReadOnlyDictionary<string, int> objectPowers,
+        IReadOnlyDictionary<string, string> objectControllers,
+        IReadOnlyDictionary<string, bool> objectFaceDowns,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> objectTags,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerBattlefieldObjectIdsByPlayer,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerBaseObjectIdsByPlayer,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerGraveyardObjectIdsByPlayer,
+        IReadOnlyDictionary<string, IReadOnlySet<string>> playerFieldObjectIdsByPlayer,
+        IReadOnlySet<string> battlefieldStateObjectIds,
+        long currentTick,
+        int currentTurnNumber,
+        MatchState authoritativeState,
+        List<string> errors)
+    {
+        const string payloadLabel = "spectator replay frame timing trigger queue item";
+        var triggerId = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "triggerId",
+            payloadLabel,
+            "trigger id",
+            errors);
+        if (triggerId is not null && !seenTriggerIds.Add(triggerId))
+        {
+            errors.Add($"{payloadLabel} trigger id {triggerId} is duplicated");
+        }
+
+        var controllerId = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "controllerId",
+            payloadLabel,
+            "controller id",
+            errors);
+        var sourceObjectId = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        var sourceVisibility = ValidateTriggerQueueSourceVisibilityValue(
+            triggerPayload,
+            payloadLabel,
+            errors);
+        var effectKind = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        var triggeredEventKind = ValidateSnapshotPayloadRequiredStringValue(
+            triggerPayload,
+            "triggeredByEventKind",
+            payloadLabel,
+            "triggered event kind",
+            errors);
+        ValidateTriggerQueuePromptFieldAbsence(triggerPayload, payloadLabel, errors);
+        ValidateTriggerQueueIdentityRedactionSentinelAbsence(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueTriggeredEventKindKnownValue(payloadLabel, triggeredEventKind, errors);
+        ValidateTriggerQueueControllerPlayerMembership(
+            payloadLabel,
+            controllerId,
+            seatPlayerIds,
+            "seats",
+            errors);
+
+        ValidateTriggerQueueSourceRedactionConsistency(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            effectKind,
+            errors,
+            HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
+                    || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
+                    || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind));
+        ValidateTriggerQueueBlueSentinelDelayedResourceContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
+            playerBattlefieldObjectIdsByPlayer,
+            "authoritative state player zones",
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
+            currentTurnNumber,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueJhinMovementResourceContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            objectControllers,
+            "authoritative state object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
+            effectKind,
+            triggeredEventKind,
+            currentTick,
+            errors);
+        ValidateTriggerQueueKogmawLastBreathContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
+            knownObjectIds,
+            "object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
+            battlefieldStateObjectIds,
+            "authoritative state battlefield states",
+            effectKind,
+            triggeredEventKind,
+            errors, authoritativeState, string.Empty);
+        ValidateTriggerQueueOgsLuxHighCostSpellContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            playerFieldObjectIdsByPlayer,
+            "authoritative state player zones",
+            objectLocations,
+            "authoritative state object locations",
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueTeemoOnPlaySelfPowerContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            sourceVisibility,
+            objectControllers,
+            "authoritative state object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            playerBaseObjectIdsByPlayer,
+            "authoritative state player zones",
+            objectLocations,
+            "authoritative state object locations",
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueWatchfulSentinelLastBreathDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueUnsungHeroLastBreathPowerfulDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueScoutingWarhawkLastBreathCallRuneContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors,
+            (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind))));
+        ValidateTriggerQueueSadPoroLastBreathDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueLoyalPoroLastBreathDrawContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueHonestBrokerLastBreathCreateGoldContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueMechanicalTricksterLastBreathCreateMinionsContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueUndercoverAgentLastBreathContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueIroncladVanguardLastBreathCreateRobotsContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueMuddyDredgerLastBreathCreateWarhawkContext(
+            payloadLabel,
+            triggerId,
+            sourceVisibility,
+            effectKind,
+            triggeredEventKind,
+            errors);
+        ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
+            payloadLabel,
+            triggerId,
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            objectControllers,
+            "authoritative state object registry",
+            objectCardNos,
+            "authoritative state object registry",
+            objectPowers,
+            "authoritative state object registry",
+            objectFaceDowns,
+            "authoritative state object registry",
+            objectTags,
+            "authoritative state object registry",
+            objectLocations,
+            "authoritative state object locations",
+            playerBaseObjectIdsByPlayer,
+            "authoritative state player zones",
+            playerGraveyardObjectIdsByPlayer,
+            "authoritative state player zones",
+            errors,
+            (HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))));
+        var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
+        if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
+            && !ValidateHandDiscardObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ceasedInsight
+            && !HasValidatedCeasedLastBreathSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind)
+            && !HasValidatedCeasedBeginningRuneSource(authoritativeState, triggerId, controllerId, sourceObjectId, effectKind))
+        ValidateTriggerQueueVisibleSourceObjectMembership(
+            payloadLabel,
+            sourceObjectId,
+            sourceVisibility,
+            knownObjectIds,
+            "object registry",
+            errors);
+    }
+
+    private static void ValidatePendingHandChoicePayloadValues(
+        object? choicePayload,
+        string payloadLabel,
+        Func<string, bool> isKnownChoiceState,
+        List<string> errors)
+    {
+        if (TryReadObjectValue(choicePayload, "lastBreathDraw", out _))
+            errors.Add("public hand choice exposes a private last-breath draw birth receipt");
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceId",
+            payloadLabel,
+            "id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceWindow",
+            payloadLabel,
+            "window",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "playerId",
+            payloadLabel,
+            "player id",
+            errors);
+        var requiredCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
+            choicePayload,
+            "requiredCount",
+            payloadLabel,
+            "required count",
+            errors);
+        var maxCount = ValidateSnapshotPayloadRequiredPositiveIntValue(
+            choicePayload,
+            "maxCount",
+            payloadLabel,
+            "max count",
+            errors);
+        if (requiredCount is not null
+            && maxCount is not null
+            && maxCount.Value < requiredCount.Value)
+        {
+            errors.Add($"{payloadLabel} max count {maxCount.Value} is less than required count {requiredCount.Value}");
+        }
+
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "reason",
+            payloadLabel,
+            "reason",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            choicePayload,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            choicePayload,
+            "choiceState",
+            payloadLabel,
+            "state",
+            errors,
+            isKnownChoiceState);
+    }
+
+    private static void ValidateAuthoritativeState(
+        string roomId,
+        long? currentTick,
+        MatchState? authoritativeState,
+        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
+        List<string> errors)
+    {
+        if (authoritativeState is null)
+        {
+            return;
+        }
+
+        if (!string.Equals(authoritativeState.RoomId, roomId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state room {authoritativeState.RoomId} does not match recovery room {roomId}");
+        }
+
+        if (currentTick is { } expectedTick && authoritativeState.Tick != expectedTick)
+        {
+            errors.Add($"authoritative state tick {authoritativeState.Tick} does not match recovery tick {expectedTick}");
+        }
+
+        ValidateSpellContinuations(authoritativeState, errors);
+        ValidateTurnSequenceState(authoritativeState, errors);
+        ValidateAuthoritativeStateScalars(authoritativeState, errors);
+        ValidateAuthoritativeStateSeats(authoritativeState, errors);
+        ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
+        ValidateAuthoritativeStatePlayerZoneValues(authoritativeState.PlayerZones, errors);
+        ValidateAuthoritativeStateStackAndTriggerValues(authoritativeState, errors);
+        ValidateAuthoritativeStatePendingPaymentValues(authoritativeState.PendingPayment, errors);
+        var paymentActions = (authoritativeState.PendingPayment?.PaymentResourceActionIds ?? [])
+            .Concat(authoritativeState.PendingPayment?.LegalPaymentChoiceIds ?? [])
+            .Concat((authoritativeState.StackItems ?? []).Where(item => item is not null).SelectMany(item => item.OptionalCosts ?? []));
+        if (paymentActions.Any(action => action?.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal) == true))
+            errors.Add("authoritative state contains an obsolete temporary payment resource action");
+        ValidateAuthoritativeStatePendingHandChoiceValues(authoritativeState.PendingHandChoice, errors);
+        ValidateAuthoritativeStatePendingCardChoiceValues(authoritativeState.PendingCardChoice, errors);
+        ValidateAuthoritativeStateUntilEndOfTurnEffectValues(authoritativeState.UntilEndOfTurnEffects, errors);
+        ValidateBattleLimitedMarkers(authoritativeState, errors);
+        ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
+        ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
+
+        // Private checkpoint and decision transcript are validated above. Public
+        // snapshots render the deterministic intermediate replacement preview.
+        var paymentPromptState = authoritativeState;
+        authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
+
+        foreach (var view in playerViews.Values)
+        {
+            if (view.Snapshot is null)
+            {
+                continue;
+            }
+
+            ValidateResourcePoolViews(view, authoritativeState, errors, paymentPromptState);
+            if (view.Snapshot.Stack is null)
+            {
+                errors.Add($"snapshot for {view.PlayerId} requires a stack collection");
+                continue;
+            }
+
+            if (view.Snapshot.TurnNumber != authoritativeState.TurnNumber)
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state turn number");
+            }
+
+            if (!string.Equals(view.Snapshot.ActivePlayerId, authoritativeState.ActivePlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state active player");
+            }
+
+            ValidateHandDiscardObserverStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
+            ValidateLastBreathUnitCreationViews(view.Snapshot.Stack, errors);
+            ValidateLastBreathRuneCallViews(view.Snapshot.Stack, errors);
+            ValidateLastBreathDrawViews(view.Snapshot.Stack, errors);
+            ValidateLastBreathBattlefieldDamageViews(view.Snapshot.Stack, errors);
+            ValidateDestructionFamilyStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateFlowPlayViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
+            ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattleLimitedView(view, authoritativeState, errors);
+            ValidateDynamicPowerAuraViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateEmpoweredViews(view.Snapshot, authoritativeState, view.PlayerId, errors, $"snapshot for {view.PlayerId}");
+            ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBeginningRuneViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBeginningDrawViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateGrantedTagViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattlefieldStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            if (view.Snapshot.Timing is not null
+                && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
+            {
+                foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.ReflexiveDuel is not null))
+                {
+                    var projected=publicTriggers.FirstOrDefault(payload=>TryReadObjectString(payload,"triggerId",out var id) && id==trigger.TriggerId);
+                    if(MatchStateHasher.HashValue(ReadReflexiveDuelView(projected))!=MatchStateHasher.HashValue(trigger.ReflexiveDuel))
+                        errors.Add($"snapshot for {view.PlayerId} reflexive movement duel differs from authoritative state");
+                }
+                foreach (var trigger in authoritativeState.TriggerQueue)
+                {
+                    var projected = publicTriggers.FirstOrDefault(payload =>
+                        TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
+                    CompareHandDiscardObserverView(projected, trigger.HandDiscardObserver, errors, $"snapshot for {view.PlayerId}");
+                    CompareMovementObserverView(projected, trigger.MovementObserver, errors, $"snapshot for {view.PlayerId}");
+                    CompareDestructionFamilyView(projected, trigger.DamageDestruction, trigger.GraveyardPlay, errors);
+                    if (MatchStateHasher.HashValue(ReadDelayedDestructionView(projected)) != MatchStateHasher.HashValue(trigger.DelayedDestruction))
+                        errors.Add($"snapshot for {view.PlayerId} captured delayed destruction differs from authoritative state");
+                    if (MatchStateHasher.HashValue(ReadCapturedInsightView(projected)) != MatchStateHasher.HashValue(CapturedInsight(trigger.InsightContext)))
+                        errors.Add($"snapshot for {view.PlayerId} {CapturedInsightLabel(trigger.InsightContext)} differs from authoritative state");
+                }
+                foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.DeathObserver is not null))
+                {
+                    var projected = publicTriggers.FirstOrDefault(payload =>
+                        TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
+                    if (MatchStateHasher.HashValue(ReadDeathObserverView(projected)) != MatchStateHasher.HashValue(CoreRuleEngine.PublicDeathObserver(trigger.DeathObserver)))
+                        errors.Add($"snapshot for {view.PlayerId} captured death observer differs from authoritative state");
+                }
+            }
+
+            var viewSeats = ExtractSeats(view.Snapshot);
+            if (!SeatsEqual(authoritativeState.Seats, viewSeats))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
+            }
+        }
+    }
+
+    private static void ValidateMightySkillStackViews(IReadOnlyList<object?> payloads,
+        MatchState authority, List<string> errors, string label)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            TryReadObjectString(payload, "effectKind", out var effect);
+            ValidateMightySkillPayload(payload, effect, errors);
+            var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
+            if (MatchStateHasher.HashValue(ReadMightySkillView(payload)) != MatchStateHasher.HashValue(expected?.MightySkill))
+                errors.Add($"{label} captured Mighty transition differs from authoritative state");
+        }
+    }
+
+    private static BattlefieldConquestMightContext? ReadBattlefieldConquestMightView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("battlefieldConquestMight", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<BattlefieldConquestMightContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
     }
 
     private static bool ValidMovementPlayers(MatchState state, MovementObserverContext context)
@@ -3973,6 +5204,63 @@ public static partial class MatchRecoveryValidator
                 normalizedStackItemId,
                 errors);
         }
+    }
+
+    private static string? ValidateStackItemPayloadValues(
+        object? stackItem,
+        string payloadLabel,
+        List<string> errors)
+    {
+        var stackItemId = ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "stackItemId",
+            payloadLabel,
+            "stack item id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "controllerId",
+            payloadLabel,
+            "controller id",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "sourceObjectId",
+            payloadLabel,
+            "source object id",
+            errors);
+        ValidateSnapshotPayloadRequiredStringValue(
+            stackItem,
+            "effectKind",
+            payloadLabel,
+            "effect kind",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "cardNo",
+            payloadLabel,
+            "card no",
+            errors);
+        ValidateSnapshotPayloadRequiredStringListValues(
+            stackItem,
+            "targetObjectIds",
+            payloadLabel,
+            "target object id",
+            errors,
+            allowRepeatedHiddenTargets: true); // Keyed state comparison below still requires exact redaction and multiplicity.
+        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+            stackItem,
+            "damageAmount",
+            payloadLabel,
+            "damage amount",
+            errors);
+        ValidateSnapshotPayloadOptionalStringValue(
+            stackItem,
+            "destination",
+            payloadLabel,
+            "destination",
+            errors);
+        return stackItemId;
     }
 
     private static IReadOnlyList<string> VisibleObjectIdsForSpectator(
