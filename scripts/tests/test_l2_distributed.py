@@ -401,6 +401,27 @@ class DistributedL2Tests(unittest.TestCase):
         self.assertEqual(2, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.theory}))
         self.assertEqual(1, len({r['shard'] for r in result['rawCaseMapping'] if r['method'] == self.dynamic}))
 
+    def test_measured_case_costs_balance_unequal_rows_without_changing_membership(self):
+        rows = [self.theory + '(x: 1)', self.theory + '(x: 2)']
+        other = self.theory + 'Other'
+        cases = {self.theory: rows, other: [other]}
+        discovery = [*rows, other]
+        weights = {self.theory: 3600, rows[0]: 3400, rows[1]: 200, other: 3200,
+                   self.theory + '(x: 999)': 1000000}
+        units = D.SELECT.selectors(discovery, cases, weights)
+        shards = D.SELECT.partition(units, cases, weights, 2)
+        D.SELECT.validate(shards, cases, discovery)
+        self.assertEqual([3400, 3400], [shard['estimatedSeconds'] for shard in shards])
+        self.assertCountEqual(discovery, [name for shard in shards for name in D.SELECT.case_names(shard, cases)])
+        self.assertEqual(1, len(next(shard for shard in shards if rows[0] in D.SELECT.case_names(shard, cases))['selectors']))
+        fallback = D.SELECT.partition(units, cases, {self.theory: 3600, other: 3200}, 2)
+        self.assertEqual([3200, 3600], sorted(shard['estimatedSeconds'] for shard in fallback))
+
+    def test_case_duration_cannot_make_an_ineligible_method_split(self):
+        row = self.theory + '(x: 1)'
+        self.assertEqual([dict(kind='method', method=self.theory)],
+                         D.SELECT.selectors([row], {self.theory: [row]}, {row: 1000000}))
+
     def test_partial_rows_never_overlap_a_whole_method_or_repeat_in_another_shard(self):
         plan = D.make_plan(self.text, self.inventory, self.scope, {self.theory: 2400}, 6)
         row_shard = next(s for s in plan['shards'] if any(u['kind'] == 'case' for u in s['selectors']))
