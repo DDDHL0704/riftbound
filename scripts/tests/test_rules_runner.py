@@ -20,6 +20,16 @@ PASSING_TRX = '''<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamT
 </TestRun>'''
 
 class RuleRunnerTests(unittest.TestCase):
+    def test_duration_history_keeps_method_totals_and_optional_exact_case_costs(self):
+        method = runner.PREFIX + 'Rules.Theory'
+        case = method + '(a: 1)'
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'timings.json'
+            path.write_text(json.dumps({'weights': {method: 3600}}))
+            self.assertEqual({method: 3600}, runner.load_weights(path))
+            path.write_text(json.dumps({'weights': {method: 3600}, 'caseWeights': {case: 3400}}))
+            self.assertEqual({method: 3600, case: 3400}, runner.load_weights(path))
+
     def run_with_wrapper(self, github_actions='', extra_args=(), dotnet_root='/inherited/sdk'):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

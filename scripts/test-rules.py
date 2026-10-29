@@ -91,7 +91,8 @@ def load_weights(path):
     weights = defaultdict(float)
     if path:
         if path.suffix == '.json':
-            return json.loads(path.read_text())['weights']
+            data = json.loads(path.read_text())
+            return data['weights'] | data.get('caseWeights', {})
         rows, _ = report(path)
         for row in rows:
             weights[method(row.get('testName'))] += elapsed(row.get('duration', '00:00:00'))
