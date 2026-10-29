@@ -34,6 +34,8 @@ public sealed partial class CoreRuleEngine
                 .Select(source => ("spell", source.StaticSpellCostReductionMana, source.StaticSpellCostReductionMinimumManaCost)));
             reductions.AddRange(EmpoweredSpellCostReducers(state, playerId, behavior)
                 .Select(source => ("empoweredSpell", source.Mana, source.MinimumMana)));
+            reductions.AddRange(FlowSpellCostReducers(state, playerId, behavior)
+                .Select(source => ("spell", source.StaticFlowSpellCostReductionMana, source.StaticFlowSpellCostReductionMinimumManaCost)));
             reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId).Sum(effect => effect.Mana), 0));
         }
         reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));

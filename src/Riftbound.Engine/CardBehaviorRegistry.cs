@@ -293,7 +293,12 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    int CostReductionPower = 0,
+    string CostReductionPowerTrait = "",
+    int CostReductionBattlefieldUnitCount = 0,
+    int StaticFlowSpellCostReductionMana = 0,
+    int StaticFlowSpellCostReductionMinimumManaCost = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -404,6 +409,9 @@ public static class CardCostReductionConditionKinds
     public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
     public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
+    public const string ControlledFieldEquipmentCount = "CONTROLLED_FIELD_EQUIPMENT_COUNT";
+    public const string SameNameInControllerGraveyard = "SAME_NAME_IN_CONTROLLER_GRAVEYARD";
+    public const string ControlledBattlefieldUnitCount = "CONTROLLED_BATTLEFIELD_UNIT_COUNT";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -456,6 +464,20 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·064", "广场守卫", 10, "UNIT_PLAY:VEN·064", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: CardObjectTags.Spellshield,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControlledFieldEquipmentCount, CostReductionMana: 1),
+        new("VEN·096", "影刃潜伏者", 5, "UNIT_PLAY:VEN·096", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            CostReductionConditionKind: CardCostReductionConditionKinds.SameNameInControllerGraveyard, CostReductionMana: 2),
+        new("VEN·098", "观星者", 5, "UNIT_PLAY:VEN·098", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            StaticFlowSpellCostReductionMana: 2, StaticFlowSpellCostReductionMinimumManaCost: 1),
+        new("VEN·119", "律法守护者", 5, "UNIT_PLAY:VEN·119", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControlledBattlefieldUnitCount,
+            CostReductionMana: 2, CostReductionPower: 1, CostReductionPowerTrait: RuneTrait.Yellow,
+            CostReductionBattlefieldUnitCount: 2),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

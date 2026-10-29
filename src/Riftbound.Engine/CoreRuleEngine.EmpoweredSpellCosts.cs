@@ -61,7 +61,8 @@ public sealed partial class CoreRuleEngine
     {
         var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower);
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
-            .SelectMany(a => ReduceSpellPower(a.GenericPower, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction), reduction))
+            .SelectMany(a => ReduceSpellPower(a.GenericPower,
+                ConditionalPlayPowerCost(state, player, behavior, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction)), reduction))
             .DistinctBy(a => (a.ChoiceId, a.GenericPower, PrintedPowerCostRules.ChoiceId(a.TypedPower))).ToArray();
     }
 
