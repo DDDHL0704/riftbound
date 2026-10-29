@@ -250,3 +250,94 @@ public sealed partial class CoreRuleEngine
         var spec = UnitEventSpec(context.CardNo)!;
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
+        if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
+            var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
+            return NoopStackResolutionResult(state) with { PlayerScores = scores,
+                WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,
+                Events = [new("SCORE_GAINED", "触发技能获得分数", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["amount"] = spec.Amount, ["score"] = scores[item.ControllerId] })] };
+        }
+        if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {
+            CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var reducer);
+            var marker = BuildSourceNextSpellCostReductionEffectId(reducer, item.ControllerId, item.SourceObjectId);
+            return NoopStackResolutionResult(state) with {
+                UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, marker),
+                Events = [new("NEXT_CARD_COST_REDUCTION_GRANTED", "本回合下一张卡牌减费", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["manaReduction"] = reducer.SourceNextSpellCostReductionMana,
+                    ["powerReduction"] = reducer.SourceNextSpellCostReductionGenericPower })] };
+        }
+        if (spec.Effect == "EMPOWER_SELF") return ApplyEmpowerAction(state, new(item.SourceObjectId, context.SourceGeneration), item.ControllerId);
+        var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
+            ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "MIGHT_FRIENDLY" && item.TriggerCost is not null && item.TargetObjectIds.SingleOrDefault() is { } buffed
+            && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
+            var behavior = new CardBehaviorDefinition(context.CardNo, "弃牌触发战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);
+            cards[buffed] = ApplyPowerModifier(state, cards[buffed], behavior, item, buffed, spec.Amount, out var power);
+            events.Add(power);
+        }
+        if (spec.Effect == "BANISH_ENTERED_EQUIPMENT" && item.TriggerCost?.SourceWasBanished == true
+            && context.Other is { } entered && cards.TryGetValue(entered.Binding.ObjectId, out var equipment)
+            && equipment.ObjectGeneration == entered.Binding.Generation && equipment.Tags.Contains(CardObjectTags.EquipmentCard)
+            && TryRemoveFieldTargetCore(zones, cards, equipment.ObjectId, true, out var banished))
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
+                Events = events.Concat(BuildFieldRemovalEvents("拉文布鲁姆级长", item, equipment.ObjectId, banished)).ToArray() };
+        if (spec.Effect == "MOVE_ENEMIES_TO_BASE") {
+            var legal = UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal);
+            var selected = item.TargetObjectIds.Where(id => legal.Contains(id) && StackObjectRules.ReferencesCurrentObject(state, item, id)).ToArray();
+            var locations = state.ObjectLocations.ToDictionary(); var pools = state.RunePools.ToDictionary();
+            foreach (var group in selected.GroupBy(id => FindFieldObjectLocation(zones, id)!.Value.PlayerId))
+                MoveFieldUnitsToChosenLocation(state, zones, cards, locations, pools, item, group.ToArray(), "BASE:" + group.Key, events);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
+                ObjectLocations = ReconcileObjectLocations(locations, zones), Events = events };
+        }
+        if (spec.Effect == "DESTROY_CHEAPER_EQUIPMENT" && item.TargetObjectIds.SingleOrDefault() is { } gear
+            && StackObjectRules.ReferencesCurrentObject(state, item, gear) && UnitEventTargets(state, item).Contains(gear)) {
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),
+                state.RunePools, objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { gear });
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = removal.RunePools,
+                TriggerQueue = removal.TriggerQueue, Events = events.Concat(removal.Events).ToArray(), DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
+        if (spec.Effect == "ASSAULT_SELF" && item.TriggerCost is not null && cards.TryGetValue(item.SourceObjectId, out var assaulter)
+            && assaulter.ObjectGeneration == context.SourceGeneration && IsObjectOnField(zones, assaulter.ObjectId)) {
+            var effect = TemporaryCombatKeywordRules.AppliedEffectId(assaulter, $"{TemporaryCombatKeywordRules.Prefix}{CardCombatKeywordNames.Assault}{spec.Amount}");
+            cards[assaulter.ObjectId] = assaulter with { UntilEndOfTurnEffects = [..assaulter.UntilEndOfTurnEffects, effect] };
+            events.Add(new("UNIT_STATUS_APPLIED", "单位在本回合内获得强攻", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = assaulter.ObjectId, ["statusEffectId"] = effect }));
+        }
+        if (spec.Effect == "MATCH_GREATER_POWER" && item.TargetObjectIds.SingleOrDefault() is { } greater
+            && StackObjectRules.ReferencesCurrentObject(state, item, greater) && UnitEventTargets(state, item).Contains(greater)
+            && cards.TryGetValue(item.SourceObjectId, out var matching) && matching.ObjectGeneration == context.SourceGeneration
+            && IsObjectOnField(zones, matching.ObjectId)) {
+            var delta = ResolveCurrentFieldUnitPower(state, cards[greater]) - UnitEventSourcePower(state, item) + 1;
+            var behavior = new CardBehaviorDefinition(context.CardNo, "追平战力后获得+1", 0, item.EffectKind, 0, 1, PowerModifierAmount: delta);
+            cards[matching.ObjectId] = ApplyPowerModifier(state, matching, behavior, item, matching.ObjectId, delta, out var power);
+            events.Add(power);
+        }
+        if (spec.Effect == "DRAW") {
+            // CN383.2.a.1: the undamaged clause is checked when the battle ends.
+            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+                RngCursor = draw.RngCursor, WinnerPlayerId = draw.WinnerPlayerId, Events = events,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
+        if (spec.Effect == "MIGHT_SELF" && cards.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == context.SourceGeneration && IsObjectOnField(zones, source.ObjectId)) {
+            cards[source.ObjectId] = ApplyDirectUntilEndPowerModifier(source, source.ObjectId, item.SourceObjectId, context.CardNo,
+                item.EffectKind, "UNIT_EVENT", spec.Amount, source.Power + spec.Amount);
+            events.Add(new("UNIT_POWER_CHANGED", "单位在本回合内获得战力", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = source.ObjectId, ["powerDelta"] = spec.Amount }));
+        }
+        if (spec.Effect == "READY_ANOTHER_FRIENDLY" && item.TargetObjectIds.SingleOrDefault() is { } target
+            && StackObjectRules.ReferencesCurrentObject(state, item, target) && UnitEventTargets(state, item).Contains(target)) {
+            var card = cards[target]; var behavior = new CardBehaviorDefinition(context.CardNo, "进攻触发技能", 0, item.EffectKind, 0, 1, ReadiesTarget: true);
+            cards[target] = ApplyReadyState(card, behavior, item, target, out var ready, state.PlayerZones, cards);
+            if (ready is not null) events.Add(ready);
+        }
+        return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+    }
+}

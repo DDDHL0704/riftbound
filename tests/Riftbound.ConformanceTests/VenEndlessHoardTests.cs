@@ -87,6 +87,44 @@ public sealed class VenEndlessHoardTests
     }
 
     [Fact]
+    public async Task ReturningHoardRemovesBothGraveyardPermissionAndTheSkippedDrawPhase()
+    {
+        var initial = Put(Active(), "RETURN", "SFD·135/221", "P1", "HAND");
+        var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["UNIT"]));
+        await game.Top(); Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.Contains("RETURN", game.State.PlayerZones["P1"].Graveyard);
+        await Reject(game.State, "P1", new PlayCardCommand("GRAVE", "OGN·219/298", [], OptionalCosts: ["NORMAL_GRAVEYARD_PLAY"]));
+        await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        Assert.Contains("P1-DRAW-1", game.State.PlayerZones["P1"].Hand); Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "DRAW_PHASE_SKIPPED");
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ACounteredSpellFromTheGraveyardIsBanishedWithoutItsEffect()
+    {
+        var initial = Put(Put(Active(), "PLAY", "VEN·049", "P1", "GRAVEYARD"), "COUNTER", "OGN·045/298", "P2", "HAND");
+        var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("PLAY", "VEN·049", [], OptionalCosts: ["NORMAL_GRAVEYARD_PLAY"]));
+        var id = Assert.Single(game.State.StackItems).StackItemId; await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·045/298", [id])); await game.Top();
+        Assert.Contains("PLAY", game.State.PlayerZones["P1"].Banished); Assert.Contains("COUNTER", game.State.PlayerZones["P2"].Graveyard);
+        Assert.Empty(game.State.PlayerZones["P1"].Hand); Assert.Equal(3, game.State.PlayerZones["P1"].MainDeck.Count);
+        var countered = Assert.Single(game.Events(), e => e.Event.Kind == "STACK_ITEM_COUNTERED");
+        Assert.Equal("BANISHED", countered.Event.Payload["destinationZone"]); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AnIllegalStandbyEntryIsReplacedBeforeItCanEnterTheGraveyard()
+    {
+        var game = new Driver(Put(Active(), "STANDBY", "OGN·057/298", "P1", "HAND"));
+        await game.Act("P1", new HideCardCommand("STANDBY", "OGN·057/298", "BATTLEFIELD:BF", ["STANDBY_A"]));
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+        Assert.Contains("STANDBY", game.State.PlayerZones["P1"].Banished);
+        Assert.DoesNotContain("STANDBY", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("BANISHED", game.State.ObjectLocations["STANDBY"].Zone); await game.Replay();
+    }
+
+    [Fact]
     public async Task ReplacedDiscardStillPaysTheCostWithoutDiscardObserversOrDiscardHistory()
     {
         var initial = Put(HandDiscardObserverTests.Position(), "HOARD", "VEN·022", "P1", "BASE");
