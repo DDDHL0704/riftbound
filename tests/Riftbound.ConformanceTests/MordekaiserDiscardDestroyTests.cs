@@ -346,6 +346,9 @@ public sealed class MordekaiserDiscardDestroyTests
     [InlineData("RAD·143/167", No)] [InlineData("RAD·143/167", "RAD·137a/167")]
     [InlineData("RAD·170*/167", No)] [InlineData("RAD·170*/167", "RAD·137a/167")]
     [InlineData("RAD·170/167", No)] [InlineData("RAD·170/167", "RAD·137a/167")]
+    [InlineData("RAD·143/167", "RAD·020/167")] [InlineData("RAD·143/167", "RAD·020a/167")]
+    [InlineData("RAD·170*/167", "RAD·020/167")] [InlineData("RAD·170*/167", "RAD·020a/167")]
+    [InlineData("RAD·170/167", "RAD·020/167")] [InlineData("RAD·170/167", "RAD·020a/167")]
     public async Task TheRealMordekaiserFamilyCanSubmitItsChampionAndSignatureSpell(string legendNo, string heroNo)
     {
         const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
