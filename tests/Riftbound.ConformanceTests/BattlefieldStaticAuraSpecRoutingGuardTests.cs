@@ -13,7 +13,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -33,7 +33,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void BattlefieldPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -61,7 +61,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -93,7 +93,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -120,7 +120,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -149,7 +149,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -169,7 +169,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void SameBattlefieldOtherFriendlyPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -197,7 +197,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -228,7 +228,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -248,7 +248,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void PublicFieldFriendlyPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -279,7 +279,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -312,7 +312,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -332,7 +332,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void SourceObjectPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -360,7 +360,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -383,7 +383,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -405,7 +405,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void SourceBattleStatePowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -436,7 +436,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
@@ -458,7 +458,7 @@ public sealed class BattlefieldStaticAuraSpecRoutingGuardTests
     public void SourceParticipantCountPowerStaticAuraRecoveryRoutesThroughBehaviorSpecScope()
     {
         var root = RepositoryRoot();
-        var matchRecoverySource = File.ReadAllText(Path.Combine(
+        var matchRecoverySource = SourceFileParts.ReadAllText(Path.Combine(
             root,
             "src",
             "Riftbound.Engine",
