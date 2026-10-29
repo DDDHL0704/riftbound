@@ -2968,6 +2968,23 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var battlefieldCostKind = segment switch {
+                var costText when costText.Contains("此处的物体选为目标", StringComparison.Ordinal)
+                    && costText.Contains("无视{{法盾}}", StringComparison.Ordinal) => StaticAbilityKinds.BattlefieldIgnoreSpellshield,
+                var costText when costText.Contains("此处的法术对决", StringComparison.Ordinal)
+                    && costText.Contains("拥有{{反应}}的卡牌费用增加{{A}}", StringComparison.Ordinal) => StaticAbilityKinds.BattlefieldReactionPowerIncrease,
+                var costText when costText.Contains("此处同为友方的一名或多名单位选为目标", StringComparison.Ordinal)
+                    && costText.Contains("费用减少{{A}}", StringComparison.Ordinal) => StaticAbilityKinds.BattlefieldFriendlyTargetSpellPowerReduction,
+                var costText when costText.Contains("你在此处的单位的{{强化}}费用减少{{1}}或{{A}}", StringComparison.Ordinal)
+                    => StaticAbilityKinds.BattlefieldEmpowerCostReduction,
+                _ => null
+            };
+            if (battlefieldCostKind is not null) {
+                staticSpecs.Add(new StaticAbilitySpec(battlefieldCostKind, segment,
+                    BehaviorImplementationStatuses.Unimplemented, "Battlefield cost modifier routed through shared payment rules.", 1));
+                continue;
+            }
+
             var battlefieldEchoCostReductionMatch = Regex.Match(
                 segment,
                 @"友方\{\{回响\}\}的费用减少\{\{(\d+)\}\}",

@@ -18548,7 +18548,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
-            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
+            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power, paymentTargets);
         // A repeat probe validates a target declaration, not the final combined
         // price. Both reduction and wallet choices belong to the complete plan.
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
@@ -18566,7 +18566,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalGenericPowerCost = selectedPower.GenericPower;
         var totalPowerCostByTrait = selectedPower.TypedPower;
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
-        var optionalCostPowerReduction = extraGenericPower + extraPowerCostByTrait.Values.Sum()
+        var battlefieldReactionPowerIncrease = BattlefieldReactionPowerIncrease(state, intent.PlayerId, behavior);
+        var battlefieldSpellPowerReduction = Math.Min(selectedPower.Reduction, BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets));
+        var optionalCostPowerReduction = extraGenericPower + battlefieldReactionPowerIncrease + extraPowerCostByTrait.Values.Sum()
             + PrintedPowerCostRules.ForPlay(behavior).Amount + echoPrintedCosts.Sum(card => PrintedPowerCostRules.ForCard(card).Amount)
             - totalPowerCost - selectedPower.Reduction;
         var spellPowerChoices = SpellPowerChoices(powerOptions);
@@ -18607,9 +18609,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (manaCost.EmpoweredSpellReduction > 0 || selectedPower.Reduction > 0)
         {
             paymentAudit["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
-            paymentAudit["empoweredSpellCostReductionPower"] = selectedPower.Reduction;
+            paymentAudit["empoweredSpellCostReductionPower"] = selectedPower.Reduction - battlefieldSpellPowerReduction;
             if (spellPowerReductionChoices.Length > 0) paymentAudit["spellPowerReductionChoice"] = spellPowerReductionChoices[0];
         }
+        if (battlefieldReactionPowerIncrease > 0) paymentAudit["battlefieldReactionPowerIncrease"] = battlefieldReactionPowerIncrease;
+        if (battlefieldSpellPowerReduction > 0) paymentAudit["battlefieldFriendlyTargetSpellPowerReduction"] = battlefieldSpellPowerReduction;
         if (powerSpend?.Sources is { } selectedPowerSources)
             paymentAudit["selectedPowerSources"] = selectedPowerSources;
         var paymentPlan = new PaymentCostRules.PaymentPlan(
@@ -18680,7 +18684,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             originalExtraManaCost) { RepeatExecutions = repeatExecutions,
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
-                EmpoweredSpellCostReductionPower = selectedPower.Reduction,
+                EmpoweredSpellCostReductionPower = selectedPower.Reduction - battlefieldSpellPowerReduction,
+                BattlefieldReactionPowerIncrease = battlefieldReactionPowerIncrease, BattlefieldSpellPowerReduction = battlefieldSpellPowerReduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
                 PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
@@ -21843,10 +21848,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out IReadOnlyList<string> spellshieldTaxTargetObjectIds)
     {
         spellshieldTaxTargetObjectIds = [];
-        if (targetObjectIds.Count == 0)
-        {
-            return 0;
-        }
+        if (targetObjectIds.Count == 0 || TargetsIgnoreSpellshield(state, targetObjectIds)) return 0;
 
         var taxedTargetObjectIds = new List<string>();
         var taxPower = 0;
@@ -21876,7 +21878,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         state = RecomputeRuleDerivedKeywords(state);
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
-            || card.IsFaceDown) return 0;
+            || card.IsFaceDown || TargetsIgnoreSpellshield(state, [objectId])) return 0;
         return CardResourceKeywordRules.SpellshieldTaxFromTags(NonRuleDerivedTags(card))
             + CardResourceKeywordRules.SpellshieldTaxFromTags(card.RuleDerivedTags ?? [])
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
@@ -34638,6 +34640,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
         public int EmpoweredSpellCostReductionMana { get; init; }
         public int EmpoweredSpellCostReductionPower { get; init; }
+        public int BattlefieldReactionPowerIncrease { get; init; }
+        public int BattlefieldSpellPowerReduction { get; init; }
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
         public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
         public string? RenektonResourceAction { get; init; }

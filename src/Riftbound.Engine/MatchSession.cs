@@ -13254,9 +13254,9 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
-        var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
+        var ward = CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
         return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
-            && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
+            && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "", targets: targetObjectIds);
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
@@ -15064,7 +15064,7 @@ internal static class ActionPromptBuilder
     }
 
     private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
-        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null)
+        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null, IReadOnlyList<string>? targets = null)
     {
         pool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
@@ -15073,7 +15073,7 @@ internal static class ActionPromptBuilder
             + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
         if (extraGeneric > int.MaxValue) return false;
         return CoreRuleEngine.CanReachPlayPowerCost(state, playerId, behavior,
-            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped);
+            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped, targets: targets);
     }
 
     private static bool CanPayHasteReadyPowerCost(
