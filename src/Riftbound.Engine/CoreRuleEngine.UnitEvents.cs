@@ -21,7 +21,8 @@ public sealed partial class CoreRuleEngine
     private static UnitEventObservation[] CaptureUnitEvents(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<string> sources, string timing)
         => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
-                && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(zones, id))
+                && !card.IsFaceDown && (IsFaceUpNonStandbyUnit(card) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+                && IsObjectOnField(zones, id))
             .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
                 .Where(i => UnitEventSpec(i.CardNo) is { } spec
                     && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND")
@@ -35,6 +36,11 @@ public sealed partial class CoreRuleEngine
         => observations.Count == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [UnitEventCaptureKey] = ((ev.Payload.GetValueOrDefault(UnitEventCaptureKey) as UnitEventObservation[]) ?? [])
                 .Concat(observations).ToArray() } };
+
+    private static GameEvent CapturePhaseCardEvents(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, string player, string timing)
+        => WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
+            EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId), timing));
 
     private static GameEvent CaptureOtherUnitPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
@@ -224,6 +230,14 @@ public sealed partial class CoreRuleEngine
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit event.");
         var spec = UnitEventSpec(context.CardNo)!;
+        if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
+            var scores = NormalizeScoresForSeats(state).ToDictionary(); scores[item.ControllerId] += spec.Amount;
+            return NoopStackResolutionResult(state) with { PlayerScores = scores,
+                WinnerPlayerId = scores[item.ControllerId] >= EffectiveWinningScore(state) ? item.ControllerId : null,
+                Events = [new("SCORE_GAINED", "触发技能获得分数", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                    ["amount"] = spec.Amount, ["score"] = scores[item.ControllerId] })] };
+        }
         if (spec.Effect == "NEXT_CARD_COST_REDUCTION") {
             CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var reducer);
             var marker = BuildSourceNextSpellCostReductionEffectId(reducer, item.ControllerId, item.SourceObjectId);

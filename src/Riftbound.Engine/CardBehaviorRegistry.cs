@@ -4,7 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
-    bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0);
+    bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
+    int LeadingDestroyOtherFriendlyPermanents = 0);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -464,6 +465,9 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·067", "瓶中星海", 10, "EQUIPMENT_PLAY:VEN·067", 0, 0,
+            PlaysSourceToBaseAsEquipment: true,
+            UnitEventAbility: new("MAIN", "SCORE", 1, LeadingDestroyOtherFriendlyPermanents: 3)),
         new("VEN·044", "星界灵鹭", 7, "UNIT_PLAY:VEN·044", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "鸟类",
             UnitEventAbility: new("FIRST_CARD_PLAYED", "NEXT_CARD_COST_REDUCTION"),

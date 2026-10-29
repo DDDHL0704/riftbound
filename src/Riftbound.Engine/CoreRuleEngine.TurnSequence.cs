@@ -97,7 +97,8 @@ public sealed partial class CoreRuleEngine
                 case "MAIN":
                     var pools = ClearRunePools(state).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
                     events.Add(new("RUNE_POOL_CLEARED", "所有玩家的符文池已清空", new Dictionary<string, object?> { ["playerIds"] = state.Seats.Keys.Order().ToArray() }));
-                    events.Add(new("MAIN_PHASE_BEGAN", "进入主阶段", new Dictionary<string, object?> { ["turnPlayerId"] = player }));
+                    events.Add(CapturePhaseCardEvents(new("MAIN_PHASE_BEGAN", "进入主阶段",
+                        new Dictionary<string, object?> { ["turnPlayerId"] = player }), zones, cards, player, "MAIN"));
                     var due = state.DelayedResourceGains.Where(d => d.ControllerId == player && d.DueTurn <= state.TurnNumber).ToArray();
                     foreach (var delayed in due)
                     {
