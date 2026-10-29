@@ -1466,6 +1466,14 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        var attackMightDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*你可以选择消耗(?<experience>[0-9一两二三四五六七八九十]+)经验[，,]\s*以此对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackMightDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackPayExperienceSourceMightDamage, TriggerTimings.UnitAttack, segment,
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, Optional: true,
+                ExperienceCost: ParseChineseNumber(attackMightDamage.Groups["experience"].Value));
+
         var attackAreaDamage = Regex.Match(segment,
             @"^当我进攻时[，,]\s*(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚[，,]\s*则)?\s*对此处的所有敌方单位各造成(?<damage>[0-9一两二三四五六七八九十]+)点伤害[。.]?$",
             RegexOptions.CultureInvariant);
