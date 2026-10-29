@@ -167,7 +167,20 @@ public sealed class CopiedDuelInsightOpeningTests(ITestOutputHelper output)
             var fields = JsonSerializer.SerializeToNode(command, command.GetType(), Json)!.AsObject();
             fields["promptId"] = session.PromptFor(actor).PromptId; fields["snapshotTick"] = State.Tick;
             var raw = JsonSerializer.SerializeToElement(fields, Json); var intent = "ordinary-duel-" + entries.Count;
-            var expected = afterCold ? await engine.ResolveAsync(State, new(intent, actor, command.CmdType), command, default) : null;
+            ResolutionResult? expected = null;
+            if (afterCold)
+            {
+                if (command is SubmitDeckCommand or ReadyCommand)
+                {
+                    // Lobby actions are handled by MatchSession, not the in-game rule engine.
+                    var baseline = new MatchSession(State, engine, NoopMatchJournal.Instance, NoopMatchPlayerStore.Instance, options);
+                    expected = command is SubmitDeckCommand baselineDeck
+                        ? await baseline.SubmitDeckAsync(actor, intent, baselineDeck, raw, default)
+                        : await baseline.ReadyAsync(actor, intent, raw, default);
+                }
+                else
+                    expected = await engine.ResolveAsync(State, new(intent, actor, command.CmdType), command, default);
+            }
             var result = command switch { SubmitDeckCommand submitted => await session.SubmitDeckAsync(actor, intent, submitted, raw, default),
                 ReadyCommand => await session.ReadyAsync(actor, intent, raw, default), _ => await session.SubmitAsync(actor, intent, command, raw, default) };
             Assert.True(result.Accepted, result.ErrorMessage);
