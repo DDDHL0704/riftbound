@@ -456,6 +456,14 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·046", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
+        new("VEN·046a", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
+        new("VEN·065", "斯维因 · 远谋卓识", 6, "VEN_SWAIN_PLAY_TYPES_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "恶魔|预知"),
+        new("VEN·173", "斯维因 · 远谋卓识", 6, "VEN_SWAIN_PLAY_TYPES_CONQUEST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "恶魔|预知"),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
