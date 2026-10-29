@@ -103,7 +103,7 @@ public sealed partial class CoreRuleEngine
         if (c.BattlefieldObjectId is { } field)
             foreach (var target in GetBattlefieldUnitObjectIdsAtBattlefield(zones, cards, ReconcileObjectLocations(state.ObjectLocations, zones), field))
             {
-                var damage = ApplyDamageToCardObject(cards, c.ControllerId, target, spec.DamageAmount!.Value);
+                var damage = ApplyDamageToCardObject(state, cards, c.ControllerId, target, spec.DamageAmount!.Value);
                 var payload = BuildDamagePayload(c.Source.ObjectId, target, damage); payload["battlefieldObjectId"] = field;
                 events.Add(new("DAMAGE_APPLIED", "绝念范围伤害", payload));
             }

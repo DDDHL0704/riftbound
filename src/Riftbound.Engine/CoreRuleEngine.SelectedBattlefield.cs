@@ -74,7 +74,7 @@ public sealed partial class CoreRuleEngine
                         : spec.PrimaryEnemyTargetIndex is { } primaryIndex && id != item.TargetObjectIds[primaryIndex]
                             ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, behavior.OtherEnemyBattlefieldUnitsDamageAmount)
                             : ResolveDamageAmount(instructionState, instructionItem, behavior, id);
-                    var damage = ApplyDamageToCardObject(cards, item.ControllerId, id,
+                    var damage = ApplyDamageToCardObject(current, cards, item.ControllerId, id,
                         amount, damageTriggeredDestroyTargets,
                         preventDamage, PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new("DAMAGE_APPLIED", $"{behavior.DisplayName}造成 {damage.DamageAmount} 点伤害",

@@ -69,7 +69,7 @@ public sealed partial class CoreRuleEngine
             if (!legal.Contains(id) || item.TargetGenerations?.GetValueOrDefault(id, -1) != cards[id].ObjectGeneration
                 || !captured.TryGetValue(id, out var prior) || LocationDamageKey(prior) != LocationDamageKey(state.ObjectLocations[id])) continue;
             var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, id, behavior.PlayDamagePerLocation);
-            var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, amount, destroyed,
+            var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, amount, destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
             events.Add(new("DAMAGE_APPLIED", "打出技能对每个位置的目标造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));
         }

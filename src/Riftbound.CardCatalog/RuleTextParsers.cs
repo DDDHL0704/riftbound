@@ -1517,6 +1517,13 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var selfMightEmpower = Regex.Match(segment,
+            @"^当我的战力变为(?<threshold>[1-9][0-9]*)或以上时，强化我。?(?:（[^）]*）)?$",
+            RegexOptions.CultureInvariant);
+        if (selfMightEmpower.Success && int.TryParse(selfMightEmpower.Groups["threshold"].Value, out var empowerThreshold))
+            return new TriggerSpec(TriggerKinds.SourceMightReachedEmpower, TriggerTimings.SourceMightReached,
+                segment, TargetScope: TriggerTargetScopes.SourceUnit, RequiredPowerThreshold: empowerThreshold);
+
         var legendBecameMightyRune = Regex.Match(segment,
             @"当你的一名单位变为\{\{强力\}\}时，你可以选择让我变为休眠状态，以此召出一枚休眠的符文(?:。?（战力达到([0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",
             RegexOptions.CultureInvariant);
@@ -1578,6 +1585,13 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitEmpoweredAttackDestroyWeakerEnemyHere, TriggerTimings.UnitAttack, segment,
                 "When an empowered unit attacks, confirm a weaker local enemy before responses and recheck the target on resolution.",
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, RequiresSourceEmpowered: true);
+        var attackMightDamage = Regex.Match(segment,
+            @"^当我进攻时[，,]\s*你可以选择消耗(?<experience>[0-9一两二三四五六七八九十]+)经验[，,]\s*以此对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (attackMightDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackPayExperienceSourceMightDamage, TriggerTimings.UnitAttack, segment,
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, Optional: true,
+                ExperienceCost: ParseChineseNumber(attackMightDamage.Groups["experience"].Value));
 
         var attackAreaDamage = Regex.Match(segment,
             @"^当我进攻时[，,]\s*(?:如果你控制的符文数量不超过(?<runes>[0-9一两二三四五六七八九十]+)枚[，,]\s*则)?\s*对此处的所有敌方单位各造成(?<damage>[0-9一两二三四五六七八九十]+)点伤害[。.]?$",
@@ -2623,6 +2637,10 @@ public static class ActivatedAbilityParser
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
                 if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
+                if (TryParseManaSelfMight(cost, effect, out var selfMight))
+                    return selfMight;
+                if (TryParseRecycleGraveyardSelfMight(cost, effect, out var recycledMight))
+                    return recycledMight;
                 if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
                 {
                     return typedResourceSkill;
@@ -2657,6 +2675,13 @@ public static class ActivatedAbilityParser
         var currentActivatedAbility = string.Empty;
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.StartsWith("当", StringComparison.Ordinal) || segment.StartsWith("每当", StringComparison.Ordinal)
+                || segment.StartsWith("{{已强化>}}", StringComparison.Ordinal))
+            {
+                if (!string.IsNullOrWhiteSpace(currentActivatedAbility)) segments.Add(currentActivatedAbility);
+                currentActivatedAbility = string.Empty;
+                continue;
+            }
             if (segment.Contains("：", StringComparison.Ordinal)
                 || segment.Contains(":", StringComparison.Ordinal))
             {
@@ -2693,6 +2718,33 @@ public static class ActivatedAbilityParser
             BehaviorImplementationStatuses.Implemented, "Consume the source's boon as an ordinary activated ability cost.",
             Kind: ActivatedAbilityKinds.ConsumeSourceBoonGrantSelfMight, ExhaustsSourceAsCost: false,
             ManaCost: 0, PowerCost: 0, RequiredTargetCount: 0, PowerModifierAmount: amount);
+        return true;
+    }
+
+    private static bool TryParseManaSelfMight(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var mana = Regex.Match(cost, @"^支付\{\{(?<mana>[0-9]+)\}\}$", RegexOptions.CultureInvariant);
+        var might = Regex.Match(effect, @"^给予我在本回合内\{\{S\}\}\+(?<amount>[1-9][0-9]*)。?$", RegexOptions.CultureInvariant);
+        if (!mana.Success || !might.Success || !int.TryParse(mana.Groups["mana"].Value, out var manaCost)
+            || !int.TryParse(might.Groups["amount"].Value, out var amount)) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect), BehaviorImplementationStatuses.Unimplemented,
+            "Pay mana to grant the source Might after both players can respond.", Kind: ActivatedAbilityKinds.ManaGrantSelfMight,
+            ManaCost: manaCost, PowerCost: 0, RequiredTargetCount: 0, PowerModifierAmount: amount);
+        return true;
+    }
+
+    private static bool TryParseRecycleGraveyardSelfMight(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var match = Regex.Match(effect, @"^(?:给予|让)我(?:在)?本回合内\{\{S\}\}\+(?<amount>\d+)(?:（可重复执行）)?[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (!Regex.IsMatch(cost, @"^从(?:你的)?废牌堆回收一张卡牌$", RegexOptions.CultureInvariant)
+            || !match.Success || !int.TryParse(match.Groups["amount"].Value, out var amount) || amount <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect), BehaviorImplementationStatuses.Unimplemented,
+            "Recycle a graveyard card as the activation cost; grant the source Might after responses.",
+            Kind: ActivatedAbilityKinds.RecycleGraveyardCardGrantSelfMight, ManaCost: 0, PowerCost: 0,
+            RequiredTargetCount: 0, PowerModifierAmount: amount);
         return true;
     }
 
@@ -3014,6 +3066,19 @@ public static class StaticAbilityParser
                     segment, BehaviorImplementationStatuses.Unimplemented,
                     "Enemy spell and skill target protection applies while the source is outside combat.",
                     RequiresSourceOutsideBattle: true));
+                continue;
+            }
+
+            var selfDamageImmunity = Regex.Match(segment,
+                @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:我获得\{\{S\}\}\+\d+[，,]且)?(?<outside>除非我处于战斗中，否则)?我无法受到伤害。?$",
+                RegexOptions.CultureInvariant);
+            if (selfDamageImmunity.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitDamageImmunity,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Damage immunity follows current empowerment and combat presence.",
+                    RequiresSourceOutsideBattle: selfDamageImmunity.Groups["outside"].Success ? true : null,
+                    RequiresSourceEmpowered: selfDamageImmunity.Groups["empowered"].Success ? true : null));
                 continue;
             }
 
