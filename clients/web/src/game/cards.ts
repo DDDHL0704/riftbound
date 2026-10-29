@@ -63,6 +63,43 @@ export type EffectToken =
   | { kind: "exhaust" }
   | { kind: "keyword"; text: string };
 
+// Keyword explanations come from the cards themselves: the official text prints reminder text in
+// parentheses after many keywords, e.g. "{{瞬息}}（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）".
+// The most common reminder per keyword wins; keywords the catalog never explains get none.
+let glossary: Map<string, string> | null = null;
+let glossaryFor: Record<string, CardInfo> | null = null;
+
+function buildGlossary() {
+  const seen = new Map<string, Map<string, number>>();
+  const add = (kw: string, text: string, weight: number) => {
+    const m = seen.get(kw) ?? new Map<string, number>();
+    m.set(text, (m.get(text) ?? 0) + weight);
+    seen.set(kw, m);
+  };
+  for (const card of Object.values(cards)) {
+    const effect = card.effect ?? "";
+    for (const m of effect.matchAll(/\{\{([^}]+)\}\}\s*（([^）]+)）/g)) add(m[1].replace(/>$/, ""), m[2], 1);
+    // "{{绝念}}—effect.（reminder）": only trusted when many cards agree (see below).
+    for (const m of effect.matchAll(/\{\{(绝念|鼓舞)>?\}\}—[^（{]*（([^）]+)）/g)) add(m[1], m[2], 0.01);
+  }
+  const out = new Map<string, string>();
+  for (const [kw, texts] of seen) {
+    const [text, score] = [...texts].sort((a, b) => b[1] - a[1])[0];
+    if (score >= 0.03) out.set(kw, text);
+  }
+  return out;
+}
+
+/** The catalog's own reminder text for a keyword, if any card prints one. */
+export function keywordReminder(keyword: string): string | undefined {
+  if (glossaryFor !== cards) {
+    glossary = buildGlossary();
+    glossaryFor = cards;
+  }
+  // Colour-suffixed variants ("装配红色", "回响2红色") share the plain variant's reminder.
+  return glossary!.get(keyword) ?? glossary!.get(keyword.replace(/(红色|蓝色|绿色|橙色|紫色|黄色)$/, ""));
+}
+
 /** Splits catalog effect text into plain runs and {{…}} symbols. */
 export function tokenizeEffect(effect: string): EffectToken[] {
   const out: EffectToken[] = [];
