@@ -18531,6 +18531,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalPowerCostByTrait = selectedPower.TypedPower;
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         var optionalCostPowerReduction = extraGenericPower + extraPowerCostByTrait.Values.Sum()
+            + OpponentSpellCostIncreases(state, intent.PlayerId, behavior).Power
             + PrintedPowerCostRules.ForPlay(behavior).Amount + echoPrintedCosts.Sum(card => PrintedPowerCostRules.ForCard(card).Amount)
             - totalPowerCost - selectedPower.Reduction;
         var spellPowerChoices = SpellPowerChoices(powerOptions);
@@ -18568,6 +18569,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             spellshieldTaxTargetObjectIds, recycledPaymentRuneObjectIds, luxSpellOnlyResourceActions,
             luxSpellOnlyResourceSourceObjectIds, luxSpellOnlyGeneratedMana, luxSpellOnlyConsumedMana,
             luxSpellOnlyRemainingMana, optionalReductions));
+        var spellIncreases = OpponentSpellCostIncreases(state, intent.PlayerId, behavior);
+        if (spellIncreases.Mana > 0 || spellIncreases.Power > 0) {
+            paymentAudit["opponentSpellCostIncreaseMana"] = spellIncreases.Mana;
+            paymentAudit["opponentSpellCostIncreasePower"] = spellIncreases.Power;
+        }
         if (manaCost.EmpoweredSpellReduction > 0 || selectedPower.Reduction > 0)
         {
             paymentAudit["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
@@ -18645,6 +18651,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction,
+                OpponentSpellCostIncreaseMana = spellIncreases.Mana,
+                OpponentSpellCostIncreasePower = spellIncreases.Power,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
                 PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
@@ -34595,6 +34603,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }
         public int EmpoweredSpellCostReductionMana { get; init; }
         public int EmpoweredSpellCostReductionPower { get; init; }
+        public int OpponentSpellCostIncreaseMana { get; init; }
+        public int OpponentSpellCostIncreasePower { get; init; }
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
         public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
         public string? RenektonResourceAction { get; init; }

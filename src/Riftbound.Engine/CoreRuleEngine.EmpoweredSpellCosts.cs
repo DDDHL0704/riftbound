@@ -60,6 +60,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0)
     {
         var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower);
+        extraGeneric += OpponentSpellCostIncreases(state, player, behavior).Power;
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
             .SelectMany(a => ReduceSpellPower(a.GenericPower,
                 ConditionalPlayPowerCost(state, player, behavior, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction)), reduction))

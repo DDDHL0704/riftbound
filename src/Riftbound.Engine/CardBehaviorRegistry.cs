@@ -298,10 +298,13 @@ public sealed record CardBehaviorDefinition(
     string CostReductionPowerTrait = "",
     int CostReductionBattlefieldUnitCount = 0,
     int StaticFlowSpellCostReductionMana = 0,
-    int StaticFlowSpellCostReductionMinimumManaCost = 0)
+    int StaticFlowSpellCostReductionMinimumManaCost = 0,
+    OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record OpponentSpellCostIncreaseSpec(int Mana, int GenericPower = 0, int? GenericPowerIfEmpowered = null);
 
 public static class CardDamageConditionKinds
 {
@@ -464,6 +467,8 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·045", "抑制之盔", 4, "SUPPRESSION_HELM_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, OpponentSpellCostIncrease: new(1, GenericPowerIfEmpowered: 1)),
         new("VEN·064", "广场守卫", 10, "UNIT_PLAY:VEN·064", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: CardObjectTags.Spellshield,
             CostReductionConditionKind: CardCostReductionConditionKinds.ControlledFieldEquipmentCount, CostReductionMana: 1),

@@ -4,6 +4,22 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    private static (int Mana, int Power) OpponentSpellCostIncreases(MatchState state, string player, CardBehaviorDefinition behavior)
+    {
+        if (!IsSpellPlayBehavior(behavior) || EffectPlayIgnoresAllCosts(state, player)) return (0, 0);
+        var mana = 0; var power = 0;
+        foreach (var id in PublicStaticAuraSourceObjectIds(state.PlayerZones)) {
+            if (!state.CardObjects.TryGetValue(id, out var source) || source.IsFaceDown
+                || EffectiveFieldControllerId(state.PlayerZones, id, source) == player) continue;
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
+                if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out var definition) && definition.OpponentSpellCostIncrease is { } tax) {
+                    mana = checked(mana + tax.Mana);
+                    power = checked(power + (source.IsEmpowered ? tax.GenericPowerIfEmpowered ?? tax.GenericPower : tax.GenericPower));
+                }
+        }
+        return (mana, power);
+    }
+
     // Count only public in-play objects; a face-down standby card has no unit or equipment type.
     private static int ConditionalPlayCostCount(MatchState state, string player, CardBehaviorDefinition behavior)
         => behavior.CostReductionConditionKind switch

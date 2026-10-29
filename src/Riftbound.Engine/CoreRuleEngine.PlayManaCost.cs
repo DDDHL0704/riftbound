@@ -5,7 +5,7 @@ public sealed partial class CoreRuleEngine
     internal sealed record PlayManaCost(
         int Total, int CardReduction, int OptionalReduction, int EchoReduction, int EquipmentReduction,
         int UnitReduction, int NextSpellReduction, int BattlefieldSpellReduction, int Increase,
-        int EmpoweredSpellReduction = 0);
+        int EmpoweredSpellReduction = 0, int OpponentSpellIncrease = 0);
 
     // CN 356: component reductions apply to that component, then total reductions apply
     // to base + additional costs + increases. A floor belongs only to its own reducer.
@@ -20,9 +20,10 @@ public sealed partial class CoreRuleEngine
         var echoReduction = componentEchoReduction
             ?? ResolveBattlefieldEchoCostReductionMana(state, playerId, behavior, optionalCosts ?? []);
         var increase = ResolveBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
+        var spellIncrease = OpponentSpellCostIncreases(state, playerId, behavior).Mana;
         var effect = state.PendingEffectPlay is { } pending && pending.PlayerId == playerId ? pending : null;
         var total = (effect?.IgnoreBaseMana == true || behavior.StandbyPlayFrom is not null ? 0 : Math.Max(0, behavior.AppliedFlowCost?.Mana ?? behavior.ManaCost))
-            + Math.Max(0, additionalMana - (componentEchoReduction.HasValue ? 0 : echoReduction)) + increase;
+            + Math.Max(0, additionalMana - (componentEchoReduction.HasValue ? 0 : echoReduction)) + increase + spellIncrease;
         var reductions = new List<(string Kind, int Amount, int Floor)> { ("card", effect?.ManaReduction ?? 0, 0) };
         if (behavior.PlaysSourceToBaseAsUnit)
             reductions.AddRange(StaticUnitCostReductionSourceBehaviors(state, playerId)
@@ -55,7 +56,7 @@ public sealed partial class CoreRuleEngine
         }
         return new(total, applied.GetValueOrDefault("card"), applied.GetValueOrDefault("optional"), echoReduction,
             applied.GetValueOrDefault("equipment"), applied.GetValueOrDefault("unit"), applied.GetValueOrDefault("next"),
-            applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"));
+            applied.GetValueOrDefault("spell"), increase, applied.GetValueOrDefault("empoweredSpell"), spellIncrease);
     }
 
     // A prompt's lower bound may assume affordable optional reductions. The quote uses
