@@ -1140,6 +1140,8 @@ public static partial class MatchRecoveryValidator
             errors.Add("command rule input identity is missing or differs from running inputs");
 
         RoomSeatRecoveryValidator.Validate(commands, events, errors);
+        if (authoritativeState is not null)
+            ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
@@ -10802,7 +10804,8 @@ public static partial class MatchRecoveryValidator
             objectId,
             objectPayload,
             "basePower",
-            cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
+            TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
+                ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
             "base power",
             errors);
         ValidateSpectatorSnapshotPlayerObjectIntScalar(

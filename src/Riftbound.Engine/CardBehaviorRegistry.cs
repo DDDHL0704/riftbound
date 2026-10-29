@@ -293,7 +293,10 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    int? BasePowerUntilEndOfTurn = null,
+    int PreventDamageUntilEndOfTurn = 0,
+    string TargetRequiresEnemyTraitThreat = "")
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -456,6 +459,19 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·031", "我流奥义！霞阵", 1, "TWILIGHT_SHROUD_PROTECT_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 1, StatusEffectId: TemporaryUnitEffectRules.EnemyTargetProtection,
+            FlowCost: new(2, 0, [])),
+        new("VEN·040", "专注箴言", 1, "FOCUS_MANTRA_BUFF_THREATENED_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 4, CanPlayDuringPriority: true, TargetRequiresEnemyTraitThreat: RuneTrait.Red),
+        new("VEN·116", "龙之形", 3, "DRAGON_FORM_SET_BASE_MIGHT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            BasePowerUntilEndOfTurn: 5, FlowCost: new(3, 0, [])),
+        new("VEN·126", "忍法！气合盾", 2, "SPIRIT_REFUGE_PREVENT_SEVEN_DAMAGE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            CanPlayDuringPriority: true, PreventDamageUntilEndOfTurn: 7),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

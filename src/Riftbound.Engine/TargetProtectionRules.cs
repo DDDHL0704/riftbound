@@ -15,7 +15,8 @@ internal static class TargetProtectionRules
             return true;
         }
 
-        return !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
+        return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
 
     public static bool IsLegalActivatedSkillTarget(
@@ -23,8 +24,14 @@ internal static class TargetProtectionRules
         string sourceControllerId,
         string targetObjectId)
     {
-        return !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
+        return !HasTemporaryEnemyTargetProtection(state, sourceControllerId, targetObjectId)
+            && !IsProtectedFromEnemySpellOrSkillTarget(state, sourceControllerId, targetObjectId);
     }
+
+    private static bool HasTemporaryEnemyTargetProtection(MatchState state, string player, string target)
+        => TryFindPublicFieldLocation(state.PlayerZones, target, out var at) && at.PlayerId != player
+            && state.CardObjects.TryGetValue(target, out var card) && IsVisibleSourceUnit(card)
+            && card.UntilEndOfTurnEffects.Contains(TemporaryUnitEffectRules.EnemyTargetProtection, StringComparer.Ordinal);
 
     private static bool IsSpellOrSkillPlayCardBehavior(CardBehaviorDefinition behavior)
     {

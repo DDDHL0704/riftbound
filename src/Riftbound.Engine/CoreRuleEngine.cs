@@ -2548,7 +2548,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
+    internal static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
     {
         return battle.AttackerObjectIds
             .Concat(battle.DefenderObjectIds)
@@ -13773,6 +13773,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, string id, CardObjectState card, string battlefieldId)
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
+            + TemporaryUnitEffectRules.BaseMightDelta(card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
@@ -25821,6 +25822,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
 
+                    if (behavior.BasePowerUntilEndOfTurn is { } baseMight)
+                    {
+                        targetState = TemporaryUnitEffectRules.SetNumber(targetState, TemporaryUnitEffectRules.BaseMightPrefix, baseMight, retainZero: true);
+                        events.Add(new("BASE_MIGHT_SET_UNTIL_END_OF_TURN", "设置单位本回合基础战力", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["targetGeneration"] = targetState.ObjectGeneration, ["baseMight"] = baseMight, ["cardNo"] = stackItem.CardNo }));
+                    }
+                    if (behavior.PreventDamageUntilEndOfTurn > 0)
+                    {
+                        var remaining = checked(TemporaryUnitEffectRules.RemainingPrevention(targetState) + behavior.PreventDamageUntilEndOfTurn);
+                        targetState = TemporaryUnitEffectRules.GrantPrevention(targetState, state.Tick + 1, events.Count, behavior.PreventDamageUntilEndOfTurn);
+                        events.Add(new("DAMAGE_PREVENTION_GRANTED", "授予本回合有限伤害抵挡", new Dictionary<string, object?> {
+                            ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
+                            ["targetGeneration"] = targetState.ObjectGeneration, ["amount"] = behavior.PreventDamageUntilEndOfTurn, ["remaining"] = remaining,
+                            ["budgetId"] = $"{TemporaryUnitEffectRules.DamagePreventionPrefix}{state.Tick + 1}:{events.Count}", ["cardNo"] = stackItem.CardNo }));
+                    }
+
                     var damageAmount = ShouldApplyDamageToTarget(behavior, targetIndex)
                         ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId)
                         : 0;
@@ -28649,20 +28667,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : new CardObjectState(targetObjectId);
         if (UnitMovementRules.CannotTakeDamage(targetState))
             return new DamageApplicationResult(0, damageAmount, true, "MOVEMENT_DAMAGE_IMMUNITY");
-        var preventsWithTargetEffect = !preventDamage
-            && targetState.UntilEndOfTurnEffects.Contains(
-                PreventNextDamageThisTurnEffectId,
-                StringComparer.Ordinal);
-        var preventsDamage = preventDamage || preventsWithTargetEffect;
-        var adjustedDamageAmount = preventsDamage
-            ? 0
-            : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
-                ? damageAmount * 2
-                : damageAmount;
-        var nextEffects = targetState.UntilEndOfTurnEffects
-            .Where(effectId => !preventsWithTargetEffect
-                || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
-            .ToArray();
+        var replacement = ReplaceDamage(targetState, cardObjects, damageAmount, preventDamage, preventionEffectId);
+        targetState = replacement.Target;
+        var adjustedDamageAmount = replacement.Damage;
 
         cardObjects[targetObjectId] = targetState with
         {
@@ -28671,18 +28678,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
                 : targetState.DamageMarkedByPlayerIds,
-            UntilEndOfTurnEffects = nextEffects
+            UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
         };
 
         return new DamageApplicationResult(
             adjustedDamageAmount,
             damageAmount,
-            preventsDamage,
-            preventsWithTargetEffect
-                ? PreventNextDamageThisTurnEffectId
-                : preventDamage
-                    ? preventionEffectId
-                    : string.Empty) { Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
+            replacement.Prevented > 0,
+            replacement.EffectId) {
+                        PreventedDamageAmount = replacement.Prevented, PreventionSpent = replacement.Spent,
+                        Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
                         TargetTokenFactoryCardNo = targetState.TokenFactoryCardNo };
     }
 
@@ -28701,6 +28706,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         if (damageApplication.Target is { } target) payload["targetGeneration"] = target.Generation;
         if (damageApplication.TargetTokenFactoryCardNo is { } tokenFactory) payload["targetTokenFactoryCardNo"] = tokenFactory;
+        if (damageApplication.PreventionSpent is { Count: > 0 } spent) payload["damagePreventionSpent"] = spent;
 
         if (!string.IsNullOrWhiteSpace(damageSourceObjectId))
         {
@@ -28709,7 +28715,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (damageApplication.Prevented)
         {
-            payload["preventedDamage"] = damageApplication.OriginalDamageAmount;
+            payload["preventedDamage"] = damageApplication.PreventedDamageAmount ?? damageApplication.OriginalDamageAmount;
             payload["preventionEffectId"] = damageApplication.PreventionEffectId;
         }
 
@@ -34470,6 +34476,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool Prevented,
         string PreventionEffectId)
     {
+        public int? PreventedDamageAmount { get; init; }
+        public IReadOnlyList<DamagePreventionSpend>? PreventionSpent { get; init; }
         public ObjectBinding? Target { get; init; }
         public string ControllerId { get; init; } = "";
         public string? TargetTokenFactoryCardNo { get; init; }
