@@ -810,6 +810,8 @@ public sealed record StackItemState
     public LegendEquipmentReadyContext? LegendEquipmentReady { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendDiscardDrawContext? LegendDiscardDraw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NamedUnitSwapContext? NamedUnitSwap { get; init; }
     public AzirMovementContext? AzirMovement { get; init; }
     public EquipContext? Equip { get; init; }
     public IReadOnlyList<string>? MovementDestinations { get; init; }
@@ -835,6 +837,8 @@ public sealed record StackItemState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SourceReadiedContext? SourceReadied { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SourceUnitTokenContext? SourceUnitTokens { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public UnitBattleWinDrawContext? UnitBattleWinDraw { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendBattleWinDrawContext? LegendBattleWinDraw { get; init; }
@@ -850,6 +854,9 @@ public sealed record StackItemState
     public ConquestTokenContext? ConquestToken { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ConquestSourceContext? ConquestSource { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConquestFlowContext? ConquestFlow { get; init; }
 
     public AfterPlayRecycleInstruction? AfterPlayRecycle { get; init; }
     public RecycledUnitReceipt? RecycledUnit { get; init; }
@@ -1043,6 +1050,8 @@ public sealed record TriggerQueueItemState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SourceReadiedContext? SourceReadied { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SourceUnitTokenContext? SourceUnitTokens { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public UnitBattleWinDrawContext? UnitBattleWinDraw { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendBattleWinDrawContext? LegendBattleWinDraw { get; init; }
@@ -1058,6 +1067,9 @@ public sealed record TriggerQueueItemState
     public ConquestTokenContext? ConquestToken { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ConquestSourceContext? ConquestSource { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ConquestFlowContext? ConquestFlow { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SourceCardNo { get; init; }
@@ -2624,6 +2636,7 @@ public sealed record MatchState
         return BattleLimitedMarkers.PrivateMarker(effectId)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
@@ -2727,6 +2740,11 @@ public sealed record MatchState
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+            return state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
+                .Where(id => state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
+                    && unit.Tags.Contains(CardObjectTags.UnitCard) && EffectiveFieldControllerId(state, id, unit) == controllerId
+                    && StaticAuraSpecRules.TargetMatchesFilter(aura, unit)).Order(StringComparer.Ordinal).ToArray();
         if (string.Equals(
             aura.ParticipantScope,
             StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
@@ -4623,7 +4641,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, LegendDiscardDraw = item.LegendDiscardDraw, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestSource = item.ConquestSource, SourceBoonMight = item.SourceBoonMight, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost, DepartedTokenTargets = item.DepartedTokenTargets, EmpowerInteraction = item.EmpowerInteraction, RecycleMightActivation = item.RecycleMightActivation, SelfMightActivation = item.SelfMightActivation })
+                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, LegendDuelMovement = item.LegendDuelMovement, LegendUnitKeyword = item.LegendUnitKeyword, LegendUnitEffect = item.LegendUnitEffect, LegendEquipmentReady = item.LegendEquipmentReady, LegendDiscardDraw = item.LegendDiscardDraw, AzirMovement = item.AzirMovement, NamedUnitSwap = item.NamedUnitSwap, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceUnitTokens = item.SourceUnitTokens, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestFlow = item.ConquestFlow, ConquestSource = item.ConquestSource, SourceBoonMight = item.SourceBoonMight, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost, DepartedTokenTargets = item.DepartedTokenTargets, EmpowerInteraction = item.EmpowerInteraction, RecycleMightActivation = item.RecycleMightActivation, SelfMightActivation = item.SelfMightActivation })
             .ToArray();
     }
 
@@ -4637,7 +4655,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { ControllerOrderConfirmed = item.ControllerOrderConfirmed, EnqueuedAtTick = item.EnqueuedAtTick, PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestSource = item.ConquestSource, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext, EmpowerInteraction = item.EmpowerInteraction })
+                item.TimingContext) { ControllerOrderConfirmed = item.ControllerOrderConfirmed, EnqueuedAtTick = item.EnqueuedAtTick, PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceUnitTokens = item.SourceUnitTokens, ReadyObjectTrigger = item.ReadyObjectTrigger, SourceReadied = item.SourceReadied, UnitBattleWinDraw = item.UnitBattleWinDraw, LegendBattleWinDraw = item.LegendBattleWinDraw, KhazixBattleWin = item.KhazixBattleWin, DravenBattleWinScore = item.DravenBattleWinScore, DravenBattleDeathScore = item.DravenBattleDeathScore, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, ConquestFlow = item.ConquestFlow, ConquestSource = item.ConquestSource, DeathRevealContext = item.DeathRevealContext, HandDiscardObserver = item.HandDiscardObserver, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LastBreathUnitCreation = item.LastBreathUnitCreation, LastBreathRuneCall = item.LastBreathRuneCall, LastBreathDraw = item.LastBreathDraw, LastBreathBattlefieldDamage = item.LastBreathBattlefieldDamage, DelayedEmpower = item.DelayedEmpower, EmpowerOtherObserver = item.EmpowerOtherObserver, OutsideHandPlayObserver = item.OutsideHandPlayObserver, HighCostPlayObserver = item.HighCostPlayObserver, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningRune = item.BeginningRune, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext, EmpowerInteraction = item.EmpowerInteraction })
             .ToArray();
     }
 
@@ -4970,6 +4988,7 @@ public sealed record ResolutionResult(
         }
 
         if (trigger.ReflexiveDuel is not null) return "移动终点：选择另一名敌方单位互斗";
+        if (trigger.ConquestFlow is not null) return "征服：本回合给予废牌堆法术流转";
         if (trigger.UnitConquest is not null) return "征服未受控制战场：战力伤害";
         if (trigger.HandDiscardObserver is { } discard) return CoreRuleEngine.HandDiscardObserverLabel(discard);
         if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement);
@@ -5024,6 +5043,7 @@ public sealed record ResolutionResult(
         if (trigger.SourceReadied is not null) return "活跃后选择本回合关键词。";
         if (trigger.ReadyObjectTrigger is not null) return "活跃除来源之外的一个休眠物体。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death) + "；记录死亡时的控制者，双方响应后结算。";
+        if (trigger.SourceUnitTokens is not null) return "打出单位指示物，双方响应后结算。";
         var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             ? "未知来源"
             : trigger.SourceObjectId;
@@ -5038,7 +5058,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        if (trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
+        if (trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
             ? "HIDDEN"
@@ -5060,7 +5080,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        return trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+        return trigger.ConquestFlow is null && trigger.ConquestToken is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
@@ -5656,7 +5676,7 @@ public sealed record ResolutionResult(
         // The public skill keeps its printing and effect, but never identifies
         // a source's new private-zone incarnation in the public source field.
         var sourceId = hiddenSource ? "HIDDEN" : item.UnitBattleWinDraw is not null || item.LegendBattleWinDraw is not null || item.KhazixBattleWin is not null || item.DravenBattleWinScore is not null || item.DravenBattleDeathScore is not null
-            || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
+            || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.BeginningRune is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null || item.RecycleMightActivation is not null || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
             || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item)
             ? VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId) : item.SourceObjectId;
         var view = new Dictionary<string, object?>
@@ -5711,6 +5731,7 @@ public sealed record ResolutionResult(
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
             "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "RETURN_HERO" => "据守返回选定英雄", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
         if (!hiddenSource && item.ReflexiveDuel is not null) view["abilityLabel"] = "移动終点的单位互斗";
+        if (!hiddenSource && item.ConquestFlow is not null) view["abilityLabel"] = "征服：本回合给予废牌堆法术流转";
         if (!hiddenSource && item.UnitConquest is not null) view["abilityLabel"] = "征服未受控制战场：战力伤害";
         if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
         if (!hiddenSource && item.MovementObserver is { } movement) view["abilityLabel"] = CoreRuleEngine.MovementObserverLabel(movement);
@@ -5726,6 +5747,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.ReadyObjectTrigger is not null) view["abilityLabel"] = "活跃其他物体";
         if (!hiddenSource && item.SourceReadied is { } readied) { view["abilityLabel"] = "活跃后获得关键词"; if (readied.Mode is { } mode) view["mode"] = mode; }
         if (!hiddenSource && item.SourcePlayDraw is not null) view["abilityLabel"] = "其他装备条件抽牌";
+        if (!hiddenSource && item.SourceUnitTokens is not null) view["abilityLabel"] = "打出单位指示物";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
         if (!hiddenSource && item.DamageDistribution is not null) {
             view["damageDistribution"] = item.DamageDistribution;
@@ -5794,7 +5816,7 @@ public sealed record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
-        return item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.ConquestFlow is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -10529,6 +10551,31 @@ internal static class ActionPromptBuilder
                     PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()), [], false, false, true, null,
                     AbilityInstanceId: ability.InstanceId, CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId));
         }
+        if (NamedUnitSwapRules.CanActivate(state, playerId, cardObject))
+        {
+            var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
+            foreach (var ability in NamedUnitSwapRules.Abilities(state, cardObject))
+            {
+                var targets = zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal)
+                    .Where(id => NamedUnitSwapRules.IsTarget(state, playerId, sourceObjectId, id, ability.Spec))
+                    .Order(StringComparer.Ordinal).Select(id => ObjectChoice(state, id, "交换位置")).ToArray();
+                if (targets.Length == 0) continue;
+                var choices = RenektonAwareRecycleRuneChoices(state, playerId, "支付迅捷技能费用")
+                    .Concat(PromptRenektonPaymentChoices(state, playerId).Select(choice =>
+                        new ActionPromptChoiceDto(choice.Id, choice.Label, "传奇支付资源行动"))).ToArray();
+                var byTrait = ActivateAbilityPaymentResourcePowerByTrait(state, playerId, choices);
+                var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, choices);
+                var typed = new Dictionary<string, int> { [ability.Spec.PowerCostTrait!] = ability.Spec.PowerCost!.Value };
+                requirements.Add(new(sourceObjectId, ability.Instance.CardNo, ability.Id, "迅捷移动",
+                    $"支付 {ability.Spec.ManaCost} 法力与 {ability.Spec.PowerCost} {RuneTraitLabel(ability.Spec.PowerCostTrait!)}符能：与受控的{ability.Spec.TargetUnitName}交换位置",
+                    ability.Spec.ManaCost!.Value, 0, 0, typed, 1, 1, ability.Spec.TargetUnitName!,
+                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>> { ["0"] = targets }, [], choices, byChoice,
+                    pool.TotalPower, PlayCardAvailablePowerByTrait(pool, new Dictionary<string, int>()),
+                    new RunePaymentReachability(pool, byTrait).MaximumTotal, PlayCardAvailablePowerByTrait(pool, byTrait), [],
+                    false, false, true, null, AbilityInstanceId: ability.InstanceId,
+                    CopyEquipmentObjectId: ability.Instance.Origin?.Equipment.ObjectId));
+            }
+        }
         if (EmpowerRules.CanActivate(state, playerId, cardObject))
         {
             var pool = state.RunePools.TryGetValue(playerId, out var currentPool) ? currentPool : RunePool.Empty;
@@ -13040,6 +13087,7 @@ internal static class ActionPromptBuilder
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
+            .SelectMany(behavior => CoreRuleEngine.FlowPlayBehaviors(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PlaySourceKeywordBehavior(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
@@ -14792,6 +14840,9 @@ internal static class ActionPromptBuilder
         var choices = new List<ActionPromptChoiceDto>();
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
         choices.AddRange(TurnEquipmentPlayRules.Choices(state, playerId, behavior, sourceObjectId));
+        if (behavior.AppliedFlowCost is { } flow)
+            choices.Add(new(CoreRuleEngine.FlowCostChoiceId(flow), $"流转：{flow.Mana} 法力 / {flow.Power} 符能",
+                "选择此替代基础费用；额外费用照常支付"));
 
         var reductionChoiceIds = new HashSet<string>(StringComparer.Ordinal);
         void AddReductionChoices(IReadOnlyList<ActionPromptChoiceDto> reductions)
@@ -15081,14 +15132,16 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         string? sourceObjectId)
     {
-        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+        var createsTokens = behavior.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid;
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0 && !createsTokens
             || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
 
         return zones.Hand
             .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
-                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
+                createsTokens ? $"弃置 {PromptHandCardLabel(state, objectId)}：打出时创建 {behavior.CreatedBaseUnitTokenCount} 名{behavior.CreatedBaseUnitTokenName}"
+                    : $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();
     }
@@ -16691,6 +16744,11 @@ internal static class ActionPromptBuilder
             ["sourceObjectId"] = sourceObjectId,
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
+            ["flowCostChoiceId"] = behavior.AppliedFlowCost is { } flowCost ? CoreRuleEngine.FlowCostChoiceId(flowCost) : null,
+            ["flowCostChoices"] = CoreRuleEngine.FlowPlayBehaviors(state, playerId, sourceObjectId, behavior)
+                .Where(b => b.AppliedFlowCost is not null).Select(b => new {
+                    id = CoreRuleEngine.FlowCostChoiceId(b.AppliedFlowCost!), mana = b.AppliedFlowCost!.Mana,
+                    power = b.AppliedFlowCost.Power, traits = b.AppliedFlowCost.Traits }).ToArray(),
             ["sourceZone"] = state.PendingEffectPlay?.SourceZone
                 ?? (behavior.AppliedFlowCost is not null ? "GRAVEYARD" : behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,

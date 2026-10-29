@@ -68,6 +68,9 @@ internal static class UnitConquestTriggerSpecRules
 
         return trigger.Kind switch
         {
+            TriggerKinds.UnitConquestCreateUnitToken => trigger.CreatedTokenCount is > 0
+                && trigger.CreatedTokenPower is >= 0 && !string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
+                && trigger.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase,
             TriggerKinds.UnitConquestOverkillCreateDormantGold => trigger.RequiredOverkillDamage is > 0
                 && trigger.CreatedTokenCount is > 0,
             TriggerKinds.UnitConquestAttackOverkillGainScore => trigger.RequiredOverkillDamage is > 0

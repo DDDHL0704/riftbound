@@ -336,7 +336,8 @@ internal static class StaticAuraSpecRules
             return false;
         }
 
-        return string.Equals(
+        return string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, StringComparison.Ordinal)
+            || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
                 StringComparison.Ordinal)

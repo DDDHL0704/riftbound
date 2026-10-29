@@ -356,6 +356,14 @@ public static class TriggerParser
         if (outsideHandPlay.Success)
             triggers.Add(new(TriggerKinds.ControllerOutsideHandPlayEmpowerSource, "CARD_PLAY_COMPLETED", outsideHandPlay.Value,
                 "When this controller completes a card play from outside their hand, empower the source."));
+        var attackGraveyardBanish = Regex.Match(text,
+            @"(?:^|\n)当我进攻时，你可以选择从你的废牌堆中放逐一名单位。\s*若如此做，则给予我在本回合内\{\{强攻(?<amount>[0-9]+)\}\}。",
+            RegexOptions.CultureInvariant);
+        if (attackGraveyardBanish.Success && int.TryParse(attackGraveyardBanish.Groups["amount"].Value, out var assault) && assault > 0)
+            triggers.Add(new(TriggerKinds.UnitAttackBanishGraveyardUnitAssault, TriggerTimings.UnitAttack,
+                attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
+                TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
+                GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
         var firstMoveMill = Regex.Match(text,
             @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
         if (firstMoveMill.Success)
@@ -974,6 +982,15 @@ public static class TriggerParser
             return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
                 segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
                 OncePerTurn: true, ExcludesTokens: true, ObjectReadyCount: 1);
+        var playedOrScoredToken = Regex.Match(segment,
+            @"^当你打出我时，或当我得分时，打出一名具有“(?<tag>[^”]+)”属性的(?<might>[1-9][0-9]*)\{\{S\}\}“(?<name>[^”]+)”。?$",
+            RegexOptions.CultureInvariant);
+        if (playedOrScoredToken.Success && int.TryParse(playedOrScoredToken.Groups["might"].Value, out var tokenMight))
+            return new(TriggerKinds.SourceUnitPlayedOrScoredCreateUnit, TriggerTimings.SourceUnitPlayedOrScored, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
+                CreatedTokenName: playedOrScoredToken.Groups["name"].Value, CreatedTokenPower: tokenMight,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true,
+                CreatedTokenKeywords: [playedOrScoredToken.Groups["tag"].Value]);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);
@@ -1374,6 +1391,17 @@ public static class TriggerParser
                 "Requires confirmed non-token unit, non-token equipment and spell plays by the controller in the current turn at conquest. A multi-type play may satisfy both permanent types.",
                 TargetScope: TriggerTargetScopes.SourceUnit,
                 ScoreAmount: ParseChineseNumber(conquestPlayedTypesScore.Groups[1].Value));
+
+        var conquestUnit = Regex.Match(segment,
+            @"^当我征服一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)名(?<power>\d+)\{\{S\}\}的“(?<name>[^”]+)”到你的基地。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestUnit.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestCreateUnitToken, TriggerTimings.UnitConquest, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: ParseChineseNumber(conquestUnit.Groups["count"].Value),
+                CreatedTokenPower: int.Parse(conquestUnit.Groups["power"].Value, CultureInfo.InvariantCulture),
+                CreatedTokenName: conquestUnit.Groups["name"].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true);
 
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
@@ -2648,6 +2676,8 @@ public static class ActivatedAbilityParser
                     return selfMight;
                 if (TryParseRecycleGraveyardSelfMight(cost, effect, out var recycledMight))
                     return recycledMight;
+                if (TryParseSwiftNamedUnitSwap(cost, effect, out var namedSwap))
+                    return namedSwap;
                 if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
                 {
                     return typedResourceSkill;
@@ -2752,6 +2782,25 @@ public static class ActivatedAbilityParser
             "Recycle a graveyard card as the activation cost; grant the source Might after responses.",
             Kind: ActivatedAbilityKinds.RecycleGraveyardCardGrantSelfMight, ManaCost: 0, PowerCost: 0,
             RequiredTargetCount: 0, PowerModifierAmount: amount);
+        return true;
+    }
+
+    private static bool TryParseSwiftNamedUnitSwap(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var costMatch = Regex.Match(cost,
+            @"^\{\{迅捷>\}\}\{\{(?<mana>\d+)\}\}\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}$",
+            RegexOptions.CultureInvariant);
+        var effectMatch = Regex.Match(effect,
+            @"^将我和一名受你控制的“(?<name>[^”]+)”互相移动到对方的位置。?$", RegexOptions.CultureInvariant);
+        if (!costMatch.Success || !effectMatch.Success
+            || !int.TryParse(costMatch.Groups["mana"].Value, out var mana)
+            || !ResourceTraitByChineseColor.TryGetValue(costMatch.Groups["trait"].Value, out var trait)) return false;
+        ability = new(cost, effect, [BehaviorTemplateIds.Move], BehaviorImplementationStatuses.Unimplemented,
+            "Swift paid movement with a named controlled unit, resolved through the shared movement instructions.",
+            Kind: ActivatedAbilityKinds.SwiftSwapSelfWithNamedControlledUnit, ManaCost: mana, PowerCost: 1,
+            PowerCostTrait: trait, RequiredTargetCount: 1, TargetScope: "NAMED_CONTROLLED_UNIT",
+            TargetUnitName: effectMatch.Groups["name"].Value);
         return true;
     }
 
@@ -4002,6 +4051,19 @@ public static class StaticAuraParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Static aura parsed for B1 routing; execution remains gated until engine support reads BehaviorSpec.StaticAuras.",
                     StaticAuraTargetFilters.TagPrefix + friendlyTaggedUnitsPowerMatch.Groups[1].Value));
+                continue;
+            }
+
+            var controlledTokenCount = Regex.Match(segment,
+                @"^你每控制一[名个]指示物单位，我便获得\{\{S\}\}\+(?<delta>[1-9][0-9]*)。?$",
+                RegexOptions.CultureInvariant);
+            if (controlledTokenCount.Success && int.TryParse(controlledTokenCount.Groups["delta"].Value, out var tokenDelta))
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, tokenDelta, segment,
+                    BehaviorImplementationStatuses.Unimplemented, "Count controlled public token units across the board.",
+                    StaticAuraTargetFilters.UnitToken));
                 continue;
             }
 
