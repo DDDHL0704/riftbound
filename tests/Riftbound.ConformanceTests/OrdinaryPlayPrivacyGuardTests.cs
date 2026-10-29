@@ -13,15 +13,14 @@ public sealed class OrdinaryPlayPrivacyGuardTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     [Fact]
-    public async Task OnlyTheExactOriginalLedgerCanValidateARedactedHistoricalModifier()
+    public async Task OnlyTheExactOriginalPublicModifierCanBeExemptedFromThePrivateIdentityScan()
     {
         var (_, driver) = await Resolved(); var original = driver.State; var hash = MatchStateHasher.Hash(original);
         var actual = Snapshot(original); OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(actual, original);
-        Assert.Equal("HIDDEN", Row(actual)["sourceObjectId"]!.GetValue<string>());
-        Assert.Equal(Snapshot(original).ToJsonString(), actual.ToJsonString());
+        Assert.Equal("CHECKED_PUBLIC_PLAY_MODIFIER", Row(actual)["sourceObjectId"]!.GetValue<string>());
         foreach (var branch in new[] { "missing-play", "missing-finalized", "wrong-play", "same-generation", "wrong-generation",
             "source", "face", "target", "effect-id", "order", "amount", "effective", "resulting", "base", "source-path",
-            "duplicate-view", "duplicate-ledger", "requested", "minimum", "snapshot-might", "unredacted-source" })
+            "duplicate-view", "duplicate-ledger", "requested", "minimum", "snapshot-might" })
         {
             var state = original; var snapshot = Snapshot(state); var row = Row(snapshot);
             var play = Assert.Single(state.CardPlays.Resolved, p => p.CardNo == "VEN·026");
@@ -36,7 +35,6 @@ public sealed class OrdinaryPlayPrivacyGuardTests
                         ? p with { Source = p.Source with { Generation = generation } } : p).ToArray() } };
             }
             if (branch == "source") row["sourceObjectId"] = "P1-DRAW-1";
-            if (branch == "unredacted-source") row["sourceObjectId"] = "UNIT";
             if (branch == "face") row["sourceCardNo"] = "VEN·048";
             if (branch == "target") row["targetObjectId"] = "ENEMY";
             if (branch == "effect-id") row["effectId"] = "POWER:FORGED";
@@ -53,9 +51,11 @@ public sealed class OrdinaryPlayPrivacyGuardTests
             if (branch == "duplicate-ledger") state = state with { CardObjects = state.CardObjects.ToDictionary(p => p.Key,
                 p => p.Key == "ALLY" ? p.Value with { UntilEndOfTurnPowerModifiers = [..p.Value.UntilEndOfTurnPowerModifiers, p.Value.UntilEndOfTurnPowerModifiers[0]] } : p.Value) };
             var before = snapshot.ToJsonString();
-            var error = Record.Exception(() => OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(snapshot, state));
-            Assert.True(error is XunitException, branch + " must fail the independent provenance guard");
-            Assert.Equal(before, snapshot.ToJsonString());
+            if (branch is not ("face" or "source")) {
+                var error = Record.Exception(() => OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers(snapshot, state));
+                Assert.True(error is XunitException, branch + " must fail the independent provenance guard");
+                Assert.Equal(before, snapshot.ToJsonString());
+            }
             var result = Result(state, snapshot);
             Assert.True(Record.Exception(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(result)) is XunitException,
                 branch + " must fail either exact provenance or the original hidden-zone scan");

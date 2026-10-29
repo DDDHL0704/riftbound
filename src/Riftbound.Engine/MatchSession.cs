@@ -2538,10 +2538,9 @@ public sealed record MatchState
                             ContinuousEffectLayers.PowerModifier,
                             modifier.Duration,
                             objectId,
-                            // The ledger retains historical provenance, while its
-                            // public view must not identify a new hidden object.
-                            modifier.SourceObjectId is null ? null
-                                : ResolutionResult.VisibleObjectIdForViewer(state, modifier.SourceObjectId, string.Empty),
+                            // Preserve the source captured by this public effect.
+                            // Its current zone cannot rewrite historical provenance.
+                            modifier.SourceObjectId,
                             modifier.PowerDelta,
                             modifier.BasePower,
                             modifier.EffectivePower,

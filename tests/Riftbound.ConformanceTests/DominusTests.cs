@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -215,22 +216,43 @@ public sealed class DominusTests
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["SPELL"] = state.CardObjects["SPELL"] with { ObjectGeneration = state.CardObjects["SPELL"].ObjectGeneration + 1 } } };
         state = (await Act(state, "P1", new ActivateAbilityCommand("HOST", Ability(state), []))).State;
-        var view = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(state)["P2"]);
-        Assert.DoesNotContain(MarkerPrefix, view); Assert.DoesNotContain("CreatingStackItemId", view);
-        Assert.DoesNotContain("temporaryActivation", view); Assert.DoesNotContain("\"SPELL\"", view);
-        Assert.Contains("grantedAbilityId", view);
         ArmamentMightTests.PublicRecovery(state);
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var recovered = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        foreach (var snapshot in new[] { snapshots["P2"], spectator.SpectatorSnapshot }) {
+            var view = JsonSerializer.SerializeToNode(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+            var effects = view["timing"]!["continuousEffects"]!.AsArray();
+            var modifier = Assert.Single(effects.OfType<JsonObject>(),
+                effect => effect["layer"]?.GetValue<string>() == ContinuousEffectLayers.PowerModifier);
+            // This is the original public cast, not the spell's current private
+            // object or the private receipt that binds the granted ability.
+            Assert.Equal("SPELL", modifier["sourceObjectId"]!.GetValue<string>());
+            Assert.Equal(Card, modifier["sourceCardNo"]!.GetValue<string>());
+            Assert.Equal("HOST", modifier["targetObjectId"]!.GetValue<string>());
+            Assert.Equal(4, modifier["powerDelta"]!.GetValue<int>());
+            modifier["sourceObjectId"] = "CHECKED_PUBLIC_CAST_MODIFIER";
+            var serialized = view.ToJsonString();
+            Assert.DoesNotContain(MarkerPrefix, serialized); Assert.DoesNotContain("CreatingStackItemId", serialized);
+            Assert.DoesNotContain("temporaryActivation", serialized); Assert.DoesNotContain("\"SPELL\"", serialized);
+            Assert.Contains("grantedAbilityId", serialized);
+        }
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var effects = Assert.IsAssignableFrom<IEnumerable<Dictionary<string, object?>>>(snapshot.Timing["continuousEffects"]);
-            var modifier = Assert.Single(effects, effect => Equals(effect.GetValueOrDefault("sourceObjectId"), "HIDDEN")
-                && Equals(effect.GetValueOrDefault("layer"), ContinuousEffectLayers.PowerModifier));
-            modifier["sourceObjectId"] = "HOST";
+            var modifier = Assert.Single(effects,
+                effect => Equals(effect.GetValueOrDefault("layer"), ContinuousEffectLayers.PowerModifier));
+            Assert.Equal("SPELL", modifier["sourceObjectId"]);
+            foreach (var forged in new[] { "HIDDEN", "HOST", "INVENTED-SOURCE" }) {
+                modifier["sourceObjectId"] = forged;
+                Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, recovered, spectator));
+            }
+            modifier["sourceObjectId"] = "SPELL";
+            var stack = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+            stack["temporaryActivation"] = Assert.Single(state.StackItems).TemporaryActivation;
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, recovered, spectator));
-            modifier["sourceObjectId"] = "HIDDEN";
+            stack.Remove("temporaryActivation");
         }
+        Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, recovered, spectator));
     }
 
     [Fact]

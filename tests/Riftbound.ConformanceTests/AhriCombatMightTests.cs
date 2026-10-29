@@ -186,13 +186,12 @@ public sealed class AhriCombatMightTests
 
     [Theory]
     [InlineData("invented-source")] [InlineData("visible-other-source")] [InlineData("source-card")]
-    [InlineData("unredacted-source")]
     public async Task AHistoricalModifierCannotAcquireForgedPublicProvenance(string change)
     {
         var initial = EquipChainTests.Response(Board(), "OGN·169/298", "P2");
         var pending = await Pending(initial, "ENEMY1");
         var applied = await Top(pending);
-        var modifier = Assert.Single(applied.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
+        Assert.Single(applied.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
         var offered = await Act(applied.State, applied.State.FocusPlayerId!, new PassFocusCommand());
         var passed = offered.State.FocusPlayerId == "P2" ? offered
             : await Act(offered.State, offered.State.FocusPlayerId!, new PassFocusCommand());
@@ -204,12 +203,10 @@ public sealed class AhriCombatMightTests
         Assert.False(serialized.GetProperty("players").GetProperty("P1").GetProperty("objects").TryGetProperty("HOST", out _));
         var timing = new Dictionary<string, object?>(snapshot.Timing);
         var effects = Assert.IsAssignableFrom<IEnumerable<object?>>(timing["continuousEffects"]).ToArray();
-        var index = Array.FindIndex(effects, e => e is Dictionary<string, object?> d && Equals(d.GetValueOrDefault("effectId"), modifier.EffectId));
+        var index = Array.FindIndex(effects, e => e is Dictionary<string, object?> d && Equals(d.GetValueOrDefault("sourceObjectId"), "HOST"));
         Assert.True(index >= 0); var effect = new Dictionary<string, object?>(Assert.IsType<Dictionary<string, object?>>(effects[index]));
-        Assert.Equal("HIDDEN", effect["sourceObjectId"]);
         if (change == "source-card") effect["sourceCardNo"] = "OGN·001/298";
-        else effect["sourceObjectId"] = change == "visible-other-source" ? "RESPONSE"
-            : change == "unredacted-source" ? "HOST" : "INVENTED-SOURCE";
+        else effect["sourceObjectId"] = change == "visible-other-source" ? "RESPONSE" : "INVENTED-SOURCE";
         effects[index] = effect; timing["continuousEffects"] = effects;
         var views = new Dictionary<string, RecoveredPlayerView> { ["P2"] = new("P2", state.Tick, 0, snapshot with { Timing = timing }, null, null, null) };
         var errors = MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick);
