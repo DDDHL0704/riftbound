@@ -18453,6 +18453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
+                && !OpenBattlefieldPlayAllowed(state, behavior, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
@@ -21144,6 +21145,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
+                : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -23913,6 +23917,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string DescribeTargetScope(string targetScope)
     {
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
+        if (targetScope == CardTargetScopes.ControlledBattlefieldThenFriendlyUnit) return "controlled battlefield then friendly unit at another location";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
         if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
         if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";

@@ -13359,6 +13359,9 @@ internal static class ActionPromptBuilder
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
             CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
+                : IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -17074,6 +17077,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
             CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => "受你控制的战场，然后位于其他位置的友方单位",
             CardTargetScopes.FriendlyBaseUnitThenBattlefield => "友方基地单位，然后选择战场",
             CardTargetScopes.BattlefieldThenEnemyUnit => "战场，然后选择该处的敌方单位",
             CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",

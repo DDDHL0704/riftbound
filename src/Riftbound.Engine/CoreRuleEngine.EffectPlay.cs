@@ -11,6 +11,10 @@ public sealed record PendingEffectPlayState(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SourceReplayContinuation? SourceReplay { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectLocationState? OriginalLocation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? OriginalBattlefield { get; init; }
 }
 
 public sealed partial class CoreRuleEngine
@@ -130,6 +134,14 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.DestinationPolicy == "ORIGINAL_LOCATION")
+        {
+            if (pending.OriginalLocation is { Zone: "BASE" } at)
+                return at.PlayerId == playerId ? ["BASE"] : [];
+            var destination = "BATTLEFIELD:" + pending.OriginalBattlefield?.ObjectId;
+            return IsForcedEffectPlayDestination(state, playerId, destination)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination) ? [destination] : [];
+        }
         if (pending.Parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" }
             && pending.Sources.Keys.SingleOrDefault() is { } chosen && state.CardObjects.TryGetValue(chosen, out var selected)
             && !selected.Tags.Contains(CardObjectTags.UnitCard)) return ["BASE"];
@@ -257,6 +269,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var actor = parent.ControllerId;
         var sourceZone = behavior.EffectPlaySourceZone;
+        ObjectLocationState? originalLocation = null;
+        ObjectBinding? originalBattlefield = null;
         IReadOnlyList<string> sources = sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
         if (sourceZone == "BANISHED")
         {
@@ -264,6 +278,13 @@ public sealed partial class CoreRuleEngine
             if (sources.Count > 0 && cards.TryGetValue(sources[0], out var target))
             {
                 var id = sources[0];
+                if (behavior.EffectPlayDestination == "ORIGINAL_LOCATION")
+                {
+                    originalLocation = state.ObjectLocations.GetValueOrDefault(id);
+                    if (originalLocation is { Zone: "BATTLEFIELD", BattlefieldObjectId: { } fieldId }
+                        && BattlefieldLocalRules.Battlefield(state, fieldId) is { } field)
+                        originalBattlefield = new(fieldId, field.ObjectGeneration);
+                }
                 actor = NonFieldDestinationOwner(zones, target, parent.ControllerId);
                 DetachEquipmentFromRemovedHost(cards, id);
                 foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with {
@@ -279,7 +300,9 @@ public sealed partial class CoreRuleEngine
                     sources = [];
                 }
                 events.Add(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
-                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED" }));
+                    ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED",
+                    ["originalLocation"] = originalLocation, ["originalBattlefield"] = originalBattlefield,
+                    ["parentStackItemId"] = parent.StackItemId, ["targetGeneration"] = target.ObjectGeneration }));
             }
         }
         sources = sources.Where(id => cards.TryGetValue(id, out var card) && EffectPlaySourceMatches(card, behavior)).ToArray();
@@ -295,7 +318,8 @@ public sealed partial class CoreRuleEngine
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,
             sourceZone, sources.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             behavior.EffectPlayIgnoreBaseMana, behavior.EffectPlayIgnoreBasePower, behavior.EffectPlayManaReduction,
-            behavior.EffectPlayDestination, behavior.EffectPlayOptional);
+            behavior.EffectPlayDestination, behavior.EffectPlayOptional) {
+                OriginalLocation = originalLocation, OriginalBattlefield = originalBattlefield };
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

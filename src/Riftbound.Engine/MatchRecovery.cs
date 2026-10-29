@@ -1141,7 +1141,10 @@ public static partial class MatchRecoveryValidator
 
         RoomSeatRecoveryValidator.Validate(commands, events, errors);
         if (authoritativeState is not null)
+        {
             ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
+            ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
+        }
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
@@ -23947,6 +23950,7 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (item.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(state, movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                    || CoreRuleEngine.NeedsMovementInstructionConfirmation(item)
                     || !CoreRuleEngine.ValidMovementInstanceId(movement, item.StackItemId, stack: true)
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");

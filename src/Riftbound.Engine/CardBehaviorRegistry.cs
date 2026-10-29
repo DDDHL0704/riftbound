@@ -298,7 +298,8 @@ public sealed record CardBehaviorDefinition(
     bool CounterRequiresOpponentOtherSpellThisTurn = false,
     int? BasePowerUntilEndOfTurn = null,
     int PreventDamageUntilEndOfTurn = 0,
-    string TargetRequiresEnemyTraitThreat = "")
+    string TargetRequiresEnemyTraitThreat = "",
+    bool AllowsPlayToOpenBattlefield = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -322,6 +323,7 @@ public static class CardTargetScopes
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string ControlledBattlefieldThenFriendlyUnit = "CONTROLLED_BATTLEFIELD_THEN_FRIENDLY_UNIT";
     public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
     public const string BattlefieldThenEnemyUnit = "BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
@@ -487,6 +489,26 @@ public static class CardBehaviorRegistry
         new("VEN·126", "忍法！气合盾", 2, "SPIRIT_REFUGE_PREVENT_SEVEN_DAMAGE", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             CanPlayDuringPriority: true, PreventDamageUntilEndOfTurn: 7),
+        new("VEN·066", "时空裂隙", 2, "TIME_FISSURE_BANISH_UNIT_PLAY_SAME_LOCATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+            EffectPlayDestination: "ORIGINAL_LOCATION"),
+        new("VEN·115", "海洋亚龙", 8, "OCEAN_DRAKE_PLAY_UNIT_OPTIONAL_RETURN_NON_DRAGON", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            TargetForbiddenTag: "龙", MinTargetCount: 0, ReturnsTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "龙", AllowsPlayToOpenBattlefield: true),
+        new("VEN·034", "回音击", 2, "ECHOING_STRIKE_MOVE_FRIENDLY_UNIT_AND_BUFF", 0, 2,
+            TargetScope: CardTargetScopes.ControlledBattlefieldThenFriendlyUnit, CanPlayDuringPriority: true,
+            TargetReferencedMovement: new(1, 0, ReferenceIsBattlefield: true, ReferenceMustBeControlled: true, MovingUnitPowerBonus: 2)),
+        new("VEN·002", "旋风剑客", 4, "SWIFTBLADE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人"),
+        new("VEN·016", "蚀影巨龙", 8, "ECLIPSE_DRAKE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·095", "影流弟子", 2, "SHADOW_DISCIPLE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
+        new("VEN·111", "米娜·捷足", 6, "MINA_SWIFTFOOT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

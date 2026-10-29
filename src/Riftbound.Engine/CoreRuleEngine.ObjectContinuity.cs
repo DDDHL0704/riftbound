@@ -120,18 +120,18 @@ public sealed partial class CoreRuleEngine
         // silently shift when one target becomes illegal. Independent draw and
         // other untargeted instructions still resolve (CN 359.3.e.5-8).
         return item with { TargetObjectIds = item.TargetObjectIds.Select((id, index) =>
-            IsLegalChosenCardTarget(state, item.ControllerId, id, index, item.TargetObjectIds, scope, behavior)
+            IsLegalChosenCardTarget(state, item.ControllerId, id, index, item.TargetObjectIds, scope, behavior, allowUnavailableReference: true)
                 && PermanentPlayHereTargetAllowed(state, item, behavior, id)
                 ? id : string.Empty).ToArray() };
     }
 
     private static bool IsLegalChosenCardTarget(MatchState state, string playerId, string objectId, int index,
-        IReadOnlyList<string> targets, string scope, CardBehaviorDefinition behavior)
+        IReadOnlyList<string> targets, string scope, CardBehaviorDefinition behavior, bool allowUnavailableReference = false)
         => !string.IsNullOrWhiteSpace(objectId)
             && StandbyTargetAllowed(state, behavior, objectId, index)
             && IsTargetObjectInScope(state, playerId, objectId, scope, index, behavior.CanCounterAbilities)
             && IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targets, index)
-            && IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targets, index)
+            && IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targets, index, allowUnavailableReference)
             && IsMovementEquipmentRelationAllowed(state, playerId, behavior, targets, index)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && TemporaryUnitEffectRules.ThreatAllowsTarget(state, playerId, objectId, behavior)
