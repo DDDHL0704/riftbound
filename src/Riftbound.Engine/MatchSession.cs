@@ -4924,7 +4924,7 @@ public sealed record ResolutionResult(
         if (trigger.GraveyardPlay is not null) return "支付费用，从废牌堆打出原卡牌";
         if (trigger.DelayedEmpower is { } delayedEmpower) return CoreRuleEngine.DelayedEmpowerLabel(delayedEmpower);
         if (trigger.EmpowerOtherObserver is not null) return "其他物体被强化：强化来源";
-        if (trigger.DelayedDestruction is not null) return "延迟摧毁：打出休眠金币";
+        if (trigger.DelayedDestruction is { } delayed) return "延迟摧毁：" + CoreRuleEngine.DelayedDestructionRewardLabel(delayed);
         if (trigger.SourceReadied is not null) return "活跃后选择本回合关键词。";
         if (trigger.ReadyObjectTrigger is not null) return "活跃除来源之外的一个休眠物体。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death);
@@ -4953,7 +4953,7 @@ public sealed record ResolutionResult(
         if (trigger.GraveyardPlay is not null) return "使用法术摧毁单位后，可选择支付基础费用确认；双方响应后，从废牌堆打出原卡牌。";
         if (trigger.DelayedEmpower is not null) return "双方响应后，对此前绑定的同一代单位执行强化状态操作。";
         if (trigger.EmpowerOtherObserver is not null) return "其他物体被你强化；双方响应后强化来源。";
-        if (trigger.DelayedDestruction is not null) return "目标在本回合被摧毁；双方响应后打出一个休眠金币。";
+        if (trigger.DelayedDestruction is { } delayed) return "目标在本回合被摧毁；双方响应后" + CoreRuleEngine.DelayedDestructionRewardLabel(delayed) + "。";
         if (trigger.SourceReadied is not null) return "活跃后选择本回合关键词。";
         if (trigger.ReadyObjectTrigger is not null) return "活跃除来源之外的一个休眠物体。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death) + "；记录死亡时的控制者，双方响应后结算。";
@@ -5653,7 +5653,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.UnitConquest is not null) view["abilityLabel"] = "征服未受控制战场：战力伤害";
         if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
         if (!hiddenSource && item.MovementObserver is { } movement) view["abilityLabel"] = CoreRuleEngine.MovementObserverLabel(movement);
-        if (!hiddenSource && item.DelayedDestruction is not null) view["abilityLabel"] = "延迟摧毁：打出休眠金币";
+        if (!hiddenSource && item.DelayedDestruction is { } delayed) view["abilityLabel"] = "延迟摧毁：" + CoreRuleEngine.DelayedDestructionRewardLabel(delayed);
         if (!hiddenSource && item.DamageDestruction is not null) view["abilityLabel"] = "受伤后摧毁原单位";
         if (!hiddenSource && item.GraveyardPlay is not null) view["abilityLabel"] = "支付费用，从废牌堆打出原卡牌";
         if (!hiddenSource && item.DeathObserver is { } death) view["abilityLabel"] = CoreRuleEngine.DeathObserverLabel(death);

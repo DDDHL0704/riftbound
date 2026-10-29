@@ -47,6 +47,9 @@ public sealed class SiphoningStrikeTests
         var reward = Assert.Single(game.State.StackItems);
         Assert.NotNull(reward.DelayedDestruction); Assert.Empty(reward.TargetObjectIds);
         Assert.Equal("P1", reward.ControllerId); Assert.Equal(Card, reward.CardNo);
+        var snapshot = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P1"],
+            new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+        Assert.Contains("延迟摧毁：召出 1 枚休眠符文", snapshot);
         Assert.Equal(3, game.State.PlayerZones["P1"].RuneDeck.Count);
         await game.Top();
         Assert.Equal(2, game.State.PlayerZones["P1"].RuneDeck.Count);

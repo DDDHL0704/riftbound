@@ -18,6 +18,12 @@ public sealed partial class CoreRuleEngine
     internal const string DelayedDestructionEffect = "DELAYED_UNIT_DESTRUCTION_REWARD";
     internal const string DelayedDestructionPrefix = "DELAYED_UNIT_DESTRUCTION|";
 
+    internal static string DelayedDestructionRewardLabel(DelayedDestructionContext context)
+        => !CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior)
+            || behavior.DelayedDestructionReward is not { } reward ? "处理延迟效果"
+            : reward.RuneCallCount > 0 ? $"召出 {reward.RuneCallCount} 枚休眠符文"
+            : $"打出一个休眠{reward.EquipmentTokenName}";
+
     private static string EncodeDelayedIdentity(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
     private static string? DecodeDelayedIdentity(string value)
     {
