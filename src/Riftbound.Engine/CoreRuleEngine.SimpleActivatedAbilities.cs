@@ -104,7 +104,7 @@ public sealed partial class CoreRuleEngine
         }
         if (ability.SimpleEffect!.RemovesSourceEmpowermentAsCost)
         {
-            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(source.ObjectId, source.ObjectGeneration), false);
+            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(source.ObjectId, source.ObjectGeneration), false, intent.PlayerId);
             source = changed.CardObjects[source.ObjectId];
             events.AddRange(changed.Events);
         }
@@ -233,7 +233,7 @@ public sealed partial class CoreRuleEngine
             if (IsSimpleAbilityTarget(state, item.ControllerId, item.SourceObjectId, target, ability)
                 && item.TargetGenerations![target] == cards[target].ObjectGeneration)
             {
-                var changed = ApplyEmpowerStatusAction(state, new(target, cards[target].ObjectGeneration), true);
+                var changed = ApplyEmpowerStatusAction(state, new(target, cards[target].ObjectGeneration), true, item.ControllerId);
                 cards[target] = changed.CardObjects[target]; events.AddRange(changed.Events);
             }
         }
