@@ -4726,6 +4726,16 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "游走"),
         new(
+            "VEN·167",
+            "蔚",
+            2,
+            "VEN_VI_ROAM_RECYCLE_POWER_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3,
+            SourceUnitTags: "游走"),
+        new(
             "OGN·066/298",
             "阿狸",
             5,
