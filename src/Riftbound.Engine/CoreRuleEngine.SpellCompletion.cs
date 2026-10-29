@@ -262,13 +262,13 @@ public sealed partial class CoreRuleEngine
                 && !CardStaticAbilitySpecRules.CardCannotBecomeActive(card.CardNo))
             {
                 cards[id] = card with { IsExhausted = false };
-                events.Add(new("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
+                events.Add(CaptureUnitReadied(new GameEvent("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
                 {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = id, ["targetObjectId"] = id,
                     ["wasExhausted"] = card.IsExhausted, ["isExhausted"] = false,
                     ["reason"] = context.Kind, ["playedCardNo"] = context.PlayedCardNo,
                     ["playedSourceObjectId"] = context.PlayedObjectId
-                }));
+                }), state.PlayerZones, cards, id, card.IsExhausted));
             }
         }
         else if (spec.DrawCount is > 0)

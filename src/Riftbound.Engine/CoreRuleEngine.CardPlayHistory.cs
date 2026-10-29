@@ -15,7 +15,8 @@ public sealed record TurnCardPlayHistory(int TurnNumber,
 public sealed partial class CoreRuleEngine
 {
     private const string CardPlayHistoryObservationKey = "cardPlayHistoryObservation";
-    private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone);
+    private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone,
+        IReadOnlyList<UnitEventObservation> FirstCardObservers);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
             c => (c.CardCategoryNameList.Any(n => n.Contains("单位", StringComparison.Ordinal)) ? 1 : 0)
@@ -23,7 +24,8 @@ public sealed partial class CoreRuleEngine
                 | (c.CardCategoryNameList.Any(n => n.Contains("法术", StringComparison.Ordinal)) ? 4 : 0), StringComparer.Ordinal));
 
     private static GameEvent CaptureCardPlayHistory(GameEvent ev, CardObjectState card, string player,
-        string? playId, bool resolved, string zone)
+        string? playId, bool resolved, string zone, IReadOnlyDictionary<string, PlayerZones>? zones = null,
+        IReadOnlyDictionary<string, CardObjectState>? cards = null)
     {
         var payload = ev.Payload.Where(p => p.Key != "historyPlayId").ToDictionary(p => p.Key, p => p.Value);
         if (card.CardNo is not { } no || TokenObjectRules.IsToken(card)
@@ -31,7 +33,7 @@ public sealed partial class CoreRuleEngine
             return ev with { Payload = payload };
         payload[CardPlayHistoryObservationKey] = new CardPlayHistoryObservation(
             new(playId ?? "", player, new(card.ObjectId, card.ObjectGeneration), no, types, 0,
-                card.CopyFaceTransitions?.Count ?? 0), resolved, zone);
+                card.CopyFaceTransitions?.Count ?? 0), resolved, zone, CaptureFirstCardObservers(zones, cards, player));
         return ev with { Payload = payload };
     }
 
@@ -42,6 +44,9 @@ public sealed partial class CoreRuleEngine
         var finalized = (history.TurnNumber == before.TurnNumber ? history.Finalized : []).ToList();
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();
         var events = new List<GameEvent>();
+        var queue = result.State.TriggerQueue.ToList();
+        var observers = new List<UnitEventObservation>();
+        var effects = result.State.UntilEndOfTurnEffects;
         var locations = IdentityLocations(before);
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
         {
@@ -63,13 +68,27 @@ public sealed partial class CoreRuleEngine
             // Limited effect plays complete the play instruction directly. They
             // must not borrow a previous countered play of this physical card.
             if (!observation.Resolved || limited)
-                if (!finalized.Any(p => p.PlayId == entry.PlayId)) finalized.Add(entry);
+                if (!finalized.Any(p => p.PlayId == entry.PlayId)) {
+                    finalized.Add(entry);
+                    foreach (var reduction in SourceNextSpellCostReductionEffects(result.State with { UntilEndOfTurnEffects = effects }, entry.PlayerId)
+                        .Where(r => r.AppliesToAllCards)) effects = RemoveUntilEndOfTurnEffect(effects, reduction.EffectId);
+                }
+            if (finalized.FirstOrDefault(p => p.PlayerId == entry.PlayerId)?.PlayId == entry.PlayId)
+                observers.AddRange(observation.FirstCardObservers);
             if (observation.Resolved && !resolved.Any(p => p.PlayId == entry.PlayId)) resolved.Add(entry);
         }
         var nextHistory = result.State.TurnNumber == before.TurnNumber
             ? new TurnCardPlayHistory(before.TurnNumber, finalized, resolved)
             : new TurnCardPlayHistory(result.State.TurnNumber, [], []);
-        var next = result.State with { CardPlays = nextHistory };
+        foreach (var (observer, index) in observers.DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Origin))
+            .Select((o, i) => (o, i))) {
+            var captured = observer;
+            if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
+                captured = observer with { Context = observer.Context with { SourceGeneration = Math.Max(observer.Context.SourceGeneration, prior.ObjectGeneration + 1) } };
+            var trigger = UnitEventTrigger(captured, result.State.Tick, index, "FIRST_CARD_PLAYED");
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = effects };
         return result with { State = next, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }

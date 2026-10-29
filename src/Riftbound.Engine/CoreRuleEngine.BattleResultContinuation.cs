@@ -28,6 +28,7 @@ public sealed partial class CoreRuleEngine
     {
             result = RecordHandDiscardObservers(result);
             result = QueueEmpoweredBanish(result);
+            result = QueueEmpowerOtherObservers(result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
@@ -35,6 +36,7 @@ public sealed partial class CoreRuleEngine
             result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
+            result = QueueUnitEvents(state, result);
             result = QueueSourcePlayDraw(state, result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
@@ -63,7 +65,7 @@ public sealed partial class CoreRuleEngine
             var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
-            return StampNewTriggerQueueTimes(state, completed);
+            return StampNewTriggerQueueTimes(state, RecordUnitEventSourceFacts(state, completed));
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";

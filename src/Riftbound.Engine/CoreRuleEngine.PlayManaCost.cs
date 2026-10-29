@@ -34,8 +34,9 @@ public sealed partial class CoreRuleEngine
                 .Select(source => ("spell", source.StaticSpellCostReductionMana, source.StaticSpellCostReductionMinimumManaCost)));
             reductions.AddRange(EmpoweredSpellCostReducers(state, playerId, behavior)
                 .Select(source => ("empoweredSpell", source.Mana, source.MinimumMana)));
-            reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId).Sum(effect => effect.Mana), 0));
         }
+        reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId)
+            .Where(effect => effect.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(effect => effect.Mana), 0));
         reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));
         if (!string.IsNullOrEmpty(behavior.TargetTraitsManaReductionTags)
             && (targets ?? []).Any(id => state.CardObjects.TryGetValue(id, out var card)
