@@ -2491,6 +2491,8 @@ public static class ActivatedAbilityParser
                 var parts = segment.Split(['：', ':'], 2, StringSplitOptions.TrimEntries);
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
+                if (TryParseRecycleGraveyardSelfMight(cost, effect, out var recycledMight))
+                    return recycledMight;
                 if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
                 {
                     return typedResourceSkill;
@@ -2549,6 +2551,20 @@ public static class ActivatedAbilityParser
         }
 
         return segments;
+    }
+
+    private static bool TryParseRecycleGraveyardSelfMight(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var match = Regex.Match(effect, @"^(?:给予|让)我(?:在)?本回合内\{\{S\}\}\+(?<amount>\d+)(?:（可重复执行）)?[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (!Regex.IsMatch(cost, @"^从(?:你的)?废牌堆回收一张卡牌$", RegexOptions.CultureInvariant)
+            || !match.Success || !int.TryParse(match.Groups["amount"].Value, out var amount) || amount <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect), BehaviorImplementationStatuses.Unimplemented,
+            "Recycle a graveyard card as the activation cost; grant the source Might after responses.",
+            Kind: ActivatedAbilityKinds.RecycleGraveyardCardGrantSelfMight, ManaCost: 0, PowerCost: 0,
+            RequiredTargetCount: 0, PowerModifierAmount: amount);
+        return true;
     }
 
     private static bool TryParseTargetedPowerModifier(string cost, string effect, out ActivatedAbilitySpec ability)
