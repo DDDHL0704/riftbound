@@ -83,6 +83,7 @@ public sealed partial class CoreRuleEngine
         else if (!AttachedRuleTextRules.Instances(state, target)
             .Any(instance => CardStaticAbilitySpecRules.CardCannotBecomeActive(instance.CardNo)))
         {
+            AddReadiedObservation(state.PlayerZones, cards, target, events);
             cards[id] = target with { IsExhausted = false };
             events.Add(CaptureSelfReady(new("UNIT_READIED", "单位变为活跃状态", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,

@@ -443,6 +443,12 @@ public static class TriggerParser
                 selfActionPower.Value, "Controller targeting and ready instructions each earn a separate self Might ability.",
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(selfActionPower.Groups["might"].Value),
                 Duration: TriggerDurations.UntilEndOfTurn));
+        var readiedModes = Regex.Match(text,
+            @"当我变为活跃状态时，选择一个给予我在本回合内的效果\s*[—-]\s*-\s*\{\{强攻2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{法盾2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{游走\}\}(?:（[^）]*）)?[。]?",
+            RegexOptions.CultureInvariant);
+        if (readiedModes.Success) triggers.Add(new(TriggerKinds.SourceReadiedChooseKeyword, TriggerTimings.SourceReadied,
+            readiedModes.Value, TargetScope: TriggerTargetScopes.SourceUnit, Duration: TriggerDurations.UntilEndOfTurn,
+            Modes: [new("ASSAULT_2", "强攻2", GrantedKeyword: "强攻2"), new("WARD_2", "法盾2", GrantedKeyword: "法盾2"), new("ROAM", "游走", GrantedKeyword: "游走")]));
         var equipmentDraw = Regex.Match(text,
             @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
             RegexOptions.CultureInvariant);
@@ -555,6 +561,7 @@ public static class TriggerParser
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
             .Where(segment => !destroyEquipmentGrant.Success || !segment.StartsWith("当你打出我时，你可以选择摧毁一件友方装备", StringComparison.Ordinal))
+            .Where(segment => !readiedModes.Success || !segment.Contains("当我变为活跃状态时，选择一个给予我", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
@@ -952,6 +959,10 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
+            return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
+                segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
+                OncePerTurn: true, ExcludesTokens: true, ObjectReadyCount: 1);
         var exactOtherFriendlyHeld = Regex.Match(segment,
             @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
             RegexOptions.CultureInvariant);

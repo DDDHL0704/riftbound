@@ -68,6 +68,31 @@ public sealed class AccelerationGateTests
     }
 
     [Theory]
+    [InlineData("VEN·088", true)] [InlineData("VEN·088a", true)] [InlineData("VEN·088", false)]
+    public async Task ReadyingJayceQueuesHisOwnKeywordChoiceOnlyWhenHeWasExhausted(string no, bool exhausted)
+    {
+        var state = Position();
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["HOST"] = OfficialGarenConquestBattlefieldCountTests.Printed("HOST", no, "P1") with { IsExhausted = exhausted } } };
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("GATE", Card, ["HOST"]));
+        Assert.Equal(exhausted, game.State.CardObjects["HOST"].IsExhausted);
+        await game.Top();
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Empty(game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        if (exhausted) {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal("READIED_MODE_CONFIRMATION", choice.ChoiceWindow);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ROAM"]));
+            Assert.Empty(game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+            await game.Top();
+            Assert.Contains("ROAM", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        }
+        else { Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); }
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("missing")] [InlineData("duplicate")] [InlineData("five")]
     [InlineData("legend")] [InlineData("battlefield")] [InlineData("hand")]
     [InlineData("hidden")] [InlineData("rune-deck")] [InlineData("no-mana")] [InlineData("wrong-color")]
