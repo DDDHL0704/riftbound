@@ -25,7 +25,11 @@ public sealed class OfficialBattlefieldReplacementTests
         => Act(state, state.PendingCardChoice!.PlayerId, new ChooseCardsCommand(state.PendingCardChoice.ChoiceId, state.PendingCardChoice.ChoiceWindow, ids));
     internal static async Task<ResolutionResult> CreateBrush(MatchState state)
     {
-        var r = await Conquer(state); r = await Choose(r.State, "LEGEND"); return await Top(r.State);
+        var r = await Conquer(state);
+        if (r.State.TriggerQueue.Count > 1)
+            r = await Act(r.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: r.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        r = await Choose(r.State, "LEGEND");
+        return await Top(r.State);
     }
     internal static MatchState NextHold(MatchState state) => state with { Phase = MatchPhases.TurnStart, TurnStartStep = null,
         TurnNumber = state.TurnNumber + 2, TimingState = TimingStates.NeutralClosed, ActivePlayerId = "P1", TurnPlayerId = "P1",

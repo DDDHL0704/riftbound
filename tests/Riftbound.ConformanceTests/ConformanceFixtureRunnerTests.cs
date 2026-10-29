@@ -37205,6 +37205,17 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-PLUNDER-ALLEY", "P2-BATTLEFIELD-PLUNDER-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
     }
 
+    private static async Task<ResolutionResult> CompleteP79ConquestResponses(ResolutionResult result)
+    {
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        var first = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new PassPriorityCommand());
+        Assert.Equal("P2", first.State.PriorityPlayerId);
+        Assert.DoesNotContain(first.Events, gameEvent => gameEvent.Kind is "CARD_DRAWN" or "CARD_DISCARDED"
+            or "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var second = await OfficialInsightAndSpellLockTests.Act(first.State, "P2", new PassPriorityCommand());
+        return second with { Events = result.Events.Concat(first.Events).Concat(second.Events).ToArray() };
+    }
+
     [Fact]
     public async Task P79BattlefieldConquerConsumesBoonAndDraws()
     {
@@ -37221,6 +37232,23 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-SHIRANA-ATTACKER", choice.LegalObjectIds);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-SHIRANA-ATTACKER"]));
+        Assert.Contains(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.DoesNotContain(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -37288,6 +37316,24 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-LEGAL-BOON", choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-DIRTY-P2-BOON", choice.LegalObjectIds);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-LEGAL-BOON"]));
+        Assert.Contains(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-LEGAL-BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal)
@@ -37349,6 +37395,13 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        var conquestTick = result.State.Tick;
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerMill);
+        var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(result.State);
+        result = resolved with { Events = result.Events.Concat(resolved.Events).ToArray() };
         Assert.Equal(["P1-BATTLEFIELD-MILL-003"], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
@@ -37361,7 +37414,8 @@ public sealed class ConformanceFixtureRunnerTests
         var conqueredResolution = Assert.Single(
             result.State.BattlefieldResolutions,
             resolution => string.Equals(resolution.Kind, "CONQUERED", StringComparison.Ordinal));
-        Assert.Equal(result.State.Tick, conqueredResolution.Tick);
+        Assert.Equal(conquestTick, conqueredResolution.Tick);
+        Assert.True(result.State.Tick > conquestTick);
         Assert.Equal("P1", conqueredResolution.PlayerId);
         Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", conqueredResolution.BattlefieldObjectId);
         Assert.Contains("P1-BATTLEFIELD-CONQUER-ATTACKER", conqueredResolution.ParticipantObjectIds);
@@ -37384,6 +37438,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Equal(state.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await CompleteP79ConquestResponses(result);
         Assert.Equal(["P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
@@ -37431,6 +37491,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Equal(state.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await CompleteP79ConquestResponses(result);
         Assert.Equal(["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", "P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
@@ -38296,6 +38362,24 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", choice.LegalObjectIds);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        Assert.True(confirmed.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        var detach = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", detach.PlayerId);
+        Assert.Equal(0, detach.RequiredCount);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", detach.LegalObjectIds);
+        var detached = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(detach.ChoiceId, detach.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        result = detached with { Events = result.Events.Concat(detached.Events).ToArray() };
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
@@ -38352,6 +38436,25 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT", choice.LegalObjectIds);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        Assert.True(confirmed.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        var detach = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", detach.PlayerId);
+        Assert.Equal(0, detach.RequiredCount);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", detach.LegalObjectIds);
+        var detached = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(detach.ChoiceId, detach.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        result = detached with { Events = result.Events.Concat(detached.Events).ToArray() };
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));

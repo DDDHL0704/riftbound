@@ -592,6 +592,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
             return ResolveTriggerTargetPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
+        if (pendingPayment.PaymentWindow == TriggerPaymentWindow && pendingPayment.ResolvingStackItemId is { } conquestItem
+            && state.StackItems.Any(item => item.StackItemId == conquestItem && item.UnitConquestReturn is not null))
+            return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.ResolvingStackItemId is not null)
             return ResolveInsightPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal))
@@ -3014,6 +3017,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (NeedsCapturedLastBreathDiscardChoice(pendingChoice) && !ValidLastBreathDiscardChoice(state))
             return RejectWithCorePrompts(state, "绝念弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
+        if (pendingChoice.BattlefieldConquestDiscardDraw is not null
+                && !ValidBattlefieldConquestDiscardHandChoice(state, pendingChoice)
+            || pendingChoice.ChoiceId.StartsWith("CONQUEST-HAND:", StringComparison.Ordinal)
+                && pendingChoice.BattlefieldConquestDiscardDraw is null)
+            return RejectWithCorePrompts(state, "征服弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
 
         var submittedObjectIds = chosenObjectIds
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
@@ -3092,7 +3100,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["battlefieldObjectId"] = pendingChoice.SourceObjectId,
                     ["sourceObjectId"] = pendingChoice.SourceObjectId,
-                    ["battlefieldCardNo"] = cardObjects.GetValueOrDefault(pendingChoice.SourceObjectId)?.CardNo,
+                    ["battlefieldCardNo"] = pendingChoice.BattlefieldConquestDiscardDraw?.Context.CardNo
+                        ?? cardObjects.GetValueOrDefault(pendingChoice.SourceObjectId)?.CardNo,
                     ["trigger"] = pendingChoice.EffectKind, ["drawCount"] = pendingChoice.DrawCount
                 }));
         }
@@ -3225,6 +3234,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == BattlefieldConquestEquipmentDetachWindow) return ResolveBattlefieldConquestReadyEquipmentDetachChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
@@ -3265,7 +3275,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment,  SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5114,6 +5124,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.BattlefieldConquestMill is { } conquestMill)
+            payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
+        if (trigger.BattlefieldConquestDiscardDraw is { } conquestDiscard)
+            payload["sourceGeneration"] = conquestDiscard.Source.Generation;
+        if (trigger.BattlefieldConquestReadyEquipment is { } conquestEquipment)
+            payload["sourceGeneration"] = conquestEquipment.Source.Generation;
+        if (trigger.BattlefieldConquestConsumeBoon is { } conquestBoon)
+            payload["sourceGeneration"] = conquestBoon.Source.Generation;
+        if (trigger.UnitConquestReturn is { } conquestReturn)
+        {
+            payload["sourceGeneration"] = conquestReturn.Source.Generation;
+            payload["sourceFaceRevision"] = conquestReturn.FaceRevision;
+            payload["sourceCardNo"] = conquestReturn.CardNo;
+            payload["battlefieldObjectId"] = conquestReturn.BattlefieldObjectId;
+            payload["occurrence"] = conquestReturn.Occurrence;
+            if (conquestReturn.TokenFactoryCardNo is not null)
+                payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
+        }
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
         {
@@ -16217,65 +16245,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || requiredKeywords.All(keyword => tokenDefinition.Tags.Contains(keyword, StringComparer.Ordinal));
     }
 
-    private static bool TryResolveBattlefieldConquerMillTwoTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string sourceObjectId,
-        List<GameEvent> events)
-    {
-        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger,
-                out var trigger)
-            || !playerZones.TryGetValue(playerId, out var zones)
-            || zones.MainDeck.Count == 0)
-        {
-            return false;
-        }
-
-        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, trigger.MillCount.GetValueOrDefault());
-        if (movedCardIds.Length == 0)
-        {
-            return false;
-        }
-
-        playerZones[playerId] = zones with
-        {
-            MainDeck = zones.MainDeck.Skip(movedCardIds.Length).ToArray(),
-            Graveyard = zones.Graveyard.Concat(movedCardIds).ToArray()
-        };
-
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 征服战场并弃置主牌堆顶牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldId"] = battlefieldId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldConquerMill,
-                ["sourceObjectId"] = sourceObjectId,
-                ["count"] = movedCardIds.Length
-            }));
-        events.Add(new GameEvent(
-            "CARDS_MILLED",
-            $"{playerId} 将主牌堆顶 {movedCardIds.Length} 张牌放入废牌堆",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["cardIds"] = movedCardIds,
-                ["count"] = movedCardIds.Length,
-                ["sourceZone"] = trigger.MillSourceZone,
-                ["destinationZone"] = trigger.MillDestinationZone
-            }));
-        return true;
-    }
-
     private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
         MatchState state, Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -24051,6 +24020,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.MightySkill is not null) return ResolveMightySkill(state, stackItem);
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
+        if (stackItem.BattlefieldConquestMill is not null) return ResolveBattlefieldConquestMill(state, stackItem);
+        if (stackItem.BattlefieldConquestDiscardDraw is not null) return ResolveBattlefieldConquestDiscardDraw(state, stackItem);
+        if (stackItem.BattlefieldConquestReadyEquipment is not null) return ResolveBattlefieldConquestReadyEquipment(state, stackItem);
+        if (stackItem.BattlefieldConquestConsumeBoon is not null) return ResolveBattlefieldConquestConsumeBoon(state, stackItem);
+        if (stackItem.UnitConquestReturn is not null) return ResolveUnitConquestReturn(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
         if (stackItem.BeginningRune is not null) return ResolveBeginningRune(state, stackItem);
