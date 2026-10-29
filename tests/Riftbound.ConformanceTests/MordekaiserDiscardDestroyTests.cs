@@ -15,7 +15,7 @@ public sealed class MordekaiserDiscardDestroyTests
     private const string CostWindow = "TRIGGER_HAND_DISCARD_COST";
 
     private static MatchState Position(string no = No)
-        => AttackDamageDistributionTests.Spell(VenUnitEntryBasicTests.Position(no), "COST", "OGN·104/298", "P1");
+        => AttackDamageDistributionTests.Spell(VenUnitEntryBasicTests.Position(no), "PRIVATE-DISCARD-ONE", "OGN·104/298", "P1");
 
     private static async Task Select(Driver game, params string[] ids)
     {
@@ -89,11 +89,11 @@ public sealed class MordekaiserDiscardDestroyTests
         Assert.Equal(new[] { "ALLY", "ENEMY", "GEAR", "UNIT" }, game.State.PendingCardChoice.LegalObjectIds.Order());
         await Select(game, target);
         Assert.Equal(CostWindow, game.State.PendingCardChoice!.ChoiceWindow);
-        Assert.Equal(new[] { "COST" }, game.State.PendingCardChoice.LegalObjectIds);
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("COST", JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)["P2"]));
-        await Select(game, "COST");
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(new[] { "PRIVATE-DISCARD-ONE" }, game.State.PendingCardChoice.LegalObjectIds);
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("PRIVATE-DISCARD-ONE", JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State)["P2"]));
+        await Select(game, "PRIVATE-DISCARD-ONE");
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Graveyard);
         Assert.True(Assert.Single(game.State.StackItems).FieldContext!.PaidUnitTrigger!.CostPaid);
         Assert.DoesNotContain(target, game.State.PlayerZones[game.State.CardObjects[target].OwnerId!].Graveyard);
         await game.Top();
@@ -108,26 +108,26 @@ public sealed class MordekaiserDiscardDestroyTests
     [InlineData("RAD·137a/167", "HOST")] [InlineData("RAD·137a/167", "ENEMY1")] [InlineData("RAD·137a/167", "GEAR")]
     public async Task AttackingUsesTheSameOptionalDiscardAndTargetConfirmation(string no, string target)
     {
-        var initial = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(no), "COST", "OGN·104/298", "P1");
+        var initial = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(no), "PRIVATE-DISCARD-ONE", "OGN·104/298", "P1");
         var game = await Attack(initial);
         Assert.True(game.State.CardObjects["HOST"].IsAttacking);
         Assert.Equal(Kind, Assert.Single(game.State.StackItems).FieldContext!.Kind);
-        await Select(game, target); await Select(game, "COST");
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard);
+        await Select(game, target); await Select(game, "PRIVATE-DISCARD-ONE");
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Graveyard);
         await game.Top();
         Assert.Contains(target, game.State.PlayerZones[game.State.CardObjects[target].OwnerId!].Graveyard);
         await game.Replay();
     }
 
     [Theory]
-    [InlineData("COST")] [InlineData("GRAVE")] [InlineData("BF")] [InlineData("UNKNOWN")]
+    [InlineData("PRIVATE-DISCARD-ONE")] [InlineData("GRAVE")] [InlineData("BF")] [InlineData("UNKNOWN")]
     [InlineData("duplicate")] [InlineData("extra")] [InlineData("opponent")]
     public async Task IllegalTargetsLeaveTheOriginalChoiceUsable(string branch)
     {
         var game = await Play(Position()); var choice = game.State.PendingCardChoice!;
         await Reject(game.State, branch == "opponent" ? "P2" : "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
             branch == "duplicate" ? ["ENEMY", "ENEMY"] : branch == "extra" ? ["ENEMY", "GEAR"] : [branch == "opponent" ? "ENEMY" : branch]));
-        await Select(game, "ENEMY"); await Select(game, "COST"); await game.Top();
+        await Select(game, "ENEMY"); await Select(game, "PRIVATE-DISCARD-ONE"); await game.Top();
         Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
     }
 
@@ -140,8 +140,8 @@ public sealed class MordekaiserDiscardDestroyTests
         state = AttackDamageDistributionTests.Spell(state, "COST2", "OGN·104/298", "P1");
         var game = await Play(state); await Select(game, "ENEMY"); var choice = game.State.PendingCardChoice!;
         await Reject(game.State, branch == "opponent" ? "P2" : "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
-            branch == "duplicate" ? ["COST", "COST"] : branch == "extra" ? ["COST", "COST2"] : [branch == "opponent" ? "COST" : branch]));
-        await Select(game, "COST"); await game.Top();
+            branch == "duplicate" ? ["PRIVATE-DISCARD-ONE", "PRIVATE-DISCARD-ONE"] : branch == "extra" ? ["PRIVATE-DISCARD-ONE", "COST2"] : [branch == "opponent" ? "PRIVATE-DISCARD-ONE" : branch]));
+        await Select(game, "PRIVATE-DISCARD-ONE"); await game.Top();
         Assert.Contains("COST2", game.State.PlayerZones["P1"].Hand); Assert.Contains("ENEMY-COST", game.State.PlayerZones["P2"].Hand);
     }
 
@@ -160,7 +160,7 @@ public sealed class MordekaiserDiscardDestroyTests
             "wrong-turn" => state with { TurnPlayerId = "P2", ActivePlayerId = "P2" },
             "graveyard" => state with {
                 PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
-                    ["P1"] = state.PlayerZones["P1"] with { Hand = ["COST"], Graveyard = ["GRAVE", "UNIT"] } },
+                    ["P1"] = state.PlayerZones["P1"] with { Hand = ["PRIVATE-DISCARD-ONE"], Graveyard = ["GRAVE", "UNIT"] } },
                 ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["UNIT"] = new("P1", "GRAVEYARD") } },
             _ => state };
         await Reject(state, "P1", new PlayCardCommand("UNIT", no, branch == "extra-target" ? ["ENEMY"] : [],
@@ -178,7 +178,7 @@ public sealed class MordekaiserDiscardDestroyTests
         Assert.DoesNotContain("GEAR", choice.LegalObjectIds); Assert.DoesNotContain("ENEMY", choice.LegalObjectIds);
         foreach (var id in new[] { "GEAR", "ENEMY" })
             await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]));
-        await Select(game, "ALLY"); await Select(game, "COST"); await game.Top();
+        await Select(game, "ALLY"); await Select(game, "PRIVATE-DISCARD-ONE"); await game.Top();
         Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 
@@ -203,16 +203,16 @@ public sealed class MordekaiserDiscardDestroyTests
             RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(9, funded ? 4 : 2) },
             CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["ENEMY"] = state.CardObjects["ENEMY"] with { Tags = [CardObjectTags.UnitCard, "法盾2"] } } };
-        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "COST");
+        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "PRIVATE-DISCARD-ONE");
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(0, payment.ManaCost); Assert.Equal(2, payment.PowerCost);
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("COST", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("PRIVATE-DISCARD-ONE", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"].Stack));
         await Reject(game.State, "P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [answer]));
         if (!funded) await Reject(game.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
         var pay = funded && answer == "PAY";
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
-        Assert.Equal(!pay, game.State.PlayerZones["P1"].Hand.Contains("COST"));
+        Assert.Equal(!pay, game.State.PlayerZones["P1"].Hand.Contains("PRIVATE-DISCARD-ONE"));
         Assert.Equal(funded && !pay ? 2 : 0, game.State.RunePools["P1"].TotalPower);
         if (pay) await game.Top();
         Assert.Equal(pay, game.State.PlayerZones["P2"].Graveyard.Contains("ENEMY")); await game.Replay();
@@ -221,12 +221,12 @@ public sealed class MordekaiserDiscardDestroyTests
     [Fact]
     public async Task CounteringAnAlreadyPaidSkillKeepsItsDiscardCostPaid()
     {
-        var state = AttackDamageDistributionTests.Spell(Position(), "COUNTER", "OGN·045/298", "P2");
-        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "COST");
+        var state = AttackDamageDistributionTests.Spell(Position(), "COUNTER", "SFD·045/221", "P2");
+        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "PRIVATE-DISCARD-ONE");
         await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·045/298", [Assert.Single(game.State.StackItems).StackItemId]));
+        await game.Act("P2", new PlayCardCommand("COUNTER", "SFD·045/221", [Assert.Single(game.State.StackItems).StackItemId]));
         await game.Top(); Assert.Empty(game.State.StackItems);
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Graveyard); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
         await game.Replay();
     }
 
@@ -238,8 +238,8 @@ public sealed class MordekaiserDiscardDestroyTests
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["JINX"] = state.CardObjects["JINX"] with { IsExhausted = true } } };
         var power = state.CardObjects["JINX"].Power;
-        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "COST");
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard);
+        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "PRIVATE-DISCARD-ONE");
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Graveyard);
         Assert.True(game.State.CardObjects["JINX"].IsExhausted); Assert.Equal(power, game.State.CardObjects["JINX"].Power);
         if (owner == "P1") {
             Assert.Single(game.State.StackItems, i => i.HandDiscardObserver is not null);
@@ -255,13 +255,13 @@ public sealed class MordekaiserDiscardDestroyTests
     [InlineData(false)] [InlineData(true)]
     public async Task ReturningSourceOrTargetPreservesTheSkillAndHidesTheNewPrivateObject(bool returnTarget)
     {
-        var state = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(No), "COST", "OGN·104/298", "P1");
+        var state = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(No), "PRIVATE-DISCARD-ONE", "OGN·104/298", "P1");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["HOST"] = state.CardObjects["HOST"] with { Power = 3 }, ["ENEMY1"] = state.CardObjects["ENEMY1"] with { Power = 3 } } };
         // The base attack fixture already has P2's response card. Keep its original owner.
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["RESPONSE"] = OfficialGarenConquestBattlefieldCountTests.Printed("RESPONSE", "OGN·169/298", "P2") } };
-        var game = await Attack(state); await Select(game, "ENEMY1"); await Select(game, "COST");
+        var game = await Attack(state); await Select(game, "ENEMY1"); await Select(game, "PRIVATE-DISCARD-ONE");
         var sourceGeneration = Assert.Single(game.State.StackItems).FieldContext!.SourceGeneration;
         await game.Act("P1", new PassPriorityCommand());
         var recalled = returnTarget ? "ENEMY1" : "HOST";
@@ -280,7 +280,7 @@ public sealed class MordekaiserDiscardDestroyTests
             Assert.Equal(new ObjectBinding("HOST", sourceGeneration), attribution.Source);
             Assert.True(attribution.Source.Generation < game.State.CardObjects["HOST"].ObjectGeneration);
         }
-        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
+        Assert.Contains("PRIVATE-DISCARD-ONE", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
     }
 
     [Theory]
@@ -289,7 +289,7 @@ public sealed class MordekaiserDiscardDestroyTests
     public async Task RecoveryRejectsForgedCostReceiptsAndPrivateChoices(string change)
     {
         var game = await Play(Position()); await Select(game, "ENEMY");
-        if (change is not ("paid-early" or "forged-choice")) await Select(game, "COST");
+        if (change is not ("paid-early" or "forged-choice")) await Select(game, "PRIVATE-DISCARD-ONE");
         var state = game.State; var item = Assert.Single(state.StackItems); var field = item.FieldContext!;
         var origin = field.PaidUnitTrigger!;
         if (change == "forged-choice") state = state with { PendingCardChoice = state.PendingCardChoice! with { LegalObjectIds = ["GRAVE"] } };
@@ -305,23 +305,26 @@ public sealed class MordekaiserDiscardDestroyTests
         Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(state));
     }
 
-    [Fact]
-    public async Task PrivateDiscardReceiptCannotBeInjectedIntoAnyPublicStackView()
+    [Theory]
+    [InlineData("paidUnitTrigger")] [InlineData("discardCost")]
+    [InlineData("triggerHandDiscardCost")] [InlineData("fieldContext")]
+    public async Task PrivateDiscardReceiptCannotBeInjectedIntoAnyPublicStackView(string key)
     {
         var state = Position(); state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["ENEMY"] = state.CardObjects["ENEMY"] with { Tags = [CardObjectTags.UnitCard, "法盾2"] } } };
-        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "COST");
+        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "PRIVATE-DISCARD-ONE");
         state = game.State;
         var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
         var views = snapshots.ToDictionary(p => p.Key, p => new RecoveredPlayerView(p.Key, state.Tick, 0, p.Value, state.Tick, 0, prompts[p.Key]));
         var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var serialized = JsonSerializer.Serialize(snapshot.Stack);
-            Assert.DoesNotContain("DiscardCost", serialized); Assert.DoesNotContain("COST", serialized);
+            Assert.DoesNotContain("DiscardCost", serialized); Assert.DoesNotContain("PRIVATE-DISCARD-ONE", serialized);
             var item = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
-            item["paidUnitTrigger"] = Assert.Single(state.StackItems).FieldContext!.PaidUnitTrigger;
+            var field = Assert.Single(state.StackItems).FieldContext!;
+            item[key] = key == "fieldContext" ? field : key == "paidUnitTrigger" ? field.PaidUnitTrigger : field.PaidUnitTrigger!.DiscardCost;
             Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
-            item.Remove("paidUnitTrigger");
+            item.Remove(key);
         }
         Assert.Empty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, views, spectator));
     }
@@ -329,16 +332,16 @@ public sealed class MordekaiserDiscardDestroyTests
     [Fact]
     public async Task CopiedTextCreatesIndependentCostsAndTargets()
     {
-        var state = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(No, copied: true), "COST", "OGN·104/298", "P1");
+        var state = AttackDamageDistributionTests.Spell(AttackDamageDistributionTests.Position(No, copied: true), "PRIVATE-DISCARD-ONE", "OGN·104/298", "P1");
         state = AttackDamageDistributionTests.Spell(state, "COST2", "OGN·104/298", "P1");
         var game = await Attack(state); Assert.Equal(2, game.State.TriggerQueue.Count);
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
-        await Select(game, "ENEMY1"); await Select(game, "COST");
+        await Select(game, "ENEMY1"); await Select(game, "PRIVATE-DISCARD-ONE");
         await Select(game, "ENEMY2"); await Select(game, "COST2");
         Assert.Equal(2, game.State.StackItems.Count); Assert.Single(game.State.StackItems, i => i.FieldContext!.Origin is not null);
         await game.Top(); await game.Top();
         Assert.All(new[] { "ENEMY1", "ENEMY2" }, id => Assert.Contains(id, game.State.PlayerZones["P2"].Graveyard));
-        Assert.All(new[] { "COST", "COST2" }, id => Assert.Contains(id, game.State.PlayerZones["P1"].Graveyard));
+        Assert.All(new[] { "PRIVATE-DISCARD-ONE", "COST2" }, id => Assert.Contains(id, game.State.PlayerZones["P1"].Graveyard));
         await game.Replay();
     }
 

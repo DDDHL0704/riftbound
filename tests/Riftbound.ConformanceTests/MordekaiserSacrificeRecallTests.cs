@@ -70,6 +70,8 @@ public sealed class MordekaiserSacrificeRecallTests
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(no, out var behavior));
         Assert.Equal(7, behavior.ManaCost); Assert.Equal(5, behavior.SourceUnitPower);
         Assert.Contains("急速", behavior.SourceUnitTags); Assert.Contains("强攻3", behavior.SourceUnitTags);
+        Assert.Equal(1, behavior.HasteReadyManaCost); Assert.Equal(1, behavior.HasteReadyPowerCost);
+        Assert.Equal(RuneTrait.Red, behavior.HasteReadyPowerTrait);
         Assert.Equal(1, PrintedPowerCostRules.ForCard(no).Amount);
         var implemented = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(catalog.Cards,
             CardBehaviorRegistry.GetAll().Select(b => new ImplementedCardBehavior(b.CardNo, b.EffectKind, b.DisplayName,
@@ -101,6 +103,20 @@ public sealed class MordekaiserSacrificeRecallTests
         state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(branch == "mana" ? 6 : 7,
             branch == "power" ? 0 : 1) } };
         await Reject(state, "P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: branch == "haste" ? ["HASTE_READY"] : [], Destination: "BASE"));
+    }
+
+    [Theory]
+    [InlineData("RAD·020/167")] [InlineData("RAD·020a/167")]
+    public async Task HasteRequiresAnAdditionalRedPowerBeyondThePrintedRedCost(string no)
+    {
+        var state = VenUnitEntryBasicTests.Position(no);
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+            ["P1"] = new(8, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1, [RuneTrait.Blue] = 1 }) } };
+        await Reject(state, "P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: [HasteOptionalCostNames.HasteReady], Destination: "BASE"));
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted); Assert.Equal(1, game.State.RunePools["P1"].Mana);
+        Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]); await game.Replay();
     }
 
     [Theory]
@@ -161,9 +177,13 @@ public sealed class MordekaiserSacrificeRecallTests
     [Fact]
     public async Task ANewTurnMakesTheSameInstanceAvailableAgain()
     {
-        var game = new Driver(Position()); await Destroy(game); await Select(game);
+        var initial = Position();
+        var runes = Enumerable.Range(1, 6).Select(i => "TURN-PAY-RUNE-" + i).ToArray();
+        foreach (var id in runes) initial = HandDiscardObserverTests.Put(initial, id, "UNL-R01", "P1", "BASE");
+        var game = new Driver(initial); await Destroy(game); await Select(game);
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(game.State.CardObjects["UNIT"].UntilEndOfTurnEffects, e => e.StartsWith("REPLACEMENT_ONCE:", StringComparison.Ordinal));
+        await game.Act("P1", new TapRuneCommand(runes[0], runes));
         await Destroy(game, "KILL2"); await Select(game, "ALLY2");
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Contains("ALLY2", game.State.PlayerZones["P1"].Graveyard);
         await game.Replay();
