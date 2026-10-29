@@ -231,6 +231,27 @@ public sealed class MordekaiserDiscardDestroyTests
     }
 
     [Theory]
+    [InlineData("P1")] [InlineData("P2")]
+    public async Task ADiscardObserverUsesItsOwnResponseWindowAfterTheCostIsCommitted(string owner)
+    {
+        var state = HandDiscardObserverTests.Put(Position(), "JINX", "OGN·202/298", owner, "BASE");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["JINX"] = state.CardObjects["JINX"] with { IsExhausted = true } } };
+        var power = state.CardObjects["JINX"].Power;
+        var game = await Play(state); await Select(game, "ENEMY"); await Select(game, "COST");
+        Assert.Contains("COST", game.State.PlayerZones["P1"].Graveyard);
+        Assert.True(game.State.CardObjects["JINX"].IsExhausted); Assert.Equal(power, game.State.CardObjects["JINX"].Power);
+        if (owner == "P1") {
+            Assert.Single(game.State.StackItems, i => i.HandDiscardObserver is not null);
+            await game.Top(); Assert.False(game.State.CardObjects["JINX"].IsExhausted);
+            Assert.Equal(power + 1, game.State.CardObjects["JINX"].Power);
+            Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Base);
+        } else Assert.DoesNotContain(game.State.StackItems, i => i.HandDiscardObserver is not null);
+        await game.Top(); Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task ReturningSourceOrTargetPreservesTheSkillAndHidesTheNewPrivateObject(bool returnTarget)
     {
