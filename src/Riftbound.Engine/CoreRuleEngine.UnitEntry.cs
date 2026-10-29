@@ -93,6 +93,7 @@ public sealed partial class CoreRuleEngine
             : entryStaticAbilitySourceState.CardNo;
         var unitState = existingState with
         {
+            ControllerId = stackItem.ControllerId,
             Power = unitPower,
             IsExhausted = entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility

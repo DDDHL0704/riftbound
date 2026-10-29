@@ -125,7 +125,11 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingRuleChoice!;
         var projection = VisibleRuleChoiceState(state) with { PendingPayment = RuleChoicePayment(pending) };
-        return state.Seats.Keys.ToDictionary(id => id, id => ActionPromptBuilder.Build(projection, id,
+        return state.Seats.Keys.ToDictionary(id => id, id => ActionPromptBuilder.Build(
+            id == pending.Request.PlayerId ? projection : projection with {
+                PendingRuleChoice = pending with { Request = pending.Request with { Options = [], PrivateReason = null } },
+                PendingPayment = projection.PendingPayment! with { LegalPaymentChoiceIds = [], PaymentResourceActionIds = [] }
+            }, id,
             id == pending.Request.PlayerId, id == pending.Request.PlayerId ? pending.Request.PrivateReason ?? pending.Request.Reason : "等待对手完成结算选择",
             id == pending.Request.PlayerId ? [CommandTypes.PayCost, CommandTypes.Surrender] : ["WAIT", CommandTypes.Surrender]));
     }

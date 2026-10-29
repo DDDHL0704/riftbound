@@ -46,12 +46,13 @@ public sealed class TriggerSourceIdentityGuardTests
     [Fact]
     public void CoreRuleEngineTriggerSourceSelectionUsesBehaviorFieldsWhereAvailable()
     {
-        var coreRuleEnginePath = Path.Combine(
+        var engineDirectory = Path.Combine(
             RepositoryRoot(),
             "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var source = File.ReadAllText(coreRuleEnginePath);
+            "Riftbound.Engine");
+        var source = string.Join("\n", Directory.EnumerateFiles(engineDirectory, "CoreRuleEngine*.cs")
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .Select(File.ReadAllText));
 
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, EclipseVanguardCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("string.Equals(sourceState.CardNo, RavenbloomStudentCardNo", source, StringComparison.Ordinal);

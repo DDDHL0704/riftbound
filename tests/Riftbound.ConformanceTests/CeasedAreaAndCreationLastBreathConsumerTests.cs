@@ -20,7 +20,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
         {
             Assert.DoesNotContain(game.State.CardObjects.Values, c => c.Tags.Contains(CardObjectTags.MinionTokenFamily));
             Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == "P1" && c.Tags.Contains(CardObjectTags.RuneCard)));
-            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+            await Tap(game, "P1", "TOKEN-COST-RUNE-", 12);
             await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
             await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
             await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
@@ -48,7 +48,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
                 { Assert.Contains(rune, game.State.PlayerZones["P1"].Base); Assert.False(game.State.CardObjects[rune].IsExhausted); }
                 Assert.Equal(12, game.State.CardObjects.Values.Count(c => c.OwnerId == "P1" && c.Tags.Contains(CardObjectTags.RuneCard)));
                 Assert.Equal(0, game.State.RunePools["P1"].Mana);
-                for (var i = 0; i < 4 + copies; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+                await Tap(game, "P1", "TOKEN-COST-RUNE-", 4 + copies);
                 await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
                 var candidate = Assert.Single(game.PromptFor("P1").Candidates!, c => c.Action == CommandTypes.ActivateAbility);
                 var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]);
@@ -140,7 +140,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
         var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("TOKEN-COST-RUNE-" + i));
+            await Tap(game, "P1", "TOKEN-COST-RUNE-", 12);
             await game.Act("P1", new PlayCardCommand("CARRIER", "VEN·128", []));
             await game.Act("P1", new RecycleRuneCommand("TOKEN-COST-RUNE-0"));
             await game.Act("P1", new ActivateAbilityCommand("CARRIER", "EMPOWER:0:0", [])); await game.Top();
@@ -168,8 +168,7 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             Assert.Equal("BF", game.State.ObjectLocations["GEAR"].BattlefieldObjectId);
             Assert.Equal(generation, game.State.CardObjects[token].ObjectGeneration);
             await game.Act("P1", new EndTurnCommand());
-            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-0"));
-            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-1"));
+            await Tap(game, "P2", "AREA-P2-RUNE-", 2);
             await game.Act("P2", new RecycleRuneCommand("AREA-P2-RUNE-0"));
             await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
             await game.Act("P2", new PlayCardCommand("RAY", "OGN·009/298", [token])); await game.Top();
@@ -225,6 +224,12 @@ public sealed class CeasedAreaAndCreationLastBreathConsumerTests
             await game.Replay();
         }
         finally { await Flow.Save("created-copied-ceased-battlefield-area-copies-" + copies, initial, game); }
+    }
+
+    private static async Task Tap(Driver game, string player, string prefix, int count)
+    {
+        var runes = Enumerable.Range(0, count).Select(i => prefix + i).ToArray();
+        await game.Act(player, new TapRuneCommand(runes[0], runes));
     }
 
     private static string[] Tokens(MatchState state) => state.PlayerZones["P1"].Base

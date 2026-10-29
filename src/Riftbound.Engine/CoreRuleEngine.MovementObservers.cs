@@ -19,6 +19,12 @@ public sealed record MovementObserverContext(string CardNo, string Kind, long So
     public bool? SourceWasEmpowered { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TargetTokenFactoryCardNo { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ControlledRunesAtTrigger { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Mode { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SelectedPlayerId { get; init; }
 }
 public sealed record MovementDiscardInlineContext(ObjectBinding DiscardedCard, string CardNo, int Types,
     int BranchType, long CreatedAtTick);
@@ -52,9 +58,10 @@ public sealed partial class CoreRuleEngine
                     || c.Origin.CardNo != c.CardNo || c.Origin.Equipment is not { Generation: >= 0 } equipment
                     || c.Origin.Revision <= 0 || c.RuleTextInstanceId != $"ATTACHED:{equipment.ObjectId}:{equipment.Generation}:{c.Origin.Revision}")) return false;
         var unit = c.Unit;
+        if (!ValidMovementInstructionShape(c)) return false;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
             && c.SourceWasEmpowered is null && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
-        if (c.MovementOrdinal is not null) return false;
+        if (c.MovementOrdinal is not null && c.Kind != TriggerKinds.UnitFirstMovementMillPlayer) return false;
         if (c.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
         {
             if (c.SourceWasEmpowered is not null || c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
@@ -83,6 +90,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMovementObserver(MatchState state, MovementObserverContext c, string effect,
         string controller, string source, string? cardNo = null)
         => ValidMovementObserver(c, effect, controller, source, cardNo)
+            && (c.SelectedPlayerId is null || state.Seats.ContainsKey(c.SelectedPlayerId))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
 
     internal static bool ValidMovementInstanceId(MovementObserverContext c, string? id, bool stack = false)
@@ -129,6 +137,11 @@ public sealed partial class CoreRuleEngine
                 TriggerKinds.UnitMovedDrawDiscardTypes => "：移动后先抽牌，再弃置手牌",
                 TriggerKinds.OpponentMovedToOtherBattlefieldDraw => "：对手移动到其他战场后抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
+                TriggerKinds.UnitFirstMovementMillPlayer => "：本回合首次移动，所选玩家燃烧",
+                TriggerKinds.UnitMovedAllPlayersDrawOrDiscard => c.Mode switch {
+                    "DRAW" => "：移动后每名玩家各抽一张牌",
+                    "DISCARD" => "：移动后每名玩家各弃置一张手牌",
+                    _ => "：移动后选择每名玩家各抽牌或弃牌" },
                 TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower => "：移动后展示顶牌，抽取单位或放入废牌堆并增加战力",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
@@ -168,9 +181,13 @@ public sealed partial class CoreRuleEngine
                 foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(instance.CardNo)
                     .Where(t => (t.TargetScope == TriggerTargetScopes.SourceUnit || UnitMovedTriggerSpecRules.IsMovementDamageTrigger(t))
                         && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)
-                        && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)))
-                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact) {
-                        SourceWasEmpowered = spec.RequiresSourceEmpowered == true ? true : null });
+                        && (t.RequiresSourceEmpowered != true || unit.IsEmpowered)
+                        && (t.OncePerTurn != true || ordinal == 1)
+                        && (t.MaximumControlledRunes is not { } max || EmpowerRules.ControlledRunes(before, fact.ControllerId) <= max)))
+                    Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, spec.Kind, unit.ObjectGeneration, fact,
+                        MovementOrdinal: spec.Kind == TriggerKinds.UnitFirstMovementMillPlayer ? ordinal : null) {
+                        SourceWasEmpowered = spec.RequiresSourceEmpowered == true ? true : null,
+                        ControlledRunesAtTrigger = spec.MaximumControlledRunes is not null ? EmpowerRules.ControlledRunes(before, fact.ControllerId) : null });
                 if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, instance.CardNo))
                     Add(unit.ObjectId, fact.ControllerId, instance, new(instance.CardNo, MovementResourceKind, unit.ObjectGeneration, fact));
             }
@@ -251,6 +268,11 @@ public sealed partial class CoreRuleEngine
                 ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
             return ResolveMovementDamage(state, item, events);
         }
+        if (context.Kind is TriggerKinds.UnitFirstMovementMillPlayer or TriggerKinds.UnitMovedAllPlayersDrawOrDiscard
+            || unitSpec is { MillCount: > 0, Optional: true, PowerDelta: > 0 })
+            return ResolveMovementInstruction(state, item, unitSpec!, events);
+        if (unitSpec?.MaximumControlledRunes is { } maximum && EmpowerRules.ControlledRunes(state, item.ControllerId) > maximum)
+            return NoopStackResolutionResult(state) with { Events = events };
         if (context.Kind == TriggerKinds.UnitMovedDrawDiscardTypes)
             return ResolveMovementDrawDiscardTypes(state, item, events[0]);
         if (context.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower)

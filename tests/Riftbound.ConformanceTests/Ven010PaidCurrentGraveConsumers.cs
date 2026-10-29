@@ -235,7 +235,7 @@ public sealed class Ven010PaidCurrentGraveConsumers
         async Task Tap(string player, int count)
         {
             var ids = Runes(state(), player).Where(id => !state().CardObjects[id].IsExhausted).Take(count).ToArray(); Assert.Equal(count, ids.Length);
-            foreach (var id in ids) await act(player, new TapRuneCommand(id));
+            foreach (var batch in ids.Chunk(12)) await act(player, new TapRuneCommand(batch[0], batch));
         }
         async Task Cast(string player, string source, string no, string[] targets, int mana, string mode = "")
         {
