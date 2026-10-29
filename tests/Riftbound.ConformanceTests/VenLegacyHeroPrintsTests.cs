@@ -78,7 +78,7 @@ public sealed class VenLegacyHeroPrintsTests
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var allowed = catalog with { Cards = catalog.Cards.Where(c => ChinaStandardBanList.IsAllowed(c, format)).ToArray() };
         var hero = Assert.Single(allowed.Cards, c => c.CardNo == no);
-        var legend = allowed.Cards.Where(c => c.CardCategory == "legend" && c.Hero == hero.Hero)
+        var legend = allowed.Cards.Where(c => c.CardCategory == "legendary" && c.Hero == hero.Hero)
             .OrderBy(c => c.CardNo, StringComparer.Ordinal).First();
         var runes = legend.CardColorList.SelectMany(color => Enumerable.Repeat(allowed.Cards
             .Where(c => c.CardCategory == "rune" && c.CardColorList.Contains(color))
