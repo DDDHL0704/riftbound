@@ -4922,7 +4922,8 @@ public sealed record ResolutionResult(
         if (trigger.GraveyardPlay is not null) return "支付费用，从废牌堆打出原卡牌";
         if (trigger.DelayedEmpower is { } delayedEmpower) return CoreRuleEngine.DelayedEmpowerLabel(delayedEmpower);
         if (trigger.EmpowerOtherObserver is not null) return "其他物体被强化：强化来源";
-        if (trigger.OutsideHandPlayObserver is not null) return "从手牌以外打出卡牌：强化来源";
+        if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
+            ? "对手回合打出卡牌：打出随从" : "从手牌以外打出卡牌：强化来源";
         if (trigger.DelayedDestruction is not null) return "延迟摧毁：打出休眠金币";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death);
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
@@ -4950,7 +4951,8 @@ public sealed record ResolutionResult(
         if (trigger.GraveyardPlay is not null) return "使用法术摧毁单位后，可选择支付基础费用确认；双方响应后，从废牌堆打出原卡牌。";
         if (trigger.DelayedEmpower is not null) return "双方响应后，对此前绑定的同一代单位执行强化状态操作。";
         if (trigger.EmpowerOtherObserver is not null) return "其他物体被你强化；双方响应后强化来源。";
-        if (trigger.OutsideHandPlayObserver is not null) return "从手牌以外打出卡牌；双方响应后强化来源。";
+        if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
+            ? "对手回合打出卡牌；双方响应后打出随从。" : "从手牌以外打出卡牌；双方响应后强化来源。";
         if (trigger.DelayedDestruction is not null) return "目标在本回合被摧毁；双方响应后打出一个休眠金币。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death) + "；记录死亡时的控制者，双方响应后结算。";
         var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
@@ -5678,7 +5680,8 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.LegendUnitKeyword is not null) view["abilityLabel"] = "传奇技能：双方响应后给予单位关键词";
         if (!hiddenSource && item.LegendUnitEffect is not null) view["abilityLabel"] = "传奇技能：双方响应后处理单位";
         if (!hiddenSource && item.EmpowerOtherObserver is not null) view["abilityLabel"] = "其他物体被强化：双方响应后强化来源";
-        if (!hiddenSource && item.OutsideHandPlayObserver is not null) view["abilityLabel"] = "从手牌以外打出卡牌：双方响应后强化来源";
+        if (!hiddenSource && item.OutsideHandPlayObserver is not null) view["abilityLabel"] = item.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
+            ? "对手回合打出卡牌：双方响应后打出随从" : "从手牌以外打出卡牌：双方响应后强化来源";
         if (!hiddenSource && item.Equip is not null) view["abilityLabel"] = "装配：结算时贴附至目标单位";
         if (item.BeginningRune is not null) {
             view["beginningRune"] = CoreRuleEngine.PublicBeginningRune(item.BeginningRune);
