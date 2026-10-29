@@ -5158,6 +5158,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Never trust a caller-supplied in-process derived property. The raw
         // OptionalCosts are the only source of this selection on every replay.
         command = command with { OptionalCosts = costsWithoutManaSelection, ServerManaSourceSelection = selectedMana };
+        if (command.AbilityId.StartsWith("GRANTED:", StringComparison.Ordinal))
+            return ResolveTemporaryActivation(state, intent, command);
         if (command.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal))
             return ResolveEmpowerActivation(state, intent, command);
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
@@ -24185,6 +24187,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
         }
 
+        if (stackItem.EffectKind == TemporaryActivationEffect) return ResolveTemporaryActivationStack(state, stackItem);
         if (stackItem.EndAbility is not null) return stackItem.EffectKind == CreateEndAbilityEffect ? ResolveDelayedEndCreation(state, stackItem) : ResolveEndAbility(state, stackItem);
         if (stackItem.EffectKind == EmpowerRules.Effect) return ResolveEmpowerStack(state, stackItem);
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var activatedAbility)
@@ -26053,6 +26056,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             out var powerEvent);
                         events.Add(powerEvent);
                     }
+
+                    if (behavior.GrantsActivatedAbilityUntilEndOfTurn is not null)
+                        targetState = GrantTemporaryActivation(state, stackItem, targetState, events);
 
                     if (behavior.ReadiesTarget)
                     {

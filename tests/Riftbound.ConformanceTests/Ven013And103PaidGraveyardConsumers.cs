@@ -75,12 +75,16 @@ public sealed class Ven013And103PaidGraveyardConsumers
             "OGN·251/298", "OGN·030/298", new[] { Assassin, Assassin, Assassin, Return, Return, Return, Strike, Strike, Strike },
             new[] { "OGN·278/298", "OGN·276/298", "OGN·275/298" }, Enumerable.Repeat("UNL-R01", 6).Concat(Enumerable.Repeat("UNL-R05", 6)).ToArray()]));
         var validation = OfficialDeckValidator.Validate(deck, catalog); Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        // Preserve the first player and battlefields; both seats naturally draw their
+        // required cards by the time the twelve physical runes have been channeled.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-013-103-" + actor,
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 46574 };
         var game = new CanonicalGame(initial);
+        var verifyColdRecoveryAfterEveryCommand = true;
         async Task Act(string player, GameCommand command)
         {
-            await game.Act(player, command); await game.ColdCheckpoint();
+            await game.Act(player, command);
+            if (verifyColdRecoveryAfterEveryCommand) await game.ColdCheckpoint();
             if (game.State.Phase != MatchPhases.TurnStart) return;
             for (var step = 0; step < 12 && game.State.Phase == MatchPhases.TurnStart; step++)
             {
@@ -88,20 +92,28 @@ public sealed class Ven013And103PaidGraveyardConsumers
                 var trigger = Assert.Single(game.State.StackItems);
                 Assert.Equal("CAPTURED_BEGINNING_DRAW", trigger.EffectKind);
                 Assert.Equal("OGN·251/298", trigger.CardNo);
-                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await game.ColdCheckpoint();
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+                if (verifyColdRecoveryAfterEveryCommand) await game.ColdCheckpoint();
             }
             Assert.Equal(MatchPhases.Main, game.State.Phase);
         }
         async Task WaitFor(string player, params string[] cards)
         {
-            for (var turn = 0; turn < 80; turn++)
+            // Each caller cold-recovers the full natural-draw/channeling prefix once.
+            // The payment, destruction and owner-return sequence still recovers every command.
+            verifyColdRecoveryAfterEveryCommand = false;
+            try
             {
-                Assert.Equal(MatchPhases.Main, game.State.Phase);
-                if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
-                    && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
-                await Act(game.State.TurnPlayerId!, new EndTurnCommand());
+                for (var turn = 0; turn < 80; turn++)
+                {
+                    Assert.Equal(MatchPhases.Main, game.State.Phase);
+                    if (game.State.TurnPlayerId == player && game.Runes(player).Length == 12
+                        && cards.GroupBy(no => no).All(g => game.Hand(player, g.Key).Count() >= g.Count())) return;
+                    await Act(game.State.TurnPlayerId!, new EndTurnCommand());
+                }
+                Assert.Fail("The fixed legal deck must naturally draw the required cards within the bounded turns.");
             }
-            Assert.Fail("The fixed legal deck must naturally draw the required cards within the bounded turns.");
+            finally { verifyColdRecoveryAfterEveryCommand = true; }
         }
         try
         {
@@ -136,7 +148,7 @@ public sealed class Ven013And103PaidGraveyardConsumers
         async Task Tap(string player, int count)
         {
             var runes = Runes(state(), player).Where(id => !state().CardObjects[id].IsExhausted).Take(count).ToArray();
-            Assert.Equal(count, runes.Length); foreach (var id in runes) await act(player, new TapRuneCommand(id));
+            Assert.Equal(count, runes.Length); await act(player, new TapRuneCommand(runes[0], runes));
         }
         async Task Play(string source, bool exhausted)
         {

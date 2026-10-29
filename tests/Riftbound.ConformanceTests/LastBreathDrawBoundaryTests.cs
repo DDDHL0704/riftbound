@@ -105,7 +105,12 @@ public sealed partial class LastBreathDrawBoundaryTests
                 _ => state.PlayerZones[owner] with { Hand = [..state.PlayerZones[owner].Hand, id] } } } };
 
     internal static async Task Tap(Driver game, string player)
-    { foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id)); }
+    {
+        var runes = game.State.PlayerZones[player].Base.Where(id =>
+            game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard) && !game.State.CardObjects[id].IsExhausted).ToArray();
+        foreach (var batch in runes.Chunk(12))
+            await game.Act(player, new TapRuneCommand(batch[0], batch));
+    }
 
     internal static async Task Save(string label, MatchState initial, Driver game)
     {

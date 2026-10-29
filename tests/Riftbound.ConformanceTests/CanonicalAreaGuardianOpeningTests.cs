@@ -32,8 +32,10 @@ public sealed class CanonicalAreaGuardianOpeningTests
             var valid = OfficialDeckValidator.Validate(deck, catalog); Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
         }
+        // Preserve the first player and both battlefield permutations, while
+        // naturally drawing the setup cards before the twelve runes finish channeling.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-AREA-GUARDIAN-NESTED-DRAW",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 297618 };
         var game = new Game(initial);
         try
         {

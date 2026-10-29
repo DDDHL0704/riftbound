@@ -297,7 +297,8 @@ public sealed record CardBehaviorDefinition(
     int? ChosenMovementTargetIndex = null,
     int? DestroyTargetIndex = null,
     TargetPowerComparisonSpec? TargetPowerComparison = null,
-    int DamageConditionRuneCount = 0)
+    int DamageConditionRuneCount = 0,
+    GrantedActivatedAbilitySpec? GrantsActivatedAbilityUntilEndOfTurn = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -8797,6 +8798,10 @@ public static class CardBehaviorRegistry
             ConditionalDamageAmount: 7, DamageConditionRuneCount: 7,
             TargetScope: CardTargetScopes.BattlefieldUnit,
             DelayedDestructionReward: new(RuneCallCount: 1)),
+        new("VEN·142", "终极统治", 4, "DOUBLE_UNIT_POWER_GRANT_READY_ACTIVATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, CanPlayDuringSpellDuel: true,
+            UsesTargetCurrentPowerAsPowerModifier: true,
+            GrantsActivatedAbilityUntilEndOfTurn: new(CoreRuleEngine.GrantedReadySelfKind, 2)),
         new("VEN·042", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "英雄"),
         new("VEN·042a", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042a", 0, 0,

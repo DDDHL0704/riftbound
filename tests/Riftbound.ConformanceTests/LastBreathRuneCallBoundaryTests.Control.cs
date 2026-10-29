@@ -35,7 +35,7 @@ public sealed partial class LastBreathRuneCallBoundaryTests
         var game = new Driver(initial);
         try
         {
-            foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+            await Tap(game, "P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             for (var i = 0; i < 2; i++)
             {

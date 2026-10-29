@@ -371,8 +371,9 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
     }
     private static async Task TapRunes(Driver game)
     {
-        foreach (var id in game.State.PlayerZones["P1"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
-            && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act("P1", new TapRuneCommand(id));
+        var runes = game.State.PlayerZones["P1"].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
+            && !game.State.CardObjects[id].IsExhausted).ToArray();
+        foreach (var batch in runes.Chunk(12)) await game.Act("P1", new TapRuneCommand(batch[0], batch));
     }
     private static async Task FinishEnd(Driver game, string player)
     {
