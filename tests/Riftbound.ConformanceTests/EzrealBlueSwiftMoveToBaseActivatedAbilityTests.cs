@@ -27,6 +27,7 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.True(ability.RequiresBattlefieldSource);
         Assert.False(ability.ExhaustsSourceAsCost);
         Assert.False(ability.ReactionSpeed);
+        Assert.True(ability.SwiftSpeed);
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
         Assert.Equal(P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveBluePowerCost, powerCostByTrait[RuneTrait.Blue]);
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo));
@@ -88,9 +89,9 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
         Assert.Equal("ordinary-stack-item-before-move-to-base", requirement["stackPolicy"]);
         Assert.Equal("payment-plan-typed-blue", requirement["paymentPolicy"]);
         Assert.True(Assert.IsType<bool>(requirement["swift"]));
-        Assert.Equal("full-swift-reaction-timing-deferred", requirement["swiftTimingPolicy"]);
-        Assert.Equal("deferred", requirement["combatDamageStaticPolicy"]);
-        Assert.Equal("deferred", requirement["attackDefenseDamageTriggerPolicy"]);
+        Assert.Equal("open-main-or-spell-duel-focus", requirement["swiftTimingPolicy"]);
+        Assert.Equal("cannot-deal-combat-damage", requirement["combatDamageStaticPolicy"]);
+        Assert.Equal("confirm-local-target-then-current-source-might", requirement["attackDefenseDamageTriggerPolicy"]);
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             requirement["targetChoicesByIndex"]);
         Assert.Empty(targetChoicesByIndex);
@@ -453,7 +454,18 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Empty(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.State.StackItems, item => item.EffectKind == P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityEffectKind);
+        if (scenario == "controller-changed")
+        {
+            // The newly controlled unit acquires a defending role when both
+            // sides pass. Its separate attack/defend skill must still trigger.
+            var trigger = Assert.Single(p2Pass.State.StackItems);
+            Assert.Equal("COMBAT_SOURCE_MIGHT_DAMAGE", trigger.FieldContext?.Kind);
+            Assert.Equal("P2", trigger.ControllerId);
+            Assert.Equal(EzrealObjectId, trigger.SourceObjectId);
+            Assert.Contains("SWIFT-KEEPER", p2Pass.State.PendingCardChoice!.LegalObjectIds);
+        }
+        else Assert.Empty(p2Pass.State.StackItems);
         Assert.Contains(EzrealObjectId, p2Pass.State.PlayerZones["P1"].Battlefields);
         Assert.DoesNotContain(EzrealObjectId, p2Pass.State.PlayerZones["P1"].Base);
         Assert.Equal("BATTLEFIELD", p2Pass.State.ObjectLocations[EzrealObjectId].Zone);
