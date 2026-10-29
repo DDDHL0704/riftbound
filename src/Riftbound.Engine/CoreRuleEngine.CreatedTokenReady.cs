@@ -128,7 +128,7 @@ public sealed partial class CoreRuleEngine
             if (!cards.TryGetValue(binding.ObjectId, out var unit) || unit.ObjectGeneration != binding.Generation
                 || !IsObjectOnField(state.PlayerZones, binding.ObjectId)
                 || !isPaid && !CreatedTokenReadyTargets(state, item).Contains(binding.ObjectId)) continue;
-            cards[binding.ObjectId] = ApplyReadyState(unit, behavior, item, binding.ObjectId, out var ready);
+            cards[binding.ObjectId] = ApplyReadyState(unit, behavior, item, binding.ObjectId, out var ready, state.PlayerZones, cards);
             if (ready is not null) events.Add(ready);
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
