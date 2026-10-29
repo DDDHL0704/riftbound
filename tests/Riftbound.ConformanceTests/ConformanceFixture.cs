@@ -255,6 +255,50 @@ public static class ConformanceFixtureRunner
         return mismatches;
     }
 
+    // Preserve the original fixture as a historical test input. Its obsolete
+    // preselected discard targets become a choice after the on-play response.
+    public static async Task<ConformanceRunResult> RunCurrentPlayDiscardAsync(ConformanceFixture fixture)
+    {
+        var journal = new RecordingMatchJournal();
+        var session = await CreateSessionAsync(fixture, new CoreRuleEngine(), journal, CancellationToken.None);
+        var initialTick = session.SnapshotFor(fixture.Players[0]).Tick;
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        string[]? selected = null;
+        ResolutionResult? last = null;
+        foreach (var entry in fixture.Commands)
+        {
+            var command = GameCommandJsonMapper.Map(entry.Cmd);
+            var raw = entry.Cmd.Clone();
+            if (command is PlayCardCommand play)
+            {
+                selected = play.TargetObjectIds.ToArray();
+                command = play with { TargetObjectIds = [] };
+                raw = JsonSerializer.SerializeToElement(command, command.GetType(), options);
+            }
+            last = await session.SubmitAsync(entry.PlayerId, entry.ClientIntentId, command, raw, CancellationToken.None);
+            if (!last.Accepted) throw new InvalidOperationException($"Fixture {fixture.FixtureId}: {last.ErrorMessage}");
+        }
+        if (last?.State.PendingHandChoice is not { } choice || selected is null)
+            throw new InvalidOperationException($"Fixture {fixture.FixtureId}: expected an on-play discard choice.");
+        var choose = new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, selected);
+        var choiceRaw = JsonSerializer.SerializeToElement(choose, options);
+        last = await session.SubmitAsync(choice.PlayerId, fixture.FixtureId + "-discard-choice", choose, choiceRaw, CancellationToken.None);
+        if (!last.Accepted) throw new InvalidOperationException($"Fixture {fixture.FixtureId}: {last.ErrorMessage}");
+        var events = journal.Entries.Where(entry => entry.CommandType != "READY")
+            .SelectMany(entry => entry.Events.Select((gameEvent, index) => new ConformanceActualEvent(
+                gameEvent.Kind, entry.CompletedTick, entry.StartedEventSequence + index + 1, gameEvent.Payload))).ToArray();
+        return new(last.State.Tick, events.Select(e => e.Kind).ToArray(), events, last.Prompts, last.State, initialTick);
+    }
+
+    public static IReadOnlyList<string> CompareExpectedFinalState(ConformanceFixture fixture, ConformanceRunResult result)
+    {
+        var mismatches = new List<string>();
+        CompareExpectedState(mismatches, fixture.Expected.FinalState, result.FinalState);
+        ComparePromptActions(mismatches, fixture.Expected.PromptActions, result.Prompts);
+        CompareExpectedPrompts(mismatches, fixture.Expected.Prompts, result.Prompts);
+        return mismatches;
+    }
+
     private static async ValueTask<MatchSession> CreateSessionAsync(
         ConformanceFixture fixture,
         IRuleEngine ruleEngine,

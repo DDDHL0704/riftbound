@@ -22216,7 +22216,7 @@ public static partial class MatchRecoveryValidator
             choicePayload,
             "sourceObjectId",
             "spectator replay frame timing pending hand choice source object does not match authoritative state pending hand choice source object",
-            authoritativeChoice.MovementObserver is null && authoritativeChoice.LastBreathDraw is null ? authoritativeChoice.SourceObjectId
+            authoritativeChoice.MovementObserver is null && authoritativeChoice.LastBreathDraw is null && authoritativeChoice.SourcePlayDraw is null ? authoritativeChoice.SourceObjectId
                 : ResolutionResult.VisibleObjectIdForViewer(authoritativeState, authoritativeChoice.SourceObjectId, string.Empty),
             errors);
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
@@ -23981,6 +23981,7 @@ public static partial class MatchRecoveryValidator
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
         if (!CoreRuleEngine.ValidLegendDiscardDrawChoice(state)) errors.Add("invalid legend discard continuation");
+        if (!CoreRuleEngine.ValidSourcePlayDiscardChoice(state)) errors.Add("invalid source play discard continuation");
         foreach (var card in state.CardObjects.Values)
             if (!CoreRuleEngine.ValidBanishReplacementOrigins(state, card)) errors.Add("invalid banish replacement origin");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
@@ -24089,10 +24090,12 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
         foreach (var trigger in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
+            if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId,
+                controller: trigger.ControllerId, triggerId: trigger.TriggerId))
                 errors.Add("invalid source play draw trigger");
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidSourcePlayDraw(state, item.SourcePlayDraw, item.EffectKind, item.SourceObjectId, item.CardNo))
+            if (!CoreRuleEngine.ValidSourcePlayDraw(state, item.SourcePlayDraw, item.EffectKind, item.SourceObjectId, item.CardNo,
+                item.ControllerId, item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal) ? item.StackItemId["ordered-".Length..] : item.StackItemId))
                 errors.Add("invalid source play draw stack");
         foreach (var trigger in state.TriggerQueue)
             if (!PermanentPlayTriggerRecoveryRules.ValidQueued(state, trigger)) errors.Add("invalid deferred permanent play ordering origin");
@@ -27571,6 +27574,7 @@ public static partial class MatchRecoveryValidator
         {
             if (!(authoritativeState.PendingHandChoice.MovementObserver is not null && CoreRuleEngine.ValidMovementDiscardChoice(authoritativeState))
                 && !CoreRuleEngine.ValidLastBreathDiscardChoice(authoritativeState)
+                && !(authoritativeState.PendingHandChoice.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDiscardChoice(authoritativeState))
                 && !(authoritativeState.PendingHandChoice.LegendDiscardDraw is not null && CoreRuleEngine.ValidLegendDiscardDrawChoice(authoritativeState)))
                 ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                     $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
@@ -34154,13 +34158,13 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
+        => (item.SourcePlayDraw is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
                 || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.EmpowerActivation is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.SourcePlayDraw is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestScore is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

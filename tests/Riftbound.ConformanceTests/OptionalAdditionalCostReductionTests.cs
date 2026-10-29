@@ -14,6 +14,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task ExplicitManaReductionMakesEchoAffordableAndKeepsTheDeclaredRepeat(string reducer)
     {
         var initial = Position(reducer, mana: 3);
@@ -43,6 +44,8 @@ public sealed class OptionalAdditionalCostReductionTests
     [InlineData("SFD·149/221", 4)]
     [InlineData("SFD·149a/221", 3)]
     [InlineData("SFD·149a/221", 4)]
+    [InlineData("VEN·SP5", 3)]
+    [InlineData("VEN·SP5", 4)]
     public async Task OmittingTheReductionChoiceKeepsTheFullEchoFee(string reducer, int mana)
     {
         var initial = Position(reducer, mana);
@@ -82,6 +85,7 @@ public sealed class OptionalAdditionalCostReductionTests
     [Theory]
     [InlineData("SFD·149/221")]
     [InlineData("SFD·149a/221")]
+    [InlineData("VEN·SP5")]
     public async Task GenericEchoPowerReductionPreservesTheSpellsPrintedPowerFee(string reducer)
     {
         const string reduction = "OPTIONAL_COST_REDUCTION:EZREAL:0:ECHO:POWER-any";

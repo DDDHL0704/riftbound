@@ -3009,6 +3009,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (NeedsCapturedLastBreathDiscardChoice(pendingChoice) && !ValidLastBreathDiscardChoice(state))
             return RejectWithCorePrompts(state, "绝念弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
+        if (!ValidSourcePlayDiscardChoice(state))
+            return RejectWithCorePrompts(state, "打出后弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
 
         var submittedObjectIds = chosenObjectIds
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
@@ -3053,7 +3055,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             events.Add(BuildHandChoiceDiscardedEvent(
-                pendingChoice,
+                pendingChoice.SourcePlayDraw is null ? pendingChoice : pendingChoice with {
+                    SourceObjectId = ResolutionResult.VisibleObjectIdForViewer(state, pendingChoice.SourceObjectId, "__spectator__") },
                 intent.PlayerId,
                 objectId,
                 autoDiscard: false));
@@ -3099,7 +3102,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["choiceId"] = pendingChoice.ChoiceId,
                 ["choiceWindow"] = pendingChoice.ChoiceWindow,
                 ["playerId"] = intent.PlayerId,
-                ["sourceObjectId"] = pendingChoice.SourceObjectId,
+                ["sourceObjectId"] = pendingChoice.SourcePlayDraw is null ? pendingChoice.SourceObjectId
+                    : ResolutionResult.VisibleObjectIdForViewer(state, pendingChoice.SourceObjectId, "__spectator__"),
                 ["effectKind"] = pendingChoice.EffectKind,
                 ["chosenCount"] = submittedObjectIds.Length,
                 ["drawCount"] = pendingChoice.DrawCount
@@ -26974,6 +26978,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects.ToArray();
         var rngCursor = state.RngCursor;
+        var publicSource = stackItem.SourcePlayDraw is null ? stackItem.SourceObjectId
+            : ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, "__spectator__");
         var events = new List<GameEvent>
         {
             activatedAbility
@@ -26985,7 +26991,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? stackItem.StackItemId["ordered-".Length..]
                     : stackItem.StackItemId,
                 stackItem.ControllerId,
-                stackItem.SourceObjectId,
+                publicSource,
                 stackItem.EffectKind,
                 triggerTiming) { MovementObserver = stackItem.MovementObserver })
         };
@@ -27006,19 +27012,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             reason: effectKind,
             sourceObjectId: stackItem.SourceObjectId,
             effectKind: effectKind,
-            drawCount: drawCount) { MovementObserver = stackItem.MovementObserver, LastBreathDraw = stackItem.LastBreathDraw, LegendDiscardDraw = stackItem.LegendDiscardDraw };
+            drawCount: drawCount) { MovementObserver = stackItem.MovementObserver, LastBreathDraw = stackItem.LastBreathDraw,
+                LegendDiscardDraw = stackItem.LegendDiscardDraw, SourcePlayDraw = stackItem.EffectKind == SourcePlayDiscardEffect ? stackItem.SourcePlayDraw : null };
 
         if (discardCount > 0 && handObjectIds.Length >= discardCount)
         {
             events.Add(new GameEvent(
                 "HAND_CHOICE_REQUESTED",
-                "选择要弃置的手牌，然后抽牌",
+                drawCount > 0 ? "选择要弃置的手牌，然后抽牌" : "选择要弃置的手牌",
                 new Dictionary<string, object?>
                 {
                     ["choiceId"] = pendingChoice.ChoiceId,
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = publicSource,
                     ["effectKind"] = effectKind,
                     ["requiredCount"] = pendingChoice.RequiredCount,
                     ["maxCount"] = pendingChoice.MaxCount,
@@ -27055,7 +27062,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                 discardedObjectIds.Add(discardedObjectId);
                 events.Add(BuildHandChoiceDiscardedEvent(
-                    pendingChoice,
+                    pendingChoice.SourcePlayDraw is null ? pendingChoice : pendingChoice with { SourceObjectId = publicSource },
                     stackItem.ControllerId,
                     discardedObjectId,
                     autoDiscard: true));
@@ -27082,13 +27089,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             events.Add(new GameEvent(
                 "HAND_CHOICE_SKIPPED",
-                "无可弃置手牌，继续抽牌",
+                drawCount > 0 ? "无可弃置手牌，继续抽牌" : "无可弃置手牌",
                 new Dictionary<string, object?>
                 {
                     ["choiceId"] = pendingChoice.ChoiceId,
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = publicSource,
                     ["effectKind"] = effectKind,
                     ["availableHandCount"] = 0,
                     ["drawCount"] = drawCount

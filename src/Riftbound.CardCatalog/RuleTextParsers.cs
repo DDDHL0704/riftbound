@@ -431,6 +431,16 @@ public static class TriggerParser
                 equipmentDraw.Value, "Additional equipment condition captured at play, not rechecked at resolution (CN 383.2.a.1).",
                 DrawCount: ParseChineseNumber(equipmentDraw.Groups["draw"].Value),
                 RequiredOtherControlledEquipment: ParseChineseNumber(equipmentDraw.Groups["equipment"].Value)));
+        // A plain on-play instruction is independent of any keyword-prefixed
+        // conditional trigger, such as 鼓舞—当你打出我时.
+        var playDiscard = Regex.Match(text,
+            @"(?:^|\n)当你打出我时，弃置(?<discard>[0-9一两二三四五六七八九十]+)张手牌(?:，然后抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)?。",
+            RegexOptions.CultureInvariant);
+        if (playDiscard.Success)
+            triggers.Add(new(TriggerKinds.SourceUnitPlayedDiscardDraw, TriggerTimings.SourceUnitPlayed,
+                playDiscard.Value.Trim(), "Discard as many as possible, then perform the draw (CN 359.3.e.11).",
+                DiscardCount: ParseChineseNumber(playDiscard.Groups["discard"].Value),
+                DrawCount: playDiscard.Groups["draw"].Success ? ParseChineseNumber(playDiscard.Groups["draw"].Value) : 0));
         var hasBattlefieldConquerRevealRecycleTrigger =
             TryParseBattlefieldConquerRevealRecycle(text, out var battlefieldConquerRevealRecycleTrigger);
         if (hasBattlefieldConquerRevealRecycleTrigger)

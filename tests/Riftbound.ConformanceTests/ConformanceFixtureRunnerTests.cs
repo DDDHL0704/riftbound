@@ -15731,12 +15731,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-darkened-lurker-discard-draw.fixture.json"),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal(["P1-UNIT-DARKENED-LURKER"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-DARKENED-LURKER-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-DARKENED-LURKER-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
@@ -15747,76 +15744,25 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task CoreRuleEngineDarkenedLurkerResolutionSkipsOpponentControlledHandTarget()
     {
+        var initial = SourcePlayDiscardDrawTests.Position("UNL-123/219", 2);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["H2"] = initial.CardObjects["H2"] with { OwnerId = "P2", ControllerId = "P2" } } };
         var engine = new CoreRuleEngine();
-        var state = PunishmentState(mana: 3) with
-        {
-            TimingState = TimingStates.NeutralClosed,
-            ActivePlayerId = "P1",
-            PriorityPlayerId = "P1",
-            StackItems =
-            [
-                new StackItemState(
-                    "STACK-DARKENED-LURKER-DIRTY-HAND",
-                    "P1",
-                    "P1-UNIT-DARKENED-LURKER",
-                    "DARKENED_LURKER_PLAY_UNIT_DISCARD_DRAW",
-                    "UNL-123/219",
-                    ["P1-DARKENED-LURKER-DIRTY-P2-HAND-CARD"])
-            ],
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    MainDeck = ["P1-DARKENED-LURKER-DRAW-001"],
-                    Hand =
-                    [
-                        "P1-DARKENED-LURKER-DISCARD-001",
-                        "P1-DARKENED-LURKER-DIRTY-P2-HAND-CARD"
-                    ]
-                },
-                ["P2"] = PlayerZones.Empty
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-UNIT-DARKENED-LURKER"] = new(
-                    "P1-UNIT-DARKENED-LURKER",
-                    cardNo: "UNL-123/219",
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-DARKENED-LURKER-DISCARD-001"] = new(
-                    "P1-DARKENED-LURKER-DISCARD-001",
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-DARKENED-LURKER-DIRTY-P2-HAND-CARD"] = new(
-                    "P1-DARKENED-LURKER-DIRTY-P2-HAND-CARD",
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
-        };
-
-        var p1Pass = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-darkened-lurker-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-darkened-lurker-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Equal(["P1-UNIT-DARKENED-LURKER"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Equal(
-            ["P1-DARKENED-LURKER-DISCARD-001", "P1-DARKENED-LURKER-DIRTY-P2-HAND-CARD", "P1-DARKENED-LURKER-DRAW-001"],
-            p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].Graveyard);
-        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal));
-        Assert.Contains(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        var play = await engine.ResolveAsync(initial, new("play-lurker", "P1", "PLAY_CARD"),
+            new PlayCardCommand("UNIT", "UNL-123/219", []), CancellationToken.None);
+        Assert.True(play.Accepted, play.ErrorMessage);
+        var p1 = await engine.ResolveAsync(play.State, new("p1-pass-lurker", "P1", "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        var p2 = await engine.ResolveAsync(p1.State, new("p2-pass-lurker", "P2", "PASS_PRIORITY"), new PassPriorityCommand(), CancellationToken.None);
+        Assert.True(p1.Accepted, p1.ErrorMessage); Assert.True(p2.Accepted, p2.ErrorMessage);
+        var choice = Assert.IsType<PendingHandChoiceState>(p2.State.PendingHandChoice);
+        Assert.Equal(["H1"], choice.LegalObjectIds);
+        var bad = await engine.ResolveAsync(p2.State, new("bad-owner", "P1", "CHOOSE_HAND_CARDS"),
+            new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H2"]), CancellationToken.None);
+        Assert.False(bad.Accepted); Assert.Empty(bad.Events); Assert.Equal(MatchStateHasher.Hash(p2.State), MatchStateHasher.Hash(bad.State));
+        var done = await engine.ResolveAsync(p2.State, new("correct-owner", "P1", "CHOOSE_HAND_CARDS"),
+            new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H1"]), CancellationToken.None);
+        Assert.True(done.Accepted, done.ErrorMessage); Assert.Contains("H1", done.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("H2", done.State.PlayerZones["P1"].Hand); Assert.Contains("P1-DRAW-1", done.State.PlayerZones["P1"].Hand);
     }
 
     [Fact]
@@ -17675,12 +17621,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal([firstDrawObjectId, secondDrawObjectId], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal([discardObjectId], result.FinalState.PlayerZones["P1"].Graveyard);
@@ -17912,12 +17855,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-chempunk-tough-discard-hand.fixture.json"),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal(["P1-UNIT-CHEMPUNK-TOUGH"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-CHEMPUNK-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
@@ -17969,12 +17909,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal([firstDiscardObjectId, secondDiscardObjectId], result.FinalState.PlayerZones["P1"].Graveyard);
@@ -18082,7 +18019,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-JINX-DISCARDER",
                 "OGN·030/298",
-                ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"]),
+                []),
             CancellationToken.None);
         var p1Pass = await engine.ResolveAsync(
             play.State,
@@ -18098,18 +18035,24 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(play.Accepted, play.ErrorMessage);
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Contains("DISCARDED_HAND_CARD_THIS_TURN:P1", p2Pass.State.UntilEndOfTurnEffects);
-        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
-        Assert.DoesNotContain(p2Pass.Events, gameEvent => gameEvent.Kind == "TRIGGER_RESOLVED"
+        var discard = Assert.IsType<PendingHandChoiceState>(p2Pass.State.PendingHandChoice);
+        var discarded = await engine.ResolveAsync(p2Pass.State,
+            new PlayerIntent("intent-p7-9-jinx-discard-choice", "P1", "CHOOSE_HAND_CARDS"),
+            new ChooseHandCardsCommand(discard.ChoiceId, discard.ChoiceWindow, ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"]),
+            CancellationToken.None);
+        Assert.True(discarded.Accepted, discarded.ErrorMessage);
+        Assert.Contains("DISCARDED_HAND_CARD_THIS_TURN:P1", discarded.State.UntilEndOfTurnEffects);
+        Assert.Equal(2, discarded.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        Assert.DoesNotContain(discarded.Events, gameEvent => gameEvent.Kind == "TRIGGER_RESOLVED"
             && Equals(gameEvent.Payload.GetValueOrDefault("sourceObjectId"), triggerSourceObjectId));
-        Assert.True(p2Pass.State.CardObjects[triggerSourceObjectId].IsExhausted);
-        Assert.Equal(5, p2Pass.State.CardObjects[triggerSourceObjectId].Power);
-        var pendingTrigger = Assert.Single(p2Pass.State.StackItems);
+        Assert.True(discarded.State.CardObjects[triggerSourceObjectId].IsExhausted);
+        Assert.Equal(5, discarded.State.CardObjects[triggerSourceObjectId].Power);
+        var pendingTrigger = Assert.Single(discarded.State.StackItems);
         Assert.Equal(triggerSourceObjectId, pendingTrigger.SourceObjectId);
         Assert.Equal(2, pendingTrigger.HandDiscardObserver!.DiscardedCards.Count);
         // CN 383.3 / 423.1.b: the ordinary trigger gets its own response window.
-        var triggerFirstPass = await engine.ResolveAsync(p2Pass.State,
-            new PlayerIntent("intent-p7-9-jinx-trigger-first-pass", p2Pass.State.PriorityPlayerId!, "PASS_PRIORITY"),
+        var triggerFirstPass = await engine.ResolveAsync(discarded.State,
+            new PlayerIntent("intent-p7-9-jinx-trigger-first-pass", discarded.State.PriorityPlayerId!, "PASS_PRIORITY"),
             new PassPriorityCommand(), CancellationToken.None);
         Assert.True(triggerFirstPass.Accepted, triggerFirstPass.ErrorMessage);
         var triggerResolved = await engine.ResolveAsync(triggerFirstPass.State,
@@ -32346,6 +32289,14 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
+        if (fixtureFileName.StartsWith("p4-play-jinx-", StringComparison.Ordinal))
+        {
+            var current = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+            Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, current));
+            Assert.Contains("HAND_CHOICE_RESOLVED", current.EventKinds);
+            return;
+        }
+
         var result = await ConformanceFixtureRunner.RunAsync(
             fixture,
             new CoreRuleEngine(),
@@ -32549,12 +32500,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-jinx-haste-ready.fixture.json"),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Contains("急速", result.FinalState.CardObjects["P1-UNIT-JINX"].Tags);
     }
@@ -32573,12 +32521,9 @@ public sealed class ConformanceFixtureRunnerTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-jinx-alt-a-haste-ready.fixture.json"),
             CancellationToken.None);
 
-        var result = await ConformanceFixtureRunner.RunAsync(
-            fixture,
-            new CoreRuleEngine(),
-            CancellationToken.None);
-
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var result = await ConformanceFixtureRunner.RunCurrentPlayDiscardAsync(fixture);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpectedFinalState(fixture, result));
+        Assert.Contains("HAND_CHOICE_RESOLVED", result.EventKinds);
         Assert.Equal(["P1-JINX-A-DISCARD-001", "P1-JINX-A-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Contains("急速", result.FinalState.CardObjects["P1-UNIT-JINX-A"].Tags);
     }
