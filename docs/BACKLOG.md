@@ -50,11 +50,13 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
-- [ ] **P3-2 L2 提速**：
+- [ ] **P3-2 L2 提速**（`a/l2-fixtures`）：
   - 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)（`a/nightly-rule-shards`）修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；
   - 把最慢的测试分散到各个分片；
   - 目标是单次 L2 在 30 分钟内跑完；
-  - 同一 PR 推送新提交后，旧运行的分片已取消，但 `always()` 汇总任务仍排队、阻塞新运行（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；修复取消流程，同时保留测试失败时的门禁校验；
+  - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR / main 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
+  - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
+  - #256 六片完整通过，最慢分片约 193 分钟；VEN013/103 单条合法开局分别耗时 49/107 分钟，后续在 `a/l2-fixtures` 减少等牌回合与资源准备命令，30 分钟目标尚未达到；
   - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
