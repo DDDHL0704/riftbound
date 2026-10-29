@@ -1,9 +1,9 @@
 import type { CSSProperties, MouseEvent, PointerEvent } from "react";
 import { motion } from "motion/react";
-import { cardInfo, COLOR_HEX, tokenizeEffect } from "../game/cards";
+import { cardInfo, COLOR_HEX, keywordReminder, tokenizeEffect } from "../game/cards";
 import type { GameObject } from "../game/types";
 
-export type CardMark = "selected" | "legal" | "playable" | "autopay" | "attacking" | "defending" | "dragging" | null;
+export type CardMark = "selected" | "legal" | "playable" | "autopay" | "attacking" | "defending" | "dragging" | "recent" | null;
 
 export type HoverHandler = (cardNo: string | null, object?: GameObject, rect?: DOMRect) => void;
 
@@ -132,6 +132,12 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
   const left = rect.right + gap + width < vw - 8 ? rect.right + gap : Math.max(8, rect.left - gap - width);
   const top = Math.min(Math.max(8, rect.top + rect.height / 2 - height / 2), vh - height - 8);
   const unit = object?.tags?.includes("CARD_TYPE:UNIT");
+  // Keywords on this card that the catalog explains, shown in a column on whichever side has room.
+  const keywords = [...new Set(tokenizeEffect(info.effect ?? "").flatMap((t) => (t.kind === "keyword" ? [t.text] : [])))]
+    .map((k) => ({ k, text: keywordReminder(k) }))
+    .filter((g): g is { k: string; text: string } => Boolean(g.text));
+  const glossW = 220;
+  const glossSide = left + width + 10 + glossW <= vw - 8 ? "right" : left - 10 - glossW >= 8 ? "left" : null;
   return (
     <motion.aside
       className="hoverpreview"
@@ -153,6 +159,18 @@ export function HoverPreview({ cardNo, object, rect }: { cardNo: string; object?
           {object.damage > 0 && <span className="hoverpreview__dmg">已受 {object.damage} 点伤害</span>}
           {object.isExhausted && <span>已横置</span>}
         </p>
+      )}
+      {keywords.length > 0 && glossSide && (
+        <dl className={`gloss gloss--${glossSide}`} style={{ width: glossW }}>
+          {keywords.map((g) => (
+            <div key={g.k}>
+              <dt>{g.k}</dt>
+              <dd>
+                <EffectText text={g.text} />
+              </dd>
+            </div>
+          ))}
+        </dl>
       )}
     </motion.aside>
   );

@@ -3261,7 +3261,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -7335,7 +7335,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != ability.RequiredTargetCount
-            || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
+            || (IsLegendDuelMovementEffect(ability.EffectKind) || IsLegendUnitKeywordEffect(ability.EffectKind)
+                || IsLegendUnitEffect(ability.EffectKind)) && targetObjectIds.Count != command.TargetObjectIds.Count)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7343,8 +7344,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend)
-            || powerSpend is not null && ability.PowerCost == 0)
+        if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var optionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
@@ -7407,6 +7407,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RemovesSourceEmpowerAsCost && !sourceState.IsEmpowered)
+            return RejectWithCorePrompts(state, "此技能需要解除来源的强化。", ErrorCodes.InsufficientCost);
+
         if (ability.RequiresPlayedAnotherCardThisTurn
             && !ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId))
         {
@@ -7462,6 +7465,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RequiresAnyUnitTarget && !IsLegendUnitEffectTarget(state, intent.PlayerId, targetObjectIds[0], ability.RequiresBattlefieldTarget))
+            return RejectWithCorePrompts(state, "请选择符合范围的一名公开单位。", ErrorCodes.InvalidTarget);
+
         if (ability.RequiresArmamentSecondTarget
             && (!state.CardObjects.TryGetValue(targetObjectIds[0], out var attachmentHost)
                 || !IsFaceUpNonStandbyUnit(attachmentHost)
@@ -7473,12 +7479,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var spellshieldTax = ability.RequiresAnyUnitTarget
+            ? ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, targetObjectIds, out _)
+            : 0;
+        var totalPowerCost = checked(ability.PowerCost + spellshieldTax);
+        if (powerSpend is not null && totalPowerCost == 0)
+            return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana
             && !CanGainSpellOnlyMana(currentPool, ability.ManaGainAmount))
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
         if (powerSpend is not null && !PlayPowerSpendSelectionRules.CanPayWithSources(powerSpend,
-                PaymentCostRules.PowerPoolForPurpose(currentPool, PowerPaymentPurpose.Other), ability.PowerCost,
+                PaymentCostRules.PowerPoolForPurpose(currentPool, PowerPaymentPurpose.Other), totalPowerCost,
                 new Dictionary<string, int>(), currentPool, PowerPaymentPurpose.Other))
             return RejectWithCorePrompts(state, "传奇技能的符能来源不足或不合法。", ErrorCodes.InvalidTarget);
         var currentExperience = NormalizeExperienceForSeats(state);
@@ -7495,8 +7507,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             baseManaCost: manaCost,
             totalManaCost: manaCost,
-            genericPowerCost: ability.PowerCost,
-            totalPowerCost: ability.PowerCost,
+            genericPowerCost: totalPowerCost,
+            totalPowerCost: totalPowerCost,
             experienceCost: ability.ExperienceCost,
             optionalCostIds: optionalCosts,
             reason: ability.EffectKind,
@@ -7568,7 +7580,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0 || ability.PowerCost > 0 || ability.ExperienceCost > 0)
+        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
@@ -7581,7 +7593,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = manaCost,
-                    ["power"] = ability.PowerCost,
+                    ["power"] = totalPowerCost,
                     ["experience"] = ability.ExperienceCost,
                     ["abilityId"] = command.AbilityId
                 })));
@@ -7612,6 +7624,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 }));
 
+        if (ability.RemovesSourceEmpowerAsCost)
+        {
+            var removed = ApplyEmpowerStatusAction(state with { CardObjects = cardObjects },
+                new(command.SourceObjectId, sourceState.ObjectGeneration), false, intent.PlayerId);
+            cardObjects = removed.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            events.AddRange(removed.Events);
+            sourceState = cardObjects[command.SourceObjectId];
+        }
         cardObjects[command.SourceObjectId] = sourceState with
         {
             IsExhausted = true,
@@ -7632,6 +7652,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return QueueLegendUnitKeyword(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
                 targetObjectIds, optionalCosts, events);
+
+        if (IsLegendUnitEffect(ability.EffectKind))
+            return QueueLegendUnitEffect(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, spellshieldTax, events);
 
         if (IsLegendAttachmentEffect(ability.EffectKind))
             return QueueLegendAttachment(state with { RunePools = runePools, PlayerExperience = playerExperience,
@@ -7893,6 +7918,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ability = abilityId switch
         {
+            LegendActionAbilityCatalog.MelLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.MelLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MelLegendAbilityId),
+                "流光镜影传奇减战力技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.UnitPowerModifier, RequiresBattlefieldTarget: true,
+                RequiresAnyUnitTarget: true, RemovesSourceEmpowerAsCost: true, PowerModifierAmount: -2),
+            LegendActionAbilityCatalog.AmbessaLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.AmbessaLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AmbessaLegendAbilityId),
+                "铁血狼母传奇活跃单位技能", 0, 0, string.Empty, 1, RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.ReadyUnit, PowerCost: 1, RequiresAnyUnitTarget: true, RemovesSourceEmpowerAsCost: true),
             LegendActionAbilityCatalog.AkaliLegendAbilityId => new LegendAbilityDefinition(
                 LegendActionAbilityCatalog.AkaliLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.AkaliLegendAbilityId),
@@ -19000,12 +19036,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
                     ["cardNo"] = resolvedItem.CardNo,
-                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null ? resolvedItem.TargetObjectIds.ToArray()
+                    ["targetObjectIds"] = resolvedItem.LegendDuelMovement is null && resolvedItem.LegendUnitKeyword is null && resolvedItem.LegendUnitEffect is null ? resolvedItem.TargetObjectIds.ToArray()
                         : resolvedItem.TargetObjectIds.Select(id => ResolutionResult.VisibleObjectIdForViewer(nextState, id, "__spectator__")).ToArray()
                 }));
             events.AddRange(stackResolutionEvents);
@@ -23967,6 +24003,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
         if (stackItem.LegendDuelMovement is not null) return ResolveLegendDuelMovement(state, stackItem);
         if (stackItem.LegendUnitKeyword is not null) return ResolveLegendUnitKeyword(state, stackItem);
+        if (stackItem.LegendUnitEffect is not null) return ResolveLegendUnitEffect(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
@@ -24016,6 +24053,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.EmpowerOtherObserver is not null) return ResolveEmpowerOtherObserver(state, stackItem);
         if (stackItem.DelayedEmpower is not null) return ResolveDelayedEmpower(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
@@ -34519,10 +34557,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int PowerCost = 0,
         bool ResolveOnlyOnControllerTurn = false,
         bool ReadyTargetIfSourceEmpowered = false,
-        string GrantedCombatKeyword = "");
+        string GrantedCombatKeyword = "",
+        bool RequiresAnyUnitTarget = false,
+        bool RemovesSourceEmpowerAsCost = false,
+        int PowerModifierAmount = 0);
 
     private static class LegendAbilityEffectKinds
     {
+        public const string UnitPowerModifier = "LEGEND_UNIT_POWER_MODIFIER";
+        public const string ReadyUnit = "LEGEND_READY_UNIT";
         public const string GrantUnitKeyword = "LEGEND_GRANT_UNIT_KEYWORD";
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";

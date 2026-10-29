@@ -223,6 +223,9 @@ export type CardInfo = {
   effect?: string;
   tag?: string;
   image?: string;
+  hero?: string;
+  limit?: number;
+  sort?: number;
 };
 
 /** Mirrors PlayCostQuoteDto in src/Riftbound.Contracts/PlayCostQuote.cs. */
