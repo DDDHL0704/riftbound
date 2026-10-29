@@ -24876,7 +24876,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.DestroysAllUnits)
         {
             var allUnitTargetObjectIds = GetFieldUnitObjectIds(playerZones, cardObjects).ToArray();
-            var allUnitTargetObjectIdSet = allUnitTargetObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (behavior.EachPlayerKeepsOneUnitBeforeDestroyingOthers) {
+                var survivors = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var player in playerZones.Keys.OrderBy(p => p == state.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal)) {
+                    var legal = GetControlledPublicFieldUnitObjectIds(playerZones, cardObjects, player).Order(StringComparer.Ordinal).ToArray();
+                    if (legal.Length == 0) continue;
+                    var choice = RuleChoices.Value!.Choose(player, "选择一名受你控制的单位，其他单位将被摧毁。",
+                        legal.Select(id => new RuleChoiceOption(id, cardObjects[id].CardNo is { } no ? OfficialCardSourceIdentityGroups.DisplayName(no) : "单位", [id])).ToArray(),
+                        kind: "MASS_DESTRUCTION_SURVIVOR", preview: state);
+                    survivors.Add(choice);
+                    events.Add(new("MASS_DESTRUCTION_SURVIVOR_CHOSEN", "玩家选择保留一名单位", new Dictionary<string, object?> {
+                        ["sourceObjectId"] = stackItem.SourceObjectId, ["playerId"] = player, ["unitObjectId"] = choice }));
+                }
+                allUnitTargetObjectIds = allUnitTargetObjectIds.Where(id => !survivors.Contains(id)).ToArray();
+            }
             using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, allUnitTargetObjectIds);
             events.AddRange(replacements.Events);
             foreach (var targetObjectId in allUnitTargetObjectIds.Where(id => !replacements.Replaced.Contains(id)))

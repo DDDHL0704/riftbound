@@ -16,7 +16,7 @@ public static class VendettaCardSources
         using var stream = typeof(VendettaCardSources).Assembly.GetManifestResourceStream(ResourceName)
             ?? throw new InvalidOperationException("The official VEN snapshot is missing.");
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
-        return new[] { (Id: 37743L, CardNo: "VEN·052"), (Id: 37803L, CardNo: "VEN·106"),
+        return new[] { (Id: 37786L, CardNo: "VEN·090"), (Id: 37743L, CardNo: "VEN·052"), (Id: 37803L, CardNo: "VEN·106"),
             (Id: 37827L, CardNo: "VEN·127"), (Id: 37700L, CardNo: "VEN·015"), (Id: 37752L, CardNo: "VEN·061"),
             (Id: 37804L, CardNo: "VEN·107"), (Id: 37831L, CardNo: "VEN·131"),
             (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),

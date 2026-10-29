@@ -294,6 +294,7 @@ public sealed record CardBehaviorDefinition(
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
     int? PowerModifierAmountIfTargetEmpowered = null,
+    bool EachPlayerKeepsOneUnitBeforeDestroyingOthers = false,
     bool CannotBeCountered = false,
     bool IgnoresSpellshield = false,
     ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
@@ -463,6 +464,8 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·090", "末日决斗", 8, "FINAL_DUEL_KEEP_ONE_UNIT_EACH", 0, 0,
+            DestroysAllUnits: true, EachPlayerKeepsOneUnitBeforeDestroyingOthers: true),
         new("VEN·052", "惑心转意", 1, "MIND_TWIST_RETURN_FRIENDLY", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, Mode: "RETURN_FRIENDLY", ReturnsTargetToHand: true,
             CanPlayDuringPriority: true),
