@@ -210,6 +210,8 @@ public sealed class VenUnitEventTests
     {
         var initial = LocalDestructionRecallTests.At(BattlePosition("VEN·024", true), "UNIT", "P1", "BASE")
             with { UntilEndOfTurnEffects = [] };
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["BF"] = initial.CardObjects["BF"] with { ControllerId = "P2" } } };
         initial = AddHandCard(initial, "SHIELD", "VEN·126", "P1");
         initial = AddHandCard(initial, "HIT", hit, "P1");
         var game = new Driver(initial);
