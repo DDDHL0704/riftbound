@@ -42,7 +42,11 @@ public sealed partial class CoreRuleEngine
             return DiscardUnconfirmedTrigger(new(true, null, state, [], ResolutionResult.BuildSnapshots(state), BuildCorePrompts(state)), item);
         var next = state with { StackItems = state.StackItems.Select(i => i.StackItemId == item.StackItemId ? item : i).ToArray(),
             PendingCardChoice = TriggerHandDiscardChoice(state, item), PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
-        return new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
+        return new(true, null, next, [new("TRIGGER_HAND_DISCARD_WINDOW_OPENED", "已选择触发目标，等待选择私有弃牌费用",
+            new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["stackItemId"] = item.StackItemId,
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(next, item.SourceObjectId, "__spectator__"),
+                ["targetObjectIds"] = item.TargetObjectIds, ["choiceWindow"] = TriggerHandDiscardWindow })],
+            ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
     internal static bool ValidTriggerHandDiscardChoice(MatchState state, PendingCardChoiceState choice)
