@@ -189,7 +189,7 @@ public sealed partial class CoreRuleEngine
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, zones,
+            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, zones,
                     ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", plan.PaymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
