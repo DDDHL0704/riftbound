@@ -2,7 +2,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false);
+public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
+    bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false);
 
 public sealed record CardBehaviorDefinition(
     string CardNo,
@@ -459,6 +460,15 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·009", "巴凯收割者", 3, "BAKKAI_REAPER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            UnitEventAbility: new("ATTACK", "ASSAULT_SELF", 2, LeadingPowerCost: 1, LeadingPowerTrait: "red")),
+        new("VEN·079", "夺魂钩 妲姆", 5, "SOUL_HOOK_DAME_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            UnitEventAbility: new("ATTACK_OR_DEFEND", "MATCH_GREATER_POWER", RequiresEmpowered: true)),
+        new("VEN·080", "诺克萨斯爆破手", 2, "NOXIAN_DEMOLITIONIST_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1,
+            UnitEventAbility: new("CONQUEST", "DESTROY_CHEAPER_EQUIPMENT", Optional: true)),
         new("VEN·020", "暮光狂舞者", 3, "VEN_020_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
             UnitEventAbility: new("ATTACK", "READY_ANOTHER_FRIENDLY")),

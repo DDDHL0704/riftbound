@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
-    string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null);
+    string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
+    ObjectLocationState? Here = null, int? LastKnownPower = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -21,10 +22,12 @@ public sealed partial class CoreRuleEngine
         => sources.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id => cards.TryGetValue(id, out var card)
                 && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(zones, id))
             .Select(id => cards[id]).SelectMany(card => AttachedRuleTextRules.Instances(zones, cards, card)
-                .Where(i => UnitEventSpec(i.CardNo) is { } spec && spec.Timing == timing
+                .Where(i => UnitEventSpec(i.CardNo) is { } spec
+                    && (spec.Timing == timing || spec.Timing == "ATTACK_OR_DEFEND" && timing is "ATTACK" or "DEFEND")
+                    && (!spec.RequiresEmpowered || card.IsEmpowered)
                     && (!spec.RequiresNoDamageThisTurn || !card.UntilEndOfTurnEffects.Contains(TookDamageThisTurn)))
                 .Select(i => new UnitEventObservation(card.ObjectId, EffectiveFieldControllerId(zones, card.ObjectId, card),
-                    new(i.CardNo, card.ObjectGeneration, card.CopyFaceTransitions?.Count ?? 0, 0, timing,
+                    new(i.CardNo, card.ObjectGeneration, card.CopyFaceTransitions?.Count ?? 0, 0, UnitEventSpec(i.CardNo)!.Timing,
                         card.TokenFactoryCardNo, i.Origin)))).ToArray();
 
     private static GameEvent WithUnitEvents(GameEvent ev, IReadOnlyList<UnitEventObservation> observations)
@@ -46,8 +49,36 @@ public sealed partial class CoreRuleEngine
 
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind)
-        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, attackers, "ATTACK").Select((o, i) =>
+        => CaptureRoleUnitEvents(state, attackers, "ATTACK", timing, eventKind);
+
+    private static TriggerQueueItemState[] CaptureRoleUnitEvents(MatchState state, IEnumerable<string> units,
+        string role, string timing, string eventKind)
+        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, role).Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) =>
             UnitEventTrigger(o, state.Tick + 1, i, eventKind, timing)).ToArray();
+
+    private static UnitEventObservation CaptureUnitEventFacts(MatchState state, UnitEventObservation o)
+        => UnitEventSpec(o.Context.CardNo)?.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT"
+            ? o with { Context = o.Context with { LastKnownPower = ResolveCurrentFieldUnitPower(state, state.CardObjects[o.Source]),
+                Here = UnitEventSpec(o.Context.CardNo)!.Effect == "MATCH_GREATER_POWER" ? state.ObjectLocations[o.Source] : null } } : o;
+
+    private static TriggerQueueItemState[] CaptureConquestUnitEvents(MatchState state, IEnumerable<string> units, long tick)
+        => CaptureUnitEvents(state.PlayerZones, state.CardObjects, units, "CONQUEST")
+            .Select(o => CaptureUnitEventFacts(state, o)).Select((o, i) => UnitEventTrigger(o, tick, i, "BATTLEFIELD_CONQUERED")).ToArray();
+
+    private static ResolutionResult RecordUnitEventSourceFacts(MatchState before, ResolutionResult result)
+    {
+        UnitEventContext? Update(string id, UnitEventContext? c) {
+            if (c?.LastKnownPower is null) return c;
+            var current = CombatMightSourceLocation(result.State, id, c.SourceGeneration) is not null ? result.State
+                : CombatMightSourceLocation(before, id, c.SourceGeneration) is not null ? before : null;
+            return current is null ? c : c with { LastKnownPower = ResolveCurrentFieldUnitPower(current, current.CardObjects[id]),
+                Here = c.Here is null ? null : current.ObjectLocations[id] };
+        }
+        var next = result.State with {
+            StackItems = result.State.StackItems.Select(i => i with { UnitEvent = Update(i.SourceObjectId, i.UnitEvent) }).ToArray(),
+            TriggerQueue = result.State.TriggerQueue.Select(t => t with { UnitEvent = Update(t.SourceObjectId, t.UnitEvent) }).ToArray() };
+        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
+    }
 
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
@@ -79,21 +110,39 @@ public sealed partial class CoreRuleEngine
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
+            && (spec.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
+            && (spec.Effect == "MATCH_GREATER_POWER" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
+                && (here.Zone == "BASE" && here.BattlefieldObjectId is null
+                    || here.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, here.BattlefieldObjectId) is not null)
+                : c.Here is null)
+            && (CombatMightSourceLocation(state, source, c.SourceGeneration) is not { } current
+                || (c.LastKnownPower is null || c.LastKnownPower == ResolveCurrentFieldUnitPower(state, state.CardObjects[source]))
+                    && (c.Here is null || c.Here == current))
             && (c.Origin is { } origin ? AttachedRuleTextRules.ValidCaptured(state, origin, source, c.SourceGeneration, c.CardNo)
                 : PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, c.FaceRevision, c.CapturedTick, c.TokenFactoryCardNo));
 
     private static bool NeedsUnitEventTarget(StackItemState item) => item.UnitEvent is { } c
-        && UnitEventSpec(c.CardNo)?.Effect == "READY_ANOTHER_FRIENDLY";
+        && UnitEventSpec(c.CardNo)?.Effect is "READY_ANOTHER_FRIENDLY" or "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT";
     private static string[] UnitEventTargets(MatchState state, StackItemState item)
-        => state.CardObjects.Values.Where(c => c.ObjectId != item.SourceObjectId && IsFaceUpNonStandbyUnit(c)
-            && IsObjectOnField(state.PlayerZones, c.ObjectId) && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
+        => state.CardObjects.Values.Where(c => !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
+            && (UnitEventSpec(item.UnitEvent!.CardNo)!.Effect switch {
+                "READY_ANOTHER_FRIENDLY" => c.ObjectId != item.SourceObjectId && IsFaceUpNonStandbyUnit(c)
+                    && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId,
+                "MATCH_GREATER_POWER" => IsFaceUpNonStandbyUnit(c) && c.ObjectId != item.SourceObjectId
+                    && state.ObjectLocations.TryGetValue(c.ObjectId, out var loc) && loc.Zone == item.UnitEvent.Here!.Zone
+                    && (loc.Zone == "BASE" ? loc.PlayerId == item.UnitEvent.Here.PlayerId : loc.BattlefieldObjectId == item.UnitEvent.Here.BattlefieldObjectId)
+                    && ResolveCurrentFieldUnitPower(state, c) > UnitEventSourcePower(state, item),
+                "DESTROY_CHEAPER_EQUIPMENT" => c.Tags.Contains(CardObjectTags.EquipmentCard) && c.ManaCost <= UnitEventSourcePower(state, item),
+                _ => false
+            })
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState UnitEventChoice(MatchState state, StackItemState item)
     {
         var legal = UnitEventTargets(state, item);
-        return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 1, 1, legal, legal,
-            "选择另一名友方单位变为活跃状态；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
+        return new("UNIT-EVENT:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
+            UnitEventSpec(item.UnitEvent!.CardNo)!.Optional ? 0 : 1, 1, legal, legal,
+            "选择单位技能的合法目标；确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
             { ResolvingStackItemId = item.StackItemId };
     }
     private static ResolutionResult PrepareUnitEventTarget(ResolutionResult result, StackItemState item)
@@ -110,9 +159,13 @@ public sealed partial class CoreRuleEngine
             || !ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)) return false;
         var expected = UnitEventChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow && choice.PlayerId == item.ControllerId
-            && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == 1 && choice.MaxCount == 1
+            && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind && choice.RequiredCount == expected.RequiredCount && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
+
+    private static int UnitEventSourcePower(MatchState state, StackItemState item)
+        => CombatMightSourceLocation(state, item.SourceObjectId, item.UnitEvent!.SourceGeneration) is not null
+            ? ResolveCurrentFieldUnitPower(state, state.CardObjects[item.SourceObjectId]) : item.UnitEvent.LastKnownPower!.Value;
 
     private static StackResolutionResult ResolveUnitEvent(MatchState state, StackItemState item)
     {
@@ -124,6 +177,30 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "DESTROY_CHEAPER_EQUIPMENT" && item.TargetObjectIds.SingleOrDefault() is { } gear
+            && StackObjectRules.ReferencesCurrentObject(state, item, gear) && UnitEventTargets(state, item).Contains(gear)) {
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),
+                state.RunePools, objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { gear });
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = removal.RunePools,
+                TriggerQueue = removal.TriggerQueue, Events = events.Concat(removal.Events).ToArray(), DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
+        if (spec.Effect == "ASSAULT_SELF" && item.TriggerCost is not null && cards.TryGetValue(item.SourceObjectId, out var assaulter)
+            && assaulter.ObjectGeneration == context.SourceGeneration && IsObjectOnField(zones, assaulter.ObjectId)) {
+            var effect = TemporaryCombatKeywordRules.AppliedEffectId(assaulter, $"{TemporaryCombatKeywordRules.Prefix}{CardCombatKeywordNames.Assault}{spec.Amount}");
+            cards[assaulter.ObjectId] = assaulter with { UntilEndOfTurnEffects = [..assaulter.UntilEndOfTurnEffects, effect] };
+            events.Add(new("UNIT_STATUS_APPLIED", "单位在本回合内获得强攻", new Dictionary<string, object?> {
+                ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = assaulter.ObjectId, ["statusEffectId"] = effect }));
+        }
+        if (spec.Effect == "MATCH_GREATER_POWER" && item.TargetObjectIds.SingleOrDefault() is { } greater
+            && StackObjectRules.ReferencesCurrentObject(state, item, greater) && UnitEventTargets(state, item).Contains(greater)
+            && cards.TryGetValue(item.SourceObjectId, out var matching) && matching.ObjectGeneration == context.SourceGeneration
+            && IsObjectOnField(zones, matching.ObjectId)) {
+            var delta = ResolveCurrentFieldUnitPower(state, cards[greater]) - UnitEventSourcePower(state, item) + 1;
+            var behavior = new CardBehaviorDefinition(context.CardNo, "追平战力后获得+1", 0, item.EffectKind, 0, 1, PowerModifierAmount: delta);
+            cards[matching.ObjectId] = ApplyPowerModifier(state, matching, behavior, item, matching.ObjectId, delta, out var power);
+            events.Add(power);
+        }
         if (spec.Effect == "DRAW") {
             // CN383.2.a.1: the undamaged clause is checked when the battle ends.
             var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);

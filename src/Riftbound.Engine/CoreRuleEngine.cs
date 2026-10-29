@@ -11934,6 +11934,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
             var queue = CaptureAttackDamageTriggers(attackState, attackerObjectIds, battlefieldId).ToList();
             queue.AddRange(CaptureAttackUnitEvents(attackState, attackerObjectIds, TimingStates.NeutralClosed, "BATTLE_DECLARED"));
+            queue.AddRange(CaptureRoleUnitEvents(attackState, defenderObjectIds, "DEFEND", TimingStates.NeutralClosed, "BATTLE_DECLARED"));
             queue.AddRange(CaptureAttackAreaDamageTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackDeckPlayTriggers(attackState, attackerObjectIds, battlefieldId, TimingStates.NeutralClosed)
                 .Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
