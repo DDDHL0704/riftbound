@@ -48,7 +48,7 @@
 
 ## P3 · 工程与提速（A 线，有空再做）
 
-- [x] **P3-1 拆分巨型文件**：分支 `a/split-large-files` 按领域纯搬移三个大文件，原 `MatchSession.cs`、`MatchRecovery.cs` 和 `ConformanceFixtureRunnerTests.cs` 分别降至 4,611、3,898 和 240 行。
+- [x] **P3-1 拆分巨型文件**：分支 `a/split-large-files` 按领域纯搬移三个大文件，原 `MatchSession.cs`、`MatchRecovery.cs` 和 `ConformanceFixtureRunnerTests.cs` 分别降至 4,668、3,920 和 240 行。
   - 保留全部成员正文、测试名称及各类型字段和属性的初始化顺序；当前 B/C/D PR 涉及的成员仍在原文件，源码检查会读取对应目录中的全部拆分文件。定向回归 2,341/2,341 通过，完整规则套件和 `L2 required` 继续由 PR CI 执行。
 - [ ] **P3-2 L2 提速**：
   - 把最慢的测试分散到各个分片；
