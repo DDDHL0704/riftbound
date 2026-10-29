@@ -25407,14 +25407,14 @@ public sealed partial class FullGameEndToEndTests
                     var grantedConquest = item?.UnitConquest is { TemporaryGrant: not null } granted ? granted : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" } field
                         ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration
-                            ?? grantedConquest?.SourceGeneration ?? item?.PermanentPlaySource?.Generation ?? item?.SimpleActivation?.Source.Generation;
+                            ?? grantedConquest?.SourceGeneration ?? item?.PermanentPlaySource?.Generation ?? item?.SimpleActivation?.Source.Generation ?? item?.EmpowerInteraction?.Source.Generation;
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal((item.SimpleActivation is not null ? item.CardNo : null) ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
+                    Assert.Equal((item.SimpleActivation is not null ? item.CardNo : null) ?? item.EmpowerInteraction?.CardNo ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
                         ?? (item.PermanentPlaySource is not null ? item.CardNo == "VEN·132" ? "VEN·132" : "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
                     if (item.SimpleActivation is { } activation)
                     {
@@ -25425,6 +25425,16 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(item.SourceObjectId, activation.Source.ObjectId);
                         Assert.InRange(activation.AcquiredTick, 1, result.State.Tick);
                         Assert.Null(row["simpleActivation"]);
+                    }
+                    else if (item.EmpowerInteraction is { } empower)
+                    {
+                        Assert.Equal("CAPTURED_EMPOWER_INTERACTION", item.EffectKind);
+                        Assert.Contains(empower.CardNo, new[] { "VEN·037", "VEN·082", "VEN·099", "VEN·104", "VEN·114" });
+                        Assert.Equal(item.SourceObjectId, empower.Source.ObjectId);
+                        Assert.True(CardBehaviorRegistry.TryGetByCardNo(empower.CardNo, out var behavior));
+                        Assert.NotNull(behavior.EmpowerInteraction);
+                        Assert.InRange(empower.CapturedTick, 1, result.State.Tick);
+                        Assert.Null(row["empowerInteraction"]);
                     }
                     else if (held is not null)
                     {

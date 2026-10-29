@@ -2,6 +2,9 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
+    int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
+
 public sealed record CardBehaviorDefinition(
     string CardNo,
     string DisplayName,
@@ -26,6 +29,7 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesTargets = false,
     RevealedHandChoiceSpec? HandChoice = null,
     ConquestDamageSpec? ConquestDamage = null,
+    EmpowerInteractionSpec? EmpowerInteraction = null,
     MovementScoreSpec? MovementScore = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
@@ -302,7 +306,17 @@ public sealed record CardBehaviorDefinition(
     OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
     bool PlayTriggerBanishesGraveyardCardAsCost = false,
     SourceStaticLimitsSpec? SourceStaticLimits = null,
-    int EndStepSelfDestructionDamage = 0)
+    int EndStepSelfDestructionDamage = 0,
+    OptionalPowerModifierSpec? OptionalPowerModifier = null,
+    bool CounterRequiresOpponentOtherSpellThisTurn = false,
+    int? BasePowerUntilEndOfTurn = null,
+    int PreventDamageUntilEndOfTurn = 0,
+    string TargetRequiresEnemyTraitThreat = "",
+    bool AllowsPlayToOpenBattlefield = false,
+    bool EachPlayerKeepsOneUnitBeforeDestroyingOthers = false,
+    bool CannotBeCountered = false,
+    bool IgnoresSpellshield = false,
+    ConditionalTargetRemovalSpec? ConditionalTargetRemoval = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -312,6 +326,9 @@ public sealed record SourceStaticLimitsSpec(int UnplayableThroughControllerTurn 
     bool CombatDamageIgnoresBulwarkHere = false, int EnemySpellSkillDamageImmunityMinimumRunes = 0,
     int BattlefieldStageRuneCallLimit = 0, int BattlefieldScoreDrawThroughPlayerTurn = 0,
     bool DeclaresSpellNameAndProhibitsItOnEnemyBattlefield = false);
+public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
+public sealed record ConditionalTargetRemovalSpec(int MaximumMight, string Removal,
+    string OtherwiseRemoval = "", bool RemoveEmpowermentFirst = false);
 
 public static class CardDamageConditionKinds
 {
@@ -330,6 +347,7 @@ public static class CardTargetScopes
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string ControlledBattlefieldThenFriendlyUnit = "CONTROLLED_BATTLEFIELD_THEN_FRIENDLY_UNIT";
     public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
     public const string BattlefieldThenEnemyUnit = "BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
@@ -356,6 +374,7 @@ public static class CardTargetScopes
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnitAtSourceLocation = "ENEMY_UNIT_AT_SOURCE_LOCATION";
     public const string EnemyUnit = "ENEMY_UNIT";
+    public const string EnemyUnitOrEquipment = "ENEMY_UNIT_OR_EQUIPMENT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
@@ -520,6 +539,90 @@ public static class CardBehaviorRegistry
         new("VEN·076", "维修专家", 3, "MAINTENANCE_EXPERT_UNIT", 0, 0, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·097", "小蜘蛛", 3, "SPIDERLING_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "蜘蛛|待命"),
+        new("VEN·100", "深渊之触", 3, "ABYSSAL_TOUCH_CREATE_TENTACLES", 0, 0,
+            CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "触手",
+            CreatedBaseUnitTokenTags: "比尔吉沃特", FlowCost: new(3, 0, [])),
+        new("VEN·039", "崩解之沙", 1, "CRUMBLING_SANDS_CONDITIONAL_COUNTER", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, CanPlayDuringPriority: true, CountersTargetStackSpell: true,
+            CounterRequiresOpponentOtherSpellThisTurn: true),
+        new("VEN·083", "暴走", 3, "RAMPAGE_OPTIONAL_POWER_MUTUAL_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits, DealsMutualTargetPowerDamage: true,
+            OptionalPowerModifier: new(1, RuneTrait.Orange, 2)),
+        new("VEN·085", "力量箴言", 1, "INVOCATION_OF_STRENGTH_RECYCLE_BLUE_HAND_CARD", 0, 0,
+            HandChoice: new(RevealedHandAction.Recycle, RequiredTag: "COLOR:blue")),
+        new("VEN·031", "我流奥义！霞阵", 1, "TWILIGHT_SHROUD_PROTECT_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 1, StatusEffectId: TemporaryUnitEffectRules.EnemyTargetProtection,
+            FlowCost: new(2, 0, [])),
+        new("VEN·040", "专注箴言", 1, "FOCUS_MANTRA_BUFF_THREATENED_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 4, CanPlayDuringPriority: true, TargetRequiresEnemyTraitThreat: RuneTrait.Red),
+        new("VEN·116", "龙之形", 3, "DRAGON_FORM_SET_BASE_MIGHT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            BasePowerUntilEndOfTurn: 5, FlowCost: new(3, 0, [])),
+        new("VEN·126", "忍法！气合盾", 2, "SPIRIT_REFUGE_PREVENT_SEVEN_DAMAGE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            CanPlayDuringPriority: true, PreventDamageUntilEndOfTurn: 7),
+        new("VEN·066", "时空裂隙", 2, "TIME_FISSURE_BANISH_UNIT_PLAY_SAME_LOCATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true,
+            EffectPlayDestination: "ORIGINAL_LOCATION"),
+        new("VEN·115", "海洋亚龙", 8, "OCEAN_DRAKE_PLAY_UNIT_OPTIONAL_RETURN_NON_DRAGON", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            TargetForbiddenTag: "龙", MinTargetCount: 0, ReturnsTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "龙", AllowsPlayToOpenBattlefield: true),
+        new("VEN·034", "回音击", 2, "ECHOING_STRIKE_MOVE_FRIENDLY_UNIT_AND_BUFF", 0, 2,
+            TargetScope: CardTargetScopes.ControlledBattlefieldThenFriendlyUnit, CanPlayDuringPriority: true,
+            TargetReferencedMovement: new(1, 0, ReferenceIsBattlefield: true, ReferenceMustBeControlled: true, MovingUnitPowerBonus: 2)),
+        new("VEN·002", "旋风剑客", 4, "SWIFTBLADE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人"),
+        new("VEN·016", "蚀影巨龙", 8, "ECLIPSE_DRAKE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·095", "影流弟子", 2, "SHADOW_DISCIPLE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
+        new("VEN·111", "米娜·捷足", 6, "MINA_SWIFTFOOT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
+        new("VEN·090", "末日决斗", 8, "FINAL_DUEL_KEEP_ONE_UNIT_EACH", 0, 0,
+            DestroysAllUnits: true, EachPlayerKeepsOneUnitBeforeDestroyingOthers: true),
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_RETURN_FRIENDLY", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, Mode: "RETURN_FRIENDLY", ReturnsTargetToHand: true,
+            CanPlayDuringPriority: true),
+        new("VEN·052", "惑心转意", 1, "MIND_TWIST_REDUCE_ENEMY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, Mode: "REDUCE_ENEMY", PowerModifierAmount: -2,
+            CanPlayDuringPriority: true),
+        new("VEN·106", "风灵瞬转", 3, "SPIRIT_SHIFT_CONDITIONAL_REMOVAL", 0, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ConditionalTargetRemoval: new(3, "BANISH", "RETURN_TO_HAND")),
+        new("VEN·127", "血戮", 2, "BLOODLETTING_CONDITIONAL_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, FlowCost: new(4, 2, [RuneTrait.Yellow]),
+            ConditionalTargetRemoval: new(3, "DESTROY", RemoveEmpowermentFirst: true)),
+        new("VEN·015", "暴怒箴言", 1, "INVOCATION_OF_FURY_DAMAGE", 4, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:green",
+            CanPlayDuringSpellDuel: true, CannotBeCountered: true),
+        new("VEN·061", "洞察箴言", 1, "INVOCATION_OF_INSIGHT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:orange",
+            PowerModifierAmount: -5, CanPlayDuringPriority: true, IgnoresSpellshield: true),
+        new("VEN·107", "不和箴言", 1, "INVOCATION_OF_DISCORD_RETURN", 0, 0,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:yellow",
+            ReturnsTargetToHand: true, MinTargetCount: 0, AnyNumberOfTargets: true, MaxTotalTargetPower: 5),
+        new("VEN·131", "团结箴言", 2, "INVOCATION_OF_UNITY_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnitOrEquipment, TargetRequiredTag: "COLOR:purple", DestroysTarget: true),
+        new("VEN·037", "盗墓贼芭芭拉", 4, "VEN_037_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("PLAY", "DISENCHANT_OR_DESTROY_EQUIPMENT", MinimumRunes: 7)),
+        new("VEN·082", "黑心商人", 4, "VEN_082_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("PLAY", "TRANSFER_EMPOWER")),
+        new("VEN·099", "旋风武者", 3, "VEN_099_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "待命",
+            EmpowerInteraction: new("STANDBY_PLAY", "TEMPORARY_EMPOWER_HERE")),
+        new("VEN·104", "披尾女族长", 4, "VEN_104_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
+            EmpowerInteraction: new("EMPOWERED", "PLAY_GRAVEYARD_UNIT", MaximumMana: 3, MaximumPower: 1)),
+        new("VEN·114", "卡洛克斯", 6, "VEN_114_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5,
+            EmpowerInteraction: new("EMPOWERED", "MILL_THEN_PLAY_OPPONENT_UNIT", MillCount: 3)),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

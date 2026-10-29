@@ -20,25 +20,42 @@ public static class VendettaCardSources
     private static ImmutableArray<OfficialCard> Load()
     {
         var catalog = Source.Value;
-        return new[] { (Id: 37696L, CardNo: "VEN·011"), (Id: 37715L, CardNo: "VEN·027"), (Id: 37767L, CardNo: "VEN·073"),
-            (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"), (Id: 37726L, CardNo: "VEN·038"),
-            (Id: 37727L, CardNo: "VEN·038a"), (Id: 37842L, CardNo: "VEN·139"), (Id: 37892L, CardNo: "VEN·189"),
-            (Id: 37893L, CardNo: "VEN·189*"), (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"),
-            (Id: 37901L, CardNo: "VEN·193*"), (Id: 37854L, CardNo: "VEN·151"), (Id: 37942L, CardNo: "VEN·195"),
-            (Id: 37905L, CardNo: "VEN·195*"), (Id: 37856L, CardNo: "VEN·153"), (Id: 37906L, CardNo: "VEN·196"),
-            (Id: 37907L, CardNo: "VEN·196*"), (Id: 37735L, CardNo: "VEN·045"), (Id: 37756L, CardNo: "VEN·064"),
-            (Id: 37793L, CardNo: "VEN·096"), (Id: 37795L, CardNo: "VEN·098"), (Id: 37798L, CardNo: "VEN·101"),
-            (Id: 37819L, CardNo: "VEN·119"), (Id: 37820L, CardNo: "VEN·120"), (Id: 37832L, CardNo: "VEN·132"),
-            (Id: 37689L, CardNo: "VEN·004"), (Id: 37713L, CardNo: "VEN·025"), (Id: 37717L, CardNo: "VEN·029"),
-            (Id: 37724L, CardNo: "VEN·036"), (Id: 37744L, CardNo: "VEN·053"), (Id: 37703L, CardNo: "VEN·018"),
-            (Id: 37770L, CardNo: "VEN·076"), (Id: 37936L, CardNo: "VEN·097"), (Id: 37861L, CardNo: "VEN·158"),
-            (Id: 37863L, CardNo: "VEN·160"), (Id: 37866L, CardNo: "VEN·163"), (Id: 37867L, CardNo: "VEN·164"),
-            (Id: 37864L, CardNo: "VEN·161"), (Id: 37745L, CardNo: "VEN·054"), (Id: 37751L, CardNo: "VEN·060"),
-            (Id: 37753L, CardNo: "VEN·062"), (Id: 37769L, CardNo: "VEN·075"), (Id: 37771L, CardNo: "VEN·077"),
-            (Id: 37782L, CardNo: "VEN·087"), (Id: 37825L, CardNo: "VEN·125"), (Id: 37833L, CardNo: "VEN·133"),
-            (Id: 37760L, CardNo: "VEN·068"), (Id: 37761L, CardNo: "VEN·068a"), (Id: 37783L, CardNo: "VEN·088"),
-            (Id: 37784L, CardNo: "VEN·088a") }
+        return new[] { (Id: 37687L, CardNo: "VEN·002"), (Id: 37689L, CardNo: "VEN·004"), (Id: 37696L, CardNo: "VEN·011"),
+            (Id: 37700L, CardNo: "VEN·015"), (Id: 37701L, CardNo: "VEN·016"), (Id: 37703L, CardNo: "VEN·018"),
+            (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"), (Id: 37713L, CardNo: "VEN·025"),
+            (Id: 37715L, CardNo: "VEN·027"), (Id: 37717L, CardNo: "VEN·029"), (Id: 37719L, CardNo: "VEN·031"),
+            (Id: 37986L, CardNo: "VEN·034"), (Id: 37724L, CardNo: "VEN·036"), (Id: 37725L, CardNo: "VEN·037"),
+            (Id: 37726L, CardNo: "VEN·038"), (Id: 37727L, CardNo: "VEN·038a"), (Id: 37728L, CardNo: "VEN·039"),
+            (Id: 37729L, CardNo: "VEN·040"), (Id: 37735L, CardNo: "VEN·045"), (Id: 37743L, CardNo: "VEN·052"),
+            (Id: 37744L, CardNo: "VEN·053"), (Id: 37745L, CardNo: "VEN·054"), (Id: 37751L, CardNo: "VEN·060"),
+            (Id: 37752L, CardNo: "VEN·061"), (Id: 37753L, CardNo: "VEN·062"), (Id: 37756L, CardNo: "VEN·064"),
+            (Id: 37758L, CardNo: "VEN·066"), (Id: 37760L, CardNo: "VEN·068"), (Id: 37761L, CardNo: "VEN·068a"),
+            (Id: 37767L, CardNo: "VEN·073"), (Id: 37769L, CardNo: "VEN·075"), (Id: 37770L, CardNo: "VEN·076"),
+            (Id: 37771L, CardNo: "VEN·077"), (Id: 37776L, CardNo: "VEN·082"), (Id: 37777L, CardNo: "VEN·083"),
+            (Id: 37780L, CardNo: "VEN·085"), (Id: 37782L, CardNo: "VEN·087"), (Id: 37783L, CardNo: "VEN·088"),
+            (Id: 37784L, CardNo: "VEN·088a"), (Id: 37786L, CardNo: "VEN·090"), (Id: 37792L, CardNo: "VEN·095"),
+            (Id: 37793L, CardNo: "VEN·096"), (Id: 37936L, CardNo: "VEN·097"), (Id: 37795L, CardNo: "VEN·098"),
+            (Id: 37796L, CardNo: "VEN·099"), (Id: 37797L, CardNo: "VEN·100"), (Id: 37798L, CardNo: "VEN·101"),
+            (Id: 37801L, CardNo: "VEN·104"), (Id: 37803L, CardNo: "VEN·106"), (Id: 37804L, CardNo: "VEN·107"),
+            (Id: 37809L, CardNo: "VEN·111"), (Id: 37814L, CardNo: "VEN·114"), (Id: 37815L, CardNo: "VEN·115"),
+            (Id: 37816L, CardNo: "VEN·116"), (Id: 37819L, CardNo: "VEN·119"), (Id: 37820L, CardNo: "VEN·120"),
+            (Id: 37825L, CardNo: "VEN·125"), (Id: 37826L, CardNo: "VEN·126"), (Id: 37827L, CardNo: "VEN·127"),
+            (Id: 37831L, CardNo: "VEN·131"), (Id: 37832L, CardNo: "VEN·132"), (Id: 37833L, CardNo: "VEN·133"),
+            (Id: 37842L, CardNo: "VEN·139"), (Id: 37850L, CardNo: "VEN·147"), (Id: 37854L, CardNo: "VEN·151"),
+            (Id: 37856L, CardNo: "VEN·153"), (Id: 37861L, CardNo: "VEN·158"), (Id: 37863L, CardNo: "VEN·160"),
+            (Id: 37864L, CardNo: "VEN·161"), (Id: 37866L, CardNo: "VEN·163"), (Id: 37867L, CardNo: "VEN·164"),
+            (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"), (Id: 37900L, CardNo: "VEN·193"),
+            (Id: 37901L, CardNo: "VEN·193*"), (Id: 37942L, CardNo: "VEN·195"), (Id: 37905L, CardNo: "VEN·195*"),
+            (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*"), (Id: 37924L, CardNo: "VEN·T04"),
+            (Id: 37926L, CardNo: "VEN·T06") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            // The upstream gallery labels VEN token printings as ordinary units.
+            // CN 187.1 and 187.10 define their actual token category.
+            .Select(card => card.CardNo.StartsWith("VEN·T", StringComparison.Ordinal)
+                && card.CardCategory == "unit"
+                ? card with { CardCategory = "indicator_unit", CardCategoryName = "指示物单位",
+                    CardCategoryList = ["indicator_unit"], CardCategoryNameList = ["指示物单位"] }
+                : card)
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),

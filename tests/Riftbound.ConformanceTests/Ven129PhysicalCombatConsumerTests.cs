@@ -21,7 +21,8 @@ public sealed class Ven129PhysicalCombatConsumerTests
         try
         {
             AssertTwelveEach(game.State);
-            for (var i = 0; i < 4 + 3 * companions; i++) await game.Act("P1", new TapRuneCommand(Rune("P1", i)));
+            var manaRunes = Enumerable.Range(0, 4 + 3 * companions).Select(i => Rune("P1", i)).ToArray();
+            await game.Act("P1", new TapRuneCommand(manaRunes[0], manaRunes));
             await game.Act("P1", new RecycleRuneCommand(Rune("P1", 0)));
             Assert.Equal(4 + 3 * companions, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
             var prefix = game.Events().Length; await game.Act("P1", new PlayCardCommand("UNIT", No, []));
@@ -74,7 +75,8 @@ public sealed class Ven129PhysicalCombatConsumerTests
         var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < (missing == "mana" ? 3 : 4); i++) await game.Act("P1", new TapRuneCommand(Rune("P1", i)));
+            var manaRunes = Enumerable.Range(0, missing == "mana" ? 3 : 4).Select(i => Rune("P1", i)).ToArray();
+            await game.Act("P1", new TapRuneCommand(manaRunes[0], manaRunes));
             await game.Act("P1", new RecycleRuneCommand(Rune("P1", 0)));
             var play = new PlayCardCommand("UNIT", No, []); var raw = JsonSerializer.SerializeToNode(play, Json)!.AsObject();
             raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;

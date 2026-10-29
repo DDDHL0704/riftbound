@@ -66,8 +66,9 @@ public sealed class MandatoryRecastOpeningTests
             var blue = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R03");
             Assert.Equal(2, purple.Length);
             verifyColdRecoveryAfterEveryCommand = false;
-            foreach (var id in Runes().Except(purple.Append(blue))) await Act(actor, new TapRuneCommand(id));
-            foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            var manaRunes = Runes().Except(purple.Append(blue)).ToArray();
+            await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+            await Act(actor, new RecycleRuneCommand(purple[0], purple));
             verifyColdRecoveryAfterEveryCommand = true;
             await Cold();
             Assert.Equal(9, State().RunePools[actor].Mana);
