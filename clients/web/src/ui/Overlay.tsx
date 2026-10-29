@@ -4,6 +4,7 @@ import { cardInfo } from "../game/cards";
 import { client } from "../net/client";
 import { enabledCandidate } from "../game/actions";
 import type { Prompt, Snapshot } from "../game/types";
+import { cue, setSoundEnabled, useSoundEnabled } from "../game/sound";
 
 const TEMPO: { action: string; label: string }[] = [
   { action: "PASS_PRIORITY", label: "让过" },
@@ -15,10 +16,33 @@ const TEMPO: { action: string; label: string }[] = [
 export const TEMPO_ACTIONS = TEMPO.map((t) => t.action);
 
 /** Tempo controls sit beside the board, where the eye already is, not up in the sidebar. */
-type DockProps = { prompt: Prompt | null; pending: boolean; autoPass: boolean; onToggleAutoPass: () => void };
+type DockProps = {
+  prompt: Prompt | null;
+  pending: boolean;
+  autoPass: boolean;
+  onToggleAutoPass: () => void;
+  /** Cards and units that could still act this turn; ending the turn with some left asks twice. */
+  unused: number;
+};
 
-export function Dock({ prompt, pending, autoPass, onToggleAutoPass }: DockProps) {
+export function Dock({ prompt, pending, autoPass, onToggleAutoPass, unused }: DockProps) {
   const tempo = TEMPO.filter((t) => enabledCandidate(prompt, t.action));
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    setArmed(false);
+  }, [prompt?.promptId]);
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  const run = (action: string) => {
+    if (action === "END_TURN" && unused > 0 && !armed) {
+      setArmed(true);
+      return;
+    }
+    void client.submit({ cmdType: action });
+  };
   const tap = enabledCandidate(prompt, "TAP_RUNE");
   const runes = (tap?.sources ?? []).map((s) => s.id).slice(0, Number(tap?.metadata?.maxBatchSize ?? 12));
   return (
@@ -27,6 +51,7 @@ export function Dock({ prompt, pending, autoPass, onToggleAutoPass }: DockProps)
         <input type="checkbox" checked={autoPass} onChange={onToggleAutoPass} />
         自动让过
       </label>
+      <SoundToggle />
       {runes.length >= 2 && (
         <button
           className="btn dock__runes"
@@ -36,8 +61,10 @@ export function Dock({ prompt, pending, autoPass, onToggleAutoPass }: DockProps)
           onClick={() => void client.submit({ cmdType: "TAP_RUNE", sourceObjectId: runes[0], sourceObjectIds: runes })}
         >
           全部横置 <b>+{runes.length}</b>
+          <kbd>T</kbd>
         </button>
       )}
+      {armed && <p className="dock__warn">还有 {unused} 张牌或单位可以行动，再按一次结束回合</p>}
       {tempo.map((t, i) => {
         const primary = i === tempo.length - 1;
         return (
@@ -46,7 +73,7 @@ export function Dock({ prompt, pending, autoPass, onToggleAutoPass }: DockProps)
             className={`btn dock__tempo${primary ? " btn--primary" : ""}`}
             data-hotkey={primary ? "space" : undefined}
             disabled={pending}
-            onClick={() => void client.submit({ cmdType: t.action })}
+            onClick={() => run(t.action)}
           >
             {t.label}
             {primary && <kbd>空格</kbd>}
@@ -117,6 +144,16 @@ export function ChainArrows({ snapshot, meId }: { snapshot: Snapshot; meId: stri
 }
 
 type Fx = { id: number; x: number; y: number; text: string; tone: "damage" | "destroy" | "score-me" | "score-opp" };
+function SoundToggle() {
+  const on = useSoundEnabled();
+  return (
+    <label className="dock__auto" title="出牌、伤害、得分等时机的提示音">
+      <input type="checkbox" checked={on} onChange={(e) => setSoundEnabled(e.target.checked)} />
+      音效
+    </label>
+  );
+}
+
 let fxSeq = 0;
 
 /** Short-lived marks where events land: damage numbers, destroyed units, points scored. */
@@ -150,6 +187,10 @@ export function EventFx({ meId }: { meId: string }) {
       };
       for (const e of fresh.flatMap((b) => b.events)) {
         const p = e.payload ?? {};
+        if (e.kind === "CARD_PLAYED") cue(p.playerId === meId ? "play" : "play-opp");
+        else if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0) cue("hit");
+        else if (e.kind === "UNIT_DESTROYED") cue("destroy");
+        else if (e.kind === "SCORE_GAINED" && Number(p.amount) > 0) cue(p.playerId === meId ? "score-me" : "score-opp");
         if (e.kind === "DAMAGE_APPLIED" && Number(p.damage) > 0)
           push(String(p.targetObjectId), at(p.targetObjectId, p.battlefieldId), `−${p.damage}`, "damage");
         else if (e.kind === "UNIT_DESTROYED") push(String(p.targetObjectId), at(p.targetObjectId), "摧毁", "destroy");
