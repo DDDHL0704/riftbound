@@ -355,6 +355,9 @@ internal static partial class ActionPromptBuilder
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
             CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
             CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.ControlledBattlefieldThenFriendlyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId)?.ControllerId == playerId
+                : IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -369,8 +372,8 @@ internal static partial class ActionPromptBuilder
                 : IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId)
-                : IsPromptEnemyFieldObject(state, playerId, objectId),
+                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsPromptFieldUnitObject(state, objectId)
                 : IsPromptEquipmentObject(state, objectId),
@@ -416,6 +419,9 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.EnemyUnitAtSourceLocation => IsPromptEnemyFieldObject(state, playerId, objectId)
                 && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsPromptOpponentControlledFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => false,
@@ -474,6 +480,7 @@ internal static partial class ActionPromptBuilder
         int targetIndex)
     {
         return IsPromptEffectSpecificTargetAllowed(state, playerId, behavior, objectId)
+            && TemporaryUnitEffectRules.ThreatAllowsTarget(state, playerId, objectId, behavior)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsPromptTargetRequiredTagAllowed(state, objectId, behavior)
             && IsPromptTargetForbiddenTagAllowed(state, objectId, behavior)
@@ -1827,7 +1834,8 @@ internal static partial class ActionPromptBuilder
 
     private static int PromptMaximumWardPower(MatchState state, string playerId, CardBehaviorDefinition behavior)
     {
-        if (behavior.RequiredTargetCount <= 0 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment) return 0;
+        if (behavior.RequiredTargetCount <= 0 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment
+            || behavior.IgnoresSpellshield) return 0;
         var taxes = state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields))
             .Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).ToArray();
         return Math.Max(taxes.Sum(), taxes.DefaultIfEmpty().Max() * behavior.RequiredTargetCount)
@@ -1849,6 +1857,7 @@ internal static partial class ActionPromptBuilder
             || behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            || behavior.OptionalPowerModifier is not null
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)

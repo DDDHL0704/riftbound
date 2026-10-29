@@ -1870,7 +1870,8 @@ public static partial class MatchRecoveryValidator
             objectId,
             objectPayload,
             "basePower",
-            cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
+            TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
+                ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
             "base power",
             errors);
         ValidateSpectatorSnapshotPlayerObjectIntScalar(

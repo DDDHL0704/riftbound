@@ -2197,6 +2197,7 @@ internal static partial class ActionPromptBuilder
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
             || string.IsNullOrWhiteSpace(cardObject.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && !CoreRuleEngine.IsForeignGraveyardEffectPlay(state, playerId, objectId)
                 && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == playerId && self.Sources.ContainsKey(objectId)))
         {
             return false;

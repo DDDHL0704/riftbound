@@ -834,7 +834,8 @@ public sealed partial record ResolutionResult
 
     private static int ResolveBasePower(CardObjectState cardObject)
     {
-        return cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
+        return TemporaryUnitEffectRules.Number(cardObject, TemporaryUnitEffectRules.BaseMightPrefix)
+            ?? cardObject.Power - cardObject.UntilEndOfTurnPowerModifier;
     }
 
     internal static int SnapshotEffectivePower(MatchState state, CardObjectState card, ObjectLocationState? location)
