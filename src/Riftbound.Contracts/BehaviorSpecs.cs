@@ -168,6 +168,7 @@ public static class TriggerKinds
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string SourceUnitPlayedOtherEquipmentDraw = "SOURCE_UNIT_PLAYED_OTHER_EQUIPMENT_DRAW";
+    public const string UnitAttackStunEnemyHere = "UNIT_ATTACK_STUN_ENEMY_HERE";
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";

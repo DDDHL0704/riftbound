@@ -4028,6 +4028,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "坚守"),
+        new("VEN·184", "蕾欧娜", 4, "VEN_LEONA_STEADFAST_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守"),
         new(
             "SFD·010/221",
             "虚空蜢",

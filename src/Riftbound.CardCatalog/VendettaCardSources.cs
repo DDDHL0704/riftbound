@@ -18,7 +18,7 @@ public static class VendettaCardSources
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] { (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),
             (Id: 37726L, CardNo: "VEN·038"), (Id: 37727L, CardNo: "VEN·038a"),
-            (Id: 37835L, CardNo: "VEN·135"), (Id: 37836L, CardNo: "VEN·135a"),
+            (Id: 37835L, CardNo: "VEN·135"), (Id: 37836L, CardNo: "VEN·135a"), (Id: 37887L, CardNo: "VEN·184"),
             (Id: 37842L, CardNo: "VEN·139"), (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"),
             (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"),
             (Id: 37852L, CardNo: "VEN·149"), (Id: 37902L, CardNo: "VEN·194"), (Id: 37903L, CardNo: "VEN·194*"),

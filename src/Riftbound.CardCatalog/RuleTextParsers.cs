@@ -329,6 +329,13 @@ public static class TriggerParser
             triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalPaidStun, TriggerTimings.SourceUnitPlayedOrAttack,
                 paidStun.Value, "Confirm a unit target, then pay the optional mana and any target costs together before responses.",
                 TargetScope: TriggerTargetScopes.AnyUnitOnField, ManaCost: ParseChineseNumber(paidStun.Groups["mana"].Value), Optional: true));
+        var attackStun = Regex.Match(text,
+            @"当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?",
+            RegexOptions.CultureInvariant);
+        if (attackStun.Success)
+            triggers.Add(new(TriggerKinds.UnitAttackStunEnemyHere, TriggerTimings.UnitAttack, attackStun.Value,
+                "Choose an enemy unit here and pay any ward cost before responses; recheck its location at resolution.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, ManaCost: 0, Optional: false));
         var outsideHandPlay = Regex.Match(text, @"当你从你的手牌以外的位置打出一张卡牌时，强化我。", RegexOptions.CultureInvariant);
         if (outsideHandPlay.Success)
             triggers.Add(new(TriggerKinds.ControllerOutsideHandPlayEmpowerSource, "CARD_PLAY_COMPLETED", outsideHandPlay.Value,
