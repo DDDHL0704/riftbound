@@ -5,7 +5,12 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static IReadOnlyList<string> ChosenMovementTargets(CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
-        => behavior.OptionalEquipmentAfterMovement ? targets.Take(1).ToArray() : targets;
+        => behavior.ChosenMovementTargetIndex is { } index
+            ? targets.Skip(index).Take(1).ToArray()
+            : behavior.OptionalEquipmentAfterMovement ? targets.Take(1).ToArray() : targets;
+    internal static bool IsChosenMovementTargetIndex(CardBehaviorDefinition behavior, int index)
+        => behavior.ChosenMovementTargetIndex is { } chosen ? index == chosen
+            : !behavior.OptionalEquipmentAfterMovement || index == 0;
     internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId)
         => state.Seats.Keys.Order(StringComparer.Ordinal)
             .Select(id => new ActionPromptChoiceDto("BASE:" + id, $"{state.Seats[id]} 的基地"))

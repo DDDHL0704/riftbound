@@ -34,7 +34,7 @@ public sealed class DestructionGraveyardOrdinaryTests(ITestOutputHelper output)
         else
         {
             await Pay(run, false);
-            foreach (var entry in r.GetProperty("afterSelfTriggerExplicitlyDeclinedIntents").EnumerateArray()) await Intent(run, entry);
+            await Intents(run, r.GetProperty("afterSelfTriggerExplicitlyDeclinedIntents"));
             await run.Cold(); await Intent(run, r.GetProperty("decreeRayIntent")); await Top(run);
             var elder = r.GetProperty("elderObjectId").GetString()!;
             Assert.Equal(3, run.State.CardObjects[elder].Damage); Assert.Contains(elder, run.State.PlayerZones["P2"].Battlefields);
@@ -66,7 +66,7 @@ public sealed class DestructionGraveyardOrdinaryTests(ITestOutputHelper output)
     {
         using var recipe = await Recipe(); var r = recipe.RootElement; var run = await Opening(r, OfficialDeckFormat.CoreRules);
         await Intent(run, r.GetProperty("selfRayIntent")); await Top(run); await Pay(run, false);
-        foreach (var entry in r.GetProperty("afterSelfTriggerExplicitlyDeclinedIntents").EnumerateArray()) await Intent(run, entry);
+        await Intents(run, r.GetProperty("afterSelfTriggerExplicitlyDeclinedIntents"));
         await Intent(run, r.GetProperty("decreeRayIntent")); await Top(run); await run.Cold();
         var state = run.State; var item = Assert.Single(state.StackItems); var c = item.DamageDestruction!;
         Assert.True(c.CreatedAtTick > 1);
@@ -80,9 +80,36 @@ public sealed class DestructionGraveyardOrdinaryTests(ITestOutputHelper output)
     private static async Task<CopiedDuelInsightOpeningTests.Opening> Opening(JsonElement recipe, OfficialDeckFormat format)
     {
         var run = new CopiedDuelInsightOpeningTests.Opening(82, format);
-        foreach (var entry in recipe.GetProperty("openingIntents").EnumerateArray()) await Intent(run, entry);
-        Assert.Equal(82, run.Frame().Commands.Count); Assert.Equal(0, run.Initial.Tick); Assert.Equal(0, run.Initial.Seed); Assert.Empty(run.Initial.CardObjects);
+        Assert.Equal(82, recipe.GetProperty("openingIntents").GetArrayLength());
+        await Intents(run, recipe.GetProperty("openingIntents"));
+        Assert.Equal(49, run.Frame().Commands.Count); Assert.Equal(0, run.Initial.Tick); Assert.Equal(0, run.Initial.Seed); Assert.Empty(run.Initial.CardObjects);
         return run;
+    }
+    private static async Task Intents(CopiedDuelInsightOpeningTests.Opening run, JsonElement intents)
+    {
+        var entries = intents.EnumerateArray().ToArray();
+        for (var index = 0; index < entries.Length; index++)
+        {
+            var entry = entries[index];
+            var actor = entry.GetProperty("playerId").GetString()!;
+            var command = GameCommandJsonMapper.Map(entry.GetProperty("rawCommand"));
+            if (command is TapRuneCommand { SourceObjectIds: null } tap)
+            {
+                // Only consecutive resource preparation shares a production batch command.
+                // Every play, recycle, choice and cold-recovery boundary remains separate.
+                var runes = new List<string> { tap.SourceObjectId };
+                while (index + 1 < entries.Length && runes.Count < 12
+                    && entries[index + 1].GetProperty("playerId").GetString() == actor
+                    && GameCommandJsonMapper.Map(entries[index + 1].GetProperty("rawCommand"))
+                        is TapRuneCommand { SourceObjectIds: null } next)
+                {
+                    runes.Add(next.SourceObjectId);
+                    index++;
+                }
+                if (runes.Count > 1) command = tap with { SourceObjectIds = runes.ToArray() };
+            }
+            await run.Submit(actor, command);
+        }
     }
     private static Task Intent(CopiedDuelInsightOpeningTests.Opening run, JsonElement entry)
         => run.Submit(entry.GetProperty("playerId").GetString()!, GameCommandJsonMapper.Map(entry.GetProperty("rawCommand")));

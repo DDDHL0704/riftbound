@@ -72,7 +72,7 @@ public sealed partial class CoreRuleEngine
         var destroyed = new HashSet<string>(StringComparer.Ordinal);
         foreach (var id in targets)
         {
-            var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, context.Damage, destroyed,
+            var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, context.Damage, destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
             var payload = BuildDamagePayload(item.SourceObjectId, id, damage);
             payload["sourceObjectIds"] = new[] { item.SourceObjectId };

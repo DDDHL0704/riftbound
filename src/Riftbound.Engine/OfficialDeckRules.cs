@@ -142,7 +142,11 @@ public static class OfficialDeckValidator
             }
 
             cards.Add(card);
-            if (card.CardCategoryNameList.Count == 0 || !card.CardCategoryNameList.All(MainDeckCategories.Contains))
+            if (OfficialRuleDomainBehaviorCatalog.IsTokenCard(card))
+            {
+                errors.Add($"主牌堆中不能使用指示物：{card.CardNo}。");
+            }
+            else if (card.CardCategoryNameList.Count == 0 || !card.CardCategoryNameList.All(MainDeckCategories.Contains))
             {
                 errors.Add($"主牌堆中的 {card.CardNo} 不能使用类别：{card.CardCategoryName}。");
             }

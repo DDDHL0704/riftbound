@@ -24,6 +24,11 @@ internal static class PermanentPlayTriggerRecoveryRules
 
     internal static bool Valid(MatchState state, StackItemState item)
     {
+        if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var conditional)
+            && conditional.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
+            && (item.EffectKind != conditional.EffectKind || !item.OptionalCosts.Any(cost =>
+                cost.StartsWith("DISCARD_HAND_CARD:", StringComparison.Ordinal) && cost.Length > "DISCARD_HAND_CARD:".Length)))
+            return false;
         var battlefield = item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && item.Destination.Length > "BATTLEFIELD:".Length;
         var here = item.SourceConfirmed && battlefield && HereDamageSources.Value.Contains(item.CardNo)

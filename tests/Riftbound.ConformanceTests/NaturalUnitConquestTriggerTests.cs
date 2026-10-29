@@ -70,12 +70,14 @@ public sealed class NaturalUnitConquestTriggerTests
             string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
 
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN");
+        Assert.Single(result.State.StackItems, item => item.ConquestSource?.Kind == TriggerKinds.UnitConquestDrawOne);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         var conquestTrigger = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "UNIT_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, KaisaObjectId, StringComparison.Ordinal));
-        Assert.Equal(TriggerKinds.UnitConquestDrawOne, conquestTrigger.Payload["effectId"]);
-        Assert.Equal("BATTLEFIELD_CONQUERED", conquestTrigger.Payload["reason"]);
-        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldObjectId"]);
+        Assert.Equal(TriggerKinds.UnitConquestDrawOne, conquestTrigger.Payload["trigger"]);
+        Assert.Equal(BattlefieldId, conquestTrigger.Payload["battlefieldId"]);
 
         var drawEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
