@@ -51,7 +51,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
@@ -76,7 +76,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
@@ -142,7 +142,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
@@ -203,7 +203,7 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs")) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.PlayManaCost.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(
+        var matchSessionSource = SourceFileParts.ReadAllText(Path.Combine(
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
