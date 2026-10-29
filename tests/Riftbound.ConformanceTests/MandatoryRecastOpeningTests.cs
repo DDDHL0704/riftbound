@@ -57,8 +57,9 @@ public sealed class MandatoryRecastOpeningTests
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             var blue = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R03");
             Assert.Equal(2, purple.Length);
-            foreach (var id in Runes().Except(purple.Append(blue))) await Act(actor, new TapRuneCommand(id));
-            foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            var manaRunes = Runes().Except(purple.Append(blue)).ToArray();
+            await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+            await Act(actor, new RecycleRuneCommand(purple[0], purple));
             Assert.Equal(9, State().RunePools[actor].Mana);
             var deckCount = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [unit])); await Drain();

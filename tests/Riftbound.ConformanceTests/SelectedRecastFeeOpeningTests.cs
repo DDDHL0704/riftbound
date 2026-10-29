@@ -60,8 +60,9 @@ public sealed class SelectedRecastFeeOpeningTests
             var parent = Hand(Parent)!; var gift = Hand(Gift)!; var unit = Hand(Unit)!;
             var purple = Runes().Where(id => State().CardObjects[id].CardNo == "UNL-R05").Take(2).ToArray();
             var red = Runes().First(id => State().CardObjects[id].CardNo == "UNL-R01");
-            foreach (var id in Runes().Except(purple)) await Act(actor, new TapRuneCommand(id));
-            foreach (var id in purple) await Act(actor, new RecycleRuneCommand(id));
+            var manaRunes = Runes().Except(purple).ToArray();
+            await Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
+            await Act(actor, new RecycleRuneCommand(purple[0], purple));
             Assert.Equal(10, State().RunePools[actor].Mana);
             var deckCount = State().PlayerZones[actor].MainDeck.Count;
             await Act(actor, new PlayCardCommand(gift, Gift, [unit])); await Drain();
