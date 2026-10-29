@@ -1298,6 +1298,17 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit,
                 ScoreAmount: ParseChineseNumber(conquestPlayedTypesScore.Groups[1].Value));
 
+        var conquestUnit = Regex.Match(segment,
+            @"^当我征服一处战场时，打出(?<count>[0-9一两二三四五六七八九十]+)名(?<power>\d+)\{\{S\}\}的“(?<name>[^”]+)”到你的基地。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestUnit.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestCreateUnitToken, TriggerTimings.UnitConquest, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: ParseChineseNumber(conquestUnit.Groups["count"].Value),
+                CreatedTokenPower: int.Parse(conquestUnit.Groups["power"].Value, CultureInfo.InvariantCulture),
+                CreatedTokenName: conquestUnit.Groups["name"].Value,
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true);
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",
@@ -2530,6 +2541,8 @@ public static class ActivatedAbilityParser
                 var parts = segment.Split(['：', ':'], 2, StringSplitOptions.TrimEntries);
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
+                if (TryParseSwiftNamedUnitSwap(cost, effect, out var namedSwap))
+                    return namedSwap;
                 if (TryParseTypedResourceSkill(cost, effect, out var typedResourceSkill))
                 {
                     return typedResourceSkill;
@@ -2588,6 +2601,25 @@ public static class ActivatedAbilityParser
         }
 
         return segments;
+    }
+
+    private static bool TryParseSwiftNamedUnitSwap(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var costMatch = Regex.Match(cost,
+            @"^\{\{迅捷>\}\}\{\{(?<mana>\d+)\}\}\{\{(?<trait>红色|绿色|蓝色|橙色|紫色|黄色)\}\}$",
+            RegexOptions.CultureInvariant);
+        var effectMatch = Regex.Match(effect,
+            @"^将我和一名受你控制的“(?<name>[^”]+)”互相移动到对方的位置。?$", RegexOptions.CultureInvariant);
+        if (!costMatch.Success || !effectMatch.Success
+            || !int.TryParse(costMatch.Groups["mana"].Value, out var mana)
+            || !ResourceTraitByChineseColor.TryGetValue(costMatch.Groups["trait"].Value, out var trait)) return false;
+        ability = new(cost, effect, [BehaviorTemplateIds.Move], BehaviorImplementationStatuses.Unimplemented,
+            "Swift paid movement with a named controlled unit, resolved through the shared movement instructions.",
+            Kind: ActivatedAbilityKinds.SwiftSwapSelfWithNamedControlledUnit, ManaCost: mana, PowerCost: 1,
+            PowerCostTrait: trait, RequiredTargetCount: 1, TargetScope: "NAMED_CONTROLLED_UNIT",
+            TargetUnitName: effectMatch.Groups["name"].Value);
+        return true;
     }
 
     private static bool TryParseTargetedPowerModifier(string cost, string effect, out ActivatedAbilitySpec ability)

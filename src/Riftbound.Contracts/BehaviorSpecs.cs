@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string SwiftSwapSelfWithNamedControlledUnit = "SWIFT_SWAP_SELF_WITH_NAMED_CONTROLLED_UNIT";
     public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
@@ -56,6 +57,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string UnitConquestCreateUnitToken = "UNIT_CONQUEST_CREATE_UNIT_TOKEN";
     public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
@@ -689,7 +691,8 @@ public sealed record ActivatedAbilitySpec(
     bool? RecycleUnplayedLookedCards = null,
     string? PlayCardFilter = null,
     int? PowerModifierAmount = null,
-    int? MinimumPowerAfterModifier = null);
+    int? MinimumPowerAfterModifier = null,
+    string? TargetUnitName = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,
