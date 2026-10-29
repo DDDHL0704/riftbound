@@ -123,6 +123,7 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
+            HasMovementDamage(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
@@ -131,6 +132,7 @@ public sealed partial class CoreRuleEngine
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i));
         if (item is null) return result;
+        if (HasMovementDamage(item)) return PrepareMovementDamage(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
@@ -197,9 +199,11 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult DiscardUnconfirmedTrigger(ResolutionResult result, StackItemState item)
     {
         var state = RestoreAfterTriggerConfirmation(result.State with { StackItems = result.State.StackItems.Where(i => i.StackItemId != item.StackItemId).ToArray() }, item);
-        return result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
-            new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId })).ToArray(),
+        var discarded = result with { State = state, Events = result.Events.Append(new GameEvent("TRIGGER_NOT_CONFIRMED", "未确认触发技能",
+            new Dictionary<string, object?> { ["sourceObjectId"] = HasMovementDamage(item)
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId })).ToArray(),
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+        return ResumeDuelChainFocus(discarded);
     }
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
@@ -212,7 +216,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
+            || ValidMovementDamageChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -232,6 +236,12 @@ public sealed partial class CoreRuleEngine
             bound = bound with { UnitPlayMight = unitPlay with {
                 TargetTokenFactoryCardNo = TokenObjectRules.IsToken(target) ? target.TokenFactoryCardNo ?? target.CardNo : null } };
         }
+        if (HasMovementDamage(item))
+        {
+            var target = state.CardObjects[selected.Single()];
+            bound = bound with { MovementObserver = item.MovementObserver! with {
+                TargetTokenFactoryCardNo = TokenObjectRules.IsToken(target) ? target.TokenFactoryCardNo ?? target.CardNo : null } };
+        }
         if (item.LocationDamage is { } locationDamage)
             bound = bound with { LocationDamage = locationDamage with { TargetLocations = selected.ToDictionary(id => id, id => state.ObjectLocations[id]) } };
         if (tax > 0)
@@ -242,7 +252,8 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付法盾费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = HasMovementDamage(item)
+                    ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["powerCost"] = tax,
                 ["targetObjectIds"] = selected.ToArray() });
@@ -290,7 +301,9 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
-            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() }));
+            ["sourceObjectId"] = HasMovementDamage(item)
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
+            ["targetObjectIds"] = selected.ToArray() }));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 

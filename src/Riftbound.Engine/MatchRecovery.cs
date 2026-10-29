@@ -23937,6 +23937,7 @@ public static partial class MatchRecoveryValidator
             if (trigger.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(state, movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
                     || !CoreRuleEngine.ValidMovementInstanceId(movement, trigger.TriggerId)
+                    || movement.TargetTokenFactoryCardNo is not null
                     || trigger.TriggeredByEventKind != (movement.DiscardInline is not null ? "CARD_DISCARDED"
                         : movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
                     || !ValidMovementPlayers(state, movement)
@@ -23945,6 +23946,7 @@ public static partial class MatchRecoveryValidator
             if (item.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(state, movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                     || !CoreRuleEngine.ValidMovementInstanceId(movement, item.StackItemId, stack: true)
+                    || !CoreRuleEngine.ValidMovementDamageStack(state, item)
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
@@ -27659,6 +27661,9 @@ public static partial class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                 && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
+                foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
+            if (stackItem.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination, TargetTokenFactoryCardNo: not null }
+                && CoreRuleEngine.ValidMovementDamageStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
             if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
                 targetReferences.Add(destroyDeck.Target.ObjectId);
@@ -32472,6 +32477,9 @@ public static partial class MatchRecoveryValidator
             {
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                     && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
+                    foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
+                if (original.MovementObserver is { Kind: TriggerKinds.UnitMovedDamageAtOriginOrDestination, TargetTokenFactoryCardNo: not null }
+                    && CoreRuleEngine.ValidMovementDamageStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
                 if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))
                     targetReferences.Add(destroyDeck.Target.ObjectId);
