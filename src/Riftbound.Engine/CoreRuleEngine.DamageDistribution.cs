@@ -221,7 +221,7 @@ public sealed partial class CoreRuleEngine
         foreach (var assignment in context.Assignments)
         {
             if (!legal.Contains(assignment.TargetObjectId)) continue;
-            var damage = ApplyDamageToCardObject(cards, item.ControllerId, assignment.TargetObjectId, assignment.Damage, destroyed,
+            var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, assignment.TargetObjectId, assignment.Damage, destroyed,
                 state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
             events.Add(new("DAMAGE_APPLIED", "分摊进攻技能伤害", BuildDamagePayload(item.SourceObjectId, assignment.TargetObjectId, damage)));
         }
