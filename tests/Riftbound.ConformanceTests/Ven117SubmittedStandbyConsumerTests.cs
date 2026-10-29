@@ -24,7 +24,7 @@ public sealed class Ven117SubmittedStandbyConsumerTests
                 await game.WaitFor(player, 11, player == actor ? [Arena.No, Arena.FriendNo] : [Arena.EnemyNo]);
                 Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
                 var mana = player == actor ? standby ? 3 : 5 : 6;
-                foreach (var id in game.Runes(player).Take(mana)) await game.Act(player, new TapRuneCommand(id));
+                await game.Tap(player, mana);
                 if (player == actor)
                 {
                     host = game.Hand(actor, Arena.No).First(); friend = game.Hand(actor, Arena.FriendNo).First();

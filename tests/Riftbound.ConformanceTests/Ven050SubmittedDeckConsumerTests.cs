@@ -17,12 +17,14 @@ public sealed class Ven050SubmittedDeckConsumerTests
         {
             await game.WaitFor(actor, controlled, no); var runes = game.Runes(actor); Assert.InRange(runes.Length, controlled, 12);
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
-            foreach (var id in runes.Take(4 + mana)) await game.Act(actor, new TapRuneCommand(id));
+            var manaRunes = runes.Take(4 + mana).ToArray();
+            await game.Act(actor, new TapRuneCommand(manaRunes[0], manaRunes));
             Assert.Equal(4 + mana, game.State.RunePools[actor].Mana); var unit = game.Hand(actor, no).First();
             await game.Act(actor, new PlayCardCommand(unit, no, [])); Assert.Equal(mana, game.State.RunePools[actor].Mana);
             Assert.False(game.State.CardObjects[unit].IsEmpowered); Assert.Equal(4, game.State.CardObjects[unit].Power); Assert.Equal(4, game.Might(actor, unit));
             var generation = game.State.CardObjects[unit].ObjectGeneration;
-            foreach (var id in runes.Skip(controlled)) await game.Act(actor, new RecycleRuneCommand(id));
+            foreach (var batch in runes.Skip(controlled).Chunk(12))
+                await game.Act(actor, new RecycleRuneCommand(batch[0], batch));
             Assert.Equal(controlled, game.Runes(actor).Length); Assert.Equal(12 - controlled, game.State.PlayerZones[actor].RuneDeck.Count);
             Assert.Equal(mana, game.State.RunePools[actor].Mana); Assert.Equal(runes.Length - controlled, game.State.RunePools[actor].TotalPower);
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
