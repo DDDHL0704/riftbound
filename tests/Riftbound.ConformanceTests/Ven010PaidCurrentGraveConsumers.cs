@@ -62,12 +62,14 @@ public sealed class Ven010PaidCurrentGraveConsumers
             return result;
         }
         var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
-        var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
+        var opposing = ArrangeDisposalDeck(Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]));
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-010-CURRENT-GRAVE-" + actor + "-" + add,
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 666992 };
         var game = new CanonicalGame(initial);
+        // Recover the paid plays and movement, then the changed grave and final cleanup.
+        // Those checkpoints still audit every accepted opening and turn command.
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
-            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+            checkpoint: command is PlayCardCommand or MoveUnitCommand);
         async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
             await game.Act(player, command);
@@ -111,7 +113,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var field = Assert.Single(game.State.PlayerZones[actor].Battlefields, id => game.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
             await Sequence(() => game.State, Act,
                 async () => { await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(game.State.PriorityPlayerId!, new PassPriorityCommand()); },
-                game.Events, actor, unit, curses, enemyCurse, moon, dispose, field, add);
+                game.Events, actor, unit, curses, enemyCurse, moon, dispose, field, add,
+                checkpointAfterReaction: game.ColdCheckpoint);
             await game.ColdCheckpoint();
             var forged = game.State with { CardObjects = new Dictionary<string, CardObjectState>(game.State.CardObjects)
                 { [unit] = game.State.CardObjects[unit] with { Damage = 1 } } };
@@ -139,11 +142,11 @@ public sealed class Ven010PaidCurrentGraveConsumers
             return result;
         }
         var own = ArrangeGraveReactionDeck(Deck("OGN·251/298", "OGN·030/298", "UNL-R01", [Unit, Unit, Unit, Curse, Curse, Curse, Moon, Moon, Moon]));
-        var opposing = Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]);
+        var opposing = ArrangeDisposalDeck(Deck("SFD·183/221", "SFD·028/221", "UNL-R04", [Curse, Curse, Curse, Dispose, Dispose, Dispose]));
         var run = new CopiedDuelInsightOpeningTests.Opening(10010 + (actor == "P1" ? 0 : 2) + (add ? 0 : 1), OfficialDeckFormat.ChinaStandard20260724);
         string[] forgeryErrors = [];
         async Task Act(string player, GameCommand command) => await ActCore(player, command,
-            checkpoint: command is not (TapRuneCommand or PassPriorityCommand or PassFocusCommand));
+            checkpoint: command is PlayCardCommand or MoveUnitCommand);
         async Task ActCore(string player, GameCommand command, bool checkpoint)
         {
             await run.Submit(player, command);
@@ -188,7 +191,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             var field = Assert.Single(run.State.PlayerZones[actor].Battlefields, id => run.State.CardObjects[id].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag));
             await Sequence(() => run.State, Act,
                 async () => { await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); await Act(run.State.PriorityPlayerId!, new PassPriorityCommand()); },
-                () => run.Frame().Events.ToArray(), actor, unit, curses, enemyCurse, moon, dispose, field, add);
+                () => run.Frame().Events.ToArray(), actor, unit, curses, enemyCurse, moon, dispose, field, add,
+                checkpointAfterReaction: run.Cold);
             await run.Cold(); var original = run.Frame();
             Assert.Empty(original.ValidationErrors);
             Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(original, new CoreRuleEngine(), default));
@@ -216,19 +220,38 @@ public sealed class Ven010PaidCurrentGraveConsumers
 
     private static OfficialDecklist ArrangeGraveReactionDeck(OfficialDecklist deck)
     {
-        // Submit a fixed legal order with enough cards left for Moon's two draws;
-        // the normal opening still shuffles the deck and draws naturally.
+        // Submit the same legal cards in an order that naturally draws the required
+        // copies near the twelve-rune opening, leaving enough cards for Moon's draws.
+        // Both formats still use the normal production shuffle and draw commands.
         var cards = deck.MainDeck.ToArray();
         Assert.Equal(deck.ChampionCardNo, cards[0]);
-        Assert.Equal(new[] { Curse, Curse, Curse }, cards[4..7]);
-        foreach (var (from, to) in new[] { (4, 11), (5, 20), (6, 21) })
-            (cards[from], cards[to]) = (cards[to], cards[from]);
+        var required = new (string No, int[] Slots)[] {
+            (Unit, [23, 26, 38]), (Curse, [1, 11, 21]), (Moon, [5, 12, 22]) };
+        var slots = required.SelectMany(group => group.Slots).ToHashSet();
+        var rest = new Queue<string>(cards.Skip(1).Where(no => required.All(group => group.No != no)));
+        foreach (var (no, positions) in required)
+        {
+            Assert.Equal(positions.Length, deck.MainDeck.Count(card => card == no));
+            foreach (var position in positions) cards[position] = no;
+        }
+        for (var index = 1; index < cards.Length; index++)
+            if (!slots.Contains(index)) cards[index] = rest.Dequeue();
+        Assert.Empty(rest);
+        Assert.Equal(deck.MainDeck.Order(StringComparer.Ordinal), cards.Order(StringComparer.Ordinal));
+        return deck with { MainDeck = cards };
+    }
+
+    private static OfficialDecklist ArrangeDisposalDeck(OfficialDecklist deck)
+    {
+        var cards = deck.MainDeck.ToArray();
+        Assert.Equal(Dispose, cards[4]);
+        (cards[4], cards[23]) = (cards[23], cards[4]);
         return deck with { MainDeck = cards };
     }
 
     private static async Task Sequence(Func<MatchState> state, Func<string, GameCommand, Task> act, Func<Task> top, Func<RecoveredEvent[]> events,
         string actor, string unit, string[] curses, string enemyCurse, string moon, string dispose, string field, bool add,
-        Func<PlayCardCommand, Task>? rejectOneShort = null)
+        Func<PlayCardCommand, Task>? rejectOneShort = null, Func<Task>? checkpointAfterReaction = null)
     {
         var enemy = Arena.Other(actor); Common.AssertTwelveEach(state());
         foreach (var player in new[] { actor, enemy }) { Assert.Equal(0, state().RunePools[player].Mana); Assert.Equal(0, state().RunePools[player].TotalPower); Assert.Empty(Graves(state(), player)); }
@@ -277,6 +300,8 @@ public sealed class Ven010PaidCurrentGraveConsumers
             Assert.Contains(curses[0], state().PlayerZones[actor].MainDeck); Assert.Equal(beforeRecycledGeneration + 1, state().CardObjects[curses[0]].ObjectGeneration);
             Assert.Contains(curses[2], state().PlayerZones[actor].Hand);
         }
+        // Resume the still-pending lower spell with the reaction's actual grave count.
+        if (checkpointAfterReaction is not null) await checkpointAfterReaction();
         Assert.Equal(captured.StackItemId, Assert.Single(state().StackItems).StackItemId); Assert.Equal(2, state().StackItems.Single().DamageAmount);
         Assert.Equal(0, state().CardObjects[unit].Damage); Assert.Equal(new[] { enemyCurse }, Graves(state(), enemy));
         await top(); Damage(curses[1], add ? 4 : 2); Assert.Equal(add ? 3 : 1, Graves(state(), actor).Length);
