@@ -342,6 +342,7 @@ public static class CardTargetScopes
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
+    public const string EnemyThenFriendlyUnits = "ENEMY_THEN_FRIENDLY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
@@ -9003,10 +9004,18 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "壁垒")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
+    [
+        new("RAD·144/167", "轮回绝境", 2, "REALM_OF_DEATH_MIGHT_THEN_MUTUAL_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.EnemyThenFriendlyUnits,
+            PowerModifierAmount: -2, SecondaryPowerModifierAmount: 2,
+            DealsMutualTargetPowerDamage: true)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

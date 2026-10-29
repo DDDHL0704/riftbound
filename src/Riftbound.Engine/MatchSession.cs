@@ -13486,6 +13486,9 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
                 : IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyThenFriendlyUnits => targetIndex == 0
+                ? IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsPromptFieldUnitObject(state, objectId)
                 : IsPromptEquipmentObject(state, objectId),
@@ -13642,6 +13645,7 @@ internal static class ActionPromptBuilder
             or CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyUnit
             or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.EnemyThenFriendlyUnits
             or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldUnit
@@ -17199,6 +17203,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
             CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
+            CardTargetScopes.EnemyThenFriendlyUnits => "敌方单位，然后友方单位",
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
             CardTargetScopes.FriendlyEquipment => "友方装备",
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",

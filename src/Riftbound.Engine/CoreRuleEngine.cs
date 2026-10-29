@@ -20958,6 +20958,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyThenFriendlyUnits => targetIndex == 0
+                ? IsEnemyFieldObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId)
+                : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
                 : IsEquipmentObject(state, objectId),
@@ -21463,6 +21466,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             or CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyUnit
             or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.EnemyThenFriendlyUnits
             or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldUnit
@@ -23694,6 +23698,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? "friendly unit then another friendly unit"
                     : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
                         ? "friendly unit then enemy unit"
+                        : string.Equals(targetScope, CardTargetScopes.EnemyThenFriendlyUnits, StringComparison.Ordinal)
+                            ? "enemy unit then friendly unit"
                         : string.Equals(targetScope, CardTargetScopes.FriendlyEquipmentThenEnemyEquipment, StringComparison.Ordinal)
                             ? "friendly equipment then enemy equipment"
                             : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, StringComparison.Ordinal)
@@ -25211,19 +25217,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                var firstTargetModifier = behavior.PowerModifierAmount + OptionalPowerModifierAmount(behavior, stackItem);
-                if (firstTargetModifier != 0 && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                    && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
+                for (var targetIndex = 0; targetIndex < 2; targetIndex++)
                 {
-                    var modifiedFirstTargetState = ApplyPowerModifier(
+                    var targetObjectId = stackItem.TargetObjectIds[targetIndex];
+                    var modifier = targetIndex == 0
+                        ? behavior.PowerModifierAmount + OptionalPowerModifierAmount(behavior, stackItem)
+                        : behavior.SecondaryPowerModifierAmount;
+                    if (modifier == 0 || !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId)
+                        || !cardObjects.TryGetValue(targetObjectId, out var currentTarget)) continue;
+                    cardObjects[targetObjectId] = ApplyPowerModifier(
                         state with { PlayerZones = playerZones, CardObjects = cardObjects },
-                        currentFirstTargetStateForModifier,
+                        currentTarget,
                         behavior,
                         stackItem,
-                        firstTargetObjectId,
-                        firstTargetModifier,
+                        targetObjectId,
+                        modifier,
                         out var powerEvent);
-                    cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
                     events.Add(powerEvent);
                 }
 
