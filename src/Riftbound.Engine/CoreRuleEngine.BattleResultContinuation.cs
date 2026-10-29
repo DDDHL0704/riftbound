@@ -28,6 +28,8 @@ public sealed partial class CoreRuleEngine
     {
             result = RecordHandDiscardObservers(result);
             result = QueueEmpoweredBanish(result);
+            result = QueueEmpowerOtherObservers(result);
+            result = QueueEmpowerInteractions(state, result);
             result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
@@ -36,6 +38,8 @@ public sealed partial class CoreRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueueReadyOtherObjects(state, result);
+            result = QueueSourceReadied(result);
             result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);

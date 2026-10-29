@@ -44,14 +44,16 @@ public sealed partial class CoreRuleEngine
             && context.CreatedAtTick > 0 && context.CreatedAtTick <= state.Tick
             && context.TurnNumber == state.TurnNumber && context.TurnPlayerId == state.TurnPlayerId
             && state.Seats.ContainsKey(context.ControllerId)
-            && context.CreatingEffectKind is TemporaryEmpowerEffect or TemporaryRemoveEmpowerEffect
-            && CardBehaviorRegistry.TryGetByEffectKind(context.CreatingEffectKind, out var behavior) && behavior.CardNo == context.CardNo
+            && (context.CreatingEffectKind == EmpowerInteractionEffect
+                ? EmpowerInteractionDefinition(context.CardNo)?.Effect == "TEMPORARY_EMPOWER_HERE"
+                : context.CreatingEffectKind is TemporaryEmpowerEffect or TemporaryRemoveEmpowerEffect
+                    && CardBehaviorRegistry.TryGetByEffectKind(context.CreatingEffectKind, out var behavior) && behavior.CardNo == context.CardNo)
             && state.CardObjects.TryGetValue(context.Source.ObjectId, out var source) && source.ObjectGeneration >= context.Source.Generation
             && (source.ObjectGeneration != context.Source.Generation || source.CardNo == context.CardNo)
             && (state.CardObjects.TryGetValue(context.Unit.ObjectId, out var unit)
                 ? unit.ObjectGeneration >= context.Unit.Generation && unit.TokenFactoryCardNo == context.UnitTokenFactoryCardNo
                 : context.UnitTokenFactoryCardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(context.UnitTokenFactoryCardNo, out var token)
-                    && token.Tags.Contains(CardObjectTags.UnitCard));
+                    && (token.Tags.Contains(CardObjectTags.UnitCard) || token.Tags.Contains(CardObjectTags.EquipmentCard)));
 
     internal static bool ValidCurrentDelayedEmpowers(MatchState state)
     {
@@ -92,20 +94,27 @@ public sealed partial class CoreRuleEngine
             || !IsObjectOnField(state.PlayerZones, target)
             || item.EffectKind == TemporaryRemoveEmpowerEffect && !unit.IsEmpowered) return;
         var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(target, unit.ObjectGeneration),
-            item.EffectKind == TemporaryEmpowerEffect);
+            item.EffectKind == TemporaryEmpowerEffect, item.ControllerId);
         cards[target] = changed.CardObjects[target];
         events.AddRange(changed.Events);
+        ScheduleDelayedEmpower(state, item, target, item.EffectKind == TemporaryRemoveEmpowerEffect, effects, events);
+    }
+
+    private static void ScheduleDelayedEmpower(MatchState state, StackItemState item, string target, bool empower,
+        List<string> effects, List<GameEvent> events)
+    {
+        var unit = state.CardObjects[target];
         // CN 359.3.e.16: a window already passed does not create a delayed ability.
         // A no-op immediate action, however, does not suppress the independent instruction.
         if (state.EndStep is not null || state.Phase == MatchPhases.TurnEnd) return;
         var context = new DelayedEmpowerContext($"{item.StackItemId}:END-EMPOWER:{item.CompletedRepeatExecutions}:{target}",
             item.StackItemId, item.CardNo!, item.EffectKind, item.ControllerId,
-            new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration), new(target, unit.ObjectGeneration),
+            item.EmpowerInteraction?.Source ?? new(item.SourceObjectId, state.CardObjects[item.SourceObjectId].ObjectGeneration), new(target, unit.ObjectGeneration),
             state.TurnNumber, state.TurnPlayerId, item.CompletedRepeatExecutions, RuleChoices.Value!.CompletionTick, unit.TokenFactoryCardNo);
         effects.Add(DelayedEmpowerMarker(context));
         events.Add(new("DELAYED_EMPOWER_SCHEDULED", "生成本回合结束时的强化状态逆操作", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = target, ["targetGeneration"] = unit.ObjectGeneration,
-            ["turnNumber"] = state.TurnNumber, ["empower"] = item.EffectKind == TemporaryRemoveEmpowerEffect }));
+            ["turnNumber"] = state.TurnNumber, ["empower"] = empower }));
     }
 
     private static IEnumerable<TriggerQueueItemState> CaptureDelayedEmpowerEndAbilities(MatchState state)
@@ -133,6 +142,6 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidDelayedEmpowerStack(state, item)) throw new InvalidOperationException("Invalid delayed empower skill.");
         var context = item.DelayedEmpower!;
-        return ApplyEmpowerStatusAction(state, context.Unit, context.CreatingEffectKind == TemporaryRemoveEmpowerEffect);
+        return ApplyEmpowerStatusAction(state, context.Unit, context.CreatingEffectKind == TemporaryRemoveEmpowerEffect, context.ControllerId);
     }
 }

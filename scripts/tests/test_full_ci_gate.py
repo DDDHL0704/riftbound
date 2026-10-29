@@ -55,15 +55,28 @@ class FullCiGateTests(unittest.TestCase):
     def test_nightly_runs_all_full_children_from_the_fixed_main_snapshot(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for name in ['rule_suite', 'postgres_partitions', 'native_network', 'related_network']:
+        for name in ['rule_prepare', 'postgres_partitions', 'native_network', 'related_network']:
             self.assertIn('    needs: scope\n', jobs[name])
             self.assertIn('ref: ${{ needs.scope.outputs.commit }}', jobs[name])
             self.assertNotIn('continue-on-error', jobs[name])
-        for name in ['rule_suite', 'postgres_partitions']:
+        for name in ['rule_shards', 'postgres_partitions']:
             self.assertIn('timeout-minutes: 360', jobs[name])
             self.assertIn('image: postgres:16.13@sha256:', jobs[name])
             self.assertIn('ConnectionStrings__Riftbound: Host=127.0.0.1;', jobs[name])
-        self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', jobs['rule_suite'])
+        for name in ['rule_shards', 'rule_suite']:
+            self.assertIn('ref: ${{ needs.scope.outputs.commit }}', jobs[name])
+            self.assertNotIn('continue-on-error', jobs[name])
+        self.assertIn('needs: [scope, rule_prepare]', jobs['rule_shards'])
+        self.assertIn('needs: [scope, rule_prepare, rule_shards]', jobs['rule_suite'])
+        self.assertIn('scripts/l2-distributed.py prepare --profile full', jobs['rule_prepare'])
+        self.assertIn('scripts/l2-distributed.py shard', jobs['rule_shards'])
+        self.assertIn('scripts/l2-distributed.py aggregate-full', jobs['rule_suite'])
+        self.assertIn('RIFTBOUND_PREPARE: ${{ needs.rule_prepare.result }}', jobs['rule_suite'])
+        self.assertIn('RIFTBOUND_RULE_SHARDS: ${{ needs.rule_shards.result }}', jobs['rule_suite'])
+        self.assertIn('--shards 8', jobs['rule_prepare'])
+        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8]', jobs['rule_shards'])
+        self.assertIn('max-parallel: 6', jobs['rule_shards'])
+        self.assertIn('fail-fast: false', jobs['rule_shards'])
         self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
         self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
         self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['native_network'])
@@ -92,7 +105,7 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('python3 scripts/l2-distributed.py prepare', daily)
         self.assertIn('python3 scripts/l2-distributed.py shard', daily)
         self.assertIn('python3 scripts/l2-distributed.py aggregate', daily)
-        self.assertIn('needs: [quality, prepare, rule_suite, targeted]', daily)
+        self.assertIn('needs: [prepare, rule_suite]', daily)
         self.assertIn('fail-fast: false', daily)
         self.assertNotIn('scripts/test-rules.py full', daily)
         self.assertNotIn('services:', daily)
@@ -100,7 +113,9 @@ class FullCiGateTests(unittest.TestCase):
     def test_actual_test_and_full_gate_steps_cannot_be_conditionally_skipped(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job, name in [('rule_suite', 'Complete rule suite with checked process shards'),
+        for job, name in [('rule_prepare', 'Build once and enumerate every full rule case'),
+                          ('rule_shards', 'Execute every assigned full rule case without rebuilding'),
+                          ('rule_suite', 'Require every discovered full rule case exactly once'),
                           ('postgres_partitions', 'Real PostgreSQL complete checked partition'),
                           ('native_network', 'Native client connection recovery'),
                           ('postgres', 'Require every fixed SQL case, SignalR and process restart result'),

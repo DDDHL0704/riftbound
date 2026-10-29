@@ -163,7 +163,7 @@ class SqlCiGateTests(unittest.TestCase):
     def test_workflow_partitions_and_network_start_in_first_wave_with_stable_gates(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for name in ['rule_suite', 'postgres_partitions', 'native_network']:
+        for name in ['rule_prepare', 'postgres_partitions', 'native_network']:
             self.assertIn('    needs: scope\n', jobs[name])
             self.assertNotIn('continue-on-error', jobs[name])
         self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])

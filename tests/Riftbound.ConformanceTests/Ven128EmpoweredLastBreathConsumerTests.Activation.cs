@@ -22,7 +22,8 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
         var game = new Driver(initial); var actor = owner;
         try
         {
-            for (var i = 1; i <= (branch == "mana" ? 2 : 4); i++) await game.Act(owner, new TapRuneCommand(owner + "-RUNE-" + i));
+            var funding = Enumerable.Range(1, branch == "mana" ? 2 : 4).Select(i => owner + "-RUNE-" + i).ToArray();
+            await game.Act(owner, new TapRuneCommand(funding[0], funding));
             await game.Act(owner, new PlayCardCommand("UNIT", No, [])); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             if (branch == "controller")
             {
