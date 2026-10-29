@@ -120,6 +120,33 @@ public sealed class IllaoiTentacleTests
     }
 
     [Theory]
+    [InlineData("VEN·109", "VEN·023a")]
+    [InlineData("VEN·182", "VEN·169")]
+    public async Task AShadowCloneCreatedByZedsPaidPlayContributesOnlyAfterItsSkillResolves(string no, string zedNo)
+    {
+        var state = ArmamentMightTests.Position(unit: no, power: 4);
+        state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["ZED"] = new("ZED", cardNo: zedNo, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]),
+                ["FODDER"] = new("FODDER", cardNo: "OGN·001/298", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]) },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { Hand = [..state.PlayerZones["P1"].Hand, "ZED", "FODDER"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+                ["ZED"] = new("P1", "HAND"), ["FODDER"] = new("P1", "HAND") },
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+                ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Red] = 20 }) } };
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("ZED", zedNo, [], OptionalCosts: ["DISCARD_HAND_CARD:FODDER"]));
+        Assert.Contains("FODDER", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Single(game.State.StackItems); Assert.Equal(4, ArmamentMightTests.Might(game.State));
+        await game.Top();
+        Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo == "VEN·T05");
+        Assert.Equal(5, ArmamentMightTests.Might(game.State));
+        Assert.Empty(Tentacles(game.State));
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("P1", "BASE", "VEN·T06", false, 5)]
     [InlineData("P1", "BATTLEFIELD", "VEN·T06", false, 5)]
     [InlineData("P2", "BASE", "VEN·T06", false, 4)]

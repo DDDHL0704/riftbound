@@ -61,7 +61,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
         Assert.Single(specs, spec => spec.CardNo == "VEN·153");
         Assert.Single(specs, spec => spec.CardNo == "VEN·196");
         Assert.Single(specs, spec => spec.CardNo == "VEN·196*");
-        Assert.All(specs.Where(spec => spec.CardNo is "VEN·068" or "VEN·068a" or "VEN·088" or "VEN·088a" or "VEN·019" or "VEN·019a" or "VEN·038" or "VEN·038a" or "VEN·141" or "VEN·190" or "VEN·190*" or "VEN·147" or "VEN·193" or "VEN·193*" or "VEN·139" or "VEN·189" or "VEN·189*" or "VEN·151" or "VEN·195" or "VEN·195*" or "VEN·153" or "VEN·196" or "VEN·196*"),
+        Assert.All(specs.Where(spec => spec.CardNo is "VEN·023" or "VEN·023a" or "VEN·109" or "VEN·169" or "VEN·182" or "VEN·T05" or "VEN·T06" or "VEN·068" or "VEN·068a" or "VEN·088" or "VEN·088a" or "VEN·019" or "VEN·019a" or "VEN·038" or "VEN·038a" or "VEN·141" or "VEN·190" or "VEN·190*" or "VEN·147" or "VEN·193" or "VEN·193*" or "VEN·139" or "VEN·189" or "VEN·189*" or "VEN·151" or "VEN·195" or "VEN·195*" or "VEN·153" or "VEN·196" or "VEN·196*"),
             spec => Assert.Equal(BehaviorImplementationStatuses.Implemented, spec.Status));
     }
 
