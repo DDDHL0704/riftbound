@@ -116,8 +116,9 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
     private static string Other(string player) => player == "P1" ? "P2" : "P1";
     private static async Task Tap(Driver game, string player)
     {
-        foreach (var id in game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
-            && !game.State.CardObjects[id].IsExhausted).ToArray()) await game.Act(player, new TapRuneCommand(id));
+        var runes = game.State.PlayerZones[player].Base.Where(id => game.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
+            && !game.State.CardObjects[id].IsExhausted).ToArray();
+        foreach (var batch in runes.Chunk(12)) await game.Act(player, new TapRuneCommand(batch[0], batch));
     }
     private static async Task Empower(Driver game, string owner)
     {
@@ -129,7 +130,8 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
     {
         // Use four known field runes; ordinary turn channeling may have added
         // other physical runes that this destruction payment does not spend.
-        for (var i = 1; i <= 4; i++) await game.Act(opponent, new TapRuneCommand(opponent + "-RUNE-" + i));
+        var runes = Enumerable.Range(1, 4).Select(i => opponent + "-RUNE-" + i).ToArray();
+        await game.Act(opponent, new TapRuneCommand(runes[0], runes));
         await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-1"));
         await game.Act(opponent, new RecycleRuneCommand(opponent + "-RUNE-2"));
         Assert.Equal(4, game.State.RunePools[opponent].Mana); Assert.Equal(2, game.State.RunePools[opponent].PowerByTrait[RuneTrait.Yellow]);
