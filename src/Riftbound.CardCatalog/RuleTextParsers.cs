@@ -2985,6 +2985,13 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment.Contains("每回合首次打出的友方装备的主动技能", StringComparison.Ordinal)
+                && segment.Contains("该技能费用减少{{1}}", StringComparison.Ordinal)) {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.BattlefieldFirstEquipmentAbilityManaReduction,
+                    segment, BehaviorImplementationStatuses.Unimplemented, "First equipment activation mana reduction while controlled.", 1));
+                continue;
+            }
+
             var battlefieldEchoCostReductionMatch = Regex.Match(
                 segment,
                 @"友方\{\{回响\}\}的费用减少\{\{(\d+)\}\}",
