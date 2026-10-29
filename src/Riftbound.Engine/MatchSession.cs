@@ -15831,7 +15831,7 @@ internal static class ActionPromptBuilder
                         ["trait"] = trait,
                         ["mana"] = tap ? BasicRuneTapManaGain : 0,
                         ["power"] = power,
-                        ["abilityId"] = tap ? "BASIC_RUNE_EXHAUST_GAIN_1_MANA" : "BASIC_RUNE_RECYCLE_GAIN_1_POWER",
+                        ["abilityId"] = tap ? "BASIC_RUNE_EXHAUST_GAIN_1_MANA" : "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER",
                         ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal),
                         ["paymentOnly"] = false
                     };

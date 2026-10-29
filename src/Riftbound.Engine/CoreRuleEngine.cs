@@ -18260,7 +18260,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的支付资源动作无效。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
