@@ -1529,8 +1529,9 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
     }
 
-    [Fact]
-    public async Task P79SettCountsFriendlyBoonUnitsAtSameBattlefieldForBattlePower()
+    [Theory]
+    [InlineData("OGN·240/298")] [InlineData("RAD·183*/167")] [InlineData("RAD·183/167")]
+    public async Task P79SettCountsFriendlyBoonUnitsAtSameBattlefieldForBattlePower(string cardNo)
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -1565,7 +1566,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-SETT"] = new(
                     "P1-SETT",
-                    cardNo: "OGN·240/298",
+                    cardNo: cardNo,
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Bulwark],
                     ownerId: "P1",
@@ -1650,7 +1651,7 @@ public sealed partial class ConformanceFixtureRunnerTests
         Assert.Equal("P1-SETT", staticAura.TargetObjectId);
         Assert.Equal(2, staticAura.PowerDelta);
         Assert.Equal("SAME_BATTLEFIELD_FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER", staticAura.EffectKind);
-        Assert.Equal("OGN·240/298", staticAura.SourceCardNo);
+        Assert.Equal(cardNo, staticAura.SourceCardNo);
         Assert.Equal("CoreRuleEngine.ResolveSameBattlefieldFriendlyFilteredUnitCountToSourcePowerBonus", staticAura.SourcePath);
         Assert.Equal("SOURCE_AND_FRIENDLY_FILTERED_PUBLIC_UNITS_AT_SAME_BATTLEFIELD", staticAura.Condition);
         Assert.Equal("RECOMPUTED_FROM_CURRENT_SAME_BATTLEFIELD_FILTERED_FRIENDLY_UNIT_LOCATIONS", staticAura.Lifecycle);

@@ -116,7 +116,9 @@ public sealed class ActivatedAbilitySourceIdentityGuardTests
         P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
         P4ActivatedAbilityCatalog.EzrealBlueSwiftCardNo,
         P4ActivatedAbilityCatalog.EzrealBlueSwiftAltCardNo,
-        P4ActivatedAbilityCatalog.EzrealBlueSwiftPromoCardNo)]
+        P4ActivatedAbilityCatalog.EzrealBlueSwiftPromoCardNo,
+        "RAD·180*/167",
+        "RAD·180/167")]
     [InlineData(
         P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
         P4ActivatedAbilityCatalog.JhinCardNo,
