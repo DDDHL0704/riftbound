@@ -220,6 +220,17 @@ public sealed class DominusTests
         Assert.DoesNotContain("temporaryActivation", view); Assert.DoesNotContain("\"SPELL\"", view);
         Assert.Contains("grantedAbilityId", view);
         ArmamentMightTests.PublicRecovery(state);
+        var snapshots = ResolutionResult.BuildSnapshots(state); var prompts = ResolutionResult.BuildPrompts(state);
+        var recovered = state.Seats.Keys.ToDictionary(id => id, id => new RecoveredPlayerView(id, state.Tick, 0, snapshots[id], state.Tick, 0, prompts[id]));
+        var spectator = MatchReplayRedactor.BuildSpectatorFrame(state.RoomId, state.Tick, 0, [], state);
+        foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
+            var effects = Assert.IsAssignableFrom<IEnumerable<Dictionary<string, object?>>>(snapshot.Timing["continuousEffects"]);
+            var modifier = Assert.Single(effects, effect => Equals(effect.GetValueOrDefault("sourceObjectId"), "HIDDEN")
+                && Equals(effect.GetValueOrDefault("layer"), ContinuousEffectLayers.PowerModifier));
+            modifier["sourceObjectId"] = "HOST";
+            Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(state, recovered, spectator));
+            modifier["sourceObjectId"] = "HIDDEN";
+        }
     }
 
     [Fact]
