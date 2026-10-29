@@ -30861,7 +30861,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return !behavior.PlaysSourceToBaseAsUnit
-            && !behavior.PlaysSourceToBaseAsEquipment;
+            && !behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.DealsMutualTargetPowerDamage;
     }
 
     private static bool ShouldGrantFreeStandbyHidePermission(CardBehaviorDefinition behavior)

@@ -54,6 +54,23 @@ public sealed class VenCombatAndHandSpellTests
     }
 
     [Theory]
+    [InlineData("VEN·083")] [InlineData("OGN·128/298")]
+    public async Task SpellSkillDamagePreventionDoesNotPreventDamageDealtByTheChosenUnits(string spell)
+    {
+        var initial = AttackDamageDistributionTests.Spell(Position(spell), "PROTECT", "OGN·145/298", "P1");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("PROTECT", "OGN·145/298", [])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("UNIT", spell, ["ALLY", "ENEMY"])); await game.Top();
+        var damage = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED").Select(e => e.Event).ToArray();
+        Assert.Equal(2, damage.Length);
+        Assert.All(damage, e => Assert.Equal(4, e.Payload["damage"]));
+        Assert.Contains(damage, e => Equals(e.Payload.GetValueOrDefault("damageSourceObjectId"), "ALLY"));
+        Assert.Contains(damage, e => Equals(e.Payload.GetValueOrDefault("damageSourceObjectId"), "ENEMY"));
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay();
+    }
+
+    [Theory]
     [InlineData("SPEND_POWER:green:1")] [InlineData("SPEND_POWER:orange:2")]
     [InlineData("SPEND_MANA:1")] [InlineData("SPEND_POWER:orange:1,SPEND_POWER:orange:1")]
     public async Task RampageRejectsInventedOrDuplicateAdditionalCosts(string costs)
