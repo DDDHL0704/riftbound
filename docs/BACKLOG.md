@@ -10,12 +10,14 @@
 
 ## P0 · 让 main 和夜间验收恢复全绿（A 线）
 
-- [ ] **P0-1 合入夜间验收的测试修正**。分支 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，基于 main `9c50c6d3`，已包含付款线的 `a79b0f32`）。只改测试：
+- [x] **P0-1 合入夜间验收的测试修正**。[PR #236](https://github.com/DDDHL0704/riftbound/pull/236) 已合入，基于 `codex/nightly-optional-reduction-selector-20261028`（`7aae34be`，已包含付款线的 `a79b0f32`）。只改测试：
   - 付款重连夹具：#223 改变了可选减费的候选结构，导致 `OptionalCostReductionAcceptance` 失败，这里同步更新；
   - 修正 6 局完整对局和对应的投影测试。
 
-  本地 12/12 通过。**合入前先改一处**：卡牌线指出，修正后 SourceLone 那局的双方防守者正向断言变成了"有条件才检查"。要改为在同一局伤害结算前**无条件**检查双方参与者，死亡后再做反向断言。开 PR → L2 绿 → 合入 → 手动触发一次夜间验收确认。
+  SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 通过后已合入；[手动夜验 40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647) 已触发，结果待确认。
 - [ ] **P0-2 夜间验收连续通过**。每次失败都在这里登记"失败项 + 原因 + 修复 PR"；连续 3 晚全绿后删掉本条。
+  - [40708127555](https://github.com/DDDHL0704/riftbound/actions/runs/40708127555)（10 月 28 日手动运行）：6 局完整对局的夹具与当前战斗、触发时机及战场归属不一致；付款重连的可选减费夹具未适配候选结构变更。修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，已合入，待完整夜验验证。
+  - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
 
 ## P1 · 规则缺陷与进行中的规则改动（A 线）
 
@@ -51,6 +53,7 @@
 - [ ] **P3-2 L2 提速**：
   - 把最慢的测试分散到各个分片；
   - 目标是单次 L2 在 30 分钟内跑完；
+  - 同一 PR 推送新提交后，旧运行的分片已取消，但 `always()` 汇总任务仍排队、阻塞新运行（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；修复取消流程，同时保留测试失败时的门禁校验；
   - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
