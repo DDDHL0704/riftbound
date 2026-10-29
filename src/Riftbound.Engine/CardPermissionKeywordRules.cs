@@ -132,8 +132,9 @@ public static class CardPermissionKeywordRules
             return false;
         }
 
-        return SourceTags(behavior)
-            .Any(tag => string.Equals(tag, keyword.Trim(), StringComparison.Ordinal));
+        var trimmedKeyword = keyword.AsSpan().Trim();
+        return ContainsSourceTag(behavior.SourceUnitTags, trimmedKeyword)
+            || ContainsSourceTag(behavior.SourceEquipmentTags, trimmedKeyword);
     }
 
     public static bool TryBuildHasteReadyOptionalCost(
@@ -239,19 +240,16 @@ public static class CardPermissionKeywordRules
         return new CardPlayTimingDecision(false, CardPermissionKeywordNames.None, reason);
     }
 
-    private static IReadOnlyList<string> SourceTags(CardBehaviorDefinition behavior)
+    private static bool ContainsSourceTag(ReadOnlySpan<char> tags, ReadOnlySpan<char> keyword)
     {
-        return ParseDelimitedValues(behavior.SourceUnitTags)
-            .Concat(ParseDelimitedValues(behavior.SourceEquipmentTags))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-    }
+        foreach (var part in tags.Split('|'))
+        {
+            if (tags[part].Trim().SequenceEqual(keyword))
+            {
+                return true;
+            }
+        }
 
-    private static IReadOnlyList<string> ParseDelimitedValues(string value)
-    {
-        return value
-            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Where(part => !string.IsNullOrWhiteSpace(part))
-            .ToArray();
+        return false;
     }
 }

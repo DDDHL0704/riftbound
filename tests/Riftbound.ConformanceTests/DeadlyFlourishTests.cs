@@ -7,7 +7,7 @@ namespace Riftbound.ConformanceTests;
 public sealed class DeadlyFlourishTests
 {
     internal const string Card = "UNL-073/219";
-    internal const string DelayedEffect = "DELAYED_UNIT_DESTRUCTION_CREATE_GOLD";
+    internal const string DelayedEffect = "DELAYED_UNIT_DESTRUCTION_REWARD";
 
     [Theory]
     [InlineData(false)]

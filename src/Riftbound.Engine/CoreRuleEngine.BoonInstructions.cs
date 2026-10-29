@@ -20,9 +20,9 @@ public sealed partial class CoreRuleEngine
             events.Add(new("BOON_CONSUMED", "消耗所选单位的增益", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["targetObjectId"] = id, ["previousPower"] = unit.Power, ["power"] = unit.Power - 1 }));
-            if (unit.IsExhausted) events.Add(new("UNIT_READIED", "消耗增益后让所选单位活跃", new Dictionary<string, object?> {
+            if (unit.IsExhausted) events.Add(CaptureSelfReady(new("UNIT_READIED", "消耗增益后让所选单位活跃", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                ["targetObjectId"] = id, ["reason"] = item.EffectKind, ["wasExhausted"] = unit.IsExhausted }));
+                ["targetObjectId"] = id, ["reason"] = item.EffectKind, ["wasExhausted"] = unit.IsExhausted }), unit, item.ControllerId, zones, cards));
         }
     }
 }

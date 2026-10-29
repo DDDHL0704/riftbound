@@ -92,7 +92,7 @@ public sealed class Ven093And122EmpoweredSelfConsumerTests
         var driver = await Play(initial, no); if (branch == "repeated") await Empower(driver);
         await Reject(driver, "P1", new ActivateAbilityCommand(branch == "controller" ? "ENEMY" : "UNIT", "EMPOWER:0:0", branch == "target" ? ["UNIT"] : []));
         Assert.Equal(branch == "mana" ? "资源不足，无法支付强化费用。" : branch == "target"
-            ? "强化来源不是目标，请选择当前存在的技能与费用。" : "请在你的开放主阶段选择一名尚未强化的公开单位。", driver.Commands().Last().ErrorMessage);
+            ? "强化来源不是目标，请选择当前存在的技能与费用。" : "请在你的开放主阶段选择一个仍可强化的公开物体。", driver.Commands().Last().ErrorMessage);
         await Export($"illegal-{no}-{branch}", initial, driver);
     }
 
