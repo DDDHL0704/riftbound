@@ -14,11 +14,11 @@
   - 付款重连夹具：#223 改变了可选减费的候选结构，导致 `OptionalCostReductionAcceptance` 失败，这里同步更新；
   - 修正 6 局完整对局和对应的投影测试。
 
-  SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 通过后已合入；[手动夜验 40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647) 因规则全量超过六小时上限而未通过，详见 P0-2。
+  SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 通过后已合入；[手动夜验 40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647) 的付款重连、完整对局进程分片及其他集成验收均通过，规则全量因六小时超时而未完成，详见 P0-2。
 - [ ] **P0-2 夜间验收连续通过**。每次失败都在这里登记"失败项 + 原因 + 修复 PR"；连续 3 晚全绿后删掉本条。
   - [40708127555](https://github.com/DDDHL0704/riftbound/actions/runs/40708127555)（10 月 28 日手动运行）：6 局完整对局的夹具与当前战斗、触发时机及战场归属不一致；付款重连的可选减费夹具未适配候选结构变更。修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，已合入，待完整夜验验证。
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
-  - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：规则全量任务超过 6 小时上限而被取消，最终汇总门槛拒绝通过。4 个完整对局进程分片已通过，其余普通规则集中在单个进程，未完成；SQL、网络、桌面均通过。修复在 `a/nightly-rule-shards`：一次构建、六个 GitHub 任务执行全部规则和完整对局，并核对每个实际用例恰好执行一次。待 PR 合入后重新手动夜验，本次不计连续三晚通过。
+  - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)（`a/nightly-rule-shards`）：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。此项优先于其余 L2 提速，合入后重新手动夜验，本次不计连续三晚通过。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
@@ -50,11 +50,15 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
-- [ ] **P3-2 L2 提速**：
-  - 进行中：`a/l2-speed`（[PR #256](https://github.com/DDDHL0704/riftbound/pull/256)）减少 CI 任务与取消后的队列占用；后续 `a/l2-fixtures` 使用 Release、批量准备夹具资源，并按完整且匹配的实际用例耗时均衡分片。保留全部规则和 `L2 required`，30 分钟目标待完整 CI 实测；
+- [ ] **P3-2 L2 提速**（`a/l2-fixtures`）：
+  - 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)（`a/nightly-rule-shards`）修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；
   - 把最慢的测试分散到各个分片；
   - 目标是单次 L2 在 30 分钟内跑完；
-  - 同一 PR 推送新提交后，旧运行的分片已取消，但 `always()` 汇总任务仍排队、阻塞新运行（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；修复取消流程，同时保留测试失败时的门禁校验；
+  - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR / main 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
+  - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
+  - [PR #264](https://github.com/DDDHL0704/riftbound/pull/264) 实测 DOCS 准备用时 22 秒并跳过规则；最终门槛因浅克隆只有一层、无法验证 Git 祖先而拒绝豁免。[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 为汇总检出保留两层历史，并用真实浅克隆覆盖成功与拒绝路径，合入后重跑 #264；
+  - #256 六片完整通过，最慢分片约 193 分钟；VEN013/103 单条合法开局分别耗时 49/107 分钟，后续在 `a/l2-fixtures` 减少等牌回合与资源准备命令，30 分钟目标尚未达到；
+  - `a/l2-fixtures` 已缩短四组慢开局的自然等牌过程，并用生产批量命令准备横置/回收资源；保留规则断言、关键阶段冷恢复与完整原始历史校验。本轮 14 条慢开局与 8 条 VEN013/103 定向回归全部通过，两个 VEN 合法开局本地分别约 12/13 分钟；完整 CI 耗时待合入夜验修复后验证；
   - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
