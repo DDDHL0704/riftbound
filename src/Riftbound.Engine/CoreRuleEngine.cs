@@ -5161,6 +5161,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveEmpowerActivation(state, intent, command);
         if (command.AbilityId.StartsWith("SELF-MIGHT:", StringComparison.Ordinal))
             return ResolveSelfMightActivation(state, intent, command);
+        if (command.AbilityId.StartsWith("RECYCLE-MIGHT:", StringComparison.Ordinal))
+            return ResolveRecycleMightActivation(state, intent, command);
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
         {
             if (selectedMana is not null)
@@ -19002,7 +19004,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.SelfMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
+                    ["sourceObjectId"] = resolvedItem.BeginningRune is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.FieldContext?.Kind != AttackAreaDamageKind
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -24137,6 +24139,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.EndAbility is not null) return stackItem.EffectKind == CreateEndAbilityEffect ? ResolveDelayedEndCreation(state, stackItem) : ResolveEndAbility(state, stackItem);
         if (stackItem.EffectKind == EmpowerRules.Effect) return ResolveEmpowerStack(state, stackItem);
         if (stackItem.EffectKind == SelfMightRules.Effect) return ResolveSelfMightStack(state, stackItem);
+        if (stackItem.EffectKind == RecycleMightRules.Effect) return ResolveRecycleMightStack(state, stackItem);
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var activatedAbility)
             && string.Equals(
                 activatedAbility.Kind,

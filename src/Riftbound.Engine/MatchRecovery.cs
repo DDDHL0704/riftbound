@@ -24572,6 +24572,8 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
             if (!EmpowerRules.Valid(state, item)) errors.Add("invalid captured empower activation");
             if (!SelfMightRules.Valid(state, item)) errors.Add("invalid captured self Might activation");
+        foreach (var item in state.StackItems)
+            if (!RecycleMightRules.Valid(state, item)) errors.Add("invalid captured recycle-cost ability");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
             if (!CoreRuleEngine.ValidLegendDuelMovement(state, item)) errors.Add("invalid captured legend duel movement");
             if (!CoreRuleEngine.ValidLegendUnitKeyword(state, item)) errors.Add("invalid captured legend unit keyword");
@@ -34046,7 +34048,7 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item)
+                || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item)
                 || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
