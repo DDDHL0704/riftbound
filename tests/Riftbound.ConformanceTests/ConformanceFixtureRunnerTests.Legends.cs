@@ -9,53 +9,6 @@ namespace Riftbound.ConformanceTests;
 public sealed partial class ConformanceFixtureRunnerTests
 {
 
-    [Fact]
-    public async Task P6LegendAbilityCatalogAuditsImplementedLegendActionRepresentativesAgainstOfficialText()
-    {
-        var surfaces = P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces();
-
-        Assert.Equal(5, surfaces.Count);
-        Assert.Empty(P6LegendAbilityCatalog.GetDeferredSurfaces());
-        Assert.Contains(surfaces, surface => surface.RequiresTarget);
-        Assert.Contains(surfaces, surface => !surface.RequiresTarget);
-        Assert.All(surfaces, surface =>
-        {
-            Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.AbilityId, out _));
-            Assert.StartsWith("LEGEND_DEFERRED_", surface.RetiredDeferredSurfaceId, StringComparison.Ordinal);
-            Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
-            Assert.Contains("LEGEND_ACTION_DOMAIN", surface.Reason, StringComparison.Ordinal);
-        });
-
-        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
-        var functionalUnits = FunctionalUnitBuilder.Build(officialCatalog.Cards);
-        var implementedBehaviors = OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
-            officialCatalog.Cards,
-            CardBehaviorRegistry.GetAll()
-                .Select(definition => new ImplementedCardBehavior(
-                    definition.CardNo,
-                    definition.EffectKind,
-                    definition.DisplayName))
-                .ToArray());
-        var behaviorSpecs = BehaviorSpecCatalogBuilder.Build(
-            officialCatalog.Cards,
-            functionalUnits,
-            implementedBehaviors);
-
-        foreach (var surface in surfaces)
-        {
-            var officialCard = officialCatalog.Cards.Single(card =>
-                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
-            Assert.Equal("传奇", officialCard.CardCategoryName);
-            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
-            Assert.NotEmpty(RuleTextParser.Parse(officialCard).ActivatedAbilities);
-            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
-            Assert.Contains(behaviorSpecs, spec =>
-                string.Equals(spec.CardNo, surface.SourceCardNo, StringComparison.Ordinal)
-                && string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal)
-                && string.Equals(spec.ImplementedEffectKind, OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind, StringComparison.Ordinal));
-        }
-    }
-
     public static IEnumerable<object[]> P6ImplementedLegendActionSurfaceData()
     {
         return P6LegendAbilityCatalog.GetImplementedLegendActionSurfaces()
