@@ -174,6 +174,7 @@ public sealed partial class CoreRuleEngine
             if (equipment.IsExhausted)
             {
                 using var readyInstruction = new MightInstructionScope(state, zones, cards, events);
+                AddReadiedObservation(zones, cards, equipment, events);
                 cards[target] = equipment with { IsExhausted = false };
                 events.Add(new GameEvent("EQUIPMENT_READIED", "所选装备变为活跃状态",
                     new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = target,
