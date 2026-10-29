@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (pool.HasSupportedAmounts)
         foreach (var id in state.PlayerZones[player].LegendZone.Order(StringComparer.Ordinal))
-        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId, DianaLegendAbilityId, RenektonLegendAbilityId })
+        foreach (var abilityId in new[] { KaisaLegendAbilityId, OrnnLegendAbilityId, DariusLegendAbilityId, DianaLegendAbilityId, RenektonLegendAbilityId, LegendActionAbilityCatalog.MordekaiserLegendAbilityId })
         {
             if (!TryGetLegendAbility(abilityId, out var legendAbility)
                 || !IsLegendAbilityTimingAllowed(state, player, legendAbility)
@@ -25,6 +25,17 @@ public sealed partial class CoreRuleEngine
                 || !state.CardObjects.TryGetValue(id, out var source) || source.ObjectId != id
                 || source.IsFaceDown || source.IsExhausted || !SourceObjectControlledByPlayerOrLegacyOwned(source, player)
                 || !LegendAbilitySourceHasAbility(state, player, source.CardNo, legendAbility)) continue;
+            if (legendAbility.BanishesGraveyardPermanentAsCost)
+            {
+                foreach (var cost in LegendGraveyardBanishCostRules.Choices(state, player))
+                {
+                    var card = cost[LegendGraveyardBanishCostRules.Prefix.Length..];
+                    actions.Add(new(new($"LEGEND_RESOURCE:{id}:{abilityId}:{cost}",
+                        "放逐废牌堆中的单位或装备并横置传奇：获得 1 点单位或装备打出专用符能", [id, card]),
+                        new LegendActCommand(id, abilityId, [], [cost])));
+                }
+                continue;
+            }
             if (abilityId == RenektonLegendAbilityId)
             {
                 var options = RenektonPowerSpendChoices(pool);

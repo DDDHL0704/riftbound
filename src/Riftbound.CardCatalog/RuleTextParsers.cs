@@ -1606,6 +1606,12 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
 
+        if (Regex.IsMatch(segment,
+            @"^当我进攻或防守时[，,]\s*对此处的一名敌方单位造成等同于我战力的伤害[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackOrDefendSourceMightDamage, TriggerTimings.UnitAttackOrDefend,
+                segment, TargetScope: TriggerTargetScopes.EnemyUnitHere);
+
         var empoweredAttackDestroy = Regex.Match(segment,
             @"^\{\{已强化>\}\}\s*当我进攻时[，,]\s*摧毁此处一名战力低于我的敌方单位[。.]?$",
             RegexOptions.CultureInvariant);
@@ -2983,6 +2989,17 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment == "你打出到你所控制战场的单位以活跃状态进场。"
+                || segment == "你打出到你所控制战场的单位以活跃状态进场")
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.FriendlyUnitsEnterReady, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Ready entry applies only to a unit played to a battlefield currently controlled by its player.",
+                    RequiresControlledBattlefieldPlay: true));
+                continue;
+            }
+
             var friendlyLevelUnitsEnterReadyMatch = Regex.Match(
                 segment,
                 @"\{\{等级(\d+)>\}\}\s*你的单位以活跃状态进场。?$",
@@ -3181,6 +3198,13 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment.TrimEnd('。', '.') == "我无法造成战斗伤害")
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitCannotDealCombatDamage, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "The source contributes no combat damage; its Might and spell/skill damage remain unchanged."));
+                continue;
+            }
             var exactOtherFriendlyBattlefieldCombatDamage = Regex.Match(segment,
                 @"^除非我所在的战场上受你控制的其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，否则我无法造成战斗伤害[。]?$",
                 RegexOptions.CultureInvariant);

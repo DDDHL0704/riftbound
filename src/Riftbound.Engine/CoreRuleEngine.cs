@@ -1174,7 +1174,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var entersReadyFromStaticAbility,
             out var entryStaticAbilitySourceObjectId,
             out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
+            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
         cardObjects[tokenObjectId] = tokenState;
         var zones = playerZones[intent.PlayerId];
         playerZones[intent.PlayerId] = zones with
@@ -5247,7 +5247,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveGatekeeperMaduliMoveAbility(state, intent, command, ability);
         }
 
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal))
+        if (ability.Kind == ActivatedAbilityKinds.SwiftMoveSelfToBase)
         {
             return ResolveEzrealBlueSwiftMoveAbility(state, intent, command, ability);
         }
@@ -6622,19 +6622,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ActivateAbilityCommand command,
         P4ActivatedAbilityDefinition ability)
     {
-        if (state.PendingPayment is not null
-            || state.PendingHandChoice is not null
-            || state.PendingTaskQueue.IsBlocking
-            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "伊泽瑞尔的迅捷移动技能只能在当前玩家的开放主阶段提交。",
-                ErrorCodes.PhaseNotAllowed);
-        }
+        if (!CanActivateSwiftAbility(state, intent.PlayerId))
+            return RejectWithCorePrompts(state, "迅捷技能需要自己的中立开环或法术对决中的行动权。", ErrorCodes.PhaseNotAllowed);
 
         if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
             || command.TargetObjectIds.Count != 0)
@@ -6668,6 +6657,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "伊泽瑞尔的迅捷移动技能来源必须是当前玩家控制的公开精确战场单位。",
                 ErrorCodes.InvalidTarget);
         }
+
+        if (!AttachedRuleTextRules.SelectActivatedInstance(state, sourceState, ability, command.AbilityInstanceId, out var instance))
+            return RejectWithCorePrompts(state, "所选移动技能实例已失效。", ErrorCodes.InvalidTarget);
 
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
@@ -6763,15 +6755,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
         var stackItem = new StackItemState(
-            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-EZREAL-MOVE-BASE",
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-SELF-MOVE-BASE",
             intent.PlayerId,
             command.SourceObjectId,
             ability.EffectKind,
-            sourceState.CardNo,
+            instance.CardNo,
             [],
             0,
             1,
-            []);
+            [], timingContext: state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null)
+            { SelfMovement = new(new(sourceState.ObjectId, sourceState.ObjectGeneration), state.Tick + 1,
+                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin, sourceState.TokenFactoryCardNo) };
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -7355,15 +7349,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
+        string? graveyardBanishCostId = null;
+        if (ability.BanishesGraveyardPermanentAsCost)
+        {
+            if (!LegendGraveyardBanishCostRules.TryRead(state, intent.PlayerId, costsWithoutPowerSpend, out var selected))
+                return RejectWithCorePrompts(state, "请选择自己废牌堆中的一个单位或装备作为放逐费用。", ErrorCodes.InsufficientCost);
+            graveyardBanishCostId = selected;
+        }
         var optionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
         var requiredManaCostToken = manaCost > 0 ? $"{SpendManaOptionalCostPrefix}{manaCost}" : string.Empty;
         var requiredCostToken = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
             ? requiredManaCostToken
             : ability.RequiredCostToken;
-        var requiredCostTokens = string.IsNullOrWhiteSpace(requiredCostToken)
-            ? Array.Empty<string>()
-            : [requiredCostToken];
+        var requiredCostTokens = graveyardBanishCostId is not null
+            ? [LegendGraveyardBanishCostRules.Prefix + graveyardBanishCostId]
+            : string.IsNullOrWhiteSpace(requiredCostToken) ? Array.Empty<string>() : [requiredCostToken];
         if (!optionalCosts.SequenceEqual(requiredCostTokens, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
@@ -7499,6 +7500,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (powerSpend is not null && totalPowerCost == 0)
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (ability.PowerGainAmount > 0 && (!currentPool.HasSupportedAmounts
+            || (long)currentPool.TotalStoredPower + ability.PowerGainAmount > int.MaxValue))
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
         if (ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana
             && !CanGainSpellOnlyMana(currentPool, ability.ManaGainAmount))
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
@@ -7593,7 +7597,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0)
+        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0 || graveyardBanishCostId is not null)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
@@ -7651,6 +7655,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
+
+        if (graveyardBanishCostId is not null)
+        {
+            var own = playerZones[intent.PlayerId];
+            playerZones[intent.PlayerId] = own with {
+                Graveyard = own.Graveyard.Where(id => id != graveyardBanishCostId).ToArray(),
+                Banished = own.Banished.Append(graveyardBanishCostId).ToArray()
+            };
+            ResetCardOutsidePlay(playerZones, cardObjects, graveyardBanishCostId,
+                cardObjects[graveyardBanishCostId], intent.PlayerId);
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "支付传奇技能的放逐费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
+                ["targetObjectId"] = graveyardBanishCostId, ["fromZone"] = "GRAVEYARD",
+                ["destinationZone"] = "BANISHED", ["isCost"] = true, ["abilityId"] = command.AbilityId
+            }), playerZones, cardObjects, intent.PlayerId, [graveyardBanishCostId]));
+        }
 
         if (TryGetLegendUnitToken(ability.EffectKind, out _))
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
@@ -7794,6 +7814,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     ability.PowerGainAmount,
                     ability.GrantedPowerPurpose,
+                    ability.GrantsUnitOrEquipmentPlayOnlyPower,
                     command.SourceObjectId,
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
@@ -8157,6 +8178,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PowerGainAmount: OrnnLegendPowerGain,
                 TimingKind: LegendAbilityTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            LegendActionAbilityCatalog.MordekaiserLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.MordekaiserLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MordekaiserLegendAbilityId),
+                "铁铠冥魂传奇反应符能技能", 0, 0, string.Empty, 0, false,
+                LegendAbilityEffectKinds.GainPower, PowerGainAmount: 1,
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                BanishesGraveyardPermanentAsCost: true, GrantsUnitOrEquipmentPlayOnlyPower: true),
             RenektonLegendAbilityId => new LegendAbilityDefinition(
                 RenektonLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
@@ -8631,6 +8659,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         int powerAmount,
         PowerPaymentPurpose purpose,
+        bool unitOrEquipmentPlayOnly,
         string sourceObjectId,
         string sourceCardNo,
         IReadOnlyList<string> sourceCardNos,
@@ -8639,7 +8668,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = purpose switch
+        var nextPool = unitOrEquipmentPlayOnly
+            ? currentPool with { UnitOrEquipmentPlayOnlyPower = checked(currentPool.UnitOrEquipmentPlayOnlyPower + powerAmount) }
+            : purpose switch
         {
             PowerPaymentPurpose.PlaySpell => currentPool with { SpellOnlyPower = currentPool.SpellOnlyPower + powerAmount },
             PowerPaymentPurpose.Equipment => currentPool with { EquipmentOnlyPower = currentPool.EquipmentOnlyPower + powerAmount },
@@ -8663,8 +8694,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["amount"] = powerAmount,
                 ["power"] = powerAmount,
                 ["powerAfter"] = nextPool.Power,
-                ["powerPurpose"] = purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
+                ["powerPurpose"] = unitOrEquipmentPlayOnly ? "UNIT_OR_EQUIPMENT_PLAY_ONLY" : purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
                 ["spellOnlyPowerAfter"] = nextPool.SpellOnlyPower,
+                ["unitOrEquipmentPlayOnlyPowerAfter"] = nextPool.UnitOrEquipmentPlayOnlyPower,
                 ["equipmentOnlyPowerAfter"] = nextPool.EquipmentOnlyPower
             }));
         return runePools;
@@ -17296,7 +17328,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var entersReadyFromStaticAbility,
             out var entryStaticAbilitySourceObjectId,
             out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
+            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
         cardObjects[tokenObjectId] = tokenState;
         playerZones[playerId] = zones with
         {
@@ -19062,7 +19094,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -20996,6 +21028,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyThenFriendlyUnits => targetIndex == 0
+                ? IsEnemyFieldObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId)
+                : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
                 : IsEquipmentObject(state, objectId),
@@ -21174,7 +21209,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
+            || !AttachedRuleTextRules.ActivatedInstances(state, candidate, ability).Any()
             || !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             || !state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
@@ -21508,6 +21543,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             or CardTargetScopes.FriendlyUnit
             or CardTargetScopes.FriendlyUnitThenFriendlyUnit
             or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.EnemyThenFriendlyUnits
             or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
             or CardTargetScopes.FriendlyBattlefieldUnit
@@ -23754,6 +23790,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? "friendly unit then another friendly unit"
                     : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
                         ? "friendly unit then enemy unit"
+                        : string.Equals(targetScope, CardTargetScopes.EnemyThenFriendlyUnits, StringComparison.Ordinal)
+                            ? "enemy unit then friendly unit"
                         : string.Equals(targetScope, CardTargetScopes.FriendlyEquipmentThenEnemyEquipment, StringComparison.Ordinal)
                             ? "friendly equipment then enemy equipment"
                             : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, StringComparison.Ordinal)
@@ -25292,19 +25330,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                var firstTargetModifier = behavior.PowerModifierAmount + OptionalPowerModifierAmount(behavior, stackItem);
-                if (firstTargetModifier != 0 && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                    && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
+                for (var targetIndex = 0; targetIndex < 2; targetIndex++)
                 {
-                    var modifiedFirstTargetState = ApplyPowerModifier(
+                    var targetObjectId = stackItem.TargetObjectIds[targetIndex];
+                    var modifier = targetIndex == 0
+                        ? behavior.PowerModifierAmount + OptionalPowerModifierAmount(behavior, stackItem)
+                        : behavior.SecondaryPowerModifierAmount;
+                    if (modifier == 0 || !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId)
+                        || !cardObjects.TryGetValue(targetObjectId, out var currentTarget)) continue;
+                    cardObjects[targetObjectId] = ApplyPowerModifier(
                         state with { PlayerZones = playerZones, CardObjects = cardObjects },
-                        currentFirstTargetStateForModifier,
+                        currentTarget,
                         behavior,
                         stackItem,
-                        firstTargetObjectId,
-                        firstTargetModifier,
+                        targetObjectId,
+                        modifier,
                         out var powerEvent);
-                    cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
                     events.Add(powerEvent);
                 }
 
@@ -26737,12 +26778,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
+        var visibleSource = ResolutionResult.VisibleObjectIdForViewer(state, stackItem.SourceObjectId, "__spectator__");
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        var hasAbilityDefinition = P4ActivatedAbilityCatalog.TryGetByEffectKind(
-            stackItem.EffectKind,
-            out var abilityDefinition);
         var events = new List<GameEvent>
         {
             new(
@@ -26752,7 +26791,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = stackItem.ControllerId,
                     ["controllerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = visibleSource,
                     ["cardNo"] = stackItem.CardNo,
                     ["stackItemId"] = stackItem.StackItemId,
                     ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
@@ -26762,17 +26801,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        if (!hasAbilityDefinition
-            || !TryMoveEzrealBlueSwiftSourceToBase(
-                playerZones,
-                cardObjects,
-                objectLocations,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                abilityDefinition,
-                stackItem.CardNo,
-                out var originLocation,
-                out var destinationLocation))
+        var movementEventStart = events.Count;
+        if (!ValidSelfMovement(state, stackItem)
+            || state.CardObjects.GetValueOrDefault(stackItem.SourceObjectId)?.ObjectGeneration != stackItem.SelfMovement!.Source.Generation
+            || !state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var currentSource)
+            || EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, currentSource) != stackItem.ControllerId
+            || !TryMoveFieldUnitByEffect(state, playerZones, cardObjects, objectLocations,
+                stackItem.SourceObjectId, new(stackItem.ControllerId, "BASE"), stackItem.ControllerId, stackItem, events))
         {
             events.Add(new GameEvent(
                 "ABILITY_NO_EFFECT",
@@ -26780,7 +26815,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["sourceObjectId"] = visibleSource,
                     ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
                     ["effectKind"] = stackItem.EffectKind,
                     ["stackItemId"] = stackItem.StackItemId,
@@ -26789,25 +26824,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else
         {
-            events.Add(new GameEvent(
-                "UNIT_MOVED_TO_BASE",
-                "伊泽瑞尔移动到基地",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = stackItem.SourceObjectId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
-                    ["effectKind"] = stackItem.EffectKind,
-                    ["stackItemId"] = stackItem.StackItemId,
-                    ["originZone"] = MoveUnitBattlefieldZone,
-                    ["destinationZone"] = MoveUnitBaseZone,
-                    ["originLocation"] = BuildLocationPayload(originLocation),
-                    ["destinationLocation"] = BuildLocationPayload(destinationLocation),
-                    ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE",
-                    ["swift"] = true
-                }));
-            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BASE"));
+            for (var index = movementEventStart; index < events.Count; index++)
+                if (events[index].Kind == "UNIT_MOVED_TO_BASE") events[index] = events[index] with {
+                    Payload = new Dictionary<string, object?>(events[index].Payload) {
+                        ["abilityId"] = P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                        ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
+                        ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE", ["swift"] = true } };
         }
 
         return new StackResolutionResult(
@@ -28795,7 +28817,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out entersReadyFromStaticAbility,
                     out entryStaticAbilitySourceObjectId,
                     out entryStaticAbilitySourceState,
-                    out entryStaticAbility);
+                    out entryStaticAbility, entryBattlefieldId: shadowField?.ObjectId);
             }
             cardObjects[tokenObjectId] = tokenState;
             var zones = playerZones[stackItem.ControllerId];
@@ -29493,6 +29515,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string enteringObjectId,
         string? enteringCardNo,
         IReadOnlyDictionary<string, int>? playerExperience,
+        string? entryBattlefieldId,
+        bool countsAsPlay,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -29505,6 +29529,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             enteringCardNo,
             enteringIsUnit: true,
             playerExperience: playerExperience,
+            entryBattlefieldId,
+            countsAsPlay,
             out sourceObjectId,
             out sourceState,
             out ability);
@@ -29518,6 +29544,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? enteringCardNo,
         bool enteringIsUnit,
         IReadOnlyDictionary<string, int>? playerExperience,
+        string? entryBattlefieldId,
+        bool countsAsPlay,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -29561,7 +29589,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     sourceIsUnit: true,
                     playerExperience: playerExperience,
                     controllerId: controllerId,
-                    out var candidateAbility))
+                    out var candidateAbility)
+                || !EntryReadyDestinationRequirementsSatisfied(candidateAbility, playerZones, cardObjects,
+                    controllerId, entryBattlefieldId, countsAsPlay))
             {
                 continue;
             }
@@ -29600,7 +29630,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         sourceIsUnit: false,
                         playerExperience: playerExperience,
                         controllerId: controllerId,
-                        out var legendAbility))
+                        out var legendAbility)
+                    || !EntryReadyDestinationRequirementsSatisfied(legendAbility, playerZones, cardObjects,
+                        controllerId, entryBattlefieldId, countsAsPlay))
                 {
                     continue;
                 }
@@ -29614,6 +29646,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return false;
     }
+
+    private static bool EntryReadyDestinationRequirementsSatisfied(StaticAbilitySpec ability,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId, string? battlefieldId, bool countsAsPlay)
+        => ability.RequiresControlledBattlefieldPlay is not true
+            || countsAsPlay && TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out _, out var battlefield)
+                && !battlefield.IsFaceDown
+                && battlefield.ControllerId == controllerId;
 
     private static bool TryGetEntryReadyStaticAbility(
         string? sourceCardNo,
@@ -30020,7 +30061,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out bool entersReadyFromStaticAbility,
         out string entryStaticAbilitySourceObjectId,
         out CardObjectState entryStaticAbilitySourceState,
-        out StaticAbilitySpec entryStaticAbility)
+        out StaticAbilitySpec entryStaticAbility,
+        string? entryBattlefieldId = null)
     {
         return ApplyTokenEntryStaticAbility(
             playerZones,
@@ -30031,7 +30073,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out entersReadyFromStaticAbility,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
-            out entryStaticAbility);
+            out entryStaticAbility,
+            entryBattlefieldId);
     }
 
     private static CardObjectState ApplyTokenEntryStaticAbility(
@@ -30043,7 +30086,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out bool entersReadyFromStaticAbility,
         out string entryStaticAbilitySourceObjectId,
         out CardObjectState entryStaticAbilitySourceState,
-        out StaticAbilitySpec entryStaticAbility)
+        out StaticAbilitySpec entryStaticAbility,
+        string? entryBattlefieldId = null)
     {
         var enteringIsUnit = tokenState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
         entersReadyFromStaticAbility = TryGetFriendlyEnterReadyStaticAbilitySource(
@@ -30054,6 +30098,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             tokenState.CardNo,
             enteringIsUnit,
             playerExperience: null,
+            entryBattlefieldId,
+            countsAsPlay: true,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
             out entryStaticAbility);
@@ -32368,40 +32414,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryMoveEzrealBlueSwiftSourceToBase(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, ObjectLocationState> objectLocations,
-        string controllerId,
-        string sourceObjectId,
-        P4ActivatedAbilityDefinition abilityDefinition,
-        string? stackCardNo,
-        out ObjectLocationState originLocation,
-        out ObjectLocationState destinationLocation)
-    {
-        originLocation = new ObjectLocationState(string.Empty, string.Empty);
-        destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || sourceState.IsFaceDown
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
-            || !string.Equals(sourceState.CardNo, stackCardNo, StringComparison.Ordinal)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(abilityDefinition, sourceState.CardNo)
-            || !TryGetPreciseFieldLocation(playerZones, objectLocations, sourceObjectId, out originLocation)
-            || !string.Equals(originLocation.PlayerId, controllerId, StringComparison.Ordinal)
-            || !string.Equals(originLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(originLocation.BattlefieldObjectId))
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, originLocation.PlayerId, originLocation.Zone, sourceObjectId);
-        AddFieldObjectToLocation(playerZones, controllerId, MoveUnitBaseZone, sourceObjectId);
-        destinationLocation = new ObjectLocationState(controllerId, MoveUnitBaseZone);
-        objectLocations[sourceObjectId] = destinationLocation;
-        return true;
-    }
-
     private static bool TryGetPreciseFieldLocation(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
@@ -34508,7 +34520,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RemovesSourceEmpowerAsCost = false,
         int PowerModifierAmount = 0,
         bool RequiresAnyEquipmentTarget = false,
-        bool RequiresSourceEmpowered = false);
+        bool RequiresSourceEmpowered = false,
+        bool BanishesGraveyardPermanentAsCost = false,
+        bool GrantsUnitOrEquipmentPlayOnlyPower = false);
 
     private static class LegendAbilityEffectKinds
     {
