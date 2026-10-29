@@ -167,6 +167,7 @@ public sealed partial class CoreRuleEngine
     private static bool ValidHighCostSkillWitness(MatchState state, string controller, HighCostSkillWitness skill)
     {
         if (skill.Source is not { Generation: >= 0 } || string.IsNullOrWhiteSpace(skill.Source.ObjectId)
+            || string.IsNullOrWhiteSpace(skill.CardNo) || string.IsNullOrWhiteSpace(skill.AbilityId)
             || skill.Tick <= 0 || skill.Tick > state.Tick || skill.ActivationTick <= 0 || skill.ActivationTick > skill.Tick
             || skill.FaceRevision < 0 || skill.BaseMana < 0) return false;
         if (skill.Empower is { } empower)
@@ -195,6 +196,7 @@ public sealed partial class CoreRuleEngine
         string effect, string sourceId, string controller, string? cardNo)
     {
         if (context is null) return effect != HighCostPlayEffect;
+        if (string.IsNullOrWhiteSpace(context.CardNo)) return false;
         var spec = HighCostPlaySpec(context.CardNo);
         if (effect != HighCostPlayEffect || context.CardNo != cardNo || spec?.MinimumCardMana is not { } minimum
             || context.Source is not { Generation: >= 0 } || context.Source.ObjectId != sourceId

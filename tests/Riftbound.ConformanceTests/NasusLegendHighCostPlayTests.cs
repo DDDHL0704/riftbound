@@ -265,6 +265,7 @@ public sealed class NasusLegendHighCostPlayTests
 
     [Theory]
     [InlineData("card")] [InlineData("controller")] [InlineData("play")] [InlineData("source")]
+    [InlineData("missing-card")]
     public async Task RecoveryRejectsForgedTriggerEvidence(string scenario)
     {
         var game = new Driver(Position());
@@ -272,6 +273,7 @@ public sealed class NasusLegendHighCostPlayTests
         var state = game.State; var item = Assert.Single(state.StackItems); var context = item.HighCostPlayObserver!;
         var forged = scenario switch { "card" => context with { CardNo = "VEN·143" },
             "controller" => context with { ControllerId = "P2" },
+            "missing-card" => context with { CardNo = null! },
             "play" => context with { CardPlay = context.CardPlay! with { CardNo = "OGS·005/024" } },
             _ => context with { Source = context.Source with { Generation = context.Source.Generation + 1 } } };
         Assert.Contains("invalid high-cost play observer stack", OfficialInsightAndSpellLockTests.Errors(state with {

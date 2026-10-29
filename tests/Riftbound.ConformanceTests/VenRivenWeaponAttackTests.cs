@@ -158,4 +158,62 @@ public sealed class VenRivenWeaponAttackTests
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_RESOLVED" && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "HOST"));
         await game.Replay();
     }
+
+    [Theory]
+    [InlineData("VEN·041")] [InlineData("VEN·171")]
+    public async Task CopiedRuleTextCreatesTwoIndependentDamageEvents(string no)
+    {
+        var initial = Position(no, 1);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = initial.CardObjects["GEAR"] with { CardNo = "SFD·059/221", AttachedToObjectId = "HOST", AttachmentRevision = 1,
+                AttachedRuleText = new(new("HOST", initial.CardObjects["HOST"].ObjectGeneration), no, 1, initial.Tick, 0) } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var ids = game.State.TriggerQueue.Select(trigger => trigger.TriggerId).ToArray();
+        Assert.Equal(2, ids.Length);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: ids));
+        for (var i = 0; i < 2; i++) {
+            var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ENEMY1"]));
+        }
+        Assert.Single(game.State.StackItems, item => item.FieldContext?.Origin is not null);
+        await game.Top();
+        Assert.Equal(4, game.State.CardObjects["ENEMY1"].Damage);
+        await game.Top();
+        Assert.Equal(8, game.State.CardObjects["ENEMY1"].Damage);
+        Assert.Equal(2, game.Events().Count(e => e.Event.Kind == "DAMAGE_APPLIED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ENEMY1")));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("VEN·041")] [InlineData("VEN·171")]
+    public async Task AnAttackWithoutALegalEnemyDiscardsTheSkillAndResumesTheDuel(string no)
+    {
+        var initial = Position(no, 1);
+        foreach (var id in new[] { "ENEMY1", "ENEMY2", "ENEMY3" })
+            initial = LocalDestructionRecallTests.At(initial, id, "P2", "BASE");
+        var game = new Driver(initial);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Empty(game.State.StackItems);
+        Assert.NotNull(game.State.FocusPlayerId);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED");
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("source-generation")] [InlineData("location")] [InlineData("damage")] [InlineData("repeat")]
+    public async Task RecoveryRejectsForgedCapturedWeaponSkills(string change)
+    {
+        var game = new Driver(Position("VEN·041", 1));
+        await AttackAndChoose(game);
+        var item = Assert.Single(game.State.StackItems);
+        var context = item.FieldContext!;
+        var forged = change switch {
+            "source-generation" => item with { FieldContext = context with { SourceGeneration = context.SourceGeneration + 1 } },
+            "location" => item with { FieldContext = context with { SourceLocation = null } },
+            "damage" => item with { DamageAmount = 99 },
+            _ => item with { EffectRepeatCount = 2 } };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [forged] }));
+    }
 }
