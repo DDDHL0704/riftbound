@@ -179,12 +179,18 @@ public sealed class MordekaiserSacrificeRecallTests
     {
         var initial = Position();
         var runes = Enumerable.Range(1, 6).Select(i => "TURN-PAY-RUNE-" + i).ToArray();
-        foreach (var id in runes) initial = HandDiscardObserverTests.Put(initial, id, "UNL-R01", "P1", "BASE");
+        foreach (var id in runes) initial = HandDiscardObserverTests.Put(initial, id, "UNL-R06", "P1", "BASE");
         var game = new Driver(initial); await Destroy(game); await Select(game);
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(game.State.CardObjects["UNIT"].UntilEndOfTurnEffects, e => e.StartsWith("REPLACEMENT_ONCE:", StringComparison.Ordinal));
-        await game.Act("P1", new TapRuneCommand(runes[0], runes));
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        await game.Act("P1", new TapRuneCommand(runes[0], runes.Take(4).ToArray()));
+        await game.Act("P1", new RecycleRuneCommand(runes[4], runes.Skip(4).ToArray()));
+        Assert.Equal(4, game.State.RunePools["P1"].Mana);
+        Assert.Equal(2, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Yellow]);
         await Destroy(game, "KILL2"); await Select(game, "ALLY2");
+        Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Contains("ALLY2", game.State.PlayerZones["P1"].Graveyard);
         await game.Replay();
     }
