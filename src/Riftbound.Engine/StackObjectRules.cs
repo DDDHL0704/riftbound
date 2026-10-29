@@ -11,7 +11,7 @@ internal static class StackObjectRules
             || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
             || item.DeathRevealContext is not null || item.RecastContext is not null
             || item.SpellContext is not null || item.FieldContext is not null || item.InsightContext is not null
-            || item.SivirRuneRecycle is not null || item.ConquestToken is not null
+            || item.SivirRuneRecycle is not null || item.ConquestToken is not null || item.ConquestFlow is not null
             || item.HandDiscardObserver is not null || item.MovementObserver is not null || item.DeathObserver is not null
             || item.DamageDistribution is not null || item.LocationDamage is not null || item.ReflexiveDuel is not null
             || item.UnitConquest is not null || item.LegendConquest is not null

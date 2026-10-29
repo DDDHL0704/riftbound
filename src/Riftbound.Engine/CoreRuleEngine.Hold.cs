@@ -153,6 +153,8 @@ public sealed partial class CoreRuleEngine
                 foreach (var unit in HeldUnitsAt(state, field))
                 {
                     var unitCard = cards[unit];
+                    var flow = CaptureConquestFlow(state, unitCard.ControllerId ?? player, field, [unit], state.Tick, "BATTLEFIELD_HELD").ToArray();
+                    triggers.AddRange(flow); events.AddRange(flow.Select(BuildTriggerQueuedEvent));
                     if (!HasSupportedUnitConquestTriggerSpec(unitCard.CardNo)) continue;
                     var trigger = new TriggerQueueItemState($"activate-conquest-{state.Tick}-{unit}-{item.StackItemId}",
                         unitCard.ControllerId, unit, "HOLD_CONQUEST_UNIT", "BATTLEFIELD_HELD") {
