@@ -543,6 +543,7 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !opponentTurnPlay.Success || !opponentTurnPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !graveyardPlay.Success || !graveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !turnDamageDestroy.Success || !turnDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !nextDamageDestroy.Success || !nextDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
