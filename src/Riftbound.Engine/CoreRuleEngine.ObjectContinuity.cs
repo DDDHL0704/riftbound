@@ -134,6 +134,7 @@ public sealed partial class CoreRuleEngine
             && IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targets, index, allowUnavailableReference)
             && IsMovementEquipmentRelationAllowed(state, playerId, behavior, targets, index)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
+            && TemporaryUnitEffectRules.ThreatAllowsTarget(state, playerId, objectId, behavior)
             && IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, objectId)
             && IsMainDeckLookTargetAllowed(state, playerId, objectId, index, behavior)
             && IsMainDeckTargetTagAllowed(state, objectId, index, behavior)

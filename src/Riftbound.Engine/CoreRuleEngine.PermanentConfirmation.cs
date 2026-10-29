@@ -9,6 +9,7 @@ public sealed partial class CoreRuleEngine
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
                 && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START")
+                && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
