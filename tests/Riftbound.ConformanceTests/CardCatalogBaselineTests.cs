@@ -355,8 +355,10 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(9, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物单位", StringComparison.Ordinal)));
         Assert.Equal(2, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物装备", StringComparison.Ordinal)));
         Assert.Equal(2, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物战场", StringComparison.Ordinal)));
-        Assert.Equal(15, definitions.Count);
-        Assert.Equal(15, definitions.Select(definition => definition.CardNo).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(13, definitions.Count);
+        Assert.Equal(13, definitions.Select(definition => definition.CardNo).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(tokenSpecs.Select(spec => spec.CardNo).Order(StringComparer.Ordinal),
+            definitions.Select(definition => definition.CardNo).Order(StringComparer.Ordinal));
         Assert.Equal(13, tokenSpecs.Count(spec => P6TokenFactoryCatalog.TryGetByCardNo(spec.CardNo, out _)));
         Assert.All(tokenSpecs, spec =>
         {
