@@ -229,6 +229,7 @@ public static class TriggerKinds
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
+    public const string UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
@@ -404,6 +405,7 @@ public static class StaticAbilityKinds
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitCannotDealCombatDamage = "UNIT_CANNOT_DEAL_COMBAT_DAMAGE";
+    public const string UnitFriendlyEquipmentHereCombatDamage = "UNIT_FRIENDLY_EQUIPMENT_HERE_COMBAT_DAMAGE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";

@@ -32,6 +32,7 @@ public sealed partial class CoreRuleEngine
               }
             }
         }
+        queue.AddRange(CaptureAttackAreaDamageTriggers(state, participants, battlefield, timing, returnFocusPlayer, combatRoles: true));
         return queue.ToArray();
     }
 
