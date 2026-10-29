@@ -395,26 +395,6 @@ internal static partial class ActionPromptBuilder
             || !string.IsNullOrWhiteSpace(behavior.SecondaryStatusEffectId);
     }
 
-    private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)
-    {
-        return targetScope is CardTargetScopes.BattlefieldUnit
-            or CardTargetScopes.BaseUnit
-            or CardTargetScopes.AnyUnit
-            or CardTargetScopes.AnyEmpoweredUnit
-            or CardTargetScopes.FriendlyUnit
-            or CardTargetScopes.FriendlyUnitThenFriendlyUnit
-            or CardTargetScopes.FriendlyThenEnemyUnits
-            or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
-            or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
-            or CardTargetScopes.FriendlyBattlefieldUnit
-            or CardTargetScopes.FriendlyBaseUnit
-            or CardTargetScopes.AttackingUnit
-            or CardTargetScopes.EnemyAttackingUnit
-            or CardTargetScopes.EnemyBattlefieldUnit
-            or CardTargetScopes.EnemyUnit
-            or CardTargetScopes.EnemyUnitThenEnemyUnit;
-    }
-
     private static bool IsPromptTargetRequiredTagAllowed(
         MatchState state,
         string objectId,

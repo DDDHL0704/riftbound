@@ -1112,27 +1112,6 @@ internal static partial class ActionPromptBuilder
             .Sum(objectId => Math.Max(0, state.CardObjects[objectId].Power));
     }
 
-    private static bool IsPromptEzrealBlueSwiftMoveSource(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        CardObjectState sourceState)
-    {
-        return P4ActivatedAbilityCatalog.TryGetByAbilityId(
-                P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
-                out var ability)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            && state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
-            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
-            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId);
-    }
-
     private static bool SamePromptBattlefield(MatchState state, string firstObjectId, string secondObjectId)
     {
         return state.ObjectLocations.TryGetValue(firstObjectId, out var firstLocation)

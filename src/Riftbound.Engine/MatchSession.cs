@@ -3463,6 +3463,27 @@ internal static partial class ActionPromptBuilder
         };
     }
 
+    private static bool IsPromptEzrealBlueSwiftMoveSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardObjectState sourceState)
+    {
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(
+                P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
+                out var ability)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
+            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !sourceState.IsFaceDown
+            && string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId);
+    }
+
     private static bool CanPayActivateAbilityRequirement(
         MatchState state,
         string playerId,
@@ -3783,6 +3804,26 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.SacredJudgmentKeepCard => false,
             _ => IsPromptBattlefieldObject(state, objectId)
         };
+    }
+
+    private static bool IsVisibleFieldUnitPrimitiveTargetScope(string targetScope)
+    {
+        return targetScope is CardTargetScopes.BattlefieldUnit
+            or CardTargetScopes.BaseUnit
+            or CardTargetScopes.AnyUnit
+            or CardTargetScopes.AnyEmpoweredUnit
+            or CardTargetScopes.FriendlyUnit
+            or CardTargetScopes.FriendlyUnitThenFriendlyUnit
+            or CardTargetScopes.FriendlyThenEnemyUnits
+            or CardTargetScopes.FriendlyThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits
+            or CardTargetScopes.FriendlyBattlefieldUnit
+            or CardTargetScopes.FriendlyBaseUnit
+            or CardTargetScopes.AttackingUnit
+            or CardTargetScopes.EnemyAttackingUnit
+            or CardTargetScopes.EnemyBattlefieldUnit
+            or CardTargetScopes.EnemyUnit
+            or CardTargetScopes.EnemyUnitThenEnemyUnit;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? ActivateAbilityOptionalCostChoices(
