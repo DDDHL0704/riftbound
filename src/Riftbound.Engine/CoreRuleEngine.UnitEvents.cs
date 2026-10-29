@@ -6,7 +6,8 @@ namespace Riftbound.Engine;
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
-    ObjectLocationState? Here = null, int? LastKnownPower = null);
+    ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null);
+public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -40,6 +41,13 @@ public sealed partial class CoreRuleEngine
         => ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED") ? ev
             : WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c => c.ObjectId != entered.ObjectId
                 && EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId), "ANOTHER_UNIT_PLAYED"));
+
+    private static GameEvent CaptureEquipmentPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
+        => WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
+            EffectiveFieldControllerId(zones, c.ObjectId, c) != player).Select(c => c.ObjectId), "OPPONENT_EQUIPMENT_PLAYED")
+            .Select(o => o with { Context = o.Context with { Other = new(new(entered.ObjectId, entered.ObjectGeneration), entered.CardNo!,
+                entered.CopyFaceTransitions?.Count ?? 0, entered.TokenFactoryCardNo) } }).ToArray());
 
     // Record at the instruction, so ready-then-exhaust and departure later in
     // the same command cannot erase or invent an earned trigger (CN383.2.c).
@@ -99,7 +107,12 @@ public sealed partial class CoreRuleEngine
                 var timing = ev.Kind == "BATTLE_CLOSED" ? null : before.StackItems.LastOrDefault()?.TimingContext;
                 if (timing is not (TimingStates.SpellDuelOpen or TimingStates.NeutralClosed))
                     timing = before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null;
-                var trigger = UnitEventTrigger(observation, result.State.Tick, ordinal++, ev.Kind, timing);
+                var captured = observation;
+                if (captured.Context.Other is { } other && before.CardObjects.TryGetValue(other.Binding.ObjectId, out var prior)
+                    && !IsObjectOnField(before.PlayerZones, prior.ObjectId))
+                    captured = captured with { Context = captured.Context with { Other = other with {
+                        Binding = other.Binding with { Generation = Math.Max(other.Binding.Generation, prior.ObjectGeneration + 1) } } } };
+                var trigger = UnitEventTrigger(captured, result.State.Tick, ordinal++, ev.Kind, timing);
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
@@ -112,6 +125,11 @@ public sealed partial class CoreRuleEngine
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
+            && (spec.Effect == "BANISH_ENTERED_EQUIPMENT" ? c.Other is { } other
+                && PredictBindingMatches(state, other.Binding, other.CardNo, other.FaceRevision, c.CapturedTick, other.TokenFactoryCardNo)
+                && (CardBehaviorRegistry.TryGetByCardNo(other.CardNo, out var gear) && gear.PlaysSourceToBaseAsEquipment
+                    || P6TokenFactoryCatalog.TryGetByCardNo(other.CardNo, out var token) && token.Tags.Contains(CardObjectTags.EquipmentCard))
+                : c.Other is null)
             && (spec.Effect is "MATCH_GREATER_POWER" or "DESTROY_CHEAPER_EQUIPMENT" ? c.LastKnownPower is >= 0 : c.LastKnownPower is null)
             && (spec.Effect is "MATCH_GREATER_POWER" or "MOVE_ENEMIES_TO_BASE" ? c.Here is { } here && state.Seats.ContainsKey(here.PlayerId)
                 && (here.Zone == "BASE" && here.BattlefieldObjectId is null
@@ -191,6 +209,13 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "BANISH_ENTERED_EQUIPMENT" && item.TriggerCost?.SourceWasBanished == true
+            && context.Other is { } entered && cards.TryGetValue(entered.Binding.ObjectId, out var equipment)
+            && equipment.ObjectGeneration == entered.Binding.Generation && equipment.Tags.Contains(CardObjectTags.EquipmentCard)
+            && TryRemoveFieldTargetCore(zones, cards, equipment.ObjectId, true, out var banished))
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
+                Events = events.Concat(BuildFieldRemovalEvents("拉文布鲁姆级长", item, equipment.ObjectId, banished)).ToArray() };
         if (spec.Effect == "MOVE_ENEMIES_TO_BASE") {
             var legal = UnitEventTargets(state, item).ToHashSet(StringComparer.Ordinal);
             var selected = item.TargetObjectIds.Where(id => legal.Contains(id) && StackObjectRules.ReferencesCurrentObject(state, item, id)).ToArray();

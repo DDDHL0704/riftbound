@@ -8816,10 +8816,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             entersReadyFromStaticAbility ? entryStaticAbility : null,
             entryStaticAbilitySourceObjectId,
             entryStaticAbilitySourceState.CardNo);
-        events.Add(new GameEvent(
+        events.Add(CaptureEquipmentPlayed(new GameEvent(
             "EQUIPMENT_TOKEN_CREATED",
             $"{sourceObjectId} 打出装备指示物",
-            payload));
+            payload), playerZones, cardObjects, tokenState, playerId));
     }
 
     private static ResolutionResult ResolveXerathDamageAbility(
@@ -28974,10 +28974,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entersReadyFromStaticAbility ? entryStaticAbility : null,
                 entryStaticAbilitySourceObjectId,
                 entryStaticAbilitySourceState.CardNo);
-            events.Add(new GameEvent(
+            events.Add(CaptureEquipmentPlayed(new GameEvent(
                 "EQUIPMENT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出装备指示物到基地",
-                payload));
+                payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -29073,10 +29073,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 entersReadyFromStaticAbility ? entryStaticAbility : null,
                 entryStaticAbilitySourceObjectId,
                 entryStaticAbilitySourceState.CardNo);
-            events.Add(new GameEvent(
+            events.Add(CaptureEquipmentPlayed(new GameEvent(
                 "EQUIPMENT_TOKEN_CREATED",
                 $"{tokenName}装备指示物进入基地",
-                payload));
+                payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
         }
 
         playerZones[stackItem.ControllerId] = zones with
@@ -29129,6 +29129,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 equipmentState));
+        playedEvent = CaptureEquipmentPlayed(playedEvent, playerZones, cardObjects, equipmentState, stackItem.ControllerId);
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
             stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD");

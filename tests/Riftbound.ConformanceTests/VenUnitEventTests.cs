@@ -12,6 +12,7 @@ public sealed class VenUnitEventTests
     [InlineData("VEN·009", 37694, 3, 4, 1)]
     [InlineData("VEN·079", 37773, 5, 5, 0)]
     [InlineData("VEN·080", 37774, 2, 1, 0)]
+    [InlineData("VEN·102", 37799, 3, 3, 0)]
     [InlineData("VEN·020", 37706, 3, 3, 0)]
     [InlineData("VEN·024", 37712, 3, 3, 0)]
     [InlineData("VEN·028", 37716, 2, 2, 0)]
@@ -373,6 +374,29 @@ public sealed class VenUnitEventTests
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
         Assert.Equal("BASE", game.State.ObjectLocations["ENEMY"].Zone);
         Assert.Equal("BASE", game.State.ObjectLocations["SECOND"].Zone); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("P1", false)] [InlineData("P2", false)] [InlineData("P2", true)]
+    public async Task PrefectOnlyObservesOpponentEquipmentAndPaysItsOwnBanishBeforeTheGearIsBanished(string player, bool decline)
+    {
+        var initial = AddHandCard(InBase("VEN·102"), "PLAYGEAR", "UNL-085/219", player)
+            with { TurnPlayerId = player, ActivePlayerId = player };
+        var game = new Driver(initial); await game.Act(player, new PlayCardCommand("PLAYGEAR", "UNL-085/219", []));
+        if (player == "P1") { Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); await game.Replay(); return; }
+        var choice = game.State.PendingCardChoice!; Assert.Equal("TRIGGER_COST_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Equal(new[] { "UNIT" }, choice.LegalObjectIds);
+        await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["PLAYGEAR"]));
+        await Reject(game.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["UNIT"]));
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, decline ? [] : ["UNIT"]));
+        Assert.Contains("PLAYGEAR", game.State.PlayerZones["P2"].Base);
+        if (decline) { Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Empty(game.State.StackItems); }
+        else {
+            Assert.Contains("UNIT", game.State.PlayerZones["P1"].Banished);
+            Assert.True(Assert.Single(game.State.StackItems).TriggerCost!.SourceWasBanished);
+            await game.Top(); Assert.Contains("PLAYGEAR", game.State.PlayerZones["P2"].Banished);
+        }
+        await game.Replay();
     }
 
     private static MatchState DragonBattle()
