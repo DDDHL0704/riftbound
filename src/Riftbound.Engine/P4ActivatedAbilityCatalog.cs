@@ -219,10 +219,13 @@ public static class P4ActivatedAbilityCatalog
 
     public const string GoldTokenUnlCardNo = "UNL·T05";
     public const string GoldTokenSfdCardNo = "SFD·T03";
+    public const string GoldTokenVenCardNo = "VEN·T02";
     public const string GoldTokenUnlResourceAbilityId = "GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER";
     public const string GoldTokenSfdResourceAbilityId = "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER";
+    public const string GoldTokenVenResourceAbilityId = "GOLD_TOKEN_VEN_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER";
     public const string GoldTokenUnlResourceAbilityEffectKind = "GOLD_TOKEN_UNL_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
     public const string GoldTokenSfdResourceAbilityEffectKind = "GOLD_TOKEN_SFD_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
+    public const string GoldTokenVenResourceAbilityEffectKind = "GOLD_TOKEN_VEN_REACTION_RESOURCE_DESTROY_GAIN_GENERIC_POWER";
     public const int GoldTokenGeneratedPower = 1;
     public const string GoldTokenRenataBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     public const int GoldTokenRenataBonusMana = 1;
@@ -580,6 +583,12 @@ public static class P4ActivatedAbilityCatalog
             GeneratedPower: GoldTokenGeneratedPower,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
+        new(GoldTokenVenResourceAbilityId, GoldTokenVenCardNo, GoldTokenVenResourceAbilityEffectKind,
+            "VEN Gold token reaction resource skill", 0, 0, 0,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0, AppliesSpellshieldTargetTax: false,
+            "CN 187 and 430: exhaust and destroy Gold to gain one ordinary wildcard power immediately.",
+            IsResourceSkill: true, GeneratedPower: GoldTokenGeneratedPower, ReactionSpeed: true,
+            RequiresBaseEquipmentSource: true),
         .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
     ];
 
@@ -698,7 +707,8 @@ public static class P4ActivatedAbilityCatalog
     public static bool IsGoldTokenResourceAbility(string? abilityId)
     {
         return string.Equals(abilityId, GoldTokenUnlResourceAbilityId, StringComparison.Ordinal)
-            || string.Equals(abilityId, GoldTokenSfdResourceAbilityId, StringComparison.Ordinal);
+            || string.Equals(abilityId, GoldTokenSfdResourceAbilityId, StringComparison.Ordinal)
+            || string.Equals(abilityId, GoldTokenVenResourceAbilityId, StringComparison.Ordinal);
     }
 
     public static bool IsHoneyfruitResourceAbility(string? abilityId)

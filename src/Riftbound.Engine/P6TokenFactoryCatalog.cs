@@ -77,6 +77,8 @@ public static class P6TokenFactoryCatalog
         Unit("SFD·T01", "机器人", "机器人", 3, "机械"),
         Unit(SandSoldierTokenCardNo, "黄沙士兵", "黄沙士兵", 2, CardObjectTags.SandSoldier, "恕瑞玛"),
         Equipment("SFD·T03", "金币", "金币", "反应"),
+        Equipment("VEN·T02", "金币", "金币", "反应"),
+        Unit("VEN·T03", "机器人", "机器人", 3, "机械"),
         Unit("OGN·271/298", "随从（德玛西亚）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit("OGN·272/298", "随从（诺克萨斯）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit(ZaunMinionTokenCardNo, "随从（祖安）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),

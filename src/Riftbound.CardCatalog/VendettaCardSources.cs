@@ -18,8 +18,17 @@ public static class VendettaCardSources
         var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
         return new[] { (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),
             (Id: 37842L, CardNo: "VEN·139"), (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"),
-            (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*") }
+            (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"),
+            (Id: 37922L, CardNo: "VEN·T02"), (Id: 37923L, CardNo: "VEN·T03") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            // CN 187 defines these as tokens; the gallery uses ordinary categories.
+            .Select(card => card.CardNo.StartsWith("VEN·T", StringComparison.Ordinal)
+                ? card.CardCategory switch {
+                    "unit" => card with { CardCategory = "indicator_unit", CardCategoryName = "指示物单位",
+                        CardCategoryList = ["indicator_unit"], CardCategoryNameList = ["指示物单位"] },
+                    "equipment" => card with { CardCategory = "indicator_equipment", CardCategoryName = "指示物装备",
+                        CardCategoryList = ["indicator_equipment"], CardCategoryNameList = ["指示物装备"] },
+                    _ => card } : card)
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),
                 CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),

@@ -16,6 +16,7 @@ public sealed class ReplacementResourceTests
     [Theory]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenUnlCardNo)]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenSfdCardNo)]
+    [InlineData(P4ActivatedAbilityCatalog.GoldTokenVenCardNo)]
     [InlineData(P4ActivatedAbilityCatalog.HoneyfruitCardNo)]
     [InlineData(P4ActivatedAbilityCatalog.RageSigilCardNo)]
     public async Task ResourceSkillIsOfferedWhenPoolAndRunesCannotPay(string no)
@@ -35,8 +36,10 @@ public sealed class ReplacementResourceTests
     [Theory]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenUnlCardNo, true)]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenSfdCardNo, true)]
+    [InlineData(P4ActivatedAbilityCatalog.GoldTokenVenCardNo, true)]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenUnlCardNo, false)]
     [InlineData(P4ActivatedAbilityCatalog.GoldTokenSfdCardNo, false)]
+    [InlineData(P4ActivatedAbilityCatalog.GoldTokenVenCardNo, false)]
     public async Task GoldProducesOnceAndCanPayOrRemainAfterDeclining(string no, bool accept)
     {
         var opened = await Open(AddResource(Position(power:0), no));

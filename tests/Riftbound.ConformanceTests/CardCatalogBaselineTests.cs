@@ -345,7 +345,10 @@ public sealed class CardCatalogBaselineTests
         var tokenSpecs = specs
             .Where(spec => spec.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal))
             .ToArray();
-        var definitions = P6TokenFactoryCatalog.GetAll();
+        // This fixture certifies the immutable default snapshot; newly admitted
+        // runtime token printings have their own source and behavior tests.
+        var definitions = P6TokenFactoryCatalog.GetAll()
+            .Where(definition => catalog.Cards.Any(card => card.CardNo == definition.CardNo)).ToList();
 
         Assert.Equal(13, tokenSpecs.Length);
         Assert.Equal(13, tokenSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());

@@ -18,6 +18,7 @@ public sealed class TokenDefinitionAuditTests
     [InlineData("UNL·T07", 3, "仙灵")]
     [InlineData("SFD·T02", 2, "恕瑞玛")]
     [InlineData("SFD·T01", 3, "机械")]
+    [InlineData("VEN·T03", 3, "机械")]
     [InlineData("UNL·T02", 1, "鸟类")]
     public void OfficialTokenTagsAlsoMatchTheGenericTagFilter(string card, int might, string tag)
     {

@@ -12203,6 +12203,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体",
             P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "金币",
             P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "金币",
+            P4ActivatedAbilityCatalog.GoldTokenVenResourceAbilityId => "金币",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => profile.DisplayName,
             _ => ability.DisplayName
@@ -12233,6 +12234,7 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体：反应，横置，支付通用符能获得等量法力",
             P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "使用金币：横置并摧毁，获得 1 点任意特性符能",
             P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "使用金币：横置并摧毁，获得 1 点任意特性符能",
+            P4ActivatedAbilityCatalog.GoldTokenVenResourceAbilityId => "使用金币：横置并摧毁，获得 1 点任意特性符能",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => $"{profile.DisplayName}：反应，横置，获得 1 点{profile.TraitLabel}费用符能",
             _ => ability.DisplayName
