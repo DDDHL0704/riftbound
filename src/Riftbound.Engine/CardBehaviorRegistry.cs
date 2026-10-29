@@ -293,7 +293,8 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    GrantedActivatedAbilitySpec? GrantsActivatedAbilityUntilEndOfTurn = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -8776,6 +8777,10 @@ public static class CardBehaviorRegistry
             0,
             0,
             DynamicDrawCountKind: CardDynamicDrawCountKinds.ControllerPowerfulUnits),
+        new("VEN·142", "终极统治", 4, "DOUBLE_UNIT_POWER_GRANT_READY_ACTIVATION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, CanPlayDuringSpellDuel: true,
+            UsesTargetCurrentPowerAsPowerModifier: true,
+            GrantsActivatedAbilityUntilEndOfTurn: new(CoreRuleEngine.GrantedReadySelfKind, 2)),
         new("VEN·042", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "英雄"),
         new("VEN·042a", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042a", 0, 0,
