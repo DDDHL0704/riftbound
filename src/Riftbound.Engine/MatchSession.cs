@@ -7482,7 +7482,8 @@ internal static class ActionPromptBuilder
         bool Composable,
         string? UnsupportedReason,
         int PowerCost = 0,
-        IReadOnlyDictionary<string, int>? SpellshieldTaxPowerByTargetObjectId = null);
+        IReadOnlyDictionary<string, int>? SpellshieldTaxPowerByTargetObjectId = null,
+        int RequiredAdditionalCostChoiceCount = 0);
 
     private sealed record DeclareBattlePromptRequirement(
         string SourceObjectId,
@@ -7539,7 +7540,8 @@ internal static class ActionPromptBuilder
         int PowerCost = 0,
         bool RequiresAnyUnitTarget = false,
         bool RequiresEmpoweredSource = false,
-        bool RequiresAnyEquipmentTarget = false);
+        bool RequiresAnyEquipmentTarget = false,
+        bool BanishesGraveyardPermanentAsCost = false);
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
@@ -10692,7 +10694,7 @@ internal static class ActionPromptBuilder
         }
         foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
         {
-            if (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, cardObject.CardNo)
+            if (!AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability).Any()
                 || !ActivateAbilitySourceMatches(ability, zones, sourceObjectId, cardObject)
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
@@ -11012,9 +11014,11 @@ internal static class ActionPromptBuilder
 
             var manaCost = ResolveLegendActionManaCost(state, playerId, ability);
             var requiredCosts = LegendActionRequiredCostTokens(manaCost, ability);
-            var optionalCostChoices = requiredCosts
-                .Select(cost => new ActionPromptChoiceDto(cost, LegendActionCostLabel(cost)))
-                .ToArray();
+            var optionalCostChoices = ability.BanishesGraveyardPermanentAsCost
+                ? LegendGraveyardBanishCostRules.Choices(state, playerId).Select(cost => new ActionPromptChoiceDto(
+                    cost, "放逐废牌堆中的单位或装备", cost[LegendGraveyardBanishCostRules.Prefix.Length..])).ToArray()
+                : requiredCosts.Select(cost => new ActionPromptChoiceDto(cost, LegendActionCostLabel(cost))).ToArray();
+            if (ability.BanishesGraveyardPermanentAsCost && optionalCostChoices.Length == 0) continue;
             var unsupportedReason = LegendActionUnsupportedCompositionReason(ability);
             var spellshieldByTarget = ability.RequiresAnyUnitTarget || ability.RequiresAnyEquipmentTarget
                 ? targetChoicesByIndex["0"].ToDictionary(choice => choice.Id,
@@ -11042,7 +11046,7 @@ internal static class ActionPromptBuilder
                 unsupportedReason is null,
                 unsupportedReason,
                 ability.PowerCost,
-                spellshieldByTarget);
+                spellshieldByTarget, ability.BanishesGraveyardPermanentAsCost ? 1 : 0);
 
             if (CanPayLegendActionRequirement(state, playerId, requirement))
             {
@@ -11258,6 +11262,11 @@ internal static class ActionPromptBuilder
                 PowerGainAmount: 1,
                 TimingKind: LegendActionTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            new(LegendActionAbilityCatalog.MordekaiserLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MordekaiserLegendAbilityId),
+                "铁铠冥魂传奇反应符能技能", 0, 0, string.Empty, 0, false, "GAIN_POWER",
+                PowerGainAmount: 1, TimingKind: LegendActionTimingKinds.ResourceAction,
+                BanishesGraveyardPermanentAsCost: true),
             new(
                 RenektonLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
@@ -11713,6 +11722,7 @@ internal static class ActionPromptBuilder
             DianaLegendAbilityId => "法术对决横置：获得 1 法力",
             KaisaLegendAbilityId => "法术反应横置：获得 1 符能",
             OrnnLegendAbilityId => "装备反应横置：获得 1 符能",
+            LegendActionAbilityCatalog.MordekaiserLegendAbilityId => "反应放逐废牌堆中的单位或装备并横置：获得 1 点仅用于打出单位或装备的符能",
             RenektonLegendAbilityId => "支付 2 符能并横置：获得仅用于打出单位或单位主动技能的 2 法力",
             EzrealLegendAbilityId => "反应横置：抽 1 张",
             IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
@@ -12158,7 +12168,7 @@ internal static class ActionPromptBuilder
         return P4ActivatedAbilityCatalog.TryGetByAbilityId(
                 P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId,
                 out var ability)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
+            && AttachedRuleTextRules.ActivatedInstances(state, sourceState, ability).Any()
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
             && string.Equals(sourceState.ControllerId, playerId, StringComparison.Ordinal)
@@ -16384,6 +16394,12 @@ internal static class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+
+        if (requirement.RequiredAdditionalCostChoiceCount > 0)
+        {
+            view["additionalCostChoices"] = requirement.OptionalCostChoices;
+            view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
+        }
 
         if (requirement.PowerCost > 0 || requirement.SpellshieldTaxPowerByTargetObjectId?.Values.Any(value => value > 0) == true)
         {

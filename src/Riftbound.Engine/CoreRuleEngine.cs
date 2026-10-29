@@ -6758,7 +6758,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             1,
             [], timingContext: state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : null)
             { SelfMovement = new(new(sourceState.ObjectId, sourceState.ObjectGeneration), state.Tick + 1,
-                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin) };
+                instance.Origin?.FaceRevision ?? sourceState.CopyFaceTransitions?.Count ?? 0, instance.Origin, sourceState.TokenFactoryCardNo) };
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -7342,15 +7342,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!PlayPowerSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutPowerSpend, out var powerSpend))
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
+        string? graveyardBanishCostId = null;
+        if (ability.BanishesGraveyardPermanentAsCost)
+        {
+            if (!LegendGraveyardBanishCostRules.TryRead(state, intent.PlayerId, costsWithoutPowerSpend, out var selected))
+                return RejectWithCorePrompts(state, "请选择自己废牌堆中的一个单位或装备作为放逐费用。", ErrorCodes.InsufficientCost);
+            graveyardBanishCostId = selected;
+        }
         var optionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
         var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
         var requiredManaCostToken = manaCost > 0 ? $"{SpendManaOptionalCostPrefix}{manaCost}" : string.Empty;
         var requiredCostToken = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
             ? requiredManaCostToken
             : ability.RequiredCostToken;
-        var requiredCostTokens = string.IsNullOrWhiteSpace(requiredCostToken)
-            ? Array.Empty<string>()
-            : [requiredCostToken];
+        var requiredCostTokens = graveyardBanishCostId is not null
+            ? [LegendGraveyardBanishCostRules.Prefix + graveyardBanishCostId]
+            : string.IsNullOrWhiteSpace(requiredCostToken) ? Array.Empty<string>() : [requiredCostToken];
         if (!optionalCosts.SequenceEqual(requiredCostTokens, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
@@ -7486,6 +7493,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (powerSpend is not null && totalPowerCost == 0)
             return RejectWithCorePrompts(state, "传奇技能的符能来源选择无效。", ErrorCodes.InvalidTarget);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (ability.PowerGainAmount > 0 && (!currentPool.HasSupportedAmounts
+            || (long)currentPool.TotalStoredPower + ability.PowerGainAmount > int.MaxValue))
+            return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
         if (ability.EffectKind == LegendAbilityEffectKinds.GainUnitOnlyMana
             && !CanGainSpellOnlyMana(currentPool, ability.ManaGainAmount))
             return RejectWithCorePrompts(state, "资源数量超出支持范围，未支付费用。", ErrorCodes.UnsupportedCardBehavior);
@@ -7580,7 +7590,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0)
+        if (manaCost > 0 || totalPowerCost > 0 || ability.ExperienceCost > 0 || graveyardBanishCostId is not null)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
@@ -7638,6 +7648,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
+
+        if (graveyardBanishCostId is not null)
+        {
+            var own = playerZones[intent.PlayerId];
+            playerZones[intent.PlayerId] = own with {
+                Graveyard = own.Graveyard.Where(id => id != graveyardBanishCostId).ToArray(),
+                Banished = own.Banished.Append(graveyardBanishCostId).ToArray()
+            };
+            ResetCardOutsidePlay(playerZones, cardObjects, graveyardBanishCostId,
+                cardObjects[graveyardBanishCostId], intent.PlayerId);
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "支付传奇技能的放逐费用", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
+                ["targetObjectId"] = graveyardBanishCostId, ["fromZone"] = "GRAVEYARD",
+                ["destinationZone"] = "BANISHED", ["isCost"] = true, ["abilityId"] = command.AbilityId
+            }), playerZones, cardObjects, intent.PlayerId, [graveyardBanishCostId]));
+        }
 
         if (TryGetLegendUnitToken(ability.EffectKind, out _))
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
@@ -7781,6 +7807,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     ability.PowerGainAmount,
                     ability.GrantedPowerPurpose,
+                    ability.GrantsUnitOrEquipmentPlayOnlyPower,
                     command.SourceObjectId,
                     sourceState.CardNo ?? string.Empty,
                     ability.SourceCardNos,
@@ -8145,6 +8172,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PowerGainAmount: OrnnLegendPowerGain,
                 TimingKind: LegendAbilityTimingKinds.ResourceAction,
                 GrantedPowerPurpose: PowerPaymentPurpose.Equipment),
+            LegendActionAbilityCatalog.MordekaiserLegendAbilityId => new LegendAbilityDefinition(
+                LegendActionAbilityCatalog.MordekaiserLegendAbilityId,
+                LegendActionAbilityCatalog.SourceCardNosForAbility(LegendActionAbilityCatalog.MordekaiserLegendAbilityId),
+                "铁铠冥魂传奇反应符能技能", 0, 0, string.Empty, 0, false,
+                LegendAbilityEffectKinds.GainPower, PowerGainAmount: 1,
+                TimingKind: LegendAbilityTimingKinds.ResourceAction,
+                BanishesGraveyardPermanentAsCost: true, GrantsUnitOrEquipmentPlayOnlyPower: true),
             RenektonLegendAbilityId => new LegendAbilityDefinition(
                 RenektonLegendAbilityId,
                 LegendActionAbilityCatalog.SourceCardNosForAbility(RenektonLegendAbilityId),
@@ -8619,6 +8653,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         int powerAmount,
         PowerPaymentPurpose purpose,
+        bool unitOrEquipmentPlayOnly,
         string sourceObjectId,
         string sourceCardNo,
         IReadOnlyList<string> sourceCardNos,
@@ -8627,7 +8662,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
-        var nextPool = purpose switch
+        var nextPool = unitOrEquipmentPlayOnly
+            ? currentPool with { UnitOrEquipmentPlayOnlyPower = checked(currentPool.UnitOrEquipmentPlayOnlyPower + powerAmount) }
+            : purpose switch
         {
             PowerPaymentPurpose.PlaySpell => currentPool with { SpellOnlyPower = currentPool.SpellOnlyPower + powerAmount },
             PowerPaymentPurpose.Equipment => currentPool with { EquipmentOnlyPower = currentPool.EquipmentOnlyPower + powerAmount },
@@ -8651,8 +8688,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["amount"] = powerAmount,
                 ["power"] = powerAmount,
                 ["powerAfter"] = nextPool.Power,
-                ["powerPurpose"] = purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
+                ["powerPurpose"] = unitOrEquipmentPlayOnly ? "UNIT_OR_EQUIPMENT_PLAY_ONLY" : purpose == PowerPaymentPurpose.PlaySpell ? "PLAY_SPELL" : purpose == PowerPaymentPurpose.Equipment ? "EQUIPMENT" : "OTHER",
                 ["spellOnlyPowerAfter"] = nextPool.SpellOnlyPower,
+                ["unitOrEquipmentPlayOnlyPowerAfter"] = nextPool.UnitOrEquipmentPlayOnlyPower,
                 ["equipmentOnlyPowerAfter"] = nextPool.EquipmentOnlyPower
             }));
         return runePools;
@@ -21111,7 +21149,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
+            || !AttachedRuleTextRules.ActivatedInstances(state, candidate, ability).Any()
             || !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             || !state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
@@ -34413,7 +34451,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RemovesSourceEmpowerAsCost = false,
         int PowerModifierAmount = 0,
         bool RequiresAnyEquipmentTarget = false,
-        bool RequiresSourceEmpowered = false);
+        bool RequiresSourceEmpowered = false,
+        bool BanishesGraveyardPermanentAsCost = false,
+        bool GrantsUnitOrEquipmentPlayOnlyPower = false);
 
     private static class LegendAbilityEffectKinds
     {
