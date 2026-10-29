@@ -330,6 +330,10 @@ public static class TriggerParser
                 attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
+        var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
+        if (otherEmpowered.Success)
+            triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,
+                "When this controller empowers another object, the source becomes empowered on resolution."));
         var graveyardPlay = Regex.Match(text,
             @"当你使用法术摧毁一名单位时，你可以选择支付\{\{(?<mana>[0-9]+)\}\}和\{\{红色\}\}，以此从废牌堆中将我打出。",
             RegexOptions.CultureInvariant);
@@ -1344,6 +1348,13 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedPower.Groups[1].Value),
                 Duration: TriggerDurations.UntilEndOfTurn, MovementOriginZone: "BATTLEFIELD");
+
+        var movedToBattlefieldPower = Regex.Match(segment,
+            @"^(?:每当|当)我移动到一处战场时，给予我在本回合内\{\{S\}\}\+(?<amount>[0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedToBattlefieldPower.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedToBattlefieldPower.Groups["amount"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementDestinationZone: "BATTLEFIELD");
 
         var unitMovedCreateDormantGoldMatch = Regex.Match(
             segment,
@@ -2868,6 +2879,15 @@ public static class StaticAbilityParser
                     segment,
                     BehaviorImplementationStatuses.Unimplemented,
                     "Unit cannot-become-active static ability parsed for spec-driven ready prevention."));
+                continue;
+            }
+
+            if (Regex.IsMatch(segment, @"^除非我处于战斗中，否则我无法被敌方法术和技能选作目标。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitEnemySpellSkillTargetProtection,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Enemy spell and skill target protection applies while the source is outside combat.",
+                    RequiresSourceOutsideBattle: true));
                 continue;
             }
 

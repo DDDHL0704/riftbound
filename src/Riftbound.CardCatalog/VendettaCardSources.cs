@@ -19,8 +19,11 @@ public static class VendettaCardSources
         return new[] { (Id: 37710L, CardNo: "VEN·023"), (Id: 37711L, CardNo: "VEN·023a"),
             (Id: 37872L, CardNo: "VEN·169"), (Id: 37925L, CardNo: "VEN·T05"),
             (Id: 37704L, CardNo: "VEN·019"), (Id: 37705L, CardNo: "VEN·019a"),
+            (Id: 37726L, CardNo: "VEN·038"), (Id: 37727L, CardNo: "VEN·038a"),
             (Id: 37842L, CardNo: "VEN·139"), (Id: 37892L, CardNo: "VEN·189"), (Id: 37893L, CardNo: "VEN·189*"),
-            (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*") }
+            (Id: 37850L, CardNo: "VEN·147"), (Id: 37900L, CardNo: "VEN·193"), (Id: 37901L, CardNo: "VEN·193*"),
+            (Id: 37854L, CardNo: "VEN·151"), (Id: 37942L, CardNo: "VEN·195"), (Id: 37905L, CardNo: "VEN·195*"),
+            (Id: 37856L, CardNo: "VEN·153"), (Id: 37906L, CardNo: "VEN·196"), (Id: 37907L, CardNo: "VEN·196*") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             // CN 187 defines tokens; the gallery labels VEN token prints as ordinary units.
             .Select(card => card.CardNo.StartsWith("VEN·T", StringComparison.Ordinal) && card.CardCategory == "unit"
