@@ -32,7 +32,9 @@ public sealed class KsanteKeywordValueTests
         Assert.Equal(0, Keyword(game.State, "HOST", "强攻"));
         await game.Act("P1", Grant());
         Assert.Equal(19, game.State.RunePools["P1"].Mana); Assert.True(game.State.CardObjects["LEGEND"].IsExhausted);
-        Assert.NotNull(Assert.Single(game.State.StackItems).LegendUnitKeyword);
+        var item = Assert.Single(game.State.StackItems);
+        Assert.NotNull(item.LegendUnitKeyword);
+        Assert.Equal(new[] { "SPEND_MANA:1" }, item.OptionalCosts);
         Assert.DoesNotContain(Link, game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         await game.Top();
         Assert.Contains(Link, game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
@@ -40,6 +42,21 @@ public sealed class KsanteKeywordValueTests
         await game.Act("P1", new EndTurnCommand());
         Assert.DoesNotContain(Link, game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         Assert.Equal(0, Keyword(game.State, "HOST", "强攻")); await game.Replay();
+    }
+
+    [Theory, InlineData("missing-cost"), InlineData("wrong-cost"), InlineData("extra-cost"), InlineData("duel-timing")]
+    public async Task RecoveryRejectsLegendKeywordSkillsWithForgedCostsOrTiming(string branch)
+    {
+        var game = new Driver(LegendBoard()); await game.Act("P1", Grant());
+        var item = Assert.Single(game.State.StackItems);
+        var forged = branch switch {
+            "missing-cost" => item with { OptionalCosts = [] },
+            "wrong-cost" => item with { OptionalCosts = ["SPEND_MANA:2"] },
+            "extra-cost" => item with { OptionalCosts = ["SPEND_MANA:1", "INVENTED"] },
+            _ => item with { TimingContext = TimingStates.SpellDuelOpen }
+        };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [forged] }));
+        await game.Top(); Assert.Equal(2, Keyword(game.State, "HOST", "强攻")); await game.Replay();
     }
 
     public static IEnumerable<object[]> InvalidLegends() => new[] { "RAD·147/167", "RAD·172*/167", "RAD·172/167" }
@@ -65,13 +82,14 @@ public sealed class KsanteKeywordValueTests
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal("奎桑提", card.CardName); Assert.Equal("傲然无畏", card.SubTitle);
         Assert.Equal(4, card.Energy); Assert.Equal(1, card.ReturnEnergy); Assert.Equal(4, card.Power);
+        Assert.Equal(new[] { "green" }, card.CardColorList);
         var spec = Assert.Single(TriggerParser.Parse(card.CardEffect), t => t.Kind == TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere);
         Assert.Equal(TriggerTargetScopes.FriendlyUnitHere, spec.TargetScope); Assert.Equal("坚守", spec.GrantedKeyword);
         var s = VenUnitEntryBasicTests.Position(no);
         s = s with {
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P1"] = s.PlayerZones["P1"] with { Hand = [], ChampionZone = ["UNIT"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["UNIT"] = new("P1", "CHAMPION") },
-            RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(4, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 1 }) } };
+            RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(4, 0, new Dictionary<string, int> { [RuneTrait.Green] = 1 }) } };
         var game = new Driver(s); await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Empty(game.State.PlayerZones["P1"].ChampionZone);
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
@@ -79,11 +97,13 @@ public sealed class KsanteKeywordValueTests
         Assert.Equal(1, Keyword(game.State, "UNIT", "坚守")); Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
-    [Theory, InlineData("RAD·045/167"), InlineData("RAD·045a/167")]
-    public async Task AHeroWithoutItsPrintedOrangePowerCannotEnterOrSpendMana(string no)
+    [Theory, InlineData("RAD·045/167", false), InlineData("RAD·045a/167", false)]
+    [InlineData("RAD·045/167", true), InlineData("RAD·045a/167", true)]
+    public async Task AHeroWithoutItsPrintedGreenPowerCannotEnterOrSpendMana(string no, bool wrongColor)
     {
         var s = VenUnitEntryBasicTests.Position(no);
-        s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(4, 0) } };
+        s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) {
+            ["P1"] = new(4, 0, wrongColor ? new Dictionary<string, int> { [RuneTrait.Orange] = 1 } : null) } };
         await Reject(s, "P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
     }
 

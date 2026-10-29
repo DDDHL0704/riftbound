@@ -43,10 +43,12 @@ public sealed class KsanteKeywordDamageTests
         await Reject(s, branch == "opponent" ? "P2" : "P1", new PlayCardCommand("SPELL", Spell, targets));
     }
 
-    [Theory, InlineData("friendly"), InlineData("enemy")]
-    public async Task RecallResponsesSuppressOnlyTheInstructionsDependingOnAnIllegalTarget(string branch)
+    [Theory, InlineData("friendly", false), InlineData("enemy", false)]
+    [InlineData("friendly", true), InlineData("enemy", true)]
+    public async Task RecallResponsesSuppressOnlyTheInstructionsDependingOnAnIllegalTarget(string branch, bool damageBonus)
     {
         var s = Position(1); var recalled = branch == "friendly" ? "HOST" : "ENEMY";
+        if (damageBonus) s = DeathObserverAuditTests.Source(s, "OGS·001/024", "ANNIE", "P1");
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             [recalled] = s.CardObjects[recalled] with { Power = 3 } } };
         var game = new Driver(EquipChainTests.Response(s, "OGN·169/298", "P2"));
@@ -56,6 +58,17 @@ public sealed class KsanteKeywordDamageTests
         if (branch == "friendly") Assert.DoesNotContain("COMBAT_KEYWORD:坚守2:1", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         else Assert.Contains("COMBAT_KEYWORD:坚守2:1", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Contains("SPELL", game.State.PlayerZones["P1"].Graveyard); await game.Replay();
+    }
+
+    [Fact]
+    public async Task AValidKeywordReferenceReceivesDamageBonusesAfterTheGrant()
+    {
+        var game = new Driver(DeathObserverAuditTests.Source(Position(1), "OGS·001/024", "ANNIE", "P1"));
+        await game.Act("P1", Cast()); await game.Top();
+        Assert.Equal(3, KsanteKeywordValueTests.Keyword(game.State, "HOST", "坚守"));
+        Assert.Equal(4, game.State.CardObjects["ENEMY"].Damage);
+        Assert.Contains("COMBAT_KEYWORD:坚守2:1", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
+        await game.Replay();
     }
 
     [Fact]

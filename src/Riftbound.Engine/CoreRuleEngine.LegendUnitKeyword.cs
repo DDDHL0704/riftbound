@@ -26,7 +26,10 @@ public sealed partial class CoreRuleEngine
             || context.SourceGeneration < 0 || context.SpellshieldTaxPower < 0
             || !ability.RequiresAnyUnitTarget && context.SpellshieldTaxPower != 0 || !state.Seats.ContainsKey(item.ControllerId)
             || string.IsNullOrWhiteSpace(item.SourceObjectId) || item.SourceConfirmed || item.EffectRepeatCount != 1
-            || item.DamageAmount != 0 || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
+            || item.DamageAmount != 0
+            || !item.OptionalCosts.SequenceEqual(string.IsNullOrEmpty(ability.RequiredCostToken)
+                ? Array.Empty<string>() : [ability.RequiredCostToken], StringComparer.Ordinal)
+            || item.Destination.Length != 0
             || item.TargetObjectIds is not { Count: 1 } || item.TargetObjectIds[0] == item.SourceObjectId
             || item.TargetGenerations is not { Count: 1 } bindings
             || !bindings.TryGetValue(item.TargetObjectIds[0], out var generation) || generation < 0
@@ -34,7 +37,8 @@ public sealed partial class CoreRuleEngine
             || state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                 && (context.SourceGeneration > source.ObjectGeneration
                     || context.SourceGeneration == source.ObjectGeneration && source.CardNo != item.CardNo)) return false;
-        return item.TimingContext is TimingStates.NeutralOpen or TimingStates.SpellDuelOpen;
+        return item.TimingContext == TimingStates.NeutralOpen
+            || ability.TimingKind == LegendAbilityTimingKinds.QuickOpen && item.TimingContext == TimingStates.SpellDuelOpen;
     }
 
     private static ResolutionResult QueueLegendUnitKeyword(MatchState state, string player, string sourceId,
