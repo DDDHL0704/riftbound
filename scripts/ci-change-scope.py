@@ -9,47 +9,12 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+# docs/legacy and DEPLOYMENT.md are read by tests and remain executable inputs.
 DOCUMENTATION = frozenset({
     'AGENTS.md', 'README.md', 'GLOSSARY.md',
-    'docs/BACKEND_RULES_GOAL_2026-10-23.md',
-    'docs/START_HERE.md', 'docs/PROJECT_GOVERNANCE.md',
-    'docs/PROJECT_STATUS.md', 'docs/development-audit-status.md',
-    'docs/legacy/REPOSITORY_AUDIT_2026-10-12.md',
-    'docs/legacy/MOONFALL_AUDIT_2026-10-12.md',
-    'docs/legacy/SIPHON_MINIMUM_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/ORB_OF_REGRET_AUDIT_2026-10-12.md',
-    'docs/legacy/AHRI_COMBAT_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/NINE_TAILED_FOX_AUDIT_2026-10-12.md',
-    'docs/legacy/LEONA_STUNNED_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_KEYWORD_LAYER_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_CONSUMER_MIGHT_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_LAST_BREATH_AUDIT_2026-10-12.md',
-    'docs/legacy/POWERFUL_SACRIFICE_COST_AUDIT_2026-10-13.md',
-    'docs/legacy/SUNKEN_TEMPLE_MIGHT_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_TRANSITION_AUDIT_2026-10-13.md',
-    'docs/legacy/HIGHEST_MIGHT_COST_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_INSTRUCTION_EVENT_AUDIT_2026-10-13.md',
-    'docs/legacy/MIGHTY_EXPERIENCE_FRAME_AUDIT_2026-10-13.md',
-    'docs/legacy/AMBUSH_PERMISSION_AUDIT_2026-10-13.md',
-    'docs/legacy/VENDETTA_AMBUSH_PRINTINGS_AUDIT_2026-10-13.md',
-    'docs/legacy/PERMANENT_PLAY_TARGETS_AUDIT_2026-10-13.md',
-    'docs/legacy/COPIED_SPELL_TRIGGERS_AUDIT_2026-10-13.md',
-    'docs/legacy/PAID_SPELL_READY_AUDIT_2026-10-13.md',
-    'docs/legacy/COPIED_FACE_AUTHORITY_AUDIT_2026-10-13.md',
-    'docs/legacy/SHADY_SPECTACLES_AUDIT_2026-10-13.md',
-    'docs/legacy/ATTACHMENT_THEFT_COPY_AUDIT_2026-10-13.md',
-    'docs/legacy/POSTGRES_EXPORT_ACCEPTANCE_2026-10-13.md',
-    'docs/legacy/EMPOWER_FOUNDATION_AUDIT_2026-10-13.md',
-    'docs/RULE_TEST_WORKFLOW.md', 'docs/legacy/RULE_TEST_SPEED_2026-10-09.md',
-    'docs/legacy/RULE_TEST_SPEED_2026-10-12.md',
-    'docs/legacy/rules-authority-and-audit.md', 'docs/legacy/rules-evidence-index.md',
-    'docs/legacy/COMPREHENSIVE_OFFICIAL_AUDIT_2026-10-11.md',
+    'docs/BACKLOG.md', 'docs/CARD_BACKLOG.md',
     'docs/agents/issue-tracker.md', 'docs/agents/domain.md',
     'docs/agents/triage-labels.md',
-    'docs/CURRENT_COMPLETION_AUDIT.md', 'docs/CURRENT_A_MASTER_CHECKPOINT.md',
-    'docs/CURRENT_STAGE4D_SHARED_COORDINATION_BOARD.md',
-    'docs/CURRENT_STAGE4D_NEXT_DISPATCH_AND_WRITELOCKS.md',
-    'docs/CURRENT_STAGE4D_P0_P1_CLOSURE_PLAN.md',
 })
 SHA = re.compile(r'[0-9a-fA-F]{40}')
 RAW = re.compile(r':([0-7]{6}) ([0-7]{6}) [0-9a-f]+ [0-9a-f]+ ([A-Z])')
@@ -159,6 +124,8 @@ def main():
     parser.add_argument('--head', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--github-output', type=Path)
+    parser.add_argument('--require-docs', action='store_true',
+                        help='Fail unless fresh Git inspection proves a documentation-only change.')
     args = parser.parse_args()
     try:
         event = json.loads(args.event.read_text())
@@ -180,6 +147,8 @@ def main():
                 stream.write(key+'='+str(result[key]).lower()+'\n')
             stream.write('tier='+result['tier']+'\n')
     print(json.dumps(result))
+    if args.require_docs and result['tier'] != 'DOCS':
+        parser.exit(1, 'Documentation exemption rejected: ' + result['reason'] + '\n')
 
 
 if __name__ == '__main__':
