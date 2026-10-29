@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One fixed L2 build, duration-balanced execution, and derived coverage views."""
+"""One fixed build, duration-balanced rule execution, and exact case coverage."""
 import argparse
 from collections import Counter, defaultdict
 import hashlib
@@ -23,6 +23,7 @@ SELECT_SPEC = importlib.util.spec_from_file_location('l2_case_selection', ROOT /
 SELECT = importlib.util.module_from_spec(SELECT_SPEC)
 SELECT_SPEC.loader.exec_module(SELECT)
 ASSEMBLY = 'Riftbound.ConformanceTests.dll'
+CONFIGURATION = 'Release'
 HEX = re.compile(r'[0-9a-f]{64}')
 MODULES = {'Riftbound.ConformanceTests', 'Riftbound.Engine', 'Riftbound.Contracts',
            'Riftbound.CardCatalog', 'Riftbound.Persistence', 'Riftbound.Api'}
@@ -74,9 +75,17 @@ def source_scope_methods(scope, text):
     return sorted(selected & required), sorted(selected - required)
 
 
-def make_plan(text, inventory, source_scope, weights, count=6):
+def selected_methods(methods, profile):
+    if profile == 'l2':
+        return RULES.l2_rule_methods(methods)
+    if profile == 'full':
+        return methods
+    raise ValueError('Unknown distributed rule profile.')
+
+
+def make_plan(text, inventory, source_scope, weights, count=6, profile='l2'):
     discovered = RULES.discover(text)
-    selected = RULES.l2_rule_methods(discovered)
+    selected = selected_methods(discovered, profile)
     cases = defaultdict(list)
     for name in discovered_cases(text):
         if RULES.method(name) in selected:
@@ -90,28 +99,31 @@ def make_plan(text, inventory, source_scope, weights, count=6):
         raise ValueError('Empty or foreign parameter rows in fresh inventory.')
     source_l2, source_nightly = source_scope_methods(source_scope, text)
     units = SELECT.selectors(discovered_cases(text), cases, weights)
-    result = dict(schemaVersion=3, profile='l2-distributed', methods=sorted(selected),
-                  cases=dict(sorted(cases.items())), deferredL3Methods=sorted(RULES.l3_acceptance_methods()),
+    result = dict(schemaVersion=3, profile=profile + '-distributed', methods=sorted(selected),
+                  cases=dict(sorted(cases.items())),
+                  deferredL3Methods=sorted(RULES.l3_acceptance_methods()) if profile == 'l2' else [],
                   shards=SELECT.partition(units, cases, weights, count),
                   sourceGuardL2Methods=source_l2, sourceGuardNightlyMethods=source_nightly,
-                  targeted=dict(mode='full-fallback', reason='No audited dependency closure; validate the complete L2 input.',
+                  targeted=dict(mode='full-fallback', reason='No audited dependency closure; validate the complete profile input.',
                                 methods=sorted(selected), execution='DERIVED_FROM_ORIGINAL_SHARD_TRX'))
     validate_plan(result, text)
     return result
 
 
 def validate_plan(plan, text):
-    expected = RULES.l2_rule_methods(RULES.discover(text))
+    profile = {'l2-distributed': 'l2', 'full-distributed': 'full'}.get(plan.get('profile'))
+    expected = selected_methods(RULES.discover(text), profile)
+    deferred = RULES.l3_acceptance_methods() if profile == 'l2' else set()
     names = [shard['name'] for shard in plan['shards']]
-    if (plan.get('schemaVersion') != 3 or plan.get('profile') != 'l2-distributed'
+    if (plan.get('schemaVersion') != 3
             or set(plan['methods']) != expected or len(plan['methods']) != len(expected)
             or not names or len(set(names)) != len(names)
             or any(not re.fullmatch(r'shard-[1-8]', name) for name in names)
             or any(not shard['methods'] for shard in plan['shards'])
             or set(plan['cases']) != expected
-            or set(plan['deferredL3Methods']) != RULES.l3_acceptance_methods()
-            or len(plan['deferredL3Methods']) != len(RULES.l3_acceptance_methods())):
-        raise ValueError('Distributed plan must partition the exact required L2 case inventory once.')
+            or set(plan['deferredL3Methods']) != deferred
+            or len(plan['deferredL3Methods']) != len(deferred)):
+        raise ValueError('Distributed plan must partition the exact required case inventory once.')
     if any(not rows or any(RULES.method(row) != method for row in rows) for method, rows in plan['cases'].items()):
         raise ValueError('Invalid exact parameter-row inventory.')
     discovered = defaultdict(list)
@@ -162,7 +174,8 @@ def check_prepared(prepared, commit):
     source_scope = read(source_scope_path)
     if source_scope.get('sourceHead') != commit or digest(source_scope_path) != plan.get('sourceScopeSha256'):
         raise ValueError('Source-scope candidate or artifact identity differs from the prepared build.')
-    expected = make_plan((prepared / 'discovery.log').read_text(), inventory, source_scope, {}, len(plan['shards']))
+    profile = 'full' if plan['profile'] == 'full-distributed' else 'l2'
+    expected = make_plan((prepared / 'discovery.log').read_text(), inventory, source_scope, {}, len(plan['shards']), profile)
     if plan['cases'] != expected['cases']:
         raise ValueError('Plan changed the freshly enumerated parameter rows.')
     if any(plan[key] != expected[key] for key in ['sourceGuardL2Methods', 'sourceGuardNightlyMethods']):
@@ -231,12 +244,14 @@ def checked_results(prepared, inputs, commit):
                         for index, row in enumerate(rows))
     expected_all = Counter(row for rows in plan['cases'].values() for row in rows)
     if all_cases != expected_all:
-        raise ValueError('Actual case union differs from complete fixed L2 inventory.')
+        raise ValueError('Actual case union differs from the complete fixed profile inventory.')
     return plan, sorted(case_map, key=lambda row: (row['name'], row['shard'])), seconds
 
 
 def derived_view(prepared, inputs, commit):
     plan, mapping, _ = checked_results(prepared, inputs, commit)
+    if plan['profile'] != 'l2-distributed':
+        raise ValueError('Targeted L2 coverage requires the L2 profile.')
     methods = set(plan['targeted']['methods'])
     return dict(status='TARGETED_COVERAGE_VERIFIED', commit=commit,
                 execution='DERIVED_FROM_ORIGINAL_SHARD_TRX', planSha256=digest(prepared / 'plan.json'),
@@ -248,6 +263,8 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
     if set(jobs) != {'quality', 'prepare', 'rule_suite', 'targeted'} or any(v != 'success' for v in jobs.values()):
         raise ValueError('Every fixed-input L2 job must execute and succeed.')
     plan, mapping, seconds = checked_results(prepared, inputs, commit)
+    if plan['profile'] != 'l2-distributed':
+        raise ValueError('The L2 gate requires the L2 profile.')
     q = read(quality / 'checkout.json')
     if (q.get('status') != 'FIXED_CANDIDATE_CHECKOUT_VERIFIED' or q.get('actualSha') != commit
             or q.get('expectedSha') != commit or q.get('eventSha') != commit
@@ -272,6 +289,18 @@ def aggregate(prepared, inputs, targeted, quality, commit, jobs):
                 splitMethods=len({unit['method'] for shard in plan['shards'] for unit in shard['selectors'] if unit['kind'] == 'case'}),
                 rowSelectors=sum(unit['kind'] == 'case' for shard in plan['shards'] for unit in shard['selectors']),
                 l3SqlNetworkRestartOrFullMatrixCertified=False)
+
+
+def aggregate_full(prepared, inputs, commit, jobs):
+    if set(jobs) != {'prepare', 'rule_shards'} or any(v != 'success' for v in jobs.values()):
+        raise ValueError('Every fixed full-rule job must execute and succeed.')
+    plan, mapping, seconds = checked_results(prepared, inputs, commit)
+    if plan['profile'] != 'full-distributed' or plan['deferredL3Methods']:
+        raise ValueError('Full rule coverage requires the full profile without exemptions.')
+    return dict(status='FULL_RULE_SUITE_PASSED', commit=commit, jobs=jobs,
+                methods=len(plan['methods']), cases=len(mapping), shards=len(plan['shards']),
+                testAssemblySha256=plan['testAssemblySha256'], planSha256=digest(prepared / 'plan.json'),
+                summedShardSeconds=round(seconds, 3), rawCaseMapping=mapping)
 
 
 def run_logged(command, output):
@@ -368,18 +397,18 @@ def validate_probe(probe, commit, sdk, run_id, attempt):
         raise ValueError('Linux row-selection probe split-body union is not exact once.')
 
 
-def prepare(commit, output, count, github_output):
+def prepare(commit, output, count, github_output, profile='l2'):
     began = time.monotonic()
     checkout = read(output / 'checkout.json')
     if checkout.get('actualSha') != commit or checkout.get('eventSha') != commit:
         raise ValueError('Verify the exact checkout before building.')
     sdk = subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip()
     validate_probe(read(output / 'row-filter-probe/receipt.json'), commit, sdk, checkout['runId'], checkout['runAttempt'])
-    run_logged(['dotnet', 'build', str(RULES.PROJECT), '-m:1', '-v:q', '--nologo'], output / 'build.log')
-    bundle = RULES.PROJECT / 'bin/Debug/net10.0'
+    run_logged(['dotnet', 'build', str(RULES.PROJECT), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'build.log')
+    bundle = RULES.PROJECT / f'bin/{CONFIGURATION}/net10.0'
     run_logged(['dotnet', 'vstest', str(bundle / ASSEMBLY), '--TestAdapterPath:' + str(bundle), '--ListTests'], output / 'discovery.log')
     text = (output / 'discovery.log').read_text()
-    selected = RULES.l2_rule_methods(RULES.discover(text))
+    selected = selected_methods(RULES.discover(text), profile)
     names = defaultdict(list)
     for name in discovered_cases(text):
         if RULES.method(name) in selected:
@@ -387,13 +416,13 @@ def prepare(commit, output, count, github_output):
     bare = sorted(method for method, rows in names.items() if rows == [method])
     write(output / 'unexpanded-methods.json', bare)
     inventory_project = ROOT / 'scripts/ci/L2CaseInventory'
-    run_logged(['dotnet', 'build', str(inventory_project), '-m:1', '-v:q', '--nologo'], output / 'inventory-build.log')
-    helper = inventory_project / 'bin/Debug/net10.0/L2CaseInventory.dll'
+    run_logged(['dotnet', 'build', str(inventory_project), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'inventory-build.log')
+    helper = inventory_project / f'bin/{CONFIGURATION}/net10.0/L2CaseInventory.dll'
     run_logged(['dotnet', str(helper), str(bundle / ASSEMBLY), str(output / 'unexpanded-methods.json'),
                 str(output / 'case-inventory.json')], output / 'inventory.log')
     scanner_project = ROOT / 'tools/source-guard-scope/scanner/Scanner.csproj'
-    run_logged(['dotnet', 'build', str(scanner_project), '-m:1', '-v:q', '--nologo'], output / 'source-scanner-build.log')
-    scanner = scanner_project.parent / 'bin/Debug/net10.0/Scanner.dll'
+    run_logged(['dotnet', 'build', str(scanner_project), '-c', CONFIGURATION, '-m:1', '-v:q', '--nologo'], output / 'source-scanner-build.log')
+    scanner = scanner_project.parent / f'bin/{CONFIGURATION}/net10.0/Scanner.dll'
     run_logged([sys.executable, str(ROOT / 'tools/source-guard-scope/generate_inventory.py'), '--repo', str(ROOT),
                 '--source-head', commit, '--discovery', str(output / 'discovery.log'), '--scanner', str(scanner),
                 '--output', str(output / 'source-scope')], output / 'source-inventory.log')
@@ -401,8 +430,9 @@ def prepare(commit, output, count, github_output):
         shutil.copyfile(helper.with_name('L2CaseInventory' + suffix), bundle / ('L2CaseInventory' + suffix))
     files = bundle_files(bundle)
     write(output / 'bundle-manifest.json', files)
-    weights = RULES.load_weights(ROOT / 'scripts/l2-method-timings.json')
-    plan = make_plan(text, read(output / 'case-inventory.json'), read(output / 'source-scope/source-guard-methods.json'), weights, count)
+    weights = RULES.load_weights(ROOT / 'scripts/rule-test-timings.json') if profile == 'full' else {}
+    weights.update(RULES.load_weights(ROOT / 'scripts/l2-method-timings.json'))
+    plan = make_plan(text, read(output / 'case-inventory.json'), read(output / 'source-scope/source-guard-methods.json'), weights, count, profile)
     plan.update(commit=commit, sdkVersion=sdk, runId=checkout['runId'], runAttempt=checkout['runAttempt'],
                 testAssemblySha256=files[ASSEMBLY], bundleManifestSha256=digest(output / 'bundle-manifest.json'),
                 caseInventorySha256=digest(output / 'case-inventory.json'), discoverySha256=digest(output / 'discovery.log'),
@@ -480,7 +510,8 @@ def execute_shard(prepared, output, commit, name):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'aggregate'])
+    parser.add_argument('mode', choices=['prepare', 'shard', 'targeted', 'aggregate', 'aggregate-full'])
+    parser.add_argument('--profile', choices=['l2', 'full'], default='l2', help='Preparation membership; full includes every discovered method')
     parser.add_argument('--commit', required=True)
     parser.add_argument('--prepared', type=Path)
     parser.add_argument('--inputs', type=Path)
@@ -492,11 +523,14 @@ def main():
     parser.add_argument('--github-output', type=Path)
     args = parser.parse_args()
     if args.mode == 'prepare':
-        prepare(args.commit, args.output.resolve(), args.shards, args.github_output)
+        prepare(args.commit, args.output.resolve(), args.shards, args.github_output, args.profile)
     elif args.mode == 'shard':
         execute_shard(args.prepared.resolve(), args.output.resolve(), args.commit, args.shard)
     elif args.mode == 'targeted':
         write(args.output, derived_view(args.prepared, args.inputs, args.commit))
+    elif args.mode == 'aggregate-full':
+        jobs = {name: os.environ.get('RIFTBOUND_' + name.upper(), '') for name in ['prepare', 'rule_shards']}
+        write(args.output, aggregate_full(args.prepared, args.inputs, args.commit, jobs))
     else:
         jobs = {name: os.environ.get('RIFTBOUND_' + name.upper(), '') for name in ['quality', 'prepare', 'rule_suite', 'targeted']}
         write(args.output, aggregate(args.prepared, args.inputs, args.targeted, args.quality, args.commit, jobs))
