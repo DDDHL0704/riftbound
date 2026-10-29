@@ -30,8 +30,9 @@ public sealed class VenCardObserverTests
         var initial = Heron(true); initial = Put(initial, "NEXT", next);
         initial = Put(initial, "THIRD", "UNL-085/219");
         var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
-        Assert.Equal(2, game.State.StackItems.Count); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
-        await game.Top(); Assert.Single(game.State.UntilEndOfTurnEffects, IsDiscount); await game.Top();
+        Assert.Single(game.State.StackItems); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
+        await game.Top(); Assert.Single(game.State.StackItems); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
+        await game.Top(); Assert.Single(game.State.UntilEndOfTurnEffects, IsDiscount);
         var command = new PlayCardCommand("NEXT", next, next == "OGN·043/298" ? ["ENEMY"] : []);
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(mana, quote.Cost!.Mana);
@@ -50,27 +51,59 @@ public sealed class VenCardObserverTests
 
     [Theory]
     [InlineData(false)] [InlineData(true)]
-    public async Task HeronChecksItsBattlefieldAtThePlayInstructionAndAnEarnedDiscountExpiresAtTurnEnd(bool onBattlefield)
+    public async Task HeronChecksItsBattlefieldAtPlayCompletionAndAnEarnedDiscountExpiresAtTurnEnd(bool onBattlefield)
     {
         var game = new Driver(Heron(onBattlefield)); await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
-        Assert.Equal(onBattlefield ? 2 : 1, game.State.StackItems.Count);
-        if (onBattlefield) await game.Top(); await game.Top();
+        Assert.Single(game.State.StackItems); await game.Top();
+        if (onBattlefield) await game.Top();
         Assert.Equal(onBattlefield ? 1 : 0, game.State.UntilEndOfTurnEffects.Count(IsDiscount));
         await game.Act("P1", new EndTurnCommand()); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
         await game.Replay();
     }
 
     [Fact]
-    public async Task ResolvingTheFirstSpellCannotObserveItAsAnotherFirstCard()
+    public async Task FirstCardCompletionQueuesItsObserverOnceAndConfirmationDoesNotQueueIt()
     {
         var game = new Driver(Heron(true));
         await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
-        Assert.Equal(2, game.State.StackItems.Count);
-        await game.Top(); await game.Top();
+        Assert.Single(game.State.StackItems); Assert.Empty(game.State.CardPlays.Resolved);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED");
+        await game.Top();
+        Assert.Equal("FIRST_CARD_PLAYED", Assert.Single(game.State.StackItems).UnitEvent!.Timing);
+        await game.Top();
         Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
         Assert.Single(game.State.CardPlays.Finalized); Assert.Single(game.State.CardPlays.Resolved);
         Assert.Single(game.State.UntilEndOfTurnEffects, IsDiscount);
         Assert.Single(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED");
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task CounteringTheFirstSpellDoesNotGrantADiscount()
+    {
+        var initial = AttackDamageDistributionTests.Spell(Heron(true), "COUNTER", "OGN·064/298", "P2");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
+        var first = Assert.Single(game.State.StackItems).StackItemId;
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·064/298", [first]));
+        await game.Top();
+        Assert.Empty(game.State.StackItems); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
+        Assert.DoesNotContain(game.State.CardPlays.Resolved, p => p.Source.ObjectId == "FIRST");
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED");
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task ReturningTheHeronInResponseRemovesItBeforeFirstCardCompletion()
+    {
+        var game = new Driver(Put(Heron(true), "RETURN", "OGN·104/298"));
+        await game.Act("P1", new PlayCardCommand("FIRST", "OGN·048/298", []));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"]));
+        await game.Top(); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.Empty(game.State.StackItems); Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, IsDiscount);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "TRIGGER_QUEUED");
         await game.Replay();
     }
 

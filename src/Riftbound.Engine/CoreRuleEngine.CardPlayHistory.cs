@@ -90,20 +90,17 @@ public sealed partial class CoreRuleEngine
                     foreach (var reduction in SourceNextSpellCostReductionEffects(result.State with { UntilEndOfTurnEffects = effects }, entry.PlayerId)
                         .Where(r => r.AppliesToAllCards)) effects = RemoveUntilEndOfTurnEffect(effects, reduction.EffectId);
                 }
-            // Finalization and entry may both occur in this command, so retain
-            // entry observers (including the first card observing itself).
-            // Resolving a spell finalized by an earlier command is not a new
-            // first-card instruction and must not capture these observers again.
-            if (finalized.FirstOrDefault(p => p.PlayerId == entry.PlayerId)?.PlayId == entry.PlayId
-                && (before.TurnNumber != result.State.TurnNumber || before.CardPlays.TurnNumber != before.TurnNumber
-                    || !before.CardPlays.Finalized.Any(p => p.PlayerId == entry.PlayerId)))
-                observers.AddRange(observation.FirstCardObservers);
             if (observation.Resolved && !resolved.Any(p => p.PlayId == entry.PlayId))
             {
                 var confirmed = finalized.FirstOrDefault(p => p.PlayId == entry.PlayId);
                 entry = entry with { OriginHandPlayerId = confirmed?.OriginHandPlayerId,
                     OriginOutsideHands = confirmed?.OriginOutsideHands ?? false };
                 resolved.Add(entry);
+                // CN 420.4.a: play triggers observe successful completion.
+                // Confirmation still determines which card was first. The
+                // completed-play guard also prevents a second observation.
+                if (finalized.FirstOrDefault(p => p.PlayerId == entry.PlayerId)?.PlayId == entry.PlayId)
+                    observers.AddRange(observation.FirstCardObservers);
                 if ((entry.Types & 3) != 0 && PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
                 {
                     foreach (var (observer, ordinal) in observation.HighCostObservers.Select((value, ordinal) => (value, ordinal)))
