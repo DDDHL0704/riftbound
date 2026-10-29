@@ -12,6 +12,10 @@ public sealed record DeathObserverContext(string CardNo, string Kind, long Sourc
     public string? RuleTextInstanceId { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectLocationState? SourceLocation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectLocationState? DestroyedLocation { get; init; }
 }
 internal sealed record CapturedDeathObserver(string ObjectId, string ControllerId, DeathObserverContext Context);
 internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
@@ -31,12 +35,27 @@ public sealed partial class CoreRuleEngine
     internal const string DeathObserverEffect = "FRIENDLY_UNIT_DEATH_OBSERVER";
     internal static bool IsDeathObserverKind(string kind) => kind is TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn
         or TriggerKinds.UnitFriendlyDestroyedGainExperience or TriggerKinds.UnitFirstFriendlyDestroyedDrawOne
-        or TriggerKinds.UnitDestroyedNonMinionCreateMinion;
+        or TriggerKinds.UnitDestroyedNonMinionCreateMinion
+        or TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune;
+
+    private static bool MatchingLocalDeath(DeathObserverContext c, string controller)
+        => !string.IsNullOrWhiteSpace(c.Destroyed.ControllerId) && c.Destroyed.ControllerId != controller
+            && c.SourceLocation is { } source && c.DestroyedLocation is { } target
+            && !string.IsNullOrWhiteSpace(source.PlayerId) && !string.IsNullOrWhiteSpace(target.PlayerId)
+            && source.Zone == target.Zone && (source.Zone == "BASE" ? source.PlayerId == target.PlayerId
+                : source.Zone == "BATTLEFIELD" && !string.IsNullOrWhiteSpace(source.BattlefieldObjectId)
+                    && source.BattlefieldObjectId == target.BattlefieldObjectId);
+
+    private static string OncePerTurnDeathObserverMarker(CapturedDeathObserver observer)
+        => $"DEATH_OBSERVER_ONCE:{observer.ObjectId}:{observer.Context.SourceGeneration}:{observer.Context.Kind}:{observer.Context.RuleTextInstanceId ?? "PRINTED"}";
 
     internal static bool ValidDeathObserver(DeathObserverContext c, string effect, string controller, string source, string? cardNo=null)
         => effect == DeathObserverEffect && c.SourceGeneration >= 0 && (cardNo is null || cardNo == c.CardNo)
             && c.Destroyed is { Generation: >= 0 } d && !string.IsNullOrWhiteSpace(d.ObjectId) && d.ObjectId != source
-            && !string.IsNullOrWhiteSpace(d.CardNo) && !string.IsNullOrWhiteSpace(d.OwnerId) && d.ControllerId == controller
+            && !string.IsNullOrWhiteSpace(d.CardNo) && !string.IsNullOrWhiteSpace(d.OwnerId)
+            && (c.Kind == TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune
+                ? MatchingLocalDeath(c, controller)
+                : d.ControllerId == controller && c.SourceLocation is null && c.DestroyedLocation is null)
             && IsDeathObserverKind(c.Kind) && UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,t=>t.Kind==c.Kind,out _)
             && (c.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !d.WasMinion)
             && (c.Origin is null ? c.RuleTextInstanceId is null
@@ -47,6 +66,8 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidDeathObserver(MatchState state, DeathObserverContext c, string effect,
         string controller, string source, string? cardNo = null)
         => ValidDeathObserver(c, effect, controller, source, cardNo)
+            && (c.Kind != TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune
+                || state.Seats.ContainsKey(controller) && state.Seats.ContainsKey(c.Destroyed.ControllerId))
             && AttachedRuleTextRules.ValidCaptured(state, c.Origin, source, c.SourceGeneration, c.CardNo);
 
     // The public death fact is unchanged. Grant bindings belong to authority;
@@ -58,7 +79,7 @@ public sealed partial class CoreRuleEngine
     {
         var source=CardBehaviorRegistry.TryGetByCardNo(c.CardNo,out var card) ? card.DisplayName : c.CardNo;
         var victim=CardBehaviorRegistry.TryGetByCardNo(c.Destroyed.CardNo,out var unit) ? unit.DisplayName : P6TokenFactoryCatalog.TryGetByCardNo(c.Destroyed.CardNo,out var token) ? token.CardName : c.Destroyed.CardNo;
-        var effect=c.Kind switch { TriggerKinds.UnitDestroyedNonMinionCreateMinion=>"打出随从",TriggerKinds.UnitFriendlyDestroyedGainExperience=>"获得经验",TriggerKinds.UnitFirstFriendlyDestroyedDrawOne=>"本回合首次死亡：抽牌",_=>"本回合战力 +2" };
+        var effect=c.Kind switch { TriggerKinds.UnitDestroyedNonMinionCreateMinion=>"打出随从",TriggerKinds.UnitFriendlyDestroyedGainExperience=>"获得经验",TriggerKinds.UnitFirstFriendlyDestroyedDrawOne=>"本回合首次死亡：抽牌",TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune=>"召出休眠符文",_=>"本回合战力 +2" };
         return $"{source}：{effect}（{victim}被摧毁）";
     }
 
@@ -70,19 +91,35 @@ public sealed partial class CoreRuleEngine
         var controller=EffectiveFieldControllerId(zones,unit.ObjectId,unit);
         var fact=new DestroyedUnitFact(unit.ObjectId,unit.CardNo ?? "",unit.OwnerId ?? controller,controller,unit.ObjectGeneration,unit.Tags.Contains(CardObjectTags.MinionTokenFamily));
         var observers=new List<CapturedDeathObserver>();
+        var locations = frame.CurrentDestructionLocations ?? state.ObjectLocations;
         // CN 383.2.c.2: an observer leaving in the same action does not trigger.
         // A nested resource cost has its own destruction batch, before the outer death.
         foreach(var source in cards.Values.OrderBy(c=>c.ObjectId,StringComparer.Ordinal))
             if (source.ObjectId != unit.ObjectId && !frame.CurrentDestructions.Contains(source.ObjectId)
                 && source.Tags.Contains(CardObjectTags.UnitCard) && !source.IsFaceDown
-                && IsObjectOnField(zones,source.ObjectId) && EffectiveFieldControllerId(zones,source.ObjectId,source)==controller)
+                && IsObjectOnField(zones,source.ObjectId))
                 foreach (var instance in AttachedRuleTextRules.Instances(zones, cards, source))
                     if (!(instance.Origin is { } origin && frame.CurrentDestructions.Contains(origin.Equipment.ObjectId))
                         && UnitDestroyedTriggerSpecRules.TryGetTrigger(instance.CardNo, t => IsDeathObserverKind(t.Kind), out var spec)
                         && (spec.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !fact.WasMinion))
-                        observers.Add(new(source.ObjectId, controller,
+                    {
+                        var observerController = EffectiveFieldControllerId(zones, source.ObjectId, source);
+                        var localEnemy = spec.Kind == TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune;
+                        if (localEnemy ? observerController == controller || !IsSameFieldLocation(zones, locations, unit.ObjectId, source.ObjectId)
+                            : observerController != controller) continue;
+                        ObjectLocationState? observerLocation = null, destroyedLocation = null;
+                        if (localEnemy)
+                        {
+                            if (!TryGetPreciseFieldLocation(zones, locations, source.ObjectId, out var capturedSource)
+                                || !TryGetPreciseFieldLocation(zones, locations, unit.ObjectId, out var capturedDestroyed)) continue;
+                            observerLocation = capturedSource;
+                            destroyedLocation = capturedDestroyed;
+                        }
+                        observers.Add(new(source.ObjectId, observerController,
                             new(instance.CardNo, spec.Kind, source.ObjectGeneration, fact) {
-                                RuleTextInstanceId = instance.Origin is null ? null : instance.Id, Origin = instance.Origin }));
+                                RuleTextInstanceId = instance.Origin is null ? null : instance.Id, Origin = instance.Origin,
+                                SourceLocation = observerLocation, DestroyedLocation = destroyedLocation }));
+                    }
         var deathId = $"death-{frame.Origin.Tick}-{frame.DeathSequence++}";
         return new(deathId,frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
             UnitCreations = CaptureLastBreathUnitCreations(state, zones, cards, unit, deathId),
@@ -102,6 +139,7 @@ public sealed partial class CoreRuleEngine
         var counts=(ledger.TurnNumber==state.TurnNumber ? ledger.Counts : new Dictionary<string,int>())
             .ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var events=new List<GameEvent>(); var queue=state.TriggerQueue.ToList(); var seen=new HashSet<string>();
+        var effects = state.UntilEndOfTurnEffects;
         var deaths = result.Events.Select(e => e.Payload.GetValueOrDefault("capturedUnitDeath"))
             .OfType<CapturedUnitDeath>().DistinctBy(d => d.Id).Where(d => d.TurnNumber == state.TurnNumber).ToArray();
         var firstChoices = new Dictionary<(int Batch, string Source, string? Instance), string>();
@@ -184,13 +222,19 @@ public sealed partial class CoreRuleEngine
             {
                 if (observer.Context.Kind==TriggerKinds.UnitFirstFriendlyDestroyedDrawOne
                     && firstChoices.GetValueOrDefault((death.Batch, observer.ObjectId, observer.Context.RuleTextInstanceId)) != death.Id) continue;
+                if (observer.Context.Kind == TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune)
+                {
+                    var marker = OncePerTurnDeathObserverMarker(observer);
+                    if (effects.Contains(marker, StringComparer.Ordinal)) continue;
+                    effects = AddUntilEndOfTurnEffect(effects, marker);
+                }
                 var instanceSuffix = observer.Context.RuleTextInstanceId is { } instance ? ":" + instance : "";
                 var trigger=new TriggerQueueItemState($"{(instanceSuffix.Length == 0 ? "" : "copied-")}{death.Id}-{observer.ObjectId}{instanceSuffix}",observer.ControllerId,observer.ObjectId,
                     DeathObserverEffect,TriggerTimings.UnitDestroyed) { DeathObserver=observer.Context,SourceCardNo=observer.Context.CardNo };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
-        state=state with { DeathLedger=new(state.TurnNumber,counts),TriggerQueue=queue };
+        state=state with { DeathLedger=new(state.TurnNumber,counts),TriggerQueue=queue,UntilEndOfTurnEffects=effects };
         return result with { State=state,Events=events,Snapshots=ResolutionResult.BuildSnapshots(state),Prompts=BuildCorePrompts(state) };
     }
 
@@ -201,6 +245,17 @@ public sealed partial class CoreRuleEngine
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,t=>t.Kind==c.Kind,out var spec))
             throw new InvalidOperationException("Invalid captured death observer.");
         var resolved=BuildTriggerResolvedEvent(new TriggerQueueItemState(item.StackItemId,item.ControllerId,item.SourceObjectId,item.EffectKind,TriggerTimings.UnitDestroyed) { DeathObserver=c });
+        if (c.Kind == TriggerKinds.UnitEnemyDestroyedHereOncePerTurnCallRune)
+        {
+            var zones = NormalizeZonesForSeats(state);
+            var callCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            var called = CallRunes(zones, callCards, item.ControllerId, spec.RuneCallCount.GetValueOrDefault(1));
+            var calledEvent = new GameEvent("RUNES_CALLED", "敌方单位被摧毁后召出休眠符文", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds,
+                ["reason"] = c.Kind });
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = callCards, Events = [resolved, calledEvent] };
+        }
         if (c.Kind==TriggerKinds.UnitDestroyedNonMinionCreateMinion) {
             var batch=CreateUnitTokenBatch(state,item,P6TokenFactoryCatalog.ZaunMinionTokenCardNo,1+AdditionalUnitTokens(item),false,abilityId:c.Kind);
             return batch with { Events=new[] { resolved }.Concat(batch.Events).ToArray() };

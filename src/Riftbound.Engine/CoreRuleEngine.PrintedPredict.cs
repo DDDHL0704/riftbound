@@ -12,7 +12,7 @@ public sealed partial class CoreRuleEngine
         string Controller, long FaceRevision, string? TokenFactoryCardNo);
 
     private static readonly Lazy<IReadOnlySet<string>> PrintedPredictFaces = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(card => card.CardEffect.Split('\n').Any(line => line.TrimStart().StartsWith("{{预知}}", StringComparison.Ordinal)))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
 

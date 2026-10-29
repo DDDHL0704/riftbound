@@ -3,11 +3,29 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record BanishReplacementOrigin(string ControllerId, string SourceObjectId, string CardNo, long SourceGeneration, long AppliedTick, string StackItemId);
+
 public sealed partial class CoreRuleEngine
 {
+    internal static bool ValidBanishReplacementOrigins(MatchState state, CardObjectState target)
+        => target.BanishReplacementOrigins is not { } origins || origins.Count > 0
+            && target.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId, StringComparer.Ordinal)
+            && IsObjectOnField(state.PlayerZones, target.ObjectId)
+            && origins.All(origin => origin is not null && state.Seats.ContainsKey(origin.ControllerId)
+                && !string.IsNullOrWhiteSpace(origin.SourceObjectId) && !string.IsNullOrWhiteSpace(origin.CardNo)
+                && origin.SourceGeneration >= 0 && origin.AppliedTick >= 0 && origin.AppliedTick <= state.Tick
+                && !string.IsNullOrWhiteSpace(origin.StackItemId)
+                && state.CardObjects.TryGetValue(origin.SourceObjectId, out var source)
+                && source.ObjectGeneration >= origin.SourceGeneration
+                && (state.StackItems.Any(item => item.StackItemId == origin.StackItemId && item.SourceObjectId == origin.SourceObjectId
+                        && item.ControllerId == origin.ControllerId && item.CardNo == origin.CardNo)
+                    || state.CardPlays.Resolved.Any(play => play.PlayId == origin.StackItemId && play.Source.ObjectId == origin.SourceObjectId
+                        && play.Source.Generation >= origin.SourceGeneration && play.PlayerId == origin.ControllerId
+                        && play.CardNo == origin.CardNo && play.Tick >= origin.AppliedTick)));
+
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
-        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0);
+        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0, string? ResponsiblePlayerId = null);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -217,7 +235,14 @@ public sealed partial class CoreRuleEngine
         if (unit.UntilEndOfTurnEffects.Contains(RecallToBaseExhaustedIfDestroyedThisTurnEffectId))
             Add("RECALL", target, "应用本回合效果，移除伤害并休眠召回");
         if (unit.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId))
-            Add("BANISH", target, "应用本回合效果，改为放逐");
+        {
+            if (unit.BanishReplacementOrigins is { Count: > 0 } origins)
+                foreach (var (origin, index) in origins.Select((value, index) => (value, index)))
+                    options.Add(new(new($"BANISH:{target}:{index}", $"{label}（{target}）：应用 {origin.ControllerId} 的{OfficialCardSourceIdentityGroups.DisplayName(origin.CardNo)}效果，改为放逐", [target]),
+                        target, target, "BANISH", $"BANISH:{target}:{unit.ObjectGeneration}:{index}", unit.CardNo ?? "",
+                        ResponsiblePlayerId: origin.ControllerId));
+            else Add("BANISH", target, "应用本回合效果，改为放逐");
+        }
         if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown) return options;
         foreach (var gear in cards.Values.Where(gear => gear.AttachedToObjectId == target && !gear.IsFaceDown
             && gear.Tags.Contains(CardObjectTags.EquipmentCard) && IsObjectOnField(zones, gear.ObjectId)
@@ -300,7 +325,11 @@ public sealed partial class CoreRuleEngine
             || !IsObjectOnField(zones, option.Target)) return;
         if (option.Kind == "BANISH") {
             TryRemoveFieldTargetCore(zones, cards, option.Target, true, out var removal);
-            events.AddRange(BuildFieldRemovalEvents("替换为放逐", cause ?? stack, option.Target, removal, destructionReason));
+            var removalEvents = BuildFieldRemovalEvents("替换为放逐", cause ?? stack, option.Target, removal, destructionReason);
+            events.AddRange(option.ResponsiblePlayerId is { } actor
+                ? removalEvents.Select(ev => ev.Kind == "UNIT_BANISHED"
+                    ? CaptureOwnedBanishObservers(ev, zones, cards, actor, [option.Target]) : ev)
+                : removalEvents);
             return;
         }
         RecallAttachedGroupToBase(zones, cards, option.Target, player);
