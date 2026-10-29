@@ -21,6 +21,10 @@ for (const card of [...catalog.cards, ...(Array.isArray(catalog.scopedAdditions)
     effect: card.cardEffect || undefined,
     tag: card.tag || undefined,
     image: card.frontImage || undefined,
+    // Deck building: legend/champion pairing, the one-copy limit and the printing's sort order.
+    hero: card.hero || undefined,
+    limit: card.cardGroupLimit ?? undefined,
+    sort: card.listSort ?? undefined,
   };
 }
 // public/ holds only this generated (git-ignored) file, so a fresh checkout has no such folder.
