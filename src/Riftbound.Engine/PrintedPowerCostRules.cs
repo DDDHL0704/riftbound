@@ -12,6 +12,8 @@ public static class PrintedPowerCostRules
     private static readonly Lazy<IReadOnlyDictionary<string, Cost>> Costs = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPrintedResourceCostPrints())
+            // An admitted print can also exist in a reviewed metadata-only
+            // source. The authoritative runtime entry takes precedence.
             .Concat(ReviewedRuneCardSources.GetPrintedResourceCostPrints())
             .DistinctBy(card => card.CardNo, StringComparer.Ordinal).ToDictionary(
             card => card.CardNo,
