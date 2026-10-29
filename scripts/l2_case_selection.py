@@ -4,6 +4,7 @@ import math
 import xml.etree.ElementTree as ET
 
 SPLIT_MIN_SECONDS = 1200
+ESTIMATED_CLASS_WORKERS = 4
 
 
 def escape(value):
@@ -44,11 +45,28 @@ def partition(units, cases, weights, count):
             return weights.get(unit['case'], method_seconds / len(cases[unit['method']]))
         return method_seconds
     key = lambda unit: (unit['method'], unit.get('case', ''))
+    # xUnit runs methods of one class serially. Balance both that class load and
+    # the total work on the observed four-worker Linux runners; these estimates
+    # never change selectors or required coverage.
+    target = max(sum(weight(unit) for unit in units) / (ESTIMATED_CLASS_WORKERS * count),
+                 max(weight(unit) for unit in units))
     bins = [dict(name=f'shard-{i + 1}', selectors=[], estimatedSeconds=0.0) for i in range(count)]
+    class_loads = {shard['name']: defaultdict(float) for shard in bins}
+    class_peaks = {shard['name']: 0.0 for shard in bins}
     for unit in sorted(units, key=lambda item: (-weight(item), key(item))):
-        shard = min(bins, key=lambda item: (item['estimatedSeconds'], len(item['selectors']), item['name']))
+        seconds = weight(unit)
+        test_class = unit['method'].rsplit('.', 1)[0]
+        def score(shard):
+            loads = class_loads[shard['name']]
+            class_seconds = loads.get(test_class, 0) + seconds
+            projected = max(target, (shard['estimatedSeconds'] + seconds) / ESTIMATED_CLASS_WORKERS,
+                            class_peaks[shard['name']], class_seconds)
+            return projected, class_seconds, shard['estimatedSeconds'], len(shard['selectors']), shard['name']
+        shard = min(bins, key=score)
         shard['selectors'].append(unit)
-        shard['estimatedSeconds'] += weight(unit)
+        shard['estimatedSeconds'] += seconds
+        class_loads[shard['name']][test_class] += seconds
+        class_peaks[shard['name']] = max(class_peaks[shard['name']], class_loads[shard['name']][test_class])
     for shard in bins:
         shard['selectors'].sort(key=key)
         shard['methods'] = sorted({unit['method'] for unit in shard['selectors']})
