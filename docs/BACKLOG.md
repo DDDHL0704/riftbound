@@ -50,7 +50,7 @@
   - 把最慢的测试分散到各个分片；
   - 目标是单次 L2 在 30 分钟内跑完；
   - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
-- [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
+- [x] **P3-3 清理 `docs/legacy/`**：4 个测试仍读取的 JSON 已原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`；删除其余旧文档及没有调用方的治理报告工具。历史内容保留在 Git 中。
 
 ## 接手旧分支
 

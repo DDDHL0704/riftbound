@@ -81,7 +81,7 @@ python3 -m unittest discover -s scripts/tests
 | `scripts/` | 测试与 CI 工具 |
 | `data/official/` | 官方来源快照 |
 | `docs/BACKLOG.md` | 唯一的待办与状态 |
-| `docs/legacy/` | 仍被测试按路径读取的旧证据，只读，不要新增 |
+| `tests/Riftbound.ConformanceTests/Fixtures/official-source/` | 解析与官方卡牌身份测试使用的来源快照 |
 
 ## 工作环境
 
