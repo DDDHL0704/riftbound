@@ -978,6 +978,16 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var playedHereToken = Regex.Match(segment,
+            @"^当你打出我时，在此处打出(?:一名|一个)(?<ready>活跃的)?(?<might>[1-9][0-9]*)\{\{S\}\}(?:的)?“(?<name>[^”]+)”单位指示物。?$",
+            RegexOptions.CultureInvariant);
+        if (playedHereToken.Success)
+            return new(TriggerKinds.SourceUnitPlayedOrScoredCreateUnit, TriggerTimings.SourceUnitPlayed, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: 1,
+                CreatedTokenName: playedHereToken.Groups["name"].Value,
+                CreatedTokenPower: int.Parse(playedHereToken.Groups["might"].Value, CultureInfo.InvariantCulture),
+                CreatedTokenDestination: TriggerTokenDestinations.SourceLocation,
+                CreatedTokenExhausted: !playedHereToken.Groups["ready"].Success);
         if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
             return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
                 segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,

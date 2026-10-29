@@ -28,7 +28,8 @@ public sealed partial class CoreRuleEngine
     private static SourceUnitTokenContext[] CaptureSourceUnitTokens(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState source, string player, string timing, string? field = null)
         => source.IsFaceDown ? [] : AttachedRuleTextRules.Instances(zones, cards, source)
-            .Where(i => SourceUnitTokenFactory(i.CardNo) is not null)
+            .Where(i => SourceUnitTokenFactory(i.CardNo) is not null
+                && (timing == "PLAY" || SourceUnitTokenSpecs.Value[i.CardNo].Timing == TriggerTimings.SourceUnitPlayedOrScored))
             .Select(i => new SourceUnitTokenContext(i.CardNo, new(source.ObjectId, source.ObjectGeneration), player,
                 0, source.CopyFaceTransitions?.Count ?? 0, timing, field, i.Origin, source.TokenFactoryCardNo)).ToArray();
 
@@ -80,6 +81,7 @@ public sealed partial class CoreRuleEngine
             || context.ControllerId != controller || !state.Seats.ContainsKey(controller) || no is not null && no != context.CardNo
             || context.CapturedTick <= 0 || context.CapturedTick > state.Tick || context.FaceRevision < 0
             || SourceUnitTokenFactory(context.CardNo) is null || context.Timing is not ("PLAY" or "SCORE")
+            || context.Timing == "SCORE" && SourceUnitTokenSpecs.Value[context.CardNo].Timing != TriggerTimings.SourceUnitPlayedOrScored
             || (context.Timing == "PLAY" ? context.BattlefieldId is not null
                 : context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId))) return false;
         return context.Origin is { } origin
@@ -92,7 +94,29 @@ public sealed partial class CoreRuleEngine
         if (!ValidSourceUnitTokens(state, item.SourceUnitTokens, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
             throw new InvalidOperationException("Invalid source unit token trigger.");
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
+        if (!TrySourceUnitTokenDestination(state, item, out var battlefield)) return NoopStackResolutionResult(state);
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,
-            spec.CreatedTokenCount!.Value, entersReady: spec.CreatedTokenExhausted != true);
+            spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item), entersReady: spec.CreatedTokenExhausted != true,
+            battlefieldId: battlefield);
+    }
+
+    // CN 359.3.f.2: "here" is the original source object's location when this
+    // instruction resolves. A card that left and returned is a different object.
+    private static bool TrySourceUnitTokenDestination(MatchState state, StackItemState item, out string? battlefield)
+    {
+        battlefield = null;
+        if (item.SourceUnitTokens is not { } context) return false;
+        if (!SourceUnitTokenSpecs.Value.TryGetValue(context.CardNo, out var spec)) return false;
+        if (spec.CreatedTokenDestination == TriggerTokenDestinations.OwnerBase) return true;
+        if (spec.CreatedTokenDestination != TriggerTokenDestinations.SourceLocation
+            || !state.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
+            || source.ObjectGeneration != context.Source.Generation || !IsFaceUpNonStandbyUnit(source)
+            || !IsObjectOnField(state.PlayerZones, source.ObjectId)
+            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var at)) return false;
+        if (at.Zone == "BASE") return at.PlayerId == item.ControllerId && at.BattlefieldObjectId is null;
+        if (at.Zone != "BATTLEFIELD" || BattlefieldLocalRules.Battlefield(state, at.BattlefieldObjectId) is null
+            || BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + at.BattlefieldObjectId)) return false;
+        battlefield = at.BattlefieldObjectId;
+        return true;
     }
 }
