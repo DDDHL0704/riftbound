@@ -293,10 +293,14 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    OptionalPowerModifierSpec? OptionalPowerModifier = null,
+    bool CounterRequiresOpponentOtherSpellThisTurn = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
+
+public sealed record OptionalPowerModifierSpec(int PowerCost, string Trait, int Amount);
 
 public static class CardDamageConditionKinds
 {
@@ -459,6 +463,14 @@ public static class CardBehaviorRegistry
         new("VEN·100", "深渊之触", 3, "ABYSSAL_TOUCH_CREATE_TENTACLES", 0, 0,
             CreatedBaseUnitTokenCount: 2, CreatedBaseUnitTokenPower: 1, CreatedBaseUnitTokenName: "触手",
             CreatedBaseUnitTokenTags: "比尔吉沃特", FlowCost: new(3, 0, [])),
+        new("VEN·039", "崩解之沙", 1, "CRUMBLING_SANDS_CONDITIONAL_COUNTER", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, CanPlayDuringPriority: true, CountersTargetStackSpell: true,
+            CounterRequiresOpponentOtherSpellThisTurn: true),
+        new("VEN·083", "暴走", 3, "RAMPAGE_OPTIONAL_POWER_MUTUAL_DAMAGE", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits, DealsMutualTargetPowerDamage: true,
+            OptionalPowerModifier: new(1, RuneTrait.Orange, 2)),
+        new("VEN·085", "力量箴言", 1, "INVOCATION_OF_STRENGTH_RECYCLE_BLUE_HAND_CARD", 0, 0,
+            HandChoice: new(RevealedHandAction.Recycle, RequiredTag: "COLOR:blue")),
         new("VEN·038", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("VEN·038a", "阿卡丽 · 无形致命", 4, "VEN_AKALI_MOVE_PROTECTION_PLAY_UNIT", 0, 0,

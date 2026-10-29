@@ -13377,8 +13377,8 @@ internal static class ActionPromptBuilder
                 : IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
-                ? IsPromptControlledFieldObject(state, playerId, objectId)
-                : IsPromptEnemyFieldObject(state, playerId, objectId),
+                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsPromptFieldUnitObject(state, objectId)
                 : IsPromptEquipmentObject(state, objectId),
@@ -14729,6 +14729,19 @@ internal static class ActionPromptBuilder
             }
         }
 
+        if (behavior.OptionalPowerModifier is { } modifier)
+        {
+            var id = CoreRuleEngine.OptionalPowerModifierCostId(modifier);
+            var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
+                sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
+            if (CanPayPlayPowerCosts(state, playerId, runePool, paymentResourcePowerByTrait, behavior, modifier.PowerCost, modifier.Trait) || reduced)
+            {
+                choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {modifier.PowerCost} {RuneTraitLabel(modifier.Trait)}符能：第一目标本回合战力 +{modifier.Amount}",
+                    $"{behavior.DisplayName}的可选额外费用"));
+                AddReductionChoices(reductionChoices);
+            }
+        }
+
         if (behavior.SourceDrawAdditionalPowerCost > 0 && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0)
         {
             var sourceDrawPowerTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
@@ -15307,6 +15320,7 @@ internal static class ActionPromptBuilder
             || behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            || behavior.OptionalPowerModifier is not null
             || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptSourceReadyOptionalCost(state, playerId, behavior)
