@@ -18,7 +18,7 @@
 - [ ] **P0-2 夜间验收连续通过**。每次失败都在这里登记"失败项 + 原因 + 修复 PR"；连续 3 晚全绿后删掉本条。
   - [40708127555](https://github.com/DDDHL0704/riftbound/actions/runs/40708127555)（10 月 28 日手动运行）：6 局完整对局的夹具与当前战斗、触发时机及战场归属不一致；付款重连的可选减费夹具未适配候选结构变更。修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，已合入，待完整夜验验证。
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
-  - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复在 `a/nightly-rule-shards`：一次 Release 构建、六个 GitHub 任务按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。此项优先于其余 L2 提速，合入后重新手动夜验，本次不计连续三晚通过。
+  - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复在 `a/nightly-rule-shards`：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。此项优先于其余 L2 提速，合入后重新手动夜验，本次不计连续三晚通过。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
@@ -51,7 +51,7 @@
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
 - [ ] **P3-2 L2 提速**：
-  - 第一优先：`a/nightly-rule-shards` 修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到六个独立任务；
+  - 第一优先：`a/nightly-rule-shards` 修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；
   - 把最慢的测试分散到各个分片；
   - 目标是单次 L2 在 30 分钟内跑完；
   - 同一 PR 推送新提交后，旧运行的分片已取消，但 `always()` 汇总任务仍排队、阻塞新运行（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；修复取消流程，同时保留测试失败时的门禁校验；

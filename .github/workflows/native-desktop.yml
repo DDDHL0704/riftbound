@@ -82,7 +82,7 @@ jobs:
         run: python3 scripts/probe-l2-row-selection.py --commit "$RIFTBOUND_FIXED_COMMIT" --output var/qa/nightly-prepared/row-filter-probe
       - name: Build once and enumerate every full rule case
         id: plan
-        run: python3 scripts/l2-distributed.py prepare --profile full --commit "$RIFTBOUND_FIXED_COMMIT" --shards 6 --output var/qa/nightly-prepared --github-output "$GITHUB_OUTPUT"
+        run: python3 scripts/l2-distributed.py prepare --profile full --commit "$RIFTBOUND_FIXED_COMMIT" --shards 8 --output var/qa/nightly-prepared --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
@@ -108,7 +108,9 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6]
+        # Eight smaller jobs leave headroom below the six-hour limit; keep
+        # at most six running while other nightly acceptances use the pool.
+        shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8]
     concurrency:
       group: rule-suite-${{ github.ref }}-${{ needs.scope.outputs.commit }}-${{ matrix.shard }}
       cancel-in-progress: false

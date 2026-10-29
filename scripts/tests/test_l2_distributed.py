@@ -147,7 +147,7 @@ class DistributedL2Tests(unittest.TestCase):
         scope.update(discoverySha256=hashlib.sha256(text.encode()).hexdigest(),
                      discoveredMethods=len(D.RULES.discover(text)),
                      declaredTestMethods=len(D.RULES.discover(text)))
-        plan = D.make_plan(text, inventory, scope, {game: 2400}, 6, profile='full')
+        plan = D.make_plan(text, inventory, scope, {game: 2400}, 8, profile='full')
         plan.update({key: self.plan[key] for key in ('commit', 'sdkVersion', 'runId', 'runAttempt',
                     'testAssemblySha256', 'bundleManifestSha256', 'rowProbeSha256')})
         (self.prepared / 'discovery.log').write_text(text)
@@ -168,6 +168,7 @@ class DistributedL2Tests(unittest.TestCase):
         game, names = self.full_fixture()
         result = self.full_verify()
         self.assertEqual('FULL_RULE_SUITE_PASSED', result['status'])
+        self.assertEqual(8, result['shards'])
         self.assertEqual([], self.plan['deferredL3Methods'])
         self.assertEqual(D.RULES.discover((self.prepared / 'discovery.log').read_text()), set(self.plan['methods']))
         self.assertTrue(D.RULES.l3_acceptance_methods() <= set(self.plan['methods']))
