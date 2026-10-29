@@ -37,6 +37,13 @@ public sealed class OptionalManaTriggerPromptTests
         Assert.Null(driver.State.PendingPayment);
         Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
         Assert.Contains(done.Events, e => e.Kind == (decline ? "TRIGGER_PAYMENT_DECLINED" : "COST_PAID"));
+        if (branch == "vayne" && !decline)
+        {
+            Assert.Contains("UNIT", driver.State.PlayerZones["P1"].Battlefields);
+            Assert.DoesNotContain(done.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+            Assert.NotNull(driver.State.PriorityPlayerId);
+            await driver.Top();
+        }
         if (branch is "vayne" or "sand")
             Assert.Contains("UNIT", decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         if (branch == "legend") Assert.Equal(decline, driver.State.CardObjects["LEGEND"].IsExhausted);
@@ -56,7 +63,10 @@ public sealed class OptionalManaTriggerPromptTests
     [InlineData("alias-pay")] [InlineData("duplicate")] [InlineData("both-branches")]
     public async Task OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(string change)
     {
-        var driver = await Open(Position("vayne"), "vayne", null);
+        // Captured Vayne triggers accept the shared PAY alias; keep the
+        // legacy optional-payment alias rejection covered by the gold trigger.
+        var branch = change == "alias-pay" ? "gold" : "vayne";
+        var driver = await Open(Position(branch), branch, null);
         var before = driver.State;
         var payment = before.PendingPayment!;
         var choices = change switch { "alias-pay" => new[] { "PAY" },
@@ -81,6 +91,12 @@ public sealed class OptionalManaTriggerPromptTests
             await driver.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", []));
             await driver.Act("P1", new PassFocusCommand());
             await driver.Act("P2", new PassFocusCommand());
+        }
+        if (branch == "vayne")
+        {
+            var trigger = Assert.Single(driver.State.TriggerQueue);
+            Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, trigger.EffectKind);
+            await driver.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [trigger.TriggerId]));
         }
         return driver;
     }
