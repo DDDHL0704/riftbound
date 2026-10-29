@@ -456,6 +456,15 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·002", "旋风剑客", 4, "SWIFTBLADE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "约德尔人"),
+        new("VEN·016", "蚀影巨龙", 8, "ECLIPSE_DRAKE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·095", "影流弟子", 2, "SHADOW_DISCIPLE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
+        new("VEN·111", "米娜·捷足", 6, "MINA_SWIFTFOOT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

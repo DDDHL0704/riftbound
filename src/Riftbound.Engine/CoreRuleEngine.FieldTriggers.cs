@@ -129,8 +129,10 @@ public sealed partial class CoreRuleEngine
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
-            || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i));
+            || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
+            || NeedsMovementInstructionConfirmation(i));
         if (item is null) return result;
+        if (NeedsMovementInstructionConfirmation(item)) return PrepareMovementInstruction(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
