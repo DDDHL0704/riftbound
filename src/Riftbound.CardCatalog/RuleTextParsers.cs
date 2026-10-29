@@ -2829,6 +2829,17 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            if (segment == "你打出到你所控制战场的单位以活跃状态进场。"
+                || segment == "你打出到你所控制战场的单位以活跃状态进场")
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.FriendlyUnitsEnterReady, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Ready entry applies only to a unit played to a battlefield currently controlled by its player.",
+                    RequiresControlledBattlefieldPlay: true));
+                continue;
+            }
+
             var friendlyLevelUnitsEnterReadyMatch = Regex.Match(
                 segment,
                 @"\{\{等级(\d+)>\}\}\s*你的单位以活跃状态进场。?$",

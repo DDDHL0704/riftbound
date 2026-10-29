@@ -1174,7 +1174,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var entersReadyFromStaticAbility,
             out var entryStaticAbilitySourceObjectId,
             out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
+            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
         cardObjects[tokenObjectId] = tokenState;
         var zones = playerZones[intent.PlayerId];
         playerZones[intent.PlayerId] = zones with
@@ -17307,7 +17307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out var entersReadyFromStaticAbility,
             out var entryStaticAbilitySourceObjectId,
             out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
+            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
         cardObjects[tokenObjectId] = tokenState;
         playerZones[playerId] = zones with
         {
@@ -28678,7 +28678,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out entersReadyFromStaticAbility,
                     out entryStaticAbilitySourceObjectId,
                     out entryStaticAbilitySourceState,
-                    out entryStaticAbility);
+                    out entryStaticAbility, entryBattlefieldId: shadowField?.ObjectId);
             }
             cardObjects[tokenObjectId] = tokenState;
             var zones = playerZones[stackItem.ControllerId];
@@ -29375,6 +29375,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string enteringObjectId,
         string? enteringCardNo,
         IReadOnlyDictionary<string, int>? playerExperience,
+        string? entryBattlefieldId,
+        bool countsAsPlay,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -29387,6 +29389,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             enteringCardNo,
             enteringIsUnit: true,
             playerExperience: playerExperience,
+            entryBattlefieldId,
+            countsAsPlay,
             out sourceObjectId,
             out sourceState,
             out ability);
@@ -29400,6 +29404,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? enteringCardNo,
         bool enteringIsUnit,
         IReadOnlyDictionary<string, int>? playerExperience,
+        string? entryBattlefieldId,
+        bool countsAsPlay,
         out string sourceObjectId,
         out CardObjectState sourceState,
         out StaticAbilitySpec ability)
@@ -29443,7 +29449,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     sourceIsUnit: true,
                     playerExperience: playerExperience,
                     controllerId: controllerId,
-                    out var candidateAbility))
+                    out var candidateAbility)
+                || !EntryReadyDestinationRequirementsSatisfied(candidateAbility, playerZones, cardObjects,
+                    controllerId, entryBattlefieldId, countsAsPlay))
             {
                 continue;
             }
@@ -29482,7 +29490,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         sourceIsUnit: false,
                         playerExperience: playerExperience,
                         controllerId: controllerId,
-                        out var legendAbility))
+                        out var legendAbility)
+                    || !EntryReadyDestinationRequirementsSatisfied(legendAbility, playerZones, cardObjects,
+                        controllerId, entryBattlefieldId, countsAsPlay))
                 {
                     continue;
                 }
@@ -29496,6 +29506,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return false;
     }
+
+    private static bool EntryReadyDestinationRequirementsSatisfied(StaticAbilitySpec ability,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId, string? battlefieldId, bool countsAsPlay)
+        => ability.RequiresControlledBattlefieldPlay is not true
+            || countsAsPlay && TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out _, out var battlefield)
+                && !battlefield.IsFaceDown
+                && battlefield.ControllerId == controllerId;
 
     private static bool TryGetEntryReadyStaticAbility(
         string? sourceCardNo,
@@ -29902,7 +29921,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out bool entersReadyFromStaticAbility,
         out string entryStaticAbilitySourceObjectId,
         out CardObjectState entryStaticAbilitySourceState,
-        out StaticAbilitySpec entryStaticAbility)
+        out StaticAbilitySpec entryStaticAbility,
+        string? entryBattlefieldId = null)
     {
         return ApplyTokenEntryStaticAbility(
             playerZones,
@@ -29913,7 +29933,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out entersReadyFromStaticAbility,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
-            out entryStaticAbility);
+            out entryStaticAbility,
+            entryBattlefieldId);
     }
 
     private static CardObjectState ApplyTokenEntryStaticAbility(
@@ -29925,7 +29946,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out bool entersReadyFromStaticAbility,
         out string entryStaticAbilitySourceObjectId,
         out CardObjectState entryStaticAbilitySourceState,
-        out StaticAbilitySpec entryStaticAbility)
+        out StaticAbilitySpec entryStaticAbility,
+        string? entryBattlefieldId = null)
     {
         var enteringIsUnit = tokenState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
         entersReadyFromStaticAbility = TryGetFriendlyEnterReadyStaticAbilitySource(
@@ -29936,6 +29958,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             tokenState.CardNo,
             enteringIsUnit,
             playerExperience: null,
+            entryBattlefieldId,
+            countsAsPlay: true,
             out entryStaticAbilitySourceObjectId,
             out entryStaticAbilitySourceState,
             out entryStaticAbility);
