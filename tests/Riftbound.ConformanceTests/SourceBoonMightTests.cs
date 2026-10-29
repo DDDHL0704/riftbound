@@ -25,7 +25,41 @@ public sealed class SourceBoonMightTests
 
     [Theory]
     [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
-    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
+    public async Task PlayingTheBossPaysOrangePowerThenWaitsForResponsesBeforeGrantingTheActivatableBoon(string no)
+    {
+        var state = VenUnitEntryBasicTests.Position(no) with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 1 }), ["P2"] = RunePool.Empty } };
+        var game = new Driver(state); await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        Assert.Equal(0, game.State.RunePools["P1"].Mana);
+        Assert.Equal(0, game.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RuneTrait.Orange));
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        Assert.True(Assert.Single(game.State.StackItems).SourceConfirmed);
+        await game.Top(); Assert.Equal(5, game.State.CardObjects["UNIT"].Power);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        await game.Act("P1", new ActivateAbilityCommand("UNIT", Ability, []));
+        Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        await game.Top(); Assert.Equal(8, game.State.CardObjects["UNIT"].Power);
+        await game.Act("P1", new EndTurnCommand()); Assert.Equal(4, game.State.CardObjects["UNIT"].Power);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
+    public async Task MissingThePrintedOrangePowerRejectsTheWholePlay(string no)
+    {
+        var state = VenUnitEntryBasicTests.Position(no) with { RunePools = new Dictionary<string, RunePool> {
+            ["P1"] = new(5, 0), ["P2"] = RunePool.Empty } };
+        await Reject(state, "P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+    }
+
+    [Theory]
+    [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
     public async Task EveryBossPrintingConsumesItsBoonBeforeResponsesAndGetsFourMightUntilTurnEnd(string no)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
@@ -49,7 +83,7 @@ public sealed class SourceBoonMightTests
 
     [Theory]
     [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
-    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
     public async Task ASourceWithoutABoonHasNoCandidateAndCannotActivate(string no)
     {
         var state = Position(no); state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
@@ -60,7 +94,7 @@ public sealed class SourceBoonMightTests
 
     [Theory]
     [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
-    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
     public async Task ExhaustionDoesNotPreventPayingTheBoonCost(string no)
     {
         var state = Position(no); state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
@@ -97,7 +131,13 @@ public sealed class SourceBoonMightTests
         if (scenario == "optional-cost") command = command with { OptionalCosts = ["CONSUME_BOON:HOST"] };
         if (scenario == "wrong-instance") command = command with { AbilityInstanceId = "ATTACHED:MISSING:0:1:" + Ability };
         if (scenario == "closed") state = state with { TimingState = TimingStates.NeutralClosed };
-        if (scenario == "off-field") state = LocalDestructionRecallTests.At(state, "HOST", "P1", "HAND");
+        if (scenario == "off-field") state = state with {
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with {
+                    Base = state.PlayerZones["P1"].Base.Where(id => id != "HOST").ToArray(),
+                    Battlefields = state.PlayerZones["P1"].Battlefields.Where(id => id != "HOST").ToArray(),
+                    Hand = [..state.PlayerZones["P1"].Hand, "HOST"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["HOST"] = new("P1", "HAND") } };
         await Reject(state, scenario == "wrong-player" ? "P2" : "P1", command);
     }
 

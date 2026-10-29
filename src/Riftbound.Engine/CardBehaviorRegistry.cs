@@ -459,6 +459,8 @@ public static class CardBehaviorRegistry
         new("VEN·SP1", "卡莎·九死一生", 4, "VEN_KAISA_STALWART_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "急速",
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("VEN·SP4", "瑟提·铁拳", 5, "VEN_SETT_PLAY_UNIT_GRANT_SELF_BOON", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, GrantsBoonToSourceUnit: true),
         new("VEN·046", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "犬形|法盾2"),
         new("VEN·046a", "内瑟斯 · 飞升者", 8, "VEN_NASUS_EMPOWERED_CONQUEST_PLAY_UNIT", 0, 0,

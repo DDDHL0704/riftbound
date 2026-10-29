@@ -89,15 +89,29 @@
         "cardNo": "SFD·232*/221",
         "targetObjectIds": []
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "sett-P1-respond",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "sett-P2-respond",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
     }
   ],
   "expected": {
-    "finalTick": 1,
+    "finalTick": 3,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
       "OBJECT_TAG_ADDED",
       "BOON_GRANTED"
     ],
@@ -135,6 +149,10 @@
           ]
         }
       },
+      { "kind": "TRIGGER_QUEUED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "OBJECT_TAG_ADDED",
         "payload": {

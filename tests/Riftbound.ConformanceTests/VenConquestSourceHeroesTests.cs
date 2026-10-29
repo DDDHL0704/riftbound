@@ -129,7 +129,7 @@ public sealed class VenConquestSourceHeroesTests
 
     [Theory]
     [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
-    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
     public async Task BossPrintingsWaitForResponsesBeforeGrantingTheirConquestBoon(string no)
     {
         var game = new Driver(Position(no)); var power = game.State.CardObjects["UNIT"].Power;
@@ -141,7 +141,7 @@ public sealed class VenConquestSourceHeroesTests
 
     [Theory]
     [InlineData("OGN·164/298")] [InlineData("OGN·164a/298")]
-    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")]
+    [InlineData("SFD·232/221")] [InlineData("SFD·232*/221")] [InlineData("VEN·SP4")]
     public async Task BossConquestBoonDoesNotFollowItsSourceIntoHand(string no)
     {
         var game = new Driver(AttackDamageDistributionTests.Spell(Position(no), "BOUNCE", "OGN·104/298", "P1"));
@@ -166,8 +166,10 @@ public sealed class VenConquestSourceHeroesTests
         }
     }
 
-    [Fact]
-    public async Task ChinaStandardDeckAcceptsTheVenStalwartPrinting()
+    [Theory]
+    [InlineData("VEN·SP1", "OGN·247/298", "red", "blue")]
+    [InlineData("VEN·SP4", "OGN·269/298", "orange", "yellow")]
+    public async Task ChinaStandardDeckAcceptsTheVenHeroPrinting(string printing, string legend, string firstColor, string secondColor)
     {
         const OfficialDeckFormat format = OfficialDeckFormat.ChinaStandard20260724;
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
@@ -176,9 +178,9 @@ public sealed class VenConquestSourceHeroesTests
             .OrderBy(c => c.CardNo, StringComparer.Ordinal).First().CardNo;
         var builder = typeof(PreconstructedDeckCatalog).GetMethod("BuildLowCurveDeck", BindingFlags.NonPublic | BindingFlags.Static)!;
         var deck = (OfficialDecklist)builder.Invoke(null, [allowed, allowed.Cards.ToDictionary(c => c.CardNo, StringComparer.Ordinal),
-            "OGN·247/298", "VEN·SP1", Array.Empty<string>(),
+            legend, printing, Array.Empty<string>(),
             new[] { "OGN·277/298", "OGN·278/298", "OGN·294/298" },
-            Enumerable.Repeat(Rune("red"), 6).Concat(Enumerable.Repeat(Rune("blue"), 6)).ToArray()])!;
+            Enumerable.Repeat(Rune(firstColor), 6).Concat(Enumerable.Repeat(Rune(secondColor), 6)).ToArray()])!;
         var validation = OfficialDeckValidator.Validate(deck, catalog, format);
         Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
     }
