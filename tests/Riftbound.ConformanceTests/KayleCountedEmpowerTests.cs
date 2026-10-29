@@ -17,6 +17,42 @@ public sealed class KayleCountedEmpowerTests
         .GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("HOST");
 
     [Theory]
+    [InlineData("VEN·134")] [InlineData("VEN·185")]
+    public async Task CountedEmpowerCrossesMightyOnceAndThePaidReadyWaitsForItsOwnResponses(string no)
+    {
+        var state = Position(no);
+        state = state with {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["FIORA"] = OfficialGarenConquestBattlefieldCountTests.Printed("FIORA", "SFD·180/221", "P1") },
+            RunePools = new Dictionary<string, RunePool>(state.RunePools) {
+                ["P1"] = new(20, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }) } };
+        state = LocalDestructionRecallTests.At(state, "FIORA", "P1", "BASE");
+        var game = new Driver(state);
+        await game.Act("P1", new PlayCardCommand("HOST", no, []));
+        Assert.Empty(game.State.StackItems);
+        await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+        await game.Top();
+        Assert.Equal(1, game.State.CardObjects["HOST"].EmpowermentCount);
+        Assert.Equal(5, View(game.State).GetProperty("effectivePower").GetInt32());
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal("MIGHTY_SKILL_COST", payment.PaymentWindow);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_POWER:yellow:1"]));
+        Assert.True(game.State.CardObjects["HOST"].IsExhausted);
+        Assert.Equal("HOST", Assert.Single(game.State.StackItems).MightySkill!.Unit.ObjectId);
+        await game.Top();
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted);
+        for (var count = 2; count <= 3; count++) {
+            await game.Act("P1", new ActivateAbilityCommand("HOST", "EMPOWER:0:0", []));
+            await game.Top();
+            Assert.Equal(3 + 2 * count, View(game.State).GetProperty("effectivePower").GetInt32());
+            Assert.Empty(game.State.StackItems);
+            Assert.Null(game.State.PendingPayment);
+        }
+        await game.Replay();
+    }
+
+    [Theory]
     [InlineData("VEN·134", 37834)] [InlineData("VEN·185", 37888)]
     public async Task BothOfficialPrintingsHaveThreeDistinctEmpowerStatesAndThreeManaCost(string no, long id)
     {
