@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string ConsumeSourceBoonGrantSelfMight = "CONSUME_SOURCE_BOON_GRANT_SELF_MIGHT";
     public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
