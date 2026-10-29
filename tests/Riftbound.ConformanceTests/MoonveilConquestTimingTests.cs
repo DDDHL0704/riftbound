@@ -90,6 +90,11 @@ public sealed class MoonveilConquestTimingTests
         pending = Assert.Single(driver.State.StackItems, i => i.EffectKind == TriggerKinds.BattlefieldConquerReadyEquipment);
         Assert.Equal(new[] { "GOLD" }, pending.TargetObjectIds);
         Assert.Equal(initial.CardObjects["GOLD"].ObjectGeneration, pending.TargetGenerations!["GOLD"]);
+        var departed = Assert.Single(pending.DepartedTokenTargets!);
+        Assert.Equal(new ObjectBinding("GOLD", initial.CardObjects["GOLD"].ObjectGeneration), departed.Target);
+        var forged = pending with { DepartedTokenTargets = [departed with { DepartedTick = driver.State.Tick + 1 }] };
+        Assert.Contains("invalid captured battlefield conquest choice stack", OfficialInsightAndSpellLockTests.Errors(
+            driver.State with { StackItems = driver.State.StackItems.Select(i => i.StackItemId == pending.StackItemId ? forged : i).ToArray() }));
         var resolved = await driver.Top();
         Assert.DoesNotContain(resolved.Events, e => e.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
         Assert.True(driver.State.CardObjects["EQUIP"].IsExhausted);
