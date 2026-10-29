@@ -2925,6 +2925,18 @@ public static class StaticAbilityParser
                     segment, BehaviorImplementationStatuses.Unimplemented,
                     "Enemy spell and skill target protection applies while the source is outside combat.",
                     RequiresSourceOutsideBattle: true));
+            }
+
+            var selfDamageImmunity = Regex.Match(segment,
+                @"^(?<empowered>\{\{已强化>\}\}\s*)?(?:我获得\{\{S\}\}\+\d+[，,]且)?(?<outside>除非我处于战斗中，否则)?我无法受到伤害。?$",
+                RegexOptions.CultureInvariant);
+            if (selfDamageImmunity.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceUnitDamageImmunity,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Damage immunity follows current empowerment and combat presence.",
+                    RequiresSourceOutsideBattle: selfDamageImmunity.Groups["outside"].Success ? true : null,
+                    RequiresSourceEmpowered: selfDamageImmunity.Groups["empowered"].Success ? true : null));
                 continue;
             }
 
