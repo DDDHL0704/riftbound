@@ -13085,7 +13085,7 @@ internal static class ActionPromptBuilder
                 && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
                 && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
                 && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
-                && (!behavior.MovesTargetsToChosenLocation || behavior.OptionalEquipmentAfterMovement && targetIndex != 0
+                && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
                     || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
@@ -13200,7 +13200,7 @@ internal static class ActionPromptBuilder
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
         if (behavior.AnyNumberOfTargets) return false;
-        return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null || behavior.OptionalEquipmentAfterMovement
+        return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null || behavior.OptionalEquipmentAfterMovement || behavior.TargetPowerComparison is not null
             || behavior.MaxTotalTargetPower > 0
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
@@ -13246,6 +13246,7 @@ internal static class ActionPromptBuilder
                 return false;
             }
             if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex)
+                || !CoreRuleEngine.IsTargetPowerComparisonAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
                 || !CoreRuleEngine.IsMovementEquipmentRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
                 return false;

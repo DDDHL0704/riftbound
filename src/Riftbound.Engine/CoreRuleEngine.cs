@@ -25841,7 +25841,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
                 using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
-                    behavior.DestroysTarget ? stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : [], stackItem);
+                    behavior.DestroysTarget ? stackItem.TargetObjectIds.Where((id, index) => ShouldDestroyChosenTarget(behavior, index)
+                        && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : [], stackItem);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
@@ -26082,7 +26083,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetObjectId,
                         targetState);
-                    if (behavior.DestroysTarget
+                    if (ShouldDestroyChosenTarget(behavior, targetIndex)
                         && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
                         events.AddRange(BuildFieldRemovalEvents(
@@ -26413,6 +26414,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddBoonAmplifiers(state, stackItem, behavior, untilEndOfTurnEffects, events);
         AddTurnUnitPlayGrants(state, stackItem, behavior, untilEndOfTurnEffects, events);
 
+        if (behavior.MovesTargetsToChosenLocation)
+        {
+            // CN 359.3.e / 323 and the official Shuriken Flip ruling:
+            // finish the movement instruction before lethal cleanup.
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
+                stackItem, ChosenMovementTargets(behavior, stackItem.TargetObjectIds).Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+            // CN359.3.e.14: the following instruction refers to the moved unit;
+            // if movement is ignored, its linked ready instruction is ignored.
+            if (behavior.ReadiesTargetsAfterChosenMovement)
+                foreach (var id in movedTargets)
+                {
+                    if (!cardObjects.TryGetValue(id, out var unit)) continue;
+                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent, playerZones, cardObjects);
+                    if (readyEvent is not null) events.Add(readyEvent);
+                }
+            if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
+        }
+
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
         // until its last instruction. Explicit destroy instructions still execute.
         // A first burnout can leave ordinary victory pending until the parent
@@ -26483,24 +26504,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, runePools, stackItem, behavior, events);
-            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
-        }
-
-        if (behavior.MovesTargetsToChosenLocation)
-        {
-            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations, runePools,
-                stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
-            // CN359.3.e.14: the following instruction refers to the moved unit;
-            // if movement is ignored, its linked ready instruction is ignored.
-            if (behavior.ReadiesTargetsAfterChosenMovement)
-                foreach (var id in movedTargets)
-                {
-                    if (!cardObjects.TryGetValue(id, out var unit)) continue;
-                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent, playerZones, cardObjects);
-                    if (readyEvent is not null) events.Add(readyEvent);
-                }
-            if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 

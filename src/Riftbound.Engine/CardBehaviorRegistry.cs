@@ -293,7 +293,10 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    int? ChosenMovementTargetIndex = null,
+    int? DestroyTargetIndex = null,
+    TargetPowerComparisonSpec? TargetPowerComparison = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -8776,6 +8779,17 @@ public static class CardBehaviorRegistry
             0,
             0,
             DynamicDrawCountKind: CardDynamicDrawCountKinds.ControllerPowerfulUnits),
+        new("VEN·140", "我流奥义！隼舞", 1, "DAMAGE_OPTIONAL_ENEMY_THEN_MOVE_FRIENDLY", 2, 2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, MinTargetCount: 1,
+            DamageTargetIndex: 1, MovesTargetsToChosenLocation: true, ChosenMovementTargetIndex: 0,
+            FlowCost: new(3, 1, [])),
+        new("VEN·148", "奥义！影缚", 2, "MOVE_ENEMY_TO_FRIENDLY_FIELD_BUFF_PAIR", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: true, FriendlyPowerModifier: 1,
+                RequiredFriendlyUnitCount: 2), FlowCost: new(5, 2, [])),
+        new("VEN·154", "公开处刑", 2, "DESTROY_ENEMY_WEAKER_THAN_CHOSEN_FRIENDLY", 0, 2,
+            DestroysTarget: true, TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            DestroyTargetIndex: 1, TargetPowerComparison: new(1, 0), FlowCost: new(5, 2, [])),
         new("VEN·042", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "英雄"),
         new("VEN·042a", "慎 - 破影之光", 5, "UNIT_CONDITIONAL_HOLD_PLAY:VEN·042a", 0, 0,
