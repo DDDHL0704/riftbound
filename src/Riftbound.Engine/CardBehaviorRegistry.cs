@@ -460,6 +460,9 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·144", "禁奥义！瞬狱影杀阵", 2, "VEN_ZED_BURN_THREE_CREATE_SHADOW", 0, 0,
+            BurnCount: 3, CreatedBaseUnitTokenCount: 1, CreatedBaseUnitTokenPower: 0,
+            CreatedBaseUnitTokenName: "影分身", FlowCost: new(1, 2, [])),
         new("VEN·023", "劫·禁忌之影", 4, "ZED_FORBIDDEN_SHADOW_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4,
             CreatedBaseUnitTokenCount: 1, CreatedBaseUnitTokenName: "影分身", CreatedBaseUnitTokenPower: 0,

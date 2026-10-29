@@ -5685,7 +5685,6 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.SourceReadied is { } readied) { view["abilityLabel"] = "活跃后获得关键词"; if (readied.Mode is { } mode) view["mode"] = mode; }
         if (!hiddenSource && item.SourcePlayDraw is not null) view["abilityLabel"] = "其他装备条件抽牌";
         if (!hiddenSource && item.SourceUnitTokens is not null) view["abilityLabel"] = "打出单位指示物";
-        if (!hiddenSource && item.SourceUnitTokens is not null) view["abilityLabel"] = "打出单位指示物";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
         if (!hiddenSource && item.DamageDistribution is not null) {
             view["damageDistribution"] = item.DamageDistribution;

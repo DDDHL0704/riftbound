@@ -25289,7 +25289,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             }
         }
-        else if (behavior.CreatedBaseUnitTokenCount > 0
+        else if (winnerPlayerId is null && behavior.CreatedBaseUnitTokenCount > 0
             && !behavior.CreatedBaseUnitTokenCopiesFirstTarget
             && ShouldCreateBaseUnitTokens(behavior, stackItem))
         {
@@ -26401,7 +26401,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
         }
 
-        if (behavior.CreatedBaseUnitTokenCount > 0
+        if (winnerPlayerId is null && behavior.CreatedBaseUnitTokenCount > 0
             && behavior.CreatedBaseUnitTokenCopiesFirstTarget)
         {
             CreateBaseUnitTokens(
@@ -26415,7 +26415,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.PlayedFromStandby is null ? null : (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)), untilEndOfTurnEffects);
         }
 
-        if (behavior.CreatedBaseEquipmentTokenCount > 0)
+        if (winnerPlayerId is null && behavior.CreatedBaseEquipmentTokenCount > 0)
         {
             CreateBaseEquipmentTokens(
                 playerZones,

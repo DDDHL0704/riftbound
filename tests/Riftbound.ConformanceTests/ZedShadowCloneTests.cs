@@ -100,17 +100,27 @@ public sealed class ZedShadowCloneTests
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var card = Assert.Single(catalog.Cards, c => c.CardNo == "VEN·T05");
-        Assert.Equal(37925, card.Id); Assert.Equal("指示物单位", card.CardCategoryName);
+        Assert.Equal(37925, card.Id); Assert.Equal("单位", card.CardCategoryName);
+        Assert.True(OfficialRuleDomainBehaviorCatalog.IsTokenCard(card));
         Assert.Null(card.Energy); Assert.Equal(0, card.Power);
         Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(card.CardNo, out var factory));
         Assert.Equal(0, factory.DefaultPower); Assert.False(factory.RequiresCopySource);
         Assert.False(CardBehaviorRegistry.TryGetByCardNo(card.CardNo, out _));
         var trigger = Assert.Single(TriggerParser.Parse(card.CardEffect), t => t.Kind == TriggerKinds.UnitAttackBanishGraveyardUnitAssault);
         Assert.Equal(4, trigger.KeywordBonus); Assert.Equal(TriggerTargetScopes.ControlledUnitInGraveyard, trigger.TargetScope);
+    }
+
+    [Theory]
+    [InlineData("VEN·T05")]
+    [InlineData("VEN·T06")]
+    public async Task TokenPrintingsCategorizedAsUnitsCannotBeSubmittedInAMainDeck(string cardNo)
+    {
+        var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var deck = PreconstructedDeckCatalog.Build(catalog, OfficialDeckFormat.CoreRules).Single(d => d.Id == "jhin-lowcurve").Decklist;
-        var validation = OfficialDeckValidator.Validate(deck with { MainDeck = deck.MainDeck.Append(card.CardNo).ToArray() }, catalog);
+        Assert.True(OfficialDeckValidator.Validate(deck, catalog).IsValid);
+        var validation = OfficialDeckValidator.Validate(deck with { MainDeck = deck.MainDeck.Append(cardNo).ToArray() }, catalog);
         Assert.False(validation.IsValid);
-        Assert.Contains("主牌堆中的 VEN·T05 不能使用类别：指示物单位。", validation.Errors);
+        Assert.Contains($"主牌堆中不能使用指示物：{cardNo}。", validation.Errors);
     }
 
     [Fact]

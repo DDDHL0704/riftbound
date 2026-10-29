@@ -4,7 +4,7 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    // CN 441/432: burned cards enter the graveyard before any subsequent
+    // CN 440/431: burned cards enter the graveyard before any subsequent
     // burnout recycles it. Taking a top card does not fire draw observers.
     private static DrawApplicationResult ApplyBurnToPlayer(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, IReadOnlyDictionary<string, int> scores, string player,
