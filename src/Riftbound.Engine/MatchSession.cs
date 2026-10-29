@@ -675,7 +675,7 @@ public sealed record PendingHandChoiceState
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed partial record MatchState
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public TurnBattlefieldConquests? BattlefieldConquests { get; init; }
 
     [JsonRequired]

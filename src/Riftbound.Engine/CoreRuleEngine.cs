@@ -18104,10 +18104,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
         behavior = PlaySourceKeywordBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
         var normalGraveyardChoices = (command.OptionalCosts ?? []).Count(c => c == NormalGraveyardPlayChoice);
+        var normalGraveyardPlay = false;
         if (normalGraveyardChoices > 0) {
             if (normalGraveyardChoices != 1 || !NormalGraveyardPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId)) {
                 rejection = Reject(state, "当前没有从废牌堆正常打出此牌的权限。", ErrorCodes.InvalidTarget); return false;
             }
+            normalGraveyardPlay = true;
             behavior = behavior with { AppliedFlowCost = null };
         }
         if (!TurnEquipmentPlayRules.TryApply(state, intent.PlayerId, command.SourceObjectId, command.OptionalCosts, behavior, out behavior))
@@ -18115,8 +18117,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "所选装备打出权限不存在、已使用，或不适用于这张牌。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!TrySelectFlowCost(state, intent.PlayerId, command.SourceObjectId, behavior, command.OptionalCosts,
-                out behavior, out var costsWithoutFlow))
+        IReadOnlyList<string> costsWithoutFlow;
+        if (normalGraveyardPlay)
+            costsWithoutFlow = command.OptionalCosts ?? [];
+        else if (!TrySelectFlowCost(state, intent.PlayerId, command.SourceObjectId, behavior, command.OptionalCosts,
+                    out behavior, out costsWithoutFlow))
         {
             rejection = Reject(state, "请选择一个当前合法的流转费用。", ErrorCodes.InvalidTarget);
             return false;
