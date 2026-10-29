@@ -18008,7 +18008,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayCardCommand command,
         out PlayCardPlan plan,
         out ResolutionResult rejection,
-        bool includeRejectionProjections = true, bool validateRepeats = true)
+        bool includeRejectionProjections = true, bool validateRepeats = true, bool previewWithoutTargets = false)
     {
         ResolutionResult Reject(MatchState rejectedState, string message, string code)
             => includeRejectionProjections ? RejectWithCorePrompts(rejectedState, message, code)
@@ -18022,7 +18022,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported card behavior or mode: {command.CardNo} {command.Mode}",
+                $"暂不支持该卡牌或模式：{command.CardNo} {command.Mode}",
                 ErrorCodes.UnsupportedCardBehavior);
             return false;
         }
@@ -18037,7 +18037,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                "PLAY_CARD source is already pending on the stack.",
+                "该出牌来源已在结算链中。",
                 ErrorCodes.PhaseNotAllowed);
             return false;
         }
@@ -18146,11 +18146,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             out targetObjectIds);
         var targetScope = PlayCardTargetScopeForBehavior(behavior);
-        if (!HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope))
+        var legalTargets = HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope);
+        var incompleteTargets = previewWithoutTargets && targetObjectIds.Count == 0 && !legalTargets;
+        if (!incompleteTargets && !legalTargets)
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(targetScope)} target(s).",
+                $"{behavior.DisplayName} 需要选择 {DescribeTargetCount(state, intent.PlayerId, behavior)} 个合法目标（{DescribeTargetScope(targetScope)}）。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18188,19 +18190,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a different hand card to discard.",
+                $"{behavior.DisplayName} 需要弃置另一张手牌。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
 
         if (!ManaSpendSelectionRules.TryExtract(command.OptionalCosts ?? [], out var costsWithoutManaSpend, out var manaSpend))
         {
-            rejection = Reject(state, "Invalid actual mana source selection.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "法力支付来源选择无效。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (!PlayPowerSpendSelectionRules.TryExtract(costsWithoutManaSpend, out var costsWithoutPowerSpend, out var powerSpend))
         {
-            rejection = Reject(state, "Invalid actual power spend selection.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "符能支付来源选择无效。", ErrorCodes.InvalidTarget);
             return false;
         }
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(costsWithoutPowerSpend);
@@ -18224,7 +18226,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(cost => cost.StartsWith(PrintedPowerCostRules.ChoicePrefix, StringComparison.Ordinal)).ToArray();
         if (printedPowerChoices.Length > 1)
         {
-            rejection = Reject(state, "Choose one printed power allocation.", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, "请选择一种卡面符能分配。", ErrorCodes.InvalidTarget);
             return false;
         }
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts
@@ -18243,7 +18245,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported Lux spell-only payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的拉克丝法术专用资源动作无效。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18273,7 +18275,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的支付资源动作无效。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18312,7 +18314,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported optional cost for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的可选费用选择无效。",
                 ErrorCodes.UnsupportedCardBehavior);
             return false;
         }
@@ -18323,12 +18325,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
+        if (!incompleteTargets && !(HasIndependentPermanentTargets(behavior) && TargetEffectAdditionalCostPaid(behavior, optionalCosts))
             && !HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires its optional target only when its additional cost is paid.",
+                $"{behavior.DisplayName} 的可选目标与所选额外费用不匹配。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18338,7 +18340,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18348,7 +18350,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方强力单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18358,7 +18360,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方鸟、猫、狗或魄罗单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18368,7 +18370,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一件友方装备支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18378,7 +18380,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires an active friendly unit for its optional cost.",
+                $"{behavior.DisplayName} 需要选择一名活跃的友方单位支付可选费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18389,7 +18391,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18400,7 +18402,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方强力单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18411,7 +18413,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一名友方鸟、猫、狗或魄罗单位支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18422,7 +18424,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
+                $"{behavior.DisplayName} 需要选择一件友方装备支付额外费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18449,7 +18451,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!AreTargetCostsAtMostDestroyedAdditionalCostUnit(
+        if (!incompleteTargets && !AreTargetCostsAtMostDestroyedAdditionalCostUnit(
                 state,
                 behavior,
                 targetObjectIds,
@@ -18457,7 +18459,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a graveyard unit whose mana and power costs do not exceed those of the destroyed unit.",
+                $"{behavior.DisplayName} 需要选择一名废牌堆单位，其法力和符能费用均不超过被摧毁单位的对应费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18467,13 +18469,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"{behavior.DisplayName} requires a different hand card for its optional cost.",
+                $"{behavior.DisplayName} 需要选择另一张手牌支付可选费用。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
 
         IReadOnlyList<SpellExecutionState>? repeatExecutions = null;
-        if (validateRepeats && !TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds,
+        if (validateRepeats && !incompleteTargets && !TryBuildRepeatExecutions(state, intent, command, behavior, targetObjectIds,
                 effectRepeatCount, out repeatExecutions, out var repeatError))
         {
             rejection = Reject(state, repeatError, ErrorCodes.InvalidTarget);
@@ -18538,8 +18540,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
-            rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
-                : spellPowerReductionChoices.Length == 0 ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, powerSpend is not null ? "符能支付来源选择无效。"
+                : spellPowerReductionChoices.Length == 0 ? "卡面符能分配无效。" : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
             return false;
         }
         var totalGenericPowerCost = selectedPower.GenericPower;
@@ -18657,7 +18659,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan,
             paymentAdjustedPool,
             currentExperience,
-            originalExtraManaCost) { RepeatExecutions = repeatExecutions,
+            originalExtraManaCost) { RequiresTargetSelection = incompleteTargets, RepeatExecutions = repeatExecutions,
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
                 EmpoweredSpellCostReductionPower = selectedPower.Reduction,
@@ -18670,12 +18672,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!paymentAuthorization.Accepted)
         {
             var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose, state: state) < totalManaCost
-                ? $"Not enough mana to play {behavior.DisplayName}."
+                ? $"法力不足，无法打出{behavior.DisplayName}。"
                 : !PaymentCostRules.CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait, powerPurpose)
-                    ? $"Not enough power to play {behavior.DisplayName}."
+                    ? $"符能不足，无法打出{behavior.DisplayName}。"
                     : currentExperience < totalExperienceCost
-                        ? $"Not enough experience to play {behavior.DisplayName}."
-                        : paymentAuthorization.Reason ?? $"Not enough resources to play {behavior.DisplayName}.";
+                        ? $"经验不足，无法打出{behavior.DisplayName}。"
+                        : paymentAuthorization.Reason ?? $"资源不足，无法打出{behavior.DisplayName}。";
             rejection = Reject(
                 state,
                 errorMessage,
@@ -23886,60 +23888,60 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
-        if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
-        if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
-        if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
-        if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
+        if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "已强化单位";
+        if (targetScope == CardTargetScopes.AnyGraveyardCard) return "任一废牌堆中的卡牌";
+        if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "友方基地单位，然后是战场";
+        if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "战场，然后是该战场的敌方单位";
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
-            ? "unit"
+            ? "单位"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
-                ? "base unit"
+                ? "基地单位"
                 : string.Equals(targetScope, CardTargetScopes.BattlefieldUnitOrEquipment, StringComparison.Ordinal)
-                    ? "battlefield unit or equipment"
+                    ? "战场上的单位或装备"
             : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
-                ? "friendly unit"
+                ? "友方单位"
                 : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenBattlefield, StringComparison.Ordinal)
-                    ? "friendly unit then battlefield"
+                    ? "友方单位，然后是战场"
                 : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenFriendlyUnit, StringComparison.Ordinal)
-                    ? "friendly unit then another friendly unit"
+                    ? "两名友方单位"
                     : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
-                        ? "friendly unit then enemy unit"
+                        ? "友方单位，然后是敌方单位"
                         : string.Equals(targetScope, CardTargetScopes.FriendlyEquipmentThenEnemyEquipment, StringComparison.Ordinal)
-                            ? "friendly equipment then enemy equipment"
+                            ? "友方装备，然后是敌方装备"
                             : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, StringComparison.Ordinal)
                                 ? "friendly unit then enemy battlefield unit"
                                 : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits, StringComparison.Ordinal)
                                     ? "friendly battlefield unit then enemy battlefield unit"
                                     : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenStackSpell, StringComparison.Ordinal)
-                                        ? "friendly unit then spell on the stack"
+                                        ? "友方单位，然后是结算链中的法术"
                                     : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
-                                        ? "friendly battlefield unit then spell on the stack"
+                                        ? "友方战场单位，然后是结算链中的法术"
                                         : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
-                                            ? "friendly battlefield unit"
+                                            ? "友方战场单位"
                                                 : string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
-                                                    ? "friendly hand card"
+                                                    ? "己方手牌"
                                                     : string.Equals(targetScope, CardTargetScopes.FriendlyHandCardThenBattlefieldUnit, StringComparison.Ordinal)
-                                                        ? "friendly hand card then battlefield unit"
+                                                        ? "己方手牌，然后是战场单位"
                                                         : string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
-                                                            ? "friendly main deck card"
+                                                            ? "己方主牌库卡牌"
                                                             : string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal)
-                                                                ? "friendly graveyard card"
+                                                                ? "己方废牌堆卡牌"
                                                                 : string.Equals(targetScope, CardTargetScopes.FriendlyBaseUnit, StringComparison.Ordinal)
-                                                                    ? "friendly base unit"
+                                                                    ? "友方基地单位"
                                                                     : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
-                                                                        ? "attacking unit"
+                                                                        ? "进攻单位"
                                                                         : string.Equals(targetScope, CardTargetScopes.EnemyAttackingUnit, StringComparison.Ordinal)
-                                                                            ? "enemy attacking unit"
+                                                                            ? "敌方进攻单位"
                                                                             : string.Equals(targetScope, CardTargetScopes.EnemyBattlefieldUnit, StringComparison.Ordinal)
-                                                                                ? "enemy battlefield unit"
+                                                                                ? "敌方战场单位"
                                                                                 : string.Equals(targetScope, CardTargetScopes.EnemyUnit, StringComparison.Ordinal)
-                                                                                    ? "enemy unit"
+                                                                                    ? "敌方单位"
                                                                                     : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
-                                                                                        ? "enemy unit then another enemy unit"
+                                                                                        ? "两名敌方单位"
                                                                                         : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
-                                                                                            ? "opponent hand card"
+                                                                                            ? "对手手牌"
                                                                                             : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                                                                                                ? "opponent graveyard card"
+                                                                                                ? "对手废牌堆卡牌"
                                                                                                 : string.Equals(targetScope, CardTargetScopes.OpponentMainDeckTopCard, StringComparison.Ordinal)
                                                                                                     ? "opponent main deck top card"
                                                                                                     : string.Equals(targetScope, CardTargetScopes.AnyMainDeckTopFiveCard, StringComparison.Ordinal)
@@ -23947,9 +23949,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                                                                                         : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
                                                                                                             ? "equipment"
                                                                                                             : string.Equals(targetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
-                                                                                                                ? "legend"
+                                                                                                                ? "传奇"
                                                                                                                 : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-                                                                                                                    ? "spell on the stack"
+                                                                                                                    ? "结算链中的法术"
                                                                                                                     : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
                                                                                                                         ? "unit and its controller's weapon"
                                                                                                                         : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
@@ -34608,6 +34610,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AvailableExperience,
         int AdditionalManaCost)
     {
+        public bool RequiresTargetSelection { get; init; }
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }

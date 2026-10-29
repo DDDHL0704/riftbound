@@ -1895,7 +1895,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(PromptTypes.MainAction, prompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, prompt.EnabledActions());
         Assert.DoesNotContain(CommandTypes.Pass, prompt.EnabledActions());
-        var rawCommand = PromptScopedRawCommand(CommandTypes.Pass, prompt);
+        var rawCommand = JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.Pass, snapshotTick = prompt.SnapshotTick });
         const string clientIntentId = "intent-p1-pass-raw-idempotency";
 
         var accepted = await session.SubmitAsync(
@@ -1926,7 +1926,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(journalEntry.Accepted);
         Assert.True(journalEntry.RawCommand.HasValue);
         Assert.Equal(CommandTypes.Pass, journalEntry.RawCommand.Value.GetProperty("cmdType").GetString());
-        Assert.Equal(prompt.PromptId, journalEntry.RawCommand.Value.GetProperty("promptId").GetString());
+        Assert.False(journalEntry.RawCommand.Value.TryGetProperty("promptId", out _));
         Assert.Equal(prompt.SnapshotTick, journalEntry.RawCommand.Value.GetProperty("snapshotTick").GetInt64());
         Assert.False(journalEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 

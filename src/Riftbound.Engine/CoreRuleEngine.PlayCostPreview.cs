@@ -26,12 +26,17 @@ public sealed partial class CoreRuleEngine
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed,
                 CardPermissionKeywordRules.SpellPlayProhibitionReason);
 
-        var accepted = TryBuildPlayCardPlan(state, new("COST_PREVIEW", playerId, CommandTypes.PlayCard),
-            request.Command, out var plan, out var rejection, includeRejectionProjections: false);
+        var previewWithoutTargets = NormalizeTargetObjectIds(request.Command.TargetObjectIds).Count == 0
+            && (request.Command.RepeatChoices?.Count ?? 0) == 0;
+        var affordable = TryBuildPlayCardPlan(state, new("COST_PREVIEW", playerId, CommandTypes.PlayCard),
+            request.Command, out var plan, out var rejection, includeRejectionProjections: false,
+            previewWithoutTargets: previewWithoutTargets);
         if (plan is null)
             return PlayCostQuoteDto.Rejected(request, state.Tick, rejection.ErrorCode ?? ErrorCodes.InvalidTarget,
-                "当前选择无法打出，请检查目标、位置和支付资源。");
+                rejection.ErrorMessage ?? "当前选择无效，请按最新提示重试。");
 
+        var incompleteTargets = plan.RequiresTargetSelection;
+        var accepted = affordable && !incompleteTargets;
         var pool = plan.AvailablePool;
         var powerPool = PaymentCostRules.PowerPoolForPurpose(pool, plan.Payment.PowerPurpose);
         var availableMana = PaymentCostRules.AvailableMana(pool, plan.Payment.ManaPurpose, state: state);
@@ -102,7 +107,9 @@ public sealed partial class CoreRuleEngine
                 PaymentResourceActions = plan.RenektonResourceAction is { } action
                     ? [new(action, 2, 2)] : null };
         return new(request.RequestId, request.PromptId, state.Tick, true, accepted,
-            accepted ? "费用已核对，可以确认打出。" : "所选资源不足，请补充资源或调整额外费用。",
-            accepted ? null : rejection.ErrorCode, cost);
+            incompleteTargets ? "请选择目标；以下是当前已知费用，目标可能改变最终费用。"
+                : accepted ? "费用已核对，可以确认打出。" : rejection.ErrorMessage ?? "所选资源不足，请补充资源或调整额外费用。",
+            incompleteTargets ? ErrorCodes.InvalidTarget : accepted ? null : rejection.ErrorCode, cost)
+            { RequiresTargetSelection = incompleteTargets, TargetDependentCosts = incompleteTargets };
     }
 }
