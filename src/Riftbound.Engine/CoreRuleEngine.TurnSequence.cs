@@ -50,13 +50,12 @@ public sealed partial class CoreRuleEngine
                     break;
                 case "START":
                     state = state with { PlayerScores = NormalizeScoresForSeats(state), TurnStartStep = "SCORE" };
-                    events.Add(CapturePhaseCardEvents(new("START_PHASE_BEGAN", "进入开始阶段",
-                        new Dictionary<string, object?> { ["turnPlayerId"] = player }), zones, cards, player, "START"));
                     state = QueueEphemeralStartAbilities(state, events);
                     state = QueueBattlefieldStartAbilities(state, events);
                     state = QueueBeginningDrawAbilities(state, events);
                     state = QueueBeginningRecycleAbilities(state, events);
                     state = QueueBeginningRuneAbilities(state, events);
+                    state = QueueBeginningUnitEventAbilities(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);

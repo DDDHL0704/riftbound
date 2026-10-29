@@ -29,7 +29,7 @@ public sealed class OfficialBattlefieldReplacementTests
     }
     internal static MatchState NextHold(MatchState state) => state with { Phase = MatchPhases.TurnStart, TurnStartStep = null,
         TurnNumber = state.TurnNumber + 2, TimingState = TimingStates.NeutralClosed, ActivePlayerId = "P1", TurnPlayerId = "P1",
-        UntilEndOfTurnEffects = [], PriorityPlayerId = null, PassedPriorityPlayerIds = [] };
+        UntilEndOfTurnEffects = [], BattlefieldConquests = null, PriorityPlayerId = null, PassedPriorityPlayerIds = [] };
     internal static MatchState WithoutLegend(MatchState state) => state with {
         PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { LegendZone = [] } },
         CardObjects = state.CardObjects.Where(e => e.Key != "LEGEND").ToDictionary(e => e.Key, e => e.Value),

@@ -45,6 +45,20 @@ public sealed partial class CoreRuleEngine
         => WithUnitEvents(ev, CaptureUnitEvents(zones, cards, cards.Values.Where(c =>
             EffectiveFieldControllerId(zones, c.ObjectId, c) == player).Select(c => c.ObjectId), timing));
 
+    private static MatchState QueueBeginningUnitEventAbilities(MatchState state, List<GameEvent> events)
+    {
+        var observations = CaptureUnitEvents(state.PlayerZones, state.CardObjects, state.CardObjects.Values
+            .Where(c => EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == state.TurnPlayerId)
+            .Select(c => c.ObjectId), "START");
+        var queue = state.TriggerQueue.ToList();
+        foreach (var (observation, ordinal) in observations.Select((o, i) => (o, i)))
+        {
+            var trigger = UnitEventTrigger(observation, state.Tick, ordinal, "TURN_START_BEGAN");
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        return state with { TriggerQueue = queue };
+    }
+
     private static GameEvent CaptureOtherUnitPlayed(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
         => ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED") ? ev
