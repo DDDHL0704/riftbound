@@ -78,6 +78,35 @@ public sealed class VenForgeBattlefieldTests
         Assert.Equal(0, item.EmpowerActivation.PaidMana); await game.Top(); Assert.True(game.State.CardObjects["EGG"].IsEmpowered); await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AltarAndForgeKeepTheirIndependentEmpowerCostsInEitherOrder(bool equipmentFirst)
+    {
+        var initial = HandDiscardObserverTests.Put(Position(), "EGG", "VEN·075", "P1", "BASE");
+        initial = HandDiscardObserverTests.Put(initial, "UNIT-ABILITY", "VEN·014", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["OTHER"] = OfficialGarenConquestBattlefieldCountTests.Printed("OTHER", "VEN·163", "P2") with { ControllerId = "P1" } } };
+        initial = LocalDestructionRecallTests.At(initial, "UNIT-ABILITY", "P1", "BATTLEFIELD", "OTHER");
+        var game = new Driver(initial);
+        foreach (var equipment in new[] { equipmentFirst, !equipmentFirst }) {
+            var id = equipment ? "EGG" : "UNIT-ABILITY";
+            var ability = equipment ? "EMPOWER:0:0" : "EMPOWER:0:0:REDUCE_MANA";
+            await game.Act("P1", new ActivateAbilityCommand(id, ability, []));
+            var context = Assert.Single(game.State.StackItems).EmpowerActivation!;
+            Assert.Equal(equipment ? 0 : 1, context.PaidMana);
+            if (equipment) {
+                Assert.Null(context.BattlefieldReduction);
+                Assert.Equal(1, context.EquipmentManaReduction!.Amount);
+            } else {
+                Assert.Equal("OTHER", context.BattlefieldReduction!.Battlefield.ObjectId);
+                Assert.Null(context.EquipmentManaReduction);
+            }
+            await game.Top(); Assert.True(game.State.CardObjects[id].IsEmpowered);
+        }
+        Assert.Equal(19, game.State.RunePools["P1"].Mana);
+        Assert.Equal(19, game.State.RunePools["P1"].TotalPower); await game.Replay();
+    }
+
     [Fact]
     public async Task AssembleIsAnActivatedAbilityAndPaysOnlyItsUnreducedPower()
     {
