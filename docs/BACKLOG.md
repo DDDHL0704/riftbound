@@ -51,18 +51,16 @@
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
 - [ ] **P3-1 拆分巨型文件**：`MatchSession.cs`（2.6 万行）、`MatchRecovery.cs`（3.4 万行）、`ConformanceFixtureRunnerTests.cs` 按领域拆成部分类和多个测试文件，减少两条线的合并冲突。纯搬移，不改行为，单独一个 PR。
-- [ ] **P3-2 L2 提速**（`a/l2-fixtures`）：
-  - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验的结果仍须读取；
-  - 把最慢的测试分散到各个分片；
-  - 目标是单次 L2 在 30 分钟内跑完；
+- [ ] **P3-2 L2 提速**（`a/l2-scheduling`）：
+  - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验的最终结果仍须读取；
+  - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
-  - [x] [PR #264](https://github.com/DDDHL0704/riftbound/pull/264) 的初次 DOCS 门槛因浅克隆缺少 Git 祖先而失败；[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已为检出保留两层历史，将两次范围核对放在分片选择之前，缺历史、缺文件或判定不一致均回退完整构建与六片规则。#264 同步 main 后的[真实重验 40863258647](https://github.com/DDDHL0704/riftbound/actions/runs/40863258647) 中 prepare、`L2 required` 均通过，规则按文档豁免跳过，门槛结果为 `DOCUMENTATION_EXEMPTION_VERIFIED`；#264 已合入；
-  - #256 六片完整通过；shard-5 从 04:47:44 到 08:00:58 UTC 完成 2,875 条测试，用时约 193 分钟，并非卡死。VEN013/103 单条合法开局分别耗时 49/107 分钟，后续在 `a/l2-fixtures` 减少等牌回合与资源准备命令，30 分钟目标尚未达到；
-  - #263 的[完整 L2 40852494017](https://github.com/DDDHL0704/riftbound/actions/runs/40852494017) 六片及 `L2 required` 全部通过，覆盖 8,883 个方法、17,748 条用例；最慢分片仍需 74 分钟，其中 VEN013/103 的 P2 合法开局单条约 62 分钟，30 分钟目标尚未达到；
-  - main 自 10 月 28 日 09:15 后尚未完成一次完整 L2；[40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172)（固定 `10e3cb24`）在 4/6 片通过后，被 #260 合入后的新 main 运行取代而取消。[40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883) 固定 `25913d6a`，目前 4/6 片通过，仍须确认最终结果。#263/#264 合入后该运行继续，最新 main 运行 [40863395876](https://github.com/DDDHL0704/riftbound/actions/runs/40863395876) 在排队：已实际验证保留当前 main、待跑只留最新，PR 与 main 并发组隔离。文档豁免只适用于 PR，main 推送始终全量；
-  - `a/l2-fixtures` 缩短慢开局的自然等牌过程，用生产批量命令准备相同横置/回收资源；保留规则断言、关键阶段冷恢复与完整原始历史校验。14 条慢开局、8 条 VEN013/103、2 条 VEN159、51 条区域守护者/待命/资源夹具，以及 61 条谢幕资源夹具，共 **136 条定向用例全部通过**，逐条核对原清单无遗漏、重复或跳过。两个 VEN 合法开局本地约 12/13 分钟，完整 L2 耗时以 PR CI 实测为准；
-  - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
+  - [x] [PR #264](https://github.com/DDDHL0704/riftbound/pull/264) 最初因浅克隆缺少 Git 祖先而拒绝文档豁免；[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 保留两层历史，并在选择分片前完成两次范围核对，判定不了时退回完整规则。同步后真实重验 [40863258647](https://github.com/DDDHL0704/riftbound/actions/runs/40863258647) 的 prepare、文档凭据核对及 `L2 required` 全部通过，规则套件按预期跳过，门槛结果为 `DOCUMENTATION_EXEMPTION_VERIFIED`；#264 已合入；
+  - #256 六片完整通过；shard-5 从 04:47:44 到 08:00:58 UTC 完成 2,875 条测试，用时约 193 分钟，并非卡死。VEN013/103 单条合法开局分别耗时 49/107 分钟；#263 的[完整 L2 40852494017](https://github.com/DDDHL0704/riftbound/actions/runs/40852494017) 覆盖 8,883 个方法、17,748 条用例，最慢分片仍需 74 分钟，其中 P2 单条约 62 分钟；
+  - [PR #266](https://github.com/DDDHL0704/riftbound/pull/266) 已合入；[40867854592](https://github.com/DDDHL0704/riftbound/actions/runs/40867854592) 六片及 `L2 required` 全部通过：8,905 个方法、17,804 条用例，较 #263 原始清单零移除。最慢片约 44 分钟，VEN013/103 P2 单条约 6 分钟。本地 136 条定向用例也已逐条对齐原清单通过；保留关键阶段冷恢复与完整原始历史校验。30 分钟目标尚未达到，`a/l2-scheduling` 用这次完整 Release 实测刷新权重并平衡每个测试类内的串行负载；四、五片的工作量下界分别约 42、34 分钟，本轮继续保留六片；
+  - main 的 [40840918172](https://github.com/DDDHL0704/riftbound/actions/runs/40840918172) 被 #260 的新提交取消；后续 [40853978883](https://github.com/DDDHL0704/riftbound/actions/runs/40853978883)（固定 `25913d6a`）已完成，六片全部 17,804 条用例及 `L2 required` 通过，恢复合入后的主干完整验证。已让包含 #266 新夹具的 main [40880177592](https://github.com/DDDHL0704/riftbound/actions/runs/40880177592) 接替刚启动的旧版本 40863395876。PR 与 main 的并发组隔离，#263 保留运行中的 main、待跑只留最新；文档豁免只适用于 PR，main 推送始终全量；
+  - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。
 
 ## 接手旧分支
