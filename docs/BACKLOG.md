@@ -42,7 +42,7 @@
 - [x] **P2-1 完成 #205**：VEN078 / 089 / 129 的相关工作已在 main，VEN117 / 159 的真实付款与战斗测试由 #237 合入；#205 已随合并自动关闭。
 - [x] **P2-2 合入分支 `codex/cards-ven010-paid-current-grave-20261028`**：VEN010、013、093、103、122 的付款、墓地计数和反应测试由 #237 合入。
 - [ ] **P2-3 VEN 卡牌**，见 [卡牌清单](CARD_BACKLOG.md)：
-  - D 线负责普通单位、法术、装备与战场；[PR #265](https://github.com/DDDHL0704/riftbound/pull/265) 的 30 张法术／移动牌已合入；[PR #257](https://github.com/DDDHL0704/riftbound/pull/257) 的 32 张费用／持续效果牌同步 main 复验中，剩余 19 张普通牌已在 `d/ven-events-and-battlefields` 整合，待 #257 合入后送检。影分身由 B 线 #262 接入；传奇、英雄单位及专属法术仍由 B 线负责。
+  - D 线负责普通单位、法术、装备与战场；[PR #265](https://github.com/DDDHL0704/riftbound/pull/265) 的 30 张法术／移动牌已合入；[PR #257](https://github.com/DDDHL0704/riftbound/pull/257) 已收拢余下 51 张普通牌（28 名单位、14 件装备、9 处战场），同步 main 后复验送检。影分身由 B 线 [#262](https://github.com/DDDHL0704/riftbound/pull/262) 接入；传奇、英雄单位及专属法术仍由 B 线负责。
   - 按机制成批接入，同一机制的牌放在一个 PR，共用表格式测试；
   - 每张牌至少覆盖正常结算、非法或边界情况各一条；
   - 先做传奇和英雄，预组和自定义卡组都依赖它们；不同副标题的英雄按不同效果分别跟踪。
