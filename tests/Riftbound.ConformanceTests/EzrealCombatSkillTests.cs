@@ -64,11 +64,16 @@ public sealed class EzrealCombatSkillTests
     public async Task RecallOfSourceOrTargetInvalidatesDamageAndKeepsPrivateIdentityHidden(bool targetLeaves)
     {
         var player = targetLeaves ? "P1" : "P2";
-        var initial = EquipChainTests.Response(Board(), "OGN·169/298", player);
+        var board = Board();
+        // Gust can return only a unit with at most 3 Might.
+        if (targetLeaves) board = board with { CardObjects = board.CardObjects.ToDictionary(p => p.Key,
+            p => p.Key == "ENEMY1" ? p.Value with { Power = 3 } : p.Value) };
+        var initial = EquipChainTests.Response(board, "OGN·169/298", player);
         var pending = await AhriCombatMightTests.Pending(initial, "ENEMY1");
         var responseState = targetLeaves ? pending : (await Act(pending, "P1", new PassPriorityCommand())).State;
         var response = await Act(responseState, player, new PlayCardCommand("RESPONSE", "OGN·169/298", [targetLeaves ? "ENEMY1" : "HOST"]));
         var recalled = await Top(response.State); Check(recalled.State);
+        Assert.Contains(targetLeaves ? "ENEMY1" : "HOST", recalled.State.PlayerZones[targetLeaves ? "P2" : "P1"].Hand);
         var done = await Top(recalled.State);
         Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage); Check(done.State);
         if (!targetLeaves) {
