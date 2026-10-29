@@ -277,7 +277,7 @@ public sealed class MordekaiserDiscardDestroyTests
                 "paid-early" => origin with { CostPaid = true },
                 "missing-receipt" => origin with { DiscardCost = null },
                 "wrong-card" => origin with { DiscardCost = origin.DiscardCost! with { Card = new("ENEMY", 0) } },
-                "wrong-generation" => origin with { DiscardCost = origin.DiscardCost! with { Card = origin.DiscardCost.Card with { Generation = -1 } } },
+                "wrong-generation" => origin with { DiscardCost = origin.DiscardCost! with { Card = origin.DiscardCost!.Card with { Generation = -1 } } },
                 _ => origin with { DiscardCost = origin.DiscardCost! with { SelectedTick = state.Tick + 1 } } };
             state = state with { StackItems = [item with { FieldContext = field with { PaidUnitTrigger = origin } }] };
         }
