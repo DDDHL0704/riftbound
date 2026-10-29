@@ -488,7 +488,13 @@ def execute_shard(prepared, output, commit, name):
     code = run_visible(command, output / 'test.log', output / 'execution-runtime.json',
                        dict(commit=commit, sdkVersion=sdk, testAssemblySha256=plan['testAssemblySha256'], shard=name,
                             moduleRuntime=read(output / 'module-audit.json').get('runtime')),
-                       env=dict(os.environ, RIFTBOUND_TEST_COLLECTION_ORDER=str(output / 'selection.json')))
+                       # Each CI testhost runs four CPU-bound collections. Server GC
+                       # collects their allocation-heavy recovery work in parallel.
+                       # This applies only to execution, including the nightly shards;
+                       # local processor limits and every exact selector are preserved.
+                       env=dict(os.environ, DOTNET_gcServer='1',
+                                RIFTBOUND_TEST_COLLECTION_ORDER=str(output / 'selection.json'),
+                                RIFTBOUND_TEST_RUNTIME_DIR=str(output / 'testhost-runtime')))
     receipt = dict(status='FAILED', exitCode=code, commit=commit, shard=name, sdkVersion=sdk,
                    planSha256=digest(prepared / 'plan.json'), bundleManifestSha256=plan['bundleManifestSha256'],
                    testAssemblySha256=plan['testAssemblySha256'], moduleAuditSha256=digest(output / 'module-audit.json'),

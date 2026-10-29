@@ -22,9 +22,10 @@ PROJECTS = {
     "optional-additional-cost-reductions": "Riftbound.OptionalCostReductionAcceptance",
     "instruction-power-payment": "Riftbound.InstructionPaymentAcceptance",
     "restricted-mana-lux": "Riftbound.RestrictedManaAcceptance",
+    "imposed-movement": "Riftbound.ImposedMovementAcceptance",
 }
 CASES = tuple(PROJECTS)
-FINISH_CASES = ("instruction-power-payment", "restricted-mana-lux")
+FINISH_CASES = ("instruction-power-payment", "restricted-mana-lux", "imposed-movement")
 SPEC = importlib.util.spec_from_file_location("candidate", ROOT / "scripts/ci-candidate.py")
 CANDIDATE = importlib.util.module_from_spec(SPEC)
 previous_bytecode_setting = sys.dont_write_bytecode

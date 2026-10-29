@@ -44,6 +44,7 @@ public sealed partial class CoreRuleEngine
         ev = CaptureSourcePlayDraw(ev, zones, cards, entered, player);
         ev = CaptureEmpowerInteractionPlay(ev, zones, cards, entered);
         ev = CaptureSourcePlayReadyObject(ev, zones, cards, entered);
+        ev = CaptureSourcePlayTokens(ev, zones, cards, entered, player);
         ev = CaptureUnitPlayMight(ev, zones, cards, entered, player);
         ev = CapturePaidUnitPlayStun(ev, zones, cards, entered);
         if (ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
