@@ -30,8 +30,10 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             var valid = OfficialDeckValidator.Validate(deck, catalog); Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
         }
+        // Keep the same first player and battlefields while drawing the required cards sooner.
+        // Setup still uses the real shuffle, natural draws and channeling, with no state injection.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-DELAYED-AURA-DEATH",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 249881 };
         var game = new Game(initial);
         try
         {
@@ -96,8 +98,7 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             for (var i = 0; i < 2; i++)
             {
                 Assert.Equal("P1", game.State.PriorityPlayerId); await game.Act("P1", new PassPriorityCommand());
-                if (i == 0)
-                    foreach (var id in game.Runes("P2").Take(4).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+                if (i == 0) await game.Tap("P2", 4);
                 await Recycle(game, "P2", "UNL-R01");
                 await game.Act("P2", new PlayCardCommand(robbery[i], "OGN·033/298", [poros[i]])); await game.Top();
                 var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);

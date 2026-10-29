@@ -31,8 +31,10 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var valid = OfficialDeckValidator.Validate(deck, catalog); Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
             Assert.Equal(40, deck.MainDeck.Count); Assert.Equal(12, deck.RuneDeck.Count); Assert.Equal(3, deck.Battlefields.Count);
         }
+        // Keep the same first player and battlefields while drawing the required cards sooner.
+        // Setup still uses the real shuffle, natural draws and channeling, with no state injection.
         var initial = MatchReplayInitialStateBuilder.FromSeats("CANONICAL-DISTRIBUTED-GUARDIAN",
-            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 424242 };
+            new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" }) with { Seed = 15814 };
         var game = new Game(initial);
         try
         {
@@ -50,7 +52,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
                 await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             }
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
-            foreach (var id in game.Runes("P1").Take(8).ToArray()) await game.Act("P1", new TapRuneCommand(id));
+            await game.Tap("P1", 8);
             var sentinels = game.Hand("P1", "OGN·096/298").Take(2).ToArray(); var host = sentinels[0]; var victim = sentinels[1];
             foreach (var id in sentinels) await game.Act("P1", new PlayCardCommand(id, "OGN·096/298", []));
             var hostGeneration = game.State.CardObjects[host].ObjectGeneration; var victimGeneration = game.State.CardObjects[victim].ObjectGeneration;
@@ -90,7 +92,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var prefix = game.Events().Length; var hand = game.State.PlayerZones["P1"].Hand.ToArray(); var deckAtAttack = game.State.PlayerZones["P1"].MainDeck.ToArray();
             if (withdraw)
             {
-                foreach (var id in game.Runes("P2").Take(2).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+                await game.Tap("P2", 2);
                 await game.Act("P2", new PlayCardCommand(game.Hand("P2", "OGS·011/024").First(), "OGS·011/024", [source])); await game.Top();
                 Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal("BASE", game.State.ObjectLocations[source].Zone);
                 Assert.Equal(sourceGeneration, game.State.CardObjects[source].ObjectGeneration);
