@@ -8,7 +8,7 @@ internal static class StackObjectRules
         => item.DeckPlayReflexive is not null || item.DamageDestruction is not null || item.GraveyardPlay is not null
             || item.EndAbility is not null || item.StandbyObserver is not null || item.EmpowerActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
             || item.AttachmentObserver is not null || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null
-            || item.ReadyObjectTrigger is not null || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
+            || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
             || item.DeathRevealContext is not null || item.RecastContext is not null
             || item.SpellContext is not null || item.FieldContext is not null || item.InsightContext is not null
             || item.SivirRuneRecycle is not null || item.ConquestToken is not null

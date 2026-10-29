@@ -56,6 +56,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
@@ -257,6 +258,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string SourceReadied = "SOURCE_READIED";
     public const string SourcePlayedOrFirstEquipmentPlayed = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_PLAYED";
     public const string BattlefieldUnitMovedAway = "BATTLEFIELD_UNIT_MOVED_AWAY";
     public const string BattlefieldHeld = "BATTLEFIELD_HELD";
@@ -538,7 +540,9 @@ public sealed record TargetSpec(
     bool Optional = false);
 
 public sealed record TriggerModeSpec(string Id, string Label,
-    int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null);
+    int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? GrantedKeyword = null);
 
 public sealed record TriggerSpec(
     string Kind,

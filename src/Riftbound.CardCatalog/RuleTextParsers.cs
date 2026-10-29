@@ -381,6 +381,12 @@ public static class TriggerParser
                 PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
+        var readiedModes = Regex.Match(text,
+            @"当我变为活跃状态时，选择一个给予我在本回合内的效果\s*[—-]\s*-\s*\{\{强攻2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{法盾2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{游走\}\}(?:（[^）]*）)?[。]?",
+            RegexOptions.CultureInvariant);
+        if (readiedModes.Success) triggers.Add(new(TriggerKinds.SourceReadiedChooseKeyword, TriggerTimings.SourceReadied,
+            readiedModes.Value, TargetScope: TriggerTargetScopes.SourceUnit, Duration: TriggerDurations.UntilEndOfTurn,
+            Modes: [new("ASSAULT_2", "强攻2", GrantedKeyword: "强攻2"), new("WARD_2", "法盾2", GrantedKeyword: "法盾2"), new("ROAM", "游走", GrantedKeyword: "游走")]));
         var equipmentDraw = Regex.Match(text,
             @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
             RegexOptions.CultureInvariant);
@@ -492,6 +498,7 @@ public static class TriggerParser
             .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
+            .Where(segment => !readiedModes.Success || !segment.Contains("当我变为活跃状态时，选择一个给予我", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
