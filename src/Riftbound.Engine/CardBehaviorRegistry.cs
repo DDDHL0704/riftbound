@@ -587,6 +587,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "坚守2"),
         new("RAD·088/167", "坚毅生还者", 2, "RESOLUTE_SURVIVOR_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "强攻2|坚守2"),
+        new("RAD·092/167", "天界双足龙", 7, "CELESTIAL_WYVERN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "龙"),
         new("RAD·118/167", "帝皇令使", 5, "EMPERORS_HERALD_PLAY_UNIT_SET_FRIENDLY_BASE_MIGHT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             BasePowerUntilEndOfTurn: 5, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
