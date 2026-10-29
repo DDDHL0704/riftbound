@@ -24059,6 +24059,9 @@ public static partial class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
 
         if (!BattleResultRecoveryRules.ValidContinuation(state)) errors.Add("invalid captured battle result continuation");
+        if (!TurnEquipmentPlayRules.ValidAll(state)) errors.Add("invalid turn equipment play permission");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidDepartedTokenTargets(state, item)) errors.Add("invalid departed token target");
         foreach (var item in state.StackItems)
             if (!DravenBattleDeathRecoveryRules.Valid(state, item)) errors.Add("invalid stacked Draven battle-death skill");
         foreach (var item in state.TriggerQueue)
@@ -27731,6 +27734,8 @@ public static partial class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (CoreRuleEngine.ValidDepartedTokenTargets(authoritativeState, stackItem))
+                foreach (var token in stackItem.DepartedTokenTargets ?? []) targetReferences.Add(token.Target.ObjectId);
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                 && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
                 foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
@@ -32551,6 +32556,8 @@ public static partial class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (CoreRuleEngine.ValidDepartedTokenTargets(authoritativeState, original))
+                    foreach (var token in original.DepartedTokenTargets ?? []) targetReferences.Add(token.Target.ObjectId);
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
                     && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
                     foreach (var id in original.TargetObjectIds) targetReferences.Add(id);

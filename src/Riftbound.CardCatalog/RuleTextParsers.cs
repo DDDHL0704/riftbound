@@ -427,6 +427,14 @@ public static class TriggerParser
                 PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
+        var destroyEquipmentGrant = Regex.Match(text,
+            @"当你打出我时，你可以选择摧毁一件友方装备。若如此做，则在本回合内，你可以选择从手牌中打出一件法力费用不高于\{\{(?<mana>[0-9]+)\}\}的装备，无视其法力费用(?:（仍需支付所有符能费用）)?。?",
+            RegexOptions.CultureInvariant);
+        if (destroyEquipmentGrant.Success) triggers.Add(new(TriggerKinds.SourceUnitPlayedDestroyEquipmentGrantTurnPlay,
+            TriggerTimings.SourceUnitPlayed, destroyEquipmentGrant.Value,
+            TargetScope: TriggerTargetScopes.FriendlyEquipment, DestroyCount: 1, PlayCount: 1,
+            PlayOriginZone: TriggerZones.Hand, MaximumPlayedCardManaCost: int.Parse(destroyEquipmentGrant.Groups["mana"].Value),
+            IgnorePlayManaCost: true, PayPlayPowerCosts: true, Duration: TriggerDurations.UntilEndOfTurn, Optional: true));
         var equipmentDraw = Regex.Match(text,
             @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
             RegexOptions.CultureInvariant);
@@ -538,6 +546,7 @@ public static class TriggerParser
             .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
+            .Where(segment => !destroyEquipmentGrant.Success || !segment.StartsWith("当你打出我时，你可以选择摧毁一件友方装备", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
