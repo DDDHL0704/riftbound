@@ -465,6 +465,8 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·108", "遗落圣物", 5, "EQUIPMENT_PLAY:VEN·108", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, UnitEventAbility: new("PLAY_OR_START", "BURN_MIGHT_FRIENDLY")),
         new("VEN·067", "瓶中星海", 10, "EQUIPMENT_PLAY:VEN·067", 0, 0,
             PlaysSourceToBaseAsEquipment: true,
             UnitEventAbility: new("MAIN", "SCORE", 1, LeadingDestroyOtherFriendlyPermanents: 3)),
