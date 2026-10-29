@@ -56,6 +56,7 @@
   - 目标是单次 L2 在 30 分钟内跑完；
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR / main 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
+  - [PR #264](https://github.com/DDDHL0704/riftbound/pull/264) 实测 DOCS 准备用时 22 秒并跳过规则；最终门槛因浅克隆只有一层、无法验证 Git 祖先而拒绝豁免。[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 为汇总检出保留两层历史，并用真实浅克隆覆盖成功与拒绝路径，合入后重跑 #264；
   - #256 六片完整通过，最慢分片约 193 分钟；VEN013/103 单条合法开局分别耗时 49/107 分钟，后续在 `a/l2-fixtures` 减少等牌回合与资源准备命令，30 分钟目标尚未达到；
   - 只改卡牌行为的 PR，考虑只跑相关测试加两局完整对局。
 - [ ] **P3-3 清理 `docs/legacy/`**：把测试仍在读取的证据文件搬进 `tests/.../Fixtures`，然后删掉 `docs/legacy/`。

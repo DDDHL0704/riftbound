@@ -2,6 +2,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -146,6 +148,33 @@ class ScopeTests(unittest.TestCase):
         event = {'pull_request': {'base': {'sha': self.base}}}
         self.assertFalse(scope.decide('pull_request', event, head, self.repo)['full'])
         self.assertTrue(scope.decide('workflow_dispatch', event, head, self.repo)['full'])
+
+    def test_required_gate_checkout_can_prove_a_docs_merge_against_its_base(self):
+        self.git('checkout', '-qb', 'docs-change')
+        self.write('docs/BACKLOG.md', 'complete a task\n')
+        self.commit()
+        self.git('checkout', '-qB', 'candidate', self.base)
+        self.git('merge', '--no-ff', '--no-edit', 'docs-change')
+        head = self.git('rev-parse', 'HEAD')
+        event = {'pull_request': {'base': {'sha': self.base}}}
+        workflow = (Path(__file__).parents[2] / '.github/workflows/backend-l2.yml').read_text()
+        checkout = workflow.split('  l2_required:\n', 1)[1].split('      - name:', 1)[0]
+        configured = re.search(r'fetch-depth: (\d+)', checkout)
+        depth = int(configured[1]) if configured else 1
+        for name, clone_depth, expected in [('required-gate', depth, 'DOCS'),
+                                            ('shallow-negative-control', 1, None)]:
+            with self.subTest(checkout=name, depth=clone_depth):
+                clone = self.repo.parent / (self.repo.name + '-' + name)
+                self.addCleanup(shutil.rmtree, clone)
+                subprocess.run(['git', 'clone', '-q', '--depth=' + str(clone_depth),
+                                self.repo.as_uri(), str(clone)], check=True,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                result = scope.decide('pull_request', event, head, clone, allow_fetch=True)
+                if expected:
+                    self.assertEqual(expected, result.get('tier'), result)
+                    self.assertFalse(result['full'])
+                else:
+                    self.assertTrue(result['full'], result)
 
     def test_malformed_events_and_raw_diff_fail_closed(self):
         head = self.git('rev-parse', 'HEAD')
