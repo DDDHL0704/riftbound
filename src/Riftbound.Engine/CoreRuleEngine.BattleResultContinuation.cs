@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected, roleEventOffset);
+            collected = ResolveBattlefieldStartResourceTriggers(state, RecordBattleDuelRoles(state, collected, roleEventOffset));
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
             collected = StampNewTriggerQueueTimes(state, collected);

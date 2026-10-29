@@ -56,6 +56,9 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string BattlefieldConquerLowRunesPayDraw = "BATTLEFIELD_CONQUER_LOW_RUNES_PAY_DRAW";
+    public const string BattlefieldHeldBurn = "BATTLEFIELD_HELD_BURN";
+    public const string BattlefieldBattleStartMana = "BATTLEFIELD_BATTLE_START_MANA";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
     public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
     public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";

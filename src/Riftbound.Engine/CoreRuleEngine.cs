@@ -33169,7 +33169,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var i = 0; i < drawCount && result.WinnerPlayerId is null; i++)
         {
-            result = DrawOne(
+            result = TakeTopCardWithBurnout(
                 state with
                 {
                     PlayerScores = result.PlayerScores,
@@ -34101,7 +34101,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && state.TurnNumber == turnPlayerIndex + 1;
     }
 
-    private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)
+    private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)
     {
         var playerScores = NormalizeScoresForSeats(state);
         var mainDeck = zones.MainDeck.ToList();
