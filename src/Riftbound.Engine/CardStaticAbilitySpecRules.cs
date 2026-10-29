@@ -105,7 +105,7 @@ internal static class CardStaticAbilitySpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<StaticAbilitySpec>> BuildStaticAbilityMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
@@ -130,7 +130,7 @@ internal static class CardStaticAbilitySpecRules
             var abilities = StaticAbilityParser.Parse(card.CardEffect ?? string.Empty, []);
             if (abilities.Count > 0)
             {
-                result.Add(card.CardNo, abilities);
+                result.TryAdd(card.CardNo, abilities);
             }
         }
 
