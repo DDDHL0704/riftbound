@@ -38,7 +38,7 @@ class RetainedCommitTests(unittest.TestCase):
     def test_full_identity_is_required_before_any_git_or_fetch(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            baseline = root/'docs/audit/legacy-source-baseline.json'
+            baseline = root/'docs/legacy/audit/legacy-source-baseline.json'
             baseline.parent.mkdir(parents=True)
             for identity in ['main', 'a'*8, '$(false)', 1, None]:
                 with self.subTest(identity=identity):
@@ -59,7 +59,7 @@ class RetainedCommitTests(unittest.TestCase):
             git(upstream, 'init', '-q')
             git(upstream, 'config', 'uploadpack.allowFilter', 'true')
             git(upstream, 'config', 'uploadpack.allowAnySHA1InWant', 'true')
-            manifest_path = upstream/'docs/audit/current-manifest.json'
+            manifest_path = upstream/'docs/legacy/audit/current-manifest.json'
             manifest_path.parent.mkdir(parents=True)
             content = b'original retained source\n'
             (upstream/'source.txt').write_bytes(content)
@@ -74,7 +74,7 @@ class RetainedCommitTests(unittest.TestCase):
             excluded = git(upstream, 'rev-parse', 'HEAD:unreferenced-evidence.bin')
             git(checkout, 'init', '-q')
             git(checkout, 'remote', 'add', 'origin', upstream.as_uri())
-            baseline = checkout/'docs/audit/legacy-source-baseline.json'
+            baseline = checkout/'docs/legacy/audit/legacy-source-baseline.json'
             baseline.parent.mkdir(parents=True)
             baseline.write_text(json.dumps(dict(commit=commit,
                 manifestSha256=hashlib.sha256(manifest).hexdigest()))+'\n')
@@ -84,7 +84,7 @@ class RetainedCommitTests(unittest.TestCase):
             self.assertEqual(content, subprocess.check_output(
                 ['git', 'show', commit+':source.txt'], cwd=checkout))
             self.assertEqual(manifest, subprocess.check_output(
-                ['git', 'show', commit+':docs/audit/current-manifest.json'], cwd=checkout))
+                ['git', 'show', commit+':docs/legacy/audit/current-manifest.json'], cwd=checkout))
             packed = '\n'.join(git(checkout, 'verify-pack', '-v', str(index))
                 for index in (checkout/'.git/objects/pack').glob('*.idx'))
             self.assertNotIn(excluded, packed)

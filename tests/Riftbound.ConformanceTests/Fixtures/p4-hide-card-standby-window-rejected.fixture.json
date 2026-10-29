@@ -20,7 +20,7 @@
       "note": "P4.315 锁定待命暗置时机边界：当前只能由主动玩家在主阶段开放窗口正面朝下放置待命牌；拒绝时不支付费用、不移动对象、不创建结算链。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b / 811.1.c",
       "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }

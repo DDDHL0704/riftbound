@@ -20,7 +20,7 @@
       "note": "待命关键词使用正面朝下对象，之后可在反应窗口翻开并当作反应牌打出；P4.76 只验证隐藏对象公开、离开基地并加入结算链的最小路径。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b/c/d and current printed play ability",
       "note": "Explicit preparation executes actual commands; finalTick counts fixture commands after preparation. Original fixture identity and card identity retained; obsolete base flip and fake pending source removed."
     }

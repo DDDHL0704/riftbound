@@ -1,9 +1,0 @@
-{
-  "priorRunnerSha256": "44cb71f463f5757ac2125f4c51cd1ccebe389a08e47b2554043b47211aa83f7d",
-  "currentRunnerSha256": "8cc6c05aea1c1ca42ebded73f377d49f40f518f7e30eb78a639e0eacdd7072a8",
-  "priorVerifierSha256": "2978dcf5afcdafd21c9d9740e6265453b2be9c5bb415224cf418a1f39fed0dbe",
-  "currentVerifierSha256": "b0efc41364effc190de54d6d31e044be3609f524f72775577c5ba683078f8591",
-  "changes": "Require current focus and exact original sources/current primary intake; use declared13100/7464 original case/method baseline plus7cases/3methods; keep all runtime/source lock/integrity guards and six ordinary-frame identities.",
-  "onlyOneCheck": true,
-  "notExecutedYet": true
-}

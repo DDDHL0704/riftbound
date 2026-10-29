@@ -20,7 +20,7 @@
       "note": "打出或执行关键词动作需要支付费用；待命的 A 暗置费用不足时不能正面朝下放置，且不改变手牌、基地、事件或 tick。"
     },
     {
-      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "source": "docs/legacy/evidence/standby-2026-10-13/rule-excerpts.json",
       "locator": "DOC04 811.1.b / 811.1.c",
       "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }

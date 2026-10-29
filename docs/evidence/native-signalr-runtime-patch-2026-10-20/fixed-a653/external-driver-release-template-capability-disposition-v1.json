@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:05:59.712981+00:00",
-  "status": "EXTERNAL_SCENETREE_DRIVER_NOT_EXECUTED_BY_RELEASE_TEMPLATE_NO_GAME_ACTION_SUBMITTED",
-  "originalNativeDefaultMainAfterRuntimePatchBootPassed": true,
-  "experimentalScriptOptionNotAdvertisedInActualExportedHelp": true,
-  "originalTwoProcessesTerminatedByOwnBoundedHarnessAfter75Seconds": true,
-  "noRootSourceOrAcceptedGameHistoryRewrite": true,
-  "visibleNativeAndCurrentHeadlessControlAcceptanceStillOpen": true
-}

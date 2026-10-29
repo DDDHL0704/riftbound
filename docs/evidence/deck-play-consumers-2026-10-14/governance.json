@@ -1,9 +1,0 @@
-{
-  "status": "SOURCE_INDEX_AND_REFERENCE_INTEGRITY_PASS",
-  "historicalSnapshotDate": "2026-10-11",
-  "scopedReviews": 80,
-  "semanticCoverageCertified": false,
-  "errors": [],
-  "rawSha256": "278041a861998c2f193a92ea0f62679b692f0f5b405c23fc15166234e6451d81",
-  "laterUniverse": "1738 all unreviewed preserved; historical checker is not later live-source refresh"
-}

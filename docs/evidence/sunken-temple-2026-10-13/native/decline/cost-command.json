@@ -1,1 +1,0 @@
-{"cmdType":"PAY_COST","paymentId":"TRIGGER-COST:ordered-CONQUEST-MIGHT:3:BF","paymentWindow":"TRIGGER_COST_CONFIRMATION","paymentChoiceIds":["DECLINE"],"promptId":"conquest-regression:3:P1:PAY_COST,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER","snapshotTick":3}

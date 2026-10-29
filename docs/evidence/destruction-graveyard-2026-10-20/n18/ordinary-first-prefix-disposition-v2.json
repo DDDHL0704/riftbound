@@ -1,9 +1,0 @@
-{
-  "status": "FIRST_NEW_ORDINARY_DRIVER_USED_STILL_FIRST_ACTIVE_PLAYER_FOR_SECOND_MULLIGAN_NOT_A_RULE_COUNTEREXAMPLE",
-  "originalPrefix": "var/qa/phoenix-destroy-source-20261020/ordinary-originals-v2/CoreRules-failed-original-prefix.json.gz",
-  "commands": 6,
-  "accepted": 5,
-  "rejected": 1,
-  "fix": "Ask actual per-player prompt for MULLIGAN action rather than infer from ActivePlayerId; start a new match and keep original prefix unchanged.",
-  "productionRuntimeUnchanged": true
-}

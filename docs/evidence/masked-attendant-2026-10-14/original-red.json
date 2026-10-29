@@ -1,8 +1,0 @@
-{
-  "status": "MISSING_TWO_SELF_COPY_IMAGES_REPRODUCED",
-  "testName": "Riftbound.ConformanceTests.MaskedAttendantTests.NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics",
-  "trxSha256": "bb0811df1e0b97f5f5983a60eddca0f592b5becf3862326e5c9f8bcbb29a5d73",
-  "expected": 2,
-  "actual": 0,
-  "scope": "Official current UNL-081 normal play; copied mirrors missing after play skill resolves"
-}

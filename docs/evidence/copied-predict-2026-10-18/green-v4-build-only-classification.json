@@ -1,7 +1,0 @@
-{
-  "status": "NEW_TEST_ENUM_NAMESPACE_COMPILE_ONLY",
-  "casesExecuted": 0,
-  "cause": "OfficialDeckFormat is in Riftbound.Engine, already imported in the test.",
-  "sourceBeforeCorrectionSha256": "32c0ae77e5c7ebee34eb36ed776efb05cefd79aa41e80c821c1a22d16e426fc3",
-  "productionSourceUnchanged": true
-}

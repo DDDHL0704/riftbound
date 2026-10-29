@@ -2,11 +2,7 @@
 
 Godot .NET 原生 macOS / Windows 客户端与 .NET 服务端。玩家提交意图，服务端裁定合法性、费用、结算和计分；React DevUi 用于调试与协议验证。
 
-当前为 **NOT READY**。开发先读 [当前状态](docs/PROJECT_STATUS.md)、[项目治理](docs/PROJECT_GOVERNANCE.md) 和 [测试工作流](docs/RULE_TEST_WORKFLOW.md)。历史 CURRENT/P 阶段记录不再充当任务调度或规则认证。
-
-2026-10-12 续跑实取 CN 1,502、EN 1,381 个印次，16 份中文 PDF 和 20 份全球来源；英文报告总数仍比返回数多 8 项。当前并集含 1,738 个卡牌身份和 14,293 条规则/示例/QA，逐项语义认证仍未完成。来源快照不自动表示官网此刻未变，见 [当前版本入口](docs/PROJECT_STATUS.md)。
-
-代码基线 442114f0 的 [完整 CI](https://github.com/DDDHL0704/riftbound/actions/runs/38205666224) 已通过 10,201 用例、6,625 方法及 110 个双向牌组配对，与上一基线的全部身份和配对最终哈希相同。macOS/Windows 构建与网络恢复成功；可见双客户端、Windows 实机、真实 PostgreSQL 和全量官方语义仍有独立验收缺口。该结果仅属于指定基线，后续改动须记录自己的验证范围。
+当前处于服务端规则开发阶段：Codex 按 [待办清单](docs/BACKLOG.md) 开发规则与卡牌，网页对战前端在 [clients/web](clients/web/README.md)。开发流程、测试命令与底线见 [AGENTS.md](AGENTS.md)。
 
 ## 本地运行
 
@@ -36,14 +32,12 @@ dotnet build clients/godot/Riftbound.GodotClient.csproj -m:1
 ## 开发与验证
 
 ```sh
+dotnet test tests/Riftbound.ConformanceTests --filter "FullyQualifiedName~<类名或方法名>"
 python3 scripts/test-rules.py focus combat
-python3 scripts/test-rules.py check
-python3 scripts/test-rules.py full --plan-only
-python3 -m unittest discover -s scripts/tests -v
-python3 scripts/audit/check-project-governance.py
+python3 -m unittest discover -s scripts/tests
 ```
 
-规则开发用 focus 和相邻域，连贯批次一次 check；完整 CI 在固定提交上后台运行。最终候选仍须完整回归与相应原生验收。明确治理文档白名单可走轻量 CI；数据、fixture、脚本、构建配置及未知范围默认完整验证。轻量通过不表示执行了规则或打包测试。
+PR 由 `Backend L2` 检查（全部规则测试分片 + 两局完整对局），通过即可合入；每晚 02:00（北京时间）对 main 跑完整验收。详见 [AGENTS.md](AGENTS.md)。
 
 ## 项目结构
 
@@ -57,6 +51,8 @@ python3 scripts/audit/check-project-governance.py
 | src/Riftbound.Api | HTTP/SignalR、身份、房间和匹配 |
 | src/Riftbound.DevUi | 调试与协议验证 |
 | tests/Riftbound.* / scripts/tests | 行为证据与验证工具检查 |
-| data/official / docs/evidence | 有版本的来源快照和限定证据 |
+| clients/web | 网页对战前端 |
+| data/official | 官方来源快照 |
+| docs/BACKLOG.md | 待办与状态 |
 
-任务与规格统一使用 [GitHub Issues](https://github.com/DDDHL0704/riftbound/issues)，词汇见 [GLOSSARY](GLOSSARY.md)。9 月及更早规则默认未重新认证，按当前适用官方来源逐项整改。后续页面使用 frontend-design 与 Product Design，并重新取得参考截图。用户已确认创建新Goal，持续审计至全量证据闭合或明确暂停。
+词汇见 [GLOSSARY](GLOSSARY.md)。重置前的历史文档在 Git 标签 `archive/pre-reset-20261029` 中。

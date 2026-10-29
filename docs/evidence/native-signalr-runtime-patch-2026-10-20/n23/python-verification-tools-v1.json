@@ -1,7 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:50:06.358859+00:00",
-  "exitCode": 0,
-  "log": "var/qa/native-signalr-runtime-patch-20261020/python-verification-tools-v1.log",
-  "logSha256": "dcac1730734bad102b957e2105a98e221a10aa7e058d723b70a3a82e39be407a",
-  "scope": "Original Python verification-tool checks; no conformance rebuild, active check inputs retained."
-}

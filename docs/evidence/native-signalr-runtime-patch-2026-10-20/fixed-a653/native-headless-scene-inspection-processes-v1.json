@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-20T08:00:45.639883+00:00",
-  "scope": "HEADLESS_FIXED_PRODUCTION_SCENE_INSPECTION_NOT_VISIBLE_DESKTOP",
-  "room": "N22-PAY-C0F39208FA",
-  "fixedCommit": "a653e54772bddb4ed14d85c4f0b13150f2f3cbfa",
-  "scriptSha256": "90078a7c6d8383cfc839e81822e674d7d25be1d32ac6973a311279daa1615f0d",
-  "clients": [],
-  "finishedAtUtc": "2026-10-20T08:02:01.106751+00:00"
-}

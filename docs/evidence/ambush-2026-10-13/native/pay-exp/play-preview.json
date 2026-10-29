@@ -1,1 +1,0 @@
-{"requestId":"691936f8336644fdaf94c44d1880a1f4","promptId":"HOLD-TEST:1:P1:PLAY_CARD,PASS_PRIORITY,SURRENDER","snapshotTick":1,"command":{"sourceObjectId":"AMBUSH","cardNo":"UNL-178/219","targetObjectIds":[],"mode":"","optionalCosts":["SPEND_EXPERIENCE:3"],"destination":"BATTLEFIELD:F","repeatChoices":null,"movementDestinations":null,"cmdType":"PLAY_CARD"}}

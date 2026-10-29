@@ -1,6 +1,6 @@
 {
   "scope": "CN/zh-CN applicable2026-10-16: actual ordinary blank seed0 and matching-format legal decks; copied grant capture. New fixture only, all original fixtures and eleven preconstructed inputs unchanged.",
-  "sourceManifestToPublish": "docs/evidence/copied-predict-2026-10-18/source-manifest.json",
+  "sourceManifestToPublish": "docs/legacy/evidence/copied-predict-2026-10-18/source-manifest.json",
   "seed": 0,
   "validatedFormats": [
     "CoreRules",

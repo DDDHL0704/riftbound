@@ -1,8 +1,0 @@
-{
-  "startedAtUtc": "2026-10-19T09:28:26.836477+00:00",
-  "status": "FAILED_SOURCE_PREFIX_RETAINED",
-  "runtimeAndCurrentCheckInputsUnchanged": true,
-  "errorType": "AssertionError",
-  "errorMessage": "",
-  "finishedAtUtc": "2026-10-19T09:28:39.849208+00:00"
-}

@@ -2949,7 +2949,7 @@
   }, {
     "locator" : "Current Fixture Audit Mapping",
     "note" : "该 fixture 保留为工程回归对照，不能作为游戏规则完成证据。",
-    "source" : "docs/rules-evidence-index.md"
+    "source" : "docs/legacy/rules-evidence-index.md"
   } ],
   "rulesVersion" : "rules-260330",
   "schemaVersion" : 1,

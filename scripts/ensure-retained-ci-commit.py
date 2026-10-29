@@ -36,7 +36,7 @@ def referenced_paths(value):
 
 
 def ensure(root):
-    baseline = root/'docs/audit/legacy-source-baseline.json'
+    baseline = root/'docs/legacy/audit/legacy-source-baseline.json'
     if not baseline.exists():
         return
     if baseline.is_symlink():
@@ -62,7 +62,7 @@ def ensure(root):
             _, kind, oid = metadata.decode().split()
             if kind == 'blob':
                 blobs[path.decode()] = oid
-    manifest_path = 'docs/audit/current-manifest.json'
+    manifest_path = 'docs/legacy/audit/current-manifest.json'
     fetch(root, [blobs[manifest_path]])
     manifest = json.loads(subprocess.check_output(
         ['git', 'show', commit+':'+manifest_path], cwd=root))

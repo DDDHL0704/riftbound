@@ -1,7 +1,0 @@
-{
-  "atUtc": "2026-10-19T12:54:10.899021+00:00",
-  "status": "FAILED_OFFLINE_EXPECTED_UNCHANGED_IMAGE_SET_PRECONDITION_BEFORE_RESULT_PUBLICATION",
-  "priorV2ScriptRetained": true,
-  "noNetworkRefetchOrOldSourceRewrite": true,
-  "finding": "Original full page39,current38,frozenblades37. One prior related-carousel URL no longer in current page; two metadata URLs were already present in original raw but outside the37 index. V3 records actual differences rather than asserting them absent."
-}

@@ -1,8 +1,0 @@
-{
-  "status": "PASSED",
-  "cases": 1924,
-  "methods": 1857,
-  "seconds": 20.36,
-  "assemblySha256": "4b50199fa2f935930ee01dbe8a2a60a4d290704fa1e7bdeb4dd385253947cc75",
-  "trxSha256": "ac1147223f28c3a5fa1aa13c976b3a1bad18af8ee729955aafcae48fc4354851"
-}

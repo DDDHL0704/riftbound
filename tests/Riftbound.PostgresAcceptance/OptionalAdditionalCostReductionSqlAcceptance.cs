@@ -364,13 +364,20 @@ internal static class OptionalAdditionalCostReductionSqlAcceptance
         return JsonSerializer.SerializeToElement(node);
     }
 
-    private static string CopyChoice(ActionPromptDto prompt)
+    internal static string CopyChoice(ActionPromptDto prompt)
     {
         var candidate = prompt.Candidates!.Single(item => item.Action == CommandTypes.PlayCard);
         var metadata = JsonSerializer.SerializeToElement(candidate.Metadata, Json);
         var row = metadata.GetProperty("sourceRequirements").EnumerateArray().Single(item => item.GetProperty("sourceObjectId").GetString() == "CARD");
-        var group = row.GetProperty("optionalCostReductionGroups").EnumerateArray().Single(item => item.GetProperty("ruleTextOrigin").ValueKind != JsonValueKind.Null);
-        return group.GetProperty("choiceIds").EnumerateArray().Single().GetString()!;
+        var group = row.GetProperty("optionalCostReductionGroups").EnumerateArray().Single(item =>
+            item.GetProperty("sourceObjectId").GetString() == "EZREAL"
+            && item.GetProperty("componentId").GetString() == "ECHO"
+            && item.GetProperty("ruleTextOrigin").ValueKind == JsonValueKind.Object
+            && item.GetProperty("ruleTextOrigin").GetProperty("equipment").GetProperty("objectId").GetString() == "GEAR");
+        var generation = group.GetProperty("sourceGeneration").GetInt64().ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var instance = group.GetProperty("sourceInstanceId").GetString()!;
+        var expected = "OPTIONAL_COST_REDUCTION:EZREAL:" + generation + ":ECHO:MANA:RULE_TEXT:" + Uri.EscapeDataString(instance);
+        return group.GetProperty("choiceIds").EnumerateArray().Single(item => item.GetString() == expected).GetString()!;
     }
 
     private static async Task<MatchState> PositionAsync(string room, string reducer, bool haste, bool copied)

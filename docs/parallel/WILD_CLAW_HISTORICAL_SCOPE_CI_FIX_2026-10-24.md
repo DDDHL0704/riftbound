@@ -1,7 +1,0 @@
-# Wild Claw 原N46历史集合校准
-
-仅修实际L2历史输入范围，父提交 `7567943bfc4fa3be0f0da6e2be1f87474c9c6648`（PR120分支），不带卡牌/Engine/目录新增。原run40068154778/job120795639599合并输入e6b46c9634e7d38cd76019f8d70686472cb5a7fa的13946例仅一败：原N46旧集合1035预期、实际1038；原artifact12551747937 SHAfe620dcda826e794f45de32e597b71f852eed0a240bf9cd5c6efbc90f18d8ac6及TRX保留。
-原N46提交 `5edb12e57576358f3ef4a9f9d6da92c313f12437` 的目录恰1036；父 `008a064047aa746e579396a79fba6c9950842023` 恰1035，唯一新增VEN·089。与CI父输入逐项比较，1036记录无缺失/无字段变化，后续仅VEN156与Flow VEN003/049/081共4条；原只排156导致三Flow进入旧集合。
-新fixture从原Git blob `a0d4c03410b5b7314299cd4565aaeff49b16a6b7` 导出精确1036印次，原目录字节SHA256 `e9e574d6651ec0e4bcde68618438559336872371ffbdc5931283cea77ff9204e`。测试按明确保留集合选取，并新增无缺失/无重复的集合相等断言；原1035/1036、834/835、逐项functional ID/成员JSON相等、新增恰一功能身份以及旧1035输入身份拒绝断言全部保留。
-固定源码 `18a43559a136e99ff505cda039b67a1e213e8f63` 全Conformance项目构建零警告零错误，原类4/4、零跳过；四个用例身份与原实际CI相同，含1035旧身份拒绝、真实费用与再入场绑定。旧断言尾部及其他三方法逐字保持，原权威fixture未动。1036成员fixture SHA256 `08c9706ac162488829d00e3e232d7762ef1126b5fda66be36e9c03a2f4b17009`，2487选取输入/1418独立运行文件前后哈希核等，显式运行程序集及VSTest诊断分列保留。
-收据 `fixed-source-focused-proof-v1.json` SHA256 `200c420b1852a9a95f8a57298ce6d193d78a604a49b55c18ae12d19aa55e6256`；QA `var/qa/cards-ci-wildclaw-history-20261024/`。仅本历史测试/fixture/短来源证明，子PR目标是CI候选分支，不直接main；完整L2重跑及main发布归①，未新发full/SQL/network，本包不声称实际L2全绿或后端READY。

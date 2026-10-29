@@ -111,6 +111,6 @@ public sealed class OfficialMultiTypeIdentityTests
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
         Assert.NotNull(root);
         return await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName,
-            "docs/evidence/multitype-2026-10-15/catalog-fixture.json"));
+            "docs/legacy/evidence/multitype-2026-10-15/catalog-fixture.json"));
     }
 }

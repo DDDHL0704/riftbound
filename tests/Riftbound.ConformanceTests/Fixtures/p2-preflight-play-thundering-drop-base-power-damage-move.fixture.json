@@ -20,7 +20,7 @@
       "note": "基地和战场均为公开区域；单位对象可位于基地或战场并拥有战力与伤害；打出法术需要目标、费用和指示合法，并作为结算链项目在双方让过后结算。"
     },
     {
-      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "source": "docs/legacy/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
       "locator": "CN current exact OGN268 OGN250 UNL072",
       "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived. Actual movement into an opponent-occupied battlefield establishes the spell duel and battle roles; expect PASS_FOCUS instead of END_TURN. Preserve the original three damage/move assertions and require all added location/participant events."
     }

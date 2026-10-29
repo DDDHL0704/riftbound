@@ -1,9 +1,0 @@
-{
-  "atUtc": "2026-10-18T16:45:07.068937+00:00",
-  "status": "PASS",
-  "warnings": 0,
-  "errors": 0,
-  "seconds": 3.07,
-  "logSha256": "23192a6e3375329fd8259a262712a65966a2a68b99d263120a2216beef527684",
-  "fullDefaultProgramBuiltButFullDefaultSqlExecutionDeferredToNewFixedCi": true
-}

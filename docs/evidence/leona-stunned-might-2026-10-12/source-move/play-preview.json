@@ -1,1 +1,0 @@
-{"requestId":"8382ede987044a43bdc0daf0c9bf0d80","promptId":"HOLD-TEST:1:P1:PLAY_CARD,PASS_FOCUS,SURRENDER","snapshotTick":1,"command":{"sourceObjectId":"SPELL","cardNo":"OGS\u00B7011/024","targetObjectIds":["HOST"],"mode":"","optionalCosts":[],"destination":"","repeatChoices":null,"movementDestinations":null,"cmdType":"PLAY_CARD"}}

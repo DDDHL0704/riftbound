@@ -20,7 +20,7 @@
       "note": "符能位于玩家符文池并可用于支付费用；法术经费用、目标和结算链流程后结算；伤害记录在单位对象状态上并保留到清理。"
     },
     {
-      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "source": "docs/legacy/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
       "locator": "CN current exact OGN268 OGN250 UNL072",
       "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived."
     },

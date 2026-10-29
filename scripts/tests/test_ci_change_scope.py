@@ -50,7 +50,7 @@ class ScopeTests(unittest.TestCase):
 
     def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
         paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
-                 'docs/evidence/ledger.json', 'data/official/card-catalog.json',
+                 'docs/legacy/evidence/ledger.json', 'data/official/card-catalog.json',
                  'tests/Fixtures/example.json', 'clients/godot/README.md',
                  'scripts/test-rules.py', '.github/workflows/native-desktop.yml']
         for path in paths:

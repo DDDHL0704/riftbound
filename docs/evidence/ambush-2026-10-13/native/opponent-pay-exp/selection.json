@@ -1,9 +1,0 @@
-{
-  "actor": "P2",
-  "sourceObjectId": "AMBUSH",
-  "cardNo": "UNL-178/219",
-  "destination": "BATTLEFIELD:F",
-  "optionalCosts": [
-    "SPEND_EXPERIENCE:3"
-  ]
-}

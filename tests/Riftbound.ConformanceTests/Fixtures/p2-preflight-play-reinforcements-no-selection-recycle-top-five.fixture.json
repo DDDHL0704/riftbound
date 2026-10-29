@@ -25,7 +25,7 @@
       "note": "2026-10-09: decline is now an explicit private choice after response, not automatic recycling; choosing a unit goes through formal play and mana reduction."
     },
     {
-      "source": "docs/evidence/deck-play-consumers-2026-10-14/source-current.json",
+      "source": "docs/legacy/evidence/deck-play-consumers-2026-10-14/source-current.json",
       "locator": "OGN062 ID31274 current errata",
       "note": "Decline is a resolution-time zero-card DECK_PLAY_SELECTION; all viewed cards recycled before source ends."
     }

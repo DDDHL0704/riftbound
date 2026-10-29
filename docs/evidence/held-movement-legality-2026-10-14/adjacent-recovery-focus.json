@@ -1,8 +1,0 @@
-{
-  "status": "SCOPED_FOCUS_PASS",
-  "cases": 2022,
-  "methods": 1903,
-  "seconds": 16.85,
-  "trxSha256": "a1eb780413be6db175fa93cf77617bfb37518c5735e9f4a1d527fdeda4f4d201",
-  "scope": "Held confirmation/sequence, movement observers, recovery, armament/source guards; check/full remain required."
-}

@@ -1,8 +1,0 @@
-{
-  "atUtc": "2026-10-20T12:49:42.000678+00:00",
-  "exitCode": 0,
-  "actualTestsRun": 73,
-  "originalFailurePreserved": "python-verification-tools-v1.log",
-  "logSha256": "4330789bfb154eba75ed47587777200ad2e9e94f04191139f275967a04df7b08",
-  "scope": "All verification tooling tests; these synthetic unit fixtures do not constitute real database or gameplay certification."
-}
