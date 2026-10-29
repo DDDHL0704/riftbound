@@ -34,11 +34,13 @@ public sealed class MovementThresholdTests
         var done=await Top(third.State);Assert.Equal(1,done.State.PlayerScores["P1"]);Restore(done.State);
         var fourth=await Move(done.State,4);Assert.Empty(fourth.State.StackItems);Assert.Equal(1,fourth.State.PlayerScores["P1"]);
     }
+    public static IEnumerable<object[]> KaynMoves() => new[] { "OGN·189/298", "RAD·182*/167", "RAD·182/167" }
+        .SelectMany(no => new[] { 1, 2, 3 }.Select(moves => new object[] { no, moves, moves == 1 ? 6 : 0 }));
     [Theory]
-    [InlineData(1,6)] [InlineData(2,0)] [InlineData(3,0)]
-    public async Task KaynIsImmuneOnlyAfterTwoActualMoves(int moves,int damage)
+    [MemberData(nameof(KaynMoves))]
+    public async Task KaynIsImmuneOnlyAfterTwoActualMoves(string cardNo,int moves,int damage)
     {
-        var s=Position("OGN·189/298");for(var i=1;i<=moves;i++)s=(await Move(s,i)).State;
+        var s=Position(cardNo);for(var i=1;i<=moves;i++)s=(await Move(s,i)).State;
         Assert.Equal(moves,s.CardObjects["A"].MovementCountThisTurn);
         const string no="OGN·252/298";s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {["HIT"]=new("HIT",cardNo:no,ownerId:"P1",controllerId:"P1",tags:[CardObjectTags.SpellCard])},
             PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones) {["P1"]=s.PlayerZones["P1"] with {Hand=[..s.PlayerZones["P1"].Hand,"HIT"]}}};
