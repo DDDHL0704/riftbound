@@ -416,6 +416,8 @@ class DistributedL2Tests(unittest.TestCase):
         shards = D.SELECT.partition(units, cases, weights, 2)
         D.SELECT.validate(shards, cases, discovery)
         self.assertEqual([3400, 3400], [shard['estimatedSeconds'] for shard in shards])
+        self.assertEqual([{D.RULES.PREFIX + 'ActualTests': 3400}] * 2,
+                         [shard['estimatedClassSeconds'] for shard in shards])
         self.assertCountEqual(discovery, [name for shard in shards for name in D.SELECT.case_names(shard, cases)])
         self.assertEqual(1, len(next(shard for shard in shards if rows[0] in D.SELECT.case_names(shard, cases))['selectors']))
         fallback = D.SELECT.partition(units, cases, {self.theory: 3600, other: 3200}, 2)
