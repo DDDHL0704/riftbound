@@ -293,7 +293,9 @@ public sealed record CardBehaviorDefinition(
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
-    int? PowerModifierAmountIfTargetEmpowered = null)
+    int? PowerModifierAmountIfTargetEmpowered = null,
+    bool CannotBeCountered = false,
+    bool IgnoresSpellshield = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -341,6 +343,7 @@ public static class CardTargetScopes
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnitAtSourceLocation = "ENEMY_UNIT_AT_SOURCE_LOCATION";
     public const string EnemyUnit = "ENEMY_UNIT";
+    public const string EnemyUnitOrEquipment = "ENEMY_UNIT_OR_EQUIPMENT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
@@ -456,6 +459,17 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·015", "暴怒箴言", 1, "INVOCATION_OF_FURY_DAMAGE", 4, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:green",
+            CanPlayDuringSpellDuel: true, CannotBeCountered: true),
+        new("VEN·061", "洞察箴言", 1, "INVOCATION_OF_INSIGHT_POWER", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:orange",
+            PowerModifierAmount: -5, CanPlayDuringPriority: true, IgnoresSpellshield: true),
+        new("VEN·107", "不和箴言", 1, "INVOCATION_OF_DISCORD_RETURN", 0, 0,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: "COLOR:yellow",
+            ReturnsTargetToHand: true, MinTargetCount: 0, AnyNumberOfTargets: true, MaxTotalTargetPower: 5),
+        new("VEN·131", "团结箴言", 2, "INVOCATION_OF_UNITY_DESTROY", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnitOrEquipment, TargetRequiredTag: "COLOR:purple", DestroysTarget: true),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),

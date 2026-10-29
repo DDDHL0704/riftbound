@@ -21167,7 +21167,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceLocation => IsEnemyFieldObject(state, playerId, objectId)
                 && IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
-            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId)
+                && IsFieldUnitObject(state, objectId),
+            CardTargetScopes.EnemyUnitOrEquipment => IsEnemyFieldObject(state, playerId, objectId)
+                && state.CardObjects.TryGetValue(objectId, out var enemyPermanent) && !enemyPermanent.IsFaceDown
+                && (FieldObjectTypeRules.IsVisibleUnit(enemyPermanent) || enemyPermanent.Tags.Contains(CardObjectTags.EquipmentCard)),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
@@ -21788,6 +21792,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         spellshieldTaxTargetObjectIds = [];
         if (behavior.PlaysSourceToBaseAsUnit
             || behavior.PlaysSourceToBaseAsEquipment
+            || behavior.IgnoresSpellshield
             || targetObjectIds.Count == 0)
         {
             return 0;
@@ -25783,7 +25788,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["secondDestinationZone"] = targetDestinationZone
                 }));
         }
-        else if (behavior.RequiredTargetCount > 0
+        else if (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
@@ -27883,6 +27888,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (EmpoweredSpellRules.PreventsCounter(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetStackItem.ControllerId))
             return false;
+
+        if (!StackObjectRules.IsAbility(targetStackItem)
+            && CardBehaviorRegistry.TryGetByCardNo(targetStackItem.CardNo, out var targetBehavior)
+            && targetBehavior.CannotBeCountered) return false;
 
         if (StackObjectRules.IsAbility(targetStackItem))
         {
