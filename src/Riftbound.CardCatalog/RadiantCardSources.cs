@@ -1,0 +1,32 @@
+using System.Collections.Immutable;
+
+namespace Riftbound.CardCatalog;
+
+public static class RadiantCardSources
+{
+    public const string SnapshotPath = VendettaCardSources.SnapshotPath;
+    private static readonly Lazy<ImmutableArray<OfficialCard>> Cards = new(Load);
+
+    public static IReadOnlyList<OfficialCard> GetAdmittedCards() => Cards.Value;
+
+    private static ImmutableArray<OfficialCard> Load()
+    {
+        using var stream = typeof(RadiantCardSources).Assembly.GetManifestResourceStream(
+            "Riftbound.CardCatalog.VendettaSourceSnapshot")
+            ?? throw new InvalidOperationException("The official card gallery snapshot is missing.");
+        var catalog = OfficialCardCatalogLoader.LoadFromStreamAsync(stream, SnapshotPath).GetAwaiter().GetResult();
+        // Admit each implemented physical printing by both official identifiers.
+        return new[] { (Id: 39697L, CardNo: "RAD·179*/167"), (Id: 39698L, CardNo: "RAD·179/167"),
+            (Id: 39701L, CardNo: "RAD·181*/167"), (Id: 39702L, CardNo: "RAD·181/167"),
+            (Id: 39703L, CardNo: "RAD·182*/167"), (Id: 39704L, CardNo: "RAD·182/167"),
+            (Id: 39705L, CardNo: "RAD·183*/167"), (Id: 39706L, CardNo: "RAD·183/167") }
+            .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
+            .Select(card => card with {
+                CardCategoryList = card.CardCategoryList.ToImmutableArray(),
+                CardCategoryNameList = card.CardCategoryNameList.ToImmutableArray(),
+                CardColorList = card.CardColorList.ToImmutableArray(),
+                ProductCodeList = card.ProductCodeList.ToImmutableArray(),
+                ProductNameList = card.ProductNameList.ToImmutableArray() })
+            .ToImmutableArray();
+    }
+}
