@@ -303,7 +303,7 @@ public sealed partial class CoreRuleEngine
         if (!context.Confirmed || !ValidMightySkill(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId))
             throw new InvalidOperationException("Invalid confirmed Mighty skill.");
         if (context.Kind == MightyEmpowerEffect)
-            return ApplyEmpowerStatusAction(state, context.Source, true);
+            return ApplyEmpowerStatusAction(state, context.Source, true, item.ControllerId);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var zones = NormalizeZonesForSeats(state);
         var events = new List<GameEvent>();
         if (context.Kind == MightyReadyEffect) {
