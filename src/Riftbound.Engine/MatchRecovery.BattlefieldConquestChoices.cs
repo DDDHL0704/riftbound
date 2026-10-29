@@ -140,9 +140,11 @@ public static partial class MatchRecoveryValidator
             && command.CompletedTick == occurred.Tick && command.StartedEventSequence < occurred.Sequence
             && command.CompletedEventSequence >= occurred.Sequence
             && (command.RawCommand ?? command.TypedCommand?.Value) is { } input
-            && TryReadObjectString(input, "choiceId", out var id) && id == choiceId
-            && TryReadObjectString(input, "choiceWindow", out var commandWindow) && commandWindow == window
-            && TryReadObjectStringList(input, "chosenObjectIds", out var selected) && selected.SequenceEqual([chosen]));
+            // Typed callers retain their original arguments; the choice executor trims text.
+            && TryReadObjectString(input, "choiceId", out var id) && id?.Trim() == choiceId
+            && TryReadObjectString(input, "choiceWindow", out var commandWindow) && commandWindow?.Trim() == window
+            && TryReadObjectStringList(input, "chosenObjectIds", out var selected)
+            && selected.Count == 1 && selected[0]?.Trim() == chosen);
 
     private static void ValidateBattlefieldConquestChoiceHistory(MatchState state,
         IReadOnlyList<RecoveredCommand> commands, IReadOnlyList<RecoveredEvent> events, List<string> errors)
