@@ -2680,6 +2680,8 @@ public sealed record MatchState
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
+            return CoreRuleEngine.SameLocationOtherFriendlySameNameUnitIds(state, objectId);
         if (string.Equals(
             aura.ParticipantScope,
             StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
@@ -3440,9 +3442,9 @@ public sealed record MatchState
                         aura.Duration,
                         participantObjectId,
                         sourceObjectId,
-                        aura.PowerDeltaPerParticipant,
+                        StaticAuraSpecRules.PowerDeltaForSource(aura, source),
                         participant.Power,
-                        participant.Power + aura.PowerDeltaPerParticipant,
+                        participant.Power + StaticAuraSpecRules.PowerDeltaForSource(aura, source),
                         aura.Kind,
                         source.CardNo,
                         metadata.SourcePath,
