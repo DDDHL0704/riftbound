@@ -14,10 +14,20 @@ internal static class OrdinaryPlayPrivacyAssertions
     internal static void CheckHistoricalModifiers(JsonNode snapshot, MatchState state)
     {
         if (snapshot["timing"]?["continuousEffects"] is not JsonArray effects) return;
-        var checkedRows = new List<JsonObject>();
         foreach (var row in effects.OfType<JsonObject>())
         {
-            var sourceId = row["sourceObjectId"]?.GetValue<string>();
+            var projectedSourceId = row["sourceObjectId"]?.GetValue<string>();
+            var sourceId = projectedSourceId;
+            if (projectedSourceId == "HIDDEN" && row["layer"]?.GetValue<string>() == ContinuousEffectLayers.PowerModifier)
+            {
+                // The projection hides a source that has become a new private
+                // object. Find its historical provenance in the authoritative
+                // ledger, without using the redacted identity as an exemption.
+                var provenance = Assert.Single(state.CardObjects.Values.SelectMany(c => c.UntilEndOfTurnPowerModifiers),
+                    modifier => modifier.EffectId == row["effectId"]?.GetValue<string>());
+                Assert.Equal(provenance.SourceCardNo, row["sourceCardNo"]?.GetValue<string>());
+                sourceId = provenance.SourceObjectId;
+            }
             if (sourceId is null || !state.PlayerZones.Values.Any(z => z.Hand.Concat(z.MainDeck).Concat(z.RuneDeck).Contains(sourceId))) continue;
             var no = row["sourceCardNo"]?.GetValue<string>();
             if (no is null || !Cards.Value.TryGetValue(no, out var card)) continue;
@@ -83,10 +93,7 @@ internal static class OrdinaryPlayPrivacyAssertions
             Assert.Equal(modifier.ResultingPower, row["resultingPower"]!.GetValue<int>());
             Assert.Equal(modifier.AppliedOrder, row["appliedOrder"]!.GetValue<int>());
             Assert.Null(row["snapshotMight"]); Assert.Null(row["sourceDependencyObjectIds"]);
-            // Exempt only the verified original public provenance field. The
-            // current private object and all other references remain checked.
-            checkedRows.Add(row);
+            Assert.Equal("HIDDEN", projectedSourceId);
         }
-        foreach (var row in checkedRows) row["sourceObjectId"] = "CHECKED_PUBLIC_PLAY_MODIFIER";
     }
 }
