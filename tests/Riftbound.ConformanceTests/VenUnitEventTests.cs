@@ -208,16 +208,17 @@ public sealed class VenUnitEventTests
     [InlineData("OGS·022/024", 1, false)]
     public async Task FinitePreventionRecordsOnlyActualDamageForThePorosBattleEndDraw(string hit, int damage, bool draws)
     {
-        var initial = AddHandCard(BattlePosition("VEN·024", true), "SHIELD", "VEN·126", "P1");
+        var initial = LocalDestructionRecallTests.At(BattlePosition("VEN·024", true), "UNIT", "P1", "BASE")
+            with { UntilEndOfTurnEffects = [] };
+        initial = AddHandCard(initial, "SHIELD", "VEN·126", "P1");
         initial = AddHandCard(initial, "HIT", hit, "P1");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("SHIELD", "VEN·126", ["UNIT"])); await game.Top();
         await game.Act("P1", new PlayCardCommand("HIT", hit, ["UNIT"])); await game.Top();
         Assert.Equal(damage, game.State.CardObjects["UNIT"].Damage);
         Assert.Equal(damage > 0, game.State.CardObjects["UNIT"].UntilEndOfTurnEffects.Contains("TOOK_DAMAGE_THIS_TURN"));
-        await Fight(game);
-        for (var i = 0; i < 20 && (game.State.BattleState.IsActive || game.State.PendingBattleResult is not null); i++)
-            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        await Ven014And030EmpoweredCombatConsumerTests.FinishCombat(game);
         Assert.Equal(draws, game.State.StackItems.Any(item => item.UnitEvent is { Timing: "BATTLE_END" }));
         if (draws)
         {
