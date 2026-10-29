@@ -32,7 +32,8 @@ public sealed class IreliaSelfActionTests
     {
         var state = VenUnitEntryBasicTests.Position("OGN·051/298");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", "VEN·174", "P1") with { IsExhausted = true },
+            ["ALLY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ALLY", "VEN·174", "P1") with {
+                IsExhausted = true, CopyFaceTransitions = [new(state.Tick, 0, "OGN·059/298", "VEN·174")] },
             ["GEAR"] = new("GEAR", cardNo: "SFD·059/221", ownerId: "P1", controllerId: "P1",
                 tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], attachedToObjectId: "ALLY") {
                 AttachmentRevision = 1, AttachedRuleText = new(new("ALLY", 0), "OGN·059/298", 1, state.Tick, 0) } } };
