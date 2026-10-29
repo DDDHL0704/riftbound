@@ -2656,6 +2656,10 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        if (text.Contains("我拥有等同于你控制装备数量的{{强攻}}数值", StringComparison.Ordinal))
+            staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
+                BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",
+                GrantedKeywords: ["强攻"]));
         if (text.Contains("你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.DeckObservationBanishPlay, text,
                 BehaviorImplementationStatuses.Unimplemented, "Static top-deck observation banish permission with substituted generic-power play cost.", Amount: 1));
@@ -3184,8 +3188,26 @@ public static class StaticAuraParser
     public static IReadOnlyList<StaticAuraSpec> Parse(string text)
     {
         var auras = new List<StaticAuraSpec>();
+        var empoweredFriendlyPower = Regex.Match(text,
+            @"你的单位获得\{\{S\}\}\+(\d+)。如果我\{\{已强化\}\}，则改为让其获得\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
+        if (empoweredFriendlyPower.Success)
+            auras.Add(new(StaticAuraKinds.FriendlyUnitsPower, StaticAuraLayer, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
+                StaticAuraTargetScopes.FriendlyUnits, StaticAuraParticipantScopes.FriendlyPublicUnits,
+                int.Parse(empoweredFriendlyPower.Groups[1].Value), empoweredFriendlyPower.Value,
+                BehaviorImplementationStatuses.Unimplemented, "The current source empowerment selects the aura magnitude.",
+                PowerDeltaIfSourceEmpowered: int.Parse(empoweredFriendlyPower.Groups[2].Value)));
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var sameNameCount = Regex.Match(segment,
+                @"你在此处每控制一名和我同名的其他单位，我便获得\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
+            if (sameNameCount.Success)
+            {
+                auras.Add(new(StaticAuraKinds.SourceOtherSameNameUnitCountPower, StaticAuraLayer, "WHILE_SOURCE_ON_PUBLIC_FIELD",
+                    StaticAuraTargetScopes.SourceObject, StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits,
+                    int.Parse(sameNameCount.Groups[1].Value), segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Other visible friendly units with the current source name at its current location determine Might."));
+                continue;
+            }
             if (segment.Contains("提升我的战力，数值等同于你废牌堆的卡牌数量", StringComparison.Ordinal))
             {
                 auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceGraveyardCountPower, StaticAuraLayer,

@@ -456,6 +456,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·018", "怒火放大器", 4, "FURY_AMPLIFIER_EQUIPMENT", 0, 0, PlaysSourceToBaseAsEquipment: true),
+        new("VEN·076", "维修专家", 3, "MAINTENANCE_EXPERT_UNIT", 0, 0, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·097", "小蜘蛛", 3, "SPIDERLING_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "蜘蛛|待命"),
         new("VEN·026", "战地乐团", 4, "WAR_BAND_PLAY_UNIT_POWER_PLUS_3", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: 3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
