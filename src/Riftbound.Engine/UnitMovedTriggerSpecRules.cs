@@ -37,7 +37,7 @@ internal static class UnitMovedTriggerSpecRules
 
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
-            || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
+            || IsMovementDamageTrigger(trigger) || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
             || IsUnitMovedDrawDiscardTypesTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
@@ -66,6 +66,11 @@ internal static class UnitMovedTriggerSpecRules
             && trigger.RevealSourceZone == TriggerZones.MainDeck
             && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.UnitCard
             && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.Graveyard;
+
+    public static bool IsMovementDamageTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedDamageAtOriginOrDestination
+            && trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.UnitAtMovementEndpointBattlefield
+            && trigger.Optional == true && trigger.DamageAmount > 0 && trigger.EmpoweredDamageAmount > 0;
 
     public static bool IsMovementUnitTokenTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedCreateUnitToken && trigger.CreatedTokenCount > 0

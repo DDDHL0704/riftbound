@@ -715,6 +715,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
             CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
+            CardTargetScopes.FriendlyEquipment => "友方装备",
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-play-sfd-jayce-target-rejected",
-  "description": "P4 rejects SFD Jayce when an explicit target is provided for its zero-target play path.",
+  "description": "SFD Jayce rejects a unit selected for its optional friendly equipment destruction ability.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,12 +12,12 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·084/221 杰斯",
-      "note": "官方卡面：费用 4；英雄单位；战力 4；当你打出我时，可选择摧毁一件友方装备，以在本回合内从手牌打出一件法力费用不高于 7 的装备且无视其法力费用。当前 fixture 覆盖不选择装备摧毁时普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；友方装备目标、摧毁和本回合装备免费打出窗口路径暂缓。"
+      "note": "官方勘误：当你打出我时，可以选择摧毁一件友方装备。若如此做，则在本回合内可以从手牌打出一件法力费用不高于 7 的装备，无视其法力费用。本夹具选择了单位，不能作为该技能的友方装备目标。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象；打出卡牌需要目标合法、费用足够、加入结算链并在双方让过后结算。SFD·084《杰斯》的当前手牌打出路径为 0 目标，提供显式目标时应在支付费用、入栈和成为单位对象前拒绝。"
+      "note": "单位入场后确认独立的打出技能；命令中携带的预选目标必须满足技能的友方装备条件。非法预选应在支付费用和入场前拒绝。"
     }
   ],
   "roomId": "p4-sfd-jayce-target-rejected-room",

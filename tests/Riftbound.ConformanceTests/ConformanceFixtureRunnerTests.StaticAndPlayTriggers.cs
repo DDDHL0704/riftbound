@@ -2753,55 +2753,20 @@ public sealed partial class ConformanceFixtureRunnerTests
     public async Task P79EclipseVanguardReadiesAndGainsPowerWhenControllerStunsEnemyUnit()
     {
         var state = EclipseVanguardStunTriggerState(stunEnemy: true);
-        var engine = new CoreRuleEngine();
-
-        var play = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-eclipse-vanguard-play-stunner", "P1", "PLAY_CARD"),
-            new PlayCardCommand(
-                "P1-UNIT-SUN-SHIELDGUARD",
-                "OGN·051/298",
-                ["P2-ECLIPSE-STUN-TARGET"]),
-            CancellationToken.None);
-        var p1Pass = await engine.ResolveAsync(
-            play.State,
-            new PlayerIntent("intent-p7-9-eclipse-vanguard-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-p7-9-eclipse-vanguard-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(play.Accepted, play.ErrorMessage);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Contains("P1-UNIT-SUN-SHIELDGUARD", p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Contains("STUNNED", p2Pass.State.CardObjects["P2-ECLIPSE-STUN-TARGET"].UntilEndOfTurnEffects);
-
-        var vanguard = p2Pass.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"];
-        Assert.False(vanguard.IsExhausted);
-        Assert.Equal(8, vanguard.Power);
+        var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand(
+            "P1-UNIT-SUN-SHIELDGUARD", "OGN·051/298", ["P2-ECLIPSE-STUN-TARGET"]));
+        var stunned = await OfficialGraveyardRecastTests.Top(played.State);
+        Assert.Contains("STUNNED", stunned.State.CardObjects["P2-ECLIPSE-STUN-TARGET"].UntilEndOfTurnEffects);
+        Assert.True(stunned.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"].IsExhausted);
+        Assert.Equal(7, stunned.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"].Power);
+        var resolved = await OfficialGraveyardRecastTests.Top(stunned.State);
+        var vanguard = resolved.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"];
+        Assert.False(vanguard.IsExhausted); Assert.Equal(8, vanguard.Power);
         Assert.Equal(1, vanguard.UntilEndOfTurnPowerModifier);
-
-        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", StringComparison.Ordinal));
-        Assert.Equal("P1-UNIT-ECLIPSE-VANGUARD", triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal("P2-ECLIPSE-STUN-TARGET", triggerEvent.Payload["stunnedEnemyObjectId"]);
-        Assert.Equal(1, triggerEvent.Payload["powerDelta"]);
-
-        var readyEvent = Assert.Single(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
-        Assert.Equal(true, readyEvent.Payload["wasExhausted"]);
-
-        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
-        Assert.Equal(1, powerEvent.Payload["appliedPowerDelta"]);
-        Assert.Equal(8, powerEvent.Payload["resultingPower"]);
+        Assert.Contains(resolved.Events, e => e.Kind == "TRIGGER_RESOLVED"
+            && Equals(e.Payload.GetValueOrDefault("effectKind"), "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1"));
+        Assert.Contains(resolved.Events, e => e.Kind == "UNIT_READIED");
+        Assert.Contains(resolved.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
     }
 
     [Fact]

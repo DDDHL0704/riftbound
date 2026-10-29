@@ -211,6 +211,10 @@ public sealed class RengarUnitPlayLifecycleTests
         var item = Assert.Single(driver.State.StackItems);
         var forged = driver.State with { StackItems = [item with { TargetObjectIds = ["invented-ceased-token"],
             TargetGenerations = new Dictionary<string, long> { ["invented-ceased-token"] = 0 } }] };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(forged));
+        var departed = Assert.Single(item.DepartedTokenTargets!);
+        forged = forged with { StackItems = [Assert.Single(forged.StackItems) with {
+            DepartedTokenTargets = [departed with { Target = new("invented-ceased-token", 0) }] }] };
         // A historical token witness can be structurally valid. It cannot
         // replace the target chosen in the unchanged accepted action log.
         Assert.Empty(OfficialInsightAndSpellLockTests.Errors(forged));

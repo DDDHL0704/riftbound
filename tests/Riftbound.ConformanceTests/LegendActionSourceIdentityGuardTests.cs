@@ -30,12 +30,9 @@ public sealed class LegendActionSourceIdentityGuardTests
     [Fact]
     public void CoreLegendIdentitySourceDoesNotUseDuplicatedCardNumberHelpers()
     {
-        var coreRuleEnginePath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
+        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
+        var coreRuleEngineSource = string.Join("\n", Directory.EnumerateFiles(engineRoot, "CoreRuleEngine*.cs")
+            .Order(StringComparer.Ordinal).Select(File.ReadAllText));
 
         Assert.DoesNotContain("IsRengarLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsLeonaLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
@@ -43,7 +40,11 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("IsJhinLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("RengarLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("LeonaLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        var stunSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.StunObservers.cs"));
+        Assert.Contains("OfficialCardCatalog.LoadRuntimeAsync()", stunSource, StringComparison.Ordinal);
+        Assert.Contains("Regex.IsMatch(card.CardEffect", stunSource, StringComparison.Ordinal);
+        Assert.Contains("StunBoonFaces.Value.Contains(instance.CardNo)", stunSource, StringComparison.Ordinal);
+        Assert.Contains("CaptureStunObservers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("SivirLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("JhinLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);

@@ -377,6 +377,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsPromptFieldUnitObject(state, objectId)
                 : IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.FriendlyEquipment => IsPromptFriendlyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
                 : IsPromptEnemyEquipmentObject(state, playerId, objectId),
