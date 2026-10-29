@@ -198,8 +198,13 @@ public sealed class VenEmpowerCanonicalOpeningTests
         internal IEnumerable<string> Hand(string player, string no) => State.PlayerZones[player].Hand.Where(id => State.CardObjects[id].CardNo == no);
         internal int Might(string player, string id) => JsonSerializer.SerializeToElement(Session.SnapshotFor(player), Json)
             .GetProperty("players").GetProperty(player).GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
-        internal async Task Tap(string actor)
-        { foreach (var id in Runes(actor).Where(id => !State.CardObjects[id].IsExhausted)) await Act(actor, new TapRuneCommand(id)); }
+        internal async Task Tap(string actor, int? count = null)
+        {
+            var runes = Runes(actor).Where(id => !State.CardObjects[id].IsExhausted).Take(count ?? int.MaxValue).ToArray();
+            // Resource preparation uses the production batch command. Each rune still emits
+            // its normal resource events, without adding a session/replay step per rune.
+            if (runes.Length > 0) await Act(actor, new TapRuneCommand(runes[0], runes));
+        }
         internal async Task Top()
         { await Act(State.PriorityPlayerId!, new PassPriorityCommand()); await Act(State.PriorityPlayerId!, new PassPriorityCommand()); }
         internal async Task WaitFor(string actor, int runes, params string[] cards)

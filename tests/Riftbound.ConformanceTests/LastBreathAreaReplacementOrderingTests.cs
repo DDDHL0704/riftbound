@@ -16,7 +16,8 @@ public sealed class LastBreathAreaReplacementOrderingTests
         var initial = Position(); var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < 12; i++) await game.Act("P1", new TapRuneCommand("AREA-P1-RUNE-" + i));
+            var funding = Enumerable.Range(0, 12).Select(i => "AREA-P1-RUNE-" + i).ToArray();
+            await game.Act("P1", new TapRuneCommand(funding[0], funding));
             await game.Act("P1", new PlayCardCommand("HOST", "OGN·096/298", []));
             var hostGeneration = game.State.CardObjects["HOST"].ObjectGeneration;
             for (var i = 0; i < 2; i++)
@@ -35,13 +36,13 @@ public sealed class LastBreathAreaReplacementOrderingTests
             }
             Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new EndTurnCommand());
-            for (var i = 0; i < 2; i++) await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-" + i));
+            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-0", ["AREA-P2-RUNE-0", "AREA-P2-RUNE-1"]));
             await game.Act("P2", new PlayCardCommand("ENEMY", "OGN·096/298", []));
             var enemyGeneration = game.State.CardObjects["ENEMY"].ObjectGeneration;
             await game.Act("P2", new EndTurnCommand());
             await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF", [], ["UNIT", "HOST"]));
             await BattleWinnerPhaseBoundaryTests.PassFocus(game); await game.Act("P1", new EndTurnCommand());
-            for (var i = 0; i < 2; i++) await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-" + i));
+            await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-0", ["AREA-P2-RUNE-0", "AREA-P2-RUNE-1"]));
             await game.Act("P2", new RecycleRuneCommand("AREA-P2-RUNE-0"));
             await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
             await game.Act("P2", new PlayCardCommand("RAY", "OGN·009/298", ["UNIT"])); await game.Top();

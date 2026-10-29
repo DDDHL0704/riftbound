@@ -23,7 +23,9 @@ public sealed class Ven001SubmittedDeckConsumerTests
             await game.Act(actor, new EndTurnCommand()); await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             Assert.Equal(actor, game.State.TurnPlayerId); var runes = game.Runes(actor);
             Assert.Equal(Math.Min(12, beforeRunes + 2), runes.Length); Assert.Equal(0, game.State.RunePools[actor].Mana);
-            await game.Tap(actor); foreach (var id in runes.Skip(controlled)) await game.Act(actor, new RecycleRuneCommand(id));
+            await game.Tap(actor);
+            foreach (var batch in runes.Skip(controlled).Chunk(12))
+                await game.Act(actor, new RecycleRuneCommand(batch[0], batch));
             Assert.Equal(controlled, game.Runes(actor).Length); Assert.Equal(12 - controlled, game.State.PlayerZones[actor].RuneDeck.Count);
             Assert.Equal(runes.Length, game.State.RunePools[actor].Mana); Assert.Equal(runes.Length - controlled, game.State.RunePools[actor].TotalPower);
             await game.Act(actor, new ActivateAbilityCommand(unit, "EMPOWER:0:0", []));
