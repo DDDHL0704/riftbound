@@ -96,8 +96,7 @@ public sealed class CanonicalDelayedAuraDeathOpeningTests
             for (var i = 0; i < 2; i++)
             {
                 Assert.Equal("P1", game.State.PriorityPlayerId); await game.Act("P1", new PassPriorityCommand());
-                if (i == 0)
-                    foreach (var id in game.Runes("P2").Take(4).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+                if (i == 0) await game.Tap("P2", 4);
                 await Recycle(game, "P2", "UNL-R01");
                 await game.Act("P2", new PlayCardCommand(robbery[i], "OGN·033/298", [poros[i]])); await game.Top();
                 var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
