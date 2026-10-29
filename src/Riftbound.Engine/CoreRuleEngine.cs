@@ -3607,7 +3607,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.DiscardedOptionalCostTargetObjectIds.Count > 0
+            behavior.DamageAmountIfDiscardHandCardOptionalCost > 0 && plan.OptionalCosts.Any(cost => TryParseDiscardHandCardOptionalCost(cost, out _))
                 ? behavior.DamageAmountIfDiscardHandCardOptionalCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
@@ -18083,11 +18083,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId) && (command.OptionalCosts?.Count ?? 0) != 0)
-        {
-            rejection = Reject(state, "此效果忽略一切费用，不能选择或支付额外费用。", ErrorCodes.InvalidTarget);
-            return false;
-        }
         behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
         behavior = PlaySourceKeywordBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
@@ -18140,7 +18135,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "待命常驻牌必须打出至原战场。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (state.PendingEffectPlay is not null && !UsesDeclaredMovementDestination(behavior) && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
+        var unitPlayDestination = string.IsNullOrEmpty(destination) ? "BASE" : destination;
+        if (!UnitPlayLocationRestrictionAllows(state, intent.PlayerId, behavior, unitPlayDestination)
+            || !ValidBattlefieldUnitPlayDeclaration(state, intent.PlayerId, behavior, unitPlayDestination, command.OptionalCosts))
+        {
+            rejection = Reject(state, "单位出牌位置或战场额外费用选择不合法。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (state.PendingEffectPlay is not null && !UsesDeclaredMovementDestination(behavior)
+            && !EffectPlayDeclaredDestinationAllowed(state, intent.PlayerId, behavior, unitPlayDestination, command.OptionalCosts))
         {
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
             return false;
@@ -18309,6 +18312,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : OrderedRenektonPaymentResources(normalizedCommandOptionalCosts,
                 nonLuxPaymentResourceActions.Concat(luxSpellOnlyResourceActions).ToArray(), renektonResourceAction).ToArray();
 
+        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId)
+            && (paymentResourceActions.Length != 0 || manaSpend is not null || powerSpend is not null
+                || printedPowerChoices.Length != 0 || spellPowerReductionChoices.Length != 0))
+        {
+            rejection = Reject(state, "此效果忽略一切费用，无需执行支付资源行动或选择支付来源。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (!TryBuildOptionalCostPlan(
                 state,
                 intent.PlayerId,
@@ -18453,6 +18464,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, behavior, destination)
+                && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
@@ -18510,6 +18522,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         extraManaCost = optionalReductions.ExtraMana;
         extraPowerCost = optionalReductions.ExtraGenericPower;
         extraPowerCostByTrait = optionalReductions.ExtraTypedPower;
+        // CN356.5.a adjusts the final total after optional choices and component
+        // reductions. Keep those declarations, but perform no waived payment.
+        var ignoresAllCosts = EffectPlayIgnoresAllCosts(state, intent.PlayerId);
+        if (ignoresAllCosts)
+        {
+            extraManaCost = 0;
+            extraPowerCost = 0;
+            extraPowerCostByTrait = new Dictionary<string, int>();
+            experienceCost = 0;
+            exhaustedOptionalCostTargetObjectIds = [];
+            destroyedAdditionalCostTargetObjectIds = [];
+            returnedAdditionalCostTargetObjectIds = [];
+            discardedOptionalCostTargetObjectIds = [];
+        }
         var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
             optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId,
             componentEchoReduction: optionalReductions.EchoManaReduction);
@@ -18528,7 +18554,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             spellshieldTaxTargetObjectIds = [];
         }
         var totalManaCost = manaCost.Total;
-        var echoPrintedCosts = optionalReductions.PrintedCosts;
+        var echoPrintedCosts = ignoresAllCosts ? [] : optionalReductions.PrintedCosts;
         var optionalPowerCost = originalOptionalPowerCost;
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -18546,7 +18572,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAdjustedPool = ApplyRecycleRunePaymentToPool(currentPool, state.CardObjects, recycledPaymentRuneObjectIds);
         var powerPurpose = PowerPurposeForPlay(behavior);
         var spendablePowerPool = PaymentCostRules.PowerPoolForPurpose(paymentAdjustedPool, powerPurpose);
-        var extraGenericPower = extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
+        var extraGenericPower = ignoresAllCosts ? 0 : extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
             SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
@@ -22282,6 +22308,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (normalizedOptionalCosts.Count == 0)
         {
+            return true;
+        }
+
+        var battlefieldCosts = normalizedOptionalCosts.Where(IsBattlefieldUnitPlayCost).ToArray();
+        if (battlefieldCosts.Length > 0)
+        {
+            if (!TryBattlefieldUnitPlayCost(state, playerId, behavior, battlefieldCosts, out var battlefieldPower)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !IsBattlefieldUnitPlayCost(cost)).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts, behavior, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds) || extraPowerCost > int.MaxValue - battlefieldPower) return false;
+            extraPowerCost += battlefieldPower;
             return true;
         }
 

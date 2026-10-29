@@ -517,8 +517,9 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.Equal(before, MatchStateHasher.Hash(forged.State));
     }
 
-    [Fact]
-    public async Task AnActualIgnoreAllCostsPermissionOffersNoOptionalDiscountOrHastePayment()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AnActualIgnoreAllCostsPermissionKeepsOptionalChoicesAndWaivesTheirFinalPrice(bool haste)
     {
         var initial = AddReducer(HookDeckPlayTests.Position("SFD·029/221"));
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
@@ -530,21 +531,69 @@ public sealed class OptionalAdditionalCostReductionTests
         Assert.True(driver.State.PendingEffectPlay!.IgnoreAllCosts);
         var play = Assert.Single(ResolutionResult.BuildPrompts(driver.State)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(play.Metadata!["sourceRequirements"]));
-        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]));
-        Assert.False(requirement.ContainsKey("optionalCostReductionGroups"));
+        var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]);
+        Assert.Contains(choices, choice => choice.Id == HasteOptionalCostNames.HasteReady);
+        Assert.Contains(choices, choice => choice.Id == "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-red");
+        Assert.True(requirement.ContainsKey("optionalCostReductionGroups"));
         var command = new PlayCardCommand("HOOK_TOP", "SFD·029/221", [], OptionalCosts: [HasteOptionalCostNames.HasteReady,
             "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-red"]);
         var before = MatchStateHasher.Hash(driver.State);
-        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("no-additional-free-play-fee", "P1", command.CmdType), command, default);
+        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("missing-free-play-reduction", "P1", command.CmdType),
+            command with { OptionalCosts = [HasteOptionalCostNames.HasteReady] }, default);
         Assert.False(rejected.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
         Assert.Empty(rejected.Events);
         Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
         var pool = driver.State.RunePools["P1"];
-        await driver.Act("P1", command with { OptionalCosts = [] });
+        await driver.Act("P1", command with { OptionalCosts = haste ? command.OptionalCosts : [] });
         Assert.Equal(pool, driver.State.RunePools["P1"]);
-        Assert.True(driver.State.CardObjects["HOOK_TOP"].IsExhausted);
+        Assert.Equal(!haste, driver.State.CardObjects["HOOK_TOP"].IsExhausted);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
+    [Fact]
+    public async Task AnIgnoredOptionalNonstandardCostDoesNotDiscardTheChosenCard()
+    {
+        const string no = "OGN·002/298";
+        var initial = DeckPlaySequenceTests.TopCard(HookDeckPlayTests.Position("SFD·148/221"), "HOOK_TOP", no);
+        initial = HandDiscardObserverTests.Put(initial, "COST_CARD", "OGN·219/298", "P1", "HAND");
+        var driver = HookDeckPlayTests.Driver(initial, "ignored-discard-additional-cost");
+        await HookDeckPlayTests.Activate(driver); await driver.Top();
+        await DeckPlaySequenceTests.Select(driver, "HOOK_TOP");
+        var pool = driver.State.RunePools["P1"];
+        var command = new PlayCardCommand("HOOK_TOP", no, [], OptionalCosts: ["DISCARD_HAND_CARD:COST_CARD"]);
+        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("unknown-waived-discard", "P1", command.CmdType),
+            command with { OptionalCosts = ["DISCARD_HAND_CARD:MISSING"] }, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(driver.State), MatchStateHasher.Hash(rejected.State));
+        await driver.Act("P1", command);
+        Assert.Equal(pool, driver.State.RunePools["P1"]);
+        Assert.Contains("COST_CARD", driver.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(driver.Events(), e => e.Event.Kind == "HAND_CARD_DISCARDED");
+        await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
+    [Fact]
+    public async Task AnIgnoredDiscardCostStillSelectsTheConditionalSpellEffectWithoutRevealingTheRetainedHandCard()
+    {
+        var initial = DeckPlaySequenceTests.TopCard(DeckPlaySequenceTests.Position(DeckPlaySequenceTests.BlindFury), "P2_TOP", "VEN·008");
+        initial = HandDiscardObserverTests.Put(initial, "COST_CARD", "OGN·219/298", "P1", "HAND");
+        initial = LocalDestructionRecallTests.At(initial, "HOST", "P1", "BATTLEFIELD", "F");
+        var game = DeckPlaySequenceTests.Driver(initial, "waived-discard-conditional-damage");
+        await game.Act("P1", new PlayCardCommand("PARENT", DeckPlaySequenceTests.BlindFury, [])); await game.Top();
+        await DeckPlaySequenceTests.Select(game, "P2_TOP");
+        Assert.True(game.State.PendingEffectPlay!.IgnoreAllCosts);
+        var pool = game.State.RunePools["P1"];
+        await game.Act("P1", new PlayCardCommand("P2_TOP", "VEN·008", ["HOST"], OptionalCosts: ["DISCARD_HAND_CARD:COST_CARD"]));
+        Assert.Equal(pool, game.State.RunePools["P1"]);
+        Assert.Equal(5, Assert.Single(game.State.StackItems).DamageAmount);
+        Assert.Contains("COST_CARD", game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("COST_CARD", JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State)["P2"]));
+        Assert.DoesNotContain("COST_CARD", JsonSerializer.Serialize(ResolutionResult.BuildSpectatorSnapshot(game.State)));
+        await game.Top();
+        Assert.Equal(5, Assert.Single(game.Events(), e => e.Event.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), "P2_TOP")).Event.Payload["damage"]);
+        await RideTheWindCurrentMovementTests.Replay(initial, game);
     }
 
     [Fact]

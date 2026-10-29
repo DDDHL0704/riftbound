@@ -1142,6 +1142,8 @@ public static partial class MatchRecoveryValidator
         RoomSeatRecoveryValidator.Validate(commands, events, errors);
         if (authoritativeState is not null)
             ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
+        if (authoritativeState is not null && requireAcceptedBattleHistory)
+            ValidateBattlefieldConquestHistory(authoritativeState, events, errors);
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
@@ -17670,7 +17672,8 @@ public static partial class MatchRecoveryValidator
                 && !string.Equals(
                     duration,
                     "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
-                    StringComparison.Ordinal))
+                    StringComparison.Ordinal)
+                && !IsObjectStaticAuraPowerDeltaValidatedDuration(duration))
             {
                 errors.Add($"{effectLabel} static aura duration {duration} is invalid");
             }
@@ -17716,7 +17719,8 @@ public static partial class MatchRecoveryValidator
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
-            && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+            && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            && !IsObjectStaticAuraPowerDeltaValidatedDuration(duration))
         {
             errors.Add($"{effectLabel} object static aura duration {duration} is invalid");
             return;
@@ -23950,6 +23954,14 @@ public static partial class MatchRecoveryValidator
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
+        if (state.BattlefieldConquests is { } conquests && (conquests.TurnNumber != state.TurnNumber
+            || conquests.Entries is null || conquests.Entries.Count == 0 || conquests.Entries.Distinct().Count() != conquests.Entries.Count
+            || conquests.Entries.Any(entry => entry is null || string.IsNullOrWhiteSpace(entry.PlayerId)
+                || !state.Seats.ContainsKey(entry.PlayerId) || entry.Battlefield is null
+                || string.IsNullOrWhiteSpace(entry.Battlefield.ObjectId) || entry.Battlefield.Generation < 0
+                || state.CardObjects.TryGetValue(entry.Battlefield.ObjectId, out var field)
+                    && (!field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
+                        || field.ObjectGeneration < entry.Battlefield.Generation)))) errors.Add("invalid turn battlefield conquests");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
             || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)) errors.Add("invalid death ledger");

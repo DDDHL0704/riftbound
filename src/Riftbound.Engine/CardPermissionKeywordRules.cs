@@ -195,7 +195,7 @@ public static class CardPermissionKeywordRules
         IReadOnlyList<string> optionalCosts)
     {
         return TryBuildHasteReadyOptionalCost(
-            optionalCosts,
+            optionalCosts.Where(IsHasteReadyCostChoice).ToArray(),
             behavior,
             out _,
             out _);

@@ -443,6 +443,7 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "SFD·219/221"
             or "SFD·220/221"
             or "SFD·221/221"
+            or "VEN·157"
             or "VEN·159";
     }
 }

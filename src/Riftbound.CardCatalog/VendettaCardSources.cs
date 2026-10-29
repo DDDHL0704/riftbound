@@ -27,6 +27,7 @@ public static class VendettaCardSources
             (Id: 37850L, CardNo: "VEN·147"),
             (Id: 37854L, CardNo: "VEN·151"),
             (Id: 37856L, CardNo: "VEN·153"),
+            (Id: 37860L, CardNo: "VEN·157"),
             (Id: 37892L, CardNo: "VEN·189"),
             (Id: 37893L, CardNo: "VEN·189*"),
             (Id: 37900L, CardNo: "VEN·193"),
