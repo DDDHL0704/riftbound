@@ -85,12 +85,12 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
-                    var draw = DrawCards(state, player, zones[player], 1);
+                    var draw = DrawCards(state, cards, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
                     events.AddRange(BuildTurnStartEvents(state, 0, draw, []).Where(e => e.Kind is not
                         ("TURN_START_BEGAN" or "RUNES_CALLED" or "RUNE_POOL_CLEARED" or "MAIN_PHASE_BEGAN")));
-                    state = state with { PlayerZones = zones, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
+                    state = state with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
                         WinnerPlayerId = draw.WinnerPlayerId, Status = draw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                         ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), TurnStartStep = "MAIN" };
                     break;

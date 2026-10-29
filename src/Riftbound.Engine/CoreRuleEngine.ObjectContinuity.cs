@@ -2,6 +2,15 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    // Record each crossing at the shared discard/draw step. Comparing only the
+    // command's initial and final zones misses discard -> burnout -> redraw.
+    private static void AdvanceNonFieldObjectIdentity(Dictionary<string, CardObjectState> cards, string objectId)
+    {
+        if (cards.TryGetValue(objectId, out var card))
+            cards[objectId] = card with { ObjectGeneration = checked(card.ObjectGeneration + 1),
+                CopyFaceTransitions = null, GrantedTags = null };
+    }
+
     // CN 124: movement within the field preserves the object. Crossing into or
     // out of a nonfield zone starts a new game object, even for the same card ID.
     private static ResolutionResult ApplyObjectContinuity(MatchState before, ResolutionResult result)

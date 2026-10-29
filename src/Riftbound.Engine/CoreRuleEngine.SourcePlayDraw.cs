@@ -86,8 +86,9 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "打出技能抽牌",
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                 ["sourceCardNo"] = item.SourcePlayDraw.CardNo, ["effectKind"] = SourcePlayDrawEffect, ["drawCount"] = count }) };
-        var draw = ApplyDrawToPlayer(state, zones, NormalizeScoresForSeats(state), item.ControllerId, count, state.RngCursor, events, deferNormalVictory: true);
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var draw = ApplyDrawToPlayer(state, zones, cards, NormalizeScoresForSeats(state), item.ControllerId, count, state.RngCursor, events, deferNormalVictory: true);
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
             WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

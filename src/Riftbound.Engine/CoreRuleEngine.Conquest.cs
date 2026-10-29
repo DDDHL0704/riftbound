@@ -265,7 +265,7 @@ public sealed partial class CoreRuleEngine
                 }));
             var drawApplication = ApplyDrawToPlayer(
                 state,
-                playerZones,
+                playerZones, cardObjects,
                 playerScores,
                 playerId,
                 2,
@@ -414,6 +414,7 @@ public sealed partial class CoreRuleEngine
 
         var zones = NormalizeZonesForSeats(state);
         var playerZones = zones[item.ControllerId];
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         IReadOnlyDictionary<string, int> scores = state.PlayerScores;
         var rng = state.RngCursor;
         var burnouts = 0;
@@ -435,7 +436,7 @@ public sealed partial class CoreRuleEngine
         {
             // Move each card before the next attempt so an intervening burnout
             // recycles the graveyard as it exists at that exact point.
-            var draw = DrawOne(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts);
+            var draw = DrawOne(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts, cards);
             if (draw.Burnouts.Count > 0) FlushMoved();
             foreach (var burnout in draw.Burnouts)
                 events.Add(new GameEvent("BURNOUT_APPLIED", $"{item.ControllerId} 执行燃尽",
@@ -462,7 +463,7 @@ public sealed partial class CoreRuleEngine
                 ["battlefieldCardNo"] = context.CardNo, ["trigger"] = item.EffectKind,
                 ["sourceObjectId"] = hiddenConquestSource ? "HIDDEN" : context.ConquestSourceObjectId, ["count"] = moved.Count }));
         if (winner is not null) events.Add(BuildScoreVictoryEvent(winner, EffectiveWinningScore(state)));
-        return new(zones, state.CardObjects, scores, NormalizeExperienceForSeats(state), state.RunePools,
+        return new(zones, cards, scores, NormalizeExperienceForSeats(state), state.RunePools,
             state.UntilEndOfTurnEffects, winner, events, [], null, [], null, [], rng);
     }
 }
