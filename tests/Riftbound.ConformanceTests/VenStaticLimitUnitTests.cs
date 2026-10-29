@@ -91,15 +91,50 @@ public sealed class VenStaticLimitUnitTests
         Assert.Equal(4, game.State.CardObjects["UNIT"].Damage); await game.Replay();
     }
 
-    [Fact]
-    public async Task UnitsInstructedByASpellStillDealTheirOwnDamageToTheElder()
+    [Theory]
+    [InlineData("OGN·128/298")]
+    [InlineData("VEN·083")]
+    public async Task UnitsInstructedByASpellStillDealTheirOwnDamageToTheElder(string spell)
     {
         var state = AddRunes(WithSourceInPlay(Position("VEN·025")), "P1", 7, inDeck: false);
-        state = AttackDamageDistributionTests.Spell(state, "DUEL", "OGN·128/298", "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        state = AttackDamageDistributionTests.Spell(state, "DUEL", spell, "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
         var game = new Driver(state);
-        await game.Act("P2", new PlayCardCommand("DUEL", "OGN·128/298", ["ENEMY", "UNIT"])); await game.Top();
+        await game.Act("P2", new PlayCardCommand("DUEL", spell, ["ENEMY", "UNIT"])); await game.Top();
         Assert.Equal(4, game.State.CardObjects["UNIT"].Damage);
         Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task EldersControllerOrdersSpellImmunityAndFinitePreventionBeforeUnitDamage(bool immunityFirst)
+    {
+        var state = AddRunes(WithSourceInPlay(Position("VEN·025")), "P1", 7, inDeck: false);
+        state = AttackDamageDistributionTests.Spell(state, "SHIELD", "VEN·126", "P2");
+        state = AttackDamageDistributionTests.Spell(state, "HIT", "VEN·059", "P2");
+        state = AttackDamageDistributionTests.Spell(state, "DUEL", "VEN·083", "P2")
+            with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
+        var game = new Driver(state);
+        await game.Act("P2", new PlayCardCommand("SHIELD", "VEN·126", ["UNIT"])); await game.Top();
+        var budget = Assert.Single(game.State.CardObjects["UNIT"].UntilEndOfTurnEffects,
+            effect => effect.StartsWith("DAMAGE_PREVENTION_THIS_TURN:", StringComparison.Ordinal));
+        Assert.EndsWith(":7", budget);
+        await game.Act("P2", new PlayCardCommand("HIT", "VEN·059", ["UNIT"])); await game.Top();
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+        Assert.Equal("P1", choice.Request.PlayerId);
+        Assert.Equal("DAMAGE_REPLACEMENT_ORDER", choice.Request.Kind);
+        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", [immunityFirst ? "ALL" : budget]));
+        Assert.EndsWith(immunityFirst ? ":7" : ":3", Assert.Single(game.State.CardObjects["UNIT"].UntilEndOfTurnEffects,
+            effect => effect.StartsWith("DAMAGE_PREVENTION_THIS_TURN:", StringComparison.Ordinal)));
+        Assert.Equal(0, game.State.CardObjects["UNIT"].Damage);
+        await game.Act("P2", new PlayCardCommand("DUEL", "VEN·083", ["ENEMY", "UNIT"])); await game.Top();
+        var remaining = game.State.CardObjects["UNIT"].UntilEndOfTurnEffects
+            .Where(effect => effect.StartsWith("DAMAGE_PREVENTION_THIS_TURN:", StringComparison.Ordinal)).ToArray();
+        if (immunityFirst) Assert.EndsWith(":3", Assert.Single(remaining));
+        else Assert.Empty(remaining);
+        Assert.Equal(immunityFirst ? 0 : 1, game.State.CardObjects["UNIT"].Damage);
+        Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard);
+        await game.Replay();
     }
 
     [Theory]

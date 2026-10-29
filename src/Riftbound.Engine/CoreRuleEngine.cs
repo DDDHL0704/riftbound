@@ -28857,7 +28857,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (UnitMovementRules.CannotTakeDamage(targetState))
             return new DamageApplicationResult(0, damageAmount, true, "MOVEMENT_DAMAGE_IMMUNITY");
         if (PreventedByRuneDamageImmunity(cardObjects, damageControllerId, targetState, fromUnit))
-            return new DamageApplicationResult(0, damageAmount, true, "RUNE_ENEMY_SPELL_SKILL_DAMAGE_IMMUNITY");
+        {
+            preventDamage = true;
+            preventionEffectId = "RUNE_ENEMY_SPELL_SKILL_DAMAGE_IMMUNITY";
+        }
         var replacement = ReplaceDamage(targetState, cardObjects, damageAmount, preventDamage, preventionEffectId);
         targetState = replacement.Target;
         var adjustedDamageAmount = replacement.Damage;
