@@ -208,6 +208,7 @@ public static class TriggerKinds
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitAttackRevealBanishPlay = "UNIT_ATTACK_REVEAL_BANISH_PLAY";
+    public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
@@ -304,6 +305,7 @@ public static class TriggerTargetScopes
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
     public const string EquipmentOnField = "EQUIPMENT_ON_FIELD";
     public const string ControlledSpellInGraveyard = "CONTROLLED_SPELL_IN_GRAVEYARD";
+    public const string ControlledUnitInGraveyard = "CONTROLLED_UNIT_IN_GRAVEYARD";
     public const string OtherFriendlyDestroyedUnit = "OTHER_FRIENDLY_DESTROYED_UNIT";
     public const string ControlledHandCard = "CONTROLLED_HAND_CARD";
     public const string OtherControlledBattlefields = "OTHER_CONTROLLED_BATTLEFIELDS";

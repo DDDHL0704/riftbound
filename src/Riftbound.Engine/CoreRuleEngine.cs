@@ -11936,6 +11936,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             queue.AddRange(CaptureAttackAreaDamageTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackDeckPlayTriggers(attackState, attackerObjectIds, battlefieldId, TimingStates.NeutralClosed)
                 .Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
+            queue.AddRange(CaptureAttackGraveyardBanishTriggers(attackState, attackerObjectIds, battlefieldId, TimingStates.NeutralClosed)
+                .Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
             queue.AddRange(CaptureStandbyDefendTriggers(attackState, defenderObjectIds, battlefieldId,
                 TimingStates.NeutralClosed).Select(t => t with { TriggeredByEventKind = "BATTLE_DECLARED" }));
             queue.AddRange(CaptureCombatMightTriggers(attackState, attackerObjectIds.Concat(defenderObjectIds),
@@ -22444,7 +22446,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (normalizedOptionalCosts.Count == 1
             && (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
                 || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0
-                || behavior.DamageAmountIfDiscardHandCardOptionalCost > 0)
+                || behavior.DamageAmountIfDiscardHandCardOptionalCost > 0
+                || behavior.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid)
             && TryParseDiscardHandCardOptionalCost(
                 normalizedOptionalCosts[0],
                 out var discardedTargetObjectId))
@@ -23572,6 +23575,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return behavior.CreatedBaseUnitTokenConditionKind switch
         {
+            CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
+                => stackItem.OptionalCosts.Any(cost => TryParseDiscardHandCardOptionalCost(cost, out _)),
             CardTokenCreationConditionKinds.None => true,
             CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn
                 => stackItem.PlayedAfterAnotherCardThisTurn,
@@ -28753,7 +28758,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var copiedForm = isImageCopyToken ? imageDefinition.CreateObject("", stackItem.ControllerId, stackItem.ControllerId) : null;
         var tokenPower = copiedForm?.Power ?? behavior.CreatedBaseUnitTokenPower;
         if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            && tokenPower <= 0)
+            && (tokenPower < 0 || tokenPower == 0
+                && (!TryGetUnitTokenDefinition(behavior.CreatedBaseUnitTokenName, tokenPower, out var zeroToken)
+                    || zeroToken.RequiresCopySource)))
         {
             return;
         }

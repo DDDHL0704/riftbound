@@ -322,6 +322,14 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var attackGraveyardBanish = Regex.Match(text,
+            @"(?:^|\n)当我进攻时，你可以选择从你的废牌堆中放逐一名单位。\s*若如此做，则给予我在本回合内\{\{强攻(?<amount>[0-9]+)\}\}。",
+            RegexOptions.CultureInvariant);
+        if (attackGraveyardBanish.Success && int.TryParse(attackGraveyardBanish.Groups["amount"].Value, out var assault) && assault > 0)
+            triggers.Add(new(TriggerKinds.UnitAttackBanishGraveyardUnitAssault, TriggerTimings.UnitAttack,
+                attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
+                TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
+                GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
         var graveyardPlay = Regex.Match(text,
             @"当你使用法术摧毁一名单位时，你可以选择支付\{\{(?<mana>[0-9]+)\}\}和\{\{红色\}\}，以此从废牌堆中将我打出。",
             RegexOptions.CultureInvariant);
