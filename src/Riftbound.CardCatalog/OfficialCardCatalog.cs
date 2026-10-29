@@ -44,6 +44,7 @@ public sealed record OfficialCardCatalog(
         var admitted = new[] { (Id: 37690L, CardNo: "VEN·005"), (Id: 37691L, CardNo: "VEN·006") }
             .Select(identity => reviewed.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Concat(VendettaCardSources.GetAdmittedCards())
+            .Concat(RadiantCardSources.GetAdmittedCards())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
             .ToArray();
         if (admitted.Any(card => original.Cards.Any(existing => existing.Id == card.Id || existing.CardNo == card.CardNo)))
