@@ -13,7 +13,7 @@ public sealed partial class CoreRuleEngine
             if (!cards.TryGetValue(id, out var card) || !IsFaceUpNonStandbyUnit(card)
                 || !IsObjectOnField(state.PlayerZones, id)
                 || item.TargetGenerations?.GetValueOrDefault(id, -1) != card.ObjectGeneration) continue;
-            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(id, card.ObjectGeneration), false);
+            var changed = ApplyEmpowerStatusAction(state with { CardObjects = cards }, new(id, card.ObjectGeneration), false, item.ControllerId);
             cards[id] = changed.CardObjects[id];
             events.AddRange(changed.Events);
         }
