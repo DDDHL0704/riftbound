@@ -194,6 +194,8 @@ def main():
     parser.add_argument('--head', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--github-output', type=Path)
+    parser.add_argument('--docs-pr-only', action='store_true',
+                        help='Main may replace pending code runs; only PRs may exempt documentation.')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--require-docs', action='store_true',
                         help='Fail unless fresh Git inspection proves a documentation-only change.')
@@ -223,6 +225,8 @@ def main():
                       headSha=args.head, baseSha=None, changes=[])
     if 'tier' not in result:
         require_full(result, result['reason'])
+    if args.docs_pr_only and args.event_name != 'pull_request':
+        require_full(result, 'Main always requires complete verification, including replaced pending code runs')
     result.update(scope_context(args.event_name, event, args.head))
     if args.recheck:
         result = recheck(result, args.recheck)

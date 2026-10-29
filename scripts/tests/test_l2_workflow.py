@@ -46,7 +46,7 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertNotRegex(jobs['prepare'], r'(?m)^    if:')
         self.assertIn("if: needs.prepare.outputs.tier != 'DOCS'", jobs['rule_suite'])
         self.assertIn("if: steps.scope.outputs.tier != 'DOCS'", jobs['prepare'])
-        self.assertIn('scripts/ci-change-scope.py --event', jobs['prepare'])
+        self.assertEqual(2, jobs['prepare'].count('scripts/ci-change-scope.py --docs-pr-only --event'))
         self.assertIn('--recheck var/qa/l2-quality/scope-candidate.json', jobs['prepare'])
         self.assertLess(jobs['prepare'].index('--recheck'), jobs['prepare'].index('actions/setup-dotnet@'))
         self.assertIn('--verify-docs-receipt var/qa/l2-quality', jobs['l2_required'])

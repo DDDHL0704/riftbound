@@ -49,12 +49,12 @@ jobs:
         run: git diff --check "$GITHUB_SHA^" "$GITHUB_SHA"
       - name: Inspect the fixed Git change scope
         run: >-
-          python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
+          python3 scripts/ci-change-scope.py --docs-pr-only --event "$GITHUB_EVENT_PATH"
           --head "$GITHUB_SHA" --output var/qa/l2-quality/scope-candidate.json
       - name: Recheck scope before selecting jobs; uncertainty runs the complete suite
         id: scope
         run: >-
-          python3 scripts/ci-change-scope.py --event "$GITHUB_EVENT_PATH"
+          python3 scripts/ci-change-scope.py --docs-pr-only --event "$GITHUB_EVENT_PATH"
           --head "$GITHUB_SHA" --recheck var/qa/l2-quality/scope-candidate.json
           --output var/qa/l2-quality/scope.json --github-output "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

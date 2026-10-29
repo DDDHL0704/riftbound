@@ -95,6 +95,23 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual('L1', decision['tier'])
         self.assertFalse(decision['full'])
 
+    def test_l2_main_docs_push_still_verifies_code_from_replaced_pending_runs(self):
+        self.write('scripts/ci-change-scope.py', Path(scope.__file__).read_text())
+        self.base = self.commit()
+        self.write('docs/BACKLOG.md', 'latest pending main revision\n')
+        head = self.commit()
+        event, output = self.repo / '.git/event.json', self.repo / '.git/scope.json'
+        for name, payload, tier in [('push', {'before': self.base}, 'L3'),
+                                    ('pull_request', {'pull_request': {'base': {'sha': self.base}}}, 'DOCS')]:
+            with self.subTest(event=name):
+                event.write_text(json.dumps(payload))
+                subprocess.run(['python3', str(self.repo / 'scripts/ci-change-scope.py'),
+                                '--docs-pr-only', '--event', str(event), '--event-name', name,
+                                '--head', head, '--output', str(output)], check=True, capture_output=True)
+                result = json.loads(output.read_text())
+                self.assertEqual(tier, result['tier'])
+                self.assertEqual(tier != 'DOCS', result['full'])
+
     def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
         paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
                  'docs/legacy/evidence/ledger.json', 'data/official/card-catalog.json',
