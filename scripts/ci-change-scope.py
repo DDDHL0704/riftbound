@@ -9,7 +9,7 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-# docs/legacy and DEPLOYMENT.md are read by tests and remain executable inputs.
+# Fixture data and DEPLOYMENT.md are read by tests and remain executable inputs.
 DOCUMENTATION = frozenset({
     'AGENTS.md', 'README.md', 'GLOSSARY.md',
     'docs/BACKLOG.md', 'docs/CARD_BACKLOG.md',
