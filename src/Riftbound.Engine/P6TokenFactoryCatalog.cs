@@ -83,6 +83,7 @@ public static class P6TokenFactoryCatalog
         Unit("OGN·272/298", "随从（诺克萨斯）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit(ZaunMinionTokenCardNo, "随从（祖安）", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit("OGN·274/298", "精灵", "精灵", 3, CardObjectTags.Ephemeral, "仙灵"),
+        Unit("VEN·T04", "随从", "随从", 1, CardObjectTags.MinionTokenFamily, "随从"),
         Unit("VEN·T06", "触手", "触手", 1, "比尔吉沃特")
     ];
 

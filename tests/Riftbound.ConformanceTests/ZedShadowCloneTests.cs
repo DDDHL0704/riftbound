@@ -100,7 +100,7 @@ public sealed class ZedShadowCloneTests
     {
         var catalog = await OfficialCardCatalog.LoadRuntimeAsync();
         var card = Assert.Single(catalog.Cards, c => c.CardNo == "VEN·T05");
-        Assert.Equal(37925, card.Id); Assert.Equal("单位", card.CardCategoryName);
+        Assert.Equal(37925, card.Id); Assert.Equal("指示物单位", card.CardCategoryName);
         Assert.True(OfficialRuleDomainBehaviorCatalog.IsTokenCard(card));
         Assert.Null(card.Energy); Assert.Equal(0, card.Power);
         Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(card.CardNo, out var factory));
