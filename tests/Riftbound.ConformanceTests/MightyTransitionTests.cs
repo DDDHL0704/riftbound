@@ -134,10 +134,12 @@ public sealed class MightyTransitionTests
         ArmamentMightTests.PublicRecovery(state);
         foreach (var snapshot in snapshots.Values.Append(spectator.SpectatorSnapshot)) {
             var payload = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+            var original = payload["mightySkill"];
             payload["mightySkill"] = forged;
             Assert.NotEmpty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
-            payload["mightySkill"] = captured;
+            payload["mightySkill"] = original;
         }
+        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views, state, state.Tick, spectator));
     }
 
     [Theory]

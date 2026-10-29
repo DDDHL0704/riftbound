@@ -25511,8 +25511,9 @@ public sealed partial class FullGameEndToEndTests
                     }
                     if (item?.DelayedDestruction is { } delayed)
                     {
-                        Assert.Equal("DELAYED_UNIT_DESTRUCTION_CREATE_GOLD", item.EffectKind);
-                        Assert.Equal("UNL-073/219", delayed.CardNo);
+                        Assert.Equal("DELAYED_UNIT_DESTRUCTION_REWARD", item.EffectKind);
+                        Assert.True(CardBehaviorRegistry.TryGetByCardNo(delayed.CardNo, out var delayedBehavior));
+                        Assert.NotNull(delayedBehavior.DelayedDestructionReward);
                         Assert.Equal(item.CardNo, delayed.CardNo);
                         Assert.Equal(item.ControllerId, delayed.ControllerId);
                         Assert.Equal(item.SourceObjectId, delayed.Source.ObjectId);

@@ -9,21 +9,30 @@ public sealed record MightySkillContext(string CardNo, string Kind, ObjectBindin
     string ControllerId, int BeforeMight, int AfterMight, LastKnownMightFrame Before, LastKnownMightFrame After,
     string InstanceId, RuleTextInstanceBinding? Origin = null, bool Confirmed = false);
 
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record MightySkillView(string Kind, int BeforeMight, int AfterMight, bool Confirmed);
+
 public sealed partial class CoreRuleEngine
 {
+    internal static MightySkillView? PublicMightySkill(MightySkillContext? context)
+        => context is null ? null : new(context.Kind, context.BeforeMight, context.AfterMight, context.Confirmed);
+
     internal const string MightyReadyEffect = "MIGHTY_TRANSITION_READY";
     internal const string MightyRuneEffect = "MIGHTY_TRANSITION_CHANNEL";
+    internal const string MightyEmpowerEffect = "MIGHT_TRANSITION_EMPOWER";
     internal const string MightyCostWindow = "MIGHTY_SKILL_COST";
     internal const string MightyChoiceWindow = "MIGHTY_SKILL_CONFIRMATION";
-    private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> MightyRuneSpecs = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+    private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> OtherMightSpecs = new(() =>
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
-                t.Kind == TriggerKinds.ControlledUnitBecamePowerfulExhaustCallRune)))
+                t.Kind is TriggerKinds.ControlledUnitBecamePowerfulExhaustCallRune or TriggerKinds.SourceMightReachedEmpower)))
             .Where(p => p.Spec is not null).ToDictionary(p => p.CardNo, p => p.Spec!, StringComparer.Ordinal));
     private static TriggerSpec? MightySkillDefinition(string? cardNo)
         => UnitTriggerPaymentSpecRules.TryGetTrigger(cardNo,
             UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger, out var unit)
-            ? unit : cardNo is null ? null : MightyRuneSpecs.Value.GetValueOrDefault(cardNo);
+            ? unit : cardNo is null ? null : OtherMightSpecs.Value.GetValueOrDefault(cardNo);
+    private static string MightSkillEffect(TriggerSpec spec) => spec.Kind == TriggerKinds.SourceMightReachedEmpower
+        ? MightyEmpowerEffect : spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect;
 
     private static int MightyBeforeEntry(CardObjectState after)
         => PrintedCardFactory.TryCreate(after.ObjectId, after.OwnerId ?? after.ControllerId ?? "", after.CardNo, out var printed)
@@ -68,14 +77,14 @@ public sealed partial class CoreRuleEngine
                 && IsObjectOnField(before.PlayerZones, old.ObjectId)
                 ? ResolveCurrentFieldUnitPower(priorState, old) : MightyBeforeEntry(target);
             var current = ResolveCurrentFieldUnitPower(afterState, target);
-            if (previous >= PowerfulUnitPowerThreshold || current < PowerfulUnitPowerThreshold) continue;
             foreach (var observer in sources.Where(c => c.Source.ControllerId == target.ControllerId)) {
                 var source = observer.Source; var instance = observer.Instance; var spec = observer.Spec;
-                if (previous >= spec.RequiredPowerThreshold || current < spec.RequiredPowerThreshold) continue;
-                var kind = spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect;
+                if (previous >= spec.RequiredPowerThreshold || current < spec.RequiredPowerThreshold
+                    || spec.TargetScope == TriggerTargetScopes.SourceUnit && source.ObjectId != target.ObjectId) continue;
+                var kind = MightSkillEffect(spec);
                 yield return new(instance.CardNo, kind, new(source.ObjectId, source.ObjectGeneration),
                     new(target.ObjectId, target.ObjectGeneration), target.ControllerId!, previous, current,
-                    before, after, instance.Id, instance.Origin);
+                    before, after, instance.Id, instance.Origin, Confirmed: kind == MightyEmpowerEffect);
             }
         }
     }
@@ -98,7 +107,8 @@ public sealed partial class CoreRuleEngine
         {
             foreach (var context in MightyCrossings(previous, after)) {
                 var trigger = new TriggerQueueItemState($"MIGHTY:{state.Tick}:{index}:{context.InstanceId}:{context.Unit.ObjectId}",
-                    context.ControllerId, context.Source.ObjectId, context.Kind, "UNIT_BECAME_POWERFUL") {
+                    context.ControllerId, context.Source.ObjectId, context.Kind,
+                    context.Kind == MightyEmpowerEffect ? "SOURCE_MIGHT_REACHED" : "UNIT_BECAME_POWERFUL") {
                         SourceCardNo = context.CardNo, MightySkill = context };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
@@ -113,7 +123,8 @@ public sealed partial class CoreRuleEngine
     {
         try {
             if (MightySkillDefinition(context.CardNo) is not { } spec
-                || context.Kind != (spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect)
+                || context.Kind != MightSkillEffect(spec)
+                || spec.TargetScope == TriggerTargetScopes.SourceUnit && (context.Source != context.Unit || !context.Confirmed)
                 || context.BeforeMight >= spec.RequiredPowerThreshold || context.AfterMight < spec.RequiredPowerThreshold
                 || context.Source.Generation < 0 || context.Unit.Generation < 0
                 || !context.After.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
@@ -308,6 +319,8 @@ public sealed partial class CoreRuleEngine
         var context = item.MightySkill!;
         if (!context.Confirmed || !ValidMightySkill(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId))
             throw new InvalidOperationException("Invalid confirmed Mighty skill.");
+        if (context.Kind == MightyEmpowerEffect)
+            return ApplyEmpowerStatusAction(state, context.Source, true, item.ControllerId);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); var zones = NormalizeZonesForSeats(state);
         var events = new List<GameEvent>();
         if (context.Kind == MightyReadyEffect) {
@@ -315,9 +328,9 @@ public sealed partial class CoreRuleEngine
                 && IsVisibleFieldUnitObject(cards, target.ObjectId) && IsObjectOnField(zones, target.ObjectId)) {
                 AddReadiedObservation(zones, cards, target, events);
                 cards[target.ObjectId] = target with { IsExhausted = false };
-                events.Add(new("UNIT_READIED", "强力技能结算活跃单位", new Dictionary<string, object?> {
+                events.Add(CaptureSelfReady(new("UNIT_READIED", "强力技能结算活跃单位", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
-                    ["targetObjectId"] = target.ObjectId, ["reason"] = item.EffectKind }));
+                    ["targetObjectId"] = target.ObjectId, ["reason"] = item.EffectKind }), target, item.ControllerId, state.PlayerZones, cards));
             }
         } else {
             var called = CallRunes(zones, cards, item.ControllerId, MightySkillDefinition(context.CardNo)!.RuneCallCount!.Value);

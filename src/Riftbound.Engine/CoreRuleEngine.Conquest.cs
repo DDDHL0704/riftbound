@@ -142,9 +142,12 @@ public sealed partial class CoreRuleEngine
         recastTriggers = recastTriggers.Concat(CaptureConquestTokens(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
-        recastTriggers = recastTriggers.Concat(CaptureConquestScores(state with { PlayerZones = playerZones,
+        recastTriggers = recastTriggers.Concat(CaptureConquestSources(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick, "BATTLEFIELD_CONQUERED")).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureConquestFlow(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureUnitConquestReturns(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
@@ -438,7 +441,7 @@ public sealed partial class CoreRuleEngine
         {
             // Move each card before the next attempt so an intervening burnout
             // recycles the graveyard as it exists at that exact point.
-            var draw = DrawOne(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts);
+            var draw = TakeTopCardWithBurnout(state with { PlayerScores = scores, RngCursor = rng }, item.ControllerId, playerZones, burnouts);
             if (draw.Burnouts.Count > 0) FlushMoved();
             foreach (var burnout in draw.Burnouts)
                 events.Add(new GameEvent("BURNOUT_APPLIED", $"{item.ControllerId} 执行燃尽",

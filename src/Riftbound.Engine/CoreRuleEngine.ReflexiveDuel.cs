@@ -99,7 +99,7 @@ public sealed partial class CoreRuleEngine
         foreach (var (source, target, amount) in new[] { (first, second, firstPower), (second, first, secondPower) })
         {
             if (amount <= 0) continue;
-            var damage = ApplyDamageToCardObject(cards, EffectiveFieldControllerId(state.PlayerZones, source, state.CardObjects[source])!, target, amount, destroyed);
+            var damage = ApplyDamageToCardObject(state, cards, EffectiveFieldControllerId(state.PlayerZones, source, state.CardObjects[source])!, target, amount, destroyed);
             if (damage.DamageAmount > 0) causes[target] = item with { SourceObjectId = source,
                 ControllerId = EffectiveFieldControllerId(state.PlayerZones, source, state.CardObjects[source]) ?? item.ControllerId,
                 CardNo = state.CardObjects[source].CardNo ?? string.Empty, EffectKind = "UNIT_DAMAGE", ReflexiveDuel = null };

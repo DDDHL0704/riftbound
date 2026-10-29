@@ -82,11 +82,8 @@ public sealed class ConquestLifecycleRegressionTests
         state = state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
             ["BF"] = new("P2", "BATTLEFIELD", "BF") } };
         var result = await Conquer(state with { CardObjects = cards });
-        if (cardNo == "SFD·069/221")
-        {
-            Assert.DoesNotContain(result.Events, e => e.Kind == expectedEvent);
-            result = await OfficialGraveyardRecastTests.Top(result.State);
-        }
+        Assert.DoesNotContain(result.Events, e => e.Kind == expectedEvent);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Contains(result.Events, e => e.Kind == expectedEvent);
     }
 
