@@ -322,6 +322,10 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var ownBanish = Regex.Match(text, @"当你放逐一张属于你的卡牌时，强化我。", RegexOptions.CultureInvariant);
+        if (ownBanish.Success)
+            triggers.Add(new(TriggerKinds.ControllerOwnedBanishEmpowerSource, "CARD_BANISHED", ownBanish.Value,
+                "When this controller banishes a card they own, empower the source on resolution."));
         var otherEmpowered = Regex.Match(text, @"当你(?:为)?其他物体强化时，强化我。|当你强化其他物体时，强化我。", RegexOptions.CultureInvariant);
         if (otherEmpowered.Success)
             triggers.Add(new(TriggerKinds.ControllerEmpoweredOtherEmpowerSource, "OBJECT_EMPOWERED", otherEmpowered.Value,

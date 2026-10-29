@@ -133,7 +133,7 @@ public sealed partial class CoreRuleEngine
             {
                 Damage = 0, DamageMarkedByPlayerIds = null,
                 Power = previous.Power - previous.UntilEndOfTurnPowerModifier,
-                UntilEndOfTurnEffects = [], UntilEndOfTurnPowerModifier = 0,
+                UntilEndOfTurnEffects = [], BanishReplacementOrigins = null, UntilEndOfTurnPowerModifier = 0,
                 UntilEndOfTurnPowerModifiers = [], AttachedToObjectId = null,
                 IsAttacking = false, IsDefending = false
             };

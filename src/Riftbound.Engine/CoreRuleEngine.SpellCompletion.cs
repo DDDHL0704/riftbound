@@ -221,7 +221,8 @@ public sealed partial class CoreRuleEngine
                 .Where(e => cards.GetValueOrDefault(e.Key)?.ObjectGeneration == e.Value && zones.Values.Any(z => z.Banished.Contains(e.Key)))
                 .ToDictionary(e => e.Key, e => e.Value) ?? new Dictionary<string, long>();
             references[id] = cards[id].ObjectGeneration;
-            events.Add(new("CARD_BANISHED", "法术由关联技能放逐", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id }));
+            events.Add(CaptureOwnedBanishObservers(new("CARD_BANISHED", "法术由关联技能放逐", new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id }),
+                zones, cards, item.ControllerId, [id]));
             if (references.Count >= spec.BanishCount)
             {
                 foreach (var pair in references)
