@@ -150,22 +150,22 @@ public sealed class RadManaAssembleEquipmentTests
     [InlineData(Blades, 6)] [InlineData(Shield, 5)]
     public async Task TheAttachedLowerBoxChangesRealDefendingMightAndBulwarkDamageOrder(string no, int defendingMight)
     {
-        var attachment = new Driver(Position(no, onField: true));
-        await attachment.Act("P1", new AssembleEquipmentCommand("UNIT", "ALLY", [Assemble]));
-        await attachment.Top(); await attachment.Replay();
-        var state = attachment.State;
+        var state = Position(no, onField: true);
         var cards = state.CardObjects.ToDictionary();
         cards["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "OGN·082/298", "P2");
         cards["EXTRA"] = OfficialGarenConquestBattlefieldCountTests.Printed("EXTRA", "OGN·219/298", "P1");
         var locations = state.ObjectLocations.ToDictionary();
-        foreach (var id in new[] { "UNIT", "ALLY", "EXTRA" }) locations[id] = new("P1", "BATTLEFIELD", "BF");
-        locations["ENEMY"] = new("P2", "BATTLEFIELD", "BF");
+        foreach (var id in new[] { "ALLY", "EXTRA" }) locations[id] = new("P1", "BATTLEFIELD", "BF");
         var zones = state.PlayerZones.ToDictionary();
-        zones["P1"] = zones["P1"] with { Base = ["GEAR"], Battlefields = ["BF", "ALLY", "EXTRA", "UNIT"] };
-        zones["P2"] = zones["P2"] with { Base = [], Battlefields = ["OTHER", "ENEMY"] };
-        var game = new Driver(state with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones,
-            ActivePlayerId = "P2", TurnPlayerId = "P2", UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BF")] });
-        await game.Act("P2", new DeclareBattleCommand("BF", ["ENEMY"], ["ALLY", "EXTRA"], OptionalCosts: ["COMBAT_ASSIGNMENT"]));
+        zones["P1"] = zones["P1"] with { Base = ["GEAR", "UNIT"], Battlefields = ["BF", "ALLY", "EXTRA"] };
+        var game = new Driver(state with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones });
+        await game.Act("P1", new AssembleEquipmentCommand("UNIT", "ALLY", [Assemble])); await game.Top();
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
+        for (var index = 0; index < 4 && game.State.FocusPlayerId is { } focus; index++)
+            await game.Act(focus, new PassFocusCommand());
+        if (ResolutionResult.BuildPrompts(game.State)["P2"].EnabledActions().Contains(CommandTypes.DeclareBattle))
+            await game.Act("P2", new DeclareBattleCommand("BF", ["ENEMY"], ["ALLY", "EXTRA"], OptionalCosts: ["COMBAT_ASSIGNMENT"]));
         Assert.Equal(defendingMight, Might(game.State, "ALLY"));
         if (no == Shield) await Reject(game.State, "P2", new AssignCombatDamageCommand("battle:BF", "BF", [new("ENEMY", "ALLY", 4), new("ENEMY", "EXTRA", 4)]));
         await game.Act("P2", new AssignCombatDamageCommand("battle:BF", "BF", [new("ENEMY", "ALLY", defendingMight), new("ENEMY", "EXTRA", 8 - defendingMight)]));
@@ -195,7 +195,7 @@ public sealed class RadManaAssembleEquipmentTests
     }
 
     private static int Might(MatchState state, string id)
-        => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)["P1"]).GetProperty("players")
+        => JsonSerializer.SerializeToElement(ResolutionResult.BuildSnapshots(state)["P1"], new JsonSerializerOptions(JsonSerializerDefaults.Web)).GetProperty("players")
             .GetProperty("P1").GetProperty("objects").GetProperty(id).GetProperty("effectivePower").GetInt32();
 
     private static async Task Reject(MatchState state, string player, GameCommand command)
