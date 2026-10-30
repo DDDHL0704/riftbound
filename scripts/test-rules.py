@@ -49,9 +49,13 @@ class AffectedBranchOutOfDate(ValueError):
 
 
 def _test_class_names(text):
-    names = set(TYPE_DECLARATION.findall(text))
+    names = _declared_type_names(text)
     return {name for name in names
             if name.endswith(('Tests', 'Test', 'Guard', 'Privacy', 'Provenance'))}
+
+
+def _declared_type_names(text):
+    return set(TYPE_DECLARATION.findall(text))
 
 
 def _guard_class_names(test_files):
@@ -76,7 +80,7 @@ def _source_identifiers(path, text):
         stem = stem[:-3]
     parts = re.split(r'[._-]', stem)
     identifiers = {part for part in parts if len(part) >= 4 and part.casefold() not in GENERIC_SOURCE_PARTS}
-    identifiers.update(_test_class_names(text))
+    identifiers.update(_declared_type_names(text))
     if stem:
         identifiers.add(stem)
     return identifiers
@@ -92,12 +96,12 @@ def select_affected_test_classes(changed_paths, changed_text, test_files, source
     for path in changed:
         if path.startswith('tests/Riftbound.ConformanceTests/') and path.endswith('.cs'):
             source = next((text for candidate, text in test_files if candidate == path), '')
-            selected.update(_test_class_names(source))
+            selected.update(_declared_type_names(source))
         elif path.startswith('src/') or path.endswith('.cs'):
             source_tokens.update(_source_identifiers(path, source_texts.get(path, '')))
     for path, text in test_files:
         if path in changed:
-            selected.update(_test_class_names(text))
+            selected.update(_declared_type_names(text))
             continue
         if tokens and any(token in text for token in tokens):
             selected.update(_test_class_names(text))
@@ -285,14 +289,14 @@ def terminate(process):
 
 def run_affected(args):
     selection = affected_selection(args.base)
+    if args.print_filter:
+        print(selection['filter'])
+        return 0
     print(f"Affected base: {selection['baseSha']}  head: {selection['headSha']}", flush=True)
     print(f"Changed paths: {len(selection['changedPaths'])}; selected classes: {len(selection['classes'])}", flush=True)
     if selection['cardTokens']:
         print('Changed card tokens: ' + ', '.join(selection['cardTokens']), flush=True)
     print('Affected filter: ' + selection['filter'], flush=True)
-    if args.print_filter:
-        print(selection['filter'])
-        return 0
     dotnet = shutil.which('dotnet')
     if not dotnet:
         raise ValueError('dotnet SDK not found on PATH.')
