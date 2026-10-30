@@ -358,7 +358,7 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "来源已无法支付横置费用。", ErrorCodes.InvalidTarget);
             var source = state.CardObjects[item.SourceObjectId];
             next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
-                [source.ObjectId] = source with { IsExhausted = true } } };
+                [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
             item = item with { HighCostPlayObserver = highCost with { Paid = true } };
             events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId,
@@ -370,7 +370,7 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "传奇已无法支付横置费用。", ErrorCodes.InvalidTarget);
             var source = state.CardObjects[item.SourceObjectId];
             next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
-                [source.ObjectId] = source with { IsExhausted = true } } };
+                [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
             item = item with { TriggerCost = new(new(source.ObjectId, source.ObjectGeneration)) };
             events.Add(new("LEGEND_EXHAUSTED", "支付征服技能横置费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId }));

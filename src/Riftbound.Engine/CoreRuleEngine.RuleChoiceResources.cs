@@ -14,11 +14,11 @@ public sealed partial class CoreRuleEngine
 {
     private static readonly JsonSerializerOptions ResourceStepJson = new(JsonSerializerDefaults.Web);
     private static readonly ConditionalWeakTable<RuleChoiceFrame, List<RuleChoiceResourceStep>> ResourceSteps = new();
-    private sealed record ResourceStepCapture(RuleChoiceFrame Frame, string PlayerId, string ChoiceId, JsonElement Before);
+    private sealed record ResourceStepCapture(RuleChoiceFrame Frame, string PlayerId, string ChoiceId, JsonElement Before, int ExhaustEventStart);
 
     private static ResourceStepCapture? BeginRuleChoiceResourceStep(MatchState before, string player, string choice)
         => RuleChoices.Value is { } frame ? new(frame, player, choice,
-            JsonSerializer.SerializeToElement(before, ResourceStepJson)) : null;
+            JsonSerializer.SerializeToElement(before, ResourceStepJson), frame.ExhaustedUnitEvents.Count) : null;
 
     private static void CompleteRuleChoiceResourceStep(ResourceStepCapture? capture, MatchState after,
         IReadOnlyList<GameEvent> events)

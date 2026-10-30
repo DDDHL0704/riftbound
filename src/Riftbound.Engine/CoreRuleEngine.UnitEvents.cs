@@ -101,6 +101,21 @@ public sealed partial class CoreRuleEngine
         return WithUnitEvents(ev, CaptureUnitEvents(zones, cards, [unit], "BECAME_READY"));
     }
 
+    // Capture the transition at the instruction, before later ready/departure
+    // instructions can erase it. Entry initialization and legality previews do
+    // not call this operation. The command frame is rebuilt on choice replay.
+    private static CardObjectState ExhaustForInstruction(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState source)
+    {
+        if (!source.IsExhausted && RuleChoices.Value is { } frame && IsObjectOnField(zones, source.ObjectId))
+        {
+            IReadOnlyDictionary<string, CardObjectState> current = cards.TryGetValue(source.ObjectId, out var old) && ReferenceEquals(old, source)
+                ? cards : new Dictionary<string, CardObjectState>(cards) { [source.ObjectId] = source };
+            frame.ExhaustedUnitEvents.AddRange(CaptureUnitEvents(zones, current, [source.ObjectId], "BECAME_EXHAUSTED"));
+        }
+        return source with { IsExhausted = true };
+    }
+
     private static TriggerQueueItemState[] CaptureAttackUnitEvents(MatchState state, IEnumerable<string> attackers,
         string timing, string eventKind)
         => CaptureRoleUnitEvents(state, attackers, "ATTACK", timing, eventKind);
@@ -138,15 +153,24 @@ public sealed partial class CoreRuleEngine
 
     private static TriggerQueueItemState UnitEventTrigger(UnitEventObservation observation, long tick, int ordinal,
         string eventKind, string? timing = null)
-        => new($"unit-event-{tick}-{ordinal}-{observation.Source}-{observation.Context.Timing}", observation.Controller,
-            observation.Source, UnitEventEffect, eventKind, timing) {
-            UnitEvent = observation.Context with { CapturedTick = observation.Context.CapturedTick > 0 ? observation.Context.CapturedTick : tick },
-            SourceCardNo = observation.Context.CardNo };
+    {
+        var captured = observation.Context;
+        var id = $"unit-event-{tick}-{ordinal}-{observation.Source}-{captured.Timing}";
+        if (UnitEventSpec(captured.CardNo) is { Effect: "INSIGHT" } insight)
+            return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
+                SourceCardNo = captured.CardNo,
+                InsightContext = new(captured.CardNo, observation.Controller, insight.Amount, captured.SourceGeneration, "EXHAUSTED",
+                    Origin: captured.Origin, SourceTokenFactoryCardNo: captured.TokenFactoryCardNo) };
+        return new(id, observation.Controller, observation.Source, UnitEventEffect, eventKind, timing) {
+            UnitEvent = captured with { CapturedTick = captured.CapturedTick > 0 ? captured.CapturedTick : tick },
+            SourceCardNo = captured.CardNo };
+    }
 
     private static ResolutionResult QueueUnitEvents(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList(); var ordinal = 0;
+        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
+        var ordinal = RuleChoices.Value?.UnitEventOrdinal ?? 0;
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i))) {
             if (ev.Payload.GetValueOrDefault(UnitEventCaptureKey) is not UnitEventObservation[] observations) continue;
             events[index] = ev with { Payload = ev.Payload.Where(p => p.Key != UnitEventCaptureKey).ToDictionary(p => p.Key, p => p.Value) };
@@ -167,7 +191,23 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
-        if (events.Count == result.Events.Count) return result;
+        if (RuleChoices.Value is { } frame) frame.UnitEventOrdinal = ordinal;
+        if (events.Count == result.Events.Count) return QueueExhaustedUnitEvents(before, result);
+        var next = result.State with { TriggerQueue = queue };
+        return QueueExhaustedUnitEvents(before, result with { State = next, Events = events,
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) });
+    }
+
+    private static ResolutionResult QueueExhaustedUnitEvents(MatchState before, ResolutionResult result, int start = 0)
+    {
+        if (!result.Accepted || RuleChoices.Value is not { } frame || frame.ExhaustedUnitEvents.Count <= start) return result;
+        var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
+        foreach (var observation in frame.ExhaustedUnitEvents.Skip(start)) {
+            var trigger = UnitEventTrigger(observation, result.State.Tick, frame.UnitEventOrdinal++, "UNIT_EXHAUSTED",
+                before.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen : before.StackItems.LastOrDefault()?.TimingContext);
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        frame.ExhaustedUnitEvents.RemoveRange(start, frame.ExhaustedUnitEvents.Count - start);
         var next = result.State with { TriggerQueue = queue };
         return result with { State = next, Events = events, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }

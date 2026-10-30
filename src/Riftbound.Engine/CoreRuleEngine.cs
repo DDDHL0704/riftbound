@@ -3576,7 +3576,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 intent.PlayerId, plan.RecycledPaymentRuneObjectIds, paymentEvents, paymentWindow, paymentId);
         if (plan.RenektonResourceAction is null)
             runePools = ApplyLuxSpellOnlyResourceActions(
-                runePools,
+                runePools, playerZones,
                 cardObjects,
                 intent.PlayerId,
                 plan.LuxSpellOnlyResourceSourceObjectIds,
@@ -3813,6 +3813,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? existingTarget
                 : new CardObjectState(optionalCostTargetObjectId);
             targetState = ApplyExhaustState(
+                playerZones, cardObjects,
                 targetState,
                 behavior,
                 stackItem,
@@ -4080,7 +4081,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var assembleRemovalEvents = new List<GameEvent>();
         var costTriggers = new List<TriggerQueueItemState>();
         if (exhaustedCost is not null)
-            assembleRemovalEvents.Add(ExhaustEquipmentCost(cardObjects, exhaustedCost, command.SourceObjectId, intent.PlayerId));
+            assembleRemovalEvents.Add(ExhaustEquipmentCost(playerZones, cardObjects, exhaustedCost, command.SourceObjectId, intent.PlayerId));
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
         {
             var removal = ResolveFieldDestructions(state with { PlayerExperience = playerExperience }, playerZones, cardObjects,
@@ -5413,7 +5414,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
         if (ability.ExhaustsSourceAsCost)
-            cardObjects[command.SourceObjectId] = cardObjects[command.SourceObjectId] with { IsExhausted = true };
+            cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, cardObjects[command.SourceObjectId]);
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
@@ -5665,10 +5666,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerExperience = paymentCommit.PlayerExperience;
         if (ability.ExhaustsSourceAsCost)
         {
-            cardObjects[command.SourceObjectId] = sourceState with
-            {
-                IsExhausted = true
-            };
+            cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState);
         }
 
         var stackItem = new StackItemState(
@@ -6247,9 +6245,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -7242,9 +7239,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -7658,9 +7654,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events.AddRange(removed.Events);
             sourceState = cardObjects[command.SourceObjectId];
         }
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -9075,10 +9070,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
-        cardObjects[command.SourceObjectId] = sourceState with
-        {
-            IsExhausted = true
-        };
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState);
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
@@ -9335,9 +9327,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerExperience = paymentCommit.PlayerExperience;
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -9573,9 +9564,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playerExperience = paymentCommit.PlayerExperience;
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -9862,9 +9852,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
-        cardObjects[command.SourceObjectId] = sourceState with
+        cardObjects[command.SourceObjectId] = ExhaustForInstruction(state.PlayerZones, cardObjects, sourceState) with
         {
-            IsExhausted = true,
             OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
@@ -10804,6 +10793,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static Dictionary<string, RunePool> ApplyLuxSpellOnlyResourceActions(
         IReadOnlyDictionary<string, RunePool> currentRunePools,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         IReadOnlyList<string> sourceObjectIds,
@@ -10812,7 +10802,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var pools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         foreach (var source in sourceObjectIds)
-            GainLuxSpellOnlyMana(pools, cardObjects, playerId, source, events, paymentId);
+            GainLuxSpellOnlyMana(playerZones, pools, cardObjects, playerId, source, events, paymentId);
         return pools;
     }
 
@@ -10913,12 +10903,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ExhaustMoveUnitSource(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string sourceObjectId)
     {
         if (cardObjects.TryGetValue(sourceObjectId, out var sourceState))
         {
-            cardObjects[sourceObjectId] = sourceState with { IsExhausted = true };
+            cardObjects[sourceObjectId] = ExhaustForInstruction(playerZones, cardObjects, sourceState);
         }
     }
 
@@ -11092,7 +11083,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, destinationZone, null);
-        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
+        ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -11371,7 +11362,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddFieldObjectToLocation(playerZones, intent.PlayerId, MoveUnitBattlefieldZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
-        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
+        ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -11570,7 +11561,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             MoveUnitBattlefieldZone,
             destinationBattlefieldObjectId);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
-        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
+        ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -11796,7 +11787,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         foreach (var id in attachedEquipmentObjectIds)
             objectLocations[id] = new(intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
-        ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
+        ExhaustMoveUnitSource(playerZones, cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -25073,6 +25064,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : new CardObjectState(targetObjectId);
 
                     targetState = ApplyExhaustState(
+                        playerZones, cardObjects,
                         targetState,
                         behavior,
                         stackItem,
@@ -26093,6 +26085,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     if (behavior.ExhaustsTarget)
                     {
                         targetState = ApplyExhaustState(
+                            playerZones, cardObjects,
                             targetState,
                             behavior,
                             stackItem,
@@ -30806,6 +30799,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static CardObjectState ApplyExhaustState(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         CardObjectState targetState,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
@@ -30813,10 +30808,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out GameEvent exhaustedEvent)
     {
         var wasExhausted = targetState.IsExhausted;
-        var nextTargetState = targetState with
-        {
-            IsExhausted = true
-        };
+        var nextTargetState = ExhaustForInstruction(playerZones, cardObjects, targetState);
         exhaustedEvent = new GameEvent(
             "UNIT_EXHAUSTED",
             $"{behavior.DisplayName}让单位变为休眠状态",
@@ -32145,8 +32137,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 OwnerId = ownerId,
                 ControllerId = controllerId,
-                IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
+            if (isExhausted) controlledTargetState = ExhaustForInstruction(playerZones, cardObjects, controlledTargetState);
             cardObjects[targetObjectId] = controlledTargetState;
             RecallAttachedGroupToBase(playerZones, cardObjects, targetObjectId, controllerId);
             previousControllerId = playerId;

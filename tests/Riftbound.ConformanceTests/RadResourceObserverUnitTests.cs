@@ -93,6 +93,129 @@ public sealed class RadResourceObserverUnitTests
         Assert.True(game.State.CardObjects["RESET_RUNE_1"].IsExhausted); await game.Replay();
     }
 
+    private const string Oracle = "RAD·053/167";
+    private static MatchState OraclePosition(bool exhausted = false)
+    {
+        var state = VenUnitEntryBasicTests.Position(Oracle);
+        return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["UNIT"] = state.CardObjects["UNIT"] with { IsExhausted = exhausted } },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+                ["P1"] = state.PlayerZones["P1"] with { Hand = [], Base = [..state.PlayerZones["P1"].Base, "UNIT"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["UNIT"] = new("P1", "BASE") } };
+    }
+
+    private static async Task Insight(Driver game)
+    {
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("INSIGHT", choice.ChoiceWindow); Assert.Equal(1, choice.MaxCount);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [choice.LegalObjectIds[0]]));
+        Assert.Null(game.State.PendingCardChoice);
+        Assert.Equal("P1-DRAW-2", game.State.PlayerZones["P1"].MainDeck[0]);
+    }
+
+    [Theory]
+    [InlineData("move")] [InlineData("spell-cost")] [InlineData("assemble-cost")]
+    public async Task ActualExhaustionFromMovementAndDifferentCostsEarnsOneInsight(string instruction)
+    {
+        var state = OraclePosition();
+        if (instruction == "spell-cost") state = OfficialCopyIdentityTests.AddSpell(state, "COST", "OGN·048/298");
+        if (instruction == "assemble-cost") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", "RAD·150/167", "P1") } };
+        var game = new Driver(state);
+        if (instruction == "move") await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        else if (instruction == "spell-cost") await game.Act("P1", new PlayCardCommand("COST", "OGN·048/298", [], OptionalCosts: ["EXHAUST_FRIENDLY_UNIT:UNIT"]));
+        else await game.Act("P1", new AssembleEquipmentCommand("GEAR", "ALLY", ["EXHAUST_FRIENDLY_UNIT:UNIT"]));
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Single(game.State.StackItems, i => i.InsightContext is { Kind: "EXHAUSTED" });
+        await game.Top(); await Insight(game);
+        while (game.State.StackItems.Count > 0) await game.Top();
+        Assert.Single(game.Events(), e => e.Event.Kind == "INSIGHT_REQUESTED"); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ASpellThatExhaustsThenDestroysTheSourceKeepsOnlyTheActualTransition(bool exhausted)
+    {
+        var initial = OraclePosition(exhausted);
+        initial = initial with { PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            ["P1"] = initial.PlayerZones["P1"] with { Base = initial.PlayerZones["P1"].Base.Where(id => id != "UNIT").ToArray(),
+                Battlefields = [..initial.PlayerZones["P1"].Battlefields, "UNIT"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["UNIT"] = new("P1", "BATTLEFIELD", "BF") } };
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(initial, "OVERLOAD", "OGN·123/298"));
+        await game.Act("P1", new PlayCardCommand("OVERLOAD", "OGN·123/298", [])); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        if (exhausted) Assert.Empty(game.State.StackItems);
+        else { Assert.Single(game.State.StackItems, i => i.InsightContext is { Kind: "EXHAUSTED" }); await game.Top(); await Insight(game); }
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task EnteringExhaustedDoesNotTriggerAndIllegalMovementDoesNotEarnAnInsight()
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position(Oracle));
+        await game.Act("P1", new PlayCardCommand("UNIT", Oracle, []));
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted); Assert.Empty(game.State.StackItems);
+        var command = new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF");
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("sleeping-move", "P1", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(game.State), MatchStateHasher.Hash(rejected.State)); await game.Replay();
+    }
+
+    [Fact]
+    public async Task SourceReturnedDuringResponseKeepsItsInsightAndRejectsForeignPrivateChoices()
+    {
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(OraclePosition(), "RETURN", "OGN·104/298"));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); await game.Top();
+        var choice = game.State.PendingCardChoice!;
+        foreach (var (player, id) in new[] { ("P2", "P1-DRAW-1"), ("P1", "P2-DRAW-1"), ("P1", "missing") }) {
+            var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]);
+            var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("private-insight", player, command.CmdType), command, default);
+            Assert.False(rejected.Accepted); Assert.Empty(rejected.Events);
+            Assert.Equal(MatchStateHasher.Hash(game.State), MatchStateHasher.Hash(rejected.State));
+        }
+        await Insight(game); await game.Replay();
+    }
+
+    [Fact]
+    public async Task ExhaustedOracleWithAnEmptyDeckCompletesWithoutOpeningAChoice()
+    {
+        var initial = OraclePosition(); var cards = initial.CardObjects.ToDictionary(); var locations = initial.ObjectLocations.ToDictionary();
+        foreach (var id in initial.PlayerZones["P1"].MainDeck) { cards.Remove(id); locations.Remove(id); }
+        var game = new Driver(initial with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with { MainDeck = [] } } });
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF")); await game.Top();
+        Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Fact]
+    public async Task OfficialOracleIdentityAndForgedCapturedInsightAreChecked()
+    {
+        var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Oracle);
+        Assert.Equal(39549, card.Id); Assert.Equal(2, card.Energy); Assert.Equal(2, card.Power);
+        Assert.Contains("查看你主牌堆顶部的一张牌", card.CardEffect);
+        var game = new Driver(OraclePosition()); await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        var item = Assert.Single(game.State.StackItems);
+        foreach (var context in new[] { item.InsightContext! with { Count = 2 }, item.InsightContext! with { Kind = "LAST_BREATH" },
+            item.InsightContext! with { CardNo = Cluster }, item.InsightContext! with { SourceGeneration = -1 } })
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { InsightContext = context }] }));
+        await game.Top(); await Insight(game); await game.Replay();
+    }
+
+    [Fact]
+    public async Task CopiedOracleTokenKeepsItsEarnedInsightAfterCeasingToExist()
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(OraclePosition(), "COPY", "UNL-200/219");
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "RETURN", "OGN·104/298");
+        var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("COPY", "UNL-200/219", ["UNIT"]));
+        await game.Top(); await game.Top();
+        var token = Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo is not null && c.CardNo == Oracle);
+        await game.Act("P1", new MoveUnitCommand(token.ObjectId, "BASE", "BATTLEFIELD:BF"));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", [token.ObjectId])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey(token.ObjectId)); await game.Top(); await Insight(game); await game.Replay();
+    }
+
     [Fact]
     public async Task OfficialClusterIdentityIncludesThePrintedPowerCost()
     {

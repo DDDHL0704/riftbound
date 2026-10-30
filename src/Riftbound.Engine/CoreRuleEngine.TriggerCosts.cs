@@ -239,7 +239,7 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["targetObjectId"] = card.ObjectId,
                 ["destinationZone"] = "GRAVEYARD", ["reason"] = TriggerCostWindow }));
         }
-        cards[source.ObjectId] = source with { IsExhausted = true };
+        cards[source.ObjectId] = ExhaustForInstruction(zones, cards, source);
         events.Add(new("LEGEND_EXHAUSTED", "支付横置费用", new Dictionary<string, object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId, ["reason"] = TriggerCostWindow }));
         if (discarded is not null)

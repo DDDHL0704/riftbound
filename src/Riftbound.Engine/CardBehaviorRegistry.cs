@@ -9441,6 +9441,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantResourceObserverUnits =
     [
+        new("RAD·053/167", "翼之神谕者", 2, "EXHAUST_INSIGHT_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "鸟类",
+            UnitEventAbility: new("BECAME_EXHAUSTED", "INSIGHT", 1)),
         new("RAD·016/167", "能量聚合体", 4, "END_RUNE_RECYCLE_CHANNEL_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4)
     ];
