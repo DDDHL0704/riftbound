@@ -876,7 +876,7 @@ public static class TriggerParser
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
+            @"(?:(?<empowered>\{\{已强化>\}\})[ \t]*\{\{>绝念>\}\}|\{\{绝念>?\}\})\s*[—-]?\s*打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[0-9一两二三四五六七八九十]+)\{\{S\}\}的?“(?<name>[^”]+)”(?:单位指示物)?到你的基地(?:，它拥有\{\{(?<keyword>[^}]+)\}\})?",
             RegexOptions.CultureInvariant);
         if (!match.Success)
         {
@@ -1329,7 +1329,7 @@ public static class TriggerParser
 
         var unitLastBreathCreateBaseUnitMatch = Regex.Match(
             segment,
-            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”到你的基地(?:，它拥有\{\{([^}]+)\}\})?。?$",
+            @"(?:\{\{绝念>?\}\}\s*[—-]?\s*)?打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的?“([^”]+)”(?:单位指示物)?到你的基地(?:，它拥有\{\{([^}]+)\}\})?。?$",
             RegexOptions.CultureInvariant);
         if (unitLastBreathCreateBaseUnitMatch.Success)
         {

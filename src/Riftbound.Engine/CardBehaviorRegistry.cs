@@ -752,6 +752,8 @@ public static class CardBehaviorRegistry
         new("RAD·118/167", "帝皇令使", 5, "EMPERORS_HERALD_PLAY_UNIT_SET_FRIENDLY_BASE_MIGHT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             BasePowerUntilEndOfTurn: 5, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·119/167", "狩猎犬", 3, "HUNTING_HOUNDS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
         new("RAD·123/167", "守护者之盾", 2, "GUARDIANS_SHIELD_AGILE_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "武装|灵便"),
         new("RAD·125/167", "沙丘吞噬者", 7, "DUNE_SWALLOWER_OPTIONAL_SACRIFICE_WARD_UNIT", 0, 0,
