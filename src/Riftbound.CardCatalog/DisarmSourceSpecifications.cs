@@ -12,8 +12,8 @@ public sealed record DisarmSourceSpecification(
     int PrintedValue, ImmutableArray<string> UnitTags,
     ImmutableArray<DisarmFriendlyGrantSource> FriendlyGrants);
 
-// Source-only keyword facts. These prints are not runtime catalog entries or
-// executable behavior registrations; timing, grants and history belong to the engine.
+// Exact keyword facts do not themselves admit complete cards or register play
+// behavior. Timing, cumulative grants and captured history belong to the engine.
 public static class DisarmSourceSpecifications
 {
     public const string SnapshotPath = ScopedOfficialCardSources.SnapshotPath;
