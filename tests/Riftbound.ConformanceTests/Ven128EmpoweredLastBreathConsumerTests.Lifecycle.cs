@@ -59,7 +59,7 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
         var game = new Driver(initial); var opponent = owner == "P1" ? "P2" : "P1";
         try
         {
-            for (var i = 1; i <= 4; i++) await game.Act(owner, new TapRuneCommand(owner + "-RUNE-" + i));
+            await game.TapRunes(owner, Enumerable.Range(1, 4).Select(i => owner + "-RUNE-" + i));
             await game.Act(owner, new PlayCardCommand("UNIT", No, [])); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act(owner, new RecycleRuneCommand(owner + "-RUNE-1"));
             await game.Act(owner, new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();

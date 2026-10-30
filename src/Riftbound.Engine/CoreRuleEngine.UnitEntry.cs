@@ -20,10 +20,12 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        int turnNumber,
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
-        bool countsAsPlay = true)
+        bool countsAsPlay = true,
+        IReadOnlyDictionary<string, int>? playerScores = null)
     {
         var zones = playerZones[stackItem.ControllerId];
         var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
@@ -93,13 +95,25 @@ public sealed partial class CoreRuleEngine
         var appliedEntryStaticAbilitySourceCardNo = entersReadyFromSourceUnitStaticAbility
             ? behavior.CardNo
             : entryStaticAbilitySourceState.CardNo;
+        var readyWithMovementProhibition = behavior.MayEnterReadyWithMovementProhibition
+            && (stackItem.OptionalCosts.Contains(ReadyRestrictedEntryChoice)
+                || !countsAsPlay && RuleChoices.Value!.Choose(stackItem.ControllerId, "选择单位的进场状态",
+                    [new("ENTER_EXHAUSTED", "以休眠状态进场"), new(ReadyRestrictedEntryChoice, "以活跃状态进场，本回合无法移动")],
+                    kind: "UNIT_ENTRY_STATE") == ReadyRestrictedEntryChoice);
         var unitState = existingState with
         {
             ControllerId = stackItem.ControllerId,
             Power = unitPower,
-            IsExhausted = entersReadyFromSourceUnitStaticAbility
+            IsExhausted = behavior.SourceReadyWhenWinningScoreDistanceExceeds is { } distance
+                    && playerScores is not null
+                    && EffectiveWinningScore(playerZones, cardObjects) - playerScores.GetValueOrDefault(stackItem.ControllerId) > distance
+                    && !CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
+                || entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
+                || behavior.EntersReadyAfterFriendlyPermanentDestroyed
+                    && FriendlyPermanentDestroyedThisTurn(stackItem.ControllerId, turnNumber)
+                || readyWithMovementProhibition
                 || sourceReadyOptionalCostPaid
                 || hasteReadyOptionalCostPaid
                     ? false
@@ -114,6 +128,9 @@ public sealed partial class CoreRuleEngine
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
         };
+        if (readyWithMovementProhibition)
+            unitState = unitState with { UntilEndOfTurnEffects = unitState.UntilEndOfTurnEffects
+                .Concat(playerZones.Keys.Select(MovementRestrictionRules.ForPlayer)).Distinct().Order(StringComparer.Ordinal).ToArray() };
         return new(unitState, hasteReadyOptionalCostPaid, sourceReadyOptionalCostPaid,
             friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
             appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo);
@@ -150,7 +167,8 @@ public sealed partial class CoreRuleEngine
             var entry = PrepareUnitEntry(playerZones, cardObjects, behavior,
                 new StackItemState(controllerId: controllerId, sourceObjectId: unit.ObjectId,
                     cardNo: unit.CardNo, destination: toBattlefield ? "BATTLEFIELD:ENTRY" : "BASE"),
-                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay);
+                context.TurnNumber, context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay,
+                context.PlayerScores);
             unit = entry.UnitState;
         }
         if (!string.IsNullOrWhiteSpace(statusEffectId))

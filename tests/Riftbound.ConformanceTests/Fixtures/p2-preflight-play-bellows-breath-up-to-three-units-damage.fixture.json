@@ -227,19 +227,19 @@
         "P1-BATTLEFIELD-UNIT-001": {
           "damage": 1,
           "power": 3,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-BATTLEFIELD-UNIT-001": {
           "damage": 1,
           "power": 3,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-BATTLEFIELD-UNIT-002": {
           "damage": 1,
           "power": 3,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0
         }
       }

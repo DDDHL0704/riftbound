@@ -66,6 +66,9 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult PreparePermanentPlayTargets(ResolutionResult result, StackItemState item)
     {
+        if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayTriggerBanishesGraveyardCardAsCost
+            && item.TriggerCost is null && TriggerCostChoices(result.State, item).Length == 0)
+            return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
         var choice = PermanentPlayTargetChoice(result.State, item);
         bool HasSelection(List<string> selected)
             => selected.Count == choice.RequiredCount

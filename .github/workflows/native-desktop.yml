@@ -38,18 +38,6 @@ jobs:
           PYFIX
       - name: Verification safeguards
         run: python3 -m unittest discover -s scripts/tests -v
-      - name: Make retained audit commit available without rewriting evidence
-        run: |
-          python3 - <<'PYBASELINE'
-          import json, re, subprocess
-          from pathlib import Path
-          path = Path('docs/legacy/audit/legacy-source-baseline.json')
-          if path.exists():
-              commit = json.loads(path.read_text())['commit']
-              assert re.fullmatch(r'[0-9a-f]{40}', commit)
-              if subprocess.run(['git', 'cat-file', '-e', commit+'^{commit}'], stderr=subprocess.DEVNULL).returncode:
-                  subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', commit], check=True, timeout=120)
-          PYBASELINE
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
@@ -59,7 +47,7 @@ jobs:
 
   rule_prepare:
     needs: scope
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     outputs:
       sdk: ${{ steps.plan.outputs.sdk }}
@@ -102,7 +90,7 @@ jobs:
 
   rule_shards:
     needs: [scope, rule_prepare]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     strategy:
       fail-fast: false
@@ -241,7 +229,9 @@ jobs:
       - name: Real PostgreSQL complete checked partition
         env:
           RIFTBOUND_POSTGRES_EVIDENCE: var/qa/ci-postgres
-        run: dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4
+        run: |
+          dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1 --nologo -v:q
+          dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition ${{ matrix.partition }} 4
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
@@ -300,7 +290,8 @@ jobs:
 
   postgres:
     needs: [scope, postgres_partitions, native_network, related_network]
-    if: ${{ always() }}
+    # Validate failed children, but release the queue when this run is cancelled.
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -341,9 +332,9 @@ jobs:
 
   rules:
     needs: [scope, rule_suite, postgres]
-    # Keep the existing required check. Failed/cancelled/skipped full children
-    # must reach this gate and fail; a skipped child must never appear green.
-    if: ${{ always() }}
+    # Failed/skipped full children must still reach this gate. Cancellation
+    # should stop this aggregate instead of enqueueing another summary job.
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:

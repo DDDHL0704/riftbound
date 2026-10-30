@@ -37,6 +37,8 @@ public sealed class HookDeckPlayTests
     [InlineData("OGN·208/298")]
     [InlineData("SFD·044/221")]
     [InlineData("UNL-166/219")]
+    [InlineData("RAD·061/167")]
+    [InlineData("RAD·061a/167")]
     public async Task FreePendingPlayIgnoresPrintedManaPowerAndMandatoryAdditionalCosts(string card)
     {
         var initial=DeckPlaySequenceTests.TopCard(Position("SFD·148/221"),"HOOK_TOP",card);

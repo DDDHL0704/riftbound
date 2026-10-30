@@ -212,6 +212,24 @@ public sealed class VenBasicFlowSpellTests
         internal RecoveredCommand[] Commands() => entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage) { TypedCommand = e.TypedCommand, ErrorCode = e.ErrorCode, RuleInputs = e.RuleInputs }).ToArray();
         internal RecoveredEvent[] Events() => entries.SelectMany(e => e.Events.Select((v, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, v))).ToArray();
+        internal async Task TapRunes(string player, IEnumerable<string> runeIds)
+        {
+            // Prepare the same physical resources with production batches. Act still
+            // checks privacy, recovery, retry and the complete original replay after
+            // every batch and every subsequent gameplay command.
+            foreach (var batch in runeIds.ToArray().Chunk(12))
+            {
+                var mana = State.RunePools[player].Mana;
+                var power = State.RunePools[player].TotalPower;
+                var prefix = Events().Length;
+                await Act(player, new TapRuneCommand(batch[0], batch));
+                Assert.Equal(mana + batch.Length, State.RunePools[player].Mana);
+                Assert.Equal(power, State.RunePools[player].TotalPower);
+                Assert.All(batch, id => Assert.True(State.CardObjects[id].IsExhausted));
+                Assert.Equal(batch, Events().Skip(prefix).Where(e => e.Event.Kind == "RUNE_TAPPED")
+                    .Select(e => (string)e.Event.Payload["sourceObjectId"]!));
+            }
+        }
         internal async Task Act(string player, GameCommand command)
         {
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
@@ -226,7 +244,7 @@ public sealed class VenBasicFlowSpellTests
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, seq, snapshots[p], State.Tick, seq, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, seq, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, seq, Commands(), Events(), views, State, State.Tick, spectator);
-            Assert.True(errors.Count == 0, string.Join("\n", errors));
+            Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
             var frame = new MatchRecoveryFrame(State.RoomId, State.Tick, seq, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
             session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             var count = entries.Count; var hash = MatchStateHasher.Hash(State);
@@ -255,7 +273,7 @@ public sealed class VenBasicFlowSpellTests
             var views = State.Seats.Keys.ToDictionary(p => p, p => new RecoveredPlayerView(p, State.Tick, sequence, snapshots[p], State.Tick, sequence, prompts[p]));
             var spectator = MatchReplayRedactor.BuildSpectatorFrame(State.RoomId, State.Tick, sequence, [], State);
             var errors = MatchRecoveryValidator.Validate(State.RoomId, sequence, Commands(), Events(), views, State, State.Tick, spectator);
-            Assert.True(errors.Count == 0, string.Join("\n", errors));
+            Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
             var frame = new MatchRecoveryFrame(State.RoomId, State.Tick, sequence, Commands(), Events(), views, errors, State, initial, spectator) { OpeningSeed = initial.Seed };
             session = MatchSession.Restore(frame, new CoreRuleEngine(), this);
             if (expectedAccepted) {

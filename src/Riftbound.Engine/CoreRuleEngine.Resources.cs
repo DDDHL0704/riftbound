@@ -94,10 +94,13 @@ public sealed partial class CoreRuleEngine
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
-    private static ResolutionResult ResolveImmediateResourceTriggers(ResolutionResult result)
+    private static bool IsImmediateResourceTrigger(TriggerQueueItemState trigger)
+        => IsJhinMovementResourceTrigger(trigger) || trigger.ConquestSource?.Kind == TriggerKinds.UnitConquestGainResources;
+
+    private static ResolutionResult ResolveImmediateResourceTriggers(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var triggers = result.State.TriggerQueue.Where(IsJhinMovementResourceTrigger).ToArray();
+        var triggers = result.State.TriggerQueue.Where(IsImmediateResourceTrigger).ToArray();
         if (triggers.Length == 0) return result;
         var pools = result.State.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = result.Events.ToList();
@@ -106,19 +109,24 @@ public sealed partial class CoreRuleEngine
             // The trigger has already captured its controller and source. Moving again,
             // leaving play, or changing controller cannot cancel an earned resource.
             var pool = pools.GetValueOrDefault(trigger.ControllerId, RunePool.Empty);
-            pools[trigger.ControllerId] = pool with { Mana = pool.Mana + 1, Power = pool.Power + 1 };
+            var spec = trigger.ConquestSource is { } conquest ? ConquestSourceSpec(conquest.CardNo) : null;
+            var mana = spec?.ManaDelta ?? 1; var power = spec?.GeneratedPower ?? 1;
+            if (!pool.HasSupportedAmounts || (long)pool.TotalStoredMana + mana > int.MaxValue
+                || (long)pool.TotalStoredPower + power > int.MaxValue)
+                return RejectWithCorePrompts(before, "资源技能获得的费用资源超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
+            pools[trigger.ControllerId] = pool with { Mana = pool.Mana + mana, Power = pool.Power + power };
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = trigger.ControllerId, ["sourceObjectId"] = trigger.SourceObjectId,
-                ["triggerId"] = trigger.TriggerId, ["generatedMana"] = 1, ["generatedPower"] = 1,
+                ["triggerId"] = trigger.TriggerId, ["generatedMana"] = mana, ["generatedPower"] = power,
                 ["resourceLifecycle"] = "rune-pool", ["resourceSkill"] = true
             };
             events.Add(BuildTriggerResolvedEvent(trigger));
-            events.Add(new("MANA_GAINED", "移动触发：获得 1 点法力", payload));
-            events.Add(new("POWER_GAINED", "移动触发：获得 1 点任意特性符能", payload));
+            if (mana > 0) events.Add(new("MANA_GAINED", "资源技能获得法力", payload));
+            if (power > 0) events.Add(new("POWER_GAINED", "资源技能获得任意特性符能", payload));
         }
         var state = result.State with { RunePools = pools,
-            TriggerQueue = result.State.TriggerQueue.Where(t => !IsJhinMovementResourceTrigger(t)).ToArray() };
+            TriggerQueue = result.State.TriggerQueue.Where(t => !IsImmediateResourceTrigger(t)).ToArray() };
         return result with { State = state, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
@@ -127,7 +135,8 @@ public sealed partial class CoreRuleEngine
         => id == P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId
             || P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(id)
             || P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(id)
-            || P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(id);
+            || P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(id)
+            || P4ActivatedAbilityCatalog.TryGetByAbilityId(id, out var ability) && ability.GeneratedManaIfSourceEmpowered.HasValue;
 
     private static bool IsImmediateResourceSource(MatchState state, string player, string id, P4ActivatedAbilityDefinition ability)
     {
@@ -163,7 +172,7 @@ public sealed partial class CoreRuleEngine
                 "RESOURCE_CONVERSION", 0, maximum, ResourceConversionAmountKind, "选择此次资源转换的数量（包含 0）；确认前不横置或支付资源。");
             choices = [conversionPrefix + selected.ToString(System.Globalization.CultureInfo.InvariantCulture)];
         }
-        var mana = ability.GeneratedMana;
+        var mana = ImmediateResourceMana(ability, source);
         var power = ability.GeneratedPower;
         var traits = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability);
         if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
@@ -232,6 +241,9 @@ public sealed partial class CoreRuleEngine
         if (power + traits.Values.Sum() > 0) events.Add(new("POWER_GAINED", $"获得 {power + traits.Values.Sum()} 点符能", payload));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
+
+    internal static int ImmediateResourceMana(P4ActivatedAbilityDefinition ability, CardObjectState? source)
+        => source?.IsEmpowered == true ? ability.GeneratedManaIfSourceEmpowered ?? ability.GeneratedMana : ability.GeneratedMana;
 
     // CN 135.2.e.5.b, 166-168, 429: Gold produces ordinary wildcard power.
     // Its resource ability resolves immediately without passing focus/priority.

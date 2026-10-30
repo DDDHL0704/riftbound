@@ -78,13 +78,17 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('max-parallel: 6', jobs['rule_shards'])
         self.assertIn('fail-fast: false', jobs['rule_shards'])
         self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
-        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
+        self.assertIn('dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1', jobs['postgres_partitions'])
+        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
         self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['native_network'])
         self.assertIn('python3 scripts/run-process-restart-ci.py', jobs['related_network'])
         self.assertIn('needs: [scope, postgres_partitions, native_network, related_network]', jobs['postgres'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('needs: [scope, rule_suite, postgres]', jobs['rules'])
-        self.assertIn('if: ${{ always() }}', jobs['rules'])
+        for job in ['postgres', 'rules']:
+            header = jobs[job].split('    steps:', 1)[0]
+            self.assertIn('    if: ${{ always() && !cancelled() }}\n', header)
+            self.assertNotIn('    if: ${{ always() }}\n', header)
         self.assertIn('python3 scripts/full-ci-gate.py', jobs['rules'])
         for job in ['scope', 'rule_suite', 'postgres']:
             self.assertIn('${{ needs.' + job + '.result }}', jobs['rules'])

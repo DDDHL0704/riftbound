@@ -6,14 +6,18 @@ public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
+                && (!behavior.GrantsSourceEphemeralIfOpponentTurn || state.TurnPlayerId != item.ControllerId)
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && PaidUnitStunSpec(behavior.CardNo) is null
                 && PaidUnitTriggerSpec(behavior.CardNo, PaidUnitDestroyKind) is null
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
+                && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START")
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
+                && (!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item))
+                && (!behavior.ReadiesSourceAndAddsReturnedEquipmentManaPower || item.ReturnedEquipmentManaCost is not null)
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
@@ -32,6 +36,10 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, List<GameEvent> events)
     {
         var ability = item with { SourceConfirmed = true };
+        if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var declaration)
+            && (declaration.PlayTriggerBanishesGraveyardCardAsCost
+                || declaration.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true))
+            ability = ability with { PermanentPlaySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };
         if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var copyBehavior)
             && copyBehavior.CreatedBaseUnitTokensCopySource)
             ability = ability with { SelfCopySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };

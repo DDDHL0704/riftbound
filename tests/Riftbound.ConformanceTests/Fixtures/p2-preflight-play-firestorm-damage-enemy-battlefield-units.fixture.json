@@ -234,12 +234,12 @@
         "P2-ENEMY-BATTLEFIELD-UNIT-001": {
           "damage": 3,
           "power": 4,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         },
         "P2-ENEMY-BATTLEFIELD-UNIT-002": {
           "damage": 3,
           "power": 5,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

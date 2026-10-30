@@ -13,14 +13,14 @@ public sealed class ScopedPhysicalPrintTests
     [InlineData("RAD·054/167", 3, 3, "约德尔人")]
     [InlineData("RAD·055/167", 3, 2, "机械")]
     [InlineData("RAD·050/167", 5, 4, "")]
-    public void ExactRetainedPrintHasItsFullPhysicalIdentityWithoutAPlayableBehavior(
+    public void AdmittedPrintKeepsItsExactPhysicalIdentity(
         string cardNo, int mana, int might, string tag)
     {
         var accepted = TryCreate(cardNo, out var card);
         Evidence("create-" + cardNo, new { cardNo, accepted, card });
         Assert.True(accepted);
         AssertPrinted(card, cardNo, mana, might, tag);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
     }
 
     [Theory]
@@ -46,7 +46,7 @@ public sealed class ScopedPhysicalPrintTests
         Assert.Equal(10, restored.ObjectGeneration);
         Assert.DoesNotContain("TEMPORARY_TEST_TAG", restored.Tags);
         Assert.Contains("CARD", zone == "HAND" ? zones["P1"].Hand : zones["P1"].Graveyard);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out _));
     }
 
     [Theory]
@@ -76,9 +76,9 @@ public sealed class ScopedPhysicalPrintTests
         => Assert.False(TryCreate(cardNo, out _));
 
     [Theory]
-    [InlineData("RAD·054/167")]
-    [InlineData("RAD·055/167")]
-    [InlineData("RAD·050/167")]
+    [InlineData("RAD·038/167")]
+    [InlineData("RAD·065/167")]
+    [InlineData("RAD·109/167")]
     public async Task PhysicalSourceKnowledgeDoesNotAuthorizePlayingAnIncompleteCard(string cardNo)
     {
         var card = new CardObjectState("CARD", power: 3, cardNo: cardNo, ownerId: "P1", controllerId: "P1",

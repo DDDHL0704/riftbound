@@ -9,7 +9,8 @@ namespace Riftbound.Engine;
 public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, ObjectBinding Source,
     string CardNo, int Types, long Tick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? OriginHandPlayerId = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null);
 public sealed record TurnCardPlayHistory(int TurnNumber,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Finalized,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Resolved);
@@ -28,6 +29,7 @@ public sealed partial class CoreRuleEngine
         => confirmed is not null && (confirmed.OriginOutsideHands
             || (confirmed.OriginHandPlayerId ?? confirmed.PlayerId) != completed.PlayerId);
     private sealed record CardPlayHistoryObservation(CardPlayHistoryEntry Entry, bool Resolved, string Zone,
+        IReadOnlyList<UnitEventObservation> FirstCardObservers,
         OutsideHandPlayObserverCandidate[] Observers, HighCostPlayObserverCandidate[] HighCostObservers);
     private static readonly Lazy<IReadOnlyDictionary<string, int>> PrintedPlayTypes = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo,
@@ -46,6 +48,7 @@ public sealed partial class CoreRuleEngine
         payload[CardPlayHistoryObservationKey] = new CardPlayHistoryObservation(
             new(playId ?? "", player, new(card.ObjectId, card.ObjectGeneration), no, types, 0,
                 card.CopyFaceTransitions?.Count ?? 0, originHandPlayerId, originOutsideHands), resolved, zone,
+            CaptureFirstCardObservers(zones, cards, player),
             resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : [],
             resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : []);
         return ev with { Payload = payload };
@@ -59,6 +62,8 @@ public sealed partial class CoreRuleEngine
         var resolved = (history.TurnNumber == before.TurnNumber ? history.Resolved : []).ToList();
         var events = new List<GameEvent>();
         var queue = result.State.TriggerQueue.ToList();
+        var observers = new List<UnitEventObservation>();
+        var effects = result.State.UntilEndOfTurnEffects;
         var locations = IdentityLocations(before);
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
         {
@@ -74,6 +79,8 @@ public sealed partial class CoreRuleEngine
                 && oldLocation.Zone != observation.Zone
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(observation.Zone)))
                 generation = Math.Max(generation, old.ObjectGeneration + 1);
+            var costReceipt = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.ReturnedEquipmentManaCost;
+            entry = entry with { ReturnedEquipmentManaCost = costReceipt };
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
             entry = entry with { PlayId = limited ? $"LIMITED-{result.State.Tick}-{index}-{entry.Source.ObjectId}" : entry.PlayId,
@@ -81,21 +88,31 @@ public sealed partial class CoreRuleEngine
             // Limited effect plays complete the play instruction directly. They
             // must not borrow a previous countered play of this physical card.
             if (!observation.Resolved || limited)
-                if (!finalized.Any(p => p.PlayId == entry.PlayId)) finalized.Add(entry);
+                if (!finalized.Any(p => p.PlayId == entry.PlayId)) {
+                    finalized.Add(entry);
+                    foreach (var reduction in SourceNextSpellCostReductionEffects(result.State with { UntilEndOfTurnEffects = effects }, entry.PlayerId)
+                        .Where(r => r.AppliesToAllCards)) effects = RemoveUntilEndOfTurnEffect(effects, reduction.EffectId);
+                }
             if (observation.Resolved && !resolved.Any(p => p.PlayId == entry.PlayId))
             {
                 var confirmed = finalized.FirstOrDefault(p => p.PlayId == entry.PlayId);
                 entry = entry with { OriginHandPlayerId = confirmed?.OriginHandPlayerId,
-                    OriginOutsideHands = confirmed?.OriginOutsideHands ?? false };
+                    OriginOutsideHands = confirmed?.OriginOutsideHands ?? false,
+                    ReturnedEquipmentManaCost = confirmed?.ReturnedEquipmentManaCost ?? entry.ReturnedEquipmentManaCost };
                 resolved.Add(entry);
-                if ((entry.Types & 3) != 0 && PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
+                // CN 420.4.a: play triggers observe successful completion.
+                // Confirmation still determines which card was first. The
+                // completed-play guard also prevents a second observation.
+                if (finalized.FirstOrDefault(p => p.PlayerId == entry.PlayerId)?.PlayId == entry.PlayId)
+                    observers.AddRange(observation.FirstCardObservers);
+                if (PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
                 {
                     foreach (var (observer, ordinal) in observation.HighCostObservers.Select((value, ordinal) => (value, ordinal)))
                     {
-                        if (mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
+                        if (!HighCostObservesCard(observer.CardNo, entry.Types) || mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
                         var context = observer.ToContext(result.State.Tick, entry, null);
                         var trigger = new TriggerQueueItemState($"high-cost-play-{result.State.Tick}-{index}-{ordinal}",
-                            entry.PlayerId, context.Source.ObjectId, HighCostPlayEffect, "CARD_PLAY_COMPLETED")
+                            entry.PlayerId, context.Source.ObjectId, HighCostEffectFor(context.CardNo), "CARD_PLAY_COMPLETED")
                             { HighCostPlayObserver = context, SourceCardNo = context.CardNo };
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);
@@ -125,7 +142,15 @@ public sealed partial class CoreRuleEngine
         var nextHistory = result.State.TurnNumber == before.TurnNumber
             ? new TurnCardPlayHistory(before.TurnNumber, finalized, resolved)
             : new TurnCardPlayHistory(result.State.TurnNumber, [], []);
-        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue };
+        foreach (var (observer, index) in observers.DistinctBy(o => (o.Source, o.Context.SourceGeneration, o.Context.CardNo, o.Context.Origin))
+            .Select((o, i) => (o, i))) {
+            var captured = observer;
+            if (before.CardObjects.TryGetValue(observer.Source, out var prior) && !IsObjectOnField(before.PlayerZones, observer.Source))
+                captured = observer with { Context = observer.Context with { SourceGeneration = Math.Max(observer.Context.SourceGeneration, prior.ObjectGeneration + 1) } };
+            var trigger = UnitEventTrigger(captured, result.State.Tick, index, "FIRST_CARD_PLAYED");
+            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+        }
+        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = effects };
         return result with { State = next, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
@@ -142,6 +167,8 @@ public sealed partial class CoreRuleEngine
                 || string.IsNullOrWhiteSpace(e.PlayerId) || string.IsNullOrWhiteSpace(e.Source.ObjectId)
                 || string.IsNullOrWhiteSpace(e.CardNo) || !state.Seats.ContainsKey(e.PlayerId)
                 || e.OriginHandPlayerId is not null && (!state.Seats.ContainsKey(e.OriginHandPlayerId) || e.OriginOutsideHands)
+                || e.ReturnedEquipmentManaCost is < 0
+                || e.ReturnedEquipmentManaCost is not null && (!CardBehaviorRegistry.TryGetByCardNo(e.CardNo, out var returned) || !returned.MayReturnFriendlyEquipmentAdditionalCost)
                 || e.Tick <= 0 || e.Tick > state.Tick || e.FaceRevision < 0
                 || !PrintedPlayTypes.Value.TryGetValue(e.CardNo, out var types) || types == 0 || e.Types != types
                 || !state.CardObjects.TryGetValue(e.Source.ObjectId, out var card)
@@ -174,7 +201,8 @@ public sealed partial class CoreRuleEngine
                     || confirmed.Source.ObjectId != completed.Source.ObjectId || confirmed.Tick > completed.Tick
                     || confirmed.Source.Generation > completed.Source.Generation
                     || confirmed.OriginHandPlayerId != completed.OriginHandPlayerId
-                    || confirmed.OriginOutsideHands != completed.OriginOutsideHands)) return false;
+                    || confirmed.OriginOutsideHands != completed.OriginOutsideHands
+                    || confirmed.ReturnedEquipmentManaCost != completed.ReturnedEquipmentManaCost)) return false;
         return true;
     }
 }

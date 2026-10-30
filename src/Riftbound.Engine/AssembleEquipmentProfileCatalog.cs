@@ -16,7 +16,8 @@ internal sealed record AssembleEquipmentProfile(
     int RequiredGraveyardRecycleCardCount = 0,
     bool RequiresDestroyFriendlyUnitCost = false,
     int ManaCost = 0,
-    bool ReduceManaCostByTargetPower = false);
+    bool ReduceManaCostByTargetPower = false,
+    bool HasExhaustUnitAlternative = false);
 
 internal static class AssembleEquipmentProfileCatalog
 {
@@ -46,7 +47,7 @@ internal static class AssembleEquipmentProfileCatalog
 
     private static IReadOnlyDictionary<string, AssembleEquipmentProfile> BuildProfiles()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
@@ -89,7 +90,9 @@ internal static class AssembleEquipmentProfileCatalog
             RequiredGraveyardRecycleCardCount: assembleCost.RequiredGraveyardRecycleCardCount,
             RequiresDestroyFriendlyUnitCost: assembleCost.RequiresDestroyFriendlyUnitCost,
             ManaCost: assembleCost.ManaCost,
-            ReduceManaCostByTargetPower: assembleCost.ReduceManaCostByTargetPower);
+            ReduceManaCostByTargetPower: assembleCost.ReduceManaCostByTargetPower,
+            HasExhaustUnitAlternative: CompactRulesText(spec.OfficialText)
+                .Contains("支付A或让一名友方单位变为休眠状态", StringComparison.Ordinal));
     }
 
     private static bool IsImplementedEquipmentCard(BehaviorSpec spec)
@@ -200,7 +203,7 @@ internal static class AssembleEquipmentProfileCatalog
     {
         powerCost = 0;
         manaCost = 0;
-        var match = Regex.Match(compactText, @"装配(?<mana>[0-9]+)?A");
+        var match = Regex.Match(compactText, @"装配(?:—?支付)?(?<mana>[0-9]+)?A");
         if (!match.Success)
         {
             return false;

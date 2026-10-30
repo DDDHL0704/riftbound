@@ -26,6 +26,8 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult CollectResolutionEffects(MatchState state, ResolutionResult result, int roleEventOffset = 0)
     {
+            result = RecordBattlefieldConquests(result);
+            result = RecordEquipmentAbilityPlays(state, result);
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = QueueSelfActionObservers(state, result);
             result = RecordHandDiscardObservers(result);
@@ -41,6 +43,7 @@ public sealed partial class CoreRuleEngine
             result = ExpireClosedBattleLimitedEffects(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
+            result = QueueUnitEvents(state, result);
             result = QueueSourcePlayDraw(state, result);
             result = QueuePaidUnitPlayTriggers(state, result);
             result = QueueReadyOtherObjects(state, result);
@@ -52,19 +55,20 @@ public sealed partial class CoreRuleEngine
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordDamageDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))))));
-            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
+            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(state, ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueCreatedTokenReady(QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))))));
             // New field objects need their current incarnation before role and
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = RecordTargetedPowerSourceStatus(state, collected);
             collected = RecordDepartedTokenTargets(state, collected);
             collected = RecordDeckPlayReflexiveCard(state, collected);
             collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
-            collected = RecordBattleDuelRoles(state, collected, roleEventOffset);
+            collected = ResolveBattlefieldStartResourceTriggers(state, RecordBattleDuelRoles(state, collected, roleEventOffset));
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
             collected = StampNewTriggerQueueTimes(state, collected);
@@ -77,7 +81,19 @@ public sealed partial class CoreRuleEngine
             // Checked target intents may become confirmed while earned skills
             // are published. Observe those selections before opening responses.
             completed = QueueSelfActionObservers(collected.State, completed);
-            return StampNewTriggerQueueTimes(state, PrepareTriggerConfirmation(PublishPendingTriggers(completed)));
+            return NormalizeTurnEffectMarkers(StampNewTriggerQueueTimes(state,
+                RecordUnitEventSourceFacts(state, RecordEnemyUnitTargets(state, RecordBattlefieldConquests(PrepareTriggerConfirmation(PublishPendingTriggers(completed)))))));
+    }
+
+    // MatchState uses a sorted set of turn markers when deserializing. Publish
+    // the same order after every instruction so recovery preserves state hashes.
+    private static ResolutionResult NormalizeTurnEffectMarkers(ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var effects = result.State.UntilEndOfTurnEffects.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        if (effects.SequenceEqual(result.State.UntilEndOfTurnEffects)) return result;
+        var next = result.State with { UntilEndOfTurnEffects = effects };
+        return result with { State = next, Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
 
     internal const string LegendBattleWinDrawEffect = "CAPTURED_LEGEND_BATTLE_WIN_DRAW";

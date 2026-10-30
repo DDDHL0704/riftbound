@@ -3,10 +3,19 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record TurnDrawLedger(int TurnNumber, IReadOnlyDictionary<string, int> Counts);
+[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+public sealed record DisarmContribution(ObjectBinding Source, string CardNo, long FaceRevision,
+    string? TokenFactoryCardNo, RuleTextInstanceBinding? Origin, bool FriendlyGrant, int Value);
+[System.Text.Json.Serialization.JsonUnmappedMemberHandling(System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow)]
+public sealed record DisarmOrigin(long CapturedTick, long FaceRevision, IReadOnlyList<DisarmContribution> Contributions);
 public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EquipmentDestructionOrigin? EquipmentDestruction { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PaidUnitTriggerOrigin? PaidUnitTrigger { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DisarmOrigin? Disarm { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public StunObserverOrigin? StunObserver { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -43,6 +52,10 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
+        if (context.Kind == EquipmentDeathReturnKind) return ValidEquipmentDeathShape(context, effect, cardNo);
+        if (context.EquipmentDestruction is not null) return false;
+        if (context.Kind == DisarmKind) return ValidDisarmShape(context, effect, cardNo);
+        if (context.Disarm is not null) return false;
         if (context.Kind == AttackMightDamageKind) return context.PaidUnitTrigger is null && context.StunObserver is null && context.SelfAction is null && ValidAttackMightDamageShape(context, effect, cardNo);
         if (context.AttackMightDamage is not null) return false;
         if (IsPaidUnitTriggerKind(context.Kind)) return context.SelfAction is null && context.StunObserver is null && ValidPaidUnitStunShape(context, effect, cardNo);
@@ -130,7 +143,7 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind == StunBoonKind ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                 : item.FieldContext.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
                 : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? IsEmpoweredAttackDestroyTarget(state, item, c)
-                : item.FieldContext.Kind == AttackWeaponDamageKind ? IsAttackWeaponDamageTarget(state, item, c)
+                : item.FieldContext.Kind is AttackWeaponDamageKind or DisarmKind ? IsAttackWeaponDamageTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
                 : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or AttackMightDamageKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
@@ -140,16 +153,17 @@ public sealed partial class CoreRuleEngine
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static bool NeedsTriggerConfirmation(StackItemState i)
-        => HasMovementDamage(i) && i.TargetGenerations is null ||
+        => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasMovementDamage(i) && i.TargetGenerations is null ||
+            NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
             || i.ReadyObjectTrigger is not null && i.TargetGenerations is null || i.SourceReadied is { Mode: null }
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
-            || i.HighCostPlayObserver is not null && i.TargetGenerations is null
+            || i.HighCostPlayObserver is not null && !HighCostReadiesSource(i.CardNo) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);
 
@@ -163,6 +177,8 @@ public sealed partial class CoreRuleEngine
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
+        if (NeedsLastBreathHereTarget(item)) return PrepareLastBreathHereTarget(result, item);
+        if (NeedsDeathObserverTarget(item)) return PrepareDeathObserverTarget(result, item);
         if (NeedsMovementInstructionConfirmation(item)) return PrepareMovementInstruction(result, item);
         if (HasMovementDamage(item)) return PrepareMovementDamage(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
@@ -171,6 +187,7 @@ public sealed partial class CoreRuleEngine
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.EmpowerInteraction is not null) return PrepareEmpowerInteraction(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
+        if (NeedsUnitEventTarget(item) && item.TargetGenerations is null) return PrepareUnitEventTarget(result, item);
         if (item.ReadyObjectTrigger is not null) return PrepareReadyOtherObject(result, item);
         if (item.SourceReadied is not null) return PrepareReadiedMode(result, item);
         if (item.UnitPlayMight is not null) return PrepareUnitPlayMight(result, item);
@@ -210,7 +227,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
                     : item.FieldContext.Kind == AttackGraveyardBanishKind ? "可选择自己废牌堆中的一名单位，或不选以放弃；双方响应后，实际放逐才使来源本回合获得强攻"
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
-                    : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
+                    : item.FieldContext.Kind is "COMBAT_MIGHT" or DisarmKind ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : item.FieldContext.Kind == CombatMightDamageKind ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时按来源当前战力造成伤害"
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
                     : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? "选择此处一名战力低于来源的敌方单位；确认目标和法盾费用后双方可以响应。"
@@ -258,7 +275,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
-            && (context.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(context.Kind)
+            && (context.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(context.Kind)
                 ? ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : ValidFieldContext(context, item.EffectKind, item.CardNo)) && item.TargetGenerations is null
             && (!IsPaidUnitTriggerKind(context.Kind) || context.PaidUnitTrigger is { CostPaid: false, DiscardCost: null })
@@ -267,7 +284,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == FieldTriggerMinimumTargets(context) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice);
+            || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -311,7 +328,7 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind
                     ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = mana, ["powerCost"] = tax,
@@ -381,7 +398,7 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
-            ["sourceObjectId"] = HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind || IsStunObserverKind(field.Kind))
+            ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
             ["targetObjectIds"] = selected.ToArray() }));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
@@ -389,6 +406,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
+        if (item.FieldContext?.Kind == EquipmentDeathReturnKind) return ResolveEquipmentDeathReturn(state, item);
         if (item.FieldContext?.Kind == SelfActionPowerKind) return ResolveSelfActionObserver(state, item);
         if (item.FieldContext is { Kind: AttackMightDamageKind }) return ResolveAttackMightDamage(state, item);
         if (item.FieldContext is { Kind: CombatMightDamageKind } context)
@@ -403,6 +421,7 @@ public sealed partial class CoreRuleEngine
         if (item.FieldContext is { Kind: EmpoweredBanishKind }) return ResolveEmpoweredBanish(state, item);
         if (item.FieldContext is { Kind: EmpoweredAttackDestroyKind }) return ResolveEmpoweredAttackDestroy(state, item);
         if (item.FieldContext is { Kind: AttackWeaponDamageKind }) return ResolveAttackWeaponDamage(state, item);
+        if (item.FieldContext is { Kind: DisarmKind }) return ResolveDisarm(state, item);
         if (item.FieldContext is { Kind: PaidUnitDestroyKind }) return ResolveDiscardDestroy(state, item);
         if (item.FieldContext is { Kind: PaidUnitStunKind }) return ResolvePaidUnitStun(state, item);
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);

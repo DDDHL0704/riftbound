@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceSnapshot": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
   "sourceSha256": "cdf1fad1874125e1cd3ff148e630b713c5b2e8e6cf140b4310613e6d4b343322",
-  "scope": "Current engine prints only; separate armament effect text retained as official English source, not a claim of implemented behavior.",
+  "scope": "Current engine prints only; separate armament effect text retained as official English source, not a claim of implemented behavior. VEN·011, VEN·027 and VEN·073 use the official Chinese 2026-10-16 catalog power fields.",
   "records": [
     {
       "cardNo": "SFD·009/221",
@@ -272,6 +272,36 @@
       "effectText": "I am a copy of the chosen unit.",
       "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
       "copiesChosenFriendlyUnit": true
+    },
+    {
+      "cardNo": "VEN·011",
+      "sourceCardNo": "VEN·011",
+      "baseMightBonus": 1,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260715/117e224c90b94867b095001438b0a2dd.png"
+    },
+    {
+      "cardNo": "VEN·027",
+      "sourceCardNo": "VEN·027",
+      "baseMightBonus": 1,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260715/2c8c6e4630f34482848e254fcd86c35a.png"
+    },
+    {
+      "cardNo": "VEN·073",
+      "sourceCardNo": "VEN·073",
+      "baseMightBonus": 2,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260709/9b7eb54b2aee4168b061e911d6acad99.png"
+    },
+    {
+      "cardNo": "RAD·150/167",
+      "sourceCardNo": "RAD-150/167",
+      "baseMightBonus": 3,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20261012/473ee5861e3843eb941c74e3cd6315e1.png",
+      "sourceSnapshot": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+      "sourceField": "power"
     }
   ],
   "scopedAdditions": [

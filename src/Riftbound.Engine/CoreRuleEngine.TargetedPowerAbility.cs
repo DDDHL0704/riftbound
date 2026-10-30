@@ -63,7 +63,8 @@ public sealed partial class CoreRuleEngine
         cards[command.SourceObjectId] = source with { IsExhausted = true };
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-POWER", intent.PlayerId,
             source.ObjectId, ability.EffectKind, source.CardNo, targets, 0, 1, []) {
-                TargetedPowerAbility = new(ability.AbilityId, source.ObjectId, source.ObjectGeneration) };
+                TargetedPowerAbility = new(ability.AbilityId, source.ObjectId, source.ObjectGeneration,
+                    ability.PowerModifierAmountIfSourceEmpowered is not null ? source.IsEmpowered : null) };
         var payload = new Dictionary<string, object?> {
             ["playerId"] = intent.PlayerId, ["controllerId"] = intent.PlayerId,
             ["sourceObjectId"] = source.ObjectId, ["cardNo"] = source.CardNo,
@@ -95,12 +96,52 @@ public sealed partial class CoreRuleEngine
                 ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId }) };
         if (item.TargetObjectIds.Count == 1 && IsPowerAbilityTarget(state, item.ControllerId, item.TargetObjectIds[0])) {
             var id = item.TargetObjectIds[0];
+            var empowered = state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+                && source.ObjectGeneration == item.TargetedPowerAbility!.SourceGeneration && IsObjectOnField(state.PlayerZones, source.ObjectId)
+                    ? source.IsEmpowered : item.TargetedPowerAbility!.LastKnownSourceEmpowered;
+            var amount = ability.PowerModifierAmountIfSourceEmpowered is { } upgraded && empowered == true
+                ? upgraded : ability.PowerModifierAmount;
             var behavior = new CardBehaviorDefinition(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 1,
-                TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: ability.PowerModifierAmount,
+                TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: amount,
                 MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier);
-            cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, ability.PowerModifierAmount, out var modified);
+            cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, amount, out var modified);
             events.Add(modified);
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+    }
+
+    private static ResolutionResult RecordTargetedPowerSourceStatus(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var events = result.Events.ToList();
+        var changed = false;
+        var stack = result.State.StackItems.Select(item => {
+            if (item.TargetedPowerAbility is not { } context
+                || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
+                || ability.PowerModifierAmountIfSourceEmpowered is null) return item;
+            bool? empowered = context.LastKnownSourceEmpowered;
+            if (result.State.CardObjects.TryGetValue(context.SourceObjectId, out var current)
+                && current.ObjectGeneration == context.SourceGeneration && IsObjectOnField(result.State.PlayerZones, current.ObjectId))
+                empowered = current.IsEmpowered;
+            else if (before.CardObjects.TryGetValue(context.SourceObjectId, out var previous)
+                && previous.ObjectGeneration == context.SourceGeneration && IsObjectOnField(before.PlayerZones, previous.ObjectId)) {
+                empowered = previous.IsEmpowered;
+                foreach (var ev in result.Events)
+                    if (ev.Kind is "OBJECT_EMPOWERED" or "OBJECT_EMPOWER_REMOVED"
+                        && EventPayloadString(ev, "sourceObjectId") == context.SourceObjectId
+                        && ev.Payload.TryGetValue("objectGeneration", out var generation)
+                        && Convert.ToInt64(generation, System.Globalization.CultureInfo.InvariantCulture) == context.SourceGeneration)
+                        empowered = ev.Kind == "OBJECT_EMPOWERED";
+            }
+            if (empowered == context.LastKnownSourceEmpowered) return item;
+            changed = true;
+            events.Add(new("ABILITY_SOURCE_STATUS_CAPTURED", "保留技能来源的最后强化状态", new Dictionary<string, object?> {
+                ["stackItemId"] = item.StackItemId, ["sourceObjectId"] = context.SourceObjectId,
+                ["sourceGeneration"] = context.SourceGeneration, ["isEmpowered"] = empowered }));
+            return item with { TargetedPowerAbility = context with { LastKnownSourceEmpowered = empowered } };
+        }).ToArray();
+        if (!changed) return result;
+        var state = result.State with { StackItems = stack };
+        return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 }

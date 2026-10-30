@@ -161,11 +161,11 @@
       "cardObjects": {
         "P2-BASE-UNIT-001": {
           "damage": 6,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         },
         "P2-BATTLEFIELD-UNIT-001": {
           "damage": 6,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

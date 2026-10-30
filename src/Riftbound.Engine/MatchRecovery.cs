@@ -1073,7 +1073,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["CARDS_DISCARDED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -1146,6 +1146,8 @@ public static partial class MatchRecoveryValidator
             ValidateTemporaryNumericUnitEffects(authoritativeState, events, requireAcceptedBattleHistory, errors);
             ValidateOriginalEffectPlayLocation(authoritativeState, events, requireAcceptedBattleHistory, errors);
         }
+        if (authoritativeState is not null && requireAcceptedBattleHistory)
+            ValidateBattlefieldConquestHistory(authoritativeState, events, errors);
 
         if (string.IsNullOrWhiteSpace(roomId))
         {
@@ -1784,6 +1786,12 @@ public static partial class MatchRecoveryValidator
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 && string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
             {
+                if (effectKind == StaticAuraKinds.SourceOtherSameNameUnitCountPower)
+                {
+                    ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
+                        $"STATIC_AURA:{effectKind}:{sourceObjectId}", "same name aura effect id", errors);
+                    return;
+                }
                 if (effectKind == StaticAuraKinds.SourceControllerScorePower)
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
@@ -1835,10 +1843,11 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
-                        $"STATIC_AURA:{StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy}:{sourceObjectId}",
+                        $"STATIC_AURA:{effectKind}:{sourceObjectId}",
                         "object static aura effect id", errors);
                     return;
                 }
@@ -2187,6 +2196,19 @@ public static partial class MatchRecoveryValidator
         {
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (effectKind == StaticAuraKinds.SourceOtherSameNameUnitCountPower)
+                {
+                    if (!StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.Kind == effectKind
+                        && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(a)))
+                        errors.Add($"{effectLabel} same name aura requires a matching official source");
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
+                        "CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus", "same name aura source path", errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
+                        "SOURCE_PARTICIPANT_COUNT_POWER_SCOPE_MATCHES", "same name aura condition", errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle,
+                        "RECOMPUTED_FROM_CURRENT_SOURCE_PARTICIPANT_COUNT", "same name aura lifecycle", errors);
+                    return;
+                }
                 if (effectKind == StaticAuraKinds.SourceControllerScorePower)
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
@@ -2306,11 +2328,12 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura =>
                         aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)))
-                        errors.Add($"{effectLabel} source card has no matching conditional enemy aura");
+                        errors.Add($"{effectLabel} source card has no matching conditional participant aura");
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
                         "CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus", "object static aura source path", errors);
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
@@ -2782,7 +2805,8 @@ public static partial class MatchRecoveryValidator
             ? Array.Empty<StaticAuraSpec>()
             : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return participantCount >= enemyAura.RequiredParticipantCount.GetValueOrDefault(1) ? enemyAura.PowerDeltaPerParticipant : 0;
 
@@ -2835,6 +2859,13 @@ public static partial class MatchRecoveryValidator
             && staticAuras.FirstOrDefault(a => a.Kind == effectKind) is { } controlledCount)
             return controlledCount.PowerDeltaPerParticipant;
 
+        if (effectKind == StaticAuraKinds.SourceOtherSameNameUnitCountPower
+            && staticAuras.FirstOrDefault(a => a.Kind == effectKind
+                && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(a)) is { } sameNameAura)
+        {
+            return sameNameAura.PowerDeltaPerParticipant;
+        }
+
         if (string.Equals(effectKind, StaticAuraKinds.SourceObjectFilteredPower, StringComparison.Ordinal)
             && staticAuras.FirstOrDefault(StaticAuraSpecRules.IsSourceObjectFilteredPowerStaticAura) is { } sourceObjectFilteredAura)
         {
@@ -2853,7 +2884,8 @@ public static partial class MatchRecoveryValidator
             return sameBattlefieldCountAura.PowerDeltaPerParticipant;
         }
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return enemyAura.PowerDeltaPerParticipant;
 
@@ -3787,9 +3819,18 @@ public static partial class MatchRecoveryValidator
         }
     }
 
+    private static bool IsValidatedDynamicPowerAura(string? kind, string? sourceCardNo)
+        => kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower
+            or StaticAuraKinds.SourceControllerScorePower
+            or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT"
+            or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect
+            or StaticAuraKinds.SourceOtherSameNameUnitCountPower
+            || (kind == StaticAuraKinds.FriendlyUnitsPower
+                && StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.PowerDeltaIfSourceEmpowered.HasValue));
+
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SourceControllerScorePower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+        var expected = state.ContinuousEffects.Where(e => IsValidatedDynamicPowerAura(e.EffectKind, e.SourceCardNo))
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -3798,7 +3839,8 @@ public static partial class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is CoreRuleEngine.EmpoweredUnitAuraEffect or StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SourceControllerScorePower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
+                    TryReadObjectString(payload, "sourceCardNo", out var sourceCardNo);
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && IsValidatedDynamicPowerAura(kind, sourceCardNo))
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -3819,7 +3861,8 @@ public static partial class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
+                if (effect.EffectKind is CoreRuleEngine.EmpoweredUnitAuraEffect or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect
+                    or StaticAuraKinds.SourceOtherSameNameUnitCountPower or StaticAuraKinds.FriendlyUnitsPower)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
                         ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
@@ -3921,11 +3964,11 @@ public static partial class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.BattlefieldConquestMight is { } captured ? !CoreRuleEngine.ValidBattlefieldConquestMightContext(state,
                 captured, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
-                : trigger.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw) errors.Add("invalid captured conquest Might");
+                : CoreRuleEngine.IsCapturedConquestDrawKind(trigger.EffectKind)) errors.Add("invalid captured conquest Might");
         foreach (var item in state.StackItems)
             if (item.BattlefieldConquestMight is { } captured ? !CoreRuleEngine.ValidBattlefieldConquestMightContext(state,
                 captured, item.EffectKind, item.SourceObjectId, item.ControllerId)
-                : item.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw) errors.Add("invalid captured conquest Might stack");
+                : CoreRuleEngine.IsCapturedConquestDrawKind(item.EffectKind)) errors.Add("invalid captured conquest Might stack");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.LastBreathMight is { } captured ? !CoreRuleEngine.ValidLastBreathMightContext(state, captured,
                 trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
@@ -3968,9 +4011,21 @@ public static partial class MatchRecoveryValidator
                     || !ValidMovementPlayers(state, movement)
                 : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
+        if (state.BattlefieldConquests is { } conquests && (conquests.TurnNumber != state.TurnNumber
+            || conquests.Entries is null || conquests.Entries.Count == 0 || conquests.Entries.Distinct().Count() != conquests.Entries.Count
+            || conquests.Entries.Any(entry => entry is null || string.IsNullOrWhiteSpace(entry.PlayerId)
+                || !state.Seats.ContainsKey(entry.PlayerId) || entry.Battlefield is null
+                || string.IsNullOrWhiteSpace(entry.Battlefield.ObjectId) || entry.Battlefield.Generation < 0
+                || state.CardObjects.TryGetValue(entry.Battlefield.ObjectId, out var field)
+                    && (!field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
+                        || field.ObjectGeneration < entry.Battlefield.Generation)))) errors.Add("invalid turn battlefield conquests");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
-            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)) errors.Add("invalid death ledger");
+            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)
+            || state.DeathLedger.PermanentControllers is null
+            || state.DeathLedger.PermanentControllers.Any(player => !state.Seats.ContainsKey(player))
+            || state.DeathLedger.PermanentControllers.Distinct(StringComparer.Ordinal).Count() != state.DeathLedger.PermanentControllers.Count
+            || state.DeathLedger.PermanentControllers.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber) errors.Add("invalid death ledger");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.DeathObserver is null && IsUncapturedDeathObserver(trigger.EffectKind, trigger.TriggerId))
                 errors.Add("obsolete uncaptured death observer");
@@ -3985,6 +4040,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("obsolete uncaptured death observer stack");
         foreach(var item in state.StackItems)
             if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
+                || !CoreRuleEngine.ValidDeathObserverTargets(item)
                 || item.StackItemId.StartsWith("ordered-copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
                 || death.RuleTextInstanceId is { } stackInstance && !item.StackItemId.EndsWith(":" + stackInstance, StringComparison.Ordinal)
                 || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
@@ -4057,6 +4113,14 @@ public static partial class MatchRecoveryValidator
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid stacked battle-result skill");
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
+        foreach (var trigger in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
+                errors.Add("invalid captured unit event trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)
+                || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
+                    || !CoreRuleEngine.ValidUnitEventTargets(item)))
+                errors.Add("invalid captured unit event stack");
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEmpowerInteraction(state, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 errors.Add("invalid empower interaction trigger");
@@ -4226,6 +4290,8 @@ public static partial class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidFieldContextState(state, field,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                     || !CoreRuleEngine.ValidAttackMightDamageTrigger(trigger)
+                    || !CoreRuleEngine.ValidDisarmTrigger(trigger)
+                    || field.Kind == CoreRuleEngine.EquipmentDeathReturnKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
                     || field.Kind == CoreRuleEngine.AttackAreaDamageKind && trigger.TriggeredByEventKind is not ("BATTLE_DECLARED" or "BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED")
                     || field.Kind == CoreRuleEngine.EmpoweredAttackDestroyKind && (trigger.SourceCardNo != field.CardNo
@@ -4249,6 +4315,8 @@ public static partial class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidFieldContextState(state, field,
                 item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 || !CoreRuleEngine.ValidAttackMightDamageStack(state, item)
+                || !CoreRuleEngine.ValidDisarmStack(item)
+                || !CoreRuleEngine.ValidEquipmentDeathStack(item)
                 || !CoreRuleEngine.ValidDiscardDestroyStack(state, item)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
@@ -4412,10 +4480,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("invalid private deck choice continuation");
             else
             {
-                var legal = choice.ContextObjectIds.Where(id => (string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
-                    || state.CardObjects.TryGetValue(id, out var card) && card.Tags.Contains(behavior.MainDeckTargetRequiredTag))
-                    && (behavior.MainDeckTargetMinimumManaCost <= 0
-                        || state.CardObjects.TryGetValue(id, out var costCard) && costCard.ManaCost >= behavior.MainDeckTargetMinimumManaCost)).ToArray();
+                var legal = choice.ContextObjectIds.Where(id => CoreRuleEngine.DeckChoiceTargetAllowed(state, behavior, id)).ToArray();
                 var required = behavior.MinTargetCount != 0 && legal.Length > 0 ? 1 : 0;
                 if (!legal.SequenceEqual(choice.LegalObjectIds) || choice.RequiredCount != required
                     || choice.MaxCount != (legal.Length > 0 ? 1 : 0) || choice.EffectKind != top.EffectKind)
@@ -4576,6 +4641,8 @@ public static partial class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTemperedChoice(state, temperedChoice)) errors.Add("invalid weaponmaster confirmation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedCostWindow } temperedCost
             && !CoreRuleEngine.ValidTemperedCostChoice(state, temperedCost)) errors.Add("invalid weaponmaster cost choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedBaseCostWindow } temperedBaseCost
+            && !CoreRuleEngine.ValidTemperedBaseCostChoice(state, temperedBaseCost)) errors.Add("invalid weaponmaster base cost choice");
         if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TemperedPaymentWindow } temperedPayment
             && !CoreRuleEngine.ValidTemperedPayment(state, temperedPayment)) errors.Add("invalid weaponmaster payment");
         foreach (var item in state.TriggerQueue)
@@ -4669,7 +4736,7 @@ public static partial class MatchRecoveryValidator
                     or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
                     or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
-                    or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE")) errors.Add("invalid captured Hold context");
+                    or "BURN" or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT" or "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE")) errors.Add("invalid captured Hold context");
         }
         foreach (var item in state.StackItems.Where(x => x.HeldContext is not null))
             if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
@@ -4763,12 +4830,16 @@ public static partial class MatchRecoveryValidator
                 || source.ObjectGeneration == context.SourceGeneration
                     && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
                         || !source.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal))
+                || (ability.PowerModifierAmountIfSourceEmpowered is null ? context.LastKnownSourceEmpowered is not null
+                    : context.LastKnownSourceEmpowered is null || source.ObjectGeneration == context.SourceGeneration
+                        && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
+                        && context.LastKnownSourceEmpowered != source.IsEmpowered)
                 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
                 || item.TargetObjectIds is not { Count: 1 }
                 || item.TargetGenerations is not { Count: 1 }
                 || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
-                || item.EmpowerInteraction is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.TriggerCost is not null
+                || item.UnitEvent is not null || item.EmpowerInteraction is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
                 || item.LegendAttachment is not null || item.LegendDuelMovement is not null || item.LegendUnitKeyword is not null || item.LegendUnitEffect is not null || item.LegendEquipmentReady is not null || item.LegendDiscardDraw is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
@@ -4922,6 +4993,8 @@ public static partial class MatchRecoveryValidator
         List<string> errors)
     {
         CoreRuleEngine.ValidateBattlefieldReplacements(authoritativeState, errors);
+        foreach (var card in authoritativeState.CardObjects.Values)
+            if (!CoreRuleEngine.ValidSpellNameDeclaration(authoritativeState, card)) errors.Add($"card object {card.ObjectId} spell name declaration is invalid");
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var (objectId, cardObject) in authoritativeState.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -5031,7 +5104,8 @@ public static partial class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow))
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
+                && !(choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow && CoreRuleEngine.ValidTemperedBaseCostChoice(authoritativeState, choice)))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
                 authoritativeState.PendingCardChoice.LegalObjectIds,
@@ -5152,6 +5226,7 @@ public static partial class MatchRecoveryValidator
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, stackItem)
+                && !(stackItem.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, stackItem.UnitEvent, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, stackItem.EmpowerInteraction, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.CardNo))
                 && !(stackItem.SourceReadied is not null && CoreRuleEngine.ValidSourceReadiedStack(authoritativeState, stackItem))
                 && !(stackItem.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyOtherObjectStack(authoritativeState, stackItem))
@@ -5169,6 +5244,10 @@ public static partial class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, stackItem))
+                foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
+            if (stackItem.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, stackItem))
+                foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
             if (CoreRuleEngine.ValidDepartedTokenTargets(authoritativeState, stackItem))
                 foreach (var token in stackItem.DepartedTokenTargets ?? []) targetReferences.Add(token.Target.ObjectId);
             if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
@@ -5294,6 +5373,7 @@ public static partial class MatchRecoveryValidator
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(authoritativeState,death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !BattleResultRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
                 && !DravenBattleDeathRecoveryRules.IsCapturedSkill(authoritativeState, trigger)
+                && !(trigger.UnitEvent is not null && CoreRuleEngine.ValidUnitEvent(authoritativeState, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.EmpowerInteraction is not null && CoreRuleEngine.ValidEmpowerInteraction(authoritativeState, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.SourceReadied is not null && CoreRuleEngine.ValidSourceReadied(authoritativeState, trigger.SourceReadied, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
                 && !(trigger.ReadyObjectTrigger is not null && CoreRuleEngine.ValidReadyObjectTrigger(authoritativeState, trigger.ReadyObjectTrigger, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo))
@@ -5413,6 +5493,10 @@ public static partial class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (CoreRuleEngine.SimpleActivationTargetsPlayer(authoritativeState, original))
+                    foreach (var player in authoritativeState.Seats.Keys) targetReferences.Add(player);
+                if (original.SimpleActivation?.TargetTokenFactories is { } tokenTargets && CoreRuleEngine.ValidSimpleActivation(authoritativeState, original))
+                    foreach (var id in tokenTargets.Keys) targetReferences.Add(id);
                 if (CoreRuleEngine.ValidDepartedTokenTargets(authoritativeState, original))
                     foreach (var token in original.DepartedTokenTargets ?? []) targetReferences.Add(token.Target.ObjectId);
                 if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
@@ -5597,7 +5681,10 @@ public static partial class MatchRecoveryValidator
             payloadLabel,
             "target object id",
             errors,
-            allowRepeatedHiddenTargets: true); // Keyed state comparison below still requires exact redaction and multiplicity.
+            allowRepeatedHiddenTargets: true,
+            allowRepeatedValues: TryReadObjectString(stackItem, "cardNo", out var targetCardNo)
+                && targetCardNo is not null && CardBehaviorRegistry.TryGetByCardNo(targetCardNo, out var targetBehavior) && targetBehavior.AllowsRepeatedTargets);
+        // Keyed state comparison below still requires exact target order and multiplicity.
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             stackItem,
             "damageAmount",
@@ -5624,12 +5711,12 @@ public static partial class MatchRecoveryValidator
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
         => (BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item)
-                || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind
+                || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

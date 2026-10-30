@@ -760,6 +760,15 @@ internal static partial class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
 
+        if (ability.SimpleEffect is not null)
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
+                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer
+                    ? state.Seats.Keys.Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto(id, state.Seats[id], "获得来源控制权并召回")).ToArray()
+                    : PublicBoardObjects(state)
+                    .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
+                    .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
+                    .Select(id => ObjectChoice(state, id, ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
+
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
                 ["0"] = PublicBoardObjects(state)
@@ -1516,20 +1525,25 @@ internal static partial class ActionPromptBuilder
         var manaCost = manaCostByTargetObjectId.Count > 0
             ? manaCostByTargetObjectId.Values.Min()
             : assembleProfile.ManaCost;
+        var costChoices = new[] { new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel) }
+            .Concat(assembleProfile.HasExhaustUnitAlternative
+                ? CoreRuleEngine.EquipmentExhaustCostChoices(state, playerId).Select(id => new ActionPromptChoiceDto(id,
+                    "让友方单位变为休眠状态：" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "装配费用").Label)) : [])
+            .ToArray();
 
         return new AssembleEquipmentPromptRequirement(
             objectId,
             assembleProfile.CardNo,
             assembleProfile.DisplayName,
             targetChoices,
-            [new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel)],
+            costChoices,
             additionalCostChoices,
             AssembleEquipmentRequiredAdditionalCostChoiceCount(assembleProfile),
             paymentResourceChoices,
             AssembleEquipmentPaymentResourcePowerByChoice(state, playerId, assembleProfile),
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
             PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
-            [assembleProfile.OptionalCost],
+            assembleProfile.HasExhaustUnitAlternative ? [] : [assembleProfile.OptionalCost],
             manaCost,
             assembleProfile.ManaCost,
             manaCostByTargetObjectId,
@@ -1537,7 +1551,8 @@ internal static partial class ActionPromptBuilder
             assembleProfile.PowerCost,
             assembleProfile.ExperienceCost,
             true,
-            null) { PowerReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait) };
+            null) { PowerReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait),
+                HasAlternativeCost = assembleProfile.HasExhaustUnitAlternative };
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
@@ -1739,6 +1754,8 @@ internal static partial class ActionPromptBuilder
         IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null,
         int manaCost = 0)
     {
+        if (assembleProfile.HasExhaustUnitAlternative && CoreRuleEngine.EquipmentExhaustCostChoices(state, playerId).Length > 0)
+            return true;
         runePool = PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Equipment);
         if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < manaCost)
         {
@@ -1877,7 +1894,8 @@ internal static partial class ActionPromptBuilder
 
     private static int AssembleEquipmentManaCost(MatchState state, AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
     {
-        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState));
+        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState)
+            - CoreRuleEngine.EquipmentAbilityManaReduction(state, targetState.ControllerId!));
     }
 
     private static int AssembleEquipmentTargetPowerManaReduction(

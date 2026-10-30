@@ -214,7 +214,7 @@
         "P2-LAST-BREATH-ENEMY-001": {
           "damage": 4,
           "power": 6,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0
         }
       },

@@ -252,7 +252,7 @@
         "P1-BATTLEFIELD-UNIT-001": {
           "damage": 12,
           "power": 13,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true
         },

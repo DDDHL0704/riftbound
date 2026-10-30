@@ -39,9 +39,13 @@ public sealed record CardPlayTimingDecision(
 public static class CardPermissionKeywordRules
 {
     public const string SpellPlayProhibitionReason = "本回合内不能打出法术；已在结算链上的法术仍可结算。";
+    public static string SpellPlayProhibitionMessage(MatchState state, string player, CardBehaviorDefinition behavior)
+        => CoreRuleEngine.IsDeclaredSpellNameProhibited(state, player, behavior)
+            ? "战场上的敌方单位禁止打出此名称的法术；已在结算链上的法术仍可结算。" : SpellPlayProhibitionReason;
     public static bool IsSpellPlayProhibited(MatchState state, string player, CardBehaviorDefinition behavior)
         => !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
-            && state.UntilEndOfTurnEffects.Contains(SpellPlayProhibitionPrefix + player, StringComparer.Ordinal);
+            && (state.UntilEndOfTurnEffects.Contains(SpellPlayProhibitionPrefix + player, StringComparer.Ordinal)
+                || CoreRuleEngine.IsDeclaredSpellNameProhibited(state, player, behavior));
     public const string SpellPlayProhibitionPrefix = "CANNOT_PLAY_SPELLS_THIS_TURN:";
     public static CardPermissionKeywordProfile BuildProfile(CardBehaviorDefinition behavior)
     {
@@ -81,8 +85,11 @@ public static class CardPermissionKeywordRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(behavior);
 
+        if (!CoreRuleEngine.PrintedPlayTurnAllowed(state, playerId, behavior))
+            return Rejected($"此单位在你的前 {behavior.SourceStaticLimits!.UnplayableThroughControllerTurn} 个回合中无法打出。");
+
         if (IsSpellPlayProhibited(state, playerId, behavior))
-            return Rejected(SpellPlayProhibitionReason);
+            return Rejected(SpellPlayProhibitionMessage(state, playerId, behavior));
 
         if (state.PendingEffectPlay is { } pending)
             return new(CoreRuleEngine.EffectPlayAllowsBehavior(state, playerId, behavior), "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
@@ -196,7 +203,7 @@ public static class CardPermissionKeywordRules
         IReadOnlyList<string> optionalCosts)
     {
         return TryBuildHasteReadyOptionalCost(
-            optionalCosts,
+            optionalCosts.Where(IsHasteReadyCostChoice).ToArray(),
             behavior,
             out _,
             out _);

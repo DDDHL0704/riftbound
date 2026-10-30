@@ -254,8 +254,8 @@ public static partial class MatchRecoveryValidator
     private static void ValidateBattlefieldConquestMightPayload(object? payload, string? effect, List<string> errors)
     {
         var context = ReadBattlefieldConquestMightView(payload);
-        if (effect == TriggerKinds.BattlefieldConquerPowerfulPayDraw || context is not null)
-            if (context is null || effect != TriggerKinds.BattlefieldConquerPowerfulPayDraw
+        if (CoreRuleEngine.IsCapturedConquestDrawKind(effect) || context is not null)
+            if (context is null || !CoreRuleEngine.ValidCapturedConquestDrawKind(context, effect)
                 || !CoreRuleEngine.ValidBattlefieldConquestMightFrame(context)) errors.Add("invalid public captured conquest Might");
     }
 
@@ -305,7 +305,7 @@ public static partial class MatchRecoveryValidator
 
     private static string CapturedInsightLabel(InsightTriggerContext? context)
         => context is { Kind: "DUEL" } ? "captured duel Insight"
-            : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : "captured last-breath Insight";
+            : context is { Kind: "HELD" } ? "captured held Insight" : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : "captured last-breath Insight";
 
     private static InsightTriggerContext? CapturedInsight(InsightTriggerContext? context)
         => CoreRuleEngine.IsCapturedInsightKind(context?.Kind) ? context : null;
@@ -318,11 +318,12 @@ public static partial class MatchRecoveryValidator
             var hasLastBreath = json.TryGetProperty("lastBreathInsight", out var lastBreath) && lastBreath.ValueKind != JsonValueKind.Null;
             var hasDuel = json.TryGetProperty("duelInsight", out var duel) && duel.ValueKind != JsonValueKind.Null;
             var hasEmpowered = json.TryGetProperty("empoweredInsight", out var empowered) && empowered.ValueKind != JsonValueKind.Null;
-            if ((hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1) return null;
-            var context = (hasLastBreath ? lastBreath : hasDuel ? duel : empowered).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
+            var hasHeld = json.TryGetProperty("heldInsight", out var held) && held.ValueKind != JsonValueKind.Null;
+            if ((hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1) return null;
+            var context = (hasHeld ? held : hasLastBreath ? lastBreath : hasDuel ? duel : empowered).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true,
                 UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
-            return context?.Kind == (hasLastBreath ? "LAST_BREATH" : hasDuel ? "DUEL" : "EMPOWERED") ? context : null;
+            return context?.Kind == (hasHeld ? "HELD" : hasLastBreath ? "LAST_BREATH" : hasDuel ? "DUEL" : "EMPOWERED") ? context : null;
         } catch (JsonException) { return null; }
     }
 
@@ -332,9 +333,10 @@ public static partial class MatchRecoveryValidator
         var hasLastBreath = TryReadObjectValue(payload, "lastBreathInsight", out var lastBreath) && !IsNullSnapshotPayloadValue(lastBreath);
         var hasDuel = TryReadObjectValue(payload, "duelInsight", out var duel) && !IsNullSnapshotPayloadValue(duel);
         var hasEmpowered = TryReadObjectValue(payload, "empoweredInsight", out var empowered) && !IsNullSnapshotPayloadValue(empowered);
-        if (!hasLastBreath && !hasDuel && !hasEmpowered) return false;
+        var hasHeld = TryReadObjectValue(payload, "heldInsight", out var held) && !IsNullSnapshotPayloadValue(held);
+        if (!hasHeld && !hasLastBreath && !hasDuel && !hasEmpowered) return false;
         var context = ReadCapturedInsightView(payload);
-        if ((hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1
+        if ((hasHeld ? 1 : 0) + (hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1
             || context is null || !CoreRuleEngine.IsCapturedInsightKind(context.Kind) || string.IsNullOrWhiteSpace(source)
             || !CoreRuleEngine.ValidInsightTrigger(context, effect ?? "", controller ?? "")
             || context.Origin is { } origin && (origin.Unit is null || origin.Unit.ObjectId != source))

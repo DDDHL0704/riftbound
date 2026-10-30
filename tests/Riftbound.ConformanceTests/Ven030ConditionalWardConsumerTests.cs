@@ -28,7 +28,7 @@ public sealed class Ven030ConditionalWardConsumerTests
         var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < 6; i++) await game.Act("P1", new TapRuneCommand("EMPOWER-COMBAT-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "EMPOWER-COMBAT-RUNE-" + i));
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·030", [])); Assert.Equal(3, game.State.RunePools["P1"].Mana);
             if (empowered)
             {
@@ -38,7 +38,7 @@ public sealed class Ven030ConditionalWardConsumerTests
             Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered);
             Assert.Equal(empowered, game.State.CardObjects["UNIT"].Tags.Contains(CardObjectTags.Spellshield));
             await game.Act("P1", new EndTurnCommand());
-            for (var i = 1; i <= 7; i++) await game.Act("P2", new TapRuneCommand("WARD-OPPONENT-RUNE-" + i));
+            await game.TapRunes("P2", Enumerable.Range(1, 7).Select(i => "WARD-OPPONENT-RUNE-" + i));
             if (power == 1) await game.Act("P2", new RecycleRuneCommand("WARD-OPPONENT-RUNE-8"));
             Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
             var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);

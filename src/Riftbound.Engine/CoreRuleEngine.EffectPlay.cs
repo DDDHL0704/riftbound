@@ -23,6 +23,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.LastBreathBattlefieldDamage is { Kind: TriggerKinds.UnitLastBreathBanishDeckTopPlay })
+        {
+            definition = new(parent.CardNo, "绝念放逐牌库顶并打出", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayOptional: true, EffectPlayAllowsAnyCard: true);
+            return true;
+        }
         if (parent.EmpowerInteraction is { } empowerment && EmpowerInteractionDefinition(empowerment.CardNo)?.Effect
             is "PLAY_GRAVEYARD_UNIT" or "MILL_THEN_PLAY_OPPONENT_UNIT") {
             definition = EmpowerInteractionPlayBehavior(empowerment); return true;
@@ -92,7 +98,7 @@ public sealed partial class CoreRuleEngine
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId))
-                    .Concat(FlowPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
+                    .Concat(FlowPlaySources(state, playerId)).Concat(NormalGraveyardPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         if (pending.SourcePlayerId is { } sourcePlayer && state.PlayerZones.TryGetValue(sourcePlayer, out var sourceZones)) zones = sourceZones;
@@ -131,14 +137,28 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
             ? pending.IgnoreAllCosts ? behavior with {
                 IgnorePrintedPowerCost = true,
-                MaySacrificeUnitForPrintedCostReduction = false,
                 RequiresDestroyFriendlyUnitAdditionalCost = false,
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
-                RequiresReturnFriendlyEquipmentAdditionalCost = false
+                RequiresReturnFriendlyEquipmentAdditionalCost = false,
+                MayReturnFriendlyEquipmentAdditionalCost = false,
+                RequiresReturnFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 
-    internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId)
+    internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId, CardBehaviorDefinition? behavior = null)
+    {
+        var ordinary = OrdinaryEffectPlayDestinations(state, playerId);
+        IEnumerable<CardBehaviorDefinition> behaviors = behavior is not null ? [behavior] : EffectPlaySources(state, playerId)
+            .Select(id => state.CardObjects.GetValueOrDefault(id)?.CardNo)
+            .Select(no => CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var found) ? found : null)
+            .OfType<CardBehaviorDefinition>();
+        return ordinary.Concat(behaviors.SelectMany(b => BattlefieldUnitPlayGrants(state, playerId, b))
+                .Select(g => "BATTLEFIELD:" + g.Field.ObjectId))
+            .Where(destination => behavior is null || UnitPlayLocationRestrictionAllows(state, playerId, behavior, destination))
+            .Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static IReadOnlyList<string> OrdinaryEffectPlayDestinations(MatchState state, string playerId)
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
@@ -264,7 +284,8 @@ public sealed partial class CoreRuleEngine
             // play. A printed pip alone is not proof of a nonzero final fee.
             var hasPowerPrice = TrySelectPlayPowerCost(state, p.PlayerId, behavior, null, pool,
                 SourceReplayPowerCost(state, p.PlayerId), new Dictionary<string, int>(), out var generic, out var typed);
-            return CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
+            return !EffectPlayIgnoresAllCosts(state, p.PlayerId) && BattlefieldUnitPlayCostChoices(state, p.PlayerId, behavior).Count > 0
+                || CalculatePlayManaCost(state, p.PlayerId, behavior, sourceObjectId: choice.SourceObjectId).Total > 0
                 || hasPowerPrice && (generic > 0 || typed.Values.Any(amount => amount > 0));
         });
     }
