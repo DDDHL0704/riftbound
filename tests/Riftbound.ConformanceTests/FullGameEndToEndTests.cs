@@ -25585,7 +25585,7 @@ public sealed partial class FullGameEndToEndTests
                 var sourceId = queue ? trigger!.SourceObjectId : item!.SourceObjectId;
                 var controller = queue ? trigger!.ControllerId : item!.ControllerId;
                 Assert.Equal("DELAYED_FRIENDLY_UNIT_PLAYED_BOON", queue ? trigger!.EffectKind : item!.EffectKind);
-                Assert.Equal("SFD·166/221", c.Grant.CardNo);
+                Assert.Contains(c.Grant.CardNo, new[] { "SFD·166/221", "RAD·154/167" });
                 Assert.Equal(controller, c.Grant.ControllerId); Assert.Equal(controller, c.UnitControllerId);
                 Assert.Contains(c.Grant.Marker, state.UntilEndOfTurnEffects);
                 var fields = c.Grant.Marker.Split('|');

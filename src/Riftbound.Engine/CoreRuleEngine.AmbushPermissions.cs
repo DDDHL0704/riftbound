@@ -64,6 +64,7 @@ public sealed partial class CoreRuleEngine
         foreach (var field in state.CardObjects.Values.Where(c => IsBattlefieldCardObject(c) && IsObjectOnField(state.PlayerZones, c.ObjectId))) {
             var destination = "BATTLEFIELD:" + field.ObjectId;
             if ((IsPlayCardUnitBattlefieldDestinationAllowed(state, player, destination)
+                    || GrantedUnitPlayBattlefieldAllowed(state, player, behavior, destination)
                     || OpenBattlefieldPlayAllowed(state, behavior, destination)
                     || AmbushLocationAllowed(state, player, behavior, destination)
                     || RengarAttackingBattlefieldPlayAllowed(state, player, behavior, destination)
