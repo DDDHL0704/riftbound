@@ -1028,7 +1028,7 @@ public static partial class MatchRecoveryValidator
             return;
         }
 
-        var authoritativeEffects = authoritativeState.ContinuousEffects;
+        IReadOnlyList<ContinuousEffectState> authoritativeEffects = authoritativeState.ContinuousEffects.Select(effect => CoreRuleEngine.PublicPlayInstructionEffect(authoritativeState, effect, "__spectator__")).ToArray();
         var validateAuthoritativeParity = spectatorEffects.Count == authoritativeEffects.Count;
         if (!validateAuthoritativeParity)
         {
@@ -1041,7 +1041,9 @@ public static partial class MatchRecoveryValidator
         var seenEffectIds = new HashSet<string>(StringComparer.Ordinal);
         var seenSequences = new HashSet<int>();
         var validSequences = new List<int>();
-        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
+        var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState).ToHashSet(StringComparer.Ordinal);
+        if (authoritativeEffects.Any(effect => effect.SourceObjectId == "HIDDEN"))
+            knownObjectIds.Add("HIDDEN");
         foreach (var spectatorEffect in spectatorEffects)
         {
             if (!IsSnapshotPlayerPayloadObject(spectatorEffect))
