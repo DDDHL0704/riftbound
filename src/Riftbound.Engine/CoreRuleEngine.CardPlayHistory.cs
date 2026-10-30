@@ -106,14 +106,14 @@ public sealed partial class CoreRuleEngine
                 // completed-play guard also prevents a second observation.
                 if (finalized.FirstOrDefault(p => p.PlayerId == entry.PlayerId)?.PlayId == entry.PlayId)
                     observers.AddRange(observation.FirstCardObservers);
-                if ((entry.Types & 3) != 0 && PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
+                if (PrintedManaCost(entry.CardNo) is { } mana && result.State.Status == MatchStatuses.InProgress)
                 {
                     foreach (var (observer, ordinal) in observation.HighCostObservers.Select((value, ordinal) => (value, ordinal)))
                     {
-                        if (mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
+                        if (!HighCostObservesCard(observer.CardNo, entry.Types) || mana < HighCostPlaySpec(observer.CardNo)!.MinimumCardMana) continue;
                         var context = observer.ToContext(result.State.Tick, entry, null);
                         var trigger = new TriggerQueueItemState($"high-cost-play-{result.State.Tick}-{index}-{ordinal}",
-                            entry.PlayerId, context.Source.ObjectId, HighCostPlayEffect, "CARD_PLAY_COMPLETED")
+                            entry.PlayerId, context.Source.ObjectId, HighCostEffectFor(context.CardNo), "CARD_PLAY_COMPLETED")
                             { HighCostPlayObserver = context, SourceCardNo = context.CardNo };
                         queue.Add(trigger);
                         var queued = BuildTriggerQueuedEvent(trigger);

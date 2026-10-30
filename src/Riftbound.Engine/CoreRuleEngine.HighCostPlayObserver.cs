@@ -18,6 +18,7 @@ public sealed record HighCostPlayObserverContext(ObjectBinding Source, string Ca
 public sealed partial class CoreRuleEngine
 {
     internal const string HighCostPlayEffect = "CONTROLLER_HIGH_COST_PLAY_READY_RUNES";
+    internal const string HighCostReadySourceEffect = "CONTROLLER_HIGH_COST_PLAY_READY_SOURCE";
     private sealed record HighCostPlayObserverCandidate(ObjectBinding Source, string CardNo, string ControllerId,
         long FaceRevision, string RuleTextInstanceId, string? SourceTokenFactoryCardNo, RuleTextInstanceBinding? Origin)
     {
@@ -29,7 +30,11 @@ public sealed partial class CoreRuleEngine
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo, StringComparer.Ordinal));
     private static int? PrintedManaCost(string cardNo) => HighCostCards.Value.GetValueOrDefault(cardNo)?.Energy;
     private static TriggerSpec? HighCostPlaySpec(string cardNo) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo)
-        .FirstOrDefault(t => t.Kind == TriggerKinds.ControllerHighCostUnitEquipmentOrAbilityReadyRunes);
+        .FirstOrDefault(t => t.Kind is TriggerKinds.ControllerHighCostUnitEquipmentOrAbilityReadyRunes or TriggerKinds.ControllerHighCostCardReadySelf);
+    internal static bool HighCostReadiesSource(string? cardNo) => cardNo is not null
+        && HighCostPlaySpec(cardNo)?.Kind == TriggerKinds.ControllerHighCostCardReadySelf;
+    private static string HighCostEffectFor(string cardNo) => HighCostReadiesSource(cardNo) ? HighCostReadySourceEffect : HighCostPlayEffect;
+    private static bool HighCostObservesCard(string cardNo, int types) => HighCostReadiesSource(cardNo) || (types & 3) != 0;
     private static HighCostPlayObserverCandidate[] CaptureHighCostPlayObservers(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards, string player)
     {
@@ -57,7 +62,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!item.StackItemId.StartsWith("STACK-", StringComparison.Ordinal) || !StackObjectRules.IsAbility(item)
             || item.SourceConfirmed || string.IsNullOrWhiteSpace(item.CardNo)) return [];
-        var observers = CaptureHighCostPlayObservers(zones, cards, item.ControllerId);
+        var observers = CaptureHighCostPlayObservers(zones, cards, item.ControllerId)
+            .Where(observer => !HighCostReadiesSource(observer.CardNo)).ToArray();
         if (observers.Length == 0) return [];
         var split = item.StackItemId.IndexOf('-', 6);
         if (split < 0 || !long.TryParse(item.StackItemId.AsSpan(6, split - 6), out var activationTick)) return [];
@@ -156,7 +162,7 @@ public sealed partial class CoreRuleEngine
         { mana = legend.ManaCost; effect = legend.EffectKind; }
         else return [];
         var observers = CaptureHighCostPlayObservers(after.PlayerZones, after.CardObjects, player)
-            .Where(observer => mana >= HighCostPlaySpec(observer.CardNo)!.MinimumCardMana).ToArray();
+            .Where(observer => !HighCostReadiesSource(observer.CardNo) && mana >= HighCostPlaySpec(observer.CardNo)!.MinimumCardMana).ToArray();
         if (observers.Length == 0) return [];
         var witness = new HighCostSkillWitness(new(sourceId, source.ObjectGeneration), cardNo, abilityId, effect,
             mana, after.Tick, after.Tick, source.CopyFaceTransitions?.Count ?? 0, source.TokenFactoryCardNo);
@@ -195,18 +201,18 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidHighCostObserver(MatchState state, HighCostPlayObserverContext? context,
         string effect, string sourceId, string controller, string? cardNo)
     {
-        if (context is null) return effect != HighCostPlayEffect;
+        if (context is null) return effect is not (HighCostPlayEffect or HighCostReadySourceEffect);
         if (string.IsNullOrWhiteSpace(context.CardNo)) return false;
         var spec = HighCostPlaySpec(context.CardNo);
-        if (effect != HighCostPlayEffect || context.CardNo != cardNo || spec?.MinimumCardMana is not { } minimum
+        if (spec?.MinimumCardMana is not { } minimum || effect != HighCostEffectFor(context.CardNo) || context.CardNo != cardNo
             || context.Source is not { Generation: >= 0 } || context.Source.ObjectId != sourceId
             || context.ControllerId != controller || !state.Seats.ContainsKey(controller)
             || context.CapturedTick <= 0 || context.CapturedTick > state.Tick || context.FaceRevision < 0
             || (context.CardPlay is null) == (context.SkillPlay is null)) return false;
-        if (context.CardPlay is { } card && ((card.Types & 3) == 0 || card.PlayerId != controller
+        if (context.CardPlay is { } card && (!HighCostObservesCard(context.CardNo, card.Types) || card.PlayerId != controller
             || card.Tick != context.CapturedTick || PrintedManaCost(card.CardNo) is not int printed || printed < minimum
             || !state.CardPlays.Resolved.Contains(card))) return false;
-        if (context.SkillPlay is { } skill && (skill.Tick != context.CapturedTick || skill.BaseMana < minimum
+        if (context.SkillPlay is { } skill && (HighCostReadiesSource(context.CardNo) || skill.Tick != context.CapturedTick || skill.BaseMana < minimum
             || skill.Empower is not null && (skill.Tick <= skill.ActivationTick
                 || state.StackItems.Any(item => item.EmpowerActivation == skill.Empower))
             || !ValidHighCostSkillWitness(state, controller, skill))) return false;
@@ -230,6 +236,10 @@ public sealed partial class CoreRuleEngine
         var context = item.HighCostPlayObserver;
         if (!ValidHighCostObserver(state, context, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)) return false;
         if (context is null) return true;
+        if (HighCostReadiesSource(context.CardNo))
+            return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
+                && !context.Paid && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+                && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed;
         var max = HighCostPlaySpec(context.CardNo)!.RuneReadyCount ?? 0;
         return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
             && item.TargetObjectIds.Count <= max && item.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == item.TargetObjectIds.Count
@@ -291,8 +301,24 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveHighCostPlay(MatchState state, StackItemState item)
     {
-        if (!ValidHighCostStack(state, item) || item.HighCostPlayObserver is not { Paid: true })
+        if (!ValidHighCostStack(state, item))
             throw new InvalidOperationException("Invalid high-cost play observer.");
+        if (HighCostReadiesSource(item.CardNo))
+        {
+            var cardsToReady = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+            var readyEvents = new List<GameEvent>();
+            if (cardsToReady.TryGetValue(item.SourceObjectId, out var source)
+                && source.ObjectGeneration == item.HighCostPlayObserver!.Source.Generation
+                && IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId))
+            {
+                var behavior = new CardBehaviorDefinition(item.CardNo!, "高费用打出触发活跃", 0, item.EffectKind, 0, 0, ReadiesTarget: true);
+                cardsToReady[source.ObjectId] = ApplyReadyState(source, behavior, item, source.ObjectId,
+                    out var ready, state.PlayerZones, cardsToReady);
+                if (ready is not null) readyEvents.Add(ready);
+            }
+            return NoopStackResolutionResult(state) with { CardObjects = cardsToReady, Events = readyEvents };
+        }
+        if (item.HighCostPlayObserver is not { Paid: true }) throw new InvalidOperationException("Unpaid high-cost rune observer.");
         var legal = HighCostRuneTargets(state, item); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>();
         foreach (var id in item.TargetObjectIds)
