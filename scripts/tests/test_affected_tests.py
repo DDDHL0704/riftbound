@@ -28,6 +28,8 @@ class AffectedRuleTests(unittest.TestCase):
              'public sealed class ArchitectureTests { var x = SourceFileParts.ReadAllText("x"); Assert.DoesNotContain("bad", x); }'),
             ('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
              'public sealed class OfficialOpeningTests { [Fact] public void Opening() {} }'),
+            ('tests/Riftbound.ConformanceTests/PostgresMatchRecoveryStoreSmokeTests.cs',
+             'var schema = File.ReadAllTextAsync(Path.Combine(root, "src", "schema.sql")); Assert.Equal(1, 1);'),
         ]
         classes, cards = runner.select_affected_test_classes(
             ['tests/Riftbound.ConformanceTests/ChangedTests.cs', 'src/Riftbound.Engine/Foo.cs', 'data/cards.json'],
@@ -39,6 +41,7 @@ class AffectedRuleTests(unittest.TestCase):
         self.assertIn('HiddenInfoPrivacyGuardTests', classes)
         self.assertIn('ArchitectureTests', classes)
         self.assertIn('OfficialOpeningTests', classes)
+        self.assertNotIn('PostgresMatchRecoveryStoreSmokeTests', classes)
         self.assertEqual({'RAD·012/167'}, cards)
 
     def test_affected_selection_requires_base_to_be_an_ancestor(self):

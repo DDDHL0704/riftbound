@@ -65,9 +65,7 @@ def _guard_class_names(test_files):
         lower = Path(path).name.casefold()
         explicit = any(part in lower for part in EXPLICIT_GUARD_PARTS)
         source_assertion = bool(SOURCE_READ.search(text) and SOURCE_ASSERTION.search(text)
-                               and ('SourceFileParts' in text
-                                    or '"src"' in text
-                                    or re.search(r'File\s*\.\s*ReadAll(?:Text|Lines|Bytes)\s*\([^\n]*\.cs', text)))
+                               and ('SourceFileParts' in text or '.cs' in text))
         if explicit or source_assertion:
             names.update(_test_class_names(text))
     return {name for name in names if name != 'SourceFileParts'}
