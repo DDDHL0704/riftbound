@@ -173,10 +173,38 @@ public sealed class RadFaceDownPlayLegendTests
     public async Task CounteringTheOriginalFaceDownSpellDoesNotUndoTheEarnedDrawSkill()
     {
         var game = await Ready(Normal, configure: state =>
-            AttackDamageDistributionTests.Spell(state, "COUNTER", "OGN·064/298", "P2"));
+        {
+            state = AttackDamageDistributionTests.Spell(state, "COUNTER", "OGN·064/298", "P2");
+            foreach (var n in new[] { 1, 2 })
+            {
+                var id = "COUNTER-GREEN-" + n;
+                state = state with
+                {
+                    CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+                    {
+                        [id] = new(id, cardNo: "UNL-R02", ownerId: "P2", controllerId: "P2",
+                            tags: [CardObjectTags.RuneCard, "COLOR:green"])
+                    },
+                    ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations)
+                    {
+                        [id] = new("P2", "BASE")
+                    },
+                    PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+                    {
+                        ["P2"] = state.PlayerZones["P2"] with
+                        {
+                            Base = state.PlayerZones["P2"].Base.Append(id).ToArray()
+                        }
+                    }
+                };
+            }
+            return state;
+        });
         await Play(game);
         var spell = Assert.Single(game.State.StackItems, i => i.SourceObjectId == "SHADOW");
         await game.Act("P1", new PassPriorityCommand());
+        foreach (var n in new[] { 1, 2 })
+            await game.Act("P2", new RecycleRuneCommand("COUNTER-GREEN-" + n));
         await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·064/298", [spell.StackItemId]));
         await game.Top(); Assert.Contains("SHADOW", game.State.PlayerZones["P1"].Graveyard);
         Assert.Single(game.State.StackItems, i => i.EffectKind == Effect);
