@@ -155,7 +155,7 @@ public sealed class ReviewedRuntimeCatalogAdmissionTests
     [Theory]
     [InlineData("VEN·005/166")]
     [InlineData("VEN·006/166")]
-    [InlineData("RAD·092/167")]
+    [InlineData("RAD·135/167")]
     public async Task UnsupportedPrintsAndUnadmittedSourcesCannotEnterADeck(string cardNo)
     {
         var original = await OfficialCardCatalog.LoadDefaultAsync();
