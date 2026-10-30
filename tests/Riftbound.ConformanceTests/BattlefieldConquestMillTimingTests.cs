@@ -362,7 +362,10 @@ public sealed class BattlefieldConquestMillTimingTests
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
         driver.Export("identity-diagnostic.json", new { initial, final = driver.State,
             commands = driver.Commands(), events = driver.Events(), resolutionEvents = resolved.Events });
-        Assert.NotEqual(initial.CardObjects[cardId].ObjectGeneration, driver.State.CardObjects[cardId].ObjectGeneration);
+        // MAIN_DECK -> GRAVEYARD -> MAIN_DECK and GRAVEYARD ->
+        // MAIN_DECK -> GRAVEYARD each cross two nonfield boundaries.
+        Assert.Equal(initial.CardObjects[cardId].ObjectGeneration + 2,
+            driver.State.CardObjects[cardId].ObjectGeneration);
     }
 
     [Theory]
@@ -380,7 +383,7 @@ public sealed class BattlefieldConquestMillTimingTests
         Assert.Equal(new[] { "DRAW3" }, driver.State.PlayerZones[player].MainDeck);
         Assert.Equal(new[] { "DRAW1", "DRAW2" }, driver.State.PlayerZones[player].Graveyard);
         foreach (var id in new[] { "DRAW1", "DRAW2" })
-            Assert.NotEqual(initial.CardObjects[id].ObjectGeneration, driver.State.CardObjects[id].ObjectGeneration);
+            Assert.Equal(initial.CardObjects[id].ObjectGeneration + 1, driver.State.CardObjects[id].ObjectGeneration);
         Assert.Equal(initial.CardObjects["DRAW3"].ObjectGeneration, driver.State.CardObjects["DRAW3"].ObjectGeneration);
         AssertCanonicalComponent(driver.State);
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
