@@ -19,6 +19,7 @@ public sealed partial class CoreRuleEngine
     // The common case (the finalizer's own hand) remains absent in serialized
     // histories. Other zones and another player's hand carry explicit provenance.
     private const string CardPlayHistoryObservationKey = "cardPlayHistoryObservation";
+    private const string PlayedPermanentToBattlefieldPrefix = "PLAYED_PERMANENT_TO_BATTLEFIELD_THIS_TURN:";
     private static (string? OtherHandPlayerId, bool OutsideHands) CardPlayHandOrigin(MatchState state, string objectId, string player)
     {
         var handOwner = state.PlayerZones.FirstOrDefault(pair => pair.Value.Hand.Contains(objectId, StringComparer.Ordinal)).Key;
@@ -125,7 +126,15 @@ public sealed partial class CoreRuleEngine
         var nextHistory = result.State.TurnNumber == before.TurnNumber
             ? new TurnCardPlayHistory(before.TurnNumber, finalized, resolved)
             : new TurnCardPlayHistory(result.State.TurnNumber, [], []);
-        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue };
+        var turnEffects = result.State.UntilEndOfTurnEffects;
+        if (result.State.TurnNumber == before.TurnNumber)
+            foreach (var ev in result.Events)
+                if (ev.Kind is "UNIT_PLAYED_TO_BATTLEFIELD" or "EQUIPMENT_PLAYED_TO_BATTLEFIELD"
+                        or "UNIT_TOKEN_CREATED" or "EQUIPMENT_TOKEN_CREATED"
+                    && Equals(ev.Payload.GetValueOrDefault("destinationZone"), "BATTLEFIELD")
+                    && ev.Payload.GetValueOrDefault("playerId") is string player && result.State.Seats.ContainsKey(player))
+                    turnEffects = AddUntilEndOfTurnEffect(turnEffects, PlayedPermanentToBattlefieldPrefix + player);
+        var next = result.State with { CardPlays = nextHistory, TriggerQueue = queue, UntilEndOfTurnEffects = turnEffects };
         return result with { State = next, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = BuildCorePrompts(next) };
     }
