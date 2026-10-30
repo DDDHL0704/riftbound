@@ -4699,9 +4699,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool ControllerPlayedUnitOrEquipmentToBattlefieldThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
-                   BuildPlayedUnitThisTurnEffectId(playerId),
-                   StringComparer.Ordinal)
-            || ControllerPlayedEquipmentThisTurn(state, playerId);
+            PlayedPermanentToBattlefieldPrefix + playerId, StringComparer.Ordinal);
     }
 
     private static bool BattlefieldFriendlySpellDrawUsedThisTurn(

@@ -46,14 +46,13 @@ public sealed class RadFollowupSpellTests
         Assert.True(fullQuote.CanPay, fullQuote.Message); Assert.Equal(3, fullQuote.Cost!.Mana);
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("FIRST", "VEN·002", [], Destination: "BATTLEFIELD:BF"));
-        await game.Top();
         var reducedQuote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, before));
         Assert.True(reducedQuote.CanPay, reducedQuote.Message); Assert.Equal(1, reducedQuote.Cost!.Mana);
         await game.Act("P1", before); await game.Top();
-        Assert.Equal(10, game.State.CardObjects["ALLY"].Power);
-        Assert.Equal(19, game.State.RunePools["P1"].Mana);
-        await game.Act("P1", new EndTurnCommand());
         Assert.Equal(7, game.State.CardObjects["ALLY"].Power);
+        Assert.Equal(15, game.State.RunePools["P1"].Mana);
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(4, game.State.CardObjects["ALLY"].Power);
         await game.Replay();
     }
 
@@ -72,6 +71,44 @@ public sealed class RadFollowupSpellTests
         Assert.Equal(17, game.State.RunePools["P1"].Mana);
         Assert.Equal(state.CardObjects["ALLY"].Power + 3, game.State.CardObjects["ALLY"].Power);
         await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("VEN·002")]
+    [InlineData("SFD·022/221")]
+    public async Task PlayingAPermanentToBaseDoesNotEarnTheBattlefieldDiscount(string first)
+    {
+        var initial = HandDiscardObserverTests.Put(VenUnitEntryBasicTests.Position("RAD·070/167"), "FIRST", first, "P1", "HAND");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("FIRST", first, [], Destination: "BASE"));
+        var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana);
+        var mana = game.State.RunePools["P1"].Mana;
+        await game.Act("P1", command); await game.Top();
+        Assert.Equal(mana - 3, game.State.RunePools["P1"].Mana);
+        Assert.Equal(7, game.State.CardObjects["ALLY"].Power); await game.Replay();
+    }
+
+    [Fact]
+    public async Task MovingAnExistingUnitToABattlefieldIsNotPlayingItThere()
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position("RAD·070/167"));
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BASE", "BATTLEFIELD:BF", []));
+        var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana); await game.Replay();
+    }
+
+    [Fact]
+    public async Task APreviousTurnsBattlefieldPlayDoesNotReduceThisTurnsSpell()
+    {
+        var game = new Driver(AddFirstUnit(VenUnitEntryBasicTests.Position("RAD·070/167")));
+        await game.Act("P1", new PlayCardCommand("FIRST", "VEN·002", [], Destination: "BATTLEFIELD:BF"));
+        await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana); await game.Replay();
     }
 
     [Fact]
@@ -114,15 +151,15 @@ public sealed class RadFollowupSpellTests
     {
         var initial = VenUnitEntryBasicTests.Position("RAD·121/167");
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·121/167", ["BF", "OTHER"]));
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·121/167", ["ALLY", "ENEMY"]));
         await game.Top();
-        Assert.Equal(initial.CardObjects["BF"].Power + 1, game.State.CardObjects["BF"].Power);
-        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["BF"].Tags);
-        Assert.Contains("STUNNED", game.State.CardObjects["OTHER"].UntilEndOfTurnEffects);
-        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["OTHER"].Tags);
+        Assert.Equal(initial.CardObjects["ALLY"].Power + 1, game.State.CardObjects["ALLY"].Power);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["ENEMY"].Tags);
         await game.Act("P1", new EndTurnCommand());
-        Assert.DoesNotContain("STUNNED", game.State.CardObjects["OTHER"].UntilEndOfTurnEffects);
-        Assert.Equal(initial.CardObjects["BF"].Power, game.State.CardObjects["BF"].Power);
+        Assert.DoesNotContain("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
+        Assert.Equal(initial.CardObjects["ALLY"].Power + 1, game.State.CardObjects["ALLY"].Power);
         await game.Replay();
     }
 
@@ -131,19 +168,20 @@ public sealed class RadFollowupSpellTests
     {
         var initial = VenUnitEntryBasicTests.Position("RAD·121/167");
         var cards = initial.CardObjects.ToDictionary();
-        cards["BF"] = cards["BF"] with { Tags = [CardObjectTags.UnitCard, CardObjectTags.Boon] };
+        cards["ALLY"] = cards["ALLY"] with { Power = 5, Tags = [CardObjectTags.UnitCard, CardObjectTags.Boon] };
         var game = new Driver(initial with { CardObjects = cards });
-        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·121/167", ["BF", "OTHER"])); await game.Top();
-        Assert.Equal(initial.CardObjects["BF"].Power, game.State.CardObjects["BF"].Power);
-        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["BF"].Tags);
-        Assert.Contains("STUNNED", game.State.CardObjects["OTHER"].UntilEndOfTurnEffects);
+        await game.Act("P1", new PlayCardCommand("UNIT", "RAD·121/167", ["ALLY", "ENEMY"])); await game.Top();
+        Assert.Equal(5, game.State.CardObjects["ALLY"].Power);
+        Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["ALLY"].Tags);
+        Assert.Contains("STUNNED", game.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
         await game.Replay();
     }
 
     [Theory]
-    [InlineData("OTHER", "BF")]
-    [InlineData("BF", "BF")]
-    [InlineData("BF", "GEAR")]
+    [InlineData("ENEMY", "ALLY")]
+    [InlineData("ALLY", "ALLY")]
+    [InlineData("ALLY", "GEAR")]
+    [InlineData("BF", "OTHER")]
     public async Task ComboRejectsWrongTargetOrderTypesAndControllers(string first, string second)
         => await Reject(VenUnitEntryBasicTests.Position("RAD·121/167"),
             new PlayCardCommand("UNIT", "RAD·121/167", [first, second]));
