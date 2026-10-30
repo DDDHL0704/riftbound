@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasMovementDamage(StackItemState item)
-        => item.MovementObserver?.Kind == TriggerKinds.UnitMovedDamageAtOriginOrDestination;
+        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage;
 
     // CN 359.3.f.3: the origin and destination are properties of the movement
     // that triggered the skill, even if the source subsequently moves or leaves.
@@ -18,7 +18,8 @@ public sealed partial class CoreRuleEngine
         return state.CardObjects.Values.Where(card => IsFaceUpNonStandbyUnit(card)
             && IsObjectOnField(state.PlayerZones, card.ObjectId)
             && state.ObjectLocations.TryGetValue(card.ObjectId, out var location)
-            && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId is not null && fields.Contains(location.BattlefieldObjectId)
+            && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId is not null
+            && (item.MovementObserver.Kind == TriggerKinds.UnitMovedSourceKeywordDamage || fields.Contains(location.BattlefieldObjectId))
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId))
             .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
     }
@@ -26,9 +27,11 @@ public sealed partial class CoreRuleEngine
     private static PendingCardChoiceState MovementDamageChoice(MatchState state, StackItemState item)
     {
         var legal = MovementDamageTargets(state, item);
+        var reason = item.MovementObserver!.Kind == TriggerKinds.UnitMovedSourceKeywordDamage
+            ? "选择战场上的一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。"
+            : "选择移动起点或终点战场的一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。";
         return new("MOVEMENT-DAMAGE:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-            0, 1, legal, legal, "选择移动起点或终点战场的一名单位，或不选以放弃；确认目标和法盾费用后双方可以响应。",
-            item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
+            0, 1, legal, legal, reason, item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
     }
 
     private static ResolutionResult PrepareMovementDamage(ResolutionResult result, StackItemState item)
@@ -74,8 +77,14 @@ public sealed partial class CoreRuleEngine
         var empowered = state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(source)
             && IsObjectOnField(state.PlayerZones, source.ObjectId) && source.IsEmpowered;
-        var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target,
-            empowered ? spec.EmpoweredDamageAmount!.Value : spec.DamageAmount!.Value);
+        // CN359.3.e.12: a departed incarnation no longer supplies its keyword value.
+        var baseAmount = spec.DamageSourceKeyword is { } keyword
+            ? source is not null && source.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(source)
+                && IsObjectOnField(state.PlayerZones, source.ObjectId)
+                ? ResolveCurrentCountedCombatKeyword(state, source, keyword) : 0
+            : empowered ? spec.EmpoweredDamageAmount!.Value : spec.DamageAmount!.Value;
+        if (baseAmount <= 0) return result with { Events = events };
+        var amount = ApplySpellSkillDamageBonuses(state, item.ControllerId, target, baseAmount);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);

@@ -13792,45 +13792,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
-        keywordBonus = CombatKeywordAmount(NonRuleDerivedTags(cardObject), combatKeyword)
-            + CombatKeywordAmount(cardObject.RuleDerivedTags ?? [], combatKeyword);
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSourceObjectKeywordStaticAuraBonus(
-                state,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveBattlefieldKeywordStaticAuraBonus(
-                state,
-                playerZones,
-                battlefieldId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveFriendlyFilteredUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
+        keywordBonus = ResolveCountedCombatKeywordFromLayer(state, playerZones, cardObject, battlefieldId, combatKeyword);
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
         }
-
-        keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
-        keywordBonus += CopiedRuleTextKeywordAmount(state, cardObject, combatKeyword);
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
             state,
@@ -22935,6 +22901,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardStaticAbilitySpecRules.IsSourcePowerfulUnitCostReduction, out var selfCost)
             ? selfCost.Amount * CountControlledUnitsWithPowerAtLeast(state, playerId, selfCost.RequiredPowerThreshold!.Value)
             : 0;
+        if (CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+                a => a.Kind == StaticAbilityKinds.SourceCostReductionPerConqueredBattlefieldThisTurn && a.Amount > 0,
+                out var conquestCost) && state.BattlefieldConquests is { } conquests && conquests.TurnNumber == state.TurnNumber)
+            selfReduction += conquestCost.Amount * conquests.Entries.Where(e => e.PlayerId == playerId)
+                .Select(e => e.Battlefield).Distinct().Count();
         if (behavior.CostReductionMana <= 0
             || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
         {
