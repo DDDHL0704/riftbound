@@ -4570,8 +4570,8 @@ public static partial class MatchRecoveryValidator
         if (!CoreRuleEngine.ValidStandbyDrawUses(state)) errors.Add("invalid face-down play draw allowance");
         if (!CoreRuleEngine.ValidExhaustReadyUses(state)) errors.Add("invalid exhaust-ready turn allowance");
         if (!CoreRuleEngine.ValidExhaustionModeUses(state)) errors.Add("invalid exhaustion mode allowance");
-        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.ExhaustionModeWindow or CoreRuleEngine.ExhaustionModeTargetWindow } modeChoice
-            && !CoreRuleEngine.ValidExhaustionModeChoice(state, modeChoice)) errors.Add("invalid exhaustion mode confirmation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.ExhaustionModeWindow or CoreRuleEngine.ExhaustionModeTargetWindow } exhaustionModeChoice
+            && !CoreRuleEngine.ValidExhaustionModeChoice(state, exhaustionModeChoice)) errors.Add("invalid exhaustion mode confirmation");
         if (!CoreRuleEngine.ValidExhaustionDrawUses(state)) errors.Add("invalid simultaneous exhaustion draw allowance");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.ExhaustionDrawWindow } exhaustionChoice
             && !CoreRuleEngine.ValidExhaustionDrawChoice(state, exhaustionChoice)) errors.Add("invalid exhaustion draw confirmation");
