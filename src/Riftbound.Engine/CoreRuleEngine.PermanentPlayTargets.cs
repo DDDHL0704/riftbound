@@ -25,7 +25,11 @@ public sealed partial class CoreRuleEngine
             && (!behavior.TargetRequiredTag.Split('|').Contains(CardObjectTags.UnitCard) || !state.CardObjects[id].IsFaceDown)
             && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id))
             && Enumerable.Range(0, maximum)
-                .Any(index => IsLegalChosenCardTarget(state, item.ControllerId, id, index, [id], scope, behavior)))
+                .Any(index => behavior.SelectedBattlefieldEffect is { BattlefieldTargetIndex: 0, PrimaryEnemyTargetIndex: { } enemyIndex }
+                    && index == enemyIndex
+                    ? state.CardObjects.Keys.Any(field => BattlefieldLocalRules.Battlefield(state, field) is not null
+                        && IsLegalChosenCardTarget(state, item.ControllerId, id, index, [field, id], scope, behavior))
+                    : IsLegalChosenCardTarget(state, item.ControllerId, id, index, [id], scope, behavior)))
             .Order(StringComparer.Ordinal).ToArray();
     }
 
