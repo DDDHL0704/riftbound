@@ -135,6 +135,7 @@ public sealed partial class CoreRuleEngine
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
                 RequiresReturnFriendlyEquipmentAdditionalCost = false,
+                MayReturnFriendlyEquipmentAdditionalCost = false,
                 RequiresReturnFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 

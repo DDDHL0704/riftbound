@@ -98,8 +98,10 @@ public sealed partial class CoreRuleEngine
         for (var index = 0; index < events.Length; index++)
         {
             var e = events[index];
-            if (e.Kind != "BATTLEFIELD_CONQUERED" && !(e.Kind == "BATTLEFIELD_CONTROL_RESOLVED"
-                && EventPayloadString(e, "controllerId") is { } next && next != EventPayloadString(e, "previousControllerId"))) continue;
+            // CN348.2.a.1 / 471.1: establishing control of an already-scored
+            // battlefield is not a conquest. The scoring flow emits this event
+            // even when the point itself is prevented or replaced.
+            if (e.Kind != "BATTLEFIELD_CONQUERED") continue;
             if (TryGetPayloadInt(e, "conquestTurnNumber", out var capturedTurn) && capturedTurn != state.TurnNumber) continue;
             var player = EventPayloadString(e, "playerId");
             var field = EventPayloadString(e, "battlefieldObjectId") ?? EventPayloadString(e, "battlefieldId");

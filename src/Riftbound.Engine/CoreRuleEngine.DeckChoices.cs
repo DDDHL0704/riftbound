@@ -28,6 +28,19 @@ public sealed partial class CoreRuleEngine
         return IsDeferredDeckChoice(behavior);
     }
 
+    internal static bool DeckChoiceTargetAllowed(MatchState state, CardBehaviorDefinition behavior, string id)
+        => (behavior.MainDeckTargetRequiredTag.Length == 0
+                && behavior.MainDeckTargetAllowedTags.Length == 0
+                && behavior.MainDeckTargetMinimumManaCost <= 0
+                && behavior.MaxTargetManaCost <= 0
+                && behavior.MaxTargetPowerCost is null)
+            || state.CardObjects.TryGetValue(id, out var card)
+            && (behavior.MainDeckTargetRequiredTag.Length == 0 || card.Tags.Contains(behavior.MainDeckTargetRequiredTag))
+            && (behavior.MainDeckTargetAllowedTags.Length == 0 || behavior.MainDeckTargetAllowedTags.Split('|').Any(card.Tags.Contains))
+            && (behavior.MainDeckTargetMinimumManaCost <= 0 || card.ManaCost >= behavior.MainDeckTargetMinimumManaCost)
+            && (behavior.MaxTargetManaCost <= 0 || card.ManaCost <= behavior.MaxTargetManaCost)
+            && (behavior.MaxTargetPowerCost is not { } maximum || PrintedPowerCostRules.ForCard(card.CardNo ?? "").Amount <= maximum);
+
     private static StackResolutionResult BeginDeckChoice(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
         var viewed = state.PlayerZones[item.ControllerId].MainDeck.Take(behavior.MainDeckLookCount).ToArray();
@@ -43,10 +56,7 @@ public sealed partial class CoreRuleEngine
             var finished=ResolveStackItemEffect(state, nextItem);
             return finished with {Events=observationEvents.Concat(finished.Events).ToArray()};
         }
-        var legal = viewed.Where(id => (string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
-            || CardObjectHasTag(state.CardObjects, id, behavior.MainDeckTargetRequiredTag))
-            && (behavior.MainDeckTargetMinimumManaCost <= 0
-                || state.CardObjects.TryGetValue(id, out var card) && card.ManaCost >= behavior.MainDeckTargetMinimumManaCost)).ToArray();
+        var legal = viewed.Where(id => DeckChoiceTargetAllowed(state, behavior, id)).ToArray();
         var mandatory = behavior.MinTargetCount != 0 && legal.Length > 0;
         var choice = new PendingCardChoiceState($"DECK-{item.StackItemId}-{item.CompletedDeckExecutions}", "DECK_EFFECT", item.ControllerId,
             mandatory ? 1 : 0, legal.Length > 0 ? 1 : 0, legal, viewed,
@@ -75,7 +85,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards=state.CardObjects.ToDictionary();var revealEvents=new List<GameEvent>();
         var remainingCount=choice.ContextObjectIds.Count;
-        if(!string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag) && selected.Count>0)
+        if((!string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag) || behavior.MainDeckTargetAllowedTags.Length > 0) && selected.Count>0)
         {
             revealEvents.Add(new("CARD_REVEALED","展示选择的卡牌",new Dictionary<string,object?> {
                 ["playerId"]=item.ControllerId,["sourceObjectId"]=item.SourceObjectId,["objectId"]=selected[0],["cardNo"]=cards[selected[0]].CardNo}));
