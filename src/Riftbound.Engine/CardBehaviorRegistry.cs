@@ -9393,6 +9393,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
     [
+        new("RAD·018/167", "龙犬驯兽师", 9, "DRAGONHOUND_TRAINER_REVEAL_EFFECT_PLAY", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 9,
+            DeckPlayKind: "OPPONENT_REVEAL_PLAY", EffectPlayAllowsAnyCard: true),
         new("RAD·074/167", "狂热目击者", 3, "ZEALOUS_WITNESS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("RAD·078/167", "重甲象骑", 6, "ARMORED_ELEPHANT_RIDER_PLAY_UNIT", 0, 0,
