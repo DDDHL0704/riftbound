@@ -176,7 +176,7 @@ public sealed class Ven010GraveyardNameConsumerTests
             RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = RunePool.Empty } };
         for (var i = 0; i < 2; i++) initial = OnBase(initial, "WARD-RUNE-" + i, "UNL-R01", "P1");
         var driver = new Driver(initial); await driver.Act("P2", new ActivateAbilityCommand("ENEMY", "EMPOWER:0:0", [])); await driver.Top();
-        await driver.Act("P2", new EndTurnCommand()); await driver.Act("P1", new TapRuneCommand("WARD-RUNE-0")); await driver.Act("P1", new TapRuneCommand("WARD-RUNE-1"));
+        await driver.Act("P2", new EndTurnCommand()); await driver.Act("P1", new TapRuneCommand("WARD-RUNE-0", ["WARD-RUNE-0", "WARD-RUNE-1"]));
         var command = new PlayCardCommand("SPELL", No, ["ENEMY"], OptionalCosts: ["RECYCLE_RUNE:WARD-RUNE-0", "RECYCLE_RUNE:WARD-RUNE-1"]);
         var quote = new CoreRuleEngine().PreviewPlayCard(driver.State, "P1", PlayCostPreviewTests.Request(driver.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(2, quote.Cost!.Mana); Assert.Equal(2, quote.Cost.GenericPower);

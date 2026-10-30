@@ -71,7 +71,7 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
             Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(TriggerKinds.UnitLastBreathCreateMinions, Assert.Single(game.State.StackItems).EffectKind);
             if (game.State.PriorityPlayerId != owner) await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
             Assert.Equal(0, game.State.RunePools[owner].Mana);
-            await game.Act(owner, new TapRuneCommand(owner + "-RUNE-5")); await game.Act(owner, new TapRuneCommand(owner + "-RUNE-6"));
+            await game.Act(owner, new TapRuneCommand(owner + "-RUNE-5", [owner + "-RUNE-5", owner + "-RUNE-6"]));
             Assert.Equal(["UNIT"], game.State.PlayerZones[owner].Graveyard);
             // Reaction is legal in this closed chain; Swift is not. Decline
             // Meditation's optional exhaust, then real burnout draws its only card.
