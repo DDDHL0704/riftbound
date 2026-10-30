@@ -24,6 +24,10 @@ internal static class PermanentPlayTriggerRecoveryRules
 
     internal static bool Valid(MatchState state, StackItemState item)
     {
+        if (!CoreRuleEngine.ValidShowcase(state, item)) return false;
+        if (item.SourceConfirmed && item.TargetGenerations is { } targets
+            && targets.Any(binding => binding.Value < 0 || state.CardObjects.TryGetValue(binding.Key, out var target)
+                && binding.Value > target.ObjectGeneration)) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var sacrificed)
             && sacrificed.PlayAbilityRequiresPermanentDestructionCost && !CoreRuleEngine.OptionalPermanentDestructionWasPaid(item)) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var returnedEquipment)

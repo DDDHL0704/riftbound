@@ -71,6 +71,31 @@ class AffectedRuleTests(unittest.TestCase):
         classes, _ = runner.select_affected_test_classes([files[0][0]], '', files)
         self.assertEqual({'RuneConsumerTests', 'OfficialOpeningTests'}, classes)
 
+    def test_consumer_suites_are_selected_without_selecting_nested_helpers(self):
+        files = [
+            ('tests/Riftbound.ConformanceTests/Ven122PhysicalWardSpellConsumers.cs',
+             'public class Ven122PhysicalWardSpellConsumers { '
+             '[Theory] public void PaysWard() {} private class Driver {} }'),
+            ('tests/Riftbound.ConformanceTests/Ven010PaidCurrentGraveConsumers.cs',
+             'public class Ven010PaidCurrentGraveConsumers { GraveyardRules rules; '
+             '[Fact] public void UsesCurrentCount() {} }'),
+            ('tests/Riftbound.ConformanceTests/Ven093And122SubmittedSelfConsumers.cs',
+             'public class Ven093And122SubmittedSelfConsumers { const string No = "VEN·093"; '
+             '[Fact] public void PlaysFromDeck() {} private class Store {} }'),
+            ('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
+             'public class OfficialOpeningTests {}'),
+        ]
+        for paths, diff, sources, expected in [
+            ([files[0][0]], '', {}, 'Ven122PhysicalWardSpellConsumers'),
+            (['src/Riftbound.Engine/GraveyardRules.cs'], '',
+             {'src/Riftbound.Engine/GraveyardRules.cs': 'public class GraveyardRules {}'},
+             'Ven010PaidCurrentGraveConsumers'),
+            (['data/cards.json'], '+ VEN·093\n', {}, 'Ven093And122SubmittedSelfConsumers'),
+        ]:
+            with self.subTest(expected=expected):
+                classes, _ = runner.select_affected_test_classes(paths, diff, files, sources)
+                self.assertEqual({expected, 'OfficialOpeningTests'}, classes)
+
     def test_affected_selection_requires_base_to_be_an_ancestor(self):
         failure = subprocess.CalledProcessError(1, ['git', 'merge-base'])
         with patch.object(runner, '_git_text', side_effect=['head-sha', 'base-sha']), \

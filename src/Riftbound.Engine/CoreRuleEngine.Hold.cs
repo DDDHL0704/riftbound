@@ -93,6 +93,17 @@ public sealed partial class CoreRuleEngine
                             && HasExactOtherFriendlyBattlefieldUnitCount(state, card, exact.RequiredExactOtherFriendlyBattlefieldUnits))
                             abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
                                 exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
+                if (units.Contains(source))
+                    foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                        if (HeldInsightSpec(instance.CardNo) is { RevealCount: > 0 } insight)
+                            for (var copy = 0; copy < copies; copy++)
+                            {
+                                var trigger = new TriggerQueueItemState($"held-insight-{state.TurnNumber}-{state.Tick}-{field}-{instance.Id}-{copy}",
+                                    player, source, InsightTriggerEffect, "BATTLEFIELD_HELD") {
+                                    InsightContext = new(instance.CardNo, player, insight.RevealCount.Value, card.ObjectGeneration, "HELD", field,
+                                        Origin: instance.Origin, SourceTokenFactoryCardNo: card.TokenFactoryCardNo), SourceCardNo = instance.CardNo };
+                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                            }
                 foreach (var ability in abilities)
                     for (var copy = 0; copy < copies; copy++)
                     {

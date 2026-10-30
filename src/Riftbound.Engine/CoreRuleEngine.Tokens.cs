@@ -22,6 +22,13 @@ public sealed partial class CoreRuleEngine
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
+            context is { Kind: EquipmentDeathReturnKind, EquipmentDestruction: { } equipmentDeath }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, EquipmentDestruction = equipmentDeath with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], equipmentDeath.SourceFaceRevision, equipmentDeath.CapturedTick) ?? string.Empty) } }
+                :
             context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
@@ -86,6 +93,7 @@ public sealed partial class CoreRuleEngine
                         context.OptionalCosts, context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId,
                         context.CombatStarted, context.InitialRolesEstablished, ceased, context.PublicObjectBindings)) };
         }
+        state = RecordCeasedShowcaseTokens(before, state, departed);
         var events = result.Events.ToList();
         foreach (var id in departed)
             if (!events.Any(e => e.Kind == "TOKEN_CEASED_TO_EXIST"

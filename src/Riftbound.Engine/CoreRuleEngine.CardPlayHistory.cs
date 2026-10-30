@@ -10,7 +10,8 @@ public sealed record CardPlayHistoryEntry(string PlayId, string PlayerId, Object
     string CardNo, int Types, long Tick, long FaceRevision,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? OriginHandPlayerId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool OriginOutsideHands = false,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReturnedEquipmentManaCost = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ShowcaseReceipt? Showcase = null);
 public sealed record TurnCardPlayHistory(int TurnNumber,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Finalized,
     [property: JsonRequired] IReadOnlyList<CardPlayHistoryEntry> Resolved);
@@ -39,7 +40,8 @@ public sealed partial class CoreRuleEngine
 
     private static GameEvent CaptureCardPlayHistory(GameEvent ev, CardObjectState card, string player,
         string? playId, bool resolved, string zone, string? originHandPlayerId = null, bool originOutsideHands = false,
-        IReadOnlyDictionary<string, PlayerZones>? zones = null, IReadOnlyDictionary<string, CardObjectState>? cards = null)
+        IReadOnlyDictionary<string, PlayerZones>? zones = null, IReadOnlyDictionary<string, CardObjectState>? cards = null,
+        ShowcaseReceipt? showcase = null)
     {
         var payload = ev.Payload.Where(p => p.Key != "historyPlayId").ToDictionary(p => p.Key, p => p.Value);
         if (card.CardNo is not { } no || TokenObjectRules.IsToken(card)
@@ -47,7 +49,7 @@ public sealed partial class CoreRuleEngine
             return ev with { Payload = payload };
         payload[CardPlayHistoryObservationKey] = new CardPlayHistoryObservation(
             new(playId ?? "", player, new(card.ObjectId, card.ObjectGeneration), no, types, 0,
-                card.CopyFaceTransitions?.Count ?? 0, originHandPlayerId, originOutsideHands), resolved, zone,
+                card.CopyFaceTransitions?.Count ?? 0, originHandPlayerId, originOutsideHands, Showcase: showcase), resolved, zone,
             CaptureFirstCardObservers(zones, cards, player),
             resolved && zones is not null && cards is not null ? CaptureOutsideHandPlayObservers(zones, cards, player) : [],
             resolved && zones is not null && cards is not null ? CaptureHighCostPlayObservers(zones, cards, player) : []);
@@ -80,7 +82,8 @@ public sealed partial class CoreRuleEngine
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(observation.Zone)))
                 generation = Math.Max(generation, old.ObjectGeneration + 1);
             var costReceipt = result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.ReturnedEquipmentManaCost;
-            entry = entry with { ReturnedEquipmentManaCost = costReceipt };
+            entry = entry with { ReturnedEquipmentManaCost = costReceipt,
+                Showcase = entry.Showcase ?? result.State.StackItems.Concat(before.StackItems).FirstOrDefault(item => item.StackItemId == entry.PlayId)?.Showcase };
             var limited = entry.PlayId.Length == 0;
             if (limited) entry = entry with { OriginOutsideHands = true };
             entry = entry with { PlayId = limited ? $"LIMITED-{result.State.Tick}-{index}-{entry.Source.ObjectId}" : entry.PlayId,
@@ -98,7 +101,8 @@ public sealed partial class CoreRuleEngine
                 var confirmed = finalized.FirstOrDefault(p => p.PlayId == entry.PlayId);
                 entry = entry with { OriginHandPlayerId = confirmed?.OriginHandPlayerId,
                     OriginOutsideHands = confirmed?.OriginOutsideHands ?? false,
-                    ReturnedEquipmentManaCost = confirmed?.ReturnedEquipmentManaCost ?? entry.ReturnedEquipmentManaCost };
+                    ReturnedEquipmentManaCost = confirmed?.ReturnedEquipmentManaCost ?? entry.ReturnedEquipmentManaCost,
+                    Showcase = confirmed?.Showcase ?? entry.Showcase };
                 resolved.Add(entry);
                 // CN 420.4.a: play triggers observe successful completion.
                 // Confirmation still determines which card was first. The
@@ -167,6 +171,8 @@ public sealed partial class CoreRuleEngine
                 || string.IsNullOrWhiteSpace(e.PlayerId) || string.IsNullOrWhiteSpace(e.Source.ObjectId)
                 || string.IsNullOrWhiteSpace(e.CardNo) || !state.Seats.ContainsKey(e.PlayerId)
                 || e.OriginHandPlayerId is not null && (!state.Seats.ContainsKey(e.OriginHandPlayerId) || e.OriginOutsideHands)
+                || !ValidShowcaseReceipt(state, e.Showcase, e.CardNo, e.Source.ObjectId)
+                || e.Showcase is { } shown && shown.Tick > e.Tick
                 || e.ReturnedEquipmentManaCost is < 0
                 || e.ReturnedEquipmentManaCost is not null && (!CardBehaviorRegistry.TryGetByCardNo(e.CardNo, out var returned) || !returned.MayReturnFriendlyEquipmentAdditionalCost)
                 || e.Tick <= 0 || e.Tick > state.Tick || e.FaceRevision < 0
@@ -195,6 +201,7 @@ public sealed partial class CoreRuleEngine
         }
         foreach (var entries in new[] { history.Finalized, history.Resolved })
             if (entries.Any(e => !Valid(e)) || entries.Select(e => e.PlayId).Distinct(StringComparer.Ordinal).Count() != entries.Count) return false;
+        if (history.Finalized.Any(e => e.Showcase is { } receipt && receipt.PlayerId != e.PlayerId)) return false;
         foreach (var completed in history.Resolved)
             if (history.Finalized.FirstOrDefault(e => e.PlayId == completed.PlayId) is { } confirmed
                 && (confirmed.CardNo != completed.CardNo || confirmed.Types != completed.Types
@@ -202,6 +209,7 @@ public sealed partial class CoreRuleEngine
                     || confirmed.Source.Generation > completed.Source.Generation
                     || confirmed.OriginHandPlayerId != completed.OriginHandPlayerId
                     || confirmed.OriginOutsideHands != completed.OriginOutsideHands
+                    || confirmed.Showcase != completed.Showcase
                     || confirmed.ReturnedEquipmentManaCost != completed.ReturnedEquipmentManaCost)) return false;
         return true;
     }
