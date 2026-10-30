@@ -93,6 +93,7 @@ public sealed record CardBehaviorDefinition(
     bool RequiresDestroyFriendlyUnitAdditionalCost = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool RequiresReturnFriendlyEquipmentAdditionalCost = false,
+    bool RequiresReturnFriendlyUnitAdditionalCost = false,
     bool DestroysFirstTargetAndBuffsSecondByDestroyedPower = false,
     string SecondaryStatusEffectId = "",
     int EffectRepeatCountIfDiscardHandCardOptionalCost = 0,
@@ -9349,6 +9350,16 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "恶魔|缴械"),
         new("RAD·110/167", "璐璐", 3, "RAD_110_LULU_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "约德尔人"),
+        new("RAD·068/167", "奥莉安娜 - 机械奇迹", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·068a/167", "奥莉安娜 - 机械奇迹", 5, "OPTIONAL_EQUIPMENT_DISCOUNT_UNIT_RAD068A", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·061/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061", 0, 0,
+            RequiresReturnFriendlyUnitAdditionalCost: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
+        new("RAD·061a/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061A", 0, 0,
+            RequiresReturnFriendlyUnitAdditionalCost: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
         new("RAD·020/167", "莫德凯撒", 7, "RAD_020_MORDEKAISER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "灵体|急速|强攻3",
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
@@ -9397,10 +9408,16 @@ public static class CardBehaviorRegistry
             DealsMutualTargetPowerDamage: true)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantEquipment =
+    [
+        new("RAD·150/167", "放逐之锋", 3, "BLADE_OF_THE_EXILE_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

@@ -91,7 +91,7 @@ public sealed class RadHeroReprintTests
     {
         var runtime = await OfficialCardCatalog.LoadRuntimeAsync();
         var printings = RadiantCardSources.GetAdmittedCards();
-        Assert.Equal(CardNumbers().Select(row => (string)row[0]).Concat(new[] {
+        Assert.Equal(CardNumbers().Concat(RadEntryCostHeroTests.CardNumbers()).Concat(RadEquipmentPlayDiscountTests.CardNumbers()).Select(row => (string)row[0]).Concat(new[] {
             "RAD·020/167", "RAD·020a/167", "RAD·137/167", "RAD·137a/167", "RAD·042/167", "RAD·042a/167", "RAD·045/167", "RAD·045a/167", "RAD·063/167", "RAD·085/167",
             "RAD·086/167", "RAD·086a/167", "RAD·090/167", "RAD·090a/167", "RAD·109/167", "RAD·109a/167", "RAD·110/167",
             "RAD·178*/167", "RAD·178/167", "RAD·SP3/005", "RAD·SP5/005",

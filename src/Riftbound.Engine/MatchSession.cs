@@ -1144,6 +1144,7 @@ public sealed partial record MatchState
     internal static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
         return BattleLimitedMarkers.PrivateMarker(effectId)
+            || effectId.StartsWith(CoreRuleEngine.OptionalPlayCostReductionUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
@@ -2221,7 +2222,10 @@ internal static partial class ActionPromptBuilder
         int ExperienceCost,
         bool Composable,
         string? UnsupportedReason)
-    { internal RunePaymentReachability? PowerReachability { get; init; } }
+    {
+        internal RunePaymentReachability? PowerReachability { get; init; }
+        internal bool HasAlternativeCost { get; init; }
+    }
 
     private sealed record ActivateAbilityPromptRequirement(
         string SourceObjectId,
@@ -3975,6 +3979,7 @@ internal static partial class ActionPromptBuilder
             && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId))
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
+        choices.AddRange(CoreRuleEngine.OptionalPlayCostReductionChoices(state, playerId, behavior));
         choices.AddRange(TurnEquipmentPlayRules.Choices(state, playerId, behavior, sourceObjectId));
         if (behavior.AppliedFlowCost is { } flow)
             choices.Add(new(CoreRuleEngine.FlowCostChoiceId(flow), $"流转：{flow.Mana} 法力 / {flow.Power} 符能",
@@ -4000,7 +4005,8 @@ internal static partial class ActionPromptBuilder
                 var choice = ObjectChoice(state, parts[1], "必付额外费用；不是法术目标");
                 var label = parts[0] switch {
                     "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
-                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", _ => "摧毁友方单位" };
+                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", "RETURN_FRIENDLY_UNIT" => "返回友方单位",
+                    _ => "摧毁友方单位" };
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
 
@@ -4465,6 +4471,10 @@ internal static partial class ActionPromptBuilder
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.ReadiedModeLabel(objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.AttachmentModeLabel(state, choice, objectId), choice.Reason)
+                : choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow
+                ? new ActionPromptChoiceDto(objectId, objectId.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)
+                    ? "让" + ObjectChoice(state, objectId[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "装配费用").Label + "变为休眠状态"
+                    : "支付调整后的装配符能费用", choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.DravenDeathOpponentWindow
                 ? new ActionPromptChoiceDto(objectId, $"对手 {objectId} 获得 1 分", choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.ResolutionDamageChoiceWindow
@@ -4996,7 +5006,8 @@ internal static partial class ActionPromptBuilder
             minimumManaCost);
 
         CoreRuleEngine.TrySelectPlayPowerCost(state, playerId, behavior, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
-            out var printedGenericCost, out var printedTypedCost);
+            out var printedGenericCost, out var printedTypedCost,
+            optionalPlayReduction: CoreRuleEngine.AvailableOptionalPlayPowerReduction(state, playerId, behavior));
         if (behavior.MaySacrificeUnitForPrintedCostReduction
             && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId).MinBy(cost => cost.Mana.Total) is { } sacrifice)
         {
@@ -5057,6 +5068,7 @@ internal static partial class ActionPromptBuilder
                     i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = optionalCostChoices,
+            ["optionalPlayCostReductionGroups"] = CoreRuleEngine.OptionalPlayCostReductionGroups(state, playerId, behavior),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availableMana"] = AvailablePlayMana(state, runePool, behavior),

@@ -52,6 +52,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
     private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const string ReturnFriendlyEquipmentAdditionalCostPrefix = "RETURN_FRIENDLY_EQUIPMENT:";
+    private const string ReturnFriendlyUnitAdditionalCostPrefix = "RETURN_FRIENDLY_UNIT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
     private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
@@ -3228,6 +3229,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TemperedBaseCostWindow) return ResolveTemperedBaseCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TriggerHandDiscardWindow) return ResolveTriggerHandDiscardChoice(state, pendingChoice, submittedObjectIds);
@@ -3669,6 +3671,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effect.EffectId);
         }
+        untilEndOfTurnEffects = untilEndOfTurnEffects.Concat(plan.OptionalPlayCostReductionUses.Select(PlayCostReductionMarker)).ToArray();
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -3817,6 +3820,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.TryGetValue(optionalCostTargetObjectId, out var existingTarget)
                 ? existingTarget
                 : new CardObjectState(optionalCostTargetObjectId);
+            if (state.ObjectLocations.TryGetValue(optionalCostTargetObjectId, out var costLocation)
+                && costLocation.Zone == "LEGEND")
+            {
+                cardObjects[optionalCostTargetObjectId] = targetState with { IsExhausted = true };
+                events.Add(new("LEGEND_EXHAUSTED", "支付打出卡牌的休眠费用", new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = optionalCostTargetObjectId,
+                    ["playedSourceObjectId"] = command.SourceObjectId, ["reason"] = "PLAY_COST_REDUCTION" }));
+                continue;
+            }
             targetState = ApplyExhaustState(
                 targetState,
                 behavior,
@@ -4012,7 +4024,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
-        var amounts = EquipmentCosts(state, assembleProfile, targetState);
+        var exhaustedCost = SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts);
+        var amounts = EquipmentCosts(state, assembleProfile, targetState, exhaustUnitInstead: exhaustedCost is not null);
         amounts = amounts with { Mana = Math.Max(0, amounts.Mana - EquipmentAbilityManaReduction(state, intent.PlayerId, command.SourceObjectId)) };
         var assembleManaCost = amounts.Mana;
         var assembleAnyPowerCost = amounts.GenericPower;
@@ -4083,6 +4096,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
         var costTriggers = new List<TriggerQueueItemState>();
+        if (exhaustedCost is not null)
+            assembleRemovalEvents.Add(ExhaustEquipmentCost(cardObjects, exhaustedCost, command.SourceObjectId, intent.PlayerId));
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
         {
             var removal = ResolveFieldDestructions(state with { PlayerExperience = playerExperience }, playerZones, cardObjects,
@@ -4148,7 +4163,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["mana"] = assembleManaCost,
                     ["baseManaCost"] = assembleProfile.ManaCost,
                     ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState),
-                    ["power"] = assembleProfile.PowerCost,
+                    ["power"] = assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
@@ -4275,6 +4290,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         destroyedAdditionalCostTargetObjectIds = [];
         recycledAdditionalCostTargetObjectIds = [];
+        if (SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts) is { } exhausted)
+            return CanExhaustUnitForEquipmentCost(state, playerId, exhausted);
         var requiredAdditionalCostCount = (assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0)
             + assembleProfile.RequiredGraveyardRecycleCardCount;
         if (requiredAdditionalCostCount == 0)
@@ -18255,6 +18272,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "此指令的符能数量须在结算时选择和支付。", ErrorCodes.InvalidTarget);
             return false;
         }
+        var playCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalPlayCostReductionChoice).ToArray();
+        if (costsWithoutPowerSpend.Count(IsOptionalPlayCostReductionChoice) != playCostReductionChoices.Length
+            || !TrySelectOptionalPlayCostReducers(state, intent.PlayerId, behavior, playCostReductionChoices,
+                out var playCostReducers, out var reductionExhaustedObjects, out var reductionExhaustionGroups))
+        {
+            rejection = Reject(state, "所选打出减费技能无效或已使用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsOptionalPlayCostReductionChoice(cost)).ToArray();
         var optionalCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalCostReductionChoice).ToArray();
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsOptionalCostReductionChoice(cost)).ToArray();
         var spellPowerReductionChoices = normalizedCommandOptionalCosts.Where(IsSpellPowerReductionChoice).ToArray();
@@ -18401,6 +18427,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = Reject(state, $"{behavior.DisplayName} requires a friendly unit returned as an additional cost.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -18410,6 +18443,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
             return false;
         }
+
+        if (reductionExhaustedObjects.Intersect(exhaustedOptionalCostTargetObjectIds, StringComparer.Ordinal).Any()
+            || reductionExhaustedObjects.Concat(exhaustedOptionalCostTargetObjectIds)
+                .Intersect(luxSpellOnlyResourceSourceObjectIds, StringComparer.Ordinal).Any())
+        {
+            rejection = Reject(state, "同一物体不能重复支付休眠费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Concat(reductionExhaustedObjects).ToArray();
 
         if ((behavior.RequiresDestroyFriendlyUnitAdditionalCost || behavior.MaySacrificeUnitForPrintedCostReduction)
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
@@ -18452,6 +18494,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanReturnFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = Reject(state, $"{behavior.DisplayName} requires a visible friendly field unit returned as an additional cost.", ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -18554,7 +18604,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             spellshieldTaxPower = 0;
             spellshieldTaxTargetObjectIds = [];
         }
-        var totalManaCost = manaCost.Total;
+        var playCostManaReduction = Math.Min(manaCost.Total, playCostReducers.Sum(source => source.Spec.Mana));
+        var totalManaCost = manaCost.Total - playCostManaReduction;
         var echoPrintedCosts = ignoresAllCosts ? [] : optionalReductions.PrintedCosts;
         var optionalPowerCost = originalOptionalPowerCost;
         var totalExperienceCost = experienceCost;
@@ -18576,7 +18627,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var extraGenericPower = ignoresAllCosts ? 0 : extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId);
         var powerOptions = SpellPlayPowerOptions(state, intent.PlayerId, behavior, printedPowerChoices.SingleOrDefault(),
             extraGenericPower, extraPowerCostByTrait, echoPrintedCosts,
-            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power, paymentTargets);
+            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power, paymentTargets,
+            optionalPlayReduction: playCostReducers.Sum(source => source.Spec.Power));
         // A repeat probe validates a target declaration, not the final combined
         // price. Both reduction and wallet choices belong to the complete plan.
         var selectedPower = powerOptions.Where(option => !validateRepeats || spellPowerReductionChoices.Length == 0
@@ -18596,6 +18648,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         var battlefieldReactionPowerIncrease = BattlefieldReactionPowerIncrease(state, intent.PlayerId, behavior);
         var battlefieldSpellPowerReduction = Math.Min(selectedPower.Reduction, BattlefieldFriendlyTargetSpellPowerReduction(state, intent.PlayerId, behavior, paymentTargets));
+        var nonOptionalSpellPowerReduction = EmpoweredSpellCostReducers(state, intent.PlayerId, behavior).Sum(source => source.GenericPower)
+            + SourceNextSpellCostReductionEffects(state, intent.PlayerId)
+                .Where(source => source.AppliesToAllCards || IsSpellPlayBehavior(behavior)).Sum(source => source.GenericPower);
+        var empoweredPowerReduction = Math.Min(selectedPower.Reduction - battlefieldSpellPowerReduction, nonOptionalSpellPowerReduction);
+        var playCostPowerReduction = selectedPower.Reduction - battlefieldSpellPowerReduction - empoweredPowerReduction;
         var optionalCostPowerReduction = extraGenericPower + battlefieldReactionPowerIncrease + extraPowerCostByTrait.Values.Sum()
             + OpponentSpellCostIncreases(state, intent.PlayerId, behavior).Power
             + PrintedPowerCostRules.ForPlay(behavior).Amount + echoPrintedCosts.Sum(card => PrintedPowerCostRules.ForCard(card).Amount)
@@ -18640,10 +18697,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentAudit["opponentSpellCostIncreaseMana"] = spellIncreases.Mana;
             paymentAudit["opponentSpellCostIncreasePower"] = spellIncreases.Power;
         }
-        if (manaCost.EmpoweredSpellReduction > 0 || selectedPower.Reduction > 0)
+        if (playCostReducers.Count > 0)
+        {
+            paymentAudit["optionalPlayCostReductionMana"] = playCostManaReduction;
+            paymentAudit["optionalPlayCostReductionPower"] = playCostPowerReduction;
+            paymentAudit["optionalPlayCostReductionChoices"] = playCostReductionChoices;
+        }
+        if (manaCost.EmpoweredSpellReduction > 0 || empoweredPowerReduction > 0)
         {
             paymentAudit["empoweredSpellCostReductionMana"] = manaCost.EmpoweredSpellReduction;
-            paymentAudit["empoweredSpellCostReductionPower"] = selectedPower.Reduction - battlefieldSpellPowerReduction;
+            paymentAudit["empoweredSpellCostReductionPower"] = empoweredPowerReduction;
             if (spellPowerReductionChoices.Length > 0) paymentAudit["spellPowerReductionChoice"] = spellPowerReductionChoices[0];
         }
         if (battlefieldReactionPowerIncrease > 0) paymentAudit["battlefieldReactionPowerIncrease"] = battlefieldReactionPowerIncrease;
@@ -18660,7 +18723,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             totalPowerCost: totalPowerCost,
             powerCostByTrait: totalPowerCostByTrait,
             experienceCost: totalExperienceCost,
-            optionalCostIds: optionalCosts,
+            optionalCostIds: optionalCosts.Concat(playCostReductionChoices).ToArray(),
             paymentResourceActionIds: paymentResourceActions,
             reason: behavior.EffectKind,
             sourceObjectId: command.SourceObjectId,
@@ -18717,11 +18780,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             originalExtraManaCost) { RepeatExecutions = repeatExecutions,
                 OptionalCostPowerReduction = optionalCostPowerReduction, OptionalAdditionalReductions = optionalReductions,
                 EmpoweredSpellCostReductionMana = manaCost.EmpoweredSpellReduction,
-                EmpoweredSpellCostReductionPower = selectedPower.Reduction - battlefieldSpellPowerReduction,
+                EmpoweredSpellCostReductionPower = empoweredPowerReduction,
                 OpponentSpellCostIncreaseMana = spellIncreases.Mana,
                 OpponentSpellCostIncreasePower = spellIncreases.Power,
                 BattlefieldReactionPowerIncrease = battlefieldReactionPowerIncrease, BattlefieldSpellPowerReduction = battlefieldSpellPowerReduction,
+                OptionalPlayCostReductionMana = playCostManaReduction, OptionalPlayCostReductionPower = playCostPowerReduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
+                OptionalPlayCostReductionUses = playCostReducers.Where(source => source.Spec.OncePerTurn).Select(source => source.Use).ToArray(),
+                SimultaneousExhaustionCostGroups = reductionExhaustionGroups,
                 PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
@@ -22303,6 +22369,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && TryParseReturnFriendlyAdditionalCost(normalizedOptionalCosts[0], ReturnFriendlyUnitAdditionalCostPrefix,
+                out var returnedUnitTargetObjectId))
+        {
+            returnedAdditionalCostTargetObjectIds = [returnedUnitTargetObjectId];
+            return true;
+        }
+
         if (TryBuildTargetEffectAdditionalCost(
             normalizedOptionalCosts,
             behavior,
@@ -22603,14 +22678,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryParseReturnFriendlyEquipmentAdditionalCost(
         string optionalCost,
         out string targetObjectId)
+        => TryParseReturnFriendlyAdditionalCost(optionalCost, ReturnFriendlyEquipmentAdditionalCostPrefix, out targetObjectId);
+
+    private static bool TryParseReturnFriendlyAdditionalCost(string optionalCost, string prefix, out string targetObjectId)
     {
         targetObjectId = string.Empty;
-        if (!optionalCost.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix, StringComparison.Ordinal))
+        if (!optionalCost.StartsWith(prefix, StringComparison.Ordinal))
         {
             return false;
         }
 
-        targetObjectId = optionalCost[ReturnFriendlyEquipmentAdditionalCostPrefix.Length..].Trim();
+        targetObjectId = optionalCost[prefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
@@ -22733,6 +22811,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 choices.Add(DestroyFriendlyTraitUnitAdditionalCostPrefix + id);
             if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost && CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id))
                 choices.Add(ReturnFriendlyEquipmentAdditionalCostPrefix + id);
+            if (behavior.RequiresReturnFriendlyUnitAdditionalCost && CanReturnFriendlyUnitAsAdditionalCost(state, playerId, id))
+                choices.Add(ReturnFriendlyUnitAdditionalCostPrefix + id);
         }
         return choices;
     }
@@ -22741,12 +22821,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return true;
         if (!behavior.RequiresDestroyFriendlyUnitAdditionalCost && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
-            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost) return true;
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && !behavior.RequiresReturnFriendlyUnitAdditionalCost) return true;
         var choices = MandatoryPlayAdditionalCostCandidates(state, playerId, behavior);
         return (!behavior.RequiresDestroyFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix)))
-            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)));
+            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)))
+            && (!behavior.RequiresReturnFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyUnitAdditionalCostPrefix)));
     }
 
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(
@@ -22784,6 +22866,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return IsFriendlyEquipmentObject(state, playerId, targetObjectId);
     }
+
+    private static bool CanReturnFriendlyUnitAsAdditionalCost(MatchState state, string playerId, string targetObjectId)
+        => IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
+            && state.CardObjects[targetObjectId].Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && state.CardObjects[targetObjectId].ControllerId == playerId
+            && state.ObjectLocations.TryGetValue(targetObjectId, out var location) && location.PlayerId == playerId
+            && location.Zone is "BASE" or "BATTLEFIELD";
 
     private static bool CanRecycleGraveyardCardAsAdditionalCost(
         MatchState state,
@@ -34621,6 +34710,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AdditionalManaCost)
     {
         public IReadOnlyList<IReadOnlyList<string>> SimultaneousExhaustionCostGroups { get; init; } = [];
+        public IReadOnlyList<OptionalPlayCostReductionUse> OptionalPlayCostReductionUses { get; init; } = [];
+        public int OptionalPlayCostReductionMana { get; init; }
+        public int OptionalPlayCostReductionPower { get; init; }
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
         public int OptionalCostPowerReduction { get; init; }
         public OptionalCostReductionResult? OptionalAdditionalReductions { get; init; }

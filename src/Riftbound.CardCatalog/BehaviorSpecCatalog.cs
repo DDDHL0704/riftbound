@@ -272,7 +272,8 @@ public static class OfficialRuleDomainBehaviorCatalog
     {
         ArgumentNullException.ThrowIfNull(card);
 
-        if (card.CardCategoryName == "传奇" && StandbyParser.DrawWhenControllerPlaysFromFaceDown(card.CardEffect) is not null)
+        if (card.CardCategoryName == "传奇" && (StandbyParser.DrawWhenControllerPlaysFromFaceDown(card.CardEffect) is not null
+            || OptionalPlayCostReductionParser.Parse(card.CardEffect) is not null))
             return true;
 
         return card.CardNo is "RAD·147/167" or "RAD·172*/167" or "RAD·172/167"
