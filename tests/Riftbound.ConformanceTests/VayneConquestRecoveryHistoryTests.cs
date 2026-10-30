@@ -7,11 +7,10 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
-    [Theory]
-    [InlineData("PAY")]
-    [InlineData("SPEND_MANA:1")]
-    public async Task VayneTypedPaddedPaymentSurvivesColdRecoveryAndReplay(string spend)
+    [Fact]
+    public async Task VayneTypedPaddedPaymentSurvivesColdRecoveryAndReplay()
     {
+        const string spend = "SPEND_MANA:1";
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 1);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         var session = MatchSession.Restore(VayneRecoveryFrame(initial, game, game.State),
@@ -31,6 +30,36 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var restored = MatchSession.Restore(decoded, new CoreRuleEngine(), NoopMatchJournal.Instance);
         Assert.Equal(MatchStateHasher.HashValue(paid.Snapshots["P1"]), MatchStateHasher.HashValue(restored.SnapshotFor("P1")));
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), paid.State,
+            new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
+    [Fact]
+    public async Task VayneTypedPaddedPaymentAliasIsRejectedAfterColdRecoveryWithoutMutation()
+    {
+        var (initial, game, _) = await OpenVaynePaymentTimingBattle(mana: 1);
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.DoesNotContain("PAY", payment.LegalPaymentChoiceIds);
+        var session = MatchSession.Restore(VayneRecoveryFrame(initial, game, game.State),
+            new CoreRuleEngine(), game);
+        var before = MatchStateHasher.Hash(game.State);
+        var snapshots = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(game.State));
+        var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(game.State));
+        var command = new PayCostCommand(" \t" + payment.PaymentId + " ",
+            " " + payment.PaymentWindow + "\n", [" \tPAY \n"]);
+
+        var rejected = await session.SubmitAsync("P1", "padded-vayne-payment-alias", command, null, default);
+
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
+        Assert.Empty(rejected.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(snapshots, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(rejected.State)));
+        Assert.Equal(prompts, JsonSerializer.Serialize(ResolutionResult.BuildPrompts(rejected.State)));
+        var frame = VayneRecoveryFrame(initial, game, rejected.State);
+        Assert.Empty(frame.ValidationErrors);
+        MatchSession.Restore(frame, new CoreRuleEngine(), NoopMatchJournal.Instance);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, game.Commands(), rejected.State,
             new CoreRuleEngine(), default, JournalRoundTrip(game.Events()));
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
     }
