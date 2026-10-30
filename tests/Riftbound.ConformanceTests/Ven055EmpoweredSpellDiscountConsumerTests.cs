@@ -371,7 +371,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", []));
             Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
             await game.Act("P2", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P1"].Mana);
-            for (var i = 0; i < 9; i++) await game.Act("P1", new TapRuneCommand("PAY-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, 9).Select(i => "PAY-RUNE-" + i));
             await game.Act("P1", new RecycleRuneCommand("PAY-RUNE-0"));
             await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
             Assert.Equal(2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].TotalPower);
@@ -399,7 +399,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P2", new PlayCardCommand("WARDED", "OGN·013/298", []));
             Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["WARDED"].Tags);
             await game.Act("P2", new EndTurnCommand());
-            for (var i = 0; i < 9; i++) await game.Act("P1", new TapRuneCommand("ECHO-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, 9).Select(i => "ECHO-RUNE-" + i));
             foreach (var i in new[] { 0, 1 }) await game.Act("P1", new RecycleRuneCommand("ECHO-RUNE-" + i));
             await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();
             Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
@@ -476,7 +476,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: "BATTLEFIELD:BF")); await game.Act("P1", Activate()); await game.Top();
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new EndTurnCommand()); Assert.Equal(0, game.State.RunePools["P2"].Mana);
-            for (var i = 0; i < 9; i++) await game.Act("P2", new TapRuneCommand("PURPLE-" + i));
+            await game.TapRunes("P2", Enumerable.Range(0, 9).Select(i => "PURPLE-" + i));
             for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("PURPLE-" + i));
             await game.Act("P2", new PlayCardCommand("TAKE", "OGN·203/298", ["UNIT"])); await game.Top();
             Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId); Assert.Equal("P2", game.State.CardObjects["UNIT"].ControllerId);

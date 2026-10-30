@@ -19,7 +19,7 @@ public sealed partial class Ven128EmpoweredLastBreathConsumerTests
         try
         {
             Assert.Equal(0, initial.RunePools["P1"].Mana); Assert.Equal(0, initial.RunePools["P1"].TotalPower);
-            for (var i = 1; i <= 6; i++) await game.Act("P1", new TapRuneCommand("P1-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(1, 6).Select(i => "P1-RUNE-" + i));
             await game.Act("P1", new PlayCardCommand("UNIT", No, []));
             if (mode is "native" or "hourglass")
             {

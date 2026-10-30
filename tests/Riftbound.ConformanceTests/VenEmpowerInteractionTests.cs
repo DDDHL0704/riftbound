@@ -235,7 +235,7 @@ public sealed class VenEmpowerInteractionTests
         var game = new Driver(initial);
         await game.Act("P1", new HideCardCommand("SHADOW", "VEN·099", "BATTLEFIELD:F", ["STANDBY_A"]));
         await game.Act("P1", new EndTurnCommand());
-        foreach (var i in new[] { 1, 2, 3 }) await game.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-" + i));
+        await game.TapRunes("P2", new[] { 1, 2, 3 }.Select(i => "SHADOW-P2-RUNE-" + i));
         foreach (var i in new[] { 4, 5 }) await game.Act("P2", new RecycleRuneCommand("SHADOW-P2-RUNE-" + i));
         await game.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
         await game.Act("P2", new PassPriorityCommand());

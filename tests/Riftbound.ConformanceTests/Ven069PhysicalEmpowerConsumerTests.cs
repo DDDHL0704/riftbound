@@ -181,7 +181,7 @@ public sealed class Ven069PhysicalEmpowerConsumerTests
     }
     private static async Task Play(Driver game, int taps)
     {
-        for (var i = 1; i <= taps; i++) await game.Act("P1", new TapRuneCommand("MEL-RUNE-" + i));
+        await game.TapRunes("P1", Enumerable.Range(1, taps).Select(i => "MEL-RUNE-" + i));
         Assert.Equal(taps, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
         await game.Act("P1", new RecycleRuneCommand("MEL-RUNE-1")); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
         await game.Act("P1", new PlayCardCommand("UNIT", No, []));

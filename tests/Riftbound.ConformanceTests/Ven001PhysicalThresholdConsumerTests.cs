@@ -35,7 +35,7 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         try
         {
             await Prepare(game); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            var eight = Runes(game.State); foreach (var id in eight) await game.Act("P1", new TapRuneCommand(id));
+            var eight = Runes(game.State); await game.TapRunes("P1", eight);
             foreach (var id in eight.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
             Assert.Equal(controlled, Runes(game.State).Length); Assert.Equal(12 - controlled, game.State.PlayerZones["P1"].RuneDeck.Count);
             Assert.All(Runes(game.State), id => Assert.True(game.State.CardObjects[id].IsExhausted));
@@ -68,7 +68,7 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         try
         {
             await Prepare(game); var eight = Runes(game.State);
-            foreach (var id in eight.Take(mana - 1)) await game.Act("P1", new TapRuneCommand(id));
+            await game.TapRunes("P1", eight.Take(mana - 1));
             foreach (var id in eight.Skip(controlled)) await game.Act("P1", new RecycleRuneCommand(id));
             Assert.Equal(controlled, Runes(game.State).Length); Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
             var command = new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []);
@@ -94,7 +94,7 @@ public sealed class Ven001PhysicalThresholdConsumerTests
         try
         {
             await Prepare(game, attacking ? "BASE" : "BATTLEFIELD:BF"); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            var eight = Runes(game.State); foreach (var id in eight) await game.Act("P1", new TapRuneCommand(id));
+            var eight = Runes(game.State); await game.TapRunes("P1", eight);
             foreach (var id in eight.Skip(4)) await game.Act("P1", new RecycleRuneCommand(id));
             if (empowered)
             {
@@ -120,7 +120,7 @@ public sealed class Ven001PhysicalThresholdConsumerTests
     internal static async Task Prepare(Driver game, string destination = "BASE")
     {
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(6, Runes(game.State).Length); Assert.Equal(6, game.State.PlayerZones["P1"].RuneDeck.Count);
-        for (var i = 0; i < 6; i++) await game.Act("P1", new TapRuneCommand("THRESHOLD-RUNE-" + i));
+        await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "THRESHOLD-RUNE-" + i));
         Assert.Equal(6, game.State.RunePools["P1"].Mana); await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: destination));
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());

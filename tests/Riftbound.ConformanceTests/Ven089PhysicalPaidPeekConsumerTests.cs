@@ -54,7 +54,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
         var initial = Position("VEN·124"); var game = new Driver(initial);
         try
         {
-            foreach (var id in Common.Runes(game.State).Take(6)) await game.Act("P1", new TapRuneCommand(id));
+            await game.TapRunes("P1", Common.Runes(game.State).Take(6));
             await game.Act("P1", new RecycleRuneCommand("PEEK-RUNE-0"));
             var command = new PlayCardCommand("UNIT", No, []); var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
             raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
@@ -73,7 +73,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
         var onlyMana = new Driver(initial);
         try
         {
-            foreach (var id in Common.Runes(onlyMana.State).Take(7)) await onlyMana.Act("P1", new TapRuneCommand(id));
+            await onlyMana.TapRunes("P1", Common.Runes(onlyMana.State).Take(7));
             await Common.Reject(onlyMana, "P1", new PlayCardCommand("UNIT", No, []), "ven089-seven-without-orange");
             Assert.Equal(ErrorCodes.InsufficientCost, onlyMana.LastRetainedResult!.ErrorCode); Assert.Equal(7, onlyMana.State.RunePools["P1"].Mana);
             Assert.Equal(0, onlyMana.State.RunePools["P1"].TotalPower); Assert.Contains("UNIT", onlyMana.State.PlayerZones["P1"].Hand); await onlyMana.Replay();
@@ -184,7 +184,7 @@ public sealed class Ven089PhysicalPaidPeekConsumerTests
     internal static async Task Open(Driver game)
     {
         Assert.Equal(12, OwnedRunes(game.State)); Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-        for (var i = 0; i < 7; i++) await game.Act("P1", new TapRuneCommand("PEEK-RUNE-" + i));
+        await game.TapRunes("P1", Enumerable.Range(0, 7).Select(i => "PEEK-RUNE-" + i));
         await game.Act("P1", new RecycleRuneCommand("PEEK-RUNE-0")); Assert.Equal(7, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Orange]);
         var before = game.Events().Length; await game.Act("P1", new PlayCardCommand("UNIT", No, []));
         var payment = Assert.Single(game.Events().Skip(before), e => e.Event.Kind == "COST_PAID"); Assert.Equal(7, payment.Event.Payload["totalManaCost"]); Assert.Equal(1, payment.Event.Payload["totalPowerCost"]);
