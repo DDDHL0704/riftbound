@@ -39,6 +39,7 @@ public sealed partial class CoreRuleEngine
         public List<AppliedDamageFact> AppliedDamages { get; } = [];
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
+        public HashSet<string> ConsumedUnitPlayGrants { get; } = new(StringComparer.Ordinal);
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;
         public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null, int manaCost = 0)

@@ -22014,6 +22014,18 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
+            // These scenarios keep their tokens at base. Confirm that location
+            // through the normal choice command and retain it in the replay.
+            if (result.State.PendingRuleChoice is { Request.Kind: "TOKEN_PLAY_LOCATION" } tokenLocation)
+            {
+                Assert.Contains(tokenLocation.Request.Options, option => option.Id == "BASE");
+                var choose = new PayCostCommand(tokenLocation.Request.Id, "RULE_REPLACEMENT", ["BASE"]);
+                result = await session.SubmitAsync(tokenLocation.Request.PlayerId, $"{intentPrefix}-token-base-{index}",
+                    choose, RawCommand(choose), CancellationToken.None);
+                AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                events.AddRange(result.Events); includesCompletionTriggers = true;
+                continue;
+            }
             // Repeated Punishment damage can leave competing mandatory banish
             // replacements on the same unit. Their controller orders them through
             // the exposed command, which remains in the original replay journal.
@@ -25611,7 +25623,7 @@ public sealed partial class FullGameEndToEndTests
                 var sourceId = queue ? trigger!.SourceObjectId : item!.SourceObjectId;
                 var controller = queue ? trigger!.ControllerId : item!.ControllerId;
                 Assert.Equal("DELAYED_FRIENDLY_UNIT_PLAYED_BOON", queue ? trigger!.EffectKind : item!.EffectKind);
-                Assert.Equal("SFD·166/221", c.Grant.CardNo);
+                Assert.Contains(c.Grant.CardNo, new[] { "SFD·166/221", "RAD·154/167" });
                 Assert.Equal(controller, c.Grant.ControllerId); Assert.Equal(controller, c.UnitControllerId);
                 Assert.Contains(c.Grant.Marker, state.UntilEndOfTurnEffects);
                 var fields = c.Grant.Marker.Split('|');

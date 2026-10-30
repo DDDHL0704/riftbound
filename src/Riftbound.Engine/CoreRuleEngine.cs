@@ -18183,7 +18183,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
         destination = StandbyPlayDestination(behavior, destination);
         if (behavior.StandbyPlayFrom is { } shadow && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
-            && destination != "BATTLEFIELD:" + shadow.Battlefield.ObjectId)
+            && destination != "BATTLEFIELD:" + shadow.Battlefield.ObjectId
+            && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination))
         {
             rejection = Reject(state, "待命常驻牌必须打出至原战场。", ErrorCodes.InvalidTarget);
             return false;
@@ -18511,6 +18512,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
                 && !OpenBattlefieldPlayAllowed(state, behavior, destination)
                 && !PaidBattlefieldUnitPlayDestination(optionalCosts, destination)
+                && !GrantedUnitPlayBattlefieldAllowed(state, intent.PlayerId, behavior, destination)
                 && !RengarAttackingBattlefieldPlayAllowed(state, intent.PlayerId, behavior, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)
                 && !IsAttackDeckPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
@@ -25229,7 +25231,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events,
-                stackItem.PlayedFromStandby is null ? null : (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)), untilEndOfTurnEffects);
+                (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)), untilEndOfTurnEffects);
         }
         else if (behavior.DiscardsAllPlayersHandsThenDraws)
         {
@@ -26382,7 +26384,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events,
-                stackItem.PlayedFromStandby is null ? null : (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)), untilEndOfTurnEffects);
+                (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)), untilEndOfTurnEffects);
         }
 
         if (winnerPlayerId is null && behavior.CreatedBaseEquipmentTokenCount > 0)
@@ -28855,6 +28857,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
+            var entryField = shadowField?.ObjectId;
+            if (entryField is null && UnitTokenInstructionAllowsLocationChoice(stackItem.CardNo, behavior.CreatedBaseUnitTokenName))
+                entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
+                    playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
             var hastePaid = ChooseTokenHaste(state, stackItem.ControllerId, stackItem.SourceObjectId, tokenState,
                 playerZones, cardObjects, runePools, events);
             if (hastePaid) tokenState = tokenState with { IsExhausted = false };
@@ -28869,11 +28875,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out entersReadyFromStaticAbility,
                     out entryStaticAbilitySourceObjectId,
                     out entryStaticAbilitySourceState,
-                    out entryStaticAbility, entryBattlefieldId: shadowField?.ObjectId);
+                    out entryStaticAbility, entryBattlefieldId: entryField);
             }
             cardObjects[tokenObjectId] = tokenState;
             var zones = playerZones[stackItem.ControllerId];
-            playerZones[stackItem.ControllerId] = shadowField is null
+            playerZones[stackItem.ControllerId] = entryField is null
                 ? zones with { Base = zones.Base.Append(tokenObjectId).ToArray() }
                 : zones with { Battlefields = zones.Battlefields.Append(tokenObjectId).ToArray() };
             var payload = new Dictionary<string, object?>
@@ -28883,12 +28889,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseUnitTokenName,
                 ["power"] = tokenState.Power,
-                ["destinationZone"] = shadowField is null ? "BASE" : "BATTLEFIELD"
+                ["destinationZone"] = entryField is null ? "BASE" : "BATTLEFIELD"
             };
-            if (shadowField is not null) {
-                payload["battlefieldObjectId"] = shadowField.ObjectId;
-                if (objectLocations is null) throw new InvalidOperationException("Standby token play requires its actual battlefield location.");
-                objectLocations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", shadowField.ObjectId);
+            if (entryField is not null) {
+                payload["battlefieldObjectId"] = entryField;
+                if (objectLocations is null) throw new InvalidOperationException("Token play requires its actual battlefield location.");
+                objectLocations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", entryField);
             }
             if (copiesTarget)
             {
@@ -28919,7 +28925,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
-                $"{behavior.DisplayName}打出单位指示物到基地",
+                $"{behavior.DisplayName}打出单位指示物",
                 payload), playerZones, cardObjects, turnEffects));
         }
 
