@@ -16,6 +16,9 @@ public sealed class RadMovementTriggerUnitTests
     {
         yield return [Witness, 39573L, 3, 3, 0];
         yield return [Elephant, 39577L, 6, 4, 1];
+        yield return ["RAD·076/167", 39575L, 2, 1, 0];
+        yield return ["RAD·080/167", 39579L, 8, 8, 2];
+        yield return ["RAD·030/167", 39523L, 5, 5, 0];
     }
 
     private static MatchState ElephantPosition(bool ward = false)
@@ -115,7 +118,7 @@ public sealed class RadMovementTriggerUnitTests
 
     [Theory]
     [MemberData(nameof(Cards))]
-    public async Task BothUnitsUseOfficialCostsAndNormalUnitEntry(string no, long id, int mana, int power, int rune)
+    public async Task UnitsUseOfficialCostsAndNormalUnitEntry(string no, long id, int mana, int power, int rune)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal(mana, card.Energy); Assert.Equal(power, card.Power);

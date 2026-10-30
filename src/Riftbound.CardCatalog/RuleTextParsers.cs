@@ -346,6 +346,14 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.UnitOrEquipmentOnField, Optional: true,
                 DiscardCount: 1, DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
                 DestroyCount: 1));
+        var highCostReady = Regex.Match(text,
+            @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，让我变为活跃状态。",
+            RegexOptions.CultureInvariant);
+        if (highCostReady.Success)
+            triggers.Add(new(TriggerKinds.ControllerHighCostCardReadySelf, "CARD_PLAY_COMPLETED", highCostReady.Value,
+                "After a card with the required printed mana cost finishes being played, ready this source on resolution.",
+                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostReady.Groups["mana"].Value),
+                ReadiesSource: true));
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);
@@ -619,6 +627,7 @@ public static class TriggerParser
                     && segment.Contains("抽", StringComparison.Ordinal))
                 || segment.Contains("被摧毁", StringComparison.Ordinal)
                 || segment.Contains("征服", StringComparison.Ordinal))
+            .Where(segment => !highCostReady.Success || !segment.StartsWith("当你打出一张法力费用不低于", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldConquerRevealRecycleTrigger
                 || !segment.Contains("当你征服此处时，查看主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasBattlefieldConquerReadyEquipmentTrigger
@@ -1712,6 +1721,18 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit,
                 DrawCount: ParseChineseNumber(unitConquestDrawOrCallRuneMatch.Groups[1].Value),
                 RuneCallCount: ParseChineseNumber(unitConquestDrawOrCallRuneMatch.Groups[2].Value));
+        }
+
+        var conquestResources = Regex.Match(segment,
+            @"^当我征服一处战场时，\{\{获得\}\}(?<resources>(?:\{\{(?:A|[0-9]+)\}\})+)。?(?:（获得费用资源的技能无法成为其他法术的反应目标。）)?$",
+            RegexOptions.CultureInvariant);
+        if (conquestResources.Success)
+        {
+            var resources = Regex.Matches(conquestResources.Groups["resources"].Value, @"\{\{(?<value>A|[0-9]+)\}\}");
+            return new TriggerSpec(TriggerKinds.UnitConquestGainResources, TriggerTimings.UnitConquest, segment,
+                "Conquest resource skills resolve immediately under CN430.2, without a response window.",
+                ManaDelta: resources.Where(m => m.Groups["value"].Value != "A").Sum(m => int.Parse(m.Groups["value"].Value)),
+                GeneratedPower: resources.Count(m => m.Groups["value"].Value == "A"));
         }
 
         var unitConquestDrawMatch = Regex.Match(
@@ -3293,6 +3314,18 @@ public static class StaticAbilityParser
                         GrantedKeywords: grantedKeywords));
                     continue;
                 }
+            }
+
+            var conquestCost = Regex.Match(segment,
+                @"^你在本回合内每征服过一处战场，我的费用便减少\{\{(?<amount>[0-9一两二三四五六七八九十]+)\}\}。?$",
+                RegexOptions.CultureInvariant);
+            if (conquestCost.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.SourceCostReductionPerConqueredBattlefieldThisTurn,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Self cost reduction uses this controller's distinct conquered battlefields in the current turn.",
+                    Amount: ParseChineseNumber(conquestCost.Groups["amount"].Value)));
+                continue;
             }
 
             var powerfulUnitCostReductionMatch = Regex.Match(

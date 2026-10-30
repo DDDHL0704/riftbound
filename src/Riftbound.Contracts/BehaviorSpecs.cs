@@ -61,6 +61,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerHighCostCardReadySelf = "CONTROLLER_HIGH_COST_CARD_READY_SELF";
     public const string BattlefieldConquerLowRunesPayDraw = "BATTLEFIELD_CONQUER_LOW_RUNES_PAY_DRAW";
     public const string BattlefieldHeldBurn = "BATTLEFIELD_HELD_BURN";
     public const string BattlefieldBattleStartMana = "BATTLEFIELD_BATTLE_START_MANA";
@@ -167,6 +168,7 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
     public const string UnitConquestCreateDormantGold =
@@ -406,6 +408,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string SourceCostReductionPerConqueredBattlefieldThisTurn = "SOURCE_COST_REDUCTION_PER_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFilteredUnitPlayAdditionalPower = "BATTLEFIELD_FILTERED_UNIT_PLAY_ADDITIONAL_POWER";
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
@@ -715,7 +718,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? ObjectReadyCount = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    string? DamageSourceKeyword = null);
+    string? DamageSourceKeyword = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? GeneratedPower = null);
 
 public sealed record ReplacementSpec(
     string Kind,

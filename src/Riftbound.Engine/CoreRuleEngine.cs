@@ -22851,6 +22851,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 CardStaticAbilitySpecRules.IsSourcePowerfulUnitCostReduction, out var selfCost)
             ? selfCost.Amount * CountControlledUnitsWithPowerAtLeast(state, playerId, selfCost.RequiredPowerThreshold!.Value)
             : 0;
+        if (CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+                a => a.Kind == StaticAbilityKinds.SourceCostReductionPerConqueredBattlefieldThisTurn && a.Amount > 0,
+                out var conquestCost) && state.BattlefieldConquests is { } conquests && conquests.TurnNumber == state.TurnNumber)
+            selfReduction += conquestCost.Amount * conquests.Entries.Where(e => e.PlayerId == playerId)
+                .Select(e => e.Battlefield).Distinct().Count();
         if (behavior.CostReductionMana <= 0
             || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
         {
