@@ -73,7 +73,19 @@ public sealed class RestrictedManaQaBirthTests
         await Act("P1", new PlayCardCommand("QA-SECOND", "OGN·268/298", ["QA-FIELD"]));
         await Act("P1", new PassPriorityCommand()); await Act("P2", new PassPriorityCommand()); await Choose("SPEND_POWER:0");
         Assert.Equal(2, State().RunePools["P1"].SpellOnlyMana); Assert.Equal(2, State().RunePools["P2"].SpellOnlyMana);
-        await Act("P1", new PlayCardCommand("QA-UNIT", "OGN·044/298", []), false);
+        var unit = new PlayCardCommand("QA-UNIT", "OGN·044/298", []);
+        var unitState = State(); var unitHash = MatchStateHasher.Hash(unitState);
+        var unitEngine = new CoreRuleEngine();
+        var deniedQuote = unitEngine.PreviewPlayCard(unitState, "P1", PlayCostPreviewTests.Request(unitState, unit));
+        Assert.True(deniedQuote.IsValid, deniedQuote.Message);
+        Assert.False(deniedQuote.CanPay); Assert.Equal(ErrorCodes.InsufficientCost, deniedQuote.ErrorCode);
+        Assert.Equal(0, deniedQuote.Cost!.AvailableSpellOnlyMana); Assert.Contains("法力不足", deniedQuote.Message);
+        var denied = await unitEngine.ResolveAsync(unitState, new("restricted-unit-engine", "P1", unit.CmdType), unit, default);
+        Assert.False(denied.Accepted); Assert.Equal(ErrorCodes.InsufficientCost, denied.ErrorCode);
+        Assert.Empty(denied.Events); Assert.Equal(unitHash, MatchStateHasher.Hash(denied.State));
+        Assert.Equal(unitHash, MatchStateHasher.Hash(unitState));
+        Assert.DoesNotContain(session.PromptFor("P1").Candidates ?? [], c => c.Action == CommandTypes.PlayCard && c.Enabled);
+        await Act("P1", unit, false);
         // The rejected unit is followed by legal EndTurn in the same session;
         // the subsequent Cold() audits the complete unchanged original history.
         await Act("P1", new EndTurnCommand());
@@ -92,10 +104,10 @@ public sealed class RestrictedManaQaBirthTests
             var id = "restricted-birth-" + journal.Entries.Count;
             var result = await session.SubmitAsync(player, id, command, raw, default);
             Assert.Equal(accepted, result.Accepted);
-            if (!accepted) { Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode); Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(result.State)); }
+            if (!accepted) { Assert.Equal(ErrorCodes.PromptExpired, result.ErrorCode); Assert.Contains("未提供此操作", result.ErrorMessage); Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(result.State)); }
             var count = journal.Entries.Count;
             var duplicate = await session.SubmitAsync(player, id, command, raw, default);
-            Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
+            Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(result.ErrorCode, duplicate.ErrorCode); Assert.Equal(count, journal.Entries.Count);
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             if (accepted) await Cold();
         }
