@@ -9474,7 +9474,11 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "鸟类",
             UnitEventAbility: new("BECAME_EXHAUSTED", "INSIGHT", 1)),
         new("RAD·016/167", "能量聚合体", 4, "END_RUNE_RECYCLE_CHANNEL_UNIT", 0, 0,
-            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4)
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
+        new("RAD·057/167", "皮城向导机器人", 4, "CONTROLLER_CARD_PLAY_BASE_POWER_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "机械"),
+        new("RAD·120/167", "细心的修复师", 2, "CONTROLLER_HIGH_COST_GRAVEYARD_PLAY_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2)
     ];
 
     // Printed permissions and lifecycle defaults depend only on the immutable

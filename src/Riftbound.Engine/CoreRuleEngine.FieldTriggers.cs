@@ -317,13 +317,21 @@ public sealed partial class CoreRuleEngine
         var mana = item.FieldContext?.Kind == PaidUnitStunKind ? PaidUnitStunSpec(item.FieldContext.CardNo)!.ManaCost!.Value : 0;
         var experience = item.FieldContext?.Kind == AttackMightDamageKind
             ? AttackMightDamageSpec(item.FieldContext.CardNo)!.ExperienceCost!.Value : 0;
+        var highCostPowerByTrait = item.HighCostPlayObserver is { } highCostPayment
+            && HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
+            ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
+            : new Dictionary<string, int>(StringComparer.Ordinal);
         if (tax > 0 || mana > 0 || experience > 0 || item.HighCostPlayObserver is not null)
         {
             // CN 355.10.c.1 / 405.2: choose targets before paying all costs;
             // a player may decline a triggered skill that has any cost.
             var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
-                manaCost: mana, powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
-                    ? $"横置来源并支付 {tax} 任意符能，或放弃此触发技能。"
+                manaCost: mana, powerCost: tax, powerCostByTrait: highCostPowerByTrait, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
+                    ? HighCostPlaysSourceFromGraveyard(item.HighCostPlayObserver.CardNo)
+                        ? "支付 1 黄色符能，或放弃从废牌堆打出此单位。"
+                        : HighCostSetsSourceBasePower(item.HighCostPlayObserver.CardNo)
+                            ? "确认让来源本回合基础战力变为所打出卡牌的法力费用，或放弃。"
+                            : $"横置来源并支付 {tax} 任意符能，或放弃此触发技能。"
                     : experience > 0 ? $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {experience} 经验和 {tax} 任意符能，或放弃此触发技能。"
                     : $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {mana} 法力和 {tax} 任意符能，或放弃此触发技能。")
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
@@ -356,14 +364,17 @@ public sealed partial class CoreRuleEngine
         if (item.HighCostPlayObserver is { } highCost)
         {
             if (!CanPayHighCostExhaustion(state, item))
-                return RejectWithCorePrompts(state, "来源已无法支付横置费用。", ErrorCodes.InvalidTarget);
+                return RejectWithCorePrompts(state, HighCostPlaysSourceFromGraveyard(highCost.CardNo)
+                    ? "废牌堆来源已无法支付触发费用。" : "来源已无法支付横置费用。", ErrorCodes.InvalidTarget);
             var source = state.CardObjects[item.SourceObjectId];
-            next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
-                [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
+            if (!HighCostSetsSourceBasePower(highCost.CardNo) && !HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+                next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
+                    [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
             item = item with { HighCostPlayObserver = highCost with { Paid = true } };
-            events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId,
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, "__spectator__") }));
+            if (!HighCostSetsSourceBasePower(highCost.CardNo) && !HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+                events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId,
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, "__spectator__") }));
         }
         if (HasLegendConquestTarget(item))
         {

@@ -371,6 +371,22 @@ public static class TriggerParser
                 "After a card with the required printed mana cost finishes being played, ready this source on resolution.",
                 TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostReady.Groups["mana"].Value),
                 ReadiesSource: true));
+        var cardPlayBasePower = Regex.Match(text,
+            @"当你打出一张卡牌时，你可以选择让我的基础战力在本回合内变为等同于该卡牌的法力费用。",
+            RegexOptions.CultureInvariant);
+        if (cardPlayBasePower.Success)
+            triggers.Add(new(TriggerKinds.ControllerCardPlayBasePowerSource, "CARD_PLAY_COMPLETED", cardPlayBasePower.Value,
+                "When this controller finishes playing a card, optionally set this source's base Might to that card's printed mana cost for this turn.",
+                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: 0, Optional: true));
+        var highCostGraveyardPlay = Regex.Match(text,
+            @"当你打出一张法力费用不低于\{\{(?<mana>[0-9]+)\}\}的卡牌时，你可以选择从你的废牌堆中以\{\{(?<trait>黄色)\}\}的费用将我打出。",
+            RegexOptions.CultureInvariant);
+        if (highCostGraveyardPlay.Success)
+            triggers.Add(new(TriggerKinds.ControllerHighCostGraveyardPlaySource, "CARD_PLAY_COMPLETED", highCostGraveyardPlay.Value,
+                "When this controller finishes playing a card with the required printed mana cost, optionally pay the colored power cost to play this source from its graveyard.",
+                TargetScope: TriggerTargetScopes.SourceUnit, MinimumCardMana: int.Parse(highCostGraveyardPlay.Groups["mana"].Value),
+                PowerCost: 1, PowerCostTrait: "yellow", PlayCount: 1, PlayOriginZone: TriggerZones.Graveyard,
+                PlayDestinationZone: TriggerZones.Stack, IgnorePlayManaCost: true, PayPlayPowerCosts: true, Optional: true));
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);
