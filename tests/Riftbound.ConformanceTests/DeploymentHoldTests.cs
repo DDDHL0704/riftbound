@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -68,16 +69,25 @@ public sealed class DeploymentHoldTests
     }
 
     [Fact]
-    public async Task CounteringTheDeploymentAbilityLeavesEquipmentAndResumesTheTurn()
+    public async Task TargetlessDeploymentRejectsQuickCounterButAllowsARealReaction()
     {
-        var game = new Driver(AttackDamageDistributionTests.Spell(Position(), "COUNTER", "SFD·045/221", "P1"));
+        var initial = AttackDamageDistributionTests.Spell(Position(), "COUNTER", "SFD·045/221", "P1");
+        var game = new Driver(AttackDamageDistributionTests.Spell(initial, "RESPONSE", "OGN·169/298", "P1"));
         await game.Act("P1", new PassPriorityCommand());
         var item = Assert.Single(game.State.StackItems);
         await game.Act("P2", new PassPriorityCommand());
-        await game.Act("P1", new PlayCardCommand("COUNTER", "SFD·045/221", [item.StackItemId]));
+        var before = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("invalid-counter", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("COUNTER", "SFD·045/221", [item.StackItemId]), default);
+        Assert.False(rejected.Accepted);
+        Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
+        await game.Act("P1", new PlayCardCommand("RESPONSE", "OGN·169/298", ["HOST"]));
         await game.Top();
         Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "F"), game.State.ObjectLocations["DEPLOYED"]);
         Assert.DoesNotContain("DEPLOYED", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        await game.Top();
+        Assert.Contains("DEPLOYED", game.State.PlayerZones["P1"].Graveyard);
         Assert.Null(game.State.TurnStartStep);
         await game.Replay();
     }
@@ -113,11 +123,19 @@ public sealed class DeploymentHoldTests
                 Assert.Equal("SFD·022/221", visible["cardNo"]);
             }
         }
-        var game = new Driver(state);
-        await game.Top();
-        Assert.Equal(destroyed, game.State.PlayerZones["P1"].Graveyard.Contains("DEPLOYED"));
-        if (!destroyed) Assert.Equal(branch == "leave" ? "HAND" : "BATTLEFIELD", game.State.ObjectLocations["DEPLOYED"].Zone);
-        await game.Replay();
+        state = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state))!;
+        OfficialGraveyardRecastTests.Restore(state);
+        ArmamentMightTests.PublicRecovery(state);
+        for (var pass = 0; pass < 2; pass++)
+        {
+            var result = await OfficialGraveyardRecastTests.Act(state, state.PriorityPlayerId!, new PassPriorityCommand());
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            state = result.State;
+            OfficialGraveyardRecastTests.Restore(state);
+            ArmamentMightTests.PublicRecovery(state);
+        }
+        Assert.Equal(destroyed, state.PlayerZones["P1"].Graveyard.Contains("DEPLOYED"));
+        if (!destroyed) Assert.Equal(branch == "leave" ? "HAND" : "BATTLEFIELD", state.ObjectLocations["DEPLOYED"].Zone);
     }
 
     [Theory]
