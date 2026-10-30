@@ -269,6 +269,8 @@ public static partial class MatchRecoveryValidator
             BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
         ValidateTargetedPowerAbilityStackValues(authoritativeState, errors);
+        foreach (var item in authoritativeState.StackItems.Where(i => i is not null))
+            if (!CoreRuleEngine.ValidSimpleActivation(authoritativeState, item)) errors.Add($"stack item {item.StackItemId} printed activation context is invalid");
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
             knownObjectIds,

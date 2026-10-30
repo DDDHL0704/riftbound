@@ -18,7 +18,9 @@ public sealed partial class CoreRuleEngine
     internal const string CreateEndAbilityEffect = "CREATE_DELAYED_END_ABILITY";
     internal const string DelayedEndReadyPrefix = "DELAYED_END_READY:";
     private static TriggerSpec? EndSpec(string? no) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(no)
-        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes);
+        .FirstOrDefault(t => t.Timing == TriggerTimings.TurnEnd && t.Kind is TriggerKinds.TurnEndRevealUntilUnit or TriggerKinds.TurnEndReadyRunes)
+        ?? (CardBehaviorRegistry.TryGetByCardNo(no ?? "", out var behavior) && behavior.EndStepSelfDestructionDamage > 0
+            ? new("DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS", TriggerTimings.TurnEnd, "摧毁来源并对其控制者的所有单位造成伤害。", DamageAmount: behavior.EndStepSelfDestructionDamage) : null);
 
     private static TriggerQueueItemState[] CaptureEndAbilities(MatchState state)
     {
@@ -121,6 +123,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveEndAbility(MatchState state, StackItemState item)
     {
+        if (item.EndAbility!.Kind == "DESTROY_SOURCE_DAMAGE_CONTROLLER_UNITS") return ResolveEndSelfDestructionDamage(state, item);
         if (item.EndAbility!.Kind == TriggerKinds.TurnEndRevealUntilUnit)
         {
             if (item.EffectPlayCompleted) return NoopStackResolutionResult(state);
@@ -135,6 +138,33 @@ public sealed partial class CoreRuleEngine
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["objectIds"] = new[]{id}, ["count"] = 1 }));
             }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+    }
+
+    private static StackResolutionResult ResolveEndSelfDestructionDamage(MatchState state, StackItemState item)
+    {
+        var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        var destroy = cards.TryGetValue(item.SourceObjectId, out var source)
+            && source.ObjectGeneration == item.EndAbility!.Source.ObjectGeneration && IsObjectOnField(zones, source.ObjectId)
+                ? new HashSet<string> { source.ObjectId } : [];
+        var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),
+            state.RunePools, objectLocations: locations, explicitDestroyObjectIds: destroy);
+        var events = removal.Events.ToList(); var lethal = new HashSet<string>();
+        var damageState = state with { PlayerZones = zones, CardObjects = cards, RunePools = removal.RunePools };
+        foreach (var id in zones[item.ControllerId].Base.Concat(zones[item.ControllerId].Battlefields)
+            .Where(id => cards.TryGetValue(id, out var card) && IsFaceUpNonStandbyUnit(card)).ToArray()) {
+            var amount = ApplySpellSkillDamageBonuses(damageState, item.ControllerId, id, EndSpec(item.CardNo)!.DamageAmount!.Value);
+            var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, amount, lethal,
+                state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId);
+            events.Add(new("DAMAGE_APPLIED", "结束技能对控制者的单位造成伤害", BuildDamagePayload(item.SourceObjectId, id, damage)));
+        }
+        var cleanup = RunStateBasedCleanupLoop(damageState, zones, cards, item, removal.RunePools,
+            damageTriggeredDestroyTargetObjectIds: lethal, objectLocations: locations,
+            destroyedUnitOwnerIdsAlreadyThisTurn: removal.DestroyedUnitOwnerIds);
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
+            TriggerQueue = removal.TriggerQueue.Concat(cleanup.TriggerQueue).DistinctBy(t => t.TriggerId).ToArray(),
+            DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds, Events = events.Concat(cleanup.Events).ToArray() };
     }
 
     internal static bool ValidEndAbility(MatchState state, StackItemState item)

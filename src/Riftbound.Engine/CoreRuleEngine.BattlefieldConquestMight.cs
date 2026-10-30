@@ -15,7 +15,18 @@ public sealed partial class CoreRuleEngine
 {
     private static TriggerSpec? BattlefieldConquestMightDefinition(string cardNo)
         => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,
-            BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger, out var spec) ? spec : null;
+            trigger => BattlefieldTriggerSpecRules.IsBattlefieldConquerPowerfulPayDrawTrigger(trigger)
+                || BattlefieldTriggerSpecRules.IsBattlefieldConquerLowRunesPayDrawTrigger(trigger), out var spec) ? spec : null;
+
+    internal static bool IsCapturedConquestDrawKind(string? effect)
+        => effect is TriggerKinds.BattlefieldConquerPowerfulPayDraw or TriggerKinds.BattlefieldConquerLowRunesPayDraw;
+
+    internal static bool ValidCapturedConquestDrawKind(BattlefieldConquestMightContext context, string? effect)
+        => BattlefieldConquestMightDefinition(context.CardNo)?.Kind == effect;
+
+    private static int ControlledFrameRunes(LastKnownMightFrame frame, string controller)
+        => frame.CardObjects.Values.Count(c => c.ControllerId == controller && !c.IsFaceDown
+            && c.Tags.Contains(CardObjectTags.RuneCard) && IsObjectOnField(frame.PlayerZones, c.ObjectId));
 
     private static CapturedMightyUnit[] QualifyingConquestUnits(LastKnownMightFrame frame, string battlefield, int threshold)
     {
@@ -35,8 +46,8 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(source.CardNo)
             || BattlefieldConquestMightDefinition(source.CardNo) is not { } spec) return [];
         var frame = CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects);
-        var units = QualifyingConquestUnits(frame, id, spec.RequiredPowerThreshold!.Value);
-        if (units.Length == 0) return [];
+        var units = spec.RequiredPowerThreshold is { } threshold ? QualifyingConquestUnits(frame, id, threshold) : [];
+        if (spec.MaximumControlledRunes is { } maximum ? ControlledFrameRunes(frame, controller) > maximum : units.Length == 0) return [];
         var context = new BattlefieldConquestMightContext(new(id, source.ObjectGeneration), source.CardNo, controller, tick, units, frame);
         return [new($"CONQUEST-MIGHT:{tick}:{id}", controller, id, spec.Kind, "BATTLEFIELD_CONQUERED") {
             SourceCardNo = source.CardNo, BattlefieldConquestMight = context }];
@@ -47,7 +58,7 @@ public sealed partial class CoreRuleEngine
         try {
             var frame = context.Frame;
             if (!ValidMightFrameExperience(frame)
-                || context.ConquestTick < 0 || context.Source.Generation < 0 || context.PowerfulUnits.Count == 0
+                || context.ConquestTick < 0 || context.Source.Generation < 0
                 || !frame.PlayerZones.ContainsKey(context.ControllerId)
                 || BattlefieldConquestMightDefinition(context.CardNo) is not { } spec
                 || !frame.CardObjects.TryGetValue(context.Source.ObjectId, out var source)
@@ -62,7 +73,8 @@ public sealed partial class CoreRuleEngine
                 .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
             if (frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown || !publicIds.Contains(p.Key))
                 || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))) return false;
-            var expected = QualifyingConquestUnits(frame, source.ObjectId, spec.RequiredPowerThreshold!.Value);
+            var expected = spec.RequiredPowerThreshold is { } threshold ? QualifyingConquestUnits(frame, source.ObjectId, threshold) : [];
+            if (spec.MaximumControlledRunes is { } maximum ? ControlledFrameRunes(frame, context.ControllerId) > maximum : expected.Length == 0) return false;
             return context.PowerfulUnits.SequenceEqual(expected);
         } catch (Exception e) when (e is ArgumentException or InvalidOperationException or KeyNotFoundException
             or NullReferenceException or OverflowException) { return false; }
@@ -71,7 +83,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidBattlefieldConquestMightContext(MatchState state, BattlefieldConquestMightContext context,
         string effect, string source, string controller)
         => ValidBattlefieldConquestMightFrame(context)
-            && effect == TriggerKinds.BattlefieldConquerPowerfulPayDraw && source == context.Source.ObjectId
+            && ValidCapturedConquestDrawKind(context, effect) && source == context.Source.ObjectId
             && controller == context.ControllerId && context.ConquestTick <= state.Tick
             && state.Seats.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(context.Frame.PlayerZones.Keys)
             && context.Frame.CardObjects.All(p => state.CardObjects.TryGetValue(p.Key, out var current)
@@ -83,8 +95,9 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = item.ControllerId, ["battlefieldObjectId"] = item.SourceObjectId, ["battlefieldId"] = item.SourceObjectId,
                 ["battlefieldCardNo"] = item.CardNo, ["trigger"] = item.EffectKind,
                 ["sourceObjectId"] = item.SourceObjectId,
-                ["powerfulObjectId"] = item.BattlefieldConquestMight!.PowerfulUnits[0].Source.ObjectId,
-                ["requiredPowerThreshold"] = BattlefieldConquestMightDefinition(item.BattlefieldConquestMight.CardNo)!.RequiredPowerThreshold!.Value,
+                ["powerfulObjectId"] = item.BattlefieldConquestMight!.PowerfulUnits.FirstOrDefault()?.Source.ObjectId,
+                ["requiredPowerThreshold"] = BattlefieldConquestMightDefinition(item.BattlefieldConquestMight.CardNo)!.RequiredPowerThreshold,
+                ["maximumControlledRunes"] = BattlefieldConquestMightDefinition(item.BattlefieldConquestMight.CardNo)!.MaximumControlledRunes,
                 ["mana"] = pending.ManaCost, ["paymentChoices"] = pending.LegalPaymentChoiceIds });
 
     private static StackResolutionResult ResolveBattlefieldConquestMight(MatchState state, StackItemState item)
@@ -98,7 +111,7 @@ public sealed partial class CoreRuleEngine
             new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["battlefieldId"] = context.Source.ObjectId,
                 ["battlefieldObjectId"] = context.Source.ObjectId, ["battlefieldCardNo"] = context.CardNo,
                 ["sourceObjectId"] = context.Source.ObjectId, ["trigger"] = spec.Kind,
-                ["powerfulObjectId"] = context.PowerfulUnits[0].Source.ObjectId, ["drawCount"] = spec.DrawCount!.Value }) };
+                ["powerfulObjectId"] = context.PowerfulUnits.FirstOrDefault()?.Source.ObjectId, ["drawCount"] = spec.DrawCount!.Value }) };
         var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
             spec.DrawCount!.Value, state.RngCursor, events,
             deferNormalVictory: true);

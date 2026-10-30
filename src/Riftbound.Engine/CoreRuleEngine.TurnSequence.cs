@@ -55,6 +55,7 @@ public sealed partial class CoreRuleEngine
                     state = QueueBeginningDrawAbilities(state, events);
                     state = QueueBeginningRecycleAbilities(state, events);
                     state = QueueBeginningRuneAbilities(state, events);
+                    state = QueueBeginningUnitEventAbilities(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);
@@ -71,20 +72,25 @@ public sealed partial class CoreRuleEngine
                         var heldScore = ApplyBattlefieldHeldScoresAtTurnStart(state, zones, cards, player);
                         events.AddRange(heldScore.Events);
                         state = state with { PlayerScores = heldScore.PlayerScores, WinnerPlayerId = heldScore.WinnerPlayerId,
-                            UntilEndOfTurnEffects = heldScore.UntilEndOfTurnEffects, PlayerZones = zones, CardObjects = cards };
+                            UntilEndOfTurnEffects = heldScore.UntilEndOfTurnEffects, PlayerZones = zones, CardObjects = cards,
+                            RngCursor = heldScore.RngCursor ?? state.RngCursor };
                         if (state.WinnerPlayerId is null)
                             state = QueueHeldAbilities(state, heldFields, events);
                     }
                     state = state with { TurnStartStep = "CHANNEL", Status = state.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished };
                     break;
                 case "CHANNEL":
-                    var runes = ApplyRuneCall(zones, cards, player, RuneCallCount(state), originalExhausted: false).CalledRuneObjectIds;
+                    var runes = ApplyRuneCall(zones, cards, player, RuneCallCount(state), originalExhausted: false, maximumCount: StageRuneCallLimit(state)).CalledRuneObjectIds;
                     var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
                     foreach (var id in runes) locations[id] = new(player, MoveUnitBaseZone);
                     events.Add(new("RUNES_CALLED", $"召出 {runes.Count} 张符文", new Dictionary<string, object?> { ["playerId"] = player, ["count"] = runes.Count }));
                     state = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
+                    if (ActiveFieldCardBehaviors(zones, cards, player).Any(b => b.SkipsDrawPhase)) {
+                        events.Add(new("DRAW_PHASE_SKIPPED", "卡牌效果跳过抽牌阶段", new Dictionary<string, object?> { ["playerId"] = player }));
+                        state = state with { TurnStartStep = "MAIN" }; break;
+                    }
                     var draw = DrawCards(state, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
@@ -97,7 +103,8 @@ public sealed partial class CoreRuleEngine
                 case "MAIN":
                     var pools = ClearRunePools(state).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
                     events.Add(new("RUNE_POOL_CLEARED", "所有玩家的符文池已清空", new Dictionary<string, object?> { ["playerIds"] = state.Seats.Keys.Order().ToArray() }));
-                    events.Add(new("MAIN_PHASE_BEGAN", "进入主阶段", new Dictionary<string, object?> { ["turnPlayerId"] = player }));
+                    events.Add(CapturePhaseCardEvents(new("MAIN_PHASE_BEGAN", "进入主阶段",
+                        new Dictionary<string, object?> { ["turnPlayerId"] = player }), zones, cards, player, "MAIN"));
                     var due = state.DelayedResourceGains.Where(d => d.ControllerId == player && d.DueTurn <= state.TurnNumber).ToArray();
                     foreach (var delayed in due)
                     {
@@ -118,6 +125,7 @@ TurnStartStep = null, Phase = MatchPhases.Main,
                 default: throw new InvalidOperationException($"Unknown turn-start continuation: {state.TurnStartStep}");
             }
             var collected = QueueSourceReadied(RecordDeathObservers(stepStart, RecordDrawTriggers(stepStart, QueueBattlefieldReturnTriggers(new(true, null, state, events.Skip(stepEventIndex).ToArray(), ResolutionResult.BuildSnapshots(state), BuildCorePrompts(state))))));
+            collected = QueueUnitEvents(stepStart, collected);
             collected = QueueSelfActionObservers(stepStart, collected);
             collected = QueueSourceUnitTokens(stepStart, collected);
             events.RemoveRange(stepEventIndex, events.Count - stepEventIndex); events.AddRange(collected.Events);
