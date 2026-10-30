@@ -212,6 +212,7 @@ public sealed partial class CoreRuleEngine
                 && location.BattlefieldObjectId == context.BattlefieldId)
             .Select(card => card.ObjectId)
             .ToHashSet(StringComparer.Ordinal);
+        var chainedTriggers = state.TriggerQueue;
         if (otherBombs.Count > 0)
         {
             var destruction = ResolveFieldDestructions(
@@ -228,10 +229,12 @@ public sealed partial class CoreRuleEngine
                 explicitDestroyReason: "BOMB_CHAIN");
             events.AddRange(destruction.Events);
             pools = destruction.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            chainedTriggers = chainedTriggers.Concat(destruction.TriggerQueue).ToArray();
         }
 
         var cleanup = RunStateBasedCleanupLoop(
-            state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools },
+            state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools,
+                TriggerQueue = chainedTriggers },
             zones,
             cards,
             item,

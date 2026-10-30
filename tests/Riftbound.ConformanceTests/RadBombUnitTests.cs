@@ -106,6 +106,15 @@ public sealed class RadBombUnitTests
     {
         var state = AddToHand(Position(withEnemy: true), "DESTROY", "SFD·032/221", "P1");
         state = AddToHand(state, "UNIT2", Amateur, "P1");
+        // Keep the observed unit alive after both 2-damage bomb triggers so
+        // this test can assert the accumulated damage and chain ordering.
+        state = state with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+            {
+                ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "OGN·082/298", "P2")
+            }
+        };
         var game = new Driver(state);
         await game.Act("P1", new PlayCardCommand("UNIT", Amateur, [Battlefield], Destination: "BASE"));
         await ResolveAll(game);
