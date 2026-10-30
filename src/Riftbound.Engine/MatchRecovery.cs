@@ -4631,6 +4631,8 @@ public static partial class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTemperedChoice(state, temperedChoice)) errors.Add("invalid weaponmaster confirmation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedCostWindow } temperedCost
             && !CoreRuleEngine.ValidTemperedCostChoice(state, temperedCost)) errors.Add("invalid weaponmaster cost choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedBaseCostWindow } temperedBaseCost
+            && !CoreRuleEngine.ValidTemperedBaseCostChoice(state, temperedBaseCost)) errors.Add("invalid weaponmaster base cost choice");
         if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TemperedPaymentWindow } temperedPayment
             && !CoreRuleEngine.ValidTemperedPayment(state, temperedPayment)) errors.Add("invalid weaponmaster payment");
         foreach (var item in state.TriggerQueue)
@@ -5092,7 +5094,8 @@ public static partial class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow))
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
+                && !(choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow && CoreRuleEngine.ValidTemperedBaseCostChoice(authoritativeState, choice)))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
                 authoritativeState.PendingCardChoice.LegalObjectIds,

@@ -46,12 +46,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
-    private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
+    internal const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
     private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const string ReturnFriendlyEquipmentAdditionalCostPrefix = "RETURN_FRIENDLY_EQUIPMENT:";
+    private const string ReturnFriendlyUnitAdditionalCostPrefix = "RETURN_FRIENDLY_UNIT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
     private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
@@ -3223,6 +3224,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TemperedBaseCostWindow) return ResolveTemperedBaseCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TriggerHandDiscardWindow) return ResolveTriggerHandDiscardChoice(state, pendingChoice, submittedObjectIds);
@@ -4004,7 +4006,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
-        var amounts = EquipmentCosts(state, assembleProfile, targetState);
+        var exhaustedCost = SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts);
+        var amounts = EquipmentCosts(state, assembleProfile, targetState, exhaustUnitInstead: exhaustedCost is not null);
         amounts = amounts with { Mana = Math.Max(0, amounts.Mana - EquipmentAbilityManaReduction(state, intent.PlayerId, command.SourceObjectId)) };
         var assembleManaCost = amounts.Mana;
         var assembleAnyPowerCost = amounts.GenericPower;
@@ -4075,6 +4078,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
         var costTriggers = new List<TriggerQueueItemState>();
+        if (exhaustedCost is not null)
+            assembleRemovalEvents.Add(ExhaustEquipmentCost(cardObjects, exhaustedCost, command.SourceObjectId, intent.PlayerId));
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
         {
             var removal = ResolveFieldDestructions(state with { PlayerExperience = playerExperience }, playerZones, cardObjects,
@@ -4140,7 +4145,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["mana"] = assembleManaCost,
                     ["baseManaCost"] = assembleProfile.ManaCost,
                     ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState),
-                    ["power"] = assembleProfile.PowerCost,
+                    ["power"] = assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
@@ -4267,6 +4272,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         destroyedAdditionalCostTargetObjectIds = [];
         recycledAdditionalCostTargetObjectIds = [];
+        if (SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts) is { } exhausted)
+            return CanExhaustUnitForEquipmentCost(state, playerId, exhausted);
         var requiredAdditionalCostCount = (assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0)
             + assembleProfile.RequiredGraveyardRecycleCardCount;
         if (requiredAdditionalCostCount == 0)
@@ -18424,6 +18431,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = Reject(state, $"{behavior.DisplayName} requires a friendly unit returned as an additional cost.", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -18475,6 +18489,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanReturnFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = Reject(state, $"{behavior.DisplayName} requires a visible friendly field unit returned as an additional cost.", ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -22326,6 +22348,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresReturnFriendlyUnitAdditionalCost
+            && TryParseReturnFriendlyAdditionalCost(normalizedOptionalCosts[0], ReturnFriendlyUnitAdditionalCostPrefix,
+                out var returnedUnitTargetObjectId))
+        {
+            returnedAdditionalCostTargetObjectIds = [returnedUnitTargetObjectId];
+            return true;
+        }
+
         if (TryBuildTargetEffectAdditionalCost(
             normalizedOptionalCosts,
             behavior,
@@ -22626,14 +22657,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryParseReturnFriendlyEquipmentAdditionalCost(
         string optionalCost,
         out string targetObjectId)
+        => TryParseReturnFriendlyAdditionalCost(optionalCost, ReturnFriendlyEquipmentAdditionalCostPrefix, out targetObjectId);
+
+    private static bool TryParseReturnFriendlyAdditionalCost(string optionalCost, string prefix, out string targetObjectId)
     {
         targetObjectId = string.Empty;
-        if (!optionalCost.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix, StringComparison.Ordinal))
+        if (!optionalCost.StartsWith(prefix, StringComparison.Ordinal))
         {
             return false;
         }
 
-        targetObjectId = optionalCost[ReturnFriendlyEquipmentAdditionalCostPrefix.Length..].Trim();
+        targetObjectId = optionalCost[prefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
@@ -22756,6 +22790,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 choices.Add(DestroyFriendlyTraitUnitAdditionalCostPrefix + id);
             if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost && CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id))
                 choices.Add(ReturnFriendlyEquipmentAdditionalCostPrefix + id);
+            if (behavior.RequiresReturnFriendlyUnitAdditionalCost && CanReturnFriendlyUnitAsAdditionalCost(state, playerId, id))
+                choices.Add(ReturnFriendlyUnitAdditionalCostPrefix + id);
         }
         return choices;
     }
@@ -22764,12 +22800,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return true;
         if (!behavior.RequiresDestroyFriendlyUnitAdditionalCost && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
-            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost) return true;
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && !behavior.RequiresReturnFriendlyUnitAdditionalCost) return true;
         var choices = MandatoryPlayAdditionalCostCandidates(state, playerId, behavior);
         return (!behavior.RequiresDestroyFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix)))
-            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)));
+            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)))
+            && (!behavior.RequiresReturnFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyUnitAdditionalCostPrefix)));
     }
 
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(
@@ -22807,6 +22845,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return IsFriendlyEquipmentObject(state, playerId, targetObjectId);
     }
+
+    private static bool CanReturnFriendlyUnitAsAdditionalCost(MatchState state, string playerId, string targetObjectId)
+        => IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
+            && state.CardObjects[targetObjectId].Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && state.CardObjects[targetObjectId].ControllerId == playerId
+            && state.ObjectLocations.TryGetValue(targetObjectId, out var location) && location.PlayerId == playerId
+            && location.Zone is "BASE" or "BATTLEFIELD";
 
     private static bool CanRecycleGraveyardCardAsAdditionalCost(
         MatchState state,
