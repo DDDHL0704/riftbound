@@ -55,7 +55,9 @@ public sealed class RadConquestResourceAndCostTests
     {
         var game = new Driver(Position() with { TurnPlayerId = "P2", ActivePlayerId = "P2" });
         await Conquer(game, "ENEMY", "OTHER", "P2");
-        Assert.Single(game.State.BattlefieldConquests!.Entries); Assert.Equal(8, Quote(game.State));
+        Assert.Single(game.State.BattlefieldConquests!.Entries);
+        // Isolate the price from the separate turn-timing restriction.
+        Assert.Equal(8, Quote(game.State with { TurnPlayerId = "P1", ActivePlayerId = "P1" }));
         await game.Replay();
     }
 

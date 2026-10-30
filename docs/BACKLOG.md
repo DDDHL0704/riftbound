@@ -86,6 +86,7 @@
 - [x] **P2-5 杰斯英雄遗漏与现有效果修正**：VEN·068 / 068a「进步先锋」与 VEN·088 / 088a「举锤待发」由 #260 合入；VEN·175「推陈出新」及 SFD·084/221 的完整技能由 #254 合入。使用中国区 260403 勘误后的“若如此做”，按实际摧毁结果授予装备打出权限。
 
 - [x] E 线缴械首批：接入神秘的时间法师、饰品商贩、叮响巡警、处置专家、浅滩海妖；共享缴械按核心 831.1.d.1 / 831.2 合计数值、每次进攻只触发一次，支持机械光环、机器人、复制文本、法盾、恢复与回放。CARD_BACKLOG 的五项移除随本 PR 合入。
+- [x] E 线进场与额外费用六张：弥留之灵、微光泳者、盘踞野猪、熔炉之灵、满载的旅人、鹰翼中队。共享摧毁时控制者回合账本、可选摧毁单位或装备费用及付款后伤害响应、可选活跃进场及本回合移动禁令、可选返回装备费用与减费、返回装备法力费用收据及同战场装备关键词条件战力；对应 CARD_BACKLOG 六项随本 PR 移除。
 - [ ] E 线条件触发批次（`e/rad-conditional-triggers`）：已接入狂热目击者、重甲象骑的共享移动展示／回收与关键词数值伤害流程，正在定向验证。继续补齐同批单位后开 PR；两张名字待该批合入时从 CARD_BACKLOG 移除。
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
@@ -122,7 +123,7 @@
   - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）及包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646)（固定 `b17468bc`）均已完整通过 9,186 个方法、18,477 条用例与门槛，原 Counter 逐条一致。 包含 #277 的 main [40940552211](https://github.com/DDDHL0704/riftbound/actions/runs/40940552211)（固定 `6c934aef`）也已完整通过，原 Counter 逐条一致。
   - 包含 #262 和 #278 的 main [40946282257](https://github.com/DDDHL0704/riftbound/actions/runs/40946282257)（固定 `afab4e71`）已完整通过 9,406 个方法、19,220 条用例和门槛，Counter 与 #262 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
-- [ ] **P3-4 推送前受影响测试**（`a/affected-tests`）：`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。合入后用 PR 号补记定向回归结果。
+- [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 
 ## 接手旧分支
