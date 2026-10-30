@@ -35,8 +35,8 @@ def selectors(discovery, cases, weights):
 
 
 def partition(units, cases, weights, count):
-    if not 1 <= count <= 8 or len(units) < count:
-        raise ValueError('Require 1..8 nonempty L2 shards.')
+    if not 1 <= count <= 9 or len(units) < count:
+        raise ValueError('Require 1..9 nonempty L2 shards.')
     if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values()):
         raise ValueError('Invalid duration history; it never controls membership.')
     def weight(unit):

@@ -17,7 +17,7 @@ class DailyWorkflowTests(unittest.TestCase):
         return dict(re.findall(r'^  ([a-z0-9_]+):\n(.*?)(?=^  [a-z0-9_]+:\n|\Z)',
                                self.workflow().split('jobs:\n', 1)[1], re.M | re.S))
 
-    def test_six_complete_shards_share_preparation_and_the_derived_targeted_gate(self):
+    def test_complete_shards_share_preparation_and_the_derived_targeted_gate(self):
         text, jobs = self.workflow(), self.jobs()
         self.assertEqual({'prepare', 'rule_suite', 'l2_required'}, set(jobs))
         self.assertIn('name: L2 required', jobs['l2_required'])
@@ -30,9 +30,9 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertNotIn('dotnet test', jobs['l2_required'])
         self.assertIn('scripts/l2-distributed.py shard', jobs['rule_suite'])
         self.assertIn('fail-fast: false', jobs['rule_suite'])
-        self.assertIn('max-parallel: 8', jobs['rule_suite'])
-        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8]', jobs['rule_suite'])
-        self.assertIn('--shards 8', jobs['prepare'])
+        self.assertIn('max-parallel: 9', jobs['rule_suite'])
+        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8, shard-9]', jobs['rule_suite'])
+        self.assertIn('--shards 9', jobs['prepare'])
         for forbidden in ['services:', 'needs.postgres', 'needs.native_network', 'needs.related_network',
                           'continue-on-error', 'Riftbound.NativeNetworkSmoke', 'test_process_restart',
                           'unittest discover -s scripts/tests -v']:
@@ -86,3 +86,19 @@ class DailyWorkflowTests(unittest.TestCase):
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)
         self.assertNotIn('paths:', triggers)
+
+    def test_closed_pr_cleanup_uses_the_pr_group_without_publishing_a_required_check(self):
+        text = (ROOT / '.github/workflows/backend-l2-close.yml').read_text()
+        triggers = text.split('permissions:', 1)[0]
+        self.assertIn('pull_request:', triggers)
+        self.assertIn('branches: [main]', triggers)
+        self.assertIn('types: [closed]', triggers)
+        self.assertNotIn('push:', triggers)
+        self.assertNotIn('workflow_dispatch:', triggers)
+        self.assertIn('group: l2-${{ github.event.pull_request.number }}', text)
+        self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', self.workflow())
+        self.assertIn('cancel-in-progress: true', text)
+        # A skipped/successful closure check must never satisfy branch protection
+        # after reopening a PR whose complete rule verification was canceled.
+        self.assertNotIn('L2 required', text)
+        self.assertNotIn('types:', self.workflow().split('permissions:', 1)[0])
