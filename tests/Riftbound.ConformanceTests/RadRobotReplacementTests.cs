@@ -172,7 +172,7 @@ public sealed class RadRobotReplacementTests
         await Reject(game.State, "P1", new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", ["ROBOT:FORGED"]));
         var forged = game.State with { PendingRuleChoice = pending with { Request = pending.Request with {
             Options = [new("APPLY", "伪造来源", ["TARGET"]), new("DECLINE", "不替换")] } } };
-        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), error => error.Contains("rule choice", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), error => error.Contains("replacement choice", StringComparison.OrdinalIgnoreCase));
         await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY"); await game.Replay();
     }
 
