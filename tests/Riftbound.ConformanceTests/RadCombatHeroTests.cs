@@ -125,7 +125,7 @@ public sealed class RadCombatHeroTests
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         var skill = Assert.Single(game.State.StackItems); await game.Act("P1", new PassPriorityCommand());
         await Reject(game.State, "P2", new PlayCardCommand("RESPONSE", "SFD·045/221", [skill.StackItemId]));
-        await game.Top();
+        await game.Act("P2", new PassPriorityCommand());
         Assert.All(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, id => Assert.Equal(4, game.State.CardObjects[id].Damage));
         Assert.Contains("RESPONSE", game.State.PlayerZones["P2"].Hand); await game.Replay();
     }
