@@ -215,7 +215,7 @@ public sealed class RadFaceDownPlayLegendTests
         if (refill)
         {
             Assert.Equal(1, game.State.PlayerScores["P2"]); Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
-            Assert.Single(game.State.PendingHandChoice!.LegalObjectIds.Where(deck.Contains)); await Discard(game);
+            Assert.Single(game.State.PendingHandChoice!.LegalObjectIds, deck.Contains); await Discard(game);
         }
         else
         {
