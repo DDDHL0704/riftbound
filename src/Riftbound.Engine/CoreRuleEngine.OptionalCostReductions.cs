@@ -66,6 +66,16 @@ public sealed partial class CoreRuleEngine
         MatchState state, string player, CardBehaviorDefinition behavior,
         IReadOnlyList<string> costs, int mana, int generic, IReadOnlyDictionary<string, int> typed)
     {
+        var battlefieldFees = BattlefieldUnitPlayGrants(state, player, behavior)
+            .Where(grant => costs.Contains(BattlefieldUnitPlayCostPrefix + grant.Field.ObjectId)).ToArray();
+        if (battlefieldFees.Length > 0)
+        {
+            var otherCosts = costs.Where(cost => !IsBattlefieldUnitPlayCost(cost)).ToArray();
+            var other = OptionalCostComponents(state, player, behavior, otherCosts, mana,
+                generic - battlefieldFees.Sum(fee => fee.Ability.Amount), typed);
+            return other.Concat(battlefieldFees.Select(fee => new OptionalCostComponent(
+                BattlefieldUnitPlayCostPrefix + fee.Field.ObjectId, 0, fee.Ability.Amount, new Dictionary<string, int>()))).ToArray();
+        }
         var echoes = EchoCostRules.Selected(state, player, behavior, costs);
         if (echoes.Count == 0)
         {
@@ -184,6 +194,7 @@ public sealed partial class CoreRuleEngine
         ICollection<OptionalCostReductionGroup>? reductionGroups = null, RunePaymentReachability? powerReachability = null)
     {
         reductionChoices = [];
+        var ignoresAllCosts = EffectPlayIgnoresAllCosts(state, player);
         var reducers = OptionalCostReducers(state, player, source);
         if (reducers.Count == 0) return false;
         // Mandatory nonresource objects are selected elsewhere in the prompt.
@@ -194,7 +205,7 @@ public sealed partial class CoreRuleEngine
         if (!TryBuildOptionalCostPlan(state, player, declaredCosts, monetaryBehavior, out var normalized,
                 out var mana, out var generic, out var typed, out var experience, out var optionalReduction,
                 out _, out _, out _, out _, out _)) return false;
-        if (state.PlayerExperience.GetValueOrDefault(player) < experience) return false;
+        if (!ignoresAllCosts && state.PlayerExperience.GetValueOrDefault(player) < experience) return false;
         var components = OptionalCostComponents(state, player, behavior, normalized, mana, generic, typed);
         if (components.Count == 0) return false;
         var choices = OptionalCostReductionChoices(reducers, components);
@@ -223,7 +234,7 @@ public sealed partial class CoreRuleEngine
             if (extraGeneric > int.MaxValue) continue;
             var reachable = powerReachability ?? new RunePaymentReachability(availablePool, new Dictionary<string, int>());
             var reduction = SelectedSacrificeCostReduction(state, player, behavior, costs).Power;
-            if (!CanReachPlayPowerCost(state, player, behavior, reachable, (int)extraGeneric,
+            if (!ignoresAllCosts && !CanReachPlayPowerCost(state, player, behavior, reachable, (int)extraGeneric,
                     price.TypedPower, sacrificeReduction: reduction)) continue;
             reductionChoices = choices.Select(choice => new ActionPromptChoiceDto(choice.Id,
                 choice.Source.Name + "：" + (choice.ComponentId.StartsWith("ECHO", StringComparison.Ordinal) ? "回响"

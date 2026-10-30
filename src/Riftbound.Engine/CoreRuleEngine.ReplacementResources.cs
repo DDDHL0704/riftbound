@@ -84,7 +84,7 @@ public sealed partial class CoreRuleEngine
             {
                 var traits = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability);
                 var gain = traits.Count > 0 ? string.Join("、",traits.Select(t=>$"{t.Value} 点{RuneTraitLabel(t.Key)}符能"))
-                    : ability.GeneratedPower > 0 ? $"{ability.GeneratedPower} 点任意符能" : $"{ability.GeneratedMana} 点法力";
+                    : ability.GeneratedPower > 0 ? $"{ability.GeneratedPower} 点任意符能" : $"{ImmediateResourceMana(ability, state.CardObjects[id])} 点法力";
                 if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) && RenataGoldBonusActive(state,player)) gain += "和 1 点法力";
                 Add([], (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) ? "摧毁并横置" : "横置") + "：获得 " + gain);
                 if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId) && state.PlayerExperience.GetValueOrDefault(player) >= 6)
@@ -92,7 +92,7 @@ public sealed partial class CoreRuleEngine
             }
             void Add(string[] costs, string label)
             {
-                if (!ResourceAbilityAmountsSupported(state, player, ability, costs)) return;
+                if (!ResourceAbilityAmountsSupported(state, player, ability, costs, id)) return;
                 var name = CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var card) ? card.DisplayName
                     : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId) ? "金币" : state.CardObjects[id].CardNo;
                 var key = $"RESOURCE:{id}:{ability.AbilityId}:{string.Join(',',costs)}";
@@ -119,7 +119,7 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool ResourceAbilityAmountsSupported(MatchState state, string player,
-        P4ActivatedAbilityDefinition ability, string[] costs)
+        P4ActivatedAbilityDefinition ability, string[] costs, string? sourceId = null)
     {
         var pool = state.RunePools.GetValueOrDefault(player, RunePool.Empty);
         if (!pool.HasSupportedAmounts) return false;
@@ -148,7 +148,7 @@ public sealed partial class CoreRuleEngine
         else
         {
             mana += P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId)
-                ? costs.Length == 1 ? 1 : 0 : ability.GeneratedMana;
+                ? costs.Length == 1 ? 1 : 0 : ImmediateResourceMana(ability, state.CardObjects.GetValueOrDefault(sourceId ?? ""));
             power += ability.GeneratedPower + P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability).Values.Sum(v => (long)v);
         }
         return mana >= 0 && mana + pool.SpellOnlyMana + pool.UnitPlayOrUnitAbilityOnlyMana <= int.MaxValue

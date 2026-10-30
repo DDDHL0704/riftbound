@@ -16,6 +16,14 @@ internal static class BattlefieldLocalRules
         return card;
     }
 
+    public static CardObjectState? AtObject(MatchState state, string objectId)
+        => state.ObjectLocations.TryGetValue(objectId, out var location) && location.Zone == "BATTLEFIELD"
+            && state.PlayerZones.TryGetValue(location.PlayerId, out var zones) && zones.Battlefields.Contains(objectId)
+            ? Battlefield(state, location.BattlefieldObjectId) : null;
+
+    public static bool HasAbilityKind(CardObjectState? battlefield, string kind)
+        => HasAbility(battlefield, ability => ability.Kind == kind);
+
     public static CardObjectState? AtUnit(MatchState state, string unitId)
     {
         if (!state.CardObjects.TryGetValue(unitId, out var unit) || unit.IsFaceDown

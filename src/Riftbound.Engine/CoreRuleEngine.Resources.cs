@@ -127,7 +127,8 @@ public sealed partial class CoreRuleEngine
         => id == P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId
             || P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(id)
             || P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(id)
-            || P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(id);
+            || P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(id)
+            || P4ActivatedAbilityCatalog.TryGetByAbilityId(id, out var ability) && ability.GeneratedManaIfSourceEmpowered.HasValue;
 
     private static bool IsImmediateResourceSource(MatchState state, string player, string id, P4ActivatedAbilityDefinition ability)
     {
@@ -163,7 +164,7 @@ public sealed partial class CoreRuleEngine
                 "RESOURCE_CONVERSION", 0, maximum, ResourceConversionAmountKind, "选择此次资源转换的数量（包含 0）；确认前不横置或支付资源。");
             choices = [conversionPrefix + selected.ToString(System.Globalization.CultureInfo.InvariantCulture)];
         }
-        var mana = ability.GeneratedMana;
+        var mana = ImmediateResourceMana(ability, source);
         var power = ability.GeneratedPower;
         var traits = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(ability);
         if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
@@ -232,6 +233,9 @@ public sealed partial class CoreRuleEngine
         if (power + traits.Values.Sum() > 0) events.Add(new("POWER_GAINED", $"获得 {power + traits.Values.Sum()} 点符能", payload));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
+
+    internal static int ImmediateResourceMana(P4ActivatedAbilityDefinition ability, CardObjectState? source)
+        => source?.IsEmpowered == true ? ability.GeneratedManaIfSourceEmpowered ?? ability.GeneratedMana : ability.GeneratedMana;
 
     // CN 135.2.e.5.b, 166-168, 429: Gold produces ordinary wildcard power.
     // Its resource ability resolves immediately without passing focus/priority.

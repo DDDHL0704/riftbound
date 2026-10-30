@@ -119,7 +119,7 @@ public sealed partial class CoreRuleEngine
             [cost.Card.ObjectId], events);
         next = state with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-            UntilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, [cost.Card.ObjectId]) };
+            UntilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, [cost.Card.ObjectId], zones) };
         paid = item with { FieldContext = item.FieldContext with { PaidUnitTrigger = origin with { CostPaid = true } } };
         return true;
     }
