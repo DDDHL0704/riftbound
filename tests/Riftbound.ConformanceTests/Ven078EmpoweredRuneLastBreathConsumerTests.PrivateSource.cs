@@ -29,7 +29,7 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
             var graveGeneration = game.State.CardObjects["UNIT"].ObjectGeneration; Assert.Equal(generation + 1, graveGeneration);
             Assert.Equal(TriggerKinds.UnitLastBreathCallRuneOne, Assert.Single(game.State.StackItems).EffectKind); Cold(initial, game);
             if (game.State.PriorityPlayerId != owner) await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-            await game.Act(owner, new TapRuneCommand(owner + "-RUNE-7")); await game.Act(owner, new TapRuneCommand(owner + "-RUNE-8"));
+            await game.Act(owner, new TapRuneCommand(owner + "-RUNE-7", [owner + "-RUNE-7", owner + "-RUNE-8"]));
             Assert.Equal(2, game.State.RunePools[owner].Mana);
             await game.Act(owner, new PlayCardCommand("DRAW", "OGN·048/298", [])); Assert.Equal(0, game.State.RunePools[owner].Mana);
             // Meditation is Reaction. The ordinary Top helper declines its
