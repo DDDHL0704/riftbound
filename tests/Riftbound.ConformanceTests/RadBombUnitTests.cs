@@ -65,6 +65,11 @@ public sealed class RadBombUnitTests
         var bombId = Bombs(game.State).Single();
 
         await game.Act("P1", new PlayCardCommand("DESTROY", "SFD·032/221", [bombId]));
+        await ResolveUntilChoice(game);
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal(0, choice.RequiredCount);
+        Assert.Empty(choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         await ResolveAll(game);
 
         Assert.False(game.State.CardObjects.ContainsKey(bombId));
@@ -149,7 +154,7 @@ public sealed class RadBombUnitTests
                 Battlefields = [.. zones["P2"].Battlefields, "ENEMY"]
             };
             locations["ENEMY"] = new("P2", "BATTLEFIELD", Battlefield);
-            cards["ENEMY"] = cards["ENEMY"] with { ControllerId = "P2" };
+            cards["ENEMY"] = cards["ENEMY"] with { ControllerId = "P2", Power = 10 };
         }
         else
         {

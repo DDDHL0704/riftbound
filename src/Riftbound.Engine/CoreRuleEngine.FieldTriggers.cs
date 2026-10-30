@@ -223,7 +223,7 @@ public sealed partial class CoreRuleEngine
         else
         {
             var legal = FieldTriggerTargets(state, item);
-            if (legal.Length == 0 || item.FieldContext!.Kind == "DEFEND"
+            if (legal.Length == 0 && item.FieldContext!.Kind != BombDestructionKind || item.FieldContext!.Kind == "DEFEND"
                 && (!state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration != item.FieldContext.SourceGeneration
                     || source.ControllerId != item.ControllerId || !IsObjectOnField(state.PlayerZones, item.SourceObjectId)))
                 return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
@@ -281,7 +281,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static int FieldTriggerMinimumTargets(FieldTriggerContext context)
-        => context.Kind is "DEFEND" or AttackMightDamageKind or AttackGraveyardBanishKind or PaidUnitDestroyKind
+        => context.Kind is BombDestructionKind or "DEFEND" or AttackMightDamageKind or AttackGraveyardBanishKind or PaidUnitDestroyKind
             || context.Kind == PaidUnitStunKind && PaidUnitStunSpec(context.CardNo)!.Optional == true ? 0 : 1;
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
@@ -306,7 +306,7 @@ public sealed partial class CoreRuleEngine
         if (item.PermanentPlayTargetsPending && !ValidPermanentPlayTargetSelection(state, item, selected))
             return RejectWithCorePrompts(state, "所选目标组合不满足技能条件。", ErrorCodes.InvalidTarget);
         var next = state with { Tick = state.Tick + (advanceTick ? 1 : 0), PendingCardChoice = null };
-        if (selected.Count == 0 && item.CreatedTokenReady is null && item.HighCostPlayObserver is null) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
+        if (selected.Count == 0 && item.FieldContext?.Kind != BombDestructionKind && item.CreatedTokenReady is null && item.HighCostPlayObserver is null) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
         if (item.BattlefieldConquestReadyEquipment is { } equipmentContext)

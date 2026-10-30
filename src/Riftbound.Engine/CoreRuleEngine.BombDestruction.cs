@@ -164,19 +164,9 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid captured bomb destruction stack item.");
 
         var target = item.TargetObjectIds.SingleOrDefault();
-        if (target is null
-            || item.TargetGenerations?.GetValueOrDefault(target, -1) != state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
-            || !FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal))
-        {
-            return NoopStackResolutionResult(state) with
-            {
-                Events = [new("TRIGGER_RESOLVED", "炸弹被摧毁后的技能结算失败", new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = item.SourceObjectId,
-                    ["effectKind"] = context.Kind
-                })]
-            };
-        }
+        var targetIsValid = target is not null
+            && item.TargetGenerations?.GetValueOrDefault(target, -1) == state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
+            && FieldTriggerTargets(state, item).Contains(target, StringComparer.Ordinal);
 
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -192,16 +182,19 @@ public sealed partial class CoreRuleEngine
             })
         };
         var damageTriggered = new HashSet<string>(StringComparer.Ordinal);
-        var damage = ApplyDamageToCardObject(
-            state with { PlayerZones = zones, CardObjects = cards },
-            cards,
-            item.ControllerId,
-            target,
-            2,
-            damageTriggered,
-            state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId),
-            PreventSpellAndSkillDamageThisTurnEffectId);
-        events.Add(new("DAMAGE_APPLIED", "炸弹对敌方单位造成2点伤害", BuildDamagePayload(item.SourceObjectId, target, damage)));
+        if (targetIsValid)
+        {
+            var damage = ApplyDamageToCardObject(
+                state with { PlayerZones = zones, CardObjects = cards },
+                cards,
+                item.ControllerId,
+                target!,
+                2,
+                damageTriggered,
+                state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId),
+                PreventSpellAndSkillDamageThisTurnEffectId);
+            events.Add(new("DAMAGE_APPLIED", "炸弹对敌方单位造成2点伤害", BuildDamagePayload(item.SourceObjectId, target!, damage)));
+        }
 
         var otherBombs = cards.Values
             .Where(IsBomb)
