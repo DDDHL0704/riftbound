@@ -158,6 +158,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            // A rejected command must preserve the exact input state. Do not
+            // run post-resolution collectors over an unsuccessful result:
+            // those collectors may normalize derived layers and allocate a
+            // new record even though no action was accepted.
+            if (!result.Accepted)
+                return ValueTask.FromResult(result);
             if (result.Accepted && result.State.RunePools.Values.Any(pool => !pool.HasSupportedAmounts))
                 return ValueTask.FromResult(RejectWithCorePrompts(state, "资源数量超出服务端支持范围，未执行此行动。", ErrorCodes.UnsupportedCardBehavior));
             var completed = CollectResolutionEffects(state, result);
