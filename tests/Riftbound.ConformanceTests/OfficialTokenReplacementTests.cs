@@ -197,6 +197,11 @@ public sealed class OfficialTokenReplacementTests
     {
         var result = await Act(s, s.PendingCardChoice!.PlayerId,
             new ChooseCardsCommand(s.PendingCardChoice.ChoiceId, s.PendingCardChoice.ChoiceWindow, ids));
+        return await ConfirmBaseTokenLocations(result);
+    }
+
+    internal static async Task<ResolutionResult> ConfirmBaseTokenLocations(ResolutionResult result)
+    {
         var events = result.Events.ToList();
         // These fixtures ask for base entry. Confirm it through the same command
         // used by players when an unrestricted token has additional locations.

@@ -117,7 +117,14 @@ public sealed class RadNextUnitPlayGrantTests
                 PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) { ["P1"] = initial.PlayerZones["P1"] with {
                     Base = initial.PlayerZones["P1"].Base.Append(id).ToArray() } } };
         }
-        var game = new Driver(await StandbySourceRulesTests.ReadyShadow("OGN·135/298", initial));
+        initial = AttackDamageDistributionTests.Spell(initial, "REPLY", "OGN·048/298", "P2");
+        var game = new Driver(initial);
+        await game.Act("P1", new HideCardCommand("SHADOW", "OGN·135/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+        await FaceDownPlayTestDriver.NextTurn(game);
+        foreach (var n in new[] { 1, 2, 3 }) await game.Act("P2", new TapRuneCommand("SHADOW-P2-RUNE-" + n));
+        foreach (var n in new[] { 4, 5 }) await game.Act("P2", new RecycleRuneCommand("SHADOW-P2-RUNE-" + n));
+        await game.Act("P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
+        await game.Act("P2", new PassPriorityCommand());
         await Reject(game.State, new("SHADOW", "OGN·135/298", [], Destination: "BATTLEFIELD:OTHER"));
         foreach (var n in new[] { 1, 2 }) await game.Act("P1", new TapRuneCommand("NEXT-UNIT-MANA-" + n));
         await Grant(game);

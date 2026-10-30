@@ -53,7 +53,7 @@ public sealed class OfficialLegendTokenTests
         // A later board change cannot retroactively reprice a paid activation.
         var changed = activated.State with { CardObjects = new Dictionary<string, CardObjectState>(activated.State.CardObjects) {
             ["SUPPORT"] = activated.State.CardObjects["SUPPORT"] with { Tags = [CardObjectTags.UnitCard] } } };
-        var done = await Top(changed);
+        var done = await ConfirmBaseTokenLocations(await Top(changed));
         Assert.Equal(30 - mana, done.State.RunePools["P1"].Mana); Assert.Single(Tokens(done.State));
     }
 
@@ -157,7 +157,7 @@ public sealed class OfficialLegendTokenTests
         Assert.Contains("Z1", returned.State.PlayerZones["P1"].Hand);
         Assert.Empty(Tokens(returned.State)); Restore(returned.State);
         var s = returned.State;
-        var done = await Top(s);
+        var done = await ConfirmBaseTokenLocations(await Top(s));
         Assert.Null(done.State.PendingCardChoice); Assert.Single(Tokens(done.State)); Restore(done.State);
     }
 

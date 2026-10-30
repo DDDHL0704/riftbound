@@ -38,7 +38,7 @@ public sealed class TokenDefinitionAuditTests
     public async Task RealLegendCreationPreservesTheCoreDefinedTag(string card, string tag)
     {
         var cast = await OfficialLegendTokenTests.Activate(OfficialLegendTokenTests.Position(card, 0), card);
-        var done = await Top(cast.State); var token = Assert.Single(OfficialTokenReplacementTests.Tokens(done.State));
+        var done = await OfficialTokenReplacementTests.ConfirmBaseTokenLocations(await Top(cast.State)); var token = Assert.Single(OfficialTokenReplacementTests.Tokens(done.State));
         Assert.Contains(tag, token.Tags); Restore(done.State);
     }
 
@@ -47,7 +47,7 @@ public sealed class TokenDefinitionAuditTests
     {
         var s = OfficialTokenReplacementTests.Position(0, "OGN·094/298");
         var cast = await Act(s, "P1", new PlayCardCommand("C", "OGN·094/298", []));
-        var done = await Top(cast.State); var token = Assert.Single(OfficialTokenReplacementTests.Tokens(done.State));
+        var done = await OfficialTokenReplacementTests.ConfirmBaseTokenLocations(await Top(cast.State)); var token = Assert.Single(OfficialTokenReplacementTests.Tokens(done.State));
         Assert.Contains("仙灵", token.Tags); Assert.Contains(CardObjectTags.Ephemeral, token.Tags); Restore(done.State);
     }
 }

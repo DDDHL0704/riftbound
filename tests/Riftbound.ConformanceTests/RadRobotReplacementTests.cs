@@ -121,7 +121,11 @@ public sealed class RadRobotReplacementTests
         if (branch is "hidden" or "standby") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             [hero.ObjectId] = hero with { IsFaceDown = true,
                 Tags = branch == "standby" ? hero.Tags.Append(CardObjectTags.Standby).ToArray() : hero.Tags } } };
-        if (branch == "opponent") state = LocalDestructionRecallTests.At(state, "HEIMER0", "P2", "BATTLEFIELD", "BFZ");
+        if (branch == "opponent") {
+            state = LocalDestructionRecallTests.At(state, "HEIMER0", "P2", "BATTLEFIELD", "BFZ");
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["BFZ"] = state.CardObjects["BFZ"] with { ControllerId = "P2" } } };
+        }
         if (branch == "unlocated") state = state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
             [hero.ObjectId] = new("P1", "BATTLEFIELD", "MISSING") } };
         // Invalid fixture locations are deliberately checked at the engine boundary.
@@ -326,8 +330,9 @@ public sealed class RadRobotReplacementTests
         await Choose(game, "UNIT_TOKEN_REPLACEMENT", "DECLINE"); await game.Top();
         var copy = Assert.Single(Tokens(game.State)); Assert.Equal(Hero, copy.CardNo);
         // Returning the printed source leaves only the copied rules text.
-        await game.Act("P1", new MoveUnitCommand("HEIMER0", Destination: "BASE:P1"));
-        await game.Act("P1", new MoveUnitCommand(copy.ObjectId, Destination: "BATTLEFIELD:BFZ"));
+        await CloseShowdown(game);
+        await game.Act("P1", new MoveUnitCommand(copy.ObjectId, "BASE", "BATTLEFIELD:BFZ"));
+        await game.Act("P1", new MoveUnitCommand("HEIMER0", "BATTLEFIELD:BFZ", "BASE"));
         await game.Act("P1", new PlayCardCommand("SECOND", "SFD·031/221", [])); await game.Top(); await Base(game);
         var pending = game.State.PendingRuleChoice!; Assert.Equal("UNIT_TOKEN_REPLACEMENT", pending.Request.Kind);
         Assert.Equal([copy.ObjectId], Assert.Single(pending.Request.Options, option => option.Id == "APPLY").ObjectIds);
@@ -367,7 +372,7 @@ public sealed class RadRobotReplacementTests
     [InlineData("OGN·265/298")] [InlineData("UNL-189/219")]
     public async Task LegendTokenInstructionsKeepTheirReadyStateAndExplicitKeywords(string legend)
     {
-        var initial = WithHero(OfficialLegendTokenTests.Position(legend, 0));
+        var initial = WithHero(OfficialLegendTokenTests.Position(legend, 0)) with { Tick = 0 };
         var game = new Driver(initial); await game.Act("P1", new LegendActCommand("LEGEND",
             legend == "OGN·265/298" ? LegendActionAbilityCatalog.ViktorLegendAbilityId : LegendActionAbilityCatalog.LilliaLegendAbilityId,
             [], [legend == "OGN·265/298" ? "SPEND_MANA:1" : "SPEND_MANA:4"]));
