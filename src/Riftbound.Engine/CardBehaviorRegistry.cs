@@ -162,6 +162,10 @@ public sealed record CardBehaviorDefinition(
     string CreatedBaseEquipmentTokenName = "",
     string CreatedBaseEquipmentTokenTags = "",
     bool CreatedBaseEquipmentTokenIsExhausted = false,
+    int CreatedBattlefieldEquipmentTokenCount = 0,
+    string CreatedBattlefieldEquipmentTokenName = "",
+    string CreatedBattlefieldEquipmentTokenTags = "",
+    bool CreatedBattlefieldEquipmentTokenIsExhausted = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
@@ -9563,6 +9567,16 @@ public static class CardBehaviorRegistry
             MayReturnFriendlyEquipmentAdditionalCost: true, ManaReductionIfEquipmentReturned: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantBombUnits =
+    [
+        new("RAD·001/167", "业余爆破狂", 2, "RAD_001_PLAY_BOMB", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield,
+            CreatedBattlefieldEquipmentTokenCount: 1,
+            CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "约德尔人")
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
         new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
@@ -9581,7 +9595,7 @@ public static class CardBehaviorRegistry
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
-            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits).Concat(RadiantBombUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
