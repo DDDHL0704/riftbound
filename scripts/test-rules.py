@@ -94,12 +94,17 @@ def select_affected_test_classes(changed_paths, changed_text, test_files, source
     for path in changed:
         if path.startswith('tests/Riftbound.ConformanceTests/') and path.endswith('.cs'):
             source = next((text for candidate, text in test_files if candidate == path), '')
-            selected.update(_declared_type_names(source))
+            test_classes = _test_class_names(source)
+            selected.update(test_classes)
+            # Nested Driver/Store/Printing helpers are not test classes. A
+            # standalone helper file instead affects the tests that use it.
+            if not test_classes:
+                source_tokens.update(_source_identifiers(path, source))
         elif path.startswith('src/') or path.endswith('.cs'):
             source_tokens.update(_source_identifiers(path, source_texts.get(path, '')))
     for path, text in test_files:
         if path in changed:
-            selected.update(_declared_type_names(text))
+            selected.update(_test_class_names(text))
             continue
         if tokens and any(token in text for token in tokens):
             selected.update(_test_class_names(text))
