@@ -20,6 +20,7 @@
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
   - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)，已合入：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。
   - [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089)（#263 合入后手动运行，固定 `a7da2b67`）：完整清单包含 9,064 个方法、18,070 条用例和 144 个完整对局方法，无延后豁免。最终 **success**：八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络及 Windows/macOS 桌面全部通过，规则与 PostgreSQL 汇总、最终完整验收门槛也通过；已恢复手动完整夜验。手动运行不计入连续三晚，当前定时计数 **0/3**。
+  - [40967451157](https://github.com/DDDHL0704/riftbound/actions/runs/40967451157)（北京时间 10 月 30 日定时运行，固定 `92a8350b`）：shard-3 的皮城学院回响完整对局失败；连续惩戒伤害留下多个同一单位的强制放逐替换，测试助手在 `DESTRUCTION_REPLACEMENT` 窗口继续让出优先权，未由指定玩家提交替换顺序选择。`a/nightly-academy` 修复测试驱动，保留付款、回响与完整日志回放断言，补充目标实际放逐和真实选择命令断言，并把这条约 13 秒的回归加入常规 L2；原有两局完整对局继续执行。其余夜验任务仍在收集最终结果，当前连续通过 **0/3**。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
@@ -52,10 +53,9 @@
   - [x] #254 已合入：13 项 VEN 传奇与英雄效果、31 个官方 VEN 印次；包含未来守护者、狂暴之心、影流之主、沙漠死神和杰斯「推陈出新」。六片完整规则及 `L2 required` 全部通过，#243、#244、#246–#251、#253、#261 已自动标为合入；对应条目已从 CARD_BACKLOG 删除。
   - [x] #262 已合入：补齐七项 VEN 英雄效果、全部七张专属法术及同效果待核对印次，共 36 个官方印次；六片完整规则与 `L2 required` 全部通过，历史修正来源和隐藏信息守卫恢复通过。对应英雄、专属法术及 12 个待核对印次已从 CARD_BACKLOG 移除；VEN 传奇、英雄、专属法术由 B 线全部完成，其余 52 项效果继续由 D 线接入。
 - [ ] **P2-4 RAD 153 种**：A 线已核实中国区已生效。中国区官方[赛事规则](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf) 601.3.c.6 将“辉耀群星”（RAD）列入当前标准赛制，601.3.c.6.a 明确发售日期为 **2026-10-23**（#264）。B 线完成 VEN 传奇、英雄和专属法术后，接 RAD 传奇、英雄单位、专属法术及专属装备。官方快照中的 RAD 英雄按 30 项不同副标题分别跟踪；按 P2-3 同样方式逐卡验证、合入后移除清单。
-  - [x] [#281](https://github.com/DDDHL0704/riftbound/pull/281) 已合入：厄斐琉斯·出尘、伊泽瑞尔·翩然俊朗、永恩·一剑封尘、凯隐·巨镰奔扬、瑟提·魁首、放逐之刃、铁铠冥魂及轮回绝境，共八项效果、17 个新 RAD 印次；同时补齐三个既有 SFD 伊泽瑞尔印次。六片完整规则与 `L2 required` 全部通过，对应八项已从 CARD_BACKLOG 移除，RAD 剩余 147 项效果。
-  - [x] [#285](https://github.com/DDDHL0704/riftbound/pull/285) 已合入：莫德凯撒·冥王进军与冥途二渡，共两个英雄效果、四个官方印次；可选弃牌摧毁、每个文本实例每回合一次的摧毁费用与休眠召回均已接入，九片完整规则和 `L2 required` 全部通过。对应两项已从 CARD_BACKLOG 移除，RAD 剩余 142 项效果。
-  - B 线 `b/rad-discard-destroy`：接入莫德凯撒·冥王进军两印次的打出／进攻可选弃牌摧毁；定向测试仍在本机限流队列，尚未提交 PR。合入后再移除 CARD_BACKLOG；本批补齐轮回绝境的真实莫德凯撒合法组牌回归，继续接入冥途二渡的通用摧毁替换。
-  - D 线当前分支 `d/rad-basic-effects` 另含 17 张普通牌（15 张原批次及分裂强袭机、勤勉的机械匠），待本地定向回归后送检。
+  - [x] [#281](https://github.com/DDDHL0704/riftbound/pull/281) 已合入：厄斐琉斯·出尘、伊泽瑞尔·翩然俊朗、永恩·一剑封尘、凯隐·巨镰奔扬、瑟提·魁首、放逐之刃、铁铠冥魂及轮回绝境，共八项效果、17 个新 RAD 印次；同时补齐三个既有 SFD 伊泽瑞尔印次。六片完整规则与 `L2 required` 全部通过，对应八项已从 CARD_BACKLOG 移除，RAD 剩余 164 项效果。
+  - [x] [#285](https://github.com/DDDHL0704/riftbound/pull/285) 已合入：莫德凯撒·冥王进军与冥途二渡，共两个英雄效果、四个官方印次；可选弃牌摧毁、每个文本实例每回合一次的摧毁费用与休眠召回均已接入，九片完整规则和 `L2 required` 全部通过。对应两项已从 CARD_BACKLOG 移除，RAD 剩余 162 项效果。
+  - D 线 `d/rad-next`（#287）：接入 20 项普通牌效果，合并 `d/rad-basic-effects`；完成后 RAD 剩余 142 项，当前先修复与 main 的拆分文件及卡池合并，再跑定向回归。
 - [x] **P2-5 杰斯英雄遗漏与现有效果修正**：VEN·068 / 068a「进步先锋」与 VEN·088 / 088a「举锤待发」由 #260 合入；VEN·175「推陈出新」及 SFD·084/221 的完整技能由 #254 合入。使用中国区 260403 勘误后的“若如此做”，按实际摧毁结果授予装备打出权限。
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
@@ -64,6 +64,7 @@
 - [ ] **P3-2 L2 提速**（`a/l2-margin`，为当前完整输入补充余量）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
+  - [x] `a/ci-build-log`：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - 队列复核发现 #284 于 10 月 29 日 23:02 UTC 关闭且未合入，其 [40966626313](https://github.com/DDDHL0704/riftbound/actions/runs/40966626313) 仍在执行，23:13 UTC 还占三个运行名额，已手动取消。`a/l2-close-cancel` 增加独立关闭事件工作流，使用同一个 PR 并发组自动取消旧验证；关闭事件不发布 `L2 required` 检查，重新打开 PR 后仍须通过完整规则。main 的并发组保留独立。
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
@@ -112,3 +113,4 @@ git show <分支>:<路径> > <路径>
   - #262 前端需适配：凯尔的强化层数通过 `empowermentCount` 显示，最多三层。凯南征服授予流转新增可选费用：提示 `flowCostChoiceId` / `flowCostChoices`，通过 `PLAY_CARD.optionalCosts` 提交对应的 `FLOW_COST:<mana>:<power>:<traits>`。
   - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
+  - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
