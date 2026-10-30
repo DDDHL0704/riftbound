@@ -23,7 +23,8 @@ public sealed class RadMovementTriggerUnitTests
         var state = AttackDamageDistributionTests.Position(Elephant);
         state = OfficialHoldSequenceTests.AddUnit(state, "REMOTE", "OGN·001/298", "OTHER", "P2");
         return state with { CardObjects = state.CardObjects.ToDictionary(p => p.Key, p => p.Key switch {
-            "HOST" => OfficialGarenConquestBattlefieldCountTests.Printed("HOST", Elephant, "P1") with { IsExhausted = false },
+            "HOST" => OfficialGarenConquestBattlefieldCountTests.Printed("HOST", Elephant, "P1") with {
+                IsExhausted = false, Tags = [CardObjectTags.UnitCard, "COLOR:orange", "坚守3", "壁垒"] },
             "ENEMY1" or "REMOTE" => p.Value with { Power = 20,
                 Tags = ward ? [..p.Value.Tags, "法盾2"] : p.Value.Tags }, _ => p.Value }) };
     }
@@ -126,6 +127,10 @@ public sealed class RadMovementTriggerUnitTests
         Assert.Equal(pool.Mana - mana, game.State.RunePools["P1"].Mana);
         Assert.Equal(pool.TotalPower - rune, game.State.RunePools["P1"].TotalPower);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        if (no == Elephant) {
+            Assert.Contains("坚守3", game.State.CardObjects["UNIT"].Tags);
+            Assert.Contains("壁垒", game.State.CardObjects["UNIT"].Tags);
+        }
         await game.Replay();
     }
 
@@ -168,12 +173,13 @@ public sealed class RadMovementTriggerUnitTests
     }
 
     [Fact]
-    public async Task ElephantChecksCurrentSteadfastWhenTheSkillResolves()
+    public async Task ElephantDamageIncludesSteadfastGrantedByAnEarlierSpell()
     {
         var state = AttackDamageDistributionTests.Spell(ElephantPosition(), "PARRY", "OGN·057/298", "P1");
-        var game = new Driver(state); await Move(game); await Choose(game, "ENEMY1");
+        var game = new Driver(state);
         await game.Act("P1", new PlayCardCommand("PARRY", "OGN·057/298", ["HOST"]));
         await game.Top(); Assert.Equal(0, game.State.CardObjects["ENEMY1"].Damage);
+        await Move(game); await Choose(game, "ENEMY1");
         await game.Top(); Assert.Equal(6, game.State.CardObjects["ENEMY1"].Damage); await game.Replay();
     }
 
