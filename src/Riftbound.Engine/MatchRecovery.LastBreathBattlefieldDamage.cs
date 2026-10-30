@@ -11,7 +11,7 @@ public static partial class MatchRecoveryValidator
 
     private static void ValidateLastBreathBattlefieldDamageState(MatchState state, List<string> errors)
     {
-        bool MissingBirth(string id, string kind) => kind == TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits
+        bool MissingBirth(string id, string kind) => (kind is TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits or TriggerKinds.UnitLastBreathDestroyPermanentHere)
             && (id.StartsWith("TRIGGER-death-", StringComparison.Ordinal) || id.StartsWith("ordered-TRIGGER-death-", StringComparison.Ordinal));
         foreach (var i in state.StackItems)
             if (i.LastBreathBattlefieldDamage is not null ? !CoreRuleEngine.ValidLastBreathBattlefieldDamageStack(state, i) : MissingBirth(i.StackItemId, i.EffectKind))

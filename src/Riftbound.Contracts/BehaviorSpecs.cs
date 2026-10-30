@@ -283,6 +283,7 @@ public static class TriggerKinds
         "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     public const string UnitLastBreathDamageSourceBattlefieldUnits =
         "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
+    public const string UnitLastBreathDestroyPermanentHere = "UNIT_LAST_BREATH_DESTROY_PERMANENT_HERE";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =

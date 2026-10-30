@@ -9429,6 +9429,8 @@ public static class CardBehaviorRegistry
     [
         new("RAD·036/167", "风暴锋喙鸟", 6, "STUNNED_ENEMY_DEATH_DRAW_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "鸟类|法盾"),
+        new("RAD·126/167", "哀戚悲灵", 4, "LAST_BREATH_LOCAL_DESTROY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "灵体"),
         new("RAD·131/167", "光照者教团", 3, "FRIENDLY_DEATH_BATCH_BOON_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3)
     ];

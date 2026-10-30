@@ -13,6 +13,7 @@ public sealed class RadDestructionObserverUnitTests
 
     [Theory]
     [InlineData(Bird, 39529, 6, 6, 0)] [InlineData(Order, 39636, 3, 3, 1)]
+    [InlineData("RAD·126/167", 39631, 4, 1, 0)]
     public async Task OfficialPrintsPayTheirCostsAndRejectUnaffordableEntry(string no, long id, int mana, int power, int rune)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
@@ -191,6 +192,7 @@ public sealed class RadDestructionObserverUnitTests
     [Theory]
     [InlineData(Bird, TriggerKinds.UnitStunnedEnemyDestroyedHereDraw)]
     [InlineData(Order, TriggerKinds.UnitFriendlyBatchDestroyedBoon)]
+    [InlineData("RAD·126/167", TriggerKinds.UnitLastBreathDestroyPermanentHere)]
     public async Task OfficialChineseTextsProduceTheSharedDeathSpecs(string no, string kind)
     {
         var card = (await OfficialCardCatalog.LoadRuntimeAsync()).Cards.Single(c => c.CardNo == no);

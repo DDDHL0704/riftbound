@@ -202,7 +202,9 @@ internal static class UnitDestroyedTriggerSpecRules
 
     internal static IReadOnlyList<TriggerSpec> LastBreathBattlefieldDamageTriggers(string? cardNo)
         => !string.IsNullOrWhiteSpace(cardNo) && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
-            ? triggers.Where(IsLastBreathSourceBattlefieldAoeDamageTrigger).ToArray() : [];
+            ? triggers.Where(t => IsLastBreathSourceBattlefieldAoeDamageTrigger(t)
+                || t.Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && t.Timing == TriggerTimings.UnitDestroyed
+                    && t.TargetScope == TriggerTargetScopes.UnitOrEquipmentOnField && t.DestroyCount == 1 && t.Optional == true).ToArray() : [];
 
     public static bool IsLastBreathCreateBaseUnitEffectKind(string? effectKind)
     {

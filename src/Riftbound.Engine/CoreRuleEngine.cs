@@ -24008,6 +24008,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (NeedsLastBreathHereTarget(stackItem)) return ResolveCapturedLastBreathBattlefieldDamage(state, stackItem);
         if (stackItem.EmpowerOtherObserver is not null) return ResolveEmpowerOtherObserver(state, stackItem);
         if (stackItem.OutsideHandPlayObserver is not null) return ResolveOutsideHandPlayObserver(state, stackItem);
         if (stackItem.HighCostPlayObserver is not null) return ResolveHighCostPlay(state, stackItem);
@@ -31756,7 +31757,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? reason = null)
     {
         var sourceState = RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin;
-        var visibleSource = stackItem.FieldContext is not null && sourceState is not null
+        var visibleSource = (stackItem.FieldContext is not null || NeedsLastBreathHereTarget(stackItem)) && sourceState is not null
             ? ResolutionResult.VisibleObjectIdForViewer(sourceState, stackItem.SourceObjectId, "__spectator__")
             : stackItem.SourceObjectId;
         var payload = new Dictionary<string, object?>
