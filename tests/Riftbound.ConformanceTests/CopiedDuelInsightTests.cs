@@ -256,7 +256,7 @@ public sealed class CopiedDuelInsightTests
         }
         // SFD163 has Reaction. Malzahar's Swift resource skill cannot be
         // activated during confirmation or this closed response window.
-        await driver.Act("P1", new TapRuneCommand("R1")); await driver.Act("P1", new TapRuneCommand("R2"));
+        await driver.Act("P1", new TapRuneCommand("R1", ["R1", "R2"]));
         await driver.Act("P1", new PlayCardCommand("DESTROY", "SFD·163/221", [token, "HOST"])); await driver.Top();
         Assert.False(driver.State.CardObjects.ContainsKey(token));
         Assert.Equal(count, Contexts(driver.State).Length);
