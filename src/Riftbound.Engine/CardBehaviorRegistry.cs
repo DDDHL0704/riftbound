@@ -60,6 +60,9 @@ public sealed record CardBehaviorDefinition(
     int DrawCountIfRuneCallFails = 0,
     int RuneCallCountAfterTargetReturn = 0,
     bool MovesTargetToBase = false,
+    bool PlayTargetsAtSourceLocation = false,
+    bool RecyclesSourceIfPlayedFromStandby = false,
+    bool GrantsSourceEphemeralIfOpponentTurn = false,
     bool MovesWeakerEnemiesAtSelectedBattlefieldToBase = false,
     bool RemovesDamageFromAllFriendlyBattlefieldUnits = false,
     int SecondaryPowerModifierAmount = 0,
@@ -91,8 +94,15 @@ public sealed record CardBehaviorDefinition(
     bool CreatedBaseUnitTokenCopiesFirstTarget = false,
     bool DiscardsAllPlayersHandsThenDraws = false,
     bool RequiresDestroyFriendlyUnitAdditionalCost = false,
+    bool MayDestroyFriendlyPermanentAdditionalCost = false,
+    bool PlayAbilityRequiresPermanentDestructionCost = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool RequiresReturnFriendlyEquipmentAdditionalCost = false,
+    bool MayReturnFriendlyEquipmentAdditionalCost = false,
+    bool ReadiesSourceAndAddsReturnedEquipmentManaPower = false,
+    int ManaReductionIfEquipmentReturned = 0,
+    bool MayEnterReadyWithMovementProhibition = false,
+    bool EntersReadyAfterFriendlyPermanentDestroyed = false,
     bool RequiresReturnFriendlyUnitAdditionalCost = false,
     bool DestroysFirstTargetAndBuffsSecondByDestroyedPower = false,
     string SecondaryStatusEffectId = "",
@@ -105,6 +115,7 @@ public sealed record CardBehaviorDefinition(
     int MainDeckLookCount = 0,
     int MainDeckLookTargetStartIndex = 0,
     string MainDeckTargetRequiredTag = "",
+    string MainDeckTargetAllowedTags = "",
     int MainDeckTargetMinimumManaCost = 0,
     bool DrawsSelectedMainDeckTarget = false,
     bool MainDeckSelectionIsDraw = true,
@@ -336,7 +347,8 @@ public sealed record CardBehaviorDefinition(
     OpponentSpellCostIncreaseSpec? OpponentSpellCostIncrease = null,
     bool PlayTriggerBanishesGraveyardCardAsCost = false,
     SourceStaticLimitsSpec? SourceStaticLimits = null,
-    int EndStepSelfDestructionDamage = 0)
+    int EndStepSelfDestructionDamage = 0,
+    ShowcaseSpec? Showcase = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -9297,6 +9309,25 @@ public static class CardBehaviorRegistry
         new("RAD·061a/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061A", 0, 0,
             RequiresReturnFriendlyUnitAdditionalCost: true,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
+        new("RAD·031/167", "冷面摆渡人", 4, "RAD_031_PLAY_MOVE_OTHER_HERE_TO_BASE", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, MinTargetCount: 0,
+            MovesTargetToBase: true, PlayTargetsAtSourceLocation: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "哨兵|坚守3"),
+        new("RAD·081/167", "厄努克牛群", 6, "RAD_081_PLAY_MIGHT_OTHER_RECYCLE_SELF", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, PowerModifierAmount: 3,
+            RecyclesSourceIfPlayedFromStandby: true, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·095/167", "临时舞伴", 4, "RAD_095_PLAY_OPPONENT_TURN_EPHEMERAL", 0, 0,
+            GrantsSourceEphemeralIfOpponentTurn: true, PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4, SourceUnitTags: "恶魔"),
+        new("RAD·099/167", "巧言说客", 3, "RAD_099_PLAY_BOTH_DRAW", 0, 0,
+            DrawCount: 1, DrawsControllerAndOtherPlayers: true, PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3, SourceUnitTags: "恶魔"),
+        new("RAD·129/167", "崔法利队长", 2, "RAD_129_PLAY_LOOK_UNIT_OR_EQUIPMENT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyMainDeckCard, MinTargetCount: 0,
+            MaxTargetManaCost: 3, MainDeckLookCount: 4,
+            MainDeckTargetAllowedTags: CardObjectTags.UnitCard + "|" + CardObjectTags.EquipmentCard, DrawsSelectedMainDeckTarget: true,
+            RecyclesUnselectedMainDeckLookCards: true, PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 1, SourceUnitTags: "崔法利", MaxTargetPowerCost: 1),
         new("RAD·020/167", "莫德凯撒", 7, "RAD_020_MORDEKAISER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "灵体|急速|强攻3",
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
@@ -9361,10 +9392,75 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "游走|缴械")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
+    [
+        new("RAD·107/167", "祸心陌客", 2, "MALICIOUS_STRANGER_PLAY_UNIT", 0, 2,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "恶魔|待命",
+            MinTargetCount: 1, TargetScope: CardTargetScopes.BattlefieldThenEnemyUnit,
+            SelectedBattlefieldEffect: new(0, false, PrimaryEnemyTargetIndex: 1, OptionalEnemyReturnMinimumUnitCount: 4)),
+        new("RAD·011/167", "冥顽构装体", 4, "OBDURATE_CONSTRUCT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "机械",
+            Showcase: new("MECHANICAL", ReadyEntry: true)),
+        new("RAD·060/167", "苍穹腾蛟", 8, "SKYWARD_SERPENT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙",
+            Showcase: new(InsightFromPowerCost: true, DrawAfter: 2)),
+        new("RAD·103/167", "暗巷守护者", 3, "BACKALLEY_GUARDIAN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "待命",
+            Showcase: new("STANDBY", GenericPower: 1)),
+        new("RAD·018/167", "龙犬驯兽师", 9, "DRAGONHOUND_TRAINER_REVEAL_EFFECT_PLAY", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 9,
+            DeckPlayKind: "OPPONENT_REVEAL_PLAY", EffectPlayAllowsAnyCard: true),
+        new("RAD·074/167", "狂热目击者", 3, "ZEALOUS_WITNESS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·078/167", "重甲象骑", 6, "ARMORED_ELEPHANT_RIDER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守3|壁垒"),
+        new("RAD·076/167", "古灵翼兽", 2, "FLEDGLING_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
+        new("RAD·080/167", "觅血虫群", 8, "BLOODSEEKING_SWARM_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8),
+        new("RAD·030/167", "圣所保管员", 5, "SANCTUARY_KEEPER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5)
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantEntryCostUnits =
+    [
+        new("RAD·014/167", "微光泳者", 3, "OPTIONAL_DESTROY_PERMANENT_DEAL_DAMAGE", 2, 1,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, TargetScope: CardTargetScopes.AnyUnit,
+            MayDestroyFriendlyPermanentAdditionalCost: true, PlayAbilityRequiresPermanentDestructionCost: true),
+        new("RAD·066/167", "熔炉之灵", 6, "RETURN_EQUIPMENT_READY_AND_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "灵体",
+            MayReturnFriendlyEquipmentAdditionalCost: true, ReadiesSourceAndAddsReturnedEquipmentManaPower: true),
+        new("RAD·005/167", "弥留之灵", 2, "FRIENDLY_DESTRUCTION_READY_ENTRY", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "灵体",
+            EntersReadyAfterFriendlyPermanentDestroyed: true),
+        new("RAD·026/167", "盘踞野猪", 2, "OPTIONAL_READY_RESTRICTED_ENTRY", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, MayEnterReadyWithMovementProhibition: true),
+        new("RAD·072/167", "满载的旅人", 2, "DEPLOYED_EQUIPMENT_POWER_STATIC", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "约德尔人"),
+        new("RAD·075/167", "鹰翼中队", 5, "OPTIONAL_RETURN_EQUIPMENT_REDUCED_COST", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "精锐|鸟类|法盾",
+            MayReturnFriendlyEquipmentAdditionalCost: true, ManaReductionIfEquipmentReturned: 2)
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
+    [
+        new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, InsightCount: 3),
+        new("RAD·036/167", "风暴锋喙鸟", 6, "STUNNED_ENEMY_DEATH_DRAW_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "鸟类|法盾"),
+        new("RAD·126/167", "哀戚悲灵", 4, "LAST_BREATH_LOCAL_DESTROY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "灵体"),
+        new("RAD·130/167", "战地甲胄师", 3, "EQUIPMENT_DEATH_RETURN_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·131/167", "光照者教团", 3, "FRIENDLY_DEATH_BATCH_BOON_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
+            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

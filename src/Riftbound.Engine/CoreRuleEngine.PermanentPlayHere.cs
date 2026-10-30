@@ -13,10 +13,10 @@ public sealed partial class CoreRuleEngine
     private static bool PermanentPlayHereTargetAllowed(MatchState state, StackItemState item,
         CardBehaviorDefinition behavior, string target)
     {
-        if (!item.SourceConfirmed || behavior.TargetScope != CardTargetScopes.EnemyUnitAtSourceLocation) return true;
+        if (!item.SourceConfirmed || (behavior.TargetScope != CardTargetScopes.EnemyUnitAtSourceLocation && !behavior.PlayTargetsAtSourceLocation)) return true;
         // CN 124 and 359.3.f.2: movement within the field preserves this source;
         // leaving and re-entering creates another object, not a new "here".
-        if (item.PermanentPlaySource is not { } binding
+        if ((behavior.PlayTargetsAtSourceLocation ? PlayInstructionSource(state, item) : item.PermanentPlaySource) is not { } binding
             || !state.CardObjects.TryGetValue(binding.ObjectId, out var source)
             || source.ObjectGeneration != binding.Generation || !IsFaceUpNonStandbyUnit(source)
             || !state.ObjectLocations.TryGetValue(binding.ObjectId, out var location)

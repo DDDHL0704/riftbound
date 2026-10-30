@@ -6,6 +6,8 @@ public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
+                && (behavior.Showcase is null || item.Showcase is not null)
+                && (!behavior.GrantsSourceEphemeralIfOpponentTurn || state.TurnPlayerId != item.ControllerId)
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && PaidUnitStunSpec(behavior.CardNo) is null
                 && PaidUnitTriggerSpec(behavior.CardNo, PaidUnitDestroyKind) is null
@@ -15,6 +17,8 @@ public sealed partial class CoreRuleEngine
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
+                && (!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item))
+                && (!behavior.ReadiesSourceAndAddsReturnedEquipmentManaPower || item.ReturnedEquipmentManaCost is not null)
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))

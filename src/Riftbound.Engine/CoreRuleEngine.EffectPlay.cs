@@ -23,6 +23,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.LastBreathBattlefieldDamage is { Kind: TriggerKinds.UnitLastBreathBanishDeckTopPlay })
+        {
+            definition = new(parent.CardNo, "绝念放逐牌库顶并打出", 0, parent.EffectKind, 0, 0,
+                EffectPlaySourceZone: "BANISHED", EffectPlayIgnoreBaseMana: true, EffectPlayOptional: true, EffectPlayAllowsAnyCard: true);
+            return true;
+        }
         if (parent.EmpowerInteraction is { } empowerment && EmpowerInteractionDefinition(empowerment.CardNo)?.Effect
             is "PLAY_GRAVEYARD_UNIT" or "MILL_THEN_PLAY_OPPONENT_UNIT") {
             definition = EmpowerInteractionPlayBehavior(empowerment); return true;
@@ -135,6 +141,7 @@ public sealed partial class CoreRuleEngine
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
                 RequiresReturnFriendlyEquipmentAdditionalCost = false,
+                MayReturnFriendlyEquipmentAdditionalCost = false,
                 RequiresReturnFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 

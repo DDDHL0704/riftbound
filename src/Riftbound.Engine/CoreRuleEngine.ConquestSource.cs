@@ -18,6 +18,8 @@ public sealed partial class CoreRuleEngine
                 TriggerKinds.UnitConquestEmpoweredGainScore or TriggerKinds.UnitConquestPlayedUnitEquipmentSpellGainScore => t.ScoreAmount is > 0,
                 TriggerKinds.UnitConquestDrawOne => t.DrawCount is > 0,
                 TriggerKinds.UnitConquestGrantSelfBoon => t.BoonCount is > 0,
+                TriggerKinds.UnitConquestGainResources => t.ManaDelta is >= 0 && t.GeneratedPower is >= 0
+                    && (t.ManaDelta > 0 || t.GeneratedPower > 0),
                 _ => false
             }));
 
@@ -92,6 +94,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidConquestSourceStack(MatchState state, StackItemState item)
         => ValidConquestSource(state, item.ConquestSource, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo)
+            && item.ConquestSource?.Kind != TriggerKinds.UnitConquestGainResources
             && (item.ConquestSource is null || item.StackItemId.StartsWith($"ordered-conquest-source-{item.ConquestSource.CapturedTick}-", StringComparison.Ordinal)
                 && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && item.OptionalCosts.Count == 0
                 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed);

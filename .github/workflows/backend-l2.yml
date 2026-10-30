@@ -41,6 +41,7 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/tests -p 'test_l2*.py' -v
           python3 -m unittest discover -s scripts/tests -p test_rules_runner.py -v
+          python3 -m unittest discover -s scripts/tests -p test_affected_tests.py -v
           python3 -m unittest discover -s scripts/tests -p test_dev_env.py -v
           python3 -m unittest discover -s scripts/tests -p test_ci_change_scope.py -v
           python3 -m unittest discover -s scripts/tests -p test_scoped_ci.py -v

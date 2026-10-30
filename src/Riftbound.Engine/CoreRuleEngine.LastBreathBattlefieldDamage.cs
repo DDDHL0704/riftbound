@@ -5,11 +5,14 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+// Captures the death location for local last-breath effects, including targeted destruction.
 public sealed record LastBreathBattlefieldDamageContext(string DeathId, string CardNo, string SourceCardNo,
     string Kind, string ControllerId, ObjectBinding Source, string InstanceId, int TriggerIndex,
     string SourceZone, string? BattlefieldObjectId, int TurnNumber, long CreatedAtTick,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceBasePlayerId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -43,7 +46,9 @@ public sealed partial class CoreRuleEngine
             for (var index = 0; index < specs.Count; index++)
                 result.Add(new(deathId, instance.CardNo, before.CardNo, specs[index].Kind, controller,
                     new(source.ObjectId, source.ObjectGeneration), instance.Id, index, sourceZone, battlefield,
-                    state.TurnNumber, state.Tick + 1, source.TokenFactoryCardNo, instance.Origin));
+                    state.TurnNumber, state.Tick + 1, source.TokenFactoryCardNo, instance.Origin,
+                    specs[index].Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && sourceZone == "BASE"
+                        ? frame.PlayerZones.Single(p => p.Value.Base.Contains(source.ObjectId)).Key : null));
         }
         return result.ToArray();
     }
@@ -62,7 +67,12 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(c.SourceCardNo) || string.IsNullOrWhiteSpace(c.ControllerId) || !state.Seats.ContainsKey(c.ControllerId)
             || string.IsNullOrWhiteSpace(c.DeathId) || !c.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(c.InstanceId) || c.TurnNumber != state.TurnNumber || c.CreatedAtTick <= 0 || c.CreatedAtTick > state.Tick
+            || (c.BanishedDeckTop is not null && (c.Kind != TriggerKinds.UnitLastBreathBanishDeckTopPlay
+                || c.BanishedDeckTop.Generation < 1 || !state.CardObjects.TryGetValue(c.BanishedDeckTop.ObjectId, out var banished)
+                || banished.ObjectGeneration < c.BanishedDeckTop.Generation))
             || !TryGetLastBreathBattlefieldDamageSpec(c, out _) || c.SourceZone is not ("BASE" or "BATTLEFIELD")
+            || (c.Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && c.SourceZone == "BASE"
+                ? c.SourceBasePlayerId is null || !state.Seats.ContainsKey(c.SourceBasePlayerId) : c.SourceBasePlayerId is not null)
             || (c.SourceZone == "BASE" ? c.BattlefieldObjectId is not null
                 : string.IsNullOrWhiteSpace(c.BattlefieldObjectId)
                     || !TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, c.BattlefieldObjectId, out _, out _))) return false;
@@ -82,11 +92,15 @@ public sealed partial class CoreRuleEngine
         => item.LastBreathBattlefieldDamage is { } c && ValidLastBreathBattlefieldDamage(state, c)
             && item.StackItemId == "ordered-" + LastBreathBattlefieldDamageTriggerId(c)
             && item.ControllerId == c.ControllerId && item.SourceObjectId == c.Source.ObjectId && item.CardNo == c.CardNo
-            && item.EffectKind == c.Kind && item.TargetObjectIds is { Count: 0 } && item.TargetGenerations is null;
+            && item.EffectKind == c.Kind && (NeedsLastBreathHereTarget(item)
+                ? item.TargetGenerations is null ? item.TargetObjectIds.Count == 0
+                    : item.TargetObjectIds.Count == 1 && item.TargetGenerations.Count == 1
+                        && item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var generation) && generation >= 0
+                : item.TargetObjectIds is { Count: 0 } && item.TargetGenerations is null);
 
     internal static bool ValidLastBreathBattlefieldDamageTrigger(MatchState state, TriggerQueueItemState item)
         => item.LastBreathBattlefieldDamage is { } c && ValidLastBreathBattlefieldDamage(state, c)
-            && item.TriggerId == LastBreathBattlefieldDamageTriggerId(c)
+            && c.BanishedDeckTop is null && item.TriggerId == LastBreathBattlefieldDamageTriggerId(c)
             && item.ControllerId == c.ControllerId && item.SourceObjectId == c.Source.ObjectId && item.SourceCardNo == c.CardNo
             && item.EffectKind == c.Kind && item.TriggeredByEventKind == TriggerTimings.UnitDestroyed;
 
@@ -100,6 +114,21 @@ public sealed partial class CoreRuleEngine
             || !TryGetLastBreathBattlefieldDamageSpec(c, out var spec)) throw new InvalidOperationException("Invalid captured last-breath battlefield damage.");
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(LastBreathBattlefieldDamageTrigger(c)) };
+        if (NeedsLastBreathHereTarget(item))
+        {
+            events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") } };
+            var target = item.TargetObjectIds.SingleOrDefault();
+            if (target is null || !LastBreathHereTargets(state, item).Contains(target)
+                || item.TargetGenerations?.GetValueOrDefault(target, -1) != cards[target].ObjectGeneration)
+                return NoopStackResolutionResult(state) with { Events = events };
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(),
+                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), state.RunePools,
+                objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { target }, explicitDestroyReason: "SKILL_EFFECT");
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, RunePools = removal.RunePools,
+                TriggerQueue = removal.TriggerQueue, DestroyedUnitOwnerIds = removal.DestroyedUnitOwnerIds,
+                Events = events.Concat(removal.Events).ToArray(), ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+        }
         if (c.BattlefieldObjectId is { } field)
             foreach (var target in GetBattlefieldUnitObjectIdsAtBattlefield(zones, cards, ReconcileObjectLocations(state.ObjectLocations, zones), field))
             {
@@ -108,5 +137,48 @@ public sealed partial class CoreRuleEngine
                 events.Add(new("DAMAGE_APPLIED", "绝念范围伤害", payload));
             }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events };
+    }
+
+    private static bool NeedsLastBreathHereTarget(StackItemState item)
+        => item.LastBreathBattlefieldDamage?.Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere;
+
+    private static string[] LastBreathHereTargets(MatchState state, StackItemState item)
+    {
+        var c = item.LastBreathBattlefieldDamage!;
+        return state.CardObjects.Values.Where(card => !card.IsFaceDown
+            && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
+            && TryGetPreciseFieldLocation(state.PlayerZones, state.ObjectLocations, card.ObjectId, out var location)
+            && location.Zone == c.SourceZone && (c.SourceZone == "BASE" ? location.PlayerId == c.SourceBasePlayerId
+                : location.BattlefieldObjectId == c.BattlefieldObjectId)
+            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId))
+            .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
+    }
+
+    private static PendingCardChoiceState LastBreathHereChoice(MatchState state, StackItemState item)
+    {
+        var legal = LastBreathHereTargets(state, item);
+        return new("LAST-BREATH-HERE:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId, 0, 1,
+            legal, legal, "可以选择摧毁原位置的一个单位或装备；不选则放弃。确认后双方可以响应。", item.SourceObjectId, item.EffectKind)
+            { ResolvingStackItemId = item.StackItemId };
+    }
+
+    private static ResolutionResult PrepareLastBreathHereTarget(ResolutionResult result, StackItemState item)
+    {
+        var choice = LastBreathHereChoice(result.State, item);
+        if (choice.LegalObjectIds.Count == 0) return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
+        var state = result.State with { PendingCardChoice = choice, ActivePlayerId = item.ControllerId, PriorityPlayerId = null };
+        return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+    }
+
+    internal static bool ValidLastBreathHereChoice(MatchState state, PendingCardChoiceState choice)
+    {
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
+        if (item is null || !NeedsLastBreathHereTarget(item) || item.TargetGenerations is not null
+            || !ValidLastBreathBattlefieldDamageStack(state, item)) return false;
+        var expected = LastBreathHereChoice(state, item);
+        return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
+            && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
+            && choice.EffectKind == expected.EffectKind && choice.RequiredCount == 0 && choice.MaxCount == 1
+            && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
 }

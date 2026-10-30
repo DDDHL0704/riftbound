@@ -38,6 +38,9 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
         string effect, string controller, string source, string? cardNo)
     {
+        if (context.Kind == DeploymentHeldKind)
+            return ValidDeploymentHeldContext(state, context, effect, controller, source, cardNo);
+        if (context.Deployment is not null) return false;
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
         if (context.Kind == "BURN") return HeldDefinition(context.CardNo) is { Kind: "BURN" } burn
             && context.Amount == burn.Amount && effect == "HOLD_BURN" && cardNo == context.CardNo
@@ -93,6 +96,17 @@ public sealed partial class CoreRuleEngine
                             && HasExactOtherFriendlyBattlefieldUnitCount(state, card, exact.RequiredExactOtherFriendlyBattlefieldUnits))
                             abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
                                 exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
+                if (units.Contains(source))
+                    foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                        if (HeldInsightSpec(instance.CardNo) is { RevealCount: > 0 } insight)
+                            for (var copy = 0; copy < copies; copy++)
+                            {
+                                var trigger = new TriggerQueueItemState($"held-insight-{state.TurnNumber}-{state.Tick}-{field}-{instance.Id}-{copy}",
+                                    player, source, InsightTriggerEffect, "BATTLEFIELD_HELD") {
+                                    InsightContext = new(instance.CardNo, player, insight.RevealCount.Value, card.ObjectGeneration, "HELD", field,
+                                        Origin: instance.Origin, SourceTokenFactoryCardNo: card.TokenFactoryCardNo), SourceCardNo = instance.CardNo };
+                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                            }
                 foreach (var ability in abilities)
                     for (var copy = 0; copy < copies; copy++)
                     {
@@ -115,12 +129,13 @@ public sealed partial class CoreRuleEngine
                     }
             }
         }
-        return state with { TriggerQueue = queue, DelayedResourceGains = delayed };
+        return QueueDeploymentHeldAbilities(state with { TriggerQueue = queue, DelayedResourceGains = delayed }, fields, events);
     }
 
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
+        if (context.Kind == DeploymentHeldKind) return ResolveDeploymentHeld(state, item);
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);

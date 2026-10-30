@@ -17,7 +17,8 @@ public sealed partial class CoreRuleEngine
         var seen = previous?.Instruction.Seen.Select(b => b.ObjectId).ToArray()
             ?? TakeControlledMainDeckPrefix(cards, player, zones[player].MainDeck, 1);
         var top = seen.FirstOrDefault();
-        var unit = top is not null && cards.TryGetValue(top, out var revealed) && revealed.Tags.Contains(CardObjectTags.UnitCard);
+        var unit = top is not null && cards.TryGetValue(top, out var revealed) && revealed.Tags.Contains(CardObjectTags.UnitCard)
+            && (spec.RequiredPowerThreshold is null || revealed.Power >= spec.RequiredPowerThreshold);
         if (seen.Length > 0 && previous is null)
             events.Add(new("CARDS_REVEALED", "移动技能展示主牌堆顶部一张牌", new Dictionary<string, object?> {
                 ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["cardIds"] = seen,
@@ -38,6 +39,14 @@ public sealed partial class CoreRuleEngine
         }
         else if (top is not null)
         {
+            if (spec.RevealMissDestinationZone == TriggerZones.MainDeck)
+            {
+                var recycle = RecycleLookedMainDeckCards(state, zones, cards, player, item.SourceObjectId,
+                    remaining.Contains(top) ? [top] : [], state.RngCursor);
+                events.AddRange(recycle.Events);
+                return result with { PlayerZones = zones, CardObjects = cards, RngCursor = recycle.RngCursor,
+                    ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
+            }
             if (top is not null && remaining.Contains(top))
             {
                 zones[player] = zones[player] with { MainDeck = RemoveFromZone(zones[player].MainDeck, top),

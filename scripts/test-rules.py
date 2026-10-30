@@ -34,6 +34,128 @@ SMOKE = ['OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerProm
 # acceptance. Include it when present without requiring it on older inputs.
 L2_BOUNDED_GAMES = {FULL_CLASS + 'ControlledConquestFixturesChangeEnemyControlAndReplayConsumerPrefix'}
 L3_POLICY = ROOT / 'scripts/l3-rule-acceptance-methods.json'
+TESTS_ROOT = ROOT / 'tests/Riftbound.ConformanceTests'
+CARD_TOKEN = re.compile(
+    r'(?<![A-Za-z0-9])(?:RAD|VEN)(?:[·-](?:[A-Za-z]*\d+[A-Za-z*]*(?:/\d+)?(?:·[A-Za-z0-9]+)?|[A-Za-z]+\d*(?:/\d+)?))(?![A-Za-z0-9])')
+TYPE_DECLARATION = re.compile(r'\b(?:class|record|struct|interface)\s+([A-Za-z_]\w*)')
+SOURCE_READ = re.compile(r'(?:SourceFileParts\s*\.\s*ReadAll(?:Text|Lines|Bytes)|File\s*\.\s*ReadAll(?:Text|Lines|Bytes))')
+SOURCE_ASSERTION = re.compile(r'Assert\s*\.\s*(?:Contains|DoesNotContain|Matches|Equal|NotEqual)')
+GENERIC_SOURCE_PARTS = frozenset({'cs', 'tests', 'test', 'src', 'engine', 'contracts', 'cardcatalog', 'persistence', 'api'})
+EXPLICIT_GUARD_PARTS = ('privacy', 'hidden', 'sourceidentity', 'provenance', 'catalogbaseline', 'officialopening')
+
+
+class AffectedBranchOutOfDate(ValueError):
+    """The requested base is newer than the checked out branch."""
+
+
+def _test_class_names(text):
+    names = _declared_type_names(text)
+    return {name for name in names
+            if name.endswith(('Tests', 'Test', 'Consumers', 'Guard', 'Privacy', 'Provenance'))}
+
+
+def _declared_type_names(text):
+    return set(TYPE_DECLARATION.findall(text))
+
+
+def _guard_class_names(test_files):
+    """Find mandatory guards and tests that assert source-level architecture."""
+    names = set()
+    for path, text in test_files:
+        lower = Path(path).name.casefold()
+        explicit = any(part in lower for part in EXPLICIT_GUARD_PARTS)
+        source_assertion = bool(SOURCE_READ.search(text) and SOURCE_ASSERTION.search(text)
+                               and ('SourceFileParts' in text or '.cs' in text))
+        if explicit or source_assertion:
+            names.update(_test_class_names(text))
+    return {name for name in names if name != 'SourceFileParts'}
+
+
+def _source_identifiers(path, text):
+    """Build conservative type/file tokens for tests that depend on a source file."""
+    stem = path.rsplit('/', 1)[-1]
+    if stem.endswith('.cs'):
+        stem = stem[:-3]
+    parts = re.split(r'[._-]', stem)
+    identifiers = {part for part in parts if len(part) >= 4 and part.casefold() not in GENERIC_SOURCE_PARTS}
+    identifiers.update(_declared_type_names(text))
+    if stem:
+        identifiers.add(stem)
+    return identifiers
+
+
+def select_affected_test_classes(changed_paths, changed_text, test_files, source_texts=None):
+    """Select test classes for a conservative pre-push affected-test run."""
+    source_texts = source_texts or {}
+    changed = set(changed_paths)
+    selected = set()
+    tokens = set(CARD_TOKEN.findall(changed_text))
+    source_tokens = set()
+    for path in changed:
+        if path.startswith('tests/Riftbound.ConformanceTests/') and path.endswith('.cs'):
+            source = next((text for candidate, text in test_files if candidate == path), '')
+            test_classes = _test_class_names(source)
+            selected.update(test_classes)
+            # Nested Driver/Store/Printing helpers are not test classes. A
+            # standalone helper file instead affects the tests that use it.
+            if not test_classes:
+                source_tokens.update(_source_identifiers(path, source))
+        elif path.startswith('src/') or path.endswith('.cs'):
+            source_tokens.update(_source_identifiers(path, source_texts.get(path, '')))
+    for path, text in test_files:
+        if path in changed:
+            selected.update(_test_class_names(text))
+            continue
+        if tokens and any(token in text for token in tokens):
+            selected.update(_test_class_names(text))
+        if source_tokens and any(token in text for token in source_tokens):
+            selected.update(_test_class_names(text))
+        if any(path_token in text for path_token in changed if path_token != 'docs/BACKLOG.md'):
+            selected.update(_test_class_names(text))
+    selected.update(_guard_class_names(test_files))
+    if not selected:
+        raise ValueError('No affected tests or mandatory guard classes were found.')
+    return selected, tokens
+
+
+def _git_text(repo, *args):
+    try:
+        return subprocess.check_output(['git', *args], cwd=repo, stderr=subprocess.PIPE, text=True)
+    except subprocess.CalledProcessError as error:
+        detail = error.stderr.strip() if isinstance(error.stderr, str) else ''
+        raise ValueError(f'git {" ".join(args)} failed' + (f': {detail}' if detail else '')) from error
+
+
+def affected_selection(base='origin/main', repo=ROOT, head='HEAD'):
+    """Return affected classes, filter and fixed Git inputs for ``head``."""
+    head_sha = _git_text(repo, 'rev-parse', '--verify', head + '^{commit}').strip()
+    base_sha = _git_text(repo, 'rev-parse', '--verify', base + '^{commit}').strip()
+    try:
+        subprocess.run(['git', 'merge-base', '--is-ancestor', base_sha, head_sha], cwd=repo,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
+    except subprocess.CalledProcessError as error:
+        raise AffectedBranchOutOfDate(
+            f'HEAD {head_sha[:12]} is behind or diverged from {base} {base_sha[:12]}; '
+            'sync origin/main before running affected tests.') from error
+    merge_base = _git_text(repo, 'merge-base', base_sha, head_sha).strip()
+    changed_paths = [path for path in _git_text(
+        repo, 'diff', '--name-only', '--diff-filter=ACMR', merge_base + '...' + head_sha).splitlines() if path]
+    changed_text = _git_text(repo, 'diff', '--no-ext-diff', '--unified=0', merge_base + '...' + head_sha)
+    source_texts = {}
+    for path in changed_paths:
+        if path.startswith('src/') or path.endswith('.cs'):
+            try:
+                source_texts[path] = _git_text(repo, 'show', f'{head_sha}:{path}')
+            except ValueError:
+                source_texts[path] = ''
+    tests_root = Path(repo) / 'tests/Riftbound.ConformanceTests'
+    test_files = [(path.relative_to(repo).as_posix(), path.read_text(encoding='utf-8', errors='replace'))
+                  for path in sorted(tests_root.rglob('*.cs'))]
+    classes, tokens = select_affected_test_classes(changed_paths, changed_text, test_files, source_texts)
+    filter_expression = '(' + '|'.join('FullyQualifiedName~' + name for name in sorted(classes)) + ')'
+    return dict(base=base, baseSha=base_sha, headSha=head_sha, mergeBase=merge_base,
+                changedPaths=changed_paths, cardTokens=sorted(tokens), classes=sorted(classes),
+                filter=filter_expression)
 
 
 def l3_acceptance_methods(path=L3_POLICY):
@@ -168,9 +290,43 @@ def terminate(process):
         process.wait()
 
 
+def run_affected(args):
+    selection = affected_selection(args.base)
+    if args.print_filter:
+        print(selection['filter'])
+        return 0
+    print(f"Affected base: {selection['baseSha']}  head: {selection['headSha']}", flush=True)
+    print(f"Changed paths: {len(selection['changedPaths'])}; selected classes: {len(selection['classes'])}", flush=True)
+    if selection['cardTokens']:
+        print('Changed card tokens: ' + ', '.join(selection['cardTokens']), flush=True)
+    print('Affected filter: ' + selection['filter'], flush=True)
+    dotnet = shutil.which('dotnet')
+    if not dotnet:
+        raise ValueError('dotnet SDK not found on PATH.')
+    output = (args.output or ROOT / 'var/qa/affected-tests' / datetime.now().strftime('%Y%m%d-%H%M%S-%f')).resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    if (output / 'results.trx').exists():
+        raise ValueError('Output already contains a run; use a new directory to avoid stale results.')
+    env = dict(os.environ)
+    # Let dotnet test restore/build and execute under one PATH limiter lease.
+    # Separate invocations release the slot after building and can queue again
+    # behind another line before any affected tests have run.
+    command = [dotnet, 'test', str(PROJECT), '-c', args.configuration, '-m:1', '-v:q',
+               '--filter', selection['filter'], '--results-directory', str(output),
+               '--logger', 'trx;LogFileName=results.trx']
+    print('Building and running affected tests with --jobs 1 and -m:1', flush=True)
+    subprocess.run(command, cwd=ROOT, env=env, check=True)
+    rows, counters = report(output / 'results.trx')
+    verify(rows, counters, {method(row.get('testName')) for row in rows})
+    (output / 'selection.json').write_text(json.dumps(selection, ensure_ascii=False, indent=2) + '\n')
+    print(json.dumps({'status': 'PASSED', 'selectedClasses': len(selection['classes']),
+                      'total': counters['total'], 'filter': selection['filter']}), flush=True)
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('profile', choices=['focus', 'check', 'l2', 'full'], nargs='?', default='check')
+    parser.add_argument('profile', choices=['affected', 'focus', 'check', 'l2', 'full'], nargs='?', default='check')
     parser.add_argument('domain', nargs='?', choices=sorted(DOMAINS))
     parser.add_argument('--match', action='append', default=[], help='Additional test-name token for focus; repeatable')
     parser.add_argument('--include-games', action='store_true', help='Explicitly allow matched full-game tests in focus')
@@ -183,7 +339,18 @@ def main():
     parser.add_argument('--expect-trx', type=Path, help='Full benchmark only: require exact case parity with this baseline')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--plan-only', action='store_true', help='Build and discover, then print plan without running tests')
+    parser.add_argument('--base', default='origin/main', help='Affected mode base ref (default: origin/main)')
+    parser.add_argument('--print-filter', action='store_true', help='Affected mode: print the computed filter and do not execute')
     args = parser.parse_args()
+    if args.profile == 'affected':
+        if args.domain or args.match or args.include_games or args.l2_only or args.plan_only or args.expect_trx:
+            parser.error('affected accepts --base, --print-filter, --configuration, --output and --jobs only.')
+        # Affected mode is deliberately serial even on CI; --jobs is accepted
+        # for a uniform invocation but cannot increase the safety gate.
+        args.jobs = 1
+        return run_affected(args)
+    if args.print_filter or args.base != 'origin/main':
+        parser.error('--base and --print-filter apply only to affected.')
     tokens = DOMAINS.get(args.domain, []) + args.match
     if not 1 <= args.jobs <= 16 or args.profile == 'focus' and not tokens:
         parser.error('Use 1..16 jobs; focus requires a domain or --match.')
