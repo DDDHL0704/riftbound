@@ -27,6 +27,8 @@ internal static class BanishPlayRecoveryRules
 
     internal static bool Valid(MatchState state, PendingEffectPlayState pending)
     {
+        if (pending.Parent.LastBreathBattlefieldDamage?.Kind == Riftbound.Contracts.TriggerKinds.UnitLastBreathBanishDeckTopPlay)
+            return CoreRuleEngine.ValidLastBreathDeckTopPlay(state, pending);
         var parent = pending.Parent;
         if (!Instructions.TryGetValue(parent.CardNo, out var instruction) || !PrintedSources.Value.Contains(parent.CardNo)
             || parent.EffectKind != instruction.EffectKind || parent.EffectPlayCompleted || parent.SourceConfirmed

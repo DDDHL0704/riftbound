@@ -26,6 +26,8 @@
   - [40967451157](https://github.com/DDDHL0704/riftbound/actions/runs/40967451157)（北京时间 10 月 30 日定时运行，固定 `92a8350b`）：shard-3 的皮城学院回响完整对局失败；连续惩戒伤害留下多个同一单位的强制放逐替换，测试助手在 `DESTRUCTION_REPLACEMENT` 窗口继续让出优先权，未由指定玩家提交替换顺序选择。[#289](https://github.com/DDDHL0704/riftbound/pull/289) 已合入，保留付款、回响与完整日志回放断言，补充目标实际放逐和真实选择命令断言，并加入常规 L2，原有两局完整对局继续执行。本地该方法 1/1 通过；完整 [40980378753](https://github.com/DDDHL0704/riftbound/actions/runs/40980378753) 的 9,454 个方法、19,497 条用例和门槛全部通过，旧 19,496 条零移除，仅新增该回归；ARM64 实测该用例约 34.5 秒。最终仅该用例及依赖它的规则汇总、完整门槛失败；其余七个规则分片、四个 PostgreSQL 分区及 PostgreSQL 汇总、SQL SignalR、网络和双桌面全部通过。
   - [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616)（固定 `07592c16`，第 3 次）：最终 **success**，八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及最终完整门槛全部通过；规则与 PostgreSQL 汇总也通过。分区 0 于 08:06:30–11:47:00 UTC 完成（约 220 分钟），18 个场景均通过。与 #257 合入前的 41010811413 固定提交 `03106805` 对比，`destruction-graveyard` 为 6,562.7 秒（此前 3,468.3 秒）、`paka-move-reveal` 为 2,731.2 秒（此前 1,702.6 秒）、`attached-predict` 为 1,948.2 秒（此前 1,104.5 秒）、`multi-controller-trigger-order` 为 987.7 秒（此前 544.2 秒）；用例数量、冷恢复和结果均一致，未发现死循环。该差异与 #257 后的主干回归时间相符，但期间还有其他合入，后续按场景继续 profiling。
 
+  - **分区 0 变慢复核（10-30）**：固定提交 `03106805` 与 `07592c16` 之间，四个慢场景对应的测试和 fixture 文件没有变化；两次 PostgreSQL 产物中的命令数、事件数和冷恢复次数也一致，增加的是执行耗时。该区间还包含 #257 之后的其他合入，现有运行无法单独把回归归因于 #257；未发现用例增加或循环迹象。
+
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
 - [ ] **P1-1 征服时机（#231，草稿，已与 main 冲突）**。征服触发的技能应先让对手响应，再结算效果。现在会立即结算，涉及 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil。
@@ -88,6 +90,7 @@
 - [x] E 线缴械首批：接入神秘的时间法师、饰品商贩、叮响巡警、处置专家、浅滩海妖；共享缴械按核心 831.1.d.1 / 831.2 合计数值、每次进攻只触发一次，支持机械光环、机器人、复制文本、法盾、恢复与回放。CARD_BACKLOG 的五项移除随本 PR 合入。
 - [x] E 线进场与额外费用六张：弥留之灵、微光泳者、盘踞野猪、熔炉之灵、满载的旅人、鹰翼中队。共享摧毁时控制者回合账本、可选摧毁单位或装备费用及付款后伤害响应、可选活跃进场及本回合移动禁令、可选返回装备费用与减费、返回装备法力费用收据及同战场装备关键词条件战力；对应 CARD_BACKLOG 六项随本 PR 移除。
 - [x] E 线移动与条件触发五张：狂热目击者、重甲象骑、古灵翼兽、觅血虫群、圣所保管员。共享移动展示／强力判定／回收、按当前坚守值计算伤害、立即结算征服资源技能、按本回合实际征服战场减费，以及成功打出高费用卡牌后的来源活跃；正常、非法目标、费用、来源离场、恢复与回放测试及 CARD_BACKLOG 五项移除放在同一 PR。
+- [x] E 线摧毁与据守触发五张：风暴锋喙鸟、光照者教团、哀戚悲灵、战地甲胄师、钟塔守护者。共享眩晕敌方死亡观察、每批友方死亡增益、死亡位置捕获后的可选摧毁、战场装备死亡付费返手、据守洞察，以及绝念放逐牌库顶后可选打出；只免法力时保留符能及额外费用。Release 零错误，装备复制文本与回放 9/9、其余新牌及完整 ConformanceFixtureRunnerTests、目录／隐私／来源身份／Provenance 守卫 3669/3669 通过；CARD_BACKLOG 五项删除随同一 PR 合入。
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
@@ -127,6 +130,7 @@
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
+- [ ] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`，统计先行）：2026-10-30 查询到 29 个 `feat(cards)` PR。`src/Riftbound.Engine/CardBehaviorRegistry.cs` 与 `src/Riftbound.Engine/CoreRuleEngine.cs` 各被 29/29 个 PR 修改；`tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs` 被 28/29 个修改；`src/Riftbound.CardCatalog/RuleTextParsers.cs` 被 27/29 个修改；`src/Riftbound.CardCatalog/VendettaCardSources.cs` 被 20/29 个修改；`src/Riftbound.Engine/PrintedCardFactory.cs` 被 16/29 个修改；`tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 被 3/29 个修改。RAD 批次中 `RadiantCardSources.cs` 被 9/9 个修改。下一 PR 要把这些汇总表改为按批次独立登记并从数据推导计数；当前 #287（31 文件、1,827 行新增）仍在等待合入且正修改上述共享文件，按约束待其合入后再开独立拆分 PR，避免与 B/D 的大 PR 交叉冲突。
 
 ## 接手旧分支
 
