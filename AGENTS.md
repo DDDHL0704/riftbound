@@ -39,6 +39,11 @@ DOTNET_PROCESSOR_COUNT=1 dotnet test tests/Riftbound.ConformanceTests --no-build
 # 按类名或方法名运行快速回归
 python3 scripts/test-rules.py focus --match Teemo --jobs 1
 
+# 推送前只跑受影响测试和固定守卫（先同步 origin/main）
+python3 scripts/test-rules.py affected --base origin/main --jobs 1
+# 只查看将要执行的筛选器：
+python3 scripts/test-rules.py affected --base origin/main --print-filter
+
 # 脚本自身的测试
 python3 -m unittest discover -s scripts/tests
 ```

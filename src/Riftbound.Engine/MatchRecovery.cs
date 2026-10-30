@@ -1844,10 +1844,11 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
-                        $"STATIC_AURA:{StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy}:{sourceObjectId}",
+                        $"STATIC_AURA:{effectKind}:{sourceObjectId}",
                         "object static aura effect id", errors);
                     return;
                 }
@@ -2329,11 +2330,12 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura =>
                         aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)))
-                        errors.Add($"{effectLabel} source card has no matching conditional enemy aura");
+                        errors.Add($"{effectLabel} source card has no matching conditional participant aura");
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
                         "CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus", "object static aura source path", errors);
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
@@ -2805,8 +2807,9 @@ public static partial class MatchRecoveryValidator
             ? Array.Empty<StaticAuraSpec>()
             : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
 
-        if (effectKind is StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy
-                or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment
+                    || effectKind == StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return participantCount >= enemyAura.RequiredParticipantCount.GetValueOrDefault(1) ? enemyAura.PowerDeltaPerParticipant : 0;
 
@@ -2884,7 +2887,8 @@ public static partial class MatchRecoveryValidator
             return sameBattlefieldCountAura.PowerDeltaPerParticipant;
         }
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return enemyAura.PowerDeltaPerParticipant;
 
@@ -4020,7 +4024,11 @@ public static partial class MatchRecoveryValidator
                         || field.ObjectGeneration < entry.Battlefield.Generation)))) errors.Add("invalid turn battlefield conquests");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
-            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)) errors.Add("invalid death ledger");
+            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)
+            || state.DeathLedger.PermanentControllers is null
+            || state.DeathLedger.PermanentControllers.Any(player => !state.Seats.ContainsKey(player))
+            || state.DeathLedger.PermanentControllers.Distinct(StringComparer.Ordinal).Count() != state.DeathLedger.PermanentControllers.Count
+            || state.DeathLedger.PermanentControllers.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber) errors.Add("invalid death ledger");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.DeathObserver is null && IsUncapturedDeathObserver(trigger.EffectKind, trigger.TriggerId))
                 errors.Add("obsolete uncaptured death observer");

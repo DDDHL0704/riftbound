@@ -369,6 +369,8 @@ public sealed record StackItemState
     public int CompletedDeckExecutions { get; init; }
     public bool DeckChoiceCompleted { get; init; }
     public bool InsightCompleted { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ReturnedEquipmentManaCost { get; init; }
 
     public string StackItemId { get; init; }
 
@@ -1230,6 +1232,8 @@ public sealed partial record MatchState
     {
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
             return CoreRuleEngine.BattlefieldOtherFriendlyObjectParticipants(state, state.PlayerZones, objectId, controllerId);
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment)
+            return CoreRuleEngine.SameBattlefieldFriendlyEquipmentParticipants(state, objectId, controllerId, aura);
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
             return CoreRuleEngine.SameLocationOtherFriendlySameNameUnitIds(state, objectId);
         if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
@@ -1264,7 +1268,8 @@ public sealed partial record MatchState
                 aura);
         }
 
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment
+            || aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
             return CoreRuleEngine.SameLocationFilteredEnemyUnitIds(state, objectId, controllerId, aura);
 
         if (string.Equals(
@@ -1286,7 +1291,8 @@ public sealed partial record MatchState
     {
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment)
             return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment
+            || aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
             return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
 
         if (string.Equals(
@@ -3942,6 +3948,20 @@ internal static partial class ActionPromptBuilder
         if (sourceObjectId is not null && behavior.AppliedFlowCost is null
             && CoreRuleEngine.NormalGraveyardPlaySources(state, playerId).Contains(sourceObjectId))
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
+        if (behavior.MayEnterReadyWithMovementProhibition)
+            choices.Add(new(CoreRuleEngine.ReadyRestrictedEntryChoice, "以活跃状态进场", "本回合无法移动"));
+        if (!ignoresAllCosts && behavior.MayDestroyFriendlyPermanentAdditionalCost)
+            foreach (var cost in CoreRuleEngine.OptionalPermanentDestructionChoices(state, playerId))
+            {
+                var target = ObjectChoice(state, cost[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..], "可选额外费用；摧毁此单位或装备");
+                choices.Add(new(cost, "摧毁友方永久物：" + target.Label, target.Reason));
+            }
+        if (!ignoresAllCosts && behavior.MayReturnFriendlyEquipmentAdditionalCost)
+            foreach (var cost in CoreRuleEngine.OptionalReturnEquipmentChoices(state, playerId, behavior))
+            {
+                var target = ObjectChoice(state, cost.Split(':', 2)[1], "可选额外费用；返回其所属的手牌");
+                choices.Add(new(cost, "返回友方装备：" + target.Label, target.Reason));
+            }
         choices.AddRange(CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior));
         choices.AddRange(TurnEquipmentPlayRules.Choices(state, playerId, behavior, sourceObjectId));
         if (behavior.AppliedFlowCost is { } flow)
