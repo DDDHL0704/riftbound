@@ -3619,6 +3619,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
             timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
+                Showcase = plan.Showcase,
                 ReturnedEquipmentManaCost = ReturnedEquipmentManaCost(state, plan),
                 PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
@@ -3711,8 +3712,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var origin = CardPlayHandOrigin(state, command.SourceObjectId, intent.PlayerId);
             events[0] = CaptureCardPlayHistory(events[0], historySource, intent.PlayerId,
                 stackItem.StackItemId, false, "STACK", origin.OtherHandPlayerId, origin.OutsideHands,
-                zones: playerZones, cards: cardObjects);
+                zones: playerZones, cards: cardObjects, showcase: stackItem.Showcase);
         }
+        if (stackItem.Showcase is { FromHand: true } shown)
+            events.Add(new("CARDS_REVEALED", "亮出一张手牌", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
+                ["count"] = 1, ["zone"] = "HAND",
+                ["cards"] = new[] { new { objectId = shown.Object.ObjectId, cardNo = shown.CardNo } } }));
         if (stackItem.FlowPlay is not null)
             events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
                 ["playedWithFlow"] = true, ["sourceZone"] = "GRAVEYARD" } };
@@ -18065,6 +18071,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!TrySelectShowcase(state, intent.PlayerId, command.SourceObjectId, behavior, command.OptionalCosts,
+                out var showcase, out var costsWithoutShowcase))
+        {
+            rejection = Reject(state, "请选择另一张符合亮出条件的手牌或正面朝上的友方卡牌。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        command = command with { OptionalCosts = costsWithoutShowcase };
+
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
             && !StackObjectRules.IsAbility(item)
             && !(state.PendingEffectPlay is { SourceZone: "BANISHED" }
@@ -18745,7 +18759,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OpponentSpellCostIncreasePower = spellIncreases.Power,
                 BattlefieldReactionPowerIncrease = battlefieldReactionPowerIncrease, BattlefieldSpellPowerReduction = battlefieldSpellPowerReduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
-                PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
+                PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction, Showcase = showcase };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -23986,9 +24000,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 [new("NEXT_SPELL_ECHO_GRANTED", "下一个法术获得等同基础费用的回响", new Dictionary<string, object?>
                     { ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId })],
                 [], null, [], null, [], state.RngCursor);
-        if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight
+        if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior)
+            && (insightBehavior.PerformsInsight || insightBehavior.Showcase is { InsightFromPowerCost: true } && stackItem.Showcase is not null)
             && (IsSpellPlayBehavior(insightBehavior) || stackItem.SourceConfirmed))
-            return ResolveInsightSpell(state, stackItem, insightBehavior);
+            return ResolveInsightSpell(state, stackItem, ShowcaseDefinition(insightBehavior, stackItem));
         if (stackItem.RepeatExecutions is { Count: > 0 }
             && !(CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var deckRepeat) && deckRepeat.DeckPlayKind.Length > 0))
             return ResolveSeparateSpellExecutions(state, stackItem);
@@ -24169,7 +24184,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
-        behavior = StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby);
+        behavior = ShowcaseDefinition(StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby), stackItem);
         if (stackItem.SourceConfirmed && behavior.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true)
             return ResolveSpellNameDeclaration(state, stackItem);
         behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
@@ -24318,6 +24333,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
+
+            if (stackItem.SourceConfirmed && stackItem.Showcase is not null && behavior.Showcase is { GenericPower: > 0 } showcased)
+            {
+                var pool = runePools[stackItem.ControllerId];
+                runePools[stackItem.ControllerId] = pool with { Power = checked(pool.Power + showcased.GenericPower) };
+                events.Add(new("POWER_GAINED", "亮出技能获得符能", new Dictionary<string, object?> {
+                    ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["amount"] = showcased.GenericPower, ["powerAfter"] = runePools[stackItem.ControllerId].Power }));
+            }
 
             if (TryResolveSourceStealEnemyEquipment(
                 state, playerZones, cardObjects, behavior, stackItem, events, out var stolenLocations))
@@ -32969,8 +32993,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
     {
         return cardObjects
-            .Where(entry => FieldObjectTypeRules.IsUnattachedNonUnitEquipment(entry.Value)
-                && !StandbyRules.AllowsBattlefieldEquipment(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
+            .Where(entry => FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
                 && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
                 && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
@@ -34719,6 +34742,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public IReadOnlyList<ActionPromptChoiceDto>? SpellPowerReductionChoices { get; init; }
         public PlayPowerSpendSelectionRules.Selection? PowerSpend { get; init; }
         public string? RenektonResourceAction { get; init; }
+        public ShowcaseReceipt? Showcase { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(

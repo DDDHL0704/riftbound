@@ -61,6 +61,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidHeldTargetStack(MatchState state, StackItemState item)
     {
+        if (item.HeldContext?.Kind == DeploymentHeldKind)
+            return ValidDeploymentHeldStack(state, item);
         if (!HasHeldTargetConfirmation(item)) return true;
         var context = item.HeldContext!;
         if (HeldDefinition(context.CardNo) is not { } definition || definition.Kind != context.Kind || definition.Amount != context.Amount

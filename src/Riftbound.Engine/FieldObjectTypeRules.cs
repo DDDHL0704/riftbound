@@ -10,10 +10,14 @@ internal static class FieldObjectTypeRules
                 || !card.Tags.Any(tag => tag is CardObjectTags.EquipmentCard or CardObjectTags.SpellCard
                     or CardObjectTags.RuneCard or "CARD_TYPE:BATTLEFIELD" or "CARD_TYPE:LEGEND"));
 
-    // CN 178.1.a.1.a / 323.7: battlefield cleanup recalls only non-unit equipment.
-    internal static bool IsUnattachedNonUnitEquipment(CardObjectState card)
+    // CN 178 / 323.6: cleanup recalls unattached non-unit equipment, except
+    // deployed equipment (830.1.b.3) and equipment retained by standby play.
+    // Use the same predicate for actual cleanup and the pending-task projection.
+    internal static bool RequiresUnattachedEquipmentRecall(CardObjectState card, ObjectLocationState? location)
         => card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && string.IsNullOrWhiteSpace(card.AttachedToObjectId)
-            && !card.IsFaceDown;
+            && !card.IsFaceDown
+            && !card.Tags.Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal)
+            && !StandbyRules.AllowsBattlefieldEquipment(card, location);
 }
