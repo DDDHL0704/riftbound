@@ -2830,7 +2830,7 @@ internal static partial class ActionPromptBuilder
             {
                 continue;
             }
-            if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
                 && !CoreRuleEngine.IsPowerAbilitySource(state, playerId, sourceObjectId, ability)) continue;
             if (ability.SimpleEffect is not null
                 && !CoreRuleEngine.IsSimpleAbilitySource(state, playerId, sourceObjectId, ability)) continue;
@@ -3763,6 +3763,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
+            CardTargetScopes.AnyUnitOrEquipment => CoreRuleEngine.IsFieldUnitOrEquipment(state, objectId),
             CardTargetScopes.UnitEquipmentOrRune => CoreRuleEngine.IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
@@ -3968,6 +3969,7 @@ internal static partial class ActionPromptBuilder
                 var label = parts[0] switch {
                     "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
                     "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", "RETURN_FRIENDLY_UNIT" => "返回友方单位",
+                    "EXHAUST_FRIENDLY_UNIT" => "横置友方单位",
                     _ => "摧毁友方单位" };
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
@@ -5041,6 +5043,13 @@ internal static partial class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        var requiredAdditionalCosts = CoreRuleEngine.MandatoryPlayAdditionalCostCount(behavior);
+        if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) && requiredAdditionalCosts > 0)
+        {
+            var mandatoryIds = CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).ToHashSet(StringComparer.Ordinal);
+            requirement["additionalCostChoices"] = optionalCostChoices.Where(choice => mandatoryIds.Contains(choice.Id)).ToArray();
+            requirement["requiredAdditionalCostChoiceCount"] = requiredAdditionalCosts;
+        }
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
         if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
@@ -5178,6 +5187,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
             CardTargetScopes.BaseUnit => "基地单位",
             CardTargetScopes.AnyUnit => "任意单位",
+            CardTargetScopes.AnyUnitOrEquipment => "单位或装备",
             CardTargetScopes.UnitEquipmentOrRune => "单位、装备或符文",
             CardTargetScopes.AnyEmpoweredUnit => "已强化单位",
             CardTargetScopes.FriendlyUnit => "友方单位",

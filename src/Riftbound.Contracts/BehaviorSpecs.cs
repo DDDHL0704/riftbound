@@ -43,6 +43,8 @@ public static class ActivatedAbilityKinds
     public const string RecycleGraveyardCardGrantSelfMight = "RECYCLE_GRAVEYARD_CARD_GRANT_SELF_MIGHT";
     public const string SwiftSwapSelfWithNamedControlledUnit = "SWIFT_SWAP_SELF_WITH_NAMED_CONTROLLED_UNIT";
     public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
+    public const string StunEnemyUnit = "STUN_ENEMY_UNIT";
+    public const string GrantUnitBoonOrTemporaryPower = "GRANT_UNIT_BOON_OR_TEMPORARY_POWER";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";

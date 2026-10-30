@@ -418,9 +418,8 @@ internal static partial class ActionPromptBuilder
         string objectId,
         CardBehaviorDefinition behavior)
     {
-        var maxTargetPower = behavior.MaxTargetPower > 0
-            ? behavior.MaxTargetPower
-            : behavior.MaxTotalTargetPower;
+        if (behavior.MaxTargetPower > 0) return CoreRuleEngine.IsTargetPowerAllowed(state, objectId, behavior);
+        var maxTargetPower = behavior.MaxTotalTargetPower;
         return maxTargetPower <= 0
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
                 && CoreRuleEngine.ResolveCurrentFieldUnitPower(state, targetState) <= maxTargetPower);

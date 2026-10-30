@@ -20,6 +20,7 @@ internal static class RadUnitEffectTestFixture
             "BASE" => destination with { Base = [..destination.Base, id] },
             "BATTLEFIELD" => destination with { Battlefields = [..destination.Battlefields, id] },
             "GRAVEYARD" => destination with { Graveyard = [..destination.Graveyard, id] },
+            "BANISHED" => destination with { Banished = [..destination.Banished, id] },
             _ => throw new ArgumentOutOfRangeException(nameof(zone), zone, "Unsupported fixture zone.") };
         return state with {
             PlayerZones = zones,

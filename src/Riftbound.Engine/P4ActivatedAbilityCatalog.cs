@@ -851,7 +851,7 @@ public static class P4ActivatedAbilityCatalog
 
     private static IReadOnlyList<P4ActivatedAbilityDefinition> BuildBehaviorSpecActivatedAbilityDefinitions()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var behaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
@@ -866,13 +866,34 @@ public static class P4ActivatedAbilityCatalog
         return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .SelectMany(spec => spec.ActivatedAbilities
                 .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
+                    || IsTargetedUnitExhaustSpec(ability) && spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)
                     || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
                         || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
-                .Select(ability => IsTargetedPowerModifier(ability)
+                .Select(ability => IsTargetedUnitExhaustSpec(ability) ? TargetedUnitExhaustDefinition(spec, ability)
+                    : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
                     : DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
             .OrderBy(definition => definition.SourceCardNo, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    public static bool IsOrdinaryTargetedExhaustAbility(P4ActivatedAbilityDefinition ability)
+        => ability.Kind is ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            or ActivatedAbilityKinds.StunEnemyUnit or ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower;
+
+    private static bool IsTargetedUnitExhaustSpec(ActivatedAbilitySpec ability)
+        => ability.ExhaustsSourceAsCost == true && ability.RequiredTargetCount == 1
+            && ability.ManaCost == 0 && ability.PowerCost == 0
+            && (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit && ability.TargetScope == CardTargetScopes.EnemyUnit
+                || ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower
+                    && ability.TargetScope == CardTargetScopes.AnyUnit && ability.PowerModifierAmount is > 0);
+
+    private static P4ActivatedAbilityDefinition TargetedUnitExhaustDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    {
+        var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind!);
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 1, false, true, 0, true,
+            ability.Reason, Kind: ability.Kind!, TargetScope: ability.TargetScope!,
+            PowerModifierAmount: ability.PowerModifierAmount.GetValueOrDefault(), SourceRequiredTag: CardObjectTags.UnitCard);
     }
 
     private static bool IsTargetedPowerModifier(ActivatedAbilitySpec ability)

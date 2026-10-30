@@ -769,10 +769,10 @@ internal static partial class ActionPromptBuilder
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
                     .Select(id => ObjectChoice(state, id, ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
 
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
                 ["0"] = PublicBoardObjects(state)
-                    .Where(id => CoreRuleEngine.IsPowerAbilityTarget(state, playerId, id))
+                    .Where(id => CoreRuleEngine.IsPowerAbilityTarget(state, playerId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
                     .Select(id => ObjectChoice(state, id, "unit target")).ToArray() };
 
@@ -1190,7 +1190,7 @@ internal static partial class ActionPromptBuilder
         var legendChoices = acceptsLegend ? PromptRenektonPaymentChoices(state, playerId) : [];
         var hasLegend = legendChoices.Count > 0;
         var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
-            || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            || P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
             || hasLegend
                 ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
                     "payment resource action: recycle rune while activating ability")
@@ -1348,7 +1348,7 @@ internal static partial class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, playerId);
         if (ability.AbilityId == P4ActivatedAbilityCatalog.ShadowStunAbilityId)
             return CoreRuleEngine.IsShadowBattleResponseWindow(state, playerId);
@@ -1417,6 +1417,8 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit) return $"{ability.DisplayName}：横置，眩晕一名敌方单位";
+        if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower) return $"{ability.DisplayName}：横置，给予单位增益；已有增益则本回合战力 +{ability.PowerModifierAmount}";
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
             return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
@@ -1447,7 +1449,8 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
+            return ability.TargetScope == CardTargetScopes.EnemyUnit ? "敌方公开单位" : "任意公开单位";
         return ability.RequiredTargetCount == 0
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)

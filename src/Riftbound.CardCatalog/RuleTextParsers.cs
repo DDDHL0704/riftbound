@@ -2725,6 +2725,7 @@ public static class ActivatedAbilityParser
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
                 if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
+                if (TryParseTargetedExhaustEffect(cost, effect, out var targetedEffect)) return targetedEffect;
                 if (TryParseManaSelfMight(cost, effect, out var selfMight))
                     return selfMight;
                 if (TryParseRecycleGraveyardSelfMight(cost, effect, out var recycledMight))
@@ -2854,6 +2855,30 @@ public static class ActivatedAbilityParser
             Kind: ActivatedAbilityKinds.SwiftSwapSelfWithNamedControlledUnit, ManaCost: mana, PowerCost: 1,
             PowerCostTrait: trait, RequiredTargetCount: 1, TargetScope: "NAMED_CONTROLLED_UNIT",
             TargetUnitName: effectMatch.Groups["name"].Value);
+        return true;
+    }
+
+    private static bool TryParseTargetedExhaustEffect(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        if (cost is not ("{{T}}" or "{{横置}}")) return false;
+        var functionalEffect = Regex.Replace(effect, @"（[^）]*）|\([^)]*\)", "", RegexOptions.CultureInvariant).Trim().TrimEnd('。', '.');
+        if (Regex.IsMatch(functionalEffect, @"^\{\{眩晕\}\}一名敌方单位$", RegexOptions.CultureInvariant))
+        {
+            ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+                BehaviorImplementationStatuses.Unimplemented, "Exhaust to stun a public enemy unit through the ordinary stack.",
+                Kind: ActivatedAbilityKinds.StunEnemyUnit, ExhaustsSourceAsCost: true,
+                ManaCost: 0, PowerCost: 0, RequiredTargetCount: 1, TargetScope: "ENEMY_UNIT");
+            return true;
+        }
+        var boon = Regex.Match(functionalEffect,
+            @"^给予一名单位\{\{增益\}\}[。.]如果该单位已拥有增益[，,]则改为给予其在本回合内\{\{S\}\}\+(?<amount>\d+)[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (!boon.Success || !int.TryParse(boon.Groups["amount"].Value, out var amount) || amount <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Unimplemented, "Check the target's current boon when the ability resolves.",
+            Kind: ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower, ExhaustsSourceAsCost: true,
+            ManaCost: 0, PowerCost: 0, RequiredTargetCount: 1, TargetScope: "ANY_UNIT", PowerModifierAmount: amount);
         return true;
     }
 
