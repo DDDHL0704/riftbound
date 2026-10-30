@@ -86,3 +86,15 @@ class WorkflowCandidateTests(unittest.TestCase):
         self.assertIn("name: L2 required", text)
         for value in ['needs.postgres', 'needs.native_network', 'needs.related_network', 'continue-on-error']:
             self.assertNotIn(value, text)
+
+    def test_sql_partitions_retain_resource_observation_and_the_original_full_command(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        job = text[text.index('  postgres_partitions:'):text.index('  native_network:')]
+        self.assertIn('scripts/observe-ci-command.py --commit "$RIFTBOUND_FIXED_COMMIT"', job)
+        self.assertIn('--label postgres-partition-${{ matrix.partition }}', job)
+        self.assertIn('--output var/qa/ci-postgres-runtime -- dotnet run', job)
+        self.assertIn('-c Release --no-build -- --ci-partition ${{ matrix.partition }} 4', job)
+        self.assertIn('var/qa/ci-postgres-runtime/', job)
+        self.assertIn('var/qa/ci-postgres/', job)
+        self.assertIn('if: always()', job)
+        self.assertNotIn('continue-on-error', job)
