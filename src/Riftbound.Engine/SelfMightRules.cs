@@ -77,7 +77,7 @@ public sealed partial class CoreRuleEngine
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>();
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         if (legendAction is not null) {
-            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, ordered, zones, ref cards, locations, ref pools,
+            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, ordered, zones, ref cards, locations, ref pools,
                     events, "ACTIVATE_ABILITY", plan.PaymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         } else pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations, intent.PlayerId,

@@ -102,10 +102,7 @@ public sealed class OfficialPrintedPowerCostTests
         var candidate = Assert.Single(ResolutionResult.BuildPrompts(state)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
         var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
-        string[] expectedResources = exhausted
-            ? ["RECYCLE_RUNE:RUNE-A", "RECYCLE_RUNE:RUNE-B"]
-            : ["TAP_RUNE:RUNE-A", "TAP_RUNE:RUNE-B", "RECYCLE_RUNE:RUNE-A", "RECYCLE_RUNE:RUNE-B"];
-        Assert.Equal(expectedResources, resources.Select(c => c.Id));
+        Assert.Equal(["RECYCLE_RUNE:RUNE-A", "RECYCLE_RUNE:RUNE-B"], resources.Select(c => c.Id));
         var command = new PlayCardCommand("CARD", "SFD·006/221", [],
             OptionalCosts: ["RECYCLE_RUNE:RUNE-B", "RECYCLE_RUNE:RUNE-A"]);
         var engine = new CoreRuleEngine();
@@ -199,8 +196,7 @@ public sealed class OfficialPrintedPowerCostTests
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
         var resources = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]);
         // Acquiring red is legal; it still cannot substitute for this green/blue printed fee.
-        Assert.Equal(["TAP_RUNE:blue", "TAP_RUNE:green", "TAP_RUNE:red",
-            "RECYCLE_RUNE:blue", "RECYCLE_RUNE:green", "RECYCLE_RUNE:red"], resources.Select(x => x.Id));
+        Assert.Equal(["RECYCLE_RUNE:blue", "RECYCLE_RUNE:green", "RECYCLE_RUNE:red"], resources.Select(x => x.Id));
         Assert.Equal(2, requirement["printedPowerCost"]);
         Assert.Equal(3, Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(requirement["printedPowerChoices"]).Count);
         if (Environment.GetEnvironmentVariable("RIFTBOUND_NATIVE_PAYMENT_FIXTURE") is { Length: > 0 } path)

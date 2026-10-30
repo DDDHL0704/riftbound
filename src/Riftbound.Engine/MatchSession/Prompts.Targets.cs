@@ -1309,14 +1309,6 @@ internal static partial class ActionPromptBuilder
             choice => choice.Id,
             choice =>
             {
-                if (choice.Id.StartsWith(TapRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
-                    return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
-                    {
-                        ["trait"] = string.Empty,
-                        ["mana"] = BasicRuneTapManaGain,
-                        ["power"] = 0,
-                        ["abilityId"] = "BASIC_RUNE_EXHAUST_GAIN_1_MANA"
-                    };
                 var trait = string.Empty;
                 if (choice.Id.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
                 {

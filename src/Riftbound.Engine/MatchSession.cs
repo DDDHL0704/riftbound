@@ -2121,8 +2121,6 @@ public sealed partial record ResolutionResult(
 internal static partial class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
-    private const string TapRunePaymentOptionalCostPrefix = "TAP_RUNE:";
-    private const int BasicRuneTapManaGain = 1;
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string RecycleGraveyardCardAdditionalCostPrefix = "RECYCLE_GRAVEYARD_CARD:";
     private const int BasicRuneRecyclePowerGain = 1;
@@ -2558,14 +2556,7 @@ internal static partial class ActionPromptBuilder
 
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
-        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用")
-            .Concat(CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Select(id =>
-            {
-                var choice = ObjectChoice(state, id[TapRunePaymentOptionalCostPrefix.Length..], "待命支付资源");
-                return new ActionPromptChoiceDto(id, $"横置符文支付：{choice.Label}",
-                    "横置此符文获得 1 点法力并继续支付待命布置费用");
-            }))
-            .ToArray();
+        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
         var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, resources);
         var requirements = new List<HideCardPromptRequirement>();
         foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
@@ -2656,9 +2647,7 @@ internal static partial class ActionPromptBuilder
         var choices = new List<ActionPromptChoiceDto>();
         if (pool.TotalPower >= 1 || CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId).Count > 0)
             choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
-        if ((PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1
-                || CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count > 0)
-            && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
+        if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
     }
@@ -3596,7 +3585,7 @@ internal static partial class ActionPromptBuilder
         var reachability = new RunePaymentReachability(pool, resources);
         return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
                 additionalMana, additionalPower, additionalTrait)
-            .Where(cost => PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, source, additionalMana) >= cost.Mana.Total
+            .Where(cost => PaymentCostRules.AvailableMana(pool, cost.ManaPurpose, state: state) >= cost.Mana.Total
                 && reachability.CanPay(cost.GenericPower, cost.TypedPower)).ToArray();
     }
 
@@ -3747,7 +3736,7 @@ internal static partial class ActionPromptBuilder
             : RunePool.Empty;
         var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
         var ward = behavior.IgnoresSpellshield ? 0 : CoreRuleEngine.SpellshieldPowerCostForTargets(state, playerId, targetObjectIds);
-        return PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, null) >= manaRequired
+        return AvailablePlayMana(state, runePool, behavior) + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
             && CanPayPlayPowerCosts(state, playerId, runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "", targets: targetObjectIds);
     }
 
@@ -4014,7 +4003,7 @@ internal static partial class ActionPromptBuilder
                     (int)echoGeneric, echo.TypedPower, EchoCostRules.PrintedCosts([echo]));
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [echo.Id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (!ignoresAllCosts && !reduced && (PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, mana) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+            if (!ignoresAllCosts && !reduced && (AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
                 || !canPayEcho)) continue;
             var parts = new List<string> { $"{mana} 法力" };
             if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
@@ -4039,7 +4028,7 @@ internal static partial class ActionPromptBuilder
             if (!ignoresAllCosts && !reduced && (behavior.MaySacrificeUnitForPrintedCostReduction
                 ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
                     behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
-                : PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
+                : AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(state, playerId, runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait }))) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -4080,7 +4069,7 @@ internal static partial class ActionPromptBuilder
             var id = $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}";
             var reduced = CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior,
                 sourceObjectId, [id], runePool, out var reductionChoices, reductionGroups, echoReachability);
-            if (ignoresAllCosts || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
+            if (ignoresAllCosts || AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.SourceBoonAdditionalManaCost) || reduced)
             {
                 choices.Add(new ActionPromptChoiceDto(id, $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
                     $"{behavior.DisplayName}的可选额外费用"));
@@ -4171,7 +4160,7 @@ internal static partial class ActionPromptBuilder
         string? sourceObjectId)
     {
         if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+            || AvailablePlayMana(state, runePool, behavior) < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
             || !SourceStealEnemyEquipmentChoices(state, playerId, behavior).Any())
         {
             return false;
@@ -4221,31 +4210,19 @@ internal static partial class ActionPromptBuilder
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
-        string? sourceObjectId,
-        int extraManaCost = 0)
+        string? sourceObjectId)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, extraManaCost);
-        var available = (long)AvailablePlayMana(state, runePool, behavior)
-            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana)
-            + PromptTapRuneGeneratedMana(state, playerId);
+        var requiredMana = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId);
+        var available = AvailablePlayMana(state, runePool, behavior)
+            + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, sourceObjectId, requiredMana);
         if (behavior.PlaysSourceToBaseAsUnit && PromptRenektonPaymentChoices(state, playerId).Any(choice =>
                 CanPayPlayPowerCosts(state, playerId, choice.RemainingPool, choice.RemainingRunePower,
                     behavior, 0, "", choice.RemainingRuneCapacity)))
             available += 2;
-        // All acquired mana shares the stored-mana capacity, including pools
-        // restricted to a different purpose.
-        return (int)Math.Min(available, (long)AvailablePlayMana(state, runePool, behavior)
-            + Math.Max(0, int.MaxValue - runePool.TotalStoredMana));
-    }
-
-    private static int PromptTapRuneGeneratedMana(MatchState state, string playerId)
-    {
-        var pool = state.RunePools.GetValueOrDefault(playerId, RunePool.Empty);
-        var capacity = Math.Max(0, int.MaxValue - pool.TotalStoredMana);
-        return Math.Min(CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId).Count, capacity);
+        return available;
     }
 
     private static int PromptLuxSpellOnlyGeneratedMana(
@@ -4302,19 +4279,8 @@ internal static partial class ActionPromptBuilder
     {
         if (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
             || !PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior, sourceObjectId)) return [];
-        return CoreRuleEngine.TapRunePaymentResourceActionIds(state, playerId)
-            .Select(id =>
-            {
-                var objectId = id["TAP_RUNE:".Length..];
-                var choice = ObjectChoice(state, objectId, "payment resource action: tap rune while playing card");
-                return new ActionPromptChoiceDto(
-                    id,
-                    $"横置符文支付：{choice.Label}",
-                    "横置此符文获得 1 点法力并继续支付出牌费用");
-            })
-            .Concat(RenektonAwareRecycleRuneChoices(state, playerId,
+        return RenektonAwareRecycleRuneChoices(state, playerId,
                 "payment resource action: recycle rune while playing card")
-            )
             .Concat(PlayCardLuxSpellOnlyResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId))
             .Concat(PromptRenektonPaymentChoices(state, playerId)
                 .Select(choice => new ActionPromptChoiceDto(choice.Id, choice.Label,
@@ -4391,8 +4357,8 @@ internal static partial class ActionPromptBuilder
     {
         return behavior.TargetEffectAdditionalPowerCost > 0
             && (CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
-                || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
-                    >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.TargetEffectAdditionalManaCost)
+                || AvailablePlayMana(state, runePool, behavior) >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+                    + behavior.TargetEffectAdditionalManaCost
                 && CanPayTargetEffectAdditionalPowerCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior)
                 || CoreRuleEngine.CanOfferOptionalCostWithReductions(state, playerId, behavior, sourceObjectId,
                     TargetEffectAdditionalCostIds(behavior), runePool, out _,
@@ -5138,24 +5104,6 @@ internal static partial class ActionPromptBuilder
                     };
                 },
                 StringComparer.Ordinal);
-
-        foreach (var choice in paymentResourceChoices.Where(choice => choice.Id.StartsWith("TAP_RUNE:", StringComparison.Ordinal)))
-        {
-            var objectId = choice.Id["TAP_RUNE:".Length..];
-            if (!string.IsNullOrWhiteSpace(objectId) && state.CardObjects.ContainsKey(objectId))
-            {
-                metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
-                {
-                    ["mana"] = 1,
-                    ["power"] = 0,
-                    ["paymentOnly"] = false,
-                    ["sourceObjectId"] = objectId,
-                    ["cardNo"] = state.CardObjects[objectId].CardNo,
-                    ["abilityId"] = "BASIC_RUNE_EXHAUST_GAIN_1_MANA",
-                    ["resourceLifecycle"] = "rune-pool"
-                };
-            }
-        }
 
         var legendChoices = PromptRenektonPaymentChoices(state, playerId);
         foreach (var choice in paymentResourceChoices)

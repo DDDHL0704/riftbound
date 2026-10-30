@@ -100,6 +100,62 @@ public sealed partial class CoreRuleEngine
         return costs.Where(recognized.Contains).ToArray();
     }
 
+    private static bool TryPreviewOrderedRenektonResources(MatchState state, string player,
+        RunePool current, IReadOnlyList<string> actions, out RunePool remaining)
+    {
+        remaining = current;
+        foreach (var action in actions)
+        {
+            if (TryParseRecycleRunePaymentOptionalCost(action, out var rune))
+            {
+                if (!remaining.HasSupportedAmounts || remaining.TotalStoredPower == int.MaxValue) return false;
+                remaining = ApplyRecycleRunePaymentToPool(remaining, state.CardObjects, [rune]);
+                if (!remaining.HasSupportedAmounts) return false;
+            }
+            else if (action.StartsWith(RenektonPaymentPrefix, StringComparison.Ordinal))
+            {
+                var pools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                pools[player] = remaining;
+                if (!TryResolveRenektonPlayPayment(state with { RunePools = pools }, player, action, out var legend))
+                    return false;
+                remaining = legend.State.RunePools[player];
+            }
+        }
+        return true;
+    }
+
+    private static bool TryApplyOrderedRenektonResources(MatchState state, string player,
+        IReadOnlyList<string> actions, Dictionary<string, PlayerZones> zones,
+        ref Dictionary<string, CardObjectState> cards, Dictionary<string, ObjectLocationState> locations,
+        ref Dictionary<string, RunePool> pools, List<GameEvent> events, string window, string paymentId)
+    {
+        foreach (var action in actions)
+        {
+            if (TryParseRecycleRunePaymentOptionalCost(action, out var rune))
+            {
+                var pool = pools.GetValueOrDefault(player, RunePool.Empty);
+                if (!pool.HasSupportedAmounts || pool.TotalStoredPower == int.MaxValue) return false;
+                pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations, player,
+                    [rune], events, window, paymentId);
+            }
+            else if (action.StartsWith(RenektonPaymentPrefix, StringComparison.Ordinal))
+            {
+                var context = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
+                if (!TryResolveRenektonPlayPayment(context, player, action, out var legend)) return false;
+                pools = legend.State.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                cards = legend.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                events.AddRange(legend.Events);
+            }
+            else if (TryParseLuxSpellOnlyResourceActionId(action, out var luxSource))
+            {
+                var pool = pools.GetValueOrDefault(player, RunePool.Empty);
+                if (!CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana)) return false;
+                pools = ApplyLuxSpellOnlyResourceActions(pools, cards, player, [luxSource], events, paymentId);
+            }
+        }
+        return true;
+    }
+
     private static bool TryResolveRenektonPlayPayment(MatchState state, string player, string choice,
         out ResolutionResult result)
     {
