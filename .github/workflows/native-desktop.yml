@@ -38,18 +38,6 @@ jobs:
           PYFIX
       - name: Verification safeguards
         run: python3 -m unittest discover -s scripts/tests -v
-      - name: Make retained audit commit available without rewriting evidence
-        run: |
-          python3 - <<'PYBASELINE'
-          import json, re, subprocess
-          from pathlib import Path
-          path = Path('docs/legacy/audit/legacy-source-baseline.json')
-          if path.exists():
-              commit = json.loads(path.read_text())['commit']
-              assert re.fullmatch(r'[0-9a-f]{40}', commit)
-              if subprocess.run(['git', 'cat-file', '-e', commit+'^{commit}'], stderr=subprocess.DEVNULL).returncode:
-                  subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', commit], check=True, timeout=120)
-          PYBASELINE
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
