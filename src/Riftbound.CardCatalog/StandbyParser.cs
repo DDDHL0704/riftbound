@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 namespace Riftbound.CardCatalog;
 
 public sealed record StandbyPlayedSelfEffect(int Might, bool ReadiesSelf = false);
+public sealed record StandbyPlayedDrawEffect(int DrawCount, int OutsideTurnDiscardCount, bool OncePerTurn);
 
 public static class StandbyParser
 {
@@ -21,6 +22,11 @@ public static class StandbyParser
 
     public static int SelfMightWhenControllerPlaysFromFaceDown(string? text)
         => SelfEffectWhenControllerPlaysFromFaceDown(text)?.Might ?? 0;
+
+    public static StandbyPlayedDrawEffect? DrawWhenControllerPlaysFromFaceDown(string? text)
+        => Regex.IsMatch(text ?? "", @"(?:^|\r?\n)每回合限一次，当你将一张牌从正面朝下的状态打出时，抽一张牌。然后，如果不是你的回合，则弃置一张手牌。[\s]*(?:$|\r?\n)", RegexOptions.CultureInvariant)
+            ? new(1, 1, OncePerTurn: true) : null;
+
     public static bool PreventsEnemyFaceDownPlayHere(string? text)
         => text is not null && text.Contains("对手的{{待命}}卡牌无法在此处被翻开打出。",StringComparison.Ordinal);
 

@@ -370,6 +370,9 @@ public static class TriggerParser
         if (firstMoveMill.Success)
             triggers.Add(new(TriggerKinds.UnitFirstMovementMillPlayer, TriggerTimings.UnitMoved, firstMoveMill.Value,
                 TargetScope: TriggerTargetScopes.SourceUnit, MillCount: ParseChineseNumber(firstMoveMill.Groups["count"].Value), OncePerTurn: true));
+        if (StandbyParser.DrawWhenControllerPlaysFromFaceDown(text) is { } standbyDraw)
+            triggers.Add(new(TriggerKinds.ControllerFaceDownPlayDrawOutsideTurnDiscard, "CARD_PLAYED_FROM_FACE_DOWN", text,
+                DrawCount: standbyDraw.DrawCount, DiscardCount: standbyDraw.OutsideTurnDiscardCount, OncePerTurn: standbyDraw.OncePerTurn));
         var movedAllPlayers = Regex.Match(text,
             @"当我移动到一处战场时，选择一个效果\s*—\s*-\s*每名玩家各弃置一张手牌。\s*-\s*每名玩家各抽一张牌。?", RegexOptions.CultureInvariant);
         if (movedAllPlayers.Success)

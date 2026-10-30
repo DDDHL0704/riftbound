@@ -195,6 +195,7 @@ public static class TriggerKinds
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
+    public const string ControllerFaceDownPlayDrawOutsideTurnDiscard = "STANDBY_PLAYED_DRAW_OUTSIDE_TURN_DISCARD";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";

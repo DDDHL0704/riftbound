@@ -35,7 +35,9 @@ public static class RadiantCardSources
             (Id: 39585L, CardNo: "RAD·086/167"), (Id: 39586L, CardNo: "RAD·086a/167"),
             (Id: 39695L, CardNo: "RAD·178*/167"), (Id: 39696L, CardNo: "RAD·178/167"),
             (Id: 39611L, CardNo: "RAD·109/167"), (Id: 39612L, CardNo: "RAD·109a/167"),
-            (Id: 39722L, CardNo: "RAD·SP3/005") }
+            (Id: 39722L, CardNo: "RAD·SP3/005"),
+            (Id: 39661L, CardNo: "RAD·153/167"), (Id: 39690L, CardNo: "RAD·175*/167"),
+            (Id: 39691L, CardNo: "RAD·175/167") }
             .Select(identity => catalog.Cards.Single(card => card.Id == identity.Id && card.CardNo == identity.CardNo))
             .Select(card => card with {
                 CardCategoryList = card.CardCategoryList.ToImmutableArray(),

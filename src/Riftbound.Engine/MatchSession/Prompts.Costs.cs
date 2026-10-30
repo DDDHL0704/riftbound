@@ -1866,7 +1866,7 @@ internal static partial class ActionPromptBuilder
             ["drawCount"] = choice.DrawCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.LastBreathDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.LastBreathDraw is null && choice.StandbyObserver is null ? choice.SourceObjectId
                 : ResolutionResult.VisibleObjectIdForViewer(state, choice.SourceObjectId, playerId),
             ["effectKind"] = choice.EffectKind,
             ["serverHandChoiceState"] = ownChoice ? "PENDING" : "WAITING"

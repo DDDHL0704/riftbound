@@ -3007,6 +3007,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PromptExpired);
         }
 
+        if (!ValidStandbyDrawChoice(state))
+            return RejectWithCorePrompts(state, "从背面打出后的弃牌选择来源已失效。", ErrorCodes.InvalidTarget);
+
         if (NeedsCapturedLastBreathDiscardChoice(pendingChoice) && !ValidLastBreathDiscardChoice(state))
             return RejectWithCorePrompts(state, "绝念弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
 

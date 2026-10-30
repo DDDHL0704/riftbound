@@ -651,6 +651,9 @@ public sealed record PendingHandChoiceState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LegendDiscardDrawContext? LegendDiscardDraw { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public StandbyPlayedObserverContext? StandbyObserver { get; init; }
+
     private static string Normalize(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -1133,6 +1136,7 @@ public sealed partial record MatchState
         return BattleLimitedMarkers.PrivateMarker(effectId)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.StandbyDrawUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
@@ -1463,7 +1467,7 @@ public sealed partial record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw, LegendDiscardDraw = pendingHandChoice.LegendDiscardDraw };
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver, LastBreathDraw = pendingHandChoice.LastBreathDraw, LegendDiscardDraw = pendingHandChoice.LegendDiscardDraw, StandbyObserver = pendingHandChoice.StandbyObserver };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -1558,6 +1562,7 @@ public sealed partial record ResolutionResult(
             ? "放逐自己的卡牌：强化来源" : "其他物体被强化：强化来源";
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
             ? "对手回合打出卡牌：打出随从" : "从手牌以外打出卡牌：强化来源";
+        if (trigger.StandbyObserver?.Draw is not null) return "从背面打出卡牌：抽一张牌，对手回合再弃置一张手牌";
         if (trigger.HighCostPlayObserver is not null) return "打出高费用单位、装备或主动技能：横置并活跃符文";
         if (trigger.ConquestSource is not null) return "征服效果：获得分数";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunReadyPowerKind) return "眩晕敌方单位：活跃来源并获得战力";
@@ -1595,6 +1600,7 @@ public sealed partial record ResolutionResult(
             ? "你放逐了属于自己的卡牌；双方响应后强化来源。" : "其他物体被你强化；双方响应后强化来源。";
         if (trigger.OutsideHandPlayObserver is not null) return trigger.EffectKind == CoreRuleEngine.OpponentTurnPlayTokenEffect
             ? "对手回合打出卡牌；双方响应后打出随从。" : "从手牌以外打出卡牌；双方响应后强化来源。";
+        if (trigger.StandbyObserver?.Draw is not null) return "双方响应后抽一张牌；如果不是你的回合，则再弃置一张手牌。";
         if (trigger.HighCostPlayObserver is not null) return "可横置来源，并让至多两枚符文活跃。";
         if (trigger.ConquestSource is not null) return "双方响应后获得分数。";
         if (trigger.FieldContext?.Kind == CoreRuleEngine.StunReadyPowerKind) return "眩晕敌方单位；双方响应后活跃来源并给予战力。";
@@ -1985,7 +1991,7 @@ public sealed partial record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.LegendDiscardDraw is null ? choice.SourceObjectId
+            ["sourceObjectId"] = choice.MovementObserver is null && choice.LastBreathDraw is null && choice.LegendDiscardDraw is null && choice.StandbyObserver is null ? choice.SourceObjectId
                 : VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE"

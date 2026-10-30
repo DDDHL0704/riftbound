@@ -149,7 +149,7 @@ public sealed class RadFaceDownPlayHeroTests
     }
 
     [Theory, MemberData(nameof(Prints))]
-    public async Task AnActualCounterPreventsBothReadyingAndTheMightBonus(string no)
+    public async Task ATargetlessSelfEffectRejectsACounterThatRequiresAFriendlyTarget(string no)
     {
         var ready = await Ready(no);
         var s = AttackDamageDistributionTests.Spell(ready.State, "COUNTER", "SFD·045/221", "P2");
@@ -157,10 +157,14 @@ public sealed class RadFaceDownPlayHeroTests
         var game = new Driver(s); await PlayShadow(game);
         var observer = Assert.Single(game.State.StackItems, i => i.StandbyObserver is not null);
         await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("COUNTER", "SFD·045/221", [observer.StackItemId])); await game.Top();
+        var command = new PlayCardCommand("COUNTER", "SFD·045/221", [observer.StackItemId]);
+        var hash = MatchStateHasher.Hash(game.State);
+        var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("invalid-counter", "P2", command.CmdType), command, default);
+        Assert.False(rejected.Accepted); Assert.Empty(rejected.Events); Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
+        await game.Act("P2", new PassPriorityCommand());
         Assert.DoesNotContain(game.State.StackItems, i => i.StandbyObserver is not null);
-        Assert.True(game.State.CardObjects["HOST"].IsExhausted); Assert.Equal(5, game.State.CardObjects["HOST"].Power);
-        Assert.Empty(game.State.CardObjects["HOST"].UntilEndOfTurnPowerModifiers);
-        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "UNIT_READIED"); await game.Top(); await game.Replay();
+        Assert.False(game.State.CardObjects["HOST"].IsExhausted); Assert.Equal(6, game.State.CardObjects["HOST"].Power);
+        Assert.Single(game.State.CardObjects["HOST"].UntilEndOfTurnPowerModifiers);
+        Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_READIED"); await game.Top(); await game.Replay();
     }
 }

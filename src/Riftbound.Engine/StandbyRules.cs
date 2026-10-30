@@ -18,6 +18,9 @@ internal static class StandbyRules
     internal static StandbyPlayedSelfEffect? PlayedSelfEffect(string? cardNo)
         => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card)
             ? StandbyParser.SelfEffectWhenControllerPlaysFromFaceDown(card.CardEffect) : null;
+    internal static StandbyPlayedDrawEffect? PlayedDrawEffect(string? cardNo)
+        => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card)
+            ? StandbyParser.DrawWhenControllerPlaysFromFaceDown(card.CardEffect) : null;
     internal static bool AttachesSelfOnPlay(string? cardNo)
         => cardNo is not null && Cards.Value.TryGetValue(cardNo, out var card)
             && StandbyParser.AttachesSelfToFriendlyUnitHereWhenPlayedFromFaceDown(card.CardEffect);
