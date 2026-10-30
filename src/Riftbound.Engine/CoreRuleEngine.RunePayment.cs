@@ -10,21 +10,39 @@ public sealed partial class CoreRuleEngine
         if (choices.Count != rawCount || choices.Distinct(StringComparer.Ordinal).Count() != rawCount
             || choices.Contains(DeclinePaymentChoiceId, StringComparer.Ordinal)
             || !TryExtractTapRunePaymentResourceActions(state, intent.PlayerId, choices,
-                out var spendAndRecycleChoices, out var tapActions, out var tappedRunes)
+                out var nonTapChoices, out _, out var tappedRunes)
             || !TryPreviewOrderedPaymentResources(state, intent.PlayerId,
                 state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty),
                 choices.Where(c => IsTapRunePaymentResourceActionId(c) || IsRecycleRunePaymentResourceActionId(c)).ToArray(), out _))
             return RejectWithCorePrompts(state, "PAY_COST 包含非法支付资源动作。", ErrorCodes.InvalidTarget);
 
-        // Stage resource acquisition together with the existing payment resolver. A failed
-        // choice or payment returns the original state, including unexhausted runes.
+        var resourceActions = choices.Where(c => IsTapRunePaymentResourceActionId(c) || IsRecycleRunePaymentResourceActionId(c)).ToArray();
+        var legalRecycles = payment.PaymentResourceActionIds
+            .Concat(payment.LegalPaymentChoiceIds.Where(IsRecycleRunePaymentResourceActionId)).ToHashSet(StringComparer.Ordinal);
+        if (resourceActions.Any(c => IsRecycleRunePaymentResourceActionId(c) && !legalRecycles.Contains(c))
+            || payment.PaymentWindow == MightyCostWindow && !ValidMightySkillPayment(state, payment)
+            || !TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId,
+                resourceActions.Where(IsRecycleRunePaymentResourceActionId).ToArray(),
+                out var nonResourceChoices, out _, out var recycledRunes) || nonResourceChoices.Count != 0)
+            return RejectWithCorePrompts(state, "PAY_COST 包含非法支付资源动作。", ErrorCodes.InvalidTarget);
+
+        // Validate the original window before acquiring resources, then stage every
+        // action in its submitted order. A rejected continuation rolls all of them back.
         var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var resourceEvents = new List<GameEvent>();
-        var pools = ApplyTapRunePaymentResourceActions(state.RunePools, zones, cards, intent.PlayerId,
-            tappedRunes, resourceEvents, payment.PaymentWindow, payment.PaymentId);
-        var staged = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools };
-        var result = ResolvePendingPayCost(staged, intent, payment, payment.PaymentId, payment.PaymentWindow, spendAndRecycleChoices);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resourceActions, zones, ref cards,
+                locations, ref pools, resourceEvents, payment.PaymentWindow, payment.PaymentId))
+            return RejectWithCorePrompts(state, "PAY_COST 包含非法支付资源动作。", ErrorCodes.InvalidTarget);
+        var staged = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
+        var stagedPayment = payment.PaymentWindow == MightyCostWindow
+            ? payment with { PaymentResourceActionIds = RecycleRunePaymentResourceActionIds(staged, intent.PlayerId) }
+            : payment;
+        staged = staged with { PendingPayment = stagedPayment };
+        var spendChoices = nonTapChoices.Where(c => !IsRecycleRunePaymentResourceActionId(c)).ToArray();
+        var result = ResolvePendingPayCost(staged, intent, stagedPayment, payment.PaymentId, payment.PaymentWindow, spendChoices);
         if (!result.Accepted)
             return RejectWithCorePrompts(state, result.ErrorMessage ?? "支付失败。", result.ErrorCode ?? ErrorCodes.InvalidTarget);
 
@@ -36,8 +54,8 @@ public sealed partial class CoreRuleEngine
             {
                 ["paymentChoiceIds"] = choices.ToArray(),
                 ["tappedRuneObjectIds"] = tappedRunes.ToArray(),
-                ["paymentResourceActions"] = choices.Where(c => tapActions.Contains(c, StringComparer.Ordinal)
-                    || IsRecycleRunePaymentResourceActionId(c)).ToArray()
+                ["recycledRuneObjectIds"] = recycledRunes.ToArray(),
+                ["paymentResourceActions"] = resourceActions
             };
             return e with { Payload = payload };
         });
