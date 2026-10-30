@@ -22,6 +22,13 @@ public sealed partial class CoreRuleEngine
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
+            context is { Kind: EquipmentDeathReturnKind, EquipmentDestruction: { } equipmentDeath }
+                && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
+                && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
+                ? context with { SourceCeasedToExist = true, EquipmentDestruction = equipmentDeath with {
+                    CeasedSource = new(result.State.Tick, context.Origin?.CardNo
+                        ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], equipmentDeath.SourceFaceRevision, equipmentDeath.CapturedTick) ?? string.Empty) } }
+                :
             context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
