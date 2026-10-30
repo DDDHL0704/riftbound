@@ -9427,10 +9427,14 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
+        new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, InsightCount: 3),
         new("RAD·036/167", "风暴锋喙鸟", 6, "STUNNED_ENEMY_DEATH_DRAW_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "鸟类|法盾"),
         new("RAD·126/167", "哀戚悲灵", 4, "LAST_BREATH_LOCAL_DESTROY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "灵体"),
+        new("RAD·130/167", "战地甲胄师", 3, "EQUIPMENT_DEATH_RETURN_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("RAD·131/167", "光照者教团", 3, "FRIENDLY_DEATH_BATCH_BOON_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3)
     ];

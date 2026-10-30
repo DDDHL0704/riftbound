@@ -14,6 +14,7 @@ public sealed class RadDestructionObserverUnitTests
     [Theory]
     [InlineData(Bird, 39529, 6, 6, 0)] [InlineData(Order, 39636, 3, 3, 1)]
     [InlineData("RAD·126/167", 39631, 4, 1, 0)]
+    [InlineData("RAD·130/167", 39635, 3, 3, 0)]
     public async Task OfficialPrintsPayTheirCostsAndRejectUnaffordableEntry(string no, long id, int mana, int power, int rune)
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
@@ -26,6 +27,7 @@ public sealed class RadDestructionObserverUnitTests
         var game = new Driver(state); await game.Act("P1", command);
         Assert.Equal(20 - mana, game.State.RunePools["P1"].Mana); Assert.Equal(20 - rune, game.State.RunePools["P1"].TotalPower);
         Assert.Equal(power, game.State.CardObjects["UNIT"].Power); Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        if (no == Bird) Assert.Contains(CardObjectTags.Spellshield, game.State.CardObjects["UNIT"].Tags);
         Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
@@ -193,6 +195,7 @@ public sealed class RadDestructionObserverUnitTests
     [InlineData(Bird, TriggerKinds.UnitStunnedEnemyDestroyedHereDraw)]
     [InlineData(Order, TriggerKinds.UnitFriendlyBatchDestroyedBoon)]
     [InlineData("RAD·126/167", TriggerKinds.UnitLastBreathDestroyPermanentHere)]
+    [InlineData("RAD·130/167", TriggerKinds.UnitFriendlyBattlefieldEquipmentDestroyedReturnHand)]
     public async Task OfficialChineseTextsProduceTheSharedDeathSpecs(string no, string kind)
     {
         var card = (await OfficialCardCatalog.LoadRuntimeAsync()).Cards.Single(c => c.CardNo == no);

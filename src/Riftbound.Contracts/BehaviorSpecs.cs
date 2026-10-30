@@ -284,6 +284,9 @@ public static class TriggerKinds
     public const string UnitLastBreathDamageSourceBattlefieldUnits =
         "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
     public const string UnitLastBreathDestroyPermanentHere = "UNIT_LAST_BREATH_DESTROY_PERMANENT_HERE";
+    public const string UnitFriendlyBattlefieldEquipmentDestroyedReturnHand = "FRIENDLY_BATTLEFIELD_EQUIPMENT_DESTROYED_RETURN_HAND";
+    public const string UnitBattlefieldHeldInsight = "UNIT_BATTLEFIELD_HELD_INSIGHT";
+    public const string UnitLastBreathBanishDeckTopPlay = "UNIT_LAST_BREATH_BANISH_DECK_TOP_PLAY";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =

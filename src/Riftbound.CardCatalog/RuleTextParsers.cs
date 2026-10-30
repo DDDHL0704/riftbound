@@ -323,6 +323,19 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var heldInsight = Regex.Match(text, @"当你打出我时[，,]\s*或当我据守一处战场时[，,]\s*\{\{洞察(?<count>[0-9一两二三四五六七八九十]+)\}\}", RegexOptions.CultureInvariant);
+        if (heldInsight.Success)
+            triggers.Add(new(TriggerKinds.UnitBattlefieldHeldInsight, TriggerTimings.BattlefieldHeld, heldInsight.Value,
+                RevealCount: ParseChineseNumber(heldInsight.Groups["count"].Value)));
+        var lastBreathDeckPlay = Regex.Match(text, @"\{\{绝念>?\}\}\s*[—-]?\s*放逐你主牌堆顶部的一张牌[。.]\s*你可以选择将其打出[，,]\s*无视其法力费用", RegexOptions.CultureInvariant);
+        if (lastBreathDeckPlay.Success)
+            triggers.Add(new(TriggerKinds.UnitLastBreathBanishDeckTopPlay, TriggerTimings.UnitDestroyed, lastBreathDeckPlay.Value,
+                BanishCount: 1, PlayCount: 1, PlayOriginZone: "BANISHED", IgnorePlayManaCost: true, PayPlayPowerCosts: true, Optional: true));
+        var equipmentDeath = Regex.Match(text, @"当战场上的一件友方装备被摧毁时[，,]\s*你可以选择支付\{\{(?<mana>[0-9一两二三四五六七八九十]+)\}\}[，,]\s*以此让其返回其所属的手牌", RegexOptions.CultureInvariant);
+        if (equipmentDeath.Success)
+            triggers.Add(new(TriggerKinds.UnitFriendlyBattlefieldEquipmentDestroyedReturnHand, "EQUIPMENT_DESTROYED", equipmentDeath.Value,
+                ManaCost: ParseChineseNumber(equipmentDeath.Groups["mana"].Value), Optional: true, ReturnCount: 1,
+                ReturnOriginZone: "GRAVEYARD", ReturnDestinationZone: "HAND"));
         var localLastBreath = Regex.Match(text, @"\{\{绝念>?\}\}\s*你可以选择摧毁此处的一个单位或装备", RegexOptions.CultureInvariant);
         if (localLastBreath.Success)
             triggers.Add(new(TriggerKinds.UnitLastBreathDestroyPermanentHere, TriggerTimings.UnitDestroyed,
@@ -607,6 +620,8 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !heldInsight.Success || !heldInsight.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !equipmentDeath.Success || !equipmentDeath.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !localLastBreath.Success || !segment.Contains("当我被摧毁后，发动此效果", StringComparison.Ordinal))
             .Where(segment => !opponentTurnPlay.Success || !opponentTurnPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !graveyardPlay.Success || !graveyardPlay.Value.Contains(segment, StringComparison.Ordinal))

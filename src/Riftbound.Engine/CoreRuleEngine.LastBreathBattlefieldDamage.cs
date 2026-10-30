@@ -11,7 +11,8 @@ public sealed record LastBreathBattlefieldDamageContext(string DeathId, string C
     string SourceZone, string? BattlefieldObjectId, int TurnNumber, long CreatedAtTick,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceBasePlayerId = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SourceBasePlayerId = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ObjectBinding? BanishedDeckTop = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -66,6 +67,9 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(c.SourceCardNo) || string.IsNullOrWhiteSpace(c.ControllerId) || !state.Seats.ContainsKey(c.ControllerId)
             || string.IsNullOrWhiteSpace(c.DeathId) || !c.DeathId.StartsWith("death-", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(c.InstanceId) || c.TurnNumber != state.TurnNumber || c.CreatedAtTick <= 0 || c.CreatedAtTick > state.Tick
+            || (c.BanishedDeckTop is not null && (c.Kind != TriggerKinds.UnitLastBreathBanishDeckTopPlay
+                || c.BanishedDeckTop.Generation < 1 || !state.CardObjects.TryGetValue(c.BanishedDeckTop.ObjectId, out var banished)
+                || banished.ObjectGeneration < c.BanishedDeckTop.Generation))
             || !TryGetLastBreathBattlefieldDamageSpec(c, out _) || c.SourceZone is not ("BASE" or "BATTLEFIELD")
             || (c.Kind == TriggerKinds.UnitLastBreathDestroyPermanentHere && c.SourceZone == "BASE"
                 ? c.SourceBasePlayerId is null || !state.Seats.ContainsKey(c.SourceBasePlayerId) : c.SourceBasePlayerId is not null)
@@ -96,7 +100,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidLastBreathBattlefieldDamageTrigger(MatchState state, TriggerQueueItemState item)
         => item.LastBreathBattlefieldDamage is { } c && ValidLastBreathBattlefieldDamage(state, c)
-            && item.TriggerId == LastBreathBattlefieldDamageTriggerId(c)
+            && c.BanishedDeckTop is null && item.TriggerId == LastBreathBattlefieldDamageTriggerId(c)
             && item.ControllerId == c.ControllerId && item.SourceObjectId == c.Source.ObjectId && item.SourceCardNo == c.CardNo
             && item.EffectKind == c.Kind && item.TriggeredByEventKind == TriggerTimings.UnitDestroyed;
 

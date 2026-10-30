@@ -40,8 +40,9 @@ public sealed class RadLocalLastBreathUnitTests
     public async Task BattlefieldDeathCanTargetItsEnemyAndUsesTheOrdinarySpellshieldPayment(bool pay)
     {
         var state = VenUnitEntryBasicTests.Position(Sorrow);
+        var enemy = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "RAD·036/167", "P2");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["ENEMY"] = OfficialGarenConquestBattlefieldCountTests.Printed("ENEMY", "RAD·036/167", "P2"),
+            ["ENEMY"] = enemy with { Tags = [..enemy.Tags, CardObjectTags.Spellshield] },
             ["BF"] = state.CardObjects["BF"] with { ControllerId = "P2" } },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
                 ["P1"] = state.PlayerZones["P1"] with { Hand = [], Base = ["ALLY", "GEAR", "UNIT"] },
