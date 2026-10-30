@@ -64,6 +64,7 @@
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - `a/l2-regex-cache`：CPU 采样发现卡牌文本解析反复填充默认仅 15 项的正则缓存；测试进程把容量下限调整为 1,024，并在实际 testhost 运行数据中记录容量。解析器、卡牌目录及集合排序三类现有定向测试 385/385 通过、零跳过；保留九片完整清单、全部完整对局和唯一门槛，完整 CI 耗时仍待实测，不提前勾选提速目标。
+  - [x] [#290](https://github.com/DDDHL0704/riftbound/pull/290) 已合入：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。完整 [40982404811](https://github.com/DDDHL0704/riftbound/actions/runs/40982404811) 的九片规则与门槛全部通过。
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - 队列复核发现 #284 于 10 月 29 日 23:02 UTC 关闭且未合入，其 [40966626313](https://github.com/DDDHL0704/riftbound/actions/runs/40966626313) 仍在执行，23:13 UTC 还占三个运行名额，已手动取消。`a/l2-close-cancel` 增加独立关闭事件工作流，使用同一个 PR 并发组自动取消旧验证；关闭事件不发布 `L2 required` 检查，重新打开 PR 后仍须通过完整规则。main 的并发组保留独立。
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
