@@ -20,6 +20,7 @@
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
   - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)，已合入：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。
   - [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089)（#263 合入后手动运行，固定 `a7da2b67`）：完整清单包含 9,064 个方法、18,070 条用例和 144 个完整对局方法，无延后豁免。最终 **success**：八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络及 Windows/macOS 桌面全部通过，规则与 PostgreSQL 汇总、最终完整验收门槛也通过；已恢复手动完整夜验。手动运行不计入连续三晚，当前定时计数 **0/3**。
+  - [40967451157](https://github.com/DDDHL0704/riftbound/actions/runs/40967451157)（北京时间 10 月 30 日定时运行，固定 `92a8350b`）：shard-3 的皮城学院回响完整对局失败；连续惩戒伤害留下多个同一单位的强制放逐替换，测试助手在 `DESTRUCTION_REPLACEMENT` 窗口继续让出优先权，未由指定玩家提交替换顺序选择。`a/nightly-academy` 修复测试驱动，保留付款、回响与完整日志回放断言，补充目标实际放逐和真实选择命令断言，并把这条约 13 秒的回归加入常规 L2；原有两局完整对局继续执行。其余夜验任务仍在收集最终结果，当前连续通过 **0/3**。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
@@ -64,6 +65,7 @@
 - [ ] **P3-2 L2 提速**（`a/l2-margin`，为当前完整输入补充余量）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
+  - [x] `a/ci-build-log`：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - 队列复核发现 #284 于 10 月 29 日 23:02 UTC 关闭且未合入，其 [40966626313](https://github.com/DDDHL0704/riftbound/actions/runs/40966626313) 仍在执行，23:13 UTC 还占三个运行名额，已手动取消。`a/l2-close-cancel` 增加独立关闭事件工作流，使用同一个 PR 并发组自动取消旧验证；关闭事件不发布 `L2 required` 检查，重新打开 PR 后仍须通过完整规则。main 的并发组保留独立。
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；
