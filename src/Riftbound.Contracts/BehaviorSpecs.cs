@@ -407,6 +407,7 @@ public static class StaticAbilityKinds
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
     public const string ControllerRuneCallExtraExhausted = "CONTROLLER_RUNE_CALL_EXTRA_EXHAUSTED";
+    public const string BattlefieldUnitTokenRobotReplacement = "BATTLEFIELD_UNIT_TOKEN_ROBOT_REPLACEMENT";
     public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";

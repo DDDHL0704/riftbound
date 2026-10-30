@@ -238,8 +238,10 @@ public sealed partial class CoreRuleEngine
             rngCursor = battlefieldOtherDrawApplication.RngCursor;
         }
         TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger(
+            state,
             playerZones,
             cardObjects,
+            runePools,
             playerId,
             battlefieldId,
             sourceObjectId,

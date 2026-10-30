@@ -282,7 +282,7 @@ public sealed partial class CoreRuleEngine
             if (!TryMovementTokenInstruction(state, item, out var instruction))
                 return NoopStackResolutionResult(state) with { Events = events };
             var created = CreateUnitTokenBatch(state, item, instruction.FactoryCardNo,
-                instruction.Count + AdditionalUnitTokens(item), false, instruction.Location.BattlefieldObjectId, context.Kind);
+                instruction.Count + AdditionalUnitTokens(item), false, instruction.Location.BattlefieldObjectId, context.Kind, grantedKeywords: unitSpec!.CreatedTokenKeywords);
             return created with { Events = events.Concat(created.Events).ToArray() };
         }
         if (context.Kind == TriggerKinds.UnitMovedDiscardDraw)

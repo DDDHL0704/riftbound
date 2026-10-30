@@ -7,7 +7,8 @@ namespace Riftbound.Engine;
 public sealed record ObjectBinding(string ObjectId, long Generation);
 public sealed record ReflexiveCopyContext(string CardNo, ObjectBinding? CopySource, IReadOnlyList<ObjectBinding> Recipients,
     string? BattlefieldId = null, bool TargetConfirmed = true,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopySourceIsSelf = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopySourceIsSelf = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, string>? RecipientFactories = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -27,14 +28,18 @@ public sealed partial class CoreRuleEngine
                 : context.BattlefieldId is null && context.TargetConfirmed)
             && (context.CopySource is null || context.CopySource.Generation >= 0 && !string.IsNullOrWhiteSpace(context.CopySource.ObjectId))
             && context.Recipients is { Count: > 0 } && context.Recipients.All(r => r is not null && r.Generation >= 0 && !string.IsNullOrWhiteSpace(r.ObjectId))
-            && context.Recipients.Select(r => r.ObjectId).Distinct().Count() == context.Recipients.Count;
+            && context.Recipients.Select(r => r.ObjectId).Distinct().Count() == context.Recipients.Count
+            && (context.RecipientFactories is null || context.RecipientFactories.Count == context.Recipients.Count
+                && context.Recipients.All(r => context.RecipientFactories.TryGetValue(r.ObjectId, out var factory)
+                    && factory is P6TokenFactoryCatalog.ImageTokenCardNo or "SFD·T01"));
 
     internal static bool ValidCopyRecipients(MatchState state, ReflexiveCopyContext context)
         => (context.CopySource is not { } source || !state.CardObjects.TryGetValue(source.ObjectId, out var target)
             || source.Generation <= target.ObjectGeneration)
             && context.Recipients.All(r => !state.CardObjects.TryGetValue(r.ObjectId, out var card)
             || r.Generation <= card.ObjectGeneration && (r.Generation != card.ObjectGeneration
-                || card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo && card.CardNo == P6TokenFactoryCatalog.ImageTokenCardNo));
+                || card.TokenFactoryCardNo == (context.RecipientFactories?.GetValueOrDefault(r.ObjectId) ?? P6TokenFactoryCatalog.ImageTokenCardNo)
+                    && card.CardNo == card.TokenFactoryCardNo));
 
     internal static bool ValidReflexiveCopyStack(MatchState state, StackItemState item)
         => (item.ReflexiveCopy is not { CopySourceIsSelf: true } self
@@ -55,7 +60,9 @@ public sealed partial class CoreRuleEngine
     {
         var context = new ReflexiveCopyContext(cardNo,
             copySource is null ? null : new(copySource.ObjectId, copySource.ObjectGeneration),
-            recipients.Select(r => new ObjectBinding(r.ObjectId, r.ObjectGeneration)).ToArray(), battlefieldId, battlefieldId is null, copySourceIsSelf);
+            recipients.Select(r => new ObjectBinding(r.ObjectId, r.ObjectGeneration)).ToArray(), battlefieldId, battlefieldId is null, copySourceIsSelf,
+            recipients.Any(r => r.TokenFactoryCardNo != P6TokenFactoryCatalog.ImageTokenCardNo)
+                ? recipients.ToDictionary(r => r.ObjectId, r => r.TokenFactoryCardNo!, StringComparer.Ordinal) : null);
         events.Add(new("REFLEXIVE_COPY_CREATED", "映像已进场，复制效果等待双方响应", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = sourceId, ["reflexiveCopyContext"] = context }));
     }
@@ -127,13 +134,19 @@ public sealed partial class CoreRuleEngine
             // This is an effect on the existing object, not a new entry: damage,
             // granted abilities, status, owner/controller and attachments survive.
             var copied = copySource is null ? null : CopyCharacteristics.CreateImage(image.ObjectId, image.ControllerId!, copySource, grantsEphemeral: !context.CopySourceIsSelf);
+            // CN375: a replacement token still receives the associated copy.
+            // Replace its printed characteristics while retaining modifiers on
+            // the existing object, including the instruction's keyword grants.
+            var factory = P6TokenFactoryCatalog.TryGetByCardNo(image.TokenFactoryCardNo!, out var physical) ? physical : null;
             var transformed = copied?.CardNo is { } face ? CopyFaceTimeline.ChangeFace(image, face, state.Tick + 1) : image;
             cards[image.ObjectId] = transformed with {
                 ManaCost = copied?.ManaCost ?? image.ManaCost,
-                Power = image.Power + (copied?.Power ?? 0),
+                Power = image.Power + (copied is null ? 0 : copied.Power - (factory?.DefaultPower ?? 0)),
                 GrantedTags = context.CopySourceIsSelf ? image.GrantedTags
                     : (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
-                Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag)
+                Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag
+                        && (copied is null || factory is null || !factory.Tags.Contains(t)))
+                    .Concat(image.GrantedTags ?? [])
                     .Concat(copied?.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag) ?? [])
                     .Concat(context.CopySourceIsSelf ? [] : [CardObjectTags.Ephemeral]).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             };

@@ -1154,35 +1154,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = paymentCommit.RunePools;
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
-        var tokenState = tokenDefinition.CreateObject(tokenObjectId, intent.PlayerId, intent.PlayerId);
-        tokenState = tokenState with
-        {
-            IsExhausted = trigger.CreatedTokenExhausted.GetValueOrDefault(),
-            Tags = ApplyAzirSandSoldierTemperedTags(
-                playerZones,
-                cardObjects,
-                intent.PlayerId,
-                tokenState.Tags)
-        };
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
-        cardObjects[tokenObjectId] = tokenState;
-        var zones = playerZones[intent.PlayerId];
-        playerZones[intent.PlayerId] = zones with
-        {
-            Battlefields = zones.Battlefields.Concat([tokenObjectId]).ToArray()
-        };
-
+        var runePools = paymentCommit.RunePools.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var tokenEvents = new List<GameEvent>();
+        var tokenLocations = state.ObjectLocations.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var tokenItem = new StackItemState("token-" + pendingPayment.PaymentId, intent.PlayerId, battlefieldObjectId, trigger.Kind)
+            { CardNo = battlefieldState.CardNo };
+        AppendUnitTokenBatch(state, tokenItem, tokenDefinition.CardNo, 1,
+            entersReady: trigger.CreatedTokenExhausted != true, playerZones, cardObjects, runePools, tokenEvents,
+            tokenLocations, battlefieldId: battlefieldObjectId, abilityId: trigger.Kind,
+            grantedKeywords: trigger.CreatedTokenKeywords, allowLocationChoice: false);
+        var tokenObjectId = tokenEvents.FirstOrDefault(e => e.Kind == "UNIT_TOKEN_CREATED")?.Payload["tokenObjectId"] as string;
         var events = new List<GameEvent>
         {
             new(
@@ -1214,7 +1195,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["returnedObjectId"] = returnedObjectId,
                     ["ownerPlayerId"] = ownerPlayerId,
                     ["tokenObjectId"] = tokenObjectId,
-                    ["tokenCardNo"] = tokenState.CardNo,
+                    ["tokenCardNo"] = tokenObjectId is null ? null : cardObjects[tokenObjectId].CardNo,
                     ["paymentId"] = pendingPayment.PaymentId,
                     ["paymentWindow"] = pendingPayment.PaymentWindow
                 }),
@@ -1240,31 +1221,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 events,
                 out var battlefieldReturnRunePools))
         {
-            runePools = battlefieldReturnRunePools;
+            runePools = battlefieldReturnRunePools.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         }
 
-        var tokenPayload = new Dictionary<string, object?>
-        {
-            ["playerId"] = intent.PlayerId,
-            ["sourceObjectId"] = battlefieldObjectId,
-            ["abilityId"] = trigger.Kind,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenCardNo"] = tokenState.CardNo,
-            ["tokenName"] = tokenDefinition.TokenFamilyName,
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = "BATTLEFIELD",
-            ["tokenTags"] = tokenState.Tags.ToArray(),
-            ["azirTempered"] = tokenState.Tags.Contains(CardEquipmentKeywordNames.Tempered, StringComparer.Ordinal)
-        };
-        AddEntryStaticAbilityPayload(
-            tokenPayload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{battlefieldObjectId} 打出黄沙士兵",
-            tokenPayload), playerZones, cardObjects, state.UntilEndOfTurnEffects));
+        events.AddRange(tokenEvents);
         events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
 
         var nextState = state with
@@ -1273,7 +1233,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
+            ObjectLocations = ReconcileObjectLocations(tokenLocations, playerZones),
             PendingPayment = null
         };
         return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
@@ -16137,74 +16097,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static void CreateBattlefieldUnitTokensInBase(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldObjectId,
-        string tokenName,
-        int tokenPower,
-        int tokenCount,
-        string abilityId,
-        List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || tokenCount <= 0
-            || !TryGetUnitTokenDefinition(tokenName, tokenPower, out var tokenDefinition))
-        {
-            return;
-        }
-
-        var tokenObjectIds = new List<string>();
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, tokenIndex + 1);
-            tokenObjectIds.Add(tokenObjectId);
-            var tokenState = tokenDefinition.CreateObject(
-                tokenObjectId,
-                playerId,
-                playerId, isExhausted: true);
-            tokenState = ApplyUnitTokenEntryStaticAbility(
-                playerZones,
-                cardObjects,
-                playerId,
-                tokenObjectId,
-                tokenState,
-                out var entersReadyFromStaticAbility,
-                out var entryStaticAbilitySourceObjectId,
-                out var entryStaticAbilitySourceState,
-                out var entryStaticAbility);
-            cardObjects[tokenObjectId] = tokenState;
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["abilityId"] = abilityId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
-                ["power"] = tokenState.Power,
-                ["destinationZone"] = "BASE",
-                ["tokenTags"] = tokenState.Tags.ToArray()
-            };
-            AddEntryStaticAbilityPayload(
-                payload,
-                entersReadyFromStaticAbility ? entryStaticAbility : null,
-                entryStaticAbilitySourceObjectId,
-                entryStaticAbilitySourceState.CardNo);
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_TOKEN_CREATED",
-                $"{battlefieldObjectId} 打出{tokenDefinition.TokenFamilyName}",
-                payload), playerZones, cardObjects, turnEffects));
-        }
-
-        playerZones[playerId] = zones with
-        {
-            Base = zones.Base.Concat(tokenObjectIds).ToArray()
-        };
-    }
-
     private static bool TryGetUnitTokenDefinition(
         string tokenName,
         int tokenPower,
@@ -17297,8 +17189,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, RunePool> runePools,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -17322,27 +17216,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
-        var tokenState = tokenDefinition.CreateObject(
-            tokenObjectId,
-            playerId,
-            playerId);
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility, entryBattlefieldId: battlefieldObjectId);
-        cardObjects[tokenObjectId] = tokenState;
-        playerZones[playerId] = zones with
-        {
-            Battlefields = zones.Battlefields.Concat([tokenObjectId]).ToArray()
-        };
-
+        var tokenEvents = new List<GameEvent>();
+        var tokenItem = new StackItemState($"conquest-token-{state.Tick}-{battlefieldObjectId}", playerId,
+            battlefieldObjectId, trigger.Kind) { CardNo = battlefieldState.CardNo };
+        AppendUnitTokenBatch(state, tokenItem, tokenDefinition.CardNo, 1, true,
+            playerZones, cardObjects, runePools, tokenEvents, turnEffects: turnEffects,
+            battlefieldId: battlefieldObjectId, abilityId: trigger.Kind,
+            grantedKeywords: trigger.CreatedTokenKeywords, allowLocationChoice: false);
+        var tokenObjectId = tokenEvents.FirstOrDefault(e => e.Kind == "UNIT_TOKEN_CREATED")?.Payload["tokenObjectId"] as string;
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",
             $"{playerId} 征服战场并打出战鹰",
@@ -17357,85 +17238,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
                 ["tokenObjectId"] = tokenObjectId
             }));
-        var tokenPayload = new Dictionary<string, object?>
-        {
-            ["playerId"] = playerId,
-            ["sourceObjectId"] = battlefieldObjectId,
-            ["abilityId"] = trigger.Kind,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenCardNo"] = tokenDefinition.CardNo,
-            ["tokenName"] = tokenDefinition.TokenFamilyName,
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = trigger.CreatedTokenDestination,
-            ["tokenTags"] = tokenState.Tags.ToArray()
-        };
-        AddEntryStaticAbilityPayload(
-            tokenPayload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{battlefieldObjectId} 打出战鹰",
-            tokenPayload), playerZones, cardObjects, turnEffects));
+        events.AddRange(tokenEvents);
         return true;
-    }
-
-    private static void CreateWarhawkTokenInControllerBase(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string reason,
-        List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.WarhawkTokenCardNo, out var tokenDefinition))
-        {
-            return;
-        }
-
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = tokenDefinition.CreateObject(tokenObjectId, playerId, playerId);
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
-        cardObjects[tokenObjectId] = tokenState;
-        playerZones[playerId] = zones with
-        {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
-        };
-
-        var payload = new Dictionary<string, object?>
-        {
-            ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
-            ["abilityId"] = reason,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenCardNo"] = tokenDefinition.CardNo,
-            ["tokenName"] = tokenDefinition.TokenFamilyName,
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = "BASE",
-            ["tokenTags"] = tokenState.Tags.ToArray(),
-            ["reason"] = reason
-        };
-        AddEntryStaticAbilityPayload(
-            payload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出战鹰",
-            payload), playerZones, cardObjects, turnEffects));
     }
 
     private static bool TryGetFirstExhaustedFriendlyEquipment(
@@ -27121,31 +26925,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LastBreathUnitCreation is null && hasTrigger && trigger.RequiresSourceEmpowered is not null)
             throw new InvalidOperationException("A conditional last-breath needs its captured source state.");
 
-        if (hasTrigger)
-        {
-            CreateBaseUnitTokensFromTrigger(
-                playerZones,
-                cardObjects,
-                stackItem,
-                trigger,
-                events, state.UntilEndOfTurnEffects);
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
+        if (!hasTrigger) return NoopStackResolutionResult(state) with { Events = events };
+        if (!TryGetUnitTokenDefinition(trigger.CreatedTokenName!, trigger.CreatedTokenPower!.Value, out var factory))
+            throw new InvalidOperationException("Missing last-breath unit token factory.");
+        var batch = CreateUnitTokenBatch(state, stackItem, factory.CardNo,
+            trigger.CreatedTokenCount!.Value * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem),
+            entersReady: trigger.CreatedTokenExhausted == false, abilityId: trigger.Kind,
+            grantedKeywords: trigger.CreatedTokenKeywords, allowLocationChoice: false);
+        return batch with { Events = events.Concat(batch.Events).ToArray() };
     }
 
     private static StackResolutionResult ResolveUnitLastBreathSourceBattlefieldAoeDamageStackItem(
@@ -27382,119 +27169,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             drawApplication.RngCursor);
     }
 
-    private static void CreateBaseUnitTokensFromTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        TriggerSpec trigger,
-        List<GameEvent> events,
-        IReadOnlyList<string> turnEffects)
-    {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
-            || trigger.CreatedTokenCount is not > 0
-            || string.IsNullOrWhiteSpace(trigger.CreatedTokenName)
-            || trigger.CreatedTokenPower is not > 0
-            || !string.Equals(trigger.CreatedTokenDestination, TriggerTokenDestinations.OwnerBase, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var tokenName = trigger.CreatedTokenName;
-        var tokenPower = trigger.CreatedTokenPower.Value;
-        var hasTokenDefinition = TryGetUnitTokenDefinition(tokenName, tokenPower, out var tokenDefinition)
-            && TokenDefinitionHasRequiredKeywords(tokenDefinition, trigger.CreatedTokenKeywords);
-        var tokenTags = hasTokenDefinition
-            ? tokenDefinition.Tags.ToArray()
-            : new[] { CardObjectTags.UnitCard }
-                .Concat(trigger.CreatedTokenKeywords ?? [])
-                .Distinct(StringComparer.Ordinal)
-                .ToArray();
-        tokenTags = ApplyAzirSandSoldierTemperedTags(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            tokenTags).ToArray();
-        tokenTags = ApplyMinionTokenFamilyTag(tokenName, tokenTags).ToArray();
-
-        var tokenObjectIds = new List<string>();
-        var tokenCount = trigger.CreatedTokenCount.Value * Math.Max(1, stackItem.EffectRepeatCount) + AdditionalUnitTokens(stackItem);
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                tokenIndex + 1);
-            tokenObjectIds.Add(tokenObjectId);
-            var tokenState = hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId, isExhausted: trigger.CreatedTokenExhausted ?? true)
-                : new CardObjectState(
-                    tokenObjectId,
-                    power: tokenPower,
-                    isExhausted: trigger.CreatedTokenExhausted ?? true,
-                    tags: tokenTags,
-                    ownerId: stackItem.ControllerId,
-                    controllerId: stackItem.ControllerId);
-            if (hasTokenDefinition && !tokenState.Tags.SequenceEqual(tokenTags))
-            {
-                tokenState = tokenState with
-                {
-                    Tags = tokenTags
-                };
-            }
-
-            var entersReadyFromStaticAbility = false;
-            var entryStaticAbilitySourceObjectId = string.Empty;
-            var entryStaticAbilitySourceState = new CardObjectState();
-            StaticAbilitySpec entryStaticAbility = default!;
-            if (hasTokenDefinition)
-            {
-                tokenState = ApplyUnitTokenEntryStaticAbility(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    tokenObjectId,
-                    tokenState,
-                    out entersReadyFromStaticAbility,
-                    out entryStaticAbilitySourceObjectId,
-                    out entryStaticAbilitySourceState,
-                    out entryStaticAbility);
-            }
-            cardObjects[tokenObjectId] = tokenState;
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["abilityId"] = trigger.Kind,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = tokenName,
-                ["power"] = tokenState.Power,
-                ["destinationZone"] = "BASE",
-                ["tokenTags"] = tokenState.Tags.ToArray(),
-                ["reason"] = trigger.Kind
-            };
-            if (hasTokenDefinition)
-            {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
-                AddEntryStaticAbilityPayload(
-                    payload,
-                    entersReadyFromStaticAbility ? entryStaticAbility : null,
-                    entryStaticAbilitySourceObjectId,
-                    entryStaticAbilitySourceState.CardNo);
-            }
-
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_TOKEN_CREATED",
-                $"{stackItem.SourceObjectId} 打出{tokenName}",
-                payload), playerZones, cardObjects, turnEffects));
-        }
-
-        playerZones[stackItem.ControllerId] = zones with
-        {
-            Base = zones.Base.Concat(tokenObjectIds).ToArray()
-        };
-    }
-
     private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
     {
         if (UnitDestroyedTriggerSpecRules.TryGetTrigger(
@@ -27670,32 +27344,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
-        for (var index = 0; index < P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount; index++)
-        {
-            CreateWarhawkTokenInControllerBase(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
-                events, state.UntilEndOfTurnEffects);
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
+        var batch = CreateUnitTokenBatch(state, stackItem, P6TokenFactoryCatalog.WarhawkTokenCardNo,
+            P4ActivatedAbilityCatalog.FluftPoroWarhawkTokenCount + AdditionalUnitTokens(stackItem),
+            entersReady: true, abilityId: P4ActivatedAbilityCatalog.FluftPoroWarhawkAbilityId,
+            grantedKeywords: [CardObjectTags.Spellshield], allowLocationChoice: false);
+        return batch with { Events = events.Concat(batch.Events).ToArray() };
     }
 
     // DOC-01 CN424.1.a.1: an already stunned unit remains a legal selected
@@ -28777,11 +28430,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, ObjectLocationState>? objectLocations,
         IReadOnlyList<string> turnEffects)
     {
-        if (!playerZones.ContainsKey(stackItem.ControllerId))
-        {
-            return;
-        }
-
+        if (!playerZones.ContainsKey(stackItem.ControllerId)) return;
         var shadowField = stackItem.PlayedFromStandby?.Battlefield;
         if (shadowField is not null && (!cardObjects.TryGetValue(shadowField.ObjectId, out var field)
             || field.ObjectGeneration != shadowField.Generation || !field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)))
@@ -28790,151 +28439,35 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 AddCreatedTokenReadyEvent(state, stackItem, cardObjects, [], events);
             return;
         }
-
-        var copiedTargetObjectId = behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            ? stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty
-            : string.Empty;
-        CardObjectState? copiedTargetState = null;
-        var copiesTarget = !string.IsNullOrWhiteSpace(copiedTargetObjectId)
-            && cardObjects.TryGetValue(copiedTargetObjectId, out copiedTargetState);
-        var isImageCopyToken = behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            && string.Equals(behavior.CreatedBaseUnitTokenName, "映像", StringComparison.Ordinal);
-        P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ImageTokenCardNo, out var imageDefinition);
-        var copiedForm = isImageCopyToken ? imageDefinition.CreateObject("", stackItem.ControllerId, stackItem.ControllerId) : null;
-        var tokenPower = copiedForm?.Power ?? behavior.CreatedBaseUnitTokenPower;
-        if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget
-            && (tokenPower < 0 || tokenPower == 0
-                && (!TryGetUnitTokenDefinition(behavior.CreatedBaseUnitTokenName, tokenPower, out var zeroToken)
-                    || zeroToken.RequiresCopySource)))
-        {
-            return;
-        }
-
-        var tokenCount = BaseUnitTokenInstructionCount(state, stackItem, behavior) + AdditionalUnitTokens(stackItem);
-        var tokenTags = copiedForm is not null
-            ? copiedForm.Tags.AsEnumerable()
-                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
-            : ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
-        tokenTags = ApplyAzirSandSoldierTemperedTags(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            tokenTags);
-        tokenTags = ApplyMinionTokenFamilyTag(behavior.CreatedBaseUnitTokenName, tokenTags);
-        P6TokenFactoryDefinition tokenDefinition = default!;
-        var hasTokenDefinition = !isImageCopyToken
-            && TryGetUnitTokenDefinition(behavior.CreatedBaseUnitTokenName, tokenPower, out tokenDefinition);
-        var createdTokenObjectIds = new List<string>();
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                tokenIndex + 1);
-            createdTokenObjectIds.Add(tokenObjectId);
-            var tokenState = copiedForm is not null
-                ? copiedForm with { ObjectId = tokenObjectId }
-                : hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId, isExhausted: !behavior.CreatedBaseUnitTokenEntersReady)
-                : new CardObjectState(
-                tokenObjectId,
-                power: tokenPower,
-                isExhausted: !behavior.CreatedBaseUnitTokenEntersReady,
-                tags: tokenTags,
-                cardNo: isImageCopyToken ? copiedTargetState!.CardNo : null,
-                ownerId: stackItem.ControllerId,
-                controllerId: stackItem.ControllerId);
-            if (!tokenState.Tags.SequenceEqual(tokenTags))
-            {
-                tokenState = tokenState with
-                {
-                    Tags = tokenState.Tags.Concat(tokenTags).Append(CardObjectTags.UnitCard).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
-                };
-            }
-
-            var entersReadyFromStaticAbility = false;
-            var entryStaticAbilitySourceObjectId = string.Empty;
-            var entryStaticAbilitySourceState = new CardObjectState();
-            StaticAbilitySpec entryStaticAbility = default!;
-            var entryField = shadowField?.ObjectId;
-            if (entryField is null && UnitTokenInstructionAllowsLocationChoice(stackItem.CardNo, behavior.CreatedBaseUnitTokenName))
-                entryField = ChooseUnitTokenBattlefield(state, stackItem.ControllerId, behavior.CreatedBaseUnitTokenName,
-                    playerZones, cardObjects, objectLocations ?? state.ObjectLocations, runePools, turnEffects);
-            var hastePaid = ChooseTokenHaste(state, stackItem.ControllerId, stackItem.SourceObjectId, tokenState,
-                playerZones, cardObjects, runePools, events);
-            if (hastePaid) tokenState = tokenState with { IsExhausted = false };
-            if (hasTokenDefinition)
-            {
-                tokenState = ApplyUnitTokenEntryStaticAbility(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    tokenObjectId,
-                    tokenState,
-                    out entersReadyFromStaticAbility,
-                    out entryStaticAbilitySourceObjectId,
-                    out entryStaticAbilitySourceState,
-                    out entryStaticAbility, entryBattlefieldId: entryField);
-            }
-            cardObjects[tokenObjectId] = tokenState;
-            var zones = playerZones[stackItem.ControllerId];
-            playerZones[stackItem.ControllerId] = entryField is null
-                ? zones with { Base = zones.Base.Append(tokenObjectId).ToArray() }
-                : zones with { Battlefields = zones.Battlefields.Append(tokenObjectId).ToArray() };
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBaseUnitTokenName,
-                ["power"] = tokenState.Power,
-                ["destinationZone"] = entryField is null ? "BASE" : "BATTLEFIELD"
-            };
-            if (entryField is not null) {
-                payload["battlefieldObjectId"] = entryField;
-                if (objectLocations is null) throw new InvalidOperationException("Token play requires its actual battlefield location.");
-                objectLocations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", entryField);
-            }
-            if (copiesTarget)
-            {
-                payload["copiedTargetObjectId"] = copiedTargetObjectId;
-                payload["copiedCardNo"] = copiedTargetState!.CardNo;
-            }
-
-            if (isImageCopyToken)
-            {
-                payload["tokenFactoryCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
-                payload["tokenCardNo"] = P6TokenFactoryCatalog.ImageTokenCardNo;
-            }
-            else if (hasTokenDefinition)
-            {
-                payload["tokenCardNo"] = tokenDefinition.CardNo;
-                AddEntryStaticAbilityPayload(
-                    payload,
-                    entersReadyFromStaticAbility ? entryStaticAbility : null,
-                    entryStaticAbilitySourceObjectId,
-                    entryStaticAbilitySourceState.CardNo);
-            }
-
-            if (tokenState.Tags.Count > 0)
-            {
-                payload["tokenTags"] = tokenState.Tags.ToArray();
-            }
-            AddTokenHastePayload(payload, hastePaid);
-
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_TOKEN_CREATED",
-                $"{behavior.DisplayName}打出单位指示物",
-                payload), playerZones, cardObjects, turnEffects));
-        }
-
+        var image = behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && behavior.CreatedBaseUnitTokenName == "映像";
+        P6TokenFactoryDefinition factory;
+        if (image) P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ImageTokenCardNo, out factory!);
+        else if (!TryGetUnitTokenDefinition(behavior.CreatedBaseUnitTokenName,
+            behavior.CreatedBaseUnitTokenPower, out factory!))
+            throw new InvalidOperationException("Missing official unit token factory for " + behavior.CardNo);
+        var firstEvent = events.Count;
+        AppendUnitTokenBatch(state, stackItem, factory.CardNo,
+            BaseUnitTokenInstructionCount(state, stackItem, behavior) + AdditionalUnitTokens(stackItem),
+            image || behavior.CreatedBaseUnitTokenEntersReady, playerZones, cardObjects, runePools, events,
+            objectLocations, turnEffects, shadowField?.ObjectId,
+            grantedKeywords: UnitTokenInstructionKeywords(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags)));
+        var created = events.Skip(firstEvent).Where(e => e.Kind == "UNIT_TOKEN_CREATED").ToArray();
+        var recipients = created.Select(e => (string)e.Payload["tokenObjectId"]!).ToArray();
         if (behavior.CreatedTokenReadyCount > 0)
-            AddCreatedTokenReadyEvent(state, stackItem, cardObjects, createdTokenObjectIds, events);
-
-        if (isImageCopyToken)
+            AddCreatedTokenReadyEvent(state, stackItem, cardObjects, recipients, events);
+        if (image)
+        {
+            var targetId = stackItem.TargetObjectIds.FirstOrDefault();
+            var target = targetId is null ? null : cardObjects.GetValueOrDefault(targetId);
+            if (target is not null)
+                for (var index = firstEvent; index < events.Count; index++)
+                    if (events[index].Kind == "UNIT_TOKEN_CREATED")
+                        events[index] = events[index] with { Payload = new Dictionary<string, object?>(events[index].Payload) {
+                            ["copiedTargetObjectId"] = targetId, ["copiedCardNo"] = target.CardNo } };
             AddReflexiveCopyEvent(events, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.CardNo,
-                copiedTargetState, createdTokenObjectIds.Select(id => cardObjects[id]).ToArray());
+                target, recipients.Select(id => cardObjects[id]).ToArray());
+        }
     }
 
     private static void CreateBaseEquipmentTokens(

@@ -93,6 +93,6 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid source unit token trigger.");
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,
-            spec.CreatedTokenCount!.Value, entersReady: spec.CreatedTokenExhausted != true);
+            spec.CreatedTokenCount!.Value, entersReady: spec.CreatedTokenExhausted != true, grantedKeywords: spec.CreatedTokenKeywords);
     }
 }

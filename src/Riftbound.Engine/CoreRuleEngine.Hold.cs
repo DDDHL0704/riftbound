@@ -186,8 +186,10 @@ public sealed partial class CoreRuleEngine
                 scores = burned.PlayerScores; winner = burned.WinnerPlayerId; rng = burned.RngCursor;
                 break;
             case "MINION": case "ROBOT":
-                CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
-                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events, effects);
+                AppendUnitTokenBatch(state, item,
+                    context.Kind == "MINION" ? P6TokenFactoryCatalog.ZaunMinionTokenCardNo : "SFD·T01",
+                    context.Amount + AdditionalUnitTokens(item), false, zones, cards, pools, events,
+                    turnEffects: effects, abilityId: item.EffectKind, allowLocationChoice: false);
                 break;
             case "GOLD": case "RENATA":
                 for (var i = 0; i < context.Amount; i++)

@@ -67,7 +67,7 @@ public sealed partial class CoreRuleEngine
         {
             var factory = ConquestUnitTokenFactory(spec)!;
             var result = CreateUnitTokenBatch(state, item, factory.CardNo, spec.CreatedTokenCount!.Value,
-                entersReady: spec.CreatedTokenExhausted != true);
+                entersReady: spec.CreatedTokenExhausted != true, grantedKeywords: spec.CreatedTokenKeywords);
             return result with { Events = events.Concat(result.Events).ToArray() };
         }
         var name = spec.CreatedTokenName ?? "金币";

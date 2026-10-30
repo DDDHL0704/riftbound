@@ -9293,6 +9293,8 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·132/167", "黑默丁格 - 学院导师", 6, "RAD_132_ROBOT_REPLACEMENT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "约德尔人"),
         new("RAD·061/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061", 0, 0,
             RequiresReturnFriendlyUnitAdditionalCost: true,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),

@@ -2952,6 +2952,10 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        if (text.Trim().TrimEnd('。') == "如果你将打出一个单位指示物到某一位置，只要我位于战场，你便可以选择改为打出一名3{{S}}的“机器人”单位指示物到该位置")
+            staticSpecs.Add(new(StaticAbilityKinds.BattlefieldUnitTokenRobotReplacement, text,
+                BehaviorImplementationStatuses.Unimplemented,
+                "Optional unit-token replacement retains the original location and instruction modifiers.", Amount: 3));
         if (text.Contains("我拥有等同于你控制装备数量的{{强攻}}数值", StringComparison.Ordinal))
             staticSpecs.Add(new(StaticAbilityKinds.UnitEquipmentCountSelfKeywords, text,
                 BehaviorImplementationStatuses.Unimplemented, "Current equipment count determines the source's Assault amount.",

@@ -58,6 +58,9 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult? BeginTokenReplacement(MatchState state, StackItemState item)
     {
+        // Different replacements must share the controller's chosen order.
+        // The native instruction continuation handles that case before entry.
+        if (RobotTokenReplacementSources(state, item.ControllerId).Length > 0) return null;
         var count = TokenEntryCount(state, item);
         if (count <= 0 || item.TokenEntryPlan is { } existing && existing.NextToken >= existing.OriginalCount
             || EligibleTokenReplacements(state, item.ControllerId).Length == 0) return null;

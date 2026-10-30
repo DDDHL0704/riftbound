@@ -4,14 +4,15 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    private sealed record LegendUnitToken(string AbilityId, string FactoryCardNo, bool EntersReady);
+    private sealed record LegendUnitToken(string AbilityId, string FactoryCardNo, bool EntersReady,
+        IReadOnlyList<string>? GrantedKeywords = null);
 
     private static bool TryGetLegendUnitToken(string effect, out LegendUnitToken token)
     {
         token = effect switch {
             LegendAbilityEffectKinds.CreateMinion => new(ViktorLegendAbilityId, "OGN·271/298", false),
             LegendAbilityEffectKinds.CreateSandSoldier => new(LegendActionAbilityCatalog.AzirLegendAbilityId, P6TokenFactoryCatalog.SandSoldierTokenCardNo, false),
-            LegendAbilityEffectKinds.CreateFaerie => new(LilliaLegendAbilityId, P6TokenFactoryCatalog.FaerieTokenCardNo, true),
+            LegendAbilityEffectKinds.CreateFaerie => new(LilliaLegendAbilityId, P6TokenFactoryCatalog.FaerieTokenCardNo, true, [CardObjectTags.Ephemeral]),
             _ => null!
         };
         return token is not null;
@@ -43,6 +44,6 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveLegendUnitToken(MatchState state, StackItemState item, LegendUnitToken instruction)
         => CreateUnitTokenBatch(state, item, instruction.FactoryCardNo, 1 + AdditionalUnitTokens(item), instruction.EntersReady,
-            abilityId: instruction.AbilityId);
+            abilityId: instruction.AbilityId, grantedKeywords: instruction.GrantedKeywords);
 
 }
