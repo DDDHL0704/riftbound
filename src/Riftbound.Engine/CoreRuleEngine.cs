@@ -34191,15 +34191,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
         }
 
-        if (cleanupResult.ExpiredEffectIds.Count > 0)
+        var publicExpiredEffectIds = cleanupResult.ExpiredEffectIds
+            .Where(effectId => !MatchState.IsInternalUntilEndOfTurnMarker(effectId))
+            .ToArray();
+        if (publicExpiredEffectIds.Length > 0)
         {
             events.Add(new GameEvent(
                 "UNTIL_END_OF_TURN_EXPIRED",
                 "期限为本回合内的效果同时失效",
                 new Dictionary<string, object?>
                 {
-                    ["effectIds"] = cleanupResult.ExpiredEffectIds.ToArray(),
-                    ["count"] = cleanupResult.ExpiredEffectIds.Count
+                    ["effectIds"] = publicExpiredEffectIds,
+                    ["count"] = publicExpiredEffectIds.Length
                 }));
         }
 

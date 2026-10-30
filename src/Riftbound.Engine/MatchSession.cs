@@ -1131,7 +1131,7 @@ public sealed partial record MatchState
             .ToArray();
     }
 
-    private static bool IsInternalUntilEndOfTurnMarker(string effectId)
+    internal static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
         return BattleLimitedMarkers.PrivateMarker(effectId)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)

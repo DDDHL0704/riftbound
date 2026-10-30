@@ -127,8 +127,13 @@ public sealed class RadFaceDownPlayLegendTests
     {
         var game = await Ready(no, second: true); await Play(game); await game.Top(); await Discard(game);
         while (game.State.PriorityPlayerId is not null) await game.Top();
-        var next = await StandbySourceRulesTests.NextTurn(game.State);
+        var ended = await OfficialGraveyardRecastTests.Act(game.State, game.State.TurnPlayerId, new EndTurnCommand());
+        var completed = await TurnSequenceTestDriver.Complete(ended);
+        var next = completed.State;
+        Assert.Equal(game.State.TurnNumber + 1, next.TurnNumber);
         Assert.DoesNotContain(next.UntilEndOfTurnEffects, effect => effect.StartsWith("STANDBY_DRAW_USED", StringComparison.Ordinal));
+        var publicResult = JsonSerializer.Serialize(new { completed.Events, completed.Snapshots, completed.Prompts });
+        Assert.DoesNotContain("STANDBY_DRAW_USED", publicResult);
         game = new Driver(next); await Play(game, "SECOND");
         Assert.Single(game.State.StackItems, i => i.EffectKind == Effect); await game.Top();
         Assert.Null(game.State.PendingHandChoice); Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN");
