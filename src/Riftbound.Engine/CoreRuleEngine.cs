@@ -24208,6 +24208,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var invalidZones = NormalizeZonesForSeats(state);
             var invalidCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
             var invalidEvents = new List<GameEvent>();
+            ResolvePermanentPlaySourceInstructions(state, stackItem, behavior, invalidZones, invalidCards, invalidEvents);
             CompleteSpellSource(invalidZones, invalidCards, stackItem, behavior, invalidEvents);
             return new StackResolutionResult(
                 invalidZones,
@@ -26586,6 +26587,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playerId"] = stackItem.ControllerId
                 }));
         }
+
+        ResolvePermanentPlaySourceInstructions(state, stackItem, behavior, playerZones, cardObjects, events);
 
         events.AddRange(ResolveSivirEnemyDestroyedReadyTriggers(
             playerZones,
