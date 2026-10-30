@@ -722,6 +722,8 @@ public static class CardBehaviorRegistry
         new("RAD·034/167", "气敛神聚", 1, "CENTERING_READY_RESTRICT_MOVEMENT_DRAW", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, ReadiesTarget: true,
             StatusEffectId: MovementRestrictionRules.AllPlayers, DrawCount: 1, CanPlayDuringPriority: true),
+        new("RAD·037/167", "警觉的收藏家", 3, "WATCHFUL_COLLECTOR_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("RAD·041/167", "缄默术", 1, "SILENCE_COUNTER_SPELL_MINIMUM_POWER_COST_TWO", 0, 1,
             TargetScope: CardTargetScopes.StackSpell, CountersTargetStackSpell: true,
             MinTargetPowerCost: 2, CanPlayDuringPriority: true),

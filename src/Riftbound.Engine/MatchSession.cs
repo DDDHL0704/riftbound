@@ -1114,6 +1114,7 @@ public sealed partial record MatchState
         effects.AddRange(BuildPublicFieldFriendlyPowerStaticAuraEffects(state));
         effects.AddRange(BuildOtherFriendlyUnitsKeywordAuraEffects(state));
         effects.AddRange(BuildFriendlyFilteredUnitsKeywordAuraEffects(state));
+        effects.AddRange(BuildEquipmentKeywordAuraEffects(state));
         var publicFieldSourceOrders = PublicFieldSourceOrders(state);
 
         return effects

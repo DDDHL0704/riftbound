@@ -21743,6 +21743,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + TemporaryCombatKeywordRules.Amount(card, CardResourceKeywordNames.Spellshield)
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
+            + ResolveEquipmentAuraResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
     }
 

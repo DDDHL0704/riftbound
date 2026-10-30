@@ -4029,13 +4029,20 @@ public static class StaticAuraParser
                 continue;
             }
 
+            var friendlyEquipmentKeywordMatch = Regex.Match(segment,
+                @"^你的装备(?:具有|获得)(?<grants>[^。（]+)", RegexOptions.CultureInvariant);
+            if (friendlyEquipmentKeywordMatch.Success
+                && TryAddFriendlyKeywordAuras(auras, segment, "", friendlyEquipmentKeywordMatch.Groups["grants"].Value,
+                    StaticAuraKinds.FriendlyEquipmentKeyword, StaticAuraTargetScopes.FriendlyEquipment,
+                    StaticAuraParticipantScopes.FriendlyPublicFieldEquipment)) continue;
+
             var friendlyTokenUnitsKeywordMatch = Regex.Match(
                 segment,
                 @"你的指示物单位获得(?<grants>[^。（]+)",
                 RegexOptions.CultureInvariant);
             if (friendlyTokenUnitsKeywordMatch.Success)
             {
-                if (TryAddFriendlyFilteredUnitsKeywordAuras(
+                if (TryAddFriendlyKeywordAuras(
                         auras,
                         segment,
                         StaticAuraTargetFilters.UnitToken,
@@ -4053,7 +4060,7 @@ public static class StaticAuraParser
             {
                 var targetTag = friendlyTaggedUnitsKeywordMatch.Groups[1].Value.Trim();
                 if (!string.IsNullOrWhiteSpace(targetTag)
-                    && TryAddFriendlyFilteredUnitsKeywordAuras(
+                    && TryAddFriendlyKeywordAuras(
                         auras,
                         segment,
                         StaticAuraTargetFilters.TagPrefix + targetTag,
@@ -4162,11 +4169,14 @@ public static class StaticAuraParser
             .ToArray();
     }
 
-    private static bool TryAddFriendlyFilteredUnitsKeywordAuras(
+    private static bool TryAddFriendlyKeywordAuras(
         List<StaticAuraSpec> auras,
         string segment,
         string targetFilter,
-        string grantsText)
+        string grantsText,
+        string kind = StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+        string targetScope = StaticAuraTargetScopes.FriendlyFilteredUnits,
+        string participantScope = StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
     {
         var added = false;
         foreach (Match keywordMatch in Regex.Matches(
@@ -4182,11 +4192,11 @@ public static class StaticAuraParser
             }
 
             auras.Add(new StaticAuraSpec(
-                StaticAuraKinds.FriendlyFilteredUnitsKeyword,
+                kind,
                 RuleTextLayer,
                 "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
-                StaticAuraTargetScopes.FriendlyFilteredUnits,
-                StaticAuraParticipantScopes.FriendlyFilteredPublicUnits,
+                targetScope,
+                participantScope,
                 0,
                 segment,
                 BehaviorImplementationStatuses.Unimplemented,

@@ -485,6 +485,7 @@ public static class StaticAuraKinds
     public const string OtherFriendlyUnitsKeyword = "OTHER_FRIENDLY_UNITS_KEYWORD";
     public const string FriendlyFilteredUnitsPower = "FRIENDLY_FILTERED_UNITS_POWER";
     public const string FriendlyFilteredUnitsKeyword = "FRIENDLY_FILTERED_UNITS_KEYWORD";
+    public const string FriendlyEquipmentKeyword = "FRIENDLY_EQUIPMENT_KEYWORD";
     public const string SourceAttackingWithAnotherUnitPower = "SOURCE_ATTACKING_WITH_ANOTHER_UNIT_POWER";
     public const string SourceLoneBattlePower = "SOURCE_LONE_BATTLE_POWER";
     public const string SourceAttackingReadyEnemyUnitPower = "SOURCE_ATTACKING_READY_ENEMY_UNIT_POWER";
@@ -504,6 +505,7 @@ public static class StaticAuraTargetScopes
     public const string FriendlyUnits = "FRIENDLY_UNITS";
     public const string OtherFriendlyUnits = "OTHER_FRIENDLY_UNITS";
     public const string FriendlyFilteredUnits = "FRIENDLY_FILTERED_UNITS";
+    public const string FriendlyEquipment = "FRIENDLY_EQUIPMENT";
 }
 
 public static class StaticAuraParticipantScopes
