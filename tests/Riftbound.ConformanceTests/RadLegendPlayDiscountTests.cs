@@ -53,13 +53,13 @@ public sealed class RadLegendPlayDiscountTests
     private static string[] Choices(MatchState state, string id = "SPELL")
         => Requirement(state, id) is { } requirement
             ? requirement.GetProperty("optionalCostChoices").EnumerateArray().Select(c => c.GetProperty("id").GetString()!)
-                .Where(id => id.StartsWith(Parent, StringComparison.Ordinal) || id.StartsWith(Unit, StringComparison.Ordinal)).ToArray() : [];
+                .Where(choice => choice.StartsWith(Parent, StringComparison.Ordinal) || choice.StartsWith(Unit, StringComparison.Ordinal)).ToArray() : [];
 
     private static string[] Payment(MatchState state, string id = "SPELL", string source = "SINGER", params string[] units)
     {
         var requirement = Requirement(state, id)!.Value;
         var group = Assert.Single(requirement.GetProperty("optionalPlayCostReductionGroups").EnumerateArray(),
-            group => group.GetProperty("sourceObjectId").GetString() == source);
+            row => row.GetProperty("sourceObjectId").GetString() == source);
         Assert.Equal(3, group.GetProperty("requiredUnitCount").GetInt32());
         var parent = group.GetProperty("choiceId").GetString()!;
         var support = group.GetProperty("unitChoiceIds").EnumerateArray().Select(c => c.GetString()!).ToArray();
