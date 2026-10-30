@@ -23,6 +23,29 @@ public sealed class RadRobotReplacementTests
     }
 
     private static CardObjectState[] Tokens(MatchState state) => OfficialTokenReplacementTests.Tokens(state);
+
+    private static MatchState WithNextUnitGrant(MatchState state)
+    {
+        state = HandDiscardObserverTests.Put(state, "GRANT", "RAD·154/167", "P1", "HAND");
+        state = HandDiscardObserverTests.Put(state, "FOLLOW", "OGN·001/298", "P1", "HAND");
+        var cards = state.CardObjects.ToDictionary(); var locations = state.ObjectLocations.ToDictionary();
+        var zones = state.PlayerZones.ToDictionary();
+        foreach (var id in new[] { "OTHER", "OPEN" }) {
+            cards[id] = new(id, cardNo: "OGN·278/298", ownerId: "P2", controllerId: id == "OTHER" ? "P2" : null,
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag]);
+            locations[id] = new("P2", "BATTLEFIELD", id);
+            zones["P2"] = zones["P2"] with { Battlefields = zones["P2"].Battlefields.Append(id).ToArray() };
+        }
+        return state with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
+    }
+
+    private static async Task CloseShowdown(Driver game)
+    {
+        for (var step = 0; step < 12 && game.State.SpellDuelState.IsActive; step++)
+            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        Assert.False(game.State.SpellDuelState.IsActive);
+    }
+
     private static async Task Choose(Driver game, string kind, string option)
     {
         var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
@@ -148,6 +171,107 @@ public sealed class RadRobotReplacementTests
         Assert.Equal(robotFirst ? 2 : 1, Tokens(game.State).Count(token => token.TokenFactoryCardNo == Robot));
         Assert.All(Tokens(game.State), token => { Assert.False(token.IsExhausted); Assert.Contains(CardObjectTags.Ephemeral, token.Tags); });
         Assert.Contains("TOKEN_ENTRY_REPLACEMENT_USED", game.State.CardObjects["Z1"].UntilEndOfTurnEffects);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(true, "OTHER")] [InlineData(false, "OTHER")]
+    [InlineData(true, "OPEN")] [InlineData(false, "OPEN")]
+    public async Task ReplacementsKeepTheGrantedDestinationAndOnlyTheFirstActualTokenEarnsBoon(bool robotFirst, string field)
+    {
+        var game = new Driver(WithNextUnitGrant(Position("SFD·031/221", copies: 1)));
+        await game.Act("P1", new PlayCardCommand("GRANT", "RAD·154/167", [])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("C", "SFD·031/221", [])); await game.Top();
+        await Choose(game, "TOKEN_REPLACEMENT_ORDER", Assert.Single(game.State.PendingRuleChoice!.Request.Options,
+            option => option.Id.StartsWith(robotFirst ? "ROBOT:" : "COPY:", StringComparison.Ordinal)).Id);
+        await Choose(game, "TOKEN_PLAY_LOCATION", "BATTLEFIELD:" + field);
+        Assert.Empty(Tokens(game.State));
+        Assert.DoesNotContain(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith("TURN_UNIT_PLAY_GRANT_USED|", StringComparison.Ordinal));
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
+        if (!robotFirst) await Choose(game, "UNIT_TOKEN_REPLACEMENT", "DECLINE");
+
+        Assert.Equal(2, Tokens(game.State).Length);
+        Assert.Equal(robotFirst ? 2 : 1, Tokens(game.State).Count(token => token.TokenFactoryCardNo == Robot));
+        Assert.All(Tokens(game.State), token => {
+            Assert.Equal(new("P1", "BATTLEFIELD", field), game.State.ObjectLocations[token.ObjectId]);
+            Assert.True(token.IsExhausted);
+            Assert.DoesNotContain(CardObjectTags.Boon, token.Tags);
+        });
+        var boon = Assert.Single(game.State.StackItems).TurnUnitPlayBoon!;
+        Assert.Equal(Robot, boon.UnitCardNo); Assert.Equal(Robot, boon.TokenFactoryCardNo);
+        var entries = game.Events().Where(row => row.Event.Kind == "UNIT_TOKEN_CREATED").ToArray();
+        Assert.Equal(2, entries.Length); Assert.Equal(entries[0].Event.Payload["tokenObjectId"], boon.Unit.ObjectId);
+        Assert.All(entries, row => Assert.Equal(field, row.Event.Payload["battlefieldObjectId"]));
+        Assert.Single(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith("TURN_UNIT_PLAY_GRANT_USED|", StringComparison.Ordinal));
+        await game.Top();
+        Assert.Equal(boon.Unit.ObjectId, Assert.Single(Tokens(game.State), token => token.Tags.Contains(CardObjectTags.Boon)).ObjectId);
+        await CloseShowdown(game);
+        await Reject(game.State, "P1", new PlayCardCommand("FOLLOW", "OGN·001/298", [],
+            Destination: "BATTLEFIELD:" + (field == "OTHER" ? "OPEN" : "OTHER")));
+        await game.Act("P1", new PlayCardCommand("FOLLOW", "OGN·001/298", [], Destination: "BASE"));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["FOLLOW"].Tags);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Fact]
+    public async Task ALaterOriginalTokenInTheSameInstructionCannotReuseTheFirstTokensLocationPermission()
+    {
+        var game = new Driver(WithNextUnitGrant(Position("UNL-069/219")));
+        await game.Act("P1", new PlayCardCommand("GRANT", "RAD·154/167", [])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("C", "UNL-069/219", [])); await game.Top();
+        await Choose(game, "TOKEN_PLAY_LOCATION", "BATTLEFIELD:OTHER");
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
+        var second = game.State.PendingRuleChoice!;
+        Assert.Equal("TOKEN_PLAY_LOCATION", second.Request.Kind);
+        Assert.DoesNotContain(second.Request.Options, option => option.Id is "BATTLEFIELD:OTHER" or "BATTLEFIELD:OPEN");
+        await Choose(game, "TOKEN_PLAY_LOCATION", "BASE");
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "DECLINE");
+        Assert.Equal(2, Tokens(game.State).Length);
+        var robot = Assert.Single(Tokens(game.State), token => token.TokenFactoryCardNo == Robot);
+        var fairy = Assert.Single(Tokens(game.State), token => token.TokenFactoryCardNo != Robot);
+        Assert.Equal(new("P1", "BATTLEFIELD", "OTHER"), game.State.ObjectLocations[robot.ObjectId]);
+        Assert.Equal(new("P1", "BASE"), game.State.ObjectLocations[fairy.ObjectId]);
+        Assert.Equal(robot.ObjectId, Assert.Single(game.State.StackItems).TurnUnitPlayBoon!.Unit.ObjectId);
+        await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects[robot.ObjectId].Tags);
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects[fairy.ObjectId].Tags); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(true, true)] [InlineData(true, false)] [InlineData(false, true)] [InlineData(false, false)]
+    public async Task ReplacedImagesKeepTheirEarnedBoonAcrossEitherReflexiveCopyOrder(bool robotFirst, bool boonFirst)
+    {
+        var game = new Driver(WithNextUnitGrant(Position("UNL-200/219", copies: 1)));
+        await game.Act("P1", new PlayCardCommand("GRANT", "RAD·154/167", [])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("C", "UNL-200/219", ["HEIMER0"])); await game.Top();
+        await Choose(game, "TOKEN_REPLACEMENT_ORDER", Assert.Single(game.State.PendingRuleChoice!.Request.Options,
+            option => option.Id.StartsWith(robotFirst ? "ROBOT:" : "COPY:", StringComparison.Ordinal)).Id);
+        // Mirror Image explicitly plays to base, even with a wider permission.
+        Assert.Equal("UNIT_TOKEN_REPLACEMENT", game.State.PendingRuleChoice!.Request.Kind);
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
+        await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
+        if (!robotFirst) await Choose(game, "UNIT_TOKEN_REPLACEMENT", "DECLINE");
+        Assert.Equal(2, Tokens(game.State).Length);
+        var boon = Assert.Single(game.State.TriggerQueue, trigger => trigger.TurnUnitPlayBoon is not null);
+        var copy = Assert.Single(game.State.TriggerQueue, trigger => trigger.ReflexiveCopy is not null);
+        var earned = boon.TurnUnitPlayBoon!;
+        Assert.Equal(2, copy.ReflexiveCopy!.Recipients.Count);
+        Assert.Equal(Robot, copy.ReflexiveCopy.RecipientFactories![earned.Unit.ObjectId]);
+        var factories = Tokens(game.State).ToDictionary(token => token.ObjectId, token => token.TokenFactoryCardNo);
+        var receipt = Assert.Single(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith("TURN_UNIT_PLAY_GRANT_USED|", StringComparison.Ordinal));
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: boonFirst
+            ? [boon.TriggerId, copy.TriggerId] : [copy.TriggerId, boon.TriggerId]));
+        Assert.Equal(boonFirst, game.State.StackItems[^1].TurnUnitPlayBoon is not null);
+        await game.Top(); await game.Top();
+        Assert.All(Tokens(game.State), token => {
+            Assert.Equal(Hero, token.CardNo); Assert.Equal(factories[token.ObjectId], token.TokenFactoryCardNo);
+            Assert.Equal(token.ObjectId == earned.Unit.ObjectId ? 6 : 5, token.Power);
+            Assert.Equal(new("P1", "BASE"), game.State.ObjectLocations[token.ObjectId]);
+            Assert.Contains(CardObjectTags.Ephemeral, token.Tags); Assert.DoesNotContain("机械", token.Tags);
+            Assert.Single(token.CopyFaceTransitions!);
+        });
+        Assert.Equal(earned.Unit.ObjectId, Assert.Single(Tokens(game.State), token => token.Tags.Contains(CardObjectTags.Boon)).ObjectId);
+        Assert.Contains(receipt, game.State.UntilEndOfTurnEffects);
         Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
