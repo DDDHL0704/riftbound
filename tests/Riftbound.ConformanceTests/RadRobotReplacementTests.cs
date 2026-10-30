@@ -150,6 +150,7 @@ public sealed class RadRobotReplacementTests
         Assert.All(Tokens(game.State), token => { Assert.False(token.IsExhausted); Assert.Contains(CardObjectTags.Ephemeral, token.Tags); });
         var robot = Assert.Single(Tokens(game.State), token => token.TokenFactoryCardNo == Robot);
         Assert.Equal(3, robot.Power); Assert.Contains("机械", robot.Tags); Assert.DoesNotContain("仙灵", robot.Tags);
+        await CloseShowdown(game);
         await game.Act("P1", new PlayCardCommand("SECOND", "SFD·031/221", [])); await game.Top(); await Base(game);
         await Choose(game, "UNIT_TOKEN_REPLACEMENT", "APPLY");
         Assert.Equal(3, Tokens(game.State).Length);
@@ -332,7 +333,8 @@ public sealed class RadRobotReplacementTests
         // Returning the printed source leaves only the copied rules text.
         await CloseShowdown(game);
         await game.Act("P1", new MoveUnitCommand(copy.ObjectId, "BASE", "BATTLEFIELD:BFZ"));
-        await game.Act("P1", new MoveUnitCommand("HEIMER0", "BATTLEFIELD:BFZ", "BASE"));
+        Assert.Equal("BFZ", game.State.ObjectLocations["HEIMER0"].BattlefieldObjectId);
+        await game.Act("P1", new MoveUnitCommand("HEIMER0", "BATTLEFIELD", "BASE"));
         await game.Act("P1", new PlayCardCommand("SECOND", "SFD·031/221", [])); await game.Top(); await Base(game);
         var pending = game.State.PendingRuleChoice!; Assert.Equal("UNIT_TOKEN_REPLACEMENT", pending.Request.Kind);
         Assert.Equal([copy.ObjectId], Assert.Single(pending.Request.Options, option => option.Id == "APPLY").ObjectIds);
