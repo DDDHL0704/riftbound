@@ -24008,6 +24008,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.HandDiscardObserver is not null) return ResolveHandDiscardObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.LastBreathBattlefieldDamage?.Kind == TriggerKinds.UnitLastBreathBanishDeckTopPlay) return ResolveLastBreathDeckTopPlay(state, stackItem);
+        if (NeedsLastBreathHereTarget(stackItem)) return ResolveCapturedLastBreathBattlefieldDamage(state, stackItem);
         if (stackItem.EmpowerOtherObserver is not null) return ResolveEmpowerOtherObserver(state, stackItem);
         if (stackItem.OutsideHandPlayObserver is not null) return ResolveOutsideHandPlayObserver(state, stackItem);
         if (stackItem.HighCostPlayObserver is not null) return ResolveHighCostPlay(state, stackItem);
@@ -31637,6 +31639,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
         var beforeRemovalEvents = scope?.Events;
+        var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
@@ -31644,7 +31647,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Death = removed && removal.WasDestroyed && removal.WasUnit
                 ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }
                 : null,
-            InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [] };
+            InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [],
+            EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
@@ -31756,7 +31760,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? reason = null)
     {
         var sourceState = RuleChoices.Value?.ResolutionState ?? RuleChoices.Value?.Origin;
-        var visibleSource = stackItem.FieldContext is not null && sourceState is not null
+        var visibleSource = (stackItem.FieldContext is not null || NeedsLastBreathHereTarget(stackItem)) && sourceState is not null
             ? ResolutionResult.VisibleObjectIdForViewer(sourceState, stackItem.SourceObjectId, "__spectator__")
             : stackItem.SourceObjectId;
         var payload = new Dictionary<string, object?>
@@ -31780,6 +31784,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContexts.Count > 0)
             payload["insightTriggerContexts"] = removalResult.InsightContexts;
+        if (removalResult.EquipmentDestructionObservers.Count > 0)
+            payload[EquipmentDeathCaptureKey] = removalResult.EquipmentDestructionObservers;
         if (!string.IsNullOrWhiteSpace(reason))
         {
             payload["reason"] = reason;
@@ -34771,6 +34777,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public CapturedUnitDeath? Death { get; init; }
         public IReadOnlyList<InsightTriggerContext> InsightContexts { get; init; } = [];
         public DeathRevealContext? DeathRevealContext { get; init; }
+        public IReadOnlyList<CapturedEquipmentDestructionObserver> EquipmentDestructionObservers { get; init; } = [];
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
         public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);

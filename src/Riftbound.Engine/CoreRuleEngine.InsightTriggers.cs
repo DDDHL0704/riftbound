@@ -1,4 +1,5 @@
 using Riftbound.Contracts;
+using Riftbound.CardCatalog;
 
 namespace Riftbound.Engine;
 
@@ -15,11 +16,18 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> InsightSourceFamilies = new(() =>
         OfficialCardSourceIdentityGroups.BuildByRepresentativeCardNo(["UNL-211/219", "UNL-062/219", "UNL-079/219", "UNL-136/219", "VEN·047"]));
 
+    private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> HeldInsightSpecs = new(() =>
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
+            .Select(c => (c.CardNo, Spec: TriggerParser.Parse(c.CardEffect).SingleOrDefault(t => t.Kind == TriggerKinds.UnitBattlefieldHeldInsight)))
+            .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
+
+    private static TriggerSpec? HeldInsightSpec(string? cardNo) => cardNo is not null ? HeldInsightSpecs.Value.GetValueOrDefault(cardNo) : null;
+
     private static bool IsInsightSource(string? cardNo, string kind)
-        => InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
+        => kind == "HELD" ? HeldInsightSpec(cardNo) is not null : InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", "EMPOWERED" => "VEN·047", _ => "UNL-136/219" }]
             .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
 
-    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED";
+    internal static bool IsCapturedInsightKind(string? kind) => kind is "LAST_BREATH" or "DUEL" or "EMPOWERED" or "HELD";
 
     private static IReadOnlyList<InsightTriggerContext> CaptureLastBreathInsights(
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
@@ -53,11 +61,11 @@ public sealed partial class CoreRuleEngine
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind) && context.Origin.CardNo == context.CardNo
                 && context.Origin.Unit is { } unit && unit.Generation == context.SourceGeneration)
-            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED"
-            && context.Count == (context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
+            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT" or "EMPOWERED" or "HELD"
+            && context.Count == (context.Kind == "HELD" ? HeldInsightSpec(context.CardNo)?.RevealCount ?? 0 : context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
                 : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" or "PRINTED_PREDICT" ? 1 : 2) && context.Count>0
             && (context.Kind == "DUEL" ? !string.IsNullOrEmpty(context.BattlefieldObjectId) && !string.IsNullOrEmpty(context.ReturnFocusPlayerId)
-                : (context.Kind=="CONQUEST_LOOK" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)
+                : (context.Kind is "CONQUEST_LOOK" or "HELD" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)
                     && context.ReturnFocusPlayerId is null && !context.PaymentAccepted)
             && (context.Kind == "GRANTED_PREDICT" ? context.PrintedPredict is null && ValidPredictGrant(context.PredictGrant, context.CardNo)
                 : context.Kind == "PRINTED_PREDICT" ? context.PredictGrant is null && ValidPrintedPredict(context.CardNo, context.PrintedPredict)
