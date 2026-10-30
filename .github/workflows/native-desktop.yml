@@ -290,7 +290,8 @@ jobs:
 
   postgres:
     needs: [scope, postgres_partitions, native_network, related_network]
-    if: ${{ always() }}
+    # Validate failed children, but release the queue when this run is cancelled.
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -331,9 +332,9 @@ jobs:
 
   rules:
     needs: [scope, rule_suite, postgres]
-    # Keep the existing required check. Failed/cancelled/skipped full children
-    # must reach this gate and fail; a skipped child must never appear green.
-    if: ${{ always() }}
+    # Failed/skipped full children must still reach this gate. Cancellation
+    # should stop this aggregate instead of enqueueing another summary job.
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
