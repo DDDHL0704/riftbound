@@ -72,7 +72,7 @@ public sealed class DeploymentHoldTests
     public async Task TargetlessDeploymentRejectsQuickCounterButAllowsARealReaction()
     {
         var initial = AttackDamageDistributionTests.Spell(Position(), "COUNTER", "SFD·045/221", "P1");
-        var game = new Driver(AttackDamageDistributionTests.Spell(initial, "RESPONSE", "OGN·169/298", "P1"));
+        var game = new Driver(AttackDamageDistributionTests.Spell(initial, "RESPONSE", "OGN·095/298", "P1"));
         await game.Act("P1", new PassPriorityCommand());
         var item = Assert.Single(game.State.StackItems);
         await game.Act("P2", new PassPriorityCommand());
@@ -81,11 +81,12 @@ public sealed class DeploymentHoldTests
             new PlayCardCommand("COUNTER", "SFD·045/221", [item.StackItemId]), default);
         Assert.False(rejected.Accepted);
         Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
-        await game.Act("P1", new PlayCardCommand("RESPONSE", "OGN·169/298", ["HOST"]));
+        await game.Act("P1", new PlayCardCommand("RESPONSE", "OGN·095/298", ["HOST"]));
         await game.Top();
         Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "F"), game.State.ObjectLocations["DEPLOYED"]);
         Assert.DoesNotContain("DEPLOYED", game.State.PlayerZones["P1"].Graveyard);
-        Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
+        Assert.Contains(game.State.PlayerZones["P1"].Hand, id => id.StartsWith("D", StringComparison.Ordinal));
+        Assert.Equal("CHANNEL", game.State.TurnStartStep);
         await game.Top();
         Assert.Contains("DEPLOYED", game.State.PlayerZones["P1"].Graveyard);
         Assert.Null(game.State.TurnStartStep);
