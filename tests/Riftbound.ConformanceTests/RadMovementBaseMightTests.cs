@@ -75,7 +75,8 @@ public sealed class RadMovementBaseMightTests
         Assert.DoesNotContain("BASE_MIGHT_THIS_TURN:4", game.State.CardObjects[target].UntilEndOfTurnEffects);
         Assert.NotNull(game.State.PriorityPlayerId); await game.Top();
         Assert.Equal(4, Unit(game.State, target).GetProperty("basePower").GetInt32());
-        Assert.Equal(4, Unit(game.State, target).GetProperty("effectivePower").GetInt32());
+        // 崔法利兵营仍授予 REMOTE +1；替换基础战力不移除战场修正。
+        Assert.Equal(target == "REMOTE" ? 5 : 4, Unit(game.State, target).GetProperty("effectivePower").GetInt32());
         Assert.Contains("BASE_MIGHT_THIS_TURN:4", game.State.CardObjects[target].UntilEndOfTurnEffects);
     }
 
@@ -138,6 +139,9 @@ public sealed class RadMovementBaseMightTests
         if (!buffFirst) { await game.Act("P1", new PlayCardCommand("BUFF", "VEN·031", ["ALLY"])); await game.Top(); }
         Assert.Equal(4, Unit(game.State, "ALLY").GetProperty("basePower").GetInt32());
         Assert.Equal(5, Unit(game.State, "ALLY").GetProperty("effectivePower").GetInt32());
+        for (var passes = 0; game.State.SpellDuelState.IsActive && passes < 4; passes++)
+            await game.Act(game.State.PriorityPlayerId ?? game.State.SpellDuelState.FocusPlayerId!, new PassPriorityCommand());
+        Assert.False(game.State.SpellDuelState.IsActive);
         await game.Act("P1", new EndTurnCommand());
         Assert.Empty(game.State.CardObjects["ALLY"].UntilEndOfTurnEffects);
         Assert.Equal(printed, Unit(game.State, "ALLY").GetProperty("effectivePower").GetInt32());
