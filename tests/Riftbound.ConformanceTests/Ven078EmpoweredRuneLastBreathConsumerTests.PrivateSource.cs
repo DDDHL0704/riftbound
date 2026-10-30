@@ -21,7 +21,7 @@ public sealed partial class Ven078EmpoweredRuneLastBreathConsumerTests
         var game = new Driver(initial);
         try
         {
-            for (var i = 1; i <= 6; i++) await game.Act(owner, new TapRuneCommand(owner + "-RUNE-" + i));
+            await game.TapRunes(owner, Enumerable.Range(1, 6).Select(i => owner + "-RUNE-" + i));
             await game.Act(owner, new PlayCardCommand("UNIT", No, [])); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await Empower(game, owner); await game.Top(); Assert.True(game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(6, Might(game.State, owner));
             await game.Act(owner, new EndTurnCommand()); await Kill(game, opponent);

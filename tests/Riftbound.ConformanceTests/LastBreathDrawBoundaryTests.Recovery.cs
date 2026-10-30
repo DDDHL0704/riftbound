@@ -146,7 +146,7 @@ public sealed partial class LastBreathDrawBoundaryTests
         }
         var game = new Driver(initial);
         // Reserve the two reaction-draw runes until P2's turn.
-        foreach (var id in Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i)) await game.Act("P1", new TapRuneCommand(id));
+        await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
         if (!transferControl) await game.Act("P1", new PlayCardCommand("UNIT", sourceCardNo, []));
         var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
         for (var i = 0; i < 2; i++) {

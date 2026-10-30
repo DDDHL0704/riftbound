@@ -25,7 +25,7 @@ public sealed class Ven050PhysicalConditionalWardConsumerTests
         try
         {
             await Fixture.Prepare(game, 8); var eight = Common.Runes(game.State);
-            foreach (var id in eight.Take(4)) await game.Act("P1", new TapRuneCommand(id));
+            await game.TapRunes("P1", eight.Take(4));
             if (empowered)
             {
                 await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
@@ -33,7 +33,7 @@ public sealed class Ven050PhysicalConditionalWardConsumerTests
             }
             Assert.Equal(empowered, game.State.CardObjects["UNIT"].IsEmpowered); Assert.Equal(empowered, game.State.CardObjects["UNIT"].Tags.Contains(CardObjectTags.Spellshield));
             await game.Act("P1", new EndTurnCommand());
-            for (var i = 0; i < 7; i++) await game.Act("P2", new TapRuneCommand("WARD-THRESHOLD-RUNE-" + i));
+            await game.TapRunes("P2", Enumerable.Range(0, 7).Select(i => "WARD-THRESHOLD-RUNE-" + i));
             if (power == 1) await game.Act("P2", new RecycleRuneCommand("WARD-THRESHOLD-RUNE-7"));
             Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
             var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);
