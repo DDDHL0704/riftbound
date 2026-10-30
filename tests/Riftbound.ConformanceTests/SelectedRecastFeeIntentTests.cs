@@ -37,8 +37,7 @@ public sealed class SelectedRecastFeeIntentTests
         {
             if (kind != "outside-window")
             {
-                foreach (var i in Enumerable.Range(1, 6)) await game.Act("P1", new TapRuneCommand("R" + i));
-                await game.Act("P1", new TapRuneCommand("BLUE"));
+                await game.Act("P1", new TapRuneCommand("R1", ["R1", "R2", "R3", "R4", "R5", "R6", "BLUE"]));
                 foreach (var id in new[] { "R7", "R8", "RED" }) await game.Act("P1", new RecycleRuneCommand(id));
                 await game.Act("P1", new PlayCardCommand("PARENT", "OGN·198/298", ["UNIT"])); await game.Top();
                 Assert.NotNull(game.State.PendingEffectPlay); Assert.Equal(1, game.State.RunePools["P1"].Mana);
