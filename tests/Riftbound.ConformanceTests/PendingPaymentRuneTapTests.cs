@@ -53,9 +53,11 @@ public sealed class PendingPaymentRuneTapTests
     [InlineData("capacity")]
     [InlineData("stale")]
     [InlineData("decline")]
+    [InlineData("unoffered-recycle")]
+    [InlineData("mighty-resources")]
     public async Task ARejectedPaymentDoesNotExhaustTheRuneOrLeaveMana(string boundary)
     {
-        var state = await Open("ordinary");
+        var state = await Open(boundary == "mighty-resources" ? "mighty" : "ordinary");
         if (boundary is "exhausted" or "opponent" or "hidden")
             state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 [Rune] = state.CardObjects[Rune] with { IsExhausted = boundary == "exhausted",
@@ -64,6 +66,8 @@ public sealed class PendingPaymentRuneTapTests
             ["P1"] = new(int.MaxValue, 0) } };
         if (boundary == "insufficient") state = state with { PendingPayment = state.PendingPayment! with {
             ManaCost = 2, LegalPaymentChoiceIds = ["SPEND_MANA:2"] } };
+        if (boundary == "mighty-resources") state = state with { PendingPayment = state.PendingPayment! with {
+            PaymentResourceActionIds = [] } };
         var pending = state.PendingPayment!;
         string[] choices = boundary switch {
             "duplicate" => [Tap, Tap, "SPEND_MANA:1"],
@@ -71,6 +75,8 @@ public sealed class PendingPaymentRuneTapTests
             "bad-choice" => [Tap, "SPEND_MANA:999"],
             "insufficient" => [Tap, "SPEND_MANA:2"],
             "decline" => [Tap, "DECLINE"],
+            "unoffered-recycle" => [Tap, "RECYCLE_RUNE:" + Rune, "SPEND_MANA:1"],
+            "mighty-resources" => [Tap, "SPEND_POWER:yellow:1"],
             _ => [Tap, "SPEND_MANA:1"] };
         var command = new PayCostCommand(boundary == "stale" ? "old-id" : pending.PaymentId, pending.PaymentWindow, choices);
         var before = MatchStateHasher.Hash(state);
@@ -79,6 +85,54 @@ public sealed class PendingPaymentRuneTapTests
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         Assert.Equal(before, MatchStateHasher.Hash(state));
+    }
+
+    [Theory]
+    [InlineData("ordinary", false)]
+    [InlineData("ordinary", true)]
+    [InlineData("mighty", false)]
+    [InlineData("mighty", true)]
+    public async Task MixedRuneResourcesKeepTheSubmittedOrderBeforeThePaymentReceipt(string window, bool recycleFirst)
+    {
+        const string otherRune = "ORDER-RUNE";
+        const string otherTap = "TAP_RUNE:" + otherRune;
+        const string recycle = "RECYCLE_RUNE:" + Rune;
+        var initial = AddRune(window == "mighty"
+            ? TriggerPaymentTests.BuildFioraPowerfulReadyState(yellowPower: 1)
+            : PlayCostPreviewTests.Position(RunePool.Empty, "OGN·064/298"));
+        initial = VoluntaryPaymentResourceChoicesTests.WithRune(initial, RuneTrait.Yellow, otherRune);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            [otherRune] = initial.CardObjects[otherRune] with { IsExhausted = false } } };
+        var state = window == "mighty"
+            ? (await TriggerPaymentTests.ResolveFioraPowerfulReadyTriggerAsync(initial, new CoreRuleEngine())).State
+            : initial with { PendingPayment = new("ordered-inline-test", "TEST_PAYMENT", "P1", manaCost: 1,
+                legalPaymentChoiceIds: ["SPEND_MANA:1"], paymentResourceActionIds: [recycle, "RECYCLE_RUNE:" + otherRune]) };
+        var payment = Assert.IsType<PendingPaymentState>(state.PendingPayment);
+        var choices = recycleFirst ? new[] { recycle, otherTap, Spend(window) }
+            : new[] { otherTap, recycle, Spend(window) };
+        var before = MatchStateHasher.Hash(state);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, choices);
+
+        var result = await new CoreRuleEngine().ResolveAsync(state,
+            new("ordered-mixed-payment", "P1", command.CmdType), command, default);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(before, MatchStateHasher.Hash(state));
+        Assert.Equal(recycleFirst
+            ? new[] { "RUNE_RECYCLED", "POWER_GAINED", "RUNE_TAPPED", "MANA_GAINED", "COST_PAID" }
+            : new[] { "RUNE_TAPPED", "MANA_GAINED", "RUNE_RECYCLED", "POWER_GAINED", "COST_PAID" },
+            result.Events.Where(e => e.Kind is "RUNE_RECYCLED" or "POWER_GAINED" or "RUNE_TAPPED" or "MANA_GAINED" or "COST_PAID")
+                .Select(e => e.Kind));
+        var paid = Assert.Single(result.Events, e => e.Kind == "COST_PAID");
+        Assert.Equal(choices, Assert.IsType<string[]>(paid.Payload["paymentChoiceIds"]));
+        Assert.Equal(choices.Take(2), Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
+        Assert.Equal(new[] { Rune }, Assert.IsType<string[]>(paid.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(new[] { otherRune }, Assert.IsType<string[]>(paid.Payload["tappedRuneObjectIds"]));
+        Assert.Contains(Rune, result.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(Rune, result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects[otherRune].IsExhausted);
+        Assert.Null(result.State.PendingPayment);
+        if (window == "mighty") Restore(result.State);
     }
 
     [Theory]
