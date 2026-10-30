@@ -160,7 +160,8 @@ public sealed partial class CoreRuleEngine
             return new(id, observation.Controller, observation.Source, InsightTriggerEffect, eventKind, timing) {
                 SourceCardNo = captured.CardNo,
                 InsightContext = new(captured.CardNo, observation.Controller, insight.Amount, captured.SourceGeneration, "EXHAUSTED",
-                    Origin: captured.Origin, SourceTokenFactoryCardNo: captured.TokenFactoryCardNo) };
+                    Origin: captured.Origin, SourceTokenFactoryCardNo: captured.TokenFactoryCardNo,
+                    SourceFaceRevision: captured.FaceRevision, SourceCapturedTick: tick) };
         return new(id, observation.Controller, observation.Source, UnitEventEffect, eventKind, timing) {
             UnitEvent = captured with { CapturedTick = captured.CapturedTick > 0 ? captured.CapturedTick : tick },
             SourceCardNo = captured.CardNo };

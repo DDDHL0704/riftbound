@@ -198,7 +198,8 @@ public sealed class RadResourceObserverUnitTests
         var game = new Driver(OraclePosition()); await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
         var item = Assert.Single(game.State.StackItems);
         foreach (var context in new[] { item.InsightContext! with { Count = 2 }, item.InsightContext! with { Kind = "LAST_BREATH" },
-            item.InsightContext! with { CardNo = Cluster }, item.InsightContext! with { SourceGeneration = -1 } })
+            item.InsightContext! with { CardNo = Cluster }, item.InsightContext! with { SourceGeneration = -1 }, item.InsightContext! with { SourceFaceRevision = 99 },
+            item.InsightContext! with { SourceCapturedTick = game.State.Tick + 1 } })
             Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with { InsightContext = context }] }));
         await game.Top(); await Insight(game); await game.Replay();
     }
@@ -214,6 +215,36 @@ public sealed class RadResourceObserverUnitTests
         await game.Act("P1", new MoveUnitCommand(token.ObjectId, "BASE", "BATTLEFIELD:BF"));
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", [token.ObjectId])); await game.Top();
         Assert.False(game.State.CardObjects.ContainsKey(token.ObjectId)); await game.Top(); await Insight(game); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(0)] [InlineData(1)] [InlineData(2)]
+    public async Task EachActuallyAttachedOracleTextEarnsItsOwnOrderedInsight(int copies)
+    {
+        var initial = CopiedDeathObserverTests.Position(Oracle, copies);
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["COST"] = OfficialGarenConquestBattlefieldCountTests.Printed("COST", "OGN·048/298", "P2") },
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { Hand = [..initial.PlayerZones["P2"].Hand, "COST"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["COST"] = new("P2", "HAND") } };
+        var game = new Driver(initial);
+        for (var i = 0; i < copies; i++) {
+            await game.Act("P2", new AssembleEquipmentCommand("GEAR" + i, "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
+            Assert.Equal(Oracle, game.State.CardObjects["GEAR" + i].AttachedRuleText!.CardNo);
+        }
+        await game.Act("P2", new PlayCardCommand("COST", "OGN·048/298", [], OptionalCosts: ["EXHAUST_FRIENDLY_UNIT:HOST"]));
+        var earned = game.State.TriggerQueue.Select(t => t.InsightContext).Concat(game.State.StackItems.Select(i => i.InsightContext))
+            .Where(c => c is { Kind: "EXHAUSTED" }).ToArray();
+        Assert.Equal(copies + 1, earned.Length); Assert.Equal(copies, earned.Count(c => c!.Origin is not null));
+        if (game.State.TriggerQueue.Count > 0)
+            await game.Act("P2", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        for (var i = 0; i <= copies; i++) {
+            await game.Top(); var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            Assert.Equal("INSIGHT", choice.ChoiceWindow); Assert.Equal(1, choice.MaxCount);
+            await game.Act("P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
+        }
+        await game.Top(); Assert.Empty(game.State.StackItems);
+        Assert.Equal(copies + 1, game.Events().Count(e => e.Event.Kind == "INSIGHT_REQUESTED")); await game.Replay();
     }
 
     [Fact]

@@ -8,7 +8,9 @@ public sealed record InsightTriggerContext(string CardNo, string ControllerId, i
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PredictGrantOrigin? PredictGrant = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PrintedPredictEntryOrigin? PrintedPredict = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? SourceFaceRevision = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? SourceCapturedTick = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -48,7 +50,11 @@ public sealed partial class CoreRuleEngine
                 ? unit.ObjectGeneration >= context.SourceGeneration && unit.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
                 : context.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo)))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind)
-                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo));
+                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo))
+            && (context.Kind != "EXHAUSTED" || context.SourceCapturedTick is > 0 && context.SourceCapturedTick <= state.Tick
+                && context.SourceFaceRevision is >= 0 && (context.Origin is not null || PredictBindingMatches(state,
+                    new(source, context.SourceGeneration), context.CardNo, context.SourceFaceRevision.Value,
+                    context.SourceCapturedTick.Value, context.SourceTokenFactoryCardNo)));
 
     internal static bool ValidCeasedInsightSource(MatchState state, InsightTriggerContext? context,
         string source, string effect, string controller, string? cardNo = null)
@@ -58,6 +64,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
+            && (context.Kind == "EXHAUSTED" ? context.SourceFaceRevision is >= 0 && context.SourceCapturedTick is > 0
+                : context.SourceFaceRevision is null && context.SourceCapturedTick is null)
             && (context.SourceTokenFactoryCardNo is null || IsCapturedInsightKind(context.Kind)
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
             && (context.Origin is null || IsCapturedInsightKind(context.Kind) && context.Origin.CardNo == context.CardNo
