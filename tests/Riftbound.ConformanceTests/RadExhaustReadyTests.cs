@@ -24,7 +24,7 @@ public sealed class RadExhaustReadyTests
     private static MatchState Exhausted(MatchState s, params string[] ids)
         => s with { CardObjects = s.CardObjects.ToDictionary(p => p.Key, p => ids.Contains(p.Key) ? p.Value with { IsExhausted = true } : p.Value) };
     private static ActivateAbilityCommand Activate(string cost = "HOST", string target = "U0", string? instance = null)
-        => new("HOST", Ability, [target], ["EXHAUST_FRIENDLY_UNIT:" + cost]) with { AbilityInstanceId = instance };
+        => new ActivateAbilityCommand("HOST", Ability, [target], ["EXHAUST_FRIENDLY_UNIT:" + cost]) with { AbilityInstanceId = instance };
     private static async Task Drain(Driver game)
     {
         for (var i = 0; i < 30 && (game.State.TriggerQueue.Count > 0 || game.State.StackItems.Count > 0); i++) {
