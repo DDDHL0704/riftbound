@@ -26443,6 +26443,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (winnerPlayerId is null && behavior.CreatedBattlefieldEquipmentTokenCount > 0)
+        {
+            resolvedObjectLocations = CreateBattlefieldEquipmentTokens(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events,
+                resolvedObjectLocations ?? state.ObjectLocations);
+        }
+
         if (behavior.RecyclesSelectedMainDeckTargets && !IsDeferredDeckChoice(behavior))
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
@@ -29178,6 +29189,79 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static IReadOnlyDictionary<string, ObjectLocationState> CreateBattlefieldEquipmentTokens(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events,
+        IReadOnlyDictionary<string, ObjectLocationState> priorLocations)
+    {
+        var battlefieldId = stackItem.TargetObjectIds.SingleOrDefault();
+        if (string.IsNullOrWhiteSpace(battlefieldId)
+            || !cardObjects.TryGetValue(battlefieldId, out var battlefield)
+            || battlefield.IsFaceDown
+            || !battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            || !playerZones.Values.Any(z => z.Battlefields.Contains(battlefieldId, StringComparer.Ordinal))
+            || !priorLocations.TryGetValue(battlefieldId, out var battlefieldLocation)
+            || battlefieldLocation.Zone != "BATTLEFIELD"
+            || battlefieldLocation.BattlefieldObjectId != battlefieldId)
+        {
+            return priorLocations;
+        }
+
+        var tokenTags = ParseDelimitedValues(behavior.CreatedBattlefieldEquipmentTokenTags);
+        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
+            behavior.CreatedBattlefieldEquipmentTokenName,
+            tokenTags,
+            behavior.CardNo,
+            out var tokenDefinition);
+        var resolvedTokenTags = ResolveEquipmentTokenTags(
+            behavior.CreatedBattlefieldEquipmentTokenName,
+            tokenTags,
+            hasTokenDefinition ? tokenDefinition : null);
+        var tokenCount = behavior.CreatedBattlefieldEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var locations = priorLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var created = new List<string>();
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, stackItem.SourceObjectId, tokenIndex + 1);
+            var tokenState = hasTokenDefinition
+                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId,
+                    behavior.CreatedBattlefieldEquipmentTokenIsExhausted) with { Tags = resolvedTokenTags }
+                : new CardObjectState(tokenObjectId,
+                    isExhausted: behavior.CreatedBattlefieldEquipmentTokenIsExhausted,
+                    tags: resolvedTokenTags, ownerId: stackItem.ControllerId, controllerId: stackItem.ControllerId);
+            tokenState = ApplyTokenEntryStaticAbility(
+                playerZones, cardObjects, stackItem.ControllerId, tokenObjectId, tokenState,
+                out var entersReady, out var entrySourceId, out var entrySource, out var entryAbility, battlefieldId);
+            cardObjects[tokenObjectId] = tokenState;
+            created.Add(tokenObjectId);
+            locations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", battlefieldId);
+            var payload = new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = behavior.CreatedBattlefieldEquipmentTokenName,
+                ["destinationZone"] = "BATTLEFIELD",
+                ["battlefieldObjectId"] = battlefieldId,
+                ["isExhausted"] = tokenState.IsExhausted
+            };
+            if (hasTokenDefinition) payload["tokenCardNo"] = tokenDefinition.CardNo;
+            if (tokenState.Tags.Count > 0) payload["tokenTags"] = tokenState.Tags.ToArray();
+            AddEntryStaticAbilityPayload(payload, entersReady ? entryAbility : null, entrySourceId, entrySource.CardNo);
+            events.Add(CaptureEquipmentPlayed(new GameEvent(
+                "EQUIPMENT_TOKEN_CREATED",
+                $"{behavior.DisplayName}打出装备指示物到战场",
+                payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
+        }
+
+        if (created.Count > 0 && playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+            playerZones[stackItem.ControllerId] = zones with { Battlefields = zones.Battlefields.Concat(created).ToArray() };
+        return locations;
+    }
+
     private static void PlaySourceEquipmentToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -31657,6 +31741,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var beforeRemovalEvents = scope?.Events;
         var equipmentObservers = before is null ? [] : CaptureEquipmentDestructionObservers(state, zones, cards, before);
+        var bombObserver = before is null ? null : CaptureBombDestructionObserver(state, zones, before);
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
@@ -31665,7 +31750,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? removal.DestinationZone == "GRAVEYARD" ? death : death is null ? null : death with { UnitCreations = [], RuneCalls = [] }
                 : null,
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [],
-            EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [] };
+            EquipmentDestructionObservers = removed && removal.WasDestroyed ? equipmentObservers : [],
+            BombDestructionObserver = removed && removal.WasDestroyed ? bombObserver : null };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
@@ -31803,6 +31889,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["insightTriggerContexts"] = removalResult.InsightContexts;
         if (removalResult.EquipmentDestructionObservers.Count > 0)
             payload[EquipmentDeathCaptureKey] = removalResult.EquipmentDestructionObservers;
+        if (removalResult.BombDestructionObserver is { } bombObserver)
+            payload[BombDestructionCaptureKey] = new[] { bombObserver };
         if (!string.IsNullOrWhiteSpace(reason))
         {
             payload["reason"] = reason;
@@ -34795,6 +34883,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public IReadOnlyList<InsightTriggerContext> InsightContexts { get; init; } = [];
         public DeathRevealContext? DeathRevealContext { get; init; }
         public IReadOnlyList<CapturedEquipmentDestructionObserver> EquipmentDestructionObservers { get; init; } = [];
+        public CapturedBombDestructionObserver? BombDestructionObserver { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
         public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);

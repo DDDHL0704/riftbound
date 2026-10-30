@@ -437,10 +437,16 @@ public sealed class RadResourceObserverUnitTests
         Assert.Equal(0, payment.ManaCost); Assert.Equal(0, payment.PowerCost);
         Assert.Equal(1, payment.PowerCostByTrait[RuneTrait.Yellow]);
         await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        for (var i = 0; i < 2 && game.State.PendingEffectPlay is null && game.State.StackItems.Count > 0; i++)
+        {
+            Assert.NotNull(game.State.PriorityPlayerId);
+            await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+        }
         Assert.NotNull(game.State.PendingEffectPlay);
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
         await game.Act("P1", new PlayCardCommand("UNIT", Repairer, [], Destination: "BASE"));
-        await game.Top();
+        if (game.State.StackItems.Count > 0 && game.State.PriorityPlayerId is not null)
+            await game.Top();
         Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Graveyard);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
