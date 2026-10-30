@@ -239,6 +239,24 @@ public sealed class RadNextUnitPlayGrantTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData("UNL-082/219")] [InlineData("UNL-082a/219")]
+    public async Task ACapturedMovementOriginAtBaseRemainsBindingWhileTheTokenConsumesTheGrant(string no)
+    {
+        var state = OfficialHoldSequenceTests.AddUnit(Position(), "LILLIA", no, "F", "P1");
+        state = LocalDestructionRecallTests.At(state, "LILLIA", "P1", "BASE");
+        var game = new Driver(state); await Grant(game);
+        await game.Act("P1", new MoveUnitCommand("LILLIA", Destination: "BATTLEFIELD:OPEN"));
+        Assert.Single(game.State.StackItems, item => item.MovementObserver is not null);
+        await game.Top();
+        Assert.Null(game.State.PendingRuleChoice);
+        var token = Assert.Single(game.State.CardObjects.Values, card => card.TokenFactoryCardNo == "UNL·T07");
+        Assert.Equal(new ObjectLocationState("P1", "BASE"), game.State.ObjectLocations[token.ObjectId]);
+        Assert.Single(game.State.UntilEndOfTurnEffects, effect => effect.StartsWith(Used, StringComparison.Ordinal));
+        await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects[token.ObjectId].Tags);
+        await game.Replay();
+    }
+
     [Fact]
     public async Task ATokenWithoutTheTemporaryGrantStillHasItsOrdinaryControlledBattlefieldChoice()
     {
