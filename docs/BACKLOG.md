@@ -63,7 +63,7 @@
 - [ ] **P3-2 L2 提速**（`a/l2-margin`，为当前完整输入补充余量）：
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
-  - `a/nightly-arm`：夜验的固定规则构建及八个完整规则分片复用 L2 已验证的四核 ARM64 runner，减少夜验占用运行名额的时间；最多六片并发、全部完整对局、PostgreSQL 服务、固定输入与逐用例汇总保持。现有 PostgreSQL 16.13 固定镜像摘要已确认包含 Linux ARM64；实际耗时及夜验结果仍须验证。
+  - `a/nightly-arm`：夜验的固定规则构建及八个完整规则分片复用 L2 已验证的四核 ARM64 runner；四个 PostgreSQL 分区先显式构建 Release，再使用同一产物执行完整分区，减少 Debug 构建的运行开销。最多六片规则并发、全部完整对局、PostgreSQL 服务、固定输入与逐用例汇总保持；现有 PostgreSQL 16.13 固定镜像摘要已确认包含 Linux ARM64。源码没有以 DEBUG 为条件的验收分支；实际耗时及完整夜验结果仍须验证。
   - [x] [#290](https://github.com/DDDHL0704/riftbound/pull/290) 已合入：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。完整 [40982404811](https://github.com/DDDHL0704/riftbound/actions/runs/40982404811) 的九片规则与门槛全部通过。
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - 队列复核发现 #284 于 10 月 29 日 23:02 UTC 关闭且未合入，其 [40966626313](https://github.com/DDDHL0704/riftbound/actions/runs/40966626313) 仍在执行，23:13 UTC 还占三个运行名额，已手动取消。`a/l2-close-cancel` 增加独立关闭事件工作流，使用同一个 PR 并发组自动取消旧验证；关闭事件不发布 `L2 required` 检查，重新打开 PR 后仍须通过完整规则。main 的并发组保留独立。
