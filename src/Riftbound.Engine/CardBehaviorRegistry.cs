@@ -9491,6 +9491,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·051/167", "时光交错", 2, "TIME_WARP_RETURN_FRIENDLY_UNIT_DAMAGE_FIVE", 5, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            RequiresReturnFriendlyUnitAdditionalCost: true),
         new("RAD·144/167", "轮回绝境", 2, "REALM_OF_DEATH_MIGHT_THEN_MUTUAL_DAMAGE", 0, 2,
             TargetScope: CardTargetScopes.EnemyThenFriendlyUnits,
             PowerModifierAmount: -2, SecondaryPowerModifierAmount: 2,
