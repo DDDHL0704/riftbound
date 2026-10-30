@@ -62,6 +62,16 @@ public sealed class RadConquestResourceAndCostTests
     }
 
     [Fact]
+    public async Task TakingControlOfAnAlreadyScoredFieldIsNotAnotherConquest()
+    {
+        var game = new Driver(Position() with { UntilEndOfTurnEffects = [BattlefieldTaskMarkers.ScoreGainedThisTurn("BF", "P1")] });
+        await Conquer(game, "ALLY", "BF");
+        Assert.Equal("P1", game.State.CardObjects["BF"].ControllerId);
+        Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BATTLEFIELD_CONQUERED");
+        Assert.Null(game.State.BattlefieldConquests); Assert.Equal(8, Quote(game.State)); await game.Replay();
+    }
+
+    [Fact]
     public async Task SwarmConquestDiscountExpiresEvenWhileThePlayerStillControlsTheField()
     {
         var game = new Driver(Position()); await Conquer(game, "ALLY", "BF"); Assert.Equal(6, Quote(game.State));
