@@ -109,11 +109,22 @@ public sealed class Ven008OptionalDiscardConsumerTests
             : branch == "two" ? ["DISCARD_HAND_CARD:FODDER", "DISCARD_HAND_CARD:UNIT"] : ["DISCARD_HAND_CARD:" + id];
         var command = new PlayCardCommand("SPELL", No, ["ENEMY"], OptionalCosts: costs); var driver = new Driver(initial);
         if (branch == "mana") {
-            var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+            var engine = new CoreRuleEngine();
+            var quote = engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
             Assert.False(quote.CanPay); Assert.Equal(1, quote.Cost!.MissingMana);
+            var before = MatchStateHasher.Hash(initial);
+            var rejected = await engine.ResolveAsync(initial, new("ven008-insufficient-mana", "P1", command.CmdType), command, default);
+            Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);
+            Assert.Contains("法力不足", rejected.ErrorMessage!); Assert.Empty(rejected.Events);
+            Assert.Equal(before, MatchStateHasher.Hash(rejected.State)); Assert.Equal(before, MatchStateHasher.Hash(initial));
+            Assert.DoesNotContain(ResolutionResult.BuildPrompts(initial)["P1"].Candidates ?? [],
+                candidate => candidate.Action == CommandTypes.PlayCard && candidate.Enabled);
         }
         await Reject(driver, "P1", command);
-        if (branch == "mana") Assert.Contains("法力不足", driver.Commands().Last().ErrorMessage!);
+        if (branch == "mana") {
+            Assert.Equal(ErrorCodes.PromptExpired, driver.Commands().Last().ErrorCode);
+            Assert.Contains("未提供此操作", driver.Commands().Last().ErrorMessage!);
+        }
         else Assert.Contains(branch is "two" or "duplicate" ? "可选费用选择无效" : "另一张手牌", driver.Commands().Last().ErrorMessage!);
         Assert.Contains("SPELL", driver.State.PlayerZones["P1"].Hand); Assert.Equal(0, driver.State.CardObjects["ENEMY"].Damage);
         await Export("invalid-extra-payment-" + branch, initial, driver);
