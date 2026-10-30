@@ -17,7 +17,8 @@ public sealed class Ven129SubmittedDeckConsumerTests
         {
             await game.WaitFor(actor, 8, no, "VEN·124"); var runes = game.Runes(actor); var other = actor == "P1" ? "P2" : "P1";
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
-            foreach (var id in runes.Take(7)) await game.Act(actor, new TapRuneCommand(id));
+            var paidRunes = runes.Take(7).ToArray();
+            await game.Act(actor, new TapRuneCommand(paidRunes[0], paidRunes));
             await game.Act(actor, new RecycleRuneCommand(runes[0])); Assert.Equal(1, game.State.RunePools[actor].PowerByTrait[RuneTrait.Yellow]);
             var unit = game.Hand(actor, no).First(); var friend = game.Hand(actor, "VEN·124").First();
             await game.Act(actor, new PlayCardCommand(unit, no, [])); Assert.Equal(3, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
@@ -26,7 +27,8 @@ public sealed class Ven129SubmittedDeckConsumerTests
             var generation = game.State.CardObjects[unit].ObjectGeneration; Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
             await game.WaitFor(other, 3, "VEN·124"); var enemy = game.Hand(other, "VEN·124").First();
             Assert.Equal(0, game.State.RunePools[other].Mana);
-            foreach (var id in game.Runes(other).Where(id => !game.State.CardObjects[id].IsExhausted).Take(3)) await game.Act(other, new TapRuneCommand(id));
+            var enemyRunes = game.Runes(other).Where(id => !game.State.CardObjects[id].IsExhausted).Take(3).ToArray();
+            await game.Act(other, new TapRuneCommand(enemyRunes[0], enemyRunes));
             await game.Act(other, new PlayCardCommand(enemy, "VEN·124", [])); Assert.Equal(0, game.State.RunePools[other].Mana); Assert.True(game.State.CardObjects[enemy].IsExhausted);
             await game.Act(other, new EndTurnCommand()); Assert.Equal(actor, game.State.TurnPlayerId); Assert.False(game.State.CardObjects[unit].IsExhausted); Assert.False(game.State.CardObjects[friend].IsExhausted);
             var field = game.State.PlayerZones[actor].Battlefields.First(id => game.State.ObjectLocations[id].BattlefieldObjectId == id);

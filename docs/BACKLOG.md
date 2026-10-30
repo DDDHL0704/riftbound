@@ -2,8 +2,8 @@
 
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
-**当前状态（2026-10-30）**
-- **main**：#316 受影响测试消费者补漏及 #317 PostgreSQL 资源采样已合入。主干完整 [41098699611](https://github.com/DDDHL0704/riftbound/actions/runs/41098699611) 与 [41100622519](https://github.com/DDDHL0704/riftbound/actions/runs/41100622519) 均已通过全部规则和 `L2 required`；后者固定 `a38404473`，9,792 个方法、20,403 条实际用例 Counter 与固定计划逐条一致，零增删。新增卡牌后 L2 仍高于 30 分钟目标，P3-2 保持打开；SQL 四分区变慢继续由定时夜验采样定位。
+**当前状态（2026-10-31）**
+- **main**：#318 受影响测试单次限流、#319 部署清理与 #320 部署据守共享流程已合入。主干完整 [41109658240](https://github.com/DDDHL0704/riftbound/actions/runs/41109658240) 固定 `f27807109`，9,792 个方法、20,403 条用例和 `L2 required` 全部通过，Counter 与固定计划逐条一致。#320 完整 [41118008709](https://github.com/DDDHL0704/riftbound/actions/runs/41118008709) 也已通过 9,799 个方法、20,440 条用例和门槛，较 #319 仅新增 26 条部署据守回归。包含 C 线 #259 与 #320 的 main `9f8eb0476` 等待独立主干验证；运行中的旧 main 保留完成，待跑只保留最新。L2 仍高于 30 分钟目标，P3-2 保持打开；SQL 四分区变慢由下次定时夜验采样定位。
 - **夜间验收**：完整验收 [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)、[41010811413](https://github.com/DDDHL0704/riftbound/actions/runs/41010811413) 和 [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616) 已连续三次全绿，P0-2 达标；之后只依靠每晚定时运行，失败时按 P0-2 登记。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
@@ -31,9 +31,7 @@
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
-- [ ] **P1-1 征服时机（#231，草稿，已与 main 冲突）**。征服触发的技能应先让对手响应，再结算效果。现在会立即结算，涉及 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil。
-  - 后续工作在分支 `codex/combat-mill-identity-20261028`（比 main 多 80 个提交，落后 148 个），内容是在征服磨牌中追踪对象身份，以及伪造历史校验。
-  - 做法：同步 main 后，把规则改动拆成"响应窗口"和"对象身份追踪"两个可以各自合入的 PR，关闭 #231。
+- [ ] **P1-1 征服时机（#231）**。征服触发的技能应先让对手响应，再结算效果。PR [#275](https://github.com/DDDHL0704/riftbound/pull/275) 覆盖 SFD·212 磨牌、薇恩返回手牌、祖安、Shirana、Moonveil 的响应窗口与费用确认，依据中国区核心规则 383.3.a–d、383.4.c.2.a–c、337.1.b、204.3.a、359.3.e、124、186.1；对象跨区身份追踪和伪造历史校验继续在 `c/zone-identity` 完成后勾选本项。
 - [ ] **P1-2 出牌候选计入可横置的符文**。现在只有法力池里已有的法力才算可用，手上能靠横置符文付费的牌也不会出现在可打出列表里。规则依据：204.4.b.1、430.3。前端目前靠询价绕过，详见 `clients/web/docs/server-findings.md` 的 S1。
 - [x] **P1-3 待命布置时允许回收符文支付**。[#259](https://github.com/DDDHL0704/riftbound/pull/259) 已实现：`HIDE_CARD` 候选在支付待命费用时可携带回收符文资源动作，并在同一原子结算中完成回收与扣费。依据：811.1.b、430.3（见 S2）。
 - [ ] **P1-4 其余前端反馈的服务端问题**：详见 `clients/web/docs/server-findings.md`。2026-10-30 已在 main 上逐条复核，以下问题仍然存在。每条单独一个小 PR，按顺序做：
@@ -70,7 +68,7 @@
   - **共享机制矩阵（A 线，待逐项实现）**：已将当前 `CARD_BACKLOG` 的 RAD 原文与引擎现有解析／结算能力交叉核对。下列条目是主干尚无独立共享模型、或仍缺少完整恢复与隐私覆盖的机制；后续卡牌 PR 必须复用对应共享流程，不能为单张卡旁路实现。编号按中国区官方快照，异画以同一组编号合并。
     - 炸弹装备指示物的生成、同处连锁摧毁、回合结束重建及来源绑定：`RAD·001`、`023/023a`、`094`、`096`、`112/112a`、`141`、`142`、`169*/169`。
       - [x] [#319](https://github.com/DDDHL0704/riftbound/pull/319) 已合入：部署的非单位装备免于未贴附召回（核心 323.6、830.1.b.3），实际清理与待清理任务共用判断；本地 Release 54/54 通过。完整 [41109837298](https://github.com/DDDHL0704/riftbound/actions/runs/41109837298) 的九片规则、9,794 个方法、20,414 条用例和门槛全部通过；实际 Counter 与固定计划一致，较前次全绿 main 仅新增 11 条部署清理回归，零移除。炸弹生成、同处连锁及打出落点继续另行实现。
-      - `a/deploy-hold`：按核心 830.1.b、830.2 捕获对手据守时的部署自毁技能，复用现有响应窗口与摧毁流程，保留原控制者和来源代际；覆盖真实反应、有目标反制的拒绝、移动、控制权／关键词变化、返手再进场、恢复反伪造及隐藏来源投影。Release 原有据守 34/34、新部署 26/26 定向通过（最后一项真实反应已独立复验），等待完整 L2。投影在 `BuildStackItemSnapshotView`、`OrderTriggerSourceObjectIdForViewer`、两个隐藏来源判断方法及 `CapturedBattleSourceIsPrivate` 两个重载追加部署分支；这些方法也见旧 #275，先合入者优先，后续 C 线同步 main 时保留双方分支。
+      - [x] [#320](https://github.com/DDDHL0704/riftbound/pull/320) 已合入：按核心 830.1.b、830.2 捕获对手据守时的部署自毁技能，复用现有响应窗口与摧毁流程，保留原控制者和来源代际；覆盖真实反应、有目标反制的拒绝、移动、控制权／关键词变化、返手再进场、恢复反伪造及隐藏来源投影。Release 原有据守 34/34、新部署 26/26 定向通过；完整 [41118008709](https://github.com/DDDHL0704/riftbound/actions/runs/41118008709) 九片规则与 `L2 required` 通过，9,799 个方法、20,440 条实际用例与固定计划 Counter 逐条一致，较 #319 零移除、仅新增 26 条部署据守回归。投影在 `BuildStackItemSnapshotView`、`OrderTriggerSourceObjectIdForViewer`、两个隐藏来源判断方法及 `CapturedBattleSourceIsPrivate` 两个重载追加部署分支；这些方法也见旧 #275，先合入者优先，后续 C 线同步 main 时保留双方分支。
     - 通用随从／机器人／金币／战鹰指示物的生成、关键字、控制者和替换位置：`RAD·007`、`009`、`022`、`049`、`052`、`100`、`101`、`105`、`116`、`119`、`127`、`132`、`138`、`157`、`159`。
     - 正面朝下的待命、伏击和反应牌状态转换，含额外费用、零费用响应、回收与回放：`RAD·081`、`090/090a`、`095`、`100`、`102`、`103`、`107`、`108`、`153/175`、`154`。
     - 亮出与多来源牌库检视的隐私投影、来源身份和选择顺序：`RAD·011`、`032`、`033`、`060`、`067`、`074`、`082`、`103`、`111`、`127`、`129`。
@@ -101,8 +99,9 @@
 
 - [x] **P3-1 拆分巨型文件**：[#283](https://github.com/DDDHL0704/riftbound/pull/283) 已合入。按领域纯搬移为 68 个部分类文件，三个入口分别降至 6,102 / 5,668 / 1,723 行；55 个类型、4,243 个成员正文、16 个完整声明和各类型字段／属性初始化顺序均保持一致。源码守卫读取全部拆分文件。最新 main 定向 34/34、187 项 Python 检查通过；完整 [40958041215](https://github.com/DDDHL0704/riftbound/actions/runs/40958041215) 的 9,453 个方法、19,496 条用例、完整对局及门槛全部通过，零跳过，Counter 与 #281 一致。
 - [ ] **P3-2 L2 提速**（新增 VEN 后重新打开，`a/l2-runtime-profile`）：
+  - `a/l2-next-batch`：将十个测试类中的十四处连续横置准备改为生产批量命令，保持原符文顺序、资源数量、关键费用／战斗／选择断言及原始历史恢复与回放；仅改测试夹具。固定 `7573837b4` 的本地 Release 受影响测试与固定守卫 36 类、1,465/1,465 用例通过，零跳过；相对固定主干 `90f021ec1` 的 1,453 条对应 L2 用例零缺失，另含 12 条洞察完整开局回归。长运行采样确认依次推进冷恢复／原始日志重放，无循环或等待迹象。前一项 #320 已合入，已同步包含 #259／#320 的 main `9f8eb0476`，十个测试文件均未发生上游改动；同步后的 Release 构建和关键回归正在补跑，独立 PR 保留完整 L2 与门槛。
   - `a/l2-runtime-profile`：复核新增 VEN 机制后的主干 [41013909621](https://github.com/DDDHL0704/riftbound/actions/runs/41013909621)，原有慢方法耗时中位数增加约 38%，testhost 分配量增加约 40%；九片完全均衡的执行下界也约 30.2 分钟，需继续优化测试夹具或执行方式，不能只靠重平衡。本轮把共享测试驱动消费者中的 45 处连续单符文横置准备改为生产批量命令，保留相同符文顺序、资源总量、逐批实际事件和完整恢复／去重／回放断言；不改引擎。完整规则清单与唯一门槛保留。
-  - `a/l2-rune-batch`：将 `VenRunePrintingConsumerTests` 中真实开局的三张符文逐枚横置／回收和重复失败提交改为批量命令，保留每张印次身份、代际、区域、法力／符能、符文顺序、RNG 游标、非法外部符文、过期命令、自然重入和冷恢复断言；不改引擎，待完整 L2 验证。
+  - [#310](https://github.com/DDDHL0704/riftbound/pull/310) 已合入：将 `VenRunePrintingConsumerTests` 中真实开局的三张符文逐枚横置／回收和重复失败提交改为批量命令，保留每张印次身份、代际、区域、法力／符能、符文顺序、RNG 游标、非法外部符文、过期命令、自然重入和冷恢复断言；不改引擎。完整 [41063997240](https://github.com/DDDHL0704/riftbound/actions/runs/41063997240) 及包含该优化的主干 [41078351418](https://github.com/DDDHL0704/riftbound/actions/runs/41078351418) 的九片规则与 `L2 required` 全部通过；后者分片约 27.4–31.1 分钟，仍高于 30 分钟整次目标。
   - 固定 `cc16515b6` 的主干完整 [41057698950](https://github.com/DDDHL0704/riftbound/actions/runs/41057698950) 九片规则与 `L2 required` 均通过，运行墙钟约 38 分 48 秒，主干验证恢复但仍高于 30 分钟目标。
   - 包含 #316 的固定 `febefb0be` 主干完整 [41098699611](https://github.com/DDDHL0704/riftbound/actions/runs/41098699611) 已于 18:08 UTC 通过九片规则及 `L2 required`，确认合入后主干仍能完整验证；本次墙钟约 42 分 40 秒，P3-2 保持打开。
   - 包含 #317 的固定 `6ef93d4fb` 主干完整 [41104458818](https://github.com/DDDHL0704/riftbound/actions/runs/41104458818) 已通过九片规则和 `L2 required`；9,792 个方法、20,403 条实际用例 Counter 与固定计划及前次全绿 main 完全一致，零增删。
@@ -137,7 +136,7 @@
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
   - [#316](https://github.com/DDDHL0704/riftbound/pull/316) 已合入：修复七个以 `Consumers` 结尾的真实规则测试类在改测试文件、源码类型或卡号时被漏选的问题，继续排除嵌套的 Driver／Store 等辅助类；受影响筛选回归加入 L2 准备阶段。完整 [41093074040](https://github.com/DDDHL0704/riftbound/actions/runs/41093074040) 的九片规则与 `L2 required` 全部通过，固定计划中的 9,766 个方法、20,333 条用例 Counter 与主干完整基线逐条一致，零增删。
-  - `a/affected-single-invocation`：受影响测试改为一次 PATH `dotnet test` 完成还原、Release 构建与定向执行，避免构建完成后再次排队；保留原筛选器、固定守卫、单任务、编译诊断和 TRX 校验。197 项脚本检查通过，补充构建／测试失败、跳过用例及只打印筛选器的回归；等待完整 L2。
+  - [#318](https://github.com/DDDHL0704/riftbound/pull/318) 已合入：受影响测试改为一次 PATH `dotnet test` 完成还原、Release 构建与定向执行，避免构建完成后再次排队；保留原筛选器、固定守卫、单任务、编译诊断和 TRX 校验。197 项脚本检查通过，补充构建／测试失败、跳过用例及只打印筛选器的回归；PR 与合入后的固定 main `f27807109` 完整 L2 均通过，9,792 个方法、20,403 条用例与固定计划 Counter 逐条一致。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [ ] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`，统计先行）：2026-10-30 复核最近 30 个 `feat(cards)` PR（#315 至 #239，#262／#257 超过 100 个文件的分页已完整计入）。`src/Riftbound.Engine/CardBehaviorRegistry.cs`、`src/Riftbound.Engine/CoreRuleEngine.cs` 和 `tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs` 各被 30/30 个 PR 修改；`src/Riftbound.CardCatalog/RuleTextParsers.cs` 被 27/30 个修改；`src/Riftbound.CardCatalog/VendettaCardSources.cs` 被 19/30 个修改；`src/Riftbound.CardCatalog/RadiantCardSources.cs` 被 11/30 个修改；`src/Riftbound.Engine/PrintedCardFactory.cs` 被 15/30 个修改；`tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 被 3/30 个修改。下一 PR 要把这些汇总表改为按批次独立登记并从数据推导计数；当前 #287（31 文件、1,827 行新增）仍在等待合入且正修改上述共享文件，按约束待其合入后再开独立拆分 PR，避免与 B/D 的大 PR 交叉冲突。
 

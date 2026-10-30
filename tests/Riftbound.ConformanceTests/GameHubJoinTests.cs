@@ -9301,7 +9301,9 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-boon-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var completed = await CompleteBattlefieldConquestThroughHubAsync(registry, roomId, battleClients,
+            TriggerKinds.BattlefieldConquerConsumeBoonDraw, "P1-BATTLEFIELD-SHIRANA-ATTACKER", "TRIGGER_COST_CONFIRMATION");
+        var battleEvents = completed.Events;
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal));
@@ -9310,7 +9312,7 @@ public sealed partial class GameHubJoinTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
@@ -9418,14 +9420,29 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-mill", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var battleEvents = EventsFor(battleClients).ToList();
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        var beforeResponses = SnapshotFor(battleClients, "P1");
+        Assert.Contains(beforeResponses.Stack, item => JsonSerializer.Serialize(item).Contains("BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
+        var match = await registry.GetOrCreateAsync(roomId, default);
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        var responseClients = battleClients;
+        for (var index = 0; index < 2; index++)
+        {
+            var actor = Assert.IsType<string>(match.SnapshotFor("P1").Timing["priorityPlayerId"]);
+            responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2",
+                registry, authenticatedHandle: actor).SubmitIntent(roomId, actor, $"minefield-response-{index}", pass);
+            Assert.Empty(responseClients.CallerClient.Errors);
+            battleEvents.AddRange(EventsFor(responseClients));
+        }
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(responseClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Equal(1, Assert.IsType<int>(p1Zones["mainDeckCount"]));
@@ -9468,14 +9485,16 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-discard-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var completed = await CompleteBattlefieldConquestThroughHubAsync(registry, roomId, battleClients,
+            TriggerKinds.BattlefieldConquerDiscardDraw);
+        var battleEvents = completed.Events;
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DISCARD_DRAW", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Equal(["P1-BATTLEFIELD-DRAW-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
@@ -10457,7 +10476,9 @@ public sealed partial class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-equipment", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        var battleEvents = EventsFor(battleClients);
+        var completed = await CompleteBattlefieldConquestThroughHubAsync(registry, roomId, battleClients,
+            TriggerKinds.BattlefieldConquerReadyEquipment, "P1-BATTLEFIELD-ARMAMENT", "TRIGGER_CONFIRMATION", detachEquipment: true);
+        var battleEvents = completed.Events;
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
@@ -10468,7 +10489,7 @@ public sealed partial class GameHubJoinTests
             string.Equals(gameEvent.Kind, "EQUIPMENT_DETACHED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
         var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLEFIELD-ARMAMENT"]);
@@ -17556,6 +17577,66 @@ public sealed partial class GameHubJoinTests
     {
         return Assert.IsType<ActionPromptDto>(
             Assert.Single(clients.GroupClient.Prompts, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
+    }
+
+    private static async Task<(IReadOnlyList<GameEvent> Events, RecordingHubClients Clients)> CompleteBattlefieldConquestThroughHubAsync(
+        InMemoryMatchSessionRegistry registry, string roomId, RecordingHubClients initialClients, string effectKind,
+        string? confirmationObjectId = null, string? confirmationWindow = null, bool detachEquipment = false)
+    {
+        var events = EventsFor(initialClients).ToList();
+        Assert.Contains(events, e => e.Kind == "BATTLEFIELD_CONQUERED");
+        Assert.DoesNotContain(events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && Equals(e.Payload.GetValueOrDefault("trigger"), effectKind));
+        if (effectKind == TriggerKinds.BattlefieldConquerConsumeBoonDraw)
+            Assert.DoesNotContain(events, e => e.Kind == "BOON_CONSUMED" && Equals(e.Payload.GetValueOrDefault("reason"), effectKind));
+        if (effectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
+            Assert.DoesNotContain(events, e => e.Kind == "CARD_DISCARDED" && Equals(e.Payload.GetValueOrDefault("reason"), effectKind));
+        if (effectKind == TriggerKinds.BattlefieldConquerReadyEquipment)
+            Assert.DoesNotContain(events, e => e.Kind == "EQUIPMENT_READIED" && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), confirmationObjectId));
+
+        var session = await registry.GetOrCreateAsync(roomId, default);
+        var clients = initialClients;
+        async Task ChooseAsync(string expectedWindow, string objectId, string suffix)
+        {
+            var prompt = session.PromptFor("P1");
+            var candidate = Assert.Single(prompt.Candidates ?? [], c => c.Action == CommandTypes.ChooseCards);
+            var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+            Assert.Equal(expectedWindow, metadata["choiceWindow"]);
+            Assert.Contains(objectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["legalObjectIds"]));
+            var command = JsonSerializer.SerializeToElement(new { cmdType = "CHOOSE_CARDS", choiceId = metadata["choiceId"],
+                choiceWindow = metadata["choiceWindow"], chosenObjectIds = new[] { objectId },
+                promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick });
+            clients = new RecordingHubClients();
+            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
+                .SubmitIntent(roomId, "P1", roomId + suffix, command);
+            Assert.Empty(clients.CallerClient.Errors);
+            events.AddRange(EventsFor(clients));
+        }
+
+        if (confirmationObjectId is not null)
+        {
+            await ChooseAsync(confirmationWindow!, confirmationObjectId, "-confirm");
+            Assert.DoesNotContain(events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+                && Equals(e.Payload.GetValueOrDefault("trigger"), effectKind));
+        }
+
+        var passedPlayers = new HashSet<string>(StringComparer.Ordinal);
+        for (var index = 0; index < 2; index++)
+        {
+            var actor = Assert.IsType<string>(session.SnapshotFor("P1").Timing["priorityPlayerId"]);
+            passedPlayers.Add(actor);
+            var prompt = session.PromptFor(actor);
+            clients = new RecordingHubClients();
+            await CreateHub(clients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2",
+                    registry, authenticatedHandle: actor)
+                .SubmitIntent(roomId, actor, roomId + "-response-" + index,
+                    JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+            Assert.Empty(clients.CallerClient.Errors);
+            events.AddRange(EventsFor(clients));
+        }
+        Assert.Equal(new[] { "P1", "P2" }, passedPlayers.Order(StringComparer.Ordinal));
+        if (detachEquipment) await ChooseAsync("BATTLEFIELD_CONQUEST_EQUIPMENT_DETACH", confirmationObjectId!, "-detach");
+        return (events, clients);
     }
 
     private static async Task<(IReadOnlyList<GameEvent> Events, RecordingHubClients Clients)> CompleteEquipThroughHubAsync(

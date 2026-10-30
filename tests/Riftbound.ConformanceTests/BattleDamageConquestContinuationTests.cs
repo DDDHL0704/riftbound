@@ -129,6 +129,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
                 [decline ? "DECLINE" : "SPEND_MANA:1"]));
             Assert.Null(driver.State.PendingPayment);
             Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
+            Assert.Contains(vayne, driver.State.PlayerZones["P1"].Battlefields);
+            Assert.DoesNotContain(vayne, driver.State.PlayerZones["P1"].Hand);
+            if (!decline) await driver.Top();
             Assert.Contains(vayne, decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         }
         Assert.False(driver.State.BattleState.IsActive);

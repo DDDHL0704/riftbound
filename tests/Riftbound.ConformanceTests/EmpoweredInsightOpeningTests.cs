@@ -41,7 +41,7 @@ public sealed class EmpoweredInsightOpeningTests(ITestOutputHelper output)
         var available = run.State.PlayerZones["P1"].Base.Where(id => run.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
             && !run.State.CardObjects[id].IsExhausted).Take(needed).ToArray();
         Assert.Equal(needed, available.Length);
-        foreach (var id in available) await run.Submit("P1", new TapRuneCommand(id));
+        if (available.Length > 0) await run.Submit("P1", new TapRuneCommand(available[0], available));
         await run.Cold(); var mana = run.State.RunePools["P1"].Mana;
         var activation = new ActivateAbilityCommand(host, "EMPOWER:0:0", []);
         await run.Reject("P2", activation);

@@ -31,7 +31,7 @@ public sealed class MandatoryRecastReducedPowerTests
         ResolutionResult? core = null, native = null; PlayCostQuoteDto? quote = null;
         try
         {
-            foreach (var id in runes) await game.Act("P1", new TapRuneCommand(id));
+            await game.Act("P1", new TapRuneCommand(runes[0], runes));
             await game.Act("P1", new RecycleRuneCommand(runes[0])); await game.Act("P1", new RecycleRuneCommand(runes[1]));
             if (empower) { await game.Act("P1", new ActivateAbilityCommand("REDUCER", "EMPOWER:0:0", [])); await game.Top(); }
             Assert.Equal(empower, game.State.CardObjects["REDUCER"].IsEmpowered);
