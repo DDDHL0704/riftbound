@@ -120,7 +120,7 @@ public static partial class MatchRecoveryValidator
                 && TryReadObjectLong(e.Event.Payload, "totalPowerCost", out var power) && power == receipt.Power
                 && TryReadObjectLong(e.Event.Payload, "experienceCost", out var experience) && experience == 0
                 && TryReadObjectStringList(e.Event.Payload, "paymentChoiceIds", out var choices)
-                && choices.Count == 1 && (choices[0] == "PAY" || choices[0] == $"SPEND_MANA:{receipt.Mana}"))
+                && choices.Count == 1 && choices[0] == $"SPEND_MANA:{receipt.Mana}")
                 .Take(2).ToArray();
             // Typed callers retain their original arguments; the payment executor trims text.
             if (payments.Length != 1 || !commands.Any(command => command.Accepted && command.PlayerId == item.ControllerId
