@@ -27,6 +27,8 @@
   - [41024183616](https://github.com/DDDHL0704/riftbound/actions/runs/41024183616)（固定 `07592c16`，第 3 次）：最终 **success**，八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及最终完整门槛全部通过；规则与 PostgreSQL 汇总也通过。分区 0 于 08:06:30–11:47:00 UTC 完成（约 220 分钟），18 个场景均通过。与 #257 合入前的 41010811413 固定提交 `03106805` 对比，`destruction-graveyard` 为 6,562.7 秒（此前 3,468.3 秒）、`paka-move-reveal` 为 2,731.2 秒（此前 1,702.6 秒）、`attached-predict` 为 1,948.2 秒（此前 1,104.5 秒）、`multi-controller-trigger-order` 为 987.7 秒（此前 544.2 秒）；用例数量、冷恢复和结果均一致，未发现死循环。该差异与 #257 后的主干回归时间相符，但期间还有其他合入，后续按场景继续 profiling。
 
   - **分区 0 变慢复核（10-30）**：固定提交 `03106805` 与 `07592c16` 之间，四个慢场景对应的测试和 fixture 文件没有变化；两次 PostgreSQL 产物中的命令数、事件数和冷恢复次数也一致，增加的是执行耗时。该区间还包含 #257 之后的其他合入，现有运行无法单独把回归归因于 #257；未发现用例增加或循环迹象。
+  - [#317](https://github.com/DDDHL0704/riftbound/pull/317) 已合入：四个 PostgreSQL 分区复用现有 L2 资源采样器，记录完整命令日志、进程树 CPU／RSS、cgroup 与机器信息；原 Release 命令、环境、69 个场景、退出码、恢复和回放检查保持。完整 [41099392372](https://github.com/DDDHL0704/riftbound/actions/runs/41099392372) 的九片规则、9,766 个方法、20,333 条用例及门槛通过，Counter 与固定 main 逐条一致，零增删；真实 PostgreSQL／SignalR／API 重启驱动也通过。采样效果由下一次定时夜验观察。
+  - `a/sql-runtime-profile`：进一步对比同两次分区结果，分区 0 的 18 个场景全部变慢（约 1.16–1.92 倍），总场景耗时从 122.4 分钟升至 219.2 分钟；两次均为四处理器、Workstation GC、正则缓存 1,024。四个 SQL 分区的任务墙钟也都增加：0–3 分别从约 123.6／57.2／43.0／37.6 分钟变为 220.5／165.1／112.2／97.7 分钟，回归不限于分区 0。已有产物只有墙钟，尚不能区分规则计算量与 runner 性能差异。PostgreSQL 分区现已接入 L2 资源采样，按分钟保留进程树 CPU、RSS、cgroup 限流和 CPU 硬件信息，并保留原始 SQL 日志；193 项脚本检查通过（含 5 项真实子进程回归），待完整 L2 验证，合入后的定时夜验测量实际 SQL 资源。全部 69 场景、冷恢复与完整门槛保持，不额外触发手动夜验。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
@@ -99,6 +101,9 @@
 - [x] E 线缴械首批：接入神秘的时间法师、饰品商贩、叮响巡警、处置专家、浅滩海妖；共享缴械按核心 831.1.d.1 / 831.2 合计数值、每次进攻只触发一次，支持机械光环、机器人、复制文本、法盾、恢复与回放。CARD_BACKLOG 的五项移除随本 PR 合入。
 - [x] E 线进场与额外费用六张：弥留之灵、微光泳者、盘踞野猪、熔炉之灵、满载的旅人、鹰翼中队。共享摧毁时控制者回合账本、可选摧毁单位或装备费用及付款后伤害响应、可选活跃进场及本回合移动禁令、可选返回装备费用与减费、返回装备法力费用收据及同战场装备关键词条件战力；对应 CARD_BACKLOG 六项随本 PR 移除。
 - [x] E 线移动与条件触发五张：狂热目击者、重甲象骑、古灵翼兽、觅血虫群、圣所保管员。共享移动展示／强力判定／回收、按当前坚守值计算伤害、立即结算征服资源技能、按本回合实际征服战场减费，以及成功打出高费用卡牌后的来源活跃；正常、非法目标、费用、来源离场、恢复与回放测试及 CARD_BACKLOG 五项移除放在同一 PR。
+- [x] E 线摧毁与据守触发五张：风暴锋喙鸟、光照者教团、哀戚悲灵、战地甲胄师、钟塔守护者。共享眩晕敌方死亡观察、每批友方死亡增益、死亡位置捕获后的可选摧毁、战场装备死亡付费返手、据守洞察，以及绝念放逐牌库顶后可选打出；只免法力时保留符能及额外费用。Release 零错误，装备复制文本与回放 9/9、其余新牌及完整 ConformanceFixtureRunnerTests、目录／隐私／来源身份／Provenance 守卫 3669/3669 通过；CARD_BACKLOG 五项删除随同一 PR 合入。
+
+- [ ] E 线亮出与打出选择批次（`e/rad-reveal-play`，#315）：龙犬驯兽师、冥顽构装体、苍穹腾蛟、暗巷守护者、祸心陌客。亮出在确认阶段选择并锁定信息，手牌展示、场上只挑选且排除背面待命；零符能亮出仍完成后续抽牌。龙犬展示全部对手后合计选一张免费打出，祸心在进场后确认战场与可选返手目标、结算时检查四单位门槛。亮出卡牌排除指示物，亮出机械允许机器人及机械复制指示物，并记录其后消失时的身份凭据。Release 零警告错误；初批回归 3763/3763、共享洞察／目标／恢复／待命 248/248；补充指示物边界与完整 ConformanceFixtureRunnerTests、目录／隐私／来源身份／Provenance 回归 3732/3732 通过，均含冷恢复与完整回放。CARD_BACKLOG 五项移除随同一 PR。依据：核心 185、832.1.c.2 / 832.1.c.4 / 832.1.d.1、355.8；暗巷 FAQ、811.5.a、129.4。
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
@@ -107,6 +112,7 @@
   - `a/l2-runtime-profile`：复核新增 VEN 机制后的主干 [41013909621](https://github.com/DDDHL0704/riftbound/actions/runs/41013909621)，原有慢方法耗时中位数增加约 38%，testhost 分配量增加约 40%；九片完全均衡的执行下界也约 30.2 分钟，需继续优化测试夹具或执行方式，不能只靠重平衡。本轮把共享测试驱动消费者中的 45 处连续单符文横置准备改为生产批量命令，保留相同符文顺序、资源总量、逐批实际事件和完整恢复／去重／回放断言；不改引擎。完整规则清单与唯一门槛保留。
   - `a/l2-rune-batch`：将 `VenRunePrintingConsumerTests` 中真实开局的三张符文逐枚横置／回收和重复失败提交改为批量命令，保留每张印次身份、代际、区域、法力／符能、符文顺序、RNG 游标、非法外部符文、过期命令、自然重入和冷恢复断言；不改引擎，待完整 L2 验证。
   - 固定 `cc16515b6` 的主干完整 [41057698950](https://github.com/DDDHL0704/riftbound/actions/runs/41057698950) 九片规则与 `L2 required` 均通过，运行墙钟约 38 分 48 秒，主干验证恢复但仍高于 30 分钟目标。
+  - 包含 #316 的固定 `febefb0be` 主干完整 [41098699611](https://github.com/DDDHL0704/riftbound/actions/runs/41098699611) 已于 18:08 UTC 通过九片规则及 `L2 required`，确认合入后主干仍能完整验证；本次墙钟约 42 分 40 秒，P3-2 保持打开。
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - [#292](https://github.com/DDDHL0704/riftbound/pull/292) 合入后的固定 `9a248f9d` 主干完整 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 全部通过，包含准备和汇总的总墙钟 **27 分 37 秒**；9,491 个方法、19,625 条用例逐条 Counter 与 #292 及固定计划一致，零跳过。九片实际执行约 19.7–24.1 分钟，全部实际 testhost 确认四核 Server GC 和 1,024 条正则缓存；完整规则、三局完整对局及唯一门槛保留。并发名额占满仍会增加排队时间；后续新增卡牌若让主干完整耗时超出 30 分钟，重新打开本项。
@@ -137,6 +143,8 @@
   - 包含 #262 和 #278 的 main [40946282257](https://github.com/DDDHL0704/riftbound/actions/runs/40946282257)（固定 `afab4e71`）已完整通过 9,406 个方法、19,220 条用例和门槛，Counter 与 #262 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
+  - [#316](https://github.com/DDDHL0704/riftbound/pull/316) 已合入：修复七个以 `Consumers` 结尾的真实规则测试类在改测试文件、源码类型或卡号时被漏选的问题，继续排除嵌套的 Driver／Store 等辅助类；受影响筛选回归加入 L2 准备阶段。完整 [41093074040](https://github.com/DDDHL0704/riftbound/actions/runs/41093074040) 的九片规则与 `L2 required` 全部通过，固定计划中的 9,766 个方法、20,333 条用例 Counter 与主干完整基线逐条一致，零增删。
+  - `a/affected-single-invocation`：受影响测试改为一次 PATH `dotnet test` 完成还原、Release 构建与定向执行，避免构建完成后再次排队；保留原筛选器、固定守卫、单任务、编译诊断和 TRX 校验。197 项脚本检查通过，补充构建／测试失败、跳过用例及只打印筛选器的回归；等待完整 L2。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [ ] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`，统计先行）：2026-10-30 查询到 29 个 `feat(cards)` PR。`src/Riftbound.Engine/CardBehaviorRegistry.cs` 与 `src/Riftbound.Engine/CoreRuleEngine.cs` 各被 29/29 个 PR 修改；`tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs` 被 28/29 个修改；`src/Riftbound.CardCatalog/RuleTextParsers.cs` 被 27/29 个修改；`src/Riftbound.CardCatalog/VendettaCardSources.cs` 被 20/29 个修改；`src/Riftbound.Engine/PrintedCardFactory.cs` 被 16/29 个修改；`tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 被 3/29 个修改。RAD 批次中 `RadiantCardSources.cs` 被 9/9 个修改。下一 PR 要把这些汇总表改为按批次独立登记并从数据推导计数；当前 #287（31 文件、1,827 行新增）仍在等待合入且正修改上述共享文件，按约束待其合入后再开独立拆分 PR，避免与 B/D 的大 PR 交叉冲突。
 
@@ -164,6 +172,7 @@ git show <分支>:<路径> > <路径>
 
 - 网页对战前端在 `clients/web`，PR #233 / #234 及分支 `web/battle-polish-2-20261028` 已覆盖桌面、卡组编辑器、战绩、音效、导览等。
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
+  - `e/rad-reveal-play` 前端需适配：亮出候选位于打出提示的 `optionalCostChoices`，原样通过 `PLAY_CARD.optionalCosts` 提交最多一个 `SHOWCASE:<objectId>`；可以不选。此选择不支付费用，确认时锁定信息，手牌执行展示，场上卡牌只作挑选。
   - #262 前端需适配：凯尔的强化层数通过 `empowermentCount` 显示，最多三层。凯南征服授予流转新增可选费用：提示 `flowCostChoiceId` / `flowCostChoices`，通过 `PLAY_CARD.optionalCosts` 提交对应的 `FLOW_COST:<mana>:<power>:<traits>`。
   - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。

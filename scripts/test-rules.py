@@ -51,7 +51,7 @@ class AffectedBranchOutOfDate(ValueError):
 def _test_class_names(text):
     names = _declared_type_names(text)
     return {name for name in names
-            if name.endswith(('Tests', 'Test', 'Guard', 'Privacy', 'Provenance'))}
+            if name.endswith(('Tests', 'Test', 'Consumers', 'Guard', 'Privacy', 'Provenance'))}
 
 
 def _declared_type_names(text):
@@ -308,13 +308,13 @@ def run_affected(args):
     if (output / 'results.trx').exists():
         raise ValueError('Output already contains a run; use a new directory to avoid stale results.')
     env = dict(os.environ)
-    build = [dotnet, 'build', str(PROJECT), '-c', args.configuration, '-m:1', '-v:q', '--nologo']
-    with (output / 'build.log').open('w') as log:
-        subprocess.run(build, cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
-    command = [dotnet, 'test', str(PROJECT), '-c', args.configuration, '--no-build', '--no-restore', '-m:1', '-v:q',
+    # Let dotnet test restore/build and execute under one PATH limiter lease.
+    # Separate invocations release the slot after building and can queue again
+    # behind another line before any affected tests have run.
+    command = [dotnet, 'test', str(PROJECT), '-c', args.configuration, '-m:1', '-v:q',
                '--filter', selection['filter'], '--results-directory', str(output),
                '--logger', 'trx;LogFileName=results.trx']
-    print('Running affected tests with --jobs 1 and -m:1', flush=True)
+    print('Building and running affected tests with --jobs 1 and -m:1', flush=True)
     subprocess.run(command, cwd=ROOT, env=env, check=True)
     rows, counters = report(output / 'results.trx')
     verify(rows, counters, {method(row.get('testName')) for row in rows})
