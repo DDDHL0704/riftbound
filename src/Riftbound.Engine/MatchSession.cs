@@ -2191,7 +2191,10 @@ internal static partial class ActionPromptBuilder
         int ExperienceCost,
         bool Composable,
         string? UnsupportedReason)
-    { internal RunePaymentReachability? PowerReachability { get; init; } }
+    {
+        internal RunePaymentReachability? PowerReachability { get; init; }
+        internal bool HasAlternativeCost { get; init; }
+    }
 
     private sealed record ActivateAbilityPromptRequirement(
         string SourceObjectId,
@@ -4382,6 +4385,10 @@ internal static partial class ActionPromptBuilder
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.ReadiedModeLabel(objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.AttachmentModeLabel(state, choice, objectId), choice.Reason)
+                : choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow
+                ? new ActionPromptChoiceDto(objectId, objectId.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)
+                    ? "让" + ObjectChoice(state, objectId[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "装配费用").Label + "变为休眠状态"
+                    : "支付调整后的装配符能费用", choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.DravenDeathOpponentWindow
                 ? new ActionPromptChoiceDto(objectId, $"对手 {objectId} 获得 1 分", choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.ResolutionDamageChoiceWindow

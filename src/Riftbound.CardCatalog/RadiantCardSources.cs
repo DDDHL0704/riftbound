@@ -19,7 +19,7 @@ public static class RadiantCardSources
         return new[] { (Id: 39557L, CardNo: "RAD·061/167"), (Id: 39558L, CardNo: "RAD·061a/167"),
             (Id: 39510L, CardNo: "RAD·020/167"), (Id: 39511L, CardNo: "RAD·020a/167"),
             (Id: 39643L, CardNo: "RAD·137/167"), (Id: 39644L, CardNo: "RAD·137a/167"),
-            (Id: 39651L, CardNo: "RAD·143/167"),
+            (Id: 39658L, CardNo: "RAD·150/167"), (Id: 39651L, CardNo: "RAD·143/167"),
             (Id: 39680L, CardNo: "RAD·170*/167"), (Id: 39681L, CardNo: "RAD·170/167"),
             (Id: 39652L, CardNo: "RAD·144/167"), (Id: 39657L, CardNo: "RAD·149/167"),
             (Id: 39686L, CardNo: "RAD·173*/167"), (Id: 39687L, CardNo: "RAD·173/167"),
