@@ -31,7 +31,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             var inverse = Assert.Single(game.State.StackItems); Assert.NotNull(inverse.DelayedEmpower);
             Assert.Equal("P1", inverse.ControllerId); Assert.Equal("P2", game.State.CardObjects[unit].ControllerId);
             if (game.State.PriorityPlayerId != "P2") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-            for (var i = 0; i < 2; i++) await game.Act("P2", new TapRuneCommand("REFERENCE-COUNTER-RUNE-" + i));
+            await game.TapRunes("P2", Enumerable.Range(0, 2).Select(i => "REFERENCE-COUNTER-RUNE-" + i));
             await game.Act("P2", new RecycleRuneCommand("REFERENCE-COUNTER-RUNE-0"));
             Assert.Equal(2, game.State.RunePools["P2"].Mana); Assert.Equal(1, game.State.RunePools["P2"].PowerByTrait[RuneTrait.Green]);
             var before = MatchStateHasher.Hash(game.State);

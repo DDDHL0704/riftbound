@@ -20,7 +20,7 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
         try
         {
             await Prepare(game, controlled); var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            foreach (var id in Common.Runes(game.State).Take(mana)) await game.Act("P1", new TapRuneCommand(id));
+            await game.TapRunes("P1", Common.Runes(game.State).Take(mana));
             Assert.Equal(mana, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(controlled, Common.Runes(game.State).Length); Assert.Equal(12 - controlled, game.State.PlayerZones["P1"].RuneDeck.Count);
             var prefix = game.Events().Length; await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []));
@@ -50,7 +50,7 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
         try
         {
             await Prepare(game, 8); var runes = Common.Runes(game.State);
-            foreach (var id in runes.Take(3)) await game.Act("P1", new TapRuneCommand(id)); Assert.Equal(3, game.State.RunePools["P1"].Mana);
+            await game.TapRunes("P1", runes.Take(3)); Assert.Equal(3, game.State.RunePools["P1"].Mana);
             var command = new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", []); var raw = JsonSerializer.SerializeToNode(command, Json)!.AsObject();
             raw["promptId"] = game.PromptFor("P1").PromptId; raw["snapshotTick"] = game.State.Tick;
             var retained = new ConformanceCommand("P1", "ven050-one-mana-short", JsonSerializer.SerializeToElement(raw, Json));
@@ -100,7 +100,7 @@ public sealed class Ven050PhysicalRuneDiscountConsumerTests
     internal static async Task Prepare(Driver game, int controlled, string destination = "BASE")
     {
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(6, Common.Runes(game.State).Length); Assert.Equal(6, game.State.PlayerZones["P1"].RuneDeck.Count);
-        foreach (var id in Common.Runes(game.State).Take(4)) await game.Act("P1", new TapRuneCommand(id));
+        await game.TapRunes("P1", Common.Runes(game.State).Take(4));
         Assert.Equal(4, game.State.RunePools["P1"].Mana); await game.Act("P1", new PlayCardCommand("UNIT", No, [], Destination: destination));
         Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
         for (var expected = 8; expected <= controlled; expected += 2)

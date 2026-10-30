@@ -43,7 +43,7 @@ public sealed class Ven014And030EmpoweredCombatConsumerTests
         var initial = Position(no, attacking); var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < Printed(no) * 2; i++) await game.Act("P1", new TapRuneCommand("EMPOWER-COMBAT-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, Printed(no) * 2).Select(i => "EMPOWER-COMBAT-RUNE-" + i));
             Assert.Equal(Printed(no) * 2, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: attacking ? "BASE" : "BATTLEFIELD:BF"));
             Assert.Equal(Printed(no), game.State.RunePools["P1"].Mana); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
@@ -89,7 +89,7 @@ public sealed class Ven014And030EmpoweredCombatConsumerTests
         var initial = Position("VEN·014", true, true); var game = new Driver(initial);
         try
         {
-            for (var i = 0; i < 4; i++) await game.Act("P1", new TapRuneCommand("EMPOWER-COMBAT-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, 4).Select(i => "EMPOWER-COMBAT-RUNE-" + i));
             await game.Act("P1", new PlayCardCommand("UNIT", "VEN·014", []));
             await game.Act("P1", new RecycleRuneCommand("EMPOWER-COMBAT-RUNE-0"));
             Assert.Equal(2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
