@@ -61,6 +61,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerHighCostCardReadySelf = "CONTROLLER_HIGH_COST_CARD_READY_SELF";
     public const string BattlefieldConquerLowRunesPayDraw = "BATTLEFIELD_CONQUER_LOW_RUNES_PAY_DRAW";
     public const string BattlefieldHeldBurn = "BATTLEFIELD_HELD_BURN";
     public const string BattlefieldBattleStartMana = "BATTLEFIELD_BATTLE_START_MANA";
@@ -167,6 +168,7 @@ public static class TriggerKinds
         "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
+    public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
     public const string UnitConquestCreateDormantGold =
@@ -191,10 +193,12 @@ public static class TriggerKinds
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
+    public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
+    public const string UnitMovedRevealTopDrawPowerfulUnitOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_POWERFUL_UNIT_OR_RECYCLE";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
@@ -338,6 +342,7 @@ public static class TriggerTargetScopes
     public const string ExhaustedUnitOnField = "EXHAUSTED_UNIT_ON_FIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string UnitAtMovementEndpointBattlefield = "UNIT_AT_MOVEMENT_ENDPOINT_BATTLEFIELD";
+    public const string UnitOnAnyBattlefield = "UNIT_ON_ANY_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
@@ -403,6 +408,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string SourceCostReductionPerConqueredBattlefieldThisTurn = "SOURCE_COST_REDUCTION_PER_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFilteredUnitPlayAdditionalPower = "BATTLEFIELD_FILTERED_UNIT_PLAY_ADDITIONAL_POWER";
     public const string UnitPlayOnlyToConqueredBattlefieldThisTurn = "UNIT_PLAY_ONLY_TO_CONQUERED_BATTLEFIELD_THIS_TURN";
     public const string BattlefieldFirstEquipmentAbilityManaReduction = "BATTLEFIELD_FIRST_EQUIPMENT_ABILITY_MANA_REDUCTION";
@@ -464,6 +470,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string SourceObjectPowerWithFriendlyEquipment = "SOURCE_POWER_WITH_FRIENDLY_EQUIPMENT";
     public const string SourceOtherSameNameUnitCountPower = "SOURCE_OTHER_SAME_NAME_UNIT_COUNT_POWER";
     public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
@@ -521,6 +528,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameBattlefieldFriendlyFilteredEquipment = "SAME_BATTLEFIELD_FRIENDLY_FILTERED_EQUIPMENT";
     public const string SameLocationOtherFriendlySameNameUnits = "SAME_LOCATION_OTHER_FRIENDLY_SAME_NAME_UNITS";
     public const string SameLocationEnemyFilteredPublicUnits = "SAME_LOCATION_ENEMY_FILTERED_PUBLIC_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
@@ -711,7 +719,11 @@ public sealed record TriggerSpec(
     int? EmpoweredDamageAmount = null,
     int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? ObjectReadyCount = null);
+    int? ObjectReadyCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? DamageSourceKeyword = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? GeneratedPower = null);
 
 public sealed record ReplacementSpec(
     string Kind,

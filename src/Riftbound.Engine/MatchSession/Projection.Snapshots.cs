@@ -523,7 +523,7 @@ public sealed partial record ResolutionResult
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state, state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state, viewerPlayerId),
                 ["pendingEffectPlay"] = CoreRuleEngine.EffectPlayView(state, VisibleObjectIdForViewer(state, state.PendingEffectPlay?.Parent.SourceObjectId, viewerPlayerId)),
-                ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
+                ["continuousEffects"] = state.ContinuousEffects.Select(effect => BuildContinuousEffectSnapshotView(CoreRuleEngine.PublicPlayInstructionEffect(state, effect, viewerPlayerId))).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue
                     .Select(trigger => BuildTriggerQueueItemSnapshotView(state, trigger, viewerPlayerId))
                     .ToArray(),
