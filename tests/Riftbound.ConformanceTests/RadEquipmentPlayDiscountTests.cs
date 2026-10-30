@@ -167,6 +167,7 @@ public sealed class RadEquipmentPlayDiscountTests
     [InlineData("future")] [InlineData("turn")] [InlineData("generation")]
     [InlineData("face")] [InlineData("instance")] [InlineData("duplicate")]
     [InlineData("null-source")] [InlineData("null-card")] [InlineData("null-controller")]
+    [InlineData("malformed")]
     public async Task RecoveryRejectsForgedAllowanceRecords(string change)
     {
         var game = new Driver(Position()); await game.Act("P1", Play(Assert.Single(Choices(game.State))));
@@ -184,7 +185,7 @@ public sealed class RadEquipmentPlayDiscountTests
             "null-controller" => use with { ControllerId = null! },
             _ => use
         };
-        var forgedMarker = prefix + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(forged));
+        var forgedMarker = prefix + (change == "malformed" ? "invalid-base64" : Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(forged)));
         var state = game.State with { UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Where(effect => effect != marker)
             .Concat(change == "duplicate" ? [marker, marker] : new[] { forgedMarker }).ToArray() };
         Assert.Contains("invalid optional play cost reduction use", OfficialInsightAndSpellLockTests.Errors(state));
