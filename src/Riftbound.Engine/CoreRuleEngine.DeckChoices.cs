@@ -29,7 +29,12 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static bool DeckChoiceTargetAllowed(MatchState state, CardBehaviorDefinition behavior, string id)
-        => state.CardObjects.TryGetValue(id, out var card)
+        => (behavior.MainDeckTargetRequiredTag.Length == 0
+                && behavior.MainDeckTargetAllowedTags.Length == 0
+                && behavior.MainDeckTargetMinimumManaCost <= 0
+                && behavior.MaxTargetManaCost <= 0
+                && behavior.MaxTargetPowerCost is null)
+            || state.CardObjects.TryGetValue(id, out var card)
             && (behavior.MainDeckTargetRequiredTag.Length == 0 || card.Tags.Contains(behavior.MainDeckTargetRequiredTag))
             && (behavior.MainDeckTargetAllowedTags.Length == 0 || behavior.MainDeckTargetAllowedTags.Split('|').Any(card.Tags.Contains))
             && (behavior.MainDeckTargetMinimumManaCost <= 0 || card.ManaCost >= behavior.MainDeckTargetMinimumManaCost)
