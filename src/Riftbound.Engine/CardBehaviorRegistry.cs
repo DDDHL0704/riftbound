@@ -152,6 +152,8 @@ public sealed record CardBehaviorDefinition(
     int FriendlyBoonBonusUntilEndOfTurn = 0,
     int DamageAlternativeDrawCount = 0,
     string TurnUnitPlayGrantKind = "",
+    bool TurnUnitPlayGrantNextOnly = false,
+    bool TurnUnitPlayGrantAnyBattlefield = false,
     bool QueuesDestinationDuel = false,
     bool MakesControllerDamageLethal = false,
     int PlayDamagePerLocation = 0,
@@ -9501,6 +9503,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantSignatureSpells =
     [
+        new("RAD·154/167", "最终抚慰", 2, "NEXT_UNIT_ANY_BATTLEFIELD_AND_PLAY_BOON", 0, 0,
+            CanPlayDuringPriority: true, CanPlayDuringSpellDuel: true,
+            TurnUnitPlayGrantKind: "PLAY_BOON", TurnUnitPlayGrantNextOnly: true,
+            TurnUnitPlayGrantAnyBattlefield: true),
         new("RAD·144/167", "轮回绝境", 2, "REALM_OF_DEATH_MIGHT_THEN_MUTUAL_DAMAGE", 0, 2,
             TargetScope: CardTargetScopes.EnemyThenFriendlyUnits,
             PowerModifierAmount: -2, SecondaryPowerModifierAmount: 2,

@@ -41,6 +41,7 @@ public sealed partial class CoreRuleEngine
         public int UnitEventOrdinal { get; set; }
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
+        public HashSet<string> ConsumedUnitPlayGrants { get; } = new(StringComparer.Ordinal);
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         public HashSet<(int TurnNumber, string ControllerId)> DestroyedPermanentControllers { get; } = [];
         private int cursor;
