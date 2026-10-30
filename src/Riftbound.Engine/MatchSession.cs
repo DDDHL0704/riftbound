@@ -5141,6 +5141,7 @@ internal static partial class ActionPromptBuilder
                 metadata[choice.Id] = new Dictionary<string, object?>(StringComparer.Ordinal)
                 {
                     ["mana"] = 1,
+                    ["power"] = 0,
                     ["paymentOnly"] = false,
                     ["sourceObjectId"] = objectId,
                     ["cardNo"] = state.CardObjects[objectId].CardNo,
