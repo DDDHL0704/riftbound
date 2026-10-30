@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 
@@ -9,17 +8,13 @@ public sealed partial class CoreRuleEngine
     internal const string UnitTokenDestinationChoiceKind = "TOKEN_PLAY_LOCATION";
     private static readonly Lazy<IReadOnlyDictionary<string, string>> UnitTokenInstructionTexts = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.ToDictionary(
-            card => card.CardNo, card => Regex.Replace(card.CardEffect, @"\s+", ""), StringComparer.Ordinal));
+            card => card.CardNo, card => card.CardEffect, StringComparer.Ordinal));
 
     // An instruction's explicit "here" or "to your base" remains a restriction
     // even when another effect grants a wider set of ordinary play locations.
     private static bool UnitTokenInstructionAllowsLocationChoice(string? cardNo, string family)
-    {
-        if (cardNo is null || !UnitTokenInstructionTexts.Value.TryGetValue(cardNo, out var text)) return false;
-        var instructions = Regex.Split(text, "[。；]").Where(part =>
-            part.Contains("打出", StringComparison.Ordinal) && part.Contains(family, StringComparison.Ordinal)).ToArray();
-        return instructions.Length == 1 && !Regex.IsMatch(instructions[0], "基地|此处|该处|战场");
-    }
+        => cardNo is not null && UnitTokenInstructionTexts.Value.TryGetValue(cardNo, out var text)
+            && UnitTokenLocationParser.AllowsOrdinaryLocationChoice(text, family);
 
     private static string? ChooseUnitTokenBattlefield(MatchState state, string player, string family,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
