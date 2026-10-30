@@ -46,6 +46,9 @@ public sealed partial class CoreRuleEngine
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             reductions.Add(("card", behavior.TargetTraitsManaReduction, 0));
         reductions.Add(("optional", optionalReduction, 0));
+        if (behavior.MayReturnFriendlyEquipmentAdditionalCost && (optionalCosts ?? []).Any(c =>
+                TryParseReturnFriendlyEquipmentAdditionalCost(c, out var id) && CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id)))
+            reductions.Add(("optional", behavior.ManaReductionIfEquipmentReturned, 0));
         reductions.Add(("optional", SelectedSacrificeCostReduction(state, playerId, behavior, optionalCosts ?? []).Mana, 0));
         reductions.Add(("equipment", ResolveBattlefieldEquipmentCostReductionMana(state, playerId, behavior), 0));
         var applied = new Dictionary<string, int>();
@@ -70,7 +73,9 @@ public sealed partial class CoreRuleEngine
         if (behavior.MaySacrificeUnitForPrintedCostReduction)
             return OptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId, additionalMana)
                 .MinBy(cost => cost.Mana.Total)!.Mana;
-        var optionalReduction = 0;
+        var optionalReduction = behavior.MayReturnFriendlyEquipmentAdditionalCost
+            && state.CardObjects.Keys.Any(id => CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id))
+                ? behavior.ManaReductionIfEquipmentReturned : 0;
         if (behavior.OptionalExperienceCost > 0 && state.PlayerExperience.GetValueOrDefault(playerId) >= behavior.OptionalExperienceCost)
             optionalReduction += behavior.ManaReductionIfExperiencePaid;
         if (behavior.ManaReductionIfDiscardHandCardOptionalCost > 0 && sourceObjectId is not null
