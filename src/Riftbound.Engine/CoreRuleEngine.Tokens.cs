@@ -24,7 +24,7 @@ public sealed partial class CoreRuleEngine
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context)
         {
             context = FinalizeDisarmContributionDepartures(before, result.State, departed, context);
-            return context is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid }
+            return context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, PaidUnitTrigger = paid with {
