@@ -1,6 +1,8 @@
 import copy
+from contextlib import redirect_stdout
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -15,6 +17,36 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('distributed_l2', ROOT / 'scripts/l2-distributed.py')
 D = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(D)
+
+
+class RunLoggedTests(unittest.TestCase):
+    def test_failed_command_prints_the_tail_and_preserves_full_log_and_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'build.log'
+            error = 'Example.cs(3,4): error CS1002: ; expected'
+            command = [sys.executable, '-c',
+                       'import sys\nfor i in range(100): print(f"build line {i}", flush=True)\n'
+                       f'print({error!r}, file=sys.stderr)\nsys.exit(17)']
+            console = io.StringIO()
+            with redirect_stdout(console), self.assertRaises(subprocess.CalledProcessError) as failed:
+                D.run_logged(command, log)
+            expected = [f'build line {i}' for i in range(100)] + [error]
+            self.assertEqual(expected, log.read_text().splitlines())
+            self.assertEqual([f'Command failed; last 80 lines of {log}:'] + expected[-80:],
+                             console.getvalue().splitlines())
+            self.assertEqual(17, failed.exception.returncode)
+            self.assertEqual(command, failed.exception.cmd)
+
+    def test_successful_command_keeps_stdout_and_stderr_in_the_log(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / 'build.log'
+            command = [sys.executable, '-c',
+                       'import sys; print("build succeeded", flush=True); print("warning", file=sys.stderr)']
+            console = io.StringIO()
+            with redirect_stdout(console):
+                D.run_logged(command, log)
+            self.assertEqual(['build succeeded', 'warning'], log.read_text().splitlines())
+            self.assertEqual('', console.getvalue())
 
 
 class DistributedL2Tests(unittest.TestCase):

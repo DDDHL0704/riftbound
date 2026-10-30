@@ -950,6 +950,9 @@ public sealed partial class FullGameEndToEndTests
         var echoReady = AcceptedCurrentResult(echoReadyState);
         echoReady = await TapAllAvailableRunesAsync(echoSession, "P2", echoReady, "piltover-pay-from-real-runes");
         echoReady = await SupplyPlayPowerThroughLegalRuneActionsAsync(echoSession, echoReady, "P2", PunishmentSpellCardNo, "piltover-power", [EchoOptionalCostNames.Echo]);
+        var targetObjectId = FindBattlefieldUnitByCardNo(echoReady.State, "P2", CrimsonSignetTreantCardNo,
+            BattlefieldObjectIdForCardNo(echoReady.State, "P2", PiltoverAcademyBattlefieldHeldNextSpellEchoCardNo));
+        Assert.NotNull(targetObjectId);
         var spellPlayed = await SubmitBattlefieldHeldNextSpellEchoSpellAsync(
             echoSession,
             echoReady,
@@ -961,6 +964,8 @@ public sealed partial class FullGameEndToEndTests
             echoSession,
             spellPlayed,
             "b0-piltover-academy-punishment-echo-resolve");
+        Assert.Contains(targetObjectId, resolved.State.PlayerZones["P2"].Banished);
+        Assert.DoesNotContain(targetObjectId, resolved.State.PlayerZones["P2"].Graveyard);
         var result = await DriveBattleCloseToScoreVictoryAsync(
             echoSession,
             resolved,
@@ -970,6 +975,11 @@ public sealed partial class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(echoReadyState, echoJournal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(echoJournal.Entries, entry => entry.Accepted
+            && entry.CommandType == CommandTypes.PayCost
+            && entry.RawCommand is { } raw
+            && GameCommandJsonMapper.Map(raw) is PayCostCommand { PaymentWindow: "RULE_REPLACEMENT", PaymentChoiceIds: [var selected] }
+            && selected.StartsWith("BANISH:" + targetObjectId + ":", StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -22140,10 +22150,29 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
+            // Repeated Punishment damage can leave competing mandatory banish
+            // replacements on the same unit. Their controller orders them through
+            // the exposed command, which remains in the original replay journal.
+            if (result.State.PendingRuleChoice is { Request.Kind: "DESTRUCTION_REPLACEMENT" } replacement)
+            {
+                var options = replacement.Request.Options;
+                Assert.NotEmpty(options);
+                Assert.All(options, option => Assert.StartsWith("BANISH:", option.Id));
+                Assert.Single(options.Select(option => Assert.Single(option.ObjectIds!)).Distinct(StringComparer.Ordinal));
+                var choose = new PayCostCommand(replacement.Request.Id, "RULE_REPLACEMENT", [options[0].Id]);
+                result = await session.SubmitAsync(replacement.Request.PlayerId, $"{intentPrefix}-banish-replacement-{index}",
+                    choose, RawCommand(choose), CancellationToken.None);
+                AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                events.AddRange(result.Events); includesCompletionTriggers = true;
+                continue;
+            }
             // A conquest skill can open a real payment window while remaining
             // on the stack. Leave that decision to the scenario's payment step.
             if (result.State.PendingPayment is not null) return result with { Events = events };
             if (result.State.PendingCardChoice is not null) return result;
+            Assert.True(result.State.PendingRuleChoice is null,
+                $"B0 stack driver has an unhandled rule choice {result.State.PendingRuleChoice?.Request.Kind}: "
+                + $"{result.State.PendingRuleChoice?.Request.Reason}; options={JsonSerializer.Serialize(result.State.PendingRuleChoice?.Request.Options)}");
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
                 || item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal));
@@ -25550,16 +25579,25 @@ public sealed partial class FullGameEndToEndTests
                     var grantedConquest = item?.UnitConquest is { TemporaryGrant: not null } granted ? granted : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" } field
                         ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration
-                            ?? grantedConquest?.SourceGeneration ?? item?.PermanentPlaySource?.Generation ?? item?.EmpowerInteraction?.Source.Generation;
+                            ?? grantedConquest?.SourceGeneration ?? item?.PermanentPlaySource?.Generation ?? item?.SimpleActivation?.Source.Generation ?? item?.UnitEvent?.SourceGeneration ?? item?.EmpowerInteraction?.Source.Generation;
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal(item.EmpowerInteraction?.CardNo ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
-                        ?? (item.PermanentPlaySource is not null ? "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
-                    if (item.EmpowerInteraction is { } empower)
+                    Assert.Equal((item.SimpleActivation is not null ? item.CardNo : null) ?? item.UnitEvent?.CardNo ?? item.EmpowerInteraction?.CardNo ?? item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
+                        ?? (item.PermanentPlaySource is not null ? item.CardNo == "VEN·132" ? "VEN·132" : "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
+                    if (item.UnitEvent is { } unitEvent)
+                    {
+                        Assert.Equal("CAPTURED_UNIT_EVENT_ABILITY", item.EffectKind);
+                        Assert.Contains(unitEvent.CardNo, new[] { "VEN·044", "VEN·094", "VEN·009", "VEN·020", "VEN·024", "VEN·028", "VEN·071", "VEN·079", "VEN·080", "VEN·091", "VEN·102", "VEN·108", "VEN·121" });
+                        Assert.True(CardBehaviorRegistry.TryGetByCardNo(unitEvent.CardNo, out var behavior));
+                        Assert.Equal(behavior.UnitEventAbility!.Timing, unitEvent.Timing);
+                        Assert.InRange(unitEvent.CapturedTick, 1, result.State.Tick);
+                        Assert.Null(row["unitEvent"]);
+                    }
+                    else if (item.EmpowerInteraction is { } empower)
                     {
                         Assert.Equal("CAPTURED_EMPOWER_INTERACTION", item.EffectKind);
                         Assert.Contains(empower.CardNo, new[] { "VEN·037", "VEN·082", "VEN·099", "VEN·104", "VEN·114" });
@@ -25568,6 +25606,16 @@ public sealed partial class FullGameEndToEndTests
                         Assert.NotNull(behavior.EmpowerInteraction);
                         Assert.InRange(empower.CapturedTick, 1, result.State.Tick);
                         Assert.Null(row["empowerInteraction"]);
+                    }
+                    else if (item.SimpleActivation is { } activation)
+                    {
+                        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(activation.AbilityId, out var ability));
+                        Assert.NotNull(ability.SimpleEffect);
+                        Assert.Equal(ability.SourceCardNo, item.CardNo);
+                        Assert.Equal(ability.EffectKind, item.EffectKind);
+                        Assert.Equal(item.SourceObjectId, activation.Source.ObjectId);
+                        Assert.InRange(activation.AcquiredTick, 1, result.State.Tick);
+                        Assert.Null(row["simpleActivation"]);
                     }
                     else if (held is not null)
                     {
@@ -25597,6 +25645,13 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(grantedConquest.SourceGeneration.ToString(), grantFields[6]);
                         Assert.Equal(item.SourceObjectId, Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[8])));
                         Assert.Null(row["unitConquest"]); // Stack view exposes only the public source/card identity.
+                    }
+                    else if (item.PermanentPlaySource is { } declaredSource && item.CardNo == "VEN·132")
+                    {
+                        Assert.Equal("FALLING_CAT_DECLARE_SPELL_NAME", item.EffectKind);
+                        Assert.True(item.SourceConfirmed); Assert.Equal(item.SourceObjectId, declaredSource.ObjectId);
+                        Assert.Contains(result.State.CardPlays.Resolved, play => play.PlayId == item.StackItemId
+                            && play.Source == declaredSource && play.CardNo == "VEN·132");
                     }
                     else if (item.PermanentPlaySource is { } permanent)
                     {

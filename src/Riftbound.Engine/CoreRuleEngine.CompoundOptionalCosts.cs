@@ -11,9 +11,13 @@ public sealed partial class CoreRuleEngine
     {
         mana = 0;
         typed = new Dictionary<string, int>();
-        var haste = item.OptionalCosts.Where(CardPermissionKeywordRules.IsHasteReadyCostChoice).ToArray();
+        var battlefieldCosts = item.OptionalCosts.Where(IsBattlefieldUnitPlayCost).ToArray();
+        if (battlefieldCosts.Length > 0 && (!item.SourceConfirmed || !behavior.PlaysSourceToBaseAsUnit
+            || battlefieldCosts.Any(cost => cost.Length == BattlefieldUnitPlayCostPrefix.Length))) return false;
+        var costs = item.OptionalCosts.Where(cost => !IsBattlefieldUnitPlayCost(cost)).ToArray();
+        var haste = costs.Where(CardPermissionKeywordRules.IsHasteReadyCostChoice).ToArray();
         if (haste.Length == 0)
-            return TryBuildTargetEffectAdditionalCost(item.OptionalCosts, behavior, out mana, out typed);
+            return TryBuildTargetEffectAdditionalCost(costs, behavior, out mana, out typed);
         if (!item.SourceConfirmed || !behavior.PlaysSourceToBaseAsUnit || item.CardNo != behavior.CardNo)
             return false;
         var hasteBehavior = behavior;
@@ -24,7 +28,7 @@ public sealed partial class CoreRuleEngine
         }
         if (!CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(haste, hasteBehavior, out _, out _))
             return false;
-        var targetCosts = item.OptionalCosts.Where(cost => !CardPermissionKeywordRules.IsHasteReadyCostChoice(cost)).ToArray();
+        var targetCosts = costs.Where(cost => !CardPermissionKeywordRules.IsHasteReadyCostChoice(cost)).ToArray();
         return TryBuildTargetEffectAdditionalCost(targetCosts, behavior, out mana, out typed);
     }
 }

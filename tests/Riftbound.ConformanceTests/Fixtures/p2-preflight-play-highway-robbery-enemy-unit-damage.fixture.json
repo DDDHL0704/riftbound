@@ -217,7 +217,7 @@
         "P2-BASE-UNIT-HIGHWAY-ROBBERY-001": {
           "damage": 6,
           "power": 7,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-BATTLEFIELD-UNIT-HIGHWAY-ROBBERY-001": {

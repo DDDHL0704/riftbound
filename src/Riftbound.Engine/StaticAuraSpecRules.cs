@@ -5,6 +5,8 @@ namespace Riftbound.Engine;
 
 internal static class StaticAuraSpecRules
 {
+    internal static int PowerDeltaForSource(StaticAuraSpec aura, CardObjectState source)
+        => source.IsEmpowered ? aura.PowerDeltaIfSourceEmpowered ?? aura.PowerDeltaPerParticipant : aura.PowerDeltaPerParticipant;
     public static bool IsConditionalEnemyPowerAura(StaticAuraSpec aura) => aura.Kind == StaticAuraKinds.SameLocationEnemyFilteredPower
         && aura.Layer == ContinuousEffectLayers.StaticAura && aura.TargetScope == StaticAuraTargetScopes.SameLocationEnemyFilteredUnits
         && aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits
@@ -341,6 +343,7 @@ internal static class StaticAuraSpecRules
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,
                 StringComparison.Ordinal)
+            || aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits
             || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredPublicUnits,

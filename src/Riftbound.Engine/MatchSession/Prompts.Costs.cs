@@ -1501,7 +1501,7 @@ internal static partial class ActionPromptBuilder
     }
 
     private static bool CanPayPlayPowerCosts(MatchState state, string playerId, RunePool pool, IReadOnlyDictionary<string, int> resources,
-        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null)
+        CardBehaviorDefinition behavior, int amount, string trait, int? maximumAdditionalPower = null, IReadOnlyList<string>? targets = null)
     {
         pool = PaymentCostRules.PowerPoolForPurpose(pool, CoreRuleEngine.PowerPurposeForPlay(behavior));
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
@@ -1510,7 +1510,7 @@ internal static partial class ActionPromptBuilder
             + (string.IsNullOrWhiteSpace(trait) ? amount : 0);
         if (extraGeneric > int.MaxValue) return false;
         return CoreRuleEngine.CanReachPlayPowerCost(state, playerId, behavior,
-            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped);
+            new RunePaymentReachability(pool, resources, maximumAdditionalPower), (int)extraGeneric, extraTyped, targets: targets);
     }
 
     private static bool CanPayHasteReadyPowerCost(

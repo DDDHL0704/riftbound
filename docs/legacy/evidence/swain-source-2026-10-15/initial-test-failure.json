@@ -1,8 +1,0 @@
-{
-  "status": "FIXTURE_EXPECTATION_CORRECTED",
-  "trxPath": "var/qa/ven-swain-20261015/focus-source/focus/results.trx",
-  "trxSha256": "fa20b4de29ccf365c8c6aef1792baf60db6bfffeba95d28eff45e52c16d04cce",
-  "failedCases": 1,
-  "passedCases": 7,
-  "cause": "The base printing includes an explicit Predict reminder, which correctly also parses as an on-play candidate. Assert the exact conquest trigger rather than requiring the whole card to have a single trigger. No production change was made for this fixture correction."
-}
