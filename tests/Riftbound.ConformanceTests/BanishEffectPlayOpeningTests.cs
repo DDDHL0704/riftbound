@@ -115,7 +115,8 @@ public sealed class BanishEffectPlayOpeningTests(ITestOutputHelper output)
         IReadOnlyList<string> Runes(string player) => state.PlayerZones[player].Base.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)).ToArray();
         async Task TapAll(string player)
         {
-            foreach (var id in Runes(player).Where(id => !state.CardObjects[id].IsExhausted).ToArray()) await Submit(player, new TapRuneCommand(id));
+            var ready = Runes(player).Where(id => !state.CardObjects[id].IsExhausted).ToArray();
+            if (ready.Length > 0) await Submit(player, new TapRuneCommand(ready[0], ready));
         }
         async Task Drain()
         {

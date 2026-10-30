@@ -51,7 +51,8 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
                     && game.Hand("P2", "OGN·033/298").Any()) break;
                 await game.Act(game.State.TurnPlayerId!, new EndTurnCommand());
             }
-            foreach (var id in game.Runes("P1").Take(6).ToArray()) await game.Act("P1", new TapRuneCommand(id));
+            var p1Runes = game.Runes("P1").Take(6).ToArray();
+            await game.Act("P1", new TapRuneCommand(p1Runes[0], p1Runes));
             var unit = game.Hand("P1", "UNL-156/219").First(); await game.Act("P1", new PlayCardCommand(unit, "UNL-156/219", []));
             var generation = game.State.CardObjects[unit].ObjectGeneration; var creatingSpell = game.Hand("P1", "VEN·035").First();
             await Recycle(game, "P1", "UNL-R02");
@@ -61,7 +62,8 @@ public sealed class CanonicalTerminalDamageChoiceOpeningTests
             await game.ColdCheckpoint(); await game.Act("P1", new EndTurnCommand());
             var inverse = Assert.Single(game.State.StackItems); Assert.NotNull(inverse.DelayedEmpower); Assert.Equal(unit, inverse.DelayedEmpower!.Unit.ObjectId);
             await game.Act("P1", new PassPriorityCommand()); Assert.Equal("P2", game.State.PriorityPlayerId);
-            foreach (var id in game.Runes("P2").Take(2).ToArray()) await game.Act("P2", new TapRuneCommand(id));
+            var p2Runes = game.Runes("P2").Take(2).ToArray();
+            await game.Act("P2", new TapRuneCommand(p2Runes[0], p2Runes));
             await Recycle(game, "P2", "UNL-R01"); var robbery = game.Hand("P2", "OGN·033/298").First();
             await game.Act("P2", new PlayCardCommand(robbery, "OGN·033/298", [unit])); await game.Top();
             var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
