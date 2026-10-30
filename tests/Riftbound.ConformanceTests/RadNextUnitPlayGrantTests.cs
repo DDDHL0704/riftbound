@@ -246,7 +246,7 @@ public sealed class RadNextUnitPlayGrantTests
         var state = OfficialHoldSequenceTests.AddUnit(Position(), "LILLIA", no, "F", "P1");
         state = LocalDestructionRecallTests.At(state, "LILLIA", "P1", "BASE");
         var game = new Driver(state); await Grant(game);
-        await game.Act("P1", new MoveUnitCommand("LILLIA", Destination: "BATTLEFIELD:OPEN"));
+        await game.Act("P1", new MoveUnitCommand("LILLIA", "BASE", "BATTLEFIELD:OPEN"));
         Assert.Single(game.State.StackItems, item => item.MovementObserver is not null);
         await game.Top();
         Assert.Null(game.State.PendingRuleChoice);

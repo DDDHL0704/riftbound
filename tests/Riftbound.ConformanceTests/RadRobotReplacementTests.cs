@@ -19,7 +19,8 @@ public sealed class RadRobotReplacementTests
     {
         var state = OfficialTokenReplacementTests.Position(copies, card);
         for (var i = 0; i < heroes; i++) state = WithHero(state, id: "HEIMER" + i);
-        return state with { RoomId = "RAD-ROBOT-REPLACEMENT" };
+        // This is the journal's initial position; no command precedes it.
+        return state with { RoomId = "RAD-ROBOT-REPLACEMENT", Tick = 0 };
     }
 
     private static CardObjectState[] Tokens(MatchState state) => OfficialTokenReplacementTests.Tokens(state);
