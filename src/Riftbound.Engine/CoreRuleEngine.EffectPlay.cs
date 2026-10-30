@@ -137,7 +137,6 @@ public sealed partial class CoreRuleEngine
                 RequiresReturnFriendlyEquipmentAdditionalCost = false,
                 RequiresReturnFriendlyUnitAdditionalCost = false,
                 MayReturnFriendlyEquipmentAdditionalCost = false,
-                RequiresReturnFriendlyUnitAdditionalCost = false,
                 RequiresExhaustFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 
