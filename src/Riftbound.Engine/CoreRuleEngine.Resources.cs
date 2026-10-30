@@ -97,7 +97,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveImmediateResourceTriggers(ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var triggers = result.State.TriggerQueue.Where(IsJhinMovementResourceTrigger).ToArray();
+        var triggers = result.State.TriggerQueue.Where(IsImmediateMovementResourceTrigger).ToArray();
         if (triggers.Length == 0) return result;
         var pools = result.State.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = result.Events.ToList();
@@ -105,23 +105,31 @@ public sealed partial class CoreRuleEngine
         {
             // The trigger has already captured its controller and source. Moving again,
             // leaving play, or changing controller cannot cancel an earned resource.
+            var spec = trigger.MovementObserver is { } movement
+                ? UnitMovedTriggerSpecRules.MovementTriggers(movement.CardNo).Single(t => t.Kind == movement.Kind) : null;
+            var mana = spec?.ManaDelta ?? 1; var power = spec?.GeneratedPower ?? 1;
             var pool = pools.GetValueOrDefault(trigger.ControllerId, RunePool.Empty);
-            pools[trigger.ControllerId] = pool with { Mana = pool.Mana + 1, Power = pool.Power + 1 };
+            pools[trigger.ControllerId] = pool with { Mana = pool.Mana + mana, Power = pool.Power + power };
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = trigger.ControllerId, ["sourceObjectId"] = trigger.SourceObjectId,
-                ["triggerId"] = trigger.TriggerId, ["generatedMana"] = 1, ["generatedPower"] = 1,
+                ["triggerId"] = trigger.TriggerId, ["generatedMana"] = mana, ["generatedPower"] = power,
                 ["resourceLifecycle"] = "rune-pool", ["resourceSkill"] = true
             };
             events.Add(BuildTriggerResolvedEvent(trigger));
-            events.Add(new("MANA_GAINED", "移动触发：获得 1 点法力", payload));
-            events.Add(new("POWER_GAINED", "移动触发：获得 1 点任意特性符能", payload));
+            events.Add(new("MANA_GAINED", $"移动触发：获得 {mana} 点法力", payload));
+            events.Add(new("POWER_GAINED", $"移动触发：获得 {power} 点任意特性符能", payload));
         }
         var state = result.State with { RunePools = pools,
-            TriggerQueue = result.State.TriggerQueue.Where(t => !IsJhinMovementResourceTrigger(t)).ToArray() };
+            TriggerQueue = result.State.TriggerQueue.Where(t => !IsImmediateMovementResourceTrigger(t)).ToArray() };
         return result with { State = state, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
+
+    private static bool IsImmediateMovementResourceTrigger(TriggerQueueItemState trigger)
+        => IsJhinMovementResourceTrigger(trigger) || trigger.EffectKind == MovementObserverEffect
+            && trigger.MovementObserver is { Kind: TriggerKinds.UnitOrdinalMovementGainResources } movement
+            && ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId, trigger.SourceCardNo);
 
     private static bool IsImmediatePoolResourceAbility(string id)
         => id == P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId

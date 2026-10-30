@@ -9291,6 +9291,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·015/167", "阿卡丽 - 狂傲不羁", 5, "UNIT_ORDINAL_MOVEMENT_PLAY:RAD015", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
+        new("RAD·SP2/005", "阿卡丽 - 狂傲不羁", 5, "UNIT_ORDINAL_MOVEMENT_PLAY:RADSP2", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5),
         new("RAD·061/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061", 0, 0,
             RequiresReturnFriendlyUnitAdditionalCost: true,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),

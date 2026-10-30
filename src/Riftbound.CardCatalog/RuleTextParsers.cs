@@ -374,6 +374,7 @@ public static class TriggerParser
                 attackGraveyardBanish.Value.TrimStart(), "Confirm an optional graveyard unit target; actual banishment grants the source Assault this turn.",
                 TargetScope: TriggerTargetScopes.ControlledUnitInGraveyard, BanishCount: 1, Optional: true,
                 GrantedKeyword: "强攻", KeywordBonus: assault, Duration: TriggerDurations.UntilEndOfTurn));
+        triggers.AddRange(MovementOrdinalParser.Parse(text));
         var firstMoveMill = Regex.Match(text,
             @"每回合首次，当我移动时，选择一名玩家。该玩家\{\{燃烧(?<count>[0-9一两二三四五六七八九十]+)\}\}。?", RegexOptions.CultureInvariant);
         if (firstMoveMill.Success)

@@ -193,6 +193,8 @@ public static class TriggerKinds
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
+    public const string UnitOrdinalMovementGainResources = "UNIT_ORDINAL_MOVEMENT_GAIN_RESOURCES";
+    public const string UnitOrdinalMovementBanishTopPlay = "UNIT_ORDINAL_MOVEMENT_BANISH_TOP_PLAY";
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
@@ -710,7 +712,11 @@ public sealed record TriggerSpec(
     int? EmpoweredDamageAmount = null,
     int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? ObjectReadyCount = null);
+    int? ObjectReadyCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MovementOrdinal = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? GeneratedPower = null);
 
 public sealed record ReplacementSpec(
     string Kind,
