@@ -107,10 +107,7 @@ public sealed class OfficialMultiTypeIdentityTests
 
     internal static async Task<OfficialCardCatalog> Source()
     {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
-        Assert.NotNull(root);
-        return await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName,
-            "docs/legacy/evidence/multitype-2026-10-15/catalog-fixture.json"));
+        return await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(AppContext.BaseDirectory,
+            "Fixtures", "official-source", "multitype", "catalog-fixture.json"));
     }
 }
