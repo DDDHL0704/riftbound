@@ -86,3 +86,19 @@ class DailyWorkflowTests(unittest.TestCase):
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)
         self.assertNotIn('paths:', triggers)
+
+    def test_closed_pr_cleanup_uses_the_pr_group_without_publishing_a_required_check(self):
+        text = (ROOT / '.github/workflows/backend-l2-close.yml').read_text()
+        triggers = text.split('permissions:', 1)[0]
+        self.assertIn('pull_request:', triggers)
+        self.assertIn('branches: [main]', triggers)
+        self.assertIn('types: [closed]', triggers)
+        self.assertNotIn('push:', triggers)
+        self.assertNotIn('workflow_dispatch:', triggers)
+        self.assertIn('group: l2-${{ github.event.pull_request.number }}', text)
+        self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', self.workflow())
+        self.assertIn('cancel-in-progress: true', text)
+        # A skipped/successful closure check must never satisfy branch protection
+        # after reopening a PR whose complete rule verification was canceled.
+        self.assertNotIn('L2 required', text)
+        self.assertNotIn('types:', self.workflow().split('permissions:', 1)[0])
