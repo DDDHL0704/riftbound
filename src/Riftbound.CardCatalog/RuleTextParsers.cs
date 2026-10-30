@@ -2765,7 +2765,7 @@ public static class ActivatedAbilityParser
                     return new ActivatedAbilitySpec(cost, effect, [], BehaviorImplementationStatuses.Unimplemented,
                         "Exhaust one active friendly unit as a cost; ready one unit after responses, once per turn per text instance.",
                         Kind: ActivatedAbilityKinds.ExhaustFriendlyUnitReadyUnit, RequiredTargetCount: 1,
-                        TargetScope: CardTargetScopes.AnyUnit, OncePerTurn: true);
+                        TargetScope: "ANY_UNIT", OncePerTurn: true);
                 if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
                 if (TryParseManaSelfMight(cost, effect, out var selfMight))
                     return selfMight;
