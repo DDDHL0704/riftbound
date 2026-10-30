@@ -3620,7 +3620,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 FlowPlay = FlowReceipt(state, intent.PlayerId, command.SourceObjectId, behavior),
-                PlayedFromNormalGraveyard = plan.PlayedFromNormalGraveyard,
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
                     .Contains(item.StackItemId, StringComparer.Ordinal)).ToDictionary(item => item.StackItemId, item => item.SourceObjectId, StringComparer.Ordinal) };
@@ -18713,7 +18712,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             totalExperienceCost,
             effectRepeatCount,
             optionalCosts,
-            normalGraveyardPlay,
             costReductionMana,
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
@@ -34589,7 +34587,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int TotalExperienceCost,
         int EffectRepeatCount,
         IReadOnlyList<string> OptionalCosts,
-        bool PlayedFromNormalGraveyard,
         int CostReductionMana,
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,

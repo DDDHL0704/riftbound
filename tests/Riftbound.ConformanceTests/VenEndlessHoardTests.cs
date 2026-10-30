@@ -100,6 +100,25 @@ public sealed class VenEndlessHoardTests
     }
 
     [Fact]
+    public async Task AGraveyardSpellThatReturnsHoardNoLongerHasItsGraveyardEntryReplaced()
+    {
+        var initial = Put(Active(), "RETURN", "SFD·135/221", "P1", "GRAVEYARD");
+        var command = new PlayCardCommand("RETURN", "SFD·135/221", ["UNIT"],
+            OptionalCosts: ["NORMAL_GRAVEYARD_PLAY"]);
+        var quote = new CoreRuleEngine().PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command));
+        Assert.True(quote.CanPay, quote.Message);
+        var game = new Driver(initial); await game.Act("P1", command);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.Null(Assert.Single(game.State.StackItems).FlowPlay);
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
+        Assert.Contains("RETURN", game.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain("RETURN", game.State.PlayerZones["P1"].Banished);
+        Assert.Equal("GRAVEYARD", game.State.ObjectLocations["RETURN"].Zone);
+        await game.Replay();
+    }
+
+    [Fact]
     public async Task ACounteredSpellFromTheGraveyardIsBanishedWithoutItsEffect()
     {
         var initial = Put(Put(Active(), "PLAY", "VEN·049", "P1", "GRAVEYARD"), "COUNTER", "OGN·045/298", "P2", "HAND");
