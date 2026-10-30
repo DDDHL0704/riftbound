@@ -63,10 +63,7 @@ public sealed class OptionalManaTriggerPromptTests
     [InlineData("alias-pay")] [InlineData("duplicate")] [InlineData("both-branches")]
     public async Task OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(string change)
     {
-        // Captured Vayne triggers accept the shared PAY alias; keep the
-        // legacy optional-payment alias rejection covered by the gold trigger.
-        var branch = change == "alias-pay" ? "gold" : "vayne";
-        var driver = await Open(Position(branch), branch, null);
+        var driver = await Open(Position("vayne"), "vayne", null);
         var before = driver.State;
         var payment = before.PendingPayment!;
         var choices = change switch { "alias-pay" => new[] { "PAY" },

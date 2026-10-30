@@ -7,11 +7,10 @@ namespace Riftbound.ConformanceTests;
 
 public sealed partial class BattleDamageAssignmentLifecycleTests
 {
-    [Theory]
-    [InlineData("SPEND_MANA:1")]
-    [InlineData("PAY")]
-    public async Task VaynePaysAtConfirmationButReturnsOnlyAfterResponses(string choice)
+    [Fact]
+    public async Task VaynePaysAtConfirmationButReturnsOnlyAfterResponses()
     {
+        const string choice = "SPEND_MANA:1";
         var (initial, game, _) = await OpenVaynePaymentTimingBattle(responseCard: true);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(1, payment.ManaCost);
@@ -144,9 +143,9 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
     }
 
     [Theory]
-    [InlineData("SPEND_MANA:1")]
-    [InlineData("PAY")]
-    public async Task VayneInsufficientConfirmationIsAtomic(string choice)
+    [InlineData("SPEND_MANA:1", ErrorCodes.InsufficientCost)]
+    [InlineData("PAY", ErrorCodes.InvalidTarget)]
+    public async Task VayneInsufficientConfirmationIsAtomic(string choice, string expectedError)
     {
         var (_, game, _) = await OpenVaynePaymentTimingBattle(mana: 0);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
@@ -154,7 +153,7 @@ public sealed partial class BattleDamageAssignmentLifecycleTests
         var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [choice]);
         var rejected = await new CoreRuleEngine().ResolveAsync(game.State, new("vayne-unfunded", "P1", command.CmdType), command, default);
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);
+        Assert.Equal(expectedError, rejected.ErrorCode);
         Assert.Empty(rejected.Events);
         Assert.Equal(before, MatchStateHasher.Hash(rejected.State));
         Assert.NotNull(rejected.State.PendingPayment);

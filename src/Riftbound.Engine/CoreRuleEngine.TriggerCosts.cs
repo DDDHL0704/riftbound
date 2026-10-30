@@ -374,8 +374,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidTriggerCostPayment(state, pending) || choices.Count != 1 || rawCount != 1)
             return RejectWithCorePrompts(state, "请选择支付或放弃。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
-        if (choices[0] is not ("PAY" or "DECLINE")
-            && !(item.UnitConquestReturn is not null && choices[0] == BuildSpendManaPaymentChoiceId(pending.ManaCost)))
+        if (!pending.LegalPaymentChoiceIds.Contains(choices[0], StringComparer.Ordinal))
             return RejectWithCorePrompts(state, "请选择支付或放弃。", ErrorCodes.InvalidTarget);
         if (choices[0] == "DECLINE") return CompleteTriggerCost(state, item, null, []);
         var plan = new PaymentCostRules.PaymentPlan(pending.PaymentId, pending.PaymentWindow, intent.PlayerId,
