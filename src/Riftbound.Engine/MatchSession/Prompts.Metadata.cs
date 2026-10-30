@@ -249,6 +249,14 @@ internal static partial class ActionPromptBuilder
             ["composable"] = requirement.Composable,
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
+        if (requirement.HasAlternativeCost)
+        {
+            view["requiredOptionalCostChoiceCount"] = 1;
+            view["costsByChoice"] = requirement.OptionalCostChoices.ToDictionary(c => c.Id, c => (object)new Dictionary<string, object?> {
+                ["mana"] = c.Id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal) ? 0 : requirement.ManaCost,
+                ["power"] = c.Id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal) ? 0 : requirement.PowerCost,
+                ["experience"] = c.Id.StartsWith(CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal) ? 0 : requirement.ExperienceCost });
+        }
         return requirement.PowerReachability is { } reachable ? WithPowerCapacity(view, reachable) : view;
     }
 
