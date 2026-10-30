@@ -162,7 +162,7 @@
         },
         "P2-UNIT-001": {
           "damage": 4,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

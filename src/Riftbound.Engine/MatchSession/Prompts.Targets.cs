@@ -760,6 +760,15 @@ internal static partial class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
 
+        if (ability.SimpleEffect is not null)
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
+                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer
+                    ? state.Seats.Keys.Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto(id, state.Seats[id], "获得来源控制权并召回")).ToArray()
+                    : PublicBoardObjects(state)
+                    .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
+                    .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
+                    .Select(id => ObjectChoice(state, id, ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
+
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
                 ["0"] = PublicBoardObjects(state)
@@ -1877,7 +1886,8 @@ internal static partial class ActionPromptBuilder
 
     private static int AssembleEquipmentManaCost(MatchState state, AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
     {
-        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState));
+        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState)
+            - CoreRuleEngine.EquipmentAbilityManaReduction(state, targetState.ControllerId!));
     }
 
     private static int AssembleEquipmentTargetPowerManaReduction(

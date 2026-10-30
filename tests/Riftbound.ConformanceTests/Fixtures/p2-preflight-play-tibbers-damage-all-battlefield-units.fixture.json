@@ -234,13 +234,13 @@
           "damage": 3,
           "power": 5,
           "tags": ["CARD_TYPE:UNIT"],
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         },
         "P2-TIBBERS-ENEMY-UNIT": {
           "damage": 3,
           "power": 6,
           "tags": ["CARD_TYPE:UNIT"],
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },
