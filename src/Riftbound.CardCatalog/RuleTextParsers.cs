@@ -1619,7 +1619,7 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere, TriggerTimings.UnitAttackOrDefend,
                 segment, "Add the current numeric keyword value as a fixed turn modifier (CN433.1.a).",
                 TargetScope: TriggerTargetScopes.FriendlyUnitHere, Duration: "UNTIL_END_OF_TURN",
-                GrantedKeyword: CardCombatKeywordNames.Steadfast);
+                GrantedKeyword: "坚守");
 
         var combatMight = Regex.Match(segment,
             @"^当我进攻或防守时[，,]\s*(?:让|给予)此处的一名敌方单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
