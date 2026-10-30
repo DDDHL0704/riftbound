@@ -968,6 +968,14 @@ public sealed partial class FullGameEndToEndTests
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(echoReadyState, echoJournal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
+        Assert.Contains(echoJournal.Entries, entry => entry.Accepted
+            && entry.CommandType == CommandTypes.PayCost
+            && entry.RawCommand is { } raw
+            && GameCommandJsonMapper.Map(raw) is PayCostCommand
+            {
+                PaymentWindow: "RULE_REPLACEMENT",
+                PaymentChoiceIds: ["KEEP_ALL"]
+            });
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -22002,6 +22010,19 @@ public sealed partial class FullGameEndToEndTests
                 var choice=new ChooseCardsCommand(endRunes.ChoiceId,endRunes.ChoiceWindow,endRunes.LegalObjectIds.Take(endRunes.MaxCount).ToArray());
                 result=await session.SubmitAsync(endRunes.PlayerId,$"{intentPrefix}-end-runes-{index}",choice,RawCommand(choice),CancellationToken.None);
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
+                continue;
+            }
+            // Echo and copied spells offer a real declaration-remake window.
+            // These scenarios keep their original choices through the exposed
+            // command, so the confirmation is also checked by action-log replay.
+            if (result.State.PendingRuleChoice is { Request.Kind: "SPELL_CHOICE_REMAKE" } remake)
+            {
+                Assert.Contains(remake.Request.Options, option => option.Id == "KEEP_ALL");
+                var keep = new PayCostCommand(remake.Request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]);
+                result = await session.SubmitAsync(remake.Request.PlayerId, $"{intentPrefix}-keep-spell-choices-{index}",
+                    keep, RawCommand(keep), CancellationToken.None);
+                AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                events.AddRange(result.Events); includesCompletionTriggers = true;
                 continue;
             }
             // A conquest skill can open a real payment window while remaining

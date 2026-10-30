@@ -28,7 +28,8 @@ DOMAINS = {
     'recovery': ['Recovery', 'Continuation', 'Replay', 'GameHubJoin'],
 }
 SMOKE = ['OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts',
-         'OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash']
+         'OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash',
+         'OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash']
 # This controlled prefix shares the full-game class, but is not a full-game
 # acceptance. Include it when present without requiring it on older inputs.
 L2_BOUNDED_GAMES = {FULL_CLASS + 'ControlledConquestFixturesChangeEnemyControlAndReplayConsumerPrefix'}

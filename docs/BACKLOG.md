@@ -20,6 +20,7 @@
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
   - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)，已合入：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。
   - [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089)（#263 合入后手动运行，固定 `a7da2b67`）：完整清单包含 9,064 个方法、18,070 条用例和 144 个完整对局方法，无延后豁免。最终 **success**：八片完整规则、四个 PostgreSQL 分区、SQL SignalR 进程重启、网络及 Windows/macOS 桌面全部通过，规则与 PostgreSQL 汇总、最终完整验收门槛也通过；已恢复手动完整夜验。手动运行不计入连续三晚，当前定时计数 **0/3**。
+  - [40967451157](https://github.com/DDDHL0704/riftbound/actions/runs/40967451157)（北京时间 10 月 30 日定时运行，固定 `92a8350b`）：shard-3 的皮城学院回响完整对局失败；测试助手在 `SPELL_CHOICE_REMAKE` 窗口继续让出优先权，未由指定玩家提交保留原选择的确认。`a/nightly-academy` 修复测试驱动，保留付款、回响与完整日志回放断言，并把这条约 13 秒的回归加入常规 L2；原有两局完整对局继续执行。其余夜验任务仍在收集最终结果，当前连续通过 **0/3**。
 
 ## P1 · 规则缺陷与进行中的规则改动（C 线）
 
