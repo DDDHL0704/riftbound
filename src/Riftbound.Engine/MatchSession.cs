@@ -2811,7 +2811,7 @@ internal static partial class ActionPromptBuilder
             {
                 continue;
             }
-            if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
                 && !CoreRuleEngine.IsPowerAbilitySource(state, playerId, sourceObjectId, ability)) continue;
 
             var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, sourceObjectId, ability);

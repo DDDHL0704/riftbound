@@ -4749,14 +4749,14 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems) {
             if (item is null) continue;
             var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var effect)
-                && effect.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn;
+                && P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(effect);
             var context = item.TargetedPowerAbility;
             if (context is null) {
                 if (recognized) errors.Add($"stack item {item.StackItemId} targeted power ability context is required");
                 continue;
             }
             if (!recognized || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
-                || ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                || !P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
                 || ability.EffectKind != item.EffectKind
                 || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
                 || string.IsNullOrWhiteSpace(context.SourceObjectId)

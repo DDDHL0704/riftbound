@@ -17,10 +17,12 @@ public sealed partial class CoreRuleEngine
             && card.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, card.CardNo);
 
-    internal static bool IsPowerAbilityTarget(MatchState state, string player, string id)
+    internal static bool IsPowerAbilityTarget(MatchState state, string player, string id, P4ActivatedAbilityDefinition? ability = null)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
             && !string.IsNullOrWhiteSpace(card.CardNo) && !card.IsFaceDown
             && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && (ability?.TargetScope != CardTargetScopes.EnemyUnit
+                || EffectiveFieldControllerId(state.PlayerZones, id, card) != player)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 
     private static ResolutionResult ResolveTargetedPowerModifierAbility(MatchState state, PlayerIntent intent,
@@ -31,7 +33,7 @@ public sealed partial class CoreRuleEngine
         var targets = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targets.Count != 1 || command.TargetObjectIds.Count != 1
             || !IsPowerAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
-            || !IsPowerAbilityTarget(state, intent.PlayerId, targets[0]))
+            || !IsPowerAbilityTarget(state, intent.PlayerId, targets[0], ability))
             return RejectWithCorePrompts(state, "请选择有效的活跃来源和一名公开单位。", ErrorCodes.InvalidTarget);
         if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var otherCosts, out var resources, out var recycledRunes) || otherCosts.Count != 0)
@@ -93,13 +95,35 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", $"{ability.DisplayName}技能结算",
             new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
                 ["abilityId"] = ability.AbilityId, ["stackItemId"] = item.StackItemId }) };
-        if (item.TargetObjectIds.Count == 1 && IsPowerAbilityTarget(state, item.ControllerId, item.TargetObjectIds[0])) {
+        if (item.TargetObjectIds.Count == 1 && IsPowerAbilityTarget(state, item.ControllerId, item.TargetObjectIds[0], ability)) {
             var id = item.TargetObjectIds[0];
+            if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit)
+            {
+                if (CanExecuteStun(cards[id]))
+                {
+                    cards[id] = cards[id] with { UntilEndOfTurnEffects = cards[id].UntilEndOfTurnEffects
+                        .Append("STUNNED").Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
+                    var applied = new GameEvent("STATUS_EFFECT_APPLIED", "技能眩晕敌方单位",
+                        new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId,
+                            ["targetObjectId"] = id, ["effectId"] = "STUNNED", ["statusEffectId"] = "STUNNED" });
+                    events.Add(CaptureStunObservers(applied, state.PlayerZones, cards, item, id));
+                }
+                return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
+            }
             var behavior = new CardBehaviorDefinition(ability.SourceCardNo, ability.DisplayName, 0, ability.EffectKind, 0, 1,
                 TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: ability.PowerModifierAmount,
                 MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier);
-            cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, ability.PowerModifierAmount, out var modified);
-            events.Add(modified);
+            if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower
+                && !cards[id].Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+            {
+                cards[id] = ApplyBoon(cards[id], behavior, item, id, out var boonEvents, state.PlayerZones, cards);
+                events.AddRange(boonEvents);
+            }
+            else
+            {
+                cards[id] = ApplyPowerModifier(state, cards[id], behavior, item, id, ability.PowerModifierAmount, out var modified);
+                events.Add(modified);
+            }
         }
         return NoopStackResolutionResult(state) with { CardObjects = cards, Events = events };
     }

@@ -5210,7 +5210,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
             return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return ResolveTargetedPowerModifierAbility(state, intent, command, ability);
 
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
@@ -24042,7 +24042,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var powerAbility)
-            && powerAbility.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+            && P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(powerAbility))
             return ResolveTargetedPowerModifierAbilityStackItem(state, stackItem, powerAbility);
 
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior))
