@@ -1,9 +1,14 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Npgsql;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Riftbound.Persistence;
+
+// SQL recovery repeatedly rebuilds rule maps with the same static patterns.
+// Match the cache used by the complete conformance test processes.
+Regex.CacheSize = Math.Max(Regex.CacheSize, 1024);
 
 if (args.SequenceEqual(new[] { "--ci-partition-plan" })) { Console.WriteLine(SqlAcceptancePartition.PlanJson()); return; }
 var partition = SqlAcceptancePartition.Parse(args);
