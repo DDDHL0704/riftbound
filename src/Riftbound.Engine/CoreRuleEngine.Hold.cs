@@ -37,6 +37,8 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
         string effect, string controller, string source, string? cardNo)
     {
+        if (IsParsedUnitHeldContext(context)) return ValidParsedUnitHeld(state, context, effect, controller, source, cardNo);
+        if (context.UnitSource is not null) return false;
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
         if (!conditional) return context.RequiredExactOtherFriendlyBattlefieldUnits is null && context.Origin is null && context.RuleTextInstanceId is null;
         var spec = ExactOtherFriendlyHeldSpec(context.CardNo);
@@ -80,11 +82,18 @@ public sealed partial class CoreRuleEngine
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
                     abilities.Add(("EXPERIENCE", hunt, null, null));
                 if (units.Contains(source))
-                    foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                    foreach (var instance in AttachedRuleTextRules.Instances(state, card)) {
                         if (ExactOtherFriendlyHeldSpec(instance.CardNo) is { } exact
                             && HasExactOtherFriendlyBattlefieldUnitCount(state, card, exact.RequiredExactOtherFriendlyBattlefieldUnits))
                             abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
                                 exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
+                        if (UnitHeldSpec(instance.CardNo) is { } held
+                            && (held.RequiresControlledFaceDownCardHere != true || ControlsFaceDownCardHere(state, player, field)))
+                            for (var copy = 0; copy < copies; copy++) {
+                                var trigger = CaptureUnitHeld(state, source, player, field, card, instance, held, copy);
+                                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                            }
+                    }
                 foreach (var ability in abilities)
                     for (var copy = 0; copy < copies; copy++)
                     {
@@ -113,6 +122,9 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
+        if (IsParsedUnitHeldContext(context)
+            && !ValidParsedUnitHeld(state, context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
+            throw new InvalidOperationException("Invalid captured unit Hold effect.");
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);
@@ -133,6 +145,8 @@ public sealed partial class CoreRuleEngine
         var experience = NormalizeExperienceForSeats(state);
         var effects = state.UntilEndOfTurnEffects;
         var player = item.ControllerId;
+        var visibleSource = IsParsedUnitHeldContext(context)
+            ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId;
         var field = context.BattlefieldObjectId;
         var events = new List<GameEvent>();
         var triggers = new List<TriggerQueueItemState>();
@@ -145,7 +159,7 @@ public sealed partial class CoreRuleEngine
         var resolvedTarget = HasHeldTargetConfirmation(item) ? HeldResolvedTarget(state, item) : null;
         if (HasHeldTargetConfirmation(item) && resolvedTarget is null) return Result();
         events.Add(new("TRIGGER_RESOLVED", "据守技能结算", new Dictionary<string, object?> {
-            ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = item.SourceObjectId,
+            ["triggerId"] = item.StackItemId, ["controllerId"] = player, ["sourceObjectId"] = visibleSource,
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
         switch (context.Kind)
         {
@@ -184,12 +198,14 @@ public sealed partial class CoreRuleEngine
                 break;
             case "VEX":
                 Draw(1); break;
-            case "CHANNEL_ALL": case "CHANNEL_OPTIONAL":
+            case "CHANNEL_ALL": case "CHANNEL_OPTIONAL": case UnitHeldRuneKind:
                 foreach (var recipient in context.Kind == "CHANNEL_ALL" ? state.Seats.Keys.Order().ToArray() : new[] { player })
                 {
-                    var called = CallRunes(zones, cards, recipient, context.Amount);
-                    events.Add(new("RUNES_CALLED", "据守技能召出休眠符文", new Dictionary<string, object?> {
-                        ["playerId"] = recipient, ["sourceObjectId"] = item.SourceObjectId,
+                    var called = context.Kind == UnitHeldRuneKind
+                        ? ApplyRuneCall(zones, cards, recipient, context.Amount, originalExhausted: false)
+                        : CallRunes(zones, cards, recipient, context.Amount);
+                    events.Add(new("RUNES_CALLED", context.Kind == UnitHeldRuneKind ? "据守技能召出活跃符文" : "据守技能召出休眠符文", new Dictionary<string, object?> {
+                        ["playerId"] = recipient, ["sourceObjectId"] = visibleSource,
                         ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds }));
                 }
                 break;
@@ -218,10 +234,11 @@ public sealed partial class CoreRuleEngine
             case "PAY_POWER_SCORE":
             case "SCORE":
             case "EXACT_OTHER_SCORE":
+            case UnitHeldHiddenScoreKind:
                 var scoreAmount = context.Kind == "PAY_POWER_SCORE" ? 1 : context.Amount;
                 var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
-                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = item.SourceObjectId }));
+                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = visibleSource }));
                 break;
             case "SEVEN_WIN":
                 if (HeldUnitsAt(state, field, player).Length >= context.Amount) {

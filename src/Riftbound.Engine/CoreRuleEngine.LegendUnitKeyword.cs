@@ -12,17 +12,24 @@ public sealed partial class CoreRuleEngine
     internal static bool IsLegendUnitKeywordEffect(string effect)
         => effect == LegendAbilityEffectKinds.GrantUnitKeyword;
 
+    private static string LegendUnitKeywordDefinition(LegendAbilityDefinition ability)
+        => ability.GrantedCombatKeywordBasis.Length == 0 ? TemporaryCombatKeywordRules.Prefix + ability.GrantedCombatKeyword
+            : TemporaryCombatKeywordRules.ValueSourcePrefix + ability.GrantedCombatKeyword + ":" + ability.GrantedCombatKeywordBasis;
+
     internal static bool ValidLegendUnitKeyword(MatchState state, StackItemState item)
     {
         if (item.LegendUnitKeyword is not { } context) return !IsLegendUnitKeywordEffect(item.EffectKind);
         if (!IsLegendUnitKeywordEffect(item.EffectKind) || !TryGetLegendAbility(context.AbilityId, out var ability)
             || ability.EffectKind != item.EffectKind || string.IsNullOrEmpty(ability.GrantedCombatKeyword)
-            || !TemporaryCombatKeywordRules.IsValid("COMBAT_KEYWORD:" + ability.GrantedCombatKeyword + ":1")
+            || !TemporaryCombatKeywordRules.IsValid(LegendUnitKeywordDefinition(ability) + ":1")
             || !LegendActionAbilityCatalog.IsSourceCardNoForAbility(context.AbilityId, item.CardNo)
             || context.SourceGeneration < 0 || context.SpellshieldTaxPower < 0
             || !ability.RequiresAnyUnitTarget && context.SpellshieldTaxPower != 0 || !state.Seats.ContainsKey(item.ControllerId)
             || string.IsNullOrWhiteSpace(item.SourceObjectId) || item.SourceConfirmed || item.EffectRepeatCount != 1
-            || item.DamageAmount != 0 || item.OptionalCosts.Count != 0 || item.Destination.Length != 0
+            || item.DamageAmount != 0
+            || !item.OptionalCosts.SequenceEqual(string.IsNullOrEmpty(ability.RequiredCostToken)
+                ? Array.Empty<string>() : [ability.RequiredCostToken], StringComparer.Ordinal)
+            || item.Destination.Length != 0
             || item.TargetObjectIds is not { Count: 1 } || item.TargetObjectIds[0] == item.SourceObjectId
             || item.TargetGenerations is not { Count: 1 } bindings
             || !bindings.TryGetValue(item.TargetObjectIds[0], out var generation) || generation < 0
@@ -30,7 +37,8 @@ public sealed partial class CoreRuleEngine
             || state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                 && (context.SourceGeneration > source.ObjectGeneration
                     || context.SourceGeneration == source.ObjectGeneration && source.CardNo != item.CardNo)) return false;
-        return item.TimingContext is TimingStates.NeutralOpen or TimingStates.SpellDuelOpen;
+        return item.TimingContext == TimingStates.NeutralOpen
+            || ability.TimingKind == LegendAbilityTimingKinds.QuickOpen && item.TimingContext == TimingStates.SpellDuelOpen;
     }
 
     private static ResolutionResult QueueLegendUnitKeyword(MatchState state, string player, string sourceId,
@@ -73,7 +81,7 @@ public sealed partial class CoreRuleEngine
                 ["stackItemId"] = item.StackItemId, ["reason"] = "TARGET_NO_LONGER_LEGAL" }));
             return NoopStackResolutionResult(state) with { Events = events };
         }
-        var definition = "COMBAT_KEYWORD:" + ability.GrantedCombatKeyword;
+        var definition = LegendUnitKeywordDefinition(ability);
         var effect = TemporaryCombatKeywordRules.AppliedEffectId(target, definition);
         var cards = state.CardObjects.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         cards[id] = target with { UntilEndOfTurnEffects = target.UntilEndOfTurnEffects.Append(effect).Distinct(StringComparer.Ordinal)

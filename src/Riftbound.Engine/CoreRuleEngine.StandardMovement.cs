@@ -91,6 +91,7 @@ public sealed partial class CoreRuleEngine
             .Select(move => CaptureMovedUnitFact(beforeMove, move.Id, intent.PlayerId,
                 toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone, destinationBattlefieldId))
             .OfType<MovedUnitFact>().ToArray());
+        CaptureExhaustionInstruction(zones, cards, intent.PlayerId, ids, "MOVE_GROUP:" + state.Tick, events);
         var destinationZone = toBase ? MoveUnitBaseZone : MoveUnitBattlefieldZone;
         foreach (var move in moves)
         {

@@ -28,6 +28,7 @@ public sealed partial class CoreRuleEngine
     {
             result = QueueHighCostSkillObservers(state, result, roleEventOffset);
             result = QueueSelfActionObservers(state, result);
+            result = QueueExhaustionObservers(state, result);
             result = RecordHandDiscardObservers(result);
             result = QueueStunObservers(state, result);
             result = QueueEmpoweredBanish(result);
@@ -77,6 +78,7 @@ public sealed partial class CoreRuleEngine
             // Checked target intents may become confirmed while earned skills
             // are published. Observe those selections before opening responses.
             completed = QueueSelfActionObservers(collected.State, completed);
+            completed = QueueExhaustionObservers(collected.State, completed);
             return StampNewTriggerQueueTimes(state, PrepareTriggerConfirmation(PublishPendingTriggers(completed)));
     }
 

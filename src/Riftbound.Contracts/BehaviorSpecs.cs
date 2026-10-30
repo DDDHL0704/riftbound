@@ -61,6 +61,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerExhaustedUnitGroupDraw = "CONTROLLER_EXHAUSTED_UNIT_GROUP_DRAW";
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
@@ -188,6 +189,7 @@ public static class TriggerKinds
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
+    public const string UnitMovedSetOtherUnitBaseMight = "UNIT_MOVED_SET_OTHER_UNIT_BASE_MIGHT";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
@@ -195,6 +197,7 @@ public static class TriggerKinds
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
+    public const string ControllerFaceDownPlayDrawOutsideTurnDiscard = "STANDBY_PLAYED_DRAW_OUTSIDE_TURN_DISCARD";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
@@ -213,6 +216,7 @@ public static class TriggerKinds
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
     public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
+    public const string UnitBattlefieldHeldCallRune = "UNIT_BATTLEFIELD_HELD_CALL_RUNE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -229,6 +233,7 @@ public static class TriggerKinds
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackDamageAllEnemyUnitsHere = "UNIT_ATTACK_DAMAGE_ALL_ENEMY_UNITS_HERE";
+    public const string UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
@@ -239,6 +244,7 @@ public static class TriggerKinds
     public const string UnitAttackBanishGraveyardUnitAssault = "UNIT_ATTACK_BANISH_GRAVEYARD_UNIT_ASSAULT";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string UnitAttackOrDefendSourceMightDamage = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE";
+    public const string UnitAttackOrDefendDoubleFriendlyKeywordHere = "UNIT_ATTACK_OR_DEFEND_DOUBLE_FRIENDLY_KEYWORD_HERE";
     public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
@@ -288,6 +294,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string ControllerExhaustedUnitGroup = "CONTROLLER_EXHAUSTED_UNIT_GROUP";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
     public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
     public const string SourceReadied = "SOURCE_READIED";
@@ -321,6 +328,7 @@ public static class TriggerTargetScopes
 {
     public const string OtherExhaustedFieldObject = "OTHER_EXHAUSTED_FIELD_OBJECT";
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
+    public const string FriendlyUnitHere = "FRIENDLY_UNIT_HERE";
     public const string AllEnemyUnitsHere = "ALL_ENEMY_UNITS_HERE";
     public const string TriggeringAttacker = "TRIGGERING_ATTACKER";
     public const string MovedUnit = "MOVED_UNIT";
@@ -342,6 +350,7 @@ public static class TriggerTargetScopes
     public const string AnyFieldRune = "ANY_FIELD_RUNE";
     public const string ControlledBoonUnitOnField = "CONTROLLED_BOON_UNIT_ON_FIELD";
     public const string ControlledUnitOnField = "CONTROLLED_UNIT_ON_FIELD";
+    public const string OtherUnitOnField = "OTHER_UNIT_ON_FIELD";
     public const string AnyUnitOnField = "ANY_UNIT_ON_FIELD";
     public const string UnitOrEquipmentOnField = "UNIT_OR_EQUIPMENT_ON_FIELD";
     public const string OtherControlledUnitOnField = "OTHER_CONTROLLED_UNIT_ON_FIELD";
@@ -405,7 +414,9 @@ public static class StaticAbilityKinds
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
+    public const string UnitInSpellDuelFriendlySpellsReaction = "UNIT_IN_SPELL_DUEL_FRIENDLY_SPELLS_REACTION";
     public const string UnitCannotDealCombatDamage = "UNIT_CANNOT_DEAL_COMBAT_DAMAGE";
+    public const string UnitFriendlyEquipmentHereCombatDamage = "UNIT_FRIENDLY_EQUIPMENT_HERE_COMBAT_DAMAGE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";
@@ -697,7 +708,11 @@ public sealed record TriggerSpec(
     int? EmpoweredDamageAmount = null,
     int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? ObjectReadyCount = null);
+    int? ObjectReadyCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresControlledFaceDownCardHere = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? BasePowerUntilEndOfTurn = null);
 
 public sealed record ReplacementSpec(
     string Kind,

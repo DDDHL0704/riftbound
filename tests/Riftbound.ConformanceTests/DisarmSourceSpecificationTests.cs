@@ -41,7 +41,7 @@ public sealed class DisarmSourceSpecificationTests
     }
 
     [Fact]
-    public async Task SourceMetadataDoesNotEnableIncompleteCardsOrChangeTheRuntimeCatalog()
+    public async Task SourceMetadataKeepsTheBaseCatalogAndOnlyImplementedHeroesBecomePlayable()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1089, catalog.Total);
@@ -50,7 +50,11 @@ public sealed class DisarmSourceSpecificationTests
         foreach (var specification in DisarmSourceSpecifications.GetAll())
         {
             Assert.DoesNotContain(catalog.Cards, card => card.CardNo == specification.CardNo);
-            Assert.False(CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _));
+            Assert.Equal(ReviewedScopedPrintUniverseTests.ImplementedPrints.Contains(specification.CardNo, StringComparer.Ordinal),
+                CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _));
         }
+        Assert.Equal(ReviewedScopedPrintUniverseTests.ImplementedPrints.Order(StringComparer.Ordinal),
+            DisarmSourceSpecifications.GetAll().Where(specification => CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _))
+                .Select(specification => specification.CardNo).Order(StringComparer.Ordinal));
     }
 }

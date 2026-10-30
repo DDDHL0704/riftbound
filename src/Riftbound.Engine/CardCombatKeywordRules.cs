@@ -7,6 +7,7 @@ public static class CardCombatKeywordNames
     public const string Bulwark = "壁垒";
     public const string BackRow = "后排";
     public const string Roam = "游走";
+    public const string Disarm = "缴械";
 }
 
 public static class CombatKeywordProfileStatuses

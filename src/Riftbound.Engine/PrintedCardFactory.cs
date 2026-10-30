@@ -15,11 +15,22 @@ internal static class PrintedCardFactory
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
         foreach (var card in OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards)
         {
-            if (!cards.TryAdd(card.CardNo, card) && cards[card.CardNo] != card)
+            if (!cards.TryAdd(card.CardNo, card) && !SamePrintedDefinition(cards[card.CardNo], card))
                 throw new InvalidDataException($"Conflicting official print: {card.CardNo}");
         }
         return cards;
     });
+
+    // Gallery database IDs and product listings can change between official
+    // snapshots. They do not change the printed card. Compare collection values
+    // structurally and retain the conflict guard for every other printed field.
+    internal static bool SamePrintedDefinition(OfficialCard left, OfficialCard right)
+        => left.CardCategoryList.SequenceEqual(right.CardCategoryList, StringComparer.Ordinal)
+            && left.CardCategoryNameList.SequenceEqual(right.CardCategoryNameList, StringComparer.Ordinal)
+            && left.CardColorList.SequenceEqual(right.CardColorList, StringComparer.Ordinal)
+            && (left with { Id = right.Id, ProductCodeList = right.ProductCodeList, ProductNameList = right.ProductNameList,
+                CardCategoryList = right.CardCategoryList, CardCategoryNameList = right.CardCategoryNameList,
+                CardColorList = right.CardColorList }) == right;
 
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)
     {
