@@ -38,6 +38,7 @@ public static partial class MatchRecoveryValidator
     {
         foreach (var payload in payloads)
         {
+            ValidatePrivateHandDiscardCostView(payload, errors);
             TryReadObjectString(payload, "stackItemId", out var id);
             TryReadObjectString(payload, "effectKind", out var effect);
             TryReadObjectString(payload, "controllerId", out var controller);
