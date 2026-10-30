@@ -88,7 +88,7 @@ public sealed class RadAkaliMovementTests
         await Move(game, no);
         var beforeSecond = game.State;
         await Move(game, no);
-        Assert.Contains(game.State.TriggerQueue, trigger => trigger.MovementObserver?.Kind == TriggerKinds.UnitOrdinalMovementBanishTopPlay);
+        Assert.Contains(game.State.StackItems, item => item.MovementObserver?.Kind == TriggerKinds.UnitOrdinalMovementBanishTopPlay);
         Assert.Empty(game.State.TimedBanishPlayGrants ?? []);
         await game.Top();
         var grant = Assert.Single(game.State.TimedBanishPlayGrants!);
