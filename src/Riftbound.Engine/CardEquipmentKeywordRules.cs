@@ -10,6 +10,7 @@ public static class CardEquipmentKeywordNames
     public const string Agile = "灵便";
     public const string Tempered = "百炼";
     public const string Weapon = "武装";
+    public const string Deploy = "部署";
 }
 
 public static class EquipmentKeywordProfileStatuses
