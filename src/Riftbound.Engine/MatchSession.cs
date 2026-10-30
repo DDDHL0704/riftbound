@@ -1646,6 +1646,8 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
+            return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         if (trigger.EndAbility is not null || trigger.InsightContext is { Kind: "EXHAUSTED" } || trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
@@ -1668,6 +1670,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
         return trigger.EndAbility is null && trigger.ConquestFlow is null && trigger.ConquestToken is null && trigger.UnitEvent is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
@@ -1874,6 +1877,7 @@ public sealed partial record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
+        if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
         return item.EndAbility is null && item.ConquestFlow is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.UnitEvent is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
