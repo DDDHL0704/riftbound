@@ -83,6 +83,7 @@ public sealed partial class CoreRuleEngine
         string controller, string effect, string? cardNo = null)
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
+        if (context.Kind == EquipmentDeathReturnKind) return ValidEquipmentDeathSource(state, context, sourceId, controller);
         if (context.Kind == DisarmKind) return ValidDisarmSource(state, context, sourceId, controller);
         if (context.Kind == SelfActionPowerKind) return ValidSelfActionSource(state, context, sourceId, controller);
         if (context.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind) return ValidExhaustionObserverSource(state, context, sourceId, controller);

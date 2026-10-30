@@ -272,6 +272,8 @@ public static class TriggerKinds
         "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
     public const string UnitEnemyDestroyedHereOncePerTurnCallRune =
         "UNIT_ENEMY_DESTROYED_HERE_ONCE_PER_TURN_CALL_RUNE";
+    public const string UnitStunnedEnemyDestroyedHereDraw = "UNIT_STUNNED_ENEMY_DESTROYED_HERE_DRAW";
+    public const string UnitFriendlyBatchDestroyedBoon = "UNIT_FRIENDLY_BATCH_DESTROYED_BOON";
     public const string UnitFriendlyDestroyedPowerUntilEndOfTurn =
         "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
     public const string UnitFirstFriendlyDestroyedDrawOne =
@@ -292,6 +294,10 @@ public static class TriggerKinds
         "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     public const string UnitLastBreathDamageSourceBattlefieldUnits =
         "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT";
+    public const string UnitLastBreathDestroyPermanentHere = "UNIT_LAST_BREATH_DESTROY_PERMANENT_HERE";
+    public const string UnitFriendlyBattlefieldEquipmentDestroyedReturnHand = "FRIENDLY_BATTLEFIELD_EQUIPMENT_DESTROYED_RETURN_HAND";
+    public const string UnitBattlefieldHeldInsight = "UNIT_BATTLEFIELD_HELD_INSIGHT";
+    public const string UnitLastBreathBanishDeckTopPlay = "UNIT_LAST_BREATH_BANISH_DECK_TOP_PLAY";
     public const string UnitLastBreathCreateMinions =
         "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
     public const string UnitLastBreathCreateRobots =
