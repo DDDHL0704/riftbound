@@ -172,6 +172,31 @@ public sealed class RadLegendPlayDiscountTests
         await game.Replay();
     }
 
+    [Theory]
+    [InlineData(false, false)] [InlineData(false, true)]
+    [InlineData(true, false)] [InlineData(true, true)]
+    public async Task AnInlineResourceSkillCannotSpendTheSameUnitAsAnExhaustionFee(bool discount, bool distinct)
+    {
+        var no = discount ? "OGN·083/298" : "OGN·048/298";
+        var state = Position(units: 4, mana: 0, spell: no);
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["U0"] = OfficialGarenConquestBattlefieldCountTests.Printed("U0", P4ActivatedAbilityCatalog.LuxCardNo, "P1") } };
+        var costs = discount
+            ? Payment(state, units: distinct ? ["U1", "U2", "U3"] : ["U0", "U1", "U2"])
+            : new[] { "EXHAUST_FRIENDLY_UNIT:" + (distinct ? "U1" : "U0") };
+        var command = Play([..costs, "LUX_SPELL_ONLY_RESOURCE:U0"], no);
+        if (!distinct) { await Reject(state, command); return; }
+        var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(2, quote.Cost!.Mana);
+        var game = new Driver(state); await game.Act("P1", command);
+        Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].SpellOnlyMana);
+        Assert.True(game.State.CardObjects["U0"].IsExhausted);
+        Assert.Equal(discount, game.State.CardObjects["SINGER"].IsExhausted);
+        Assert.Single(game.Events(), e => e.Event.Kind == "MANA_GAINED");
+        await game.Top(); Assert.Equal(2, game.Events().Where(e => e.Event.Kind == "CARD_DRAWN")
+            .Sum(e => Convert.ToInt32(e.Event.Payload["count"]))); await game.Replay();
+    }
+
     [Fact]
     public async Task CounteringTheSpellDoesNotRefundTheLegendOrUnitCosts()
     {

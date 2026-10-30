@@ -18430,7 +18430,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (reductionExhaustedObjects.Intersect(exhaustedOptionalCostTargetObjectIds, StringComparer.Ordinal).Any())
+        if (reductionExhaustedObjects.Intersect(exhaustedOptionalCostTargetObjectIds, StringComparer.Ordinal).Any()
+            || reductionExhaustedObjects.Concat(exhaustedOptionalCostTargetObjectIds)
+                .Intersect(luxSpellOnlyResourceSourceObjectIds, StringComparer.Ordinal).Any())
         {
             rejection = Reject(state, "同一物体不能重复支付休眠费用。", ErrorCodes.InvalidTarget);
             return false;
