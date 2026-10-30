@@ -240,6 +240,7 @@ public static class TriggerKinds
     public const string UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere = "UNIT_ATTACK_OR_DEFEND_SOURCE_MIGHT_DAMAGE_ALL_ENEMY_UNITS_HERE";
     public const string UnitEmpoweredAttackDestroyWeakerEnemyHere = "UNIT_EMPOWERED_ATTACK_DESTROY_WEAKER_ENEMY_HERE";
     public const string UnitAttackDamagePerAttachedWeapon = "UNIT_ATTACK_DAMAGE_PER_ATTACHED_WEAPON";
+    public const string UnitAttackMoveControlledUnitToSourceBattlefield = "UNIT_ATTACK_MOVE_CONTROLLED_UNIT_TO_SOURCE_BATTLEFIELD";
     public const string UnitPlayedOrAttacksOptionalPaidStun = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_PAID_STUN";
     public const string UnitPlayedOrAttacksOptionalDiscardDestroy = "UNIT_PLAYED_OR_ATTACKS_OPTIONAL_DISCARD_DESTROY";
     public const string UnitAttackStunEnemyHere = "UNIT_ATTACK_STUN_ENEMY_HERE";
