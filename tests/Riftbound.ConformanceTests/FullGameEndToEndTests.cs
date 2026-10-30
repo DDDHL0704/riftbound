@@ -22150,6 +22150,18 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
+            // These scenarios keep their tokens at base. Confirm that location
+            // through the normal choice command and retain it in the replay.
+            if (result.State.PendingRuleChoice is { Request.Kind: "TOKEN_PLAY_LOCATION" } tokenLocation)
+            {
+                Assert.Contains(tokenLocation.Request.Options, option => option.Id == "BASE");
+                var choose = new PayCostCommand(tokenLocation.Request.Id, "RULE_REPLACEMENT", ["BASE"]);
+                result = await session.SubmitAsync(tokenLocation.Request.PlayerId, $"{intentPrefix}-token-base-{index}",
+                    choose, RawCommand(choose), CancellationToken.None);
+                AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                events.AddRange(result.Events); includesCompletionTriggers = true;
+                continue;
+            }
             // Repeated Punishment damage can leave competing mandatory banish
             // replacements on the same unit. Their controller orders them through
             // the exposed command, which remains in the original replay journal.

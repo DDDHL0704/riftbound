@@ -193,7 +193,24 @@ public sealed class OfficialTokenReplacementTests
     internal static CardObjectState[] Tokens(MatchState s)=>s.CardObjects.Values.Where(c=>c.TokenFactoryCardNo is not null).ToArray();
     internal static async Task<ResolutionResult> Open(MatchState s,string source="C")
     {var cast=await Act(s,"P1",new PlayCardCommand(source,"UNL-200/219",["TARGET"]));return await Top(cast.State);}
-    internal static Task<ResolutionResult> Choose(MatchState s,params string[] ids)=>Act(s,s.PendingCardChoice!.PlayerId,new ChooseCardsCommand(s.PendingCardChoice.ChoiceId,s.PendingCardChoice.ChoiceWindow,ids));
+    internal static async Task<ResolutionResult> Choose(MatchState s, params string[] ids)
+    {
+        var result = await Act(s, s.PendingCardChoice!.PlayerId,
+            new ChooseCardsCommand(s.PendingCardChoice.ChoiceId, s.PendingCardChoice.ChoiceWindow, ids));
+        var events = result.Events.ToList();
+        // These fixtures ask for base entry. Confirm it through the same command
+        // used by players when an unrestricted token has additional locations.
+        for (var step = 0; step < 16 && result.State.PendingRuleChoice is { Request.Kind: "TOKEN_PLAY_LOCATION" }; step++)
+        {
+            var choice = result.State.PendingRuleChoice!;
+            Assert.Contains(choice.Request.Options, option => option.Id == "BASE");
+            result = await Act(result.State, choice.Request.PlayerId,
+                new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["BASE"]));
+            events.AddRange(result.Events);
+        }
+        Assert.False(result.State.PendingRuleChoice is { Request.Kind: "TOKEN_PLAY_LOCATION" });
+        return result with { Events = events };
+    }
     internal static MatchState Position(int sources=1,string card="UNL-200/219")
     {
         var s=OfficialCopyIdentityTests.Position();var cards=new Dictionary<string,CardObjectState>(s.CardObjects){
