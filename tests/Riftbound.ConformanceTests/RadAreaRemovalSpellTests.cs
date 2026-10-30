@@ -84,7 +84,7 @@ public sealed class RadAreaRemovalSpellTests
         await game.Act("P1", new PlayCardCommand("UNIT", Avalanche, [])); await game.Top();
         var damage = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED").Select(e => e.Event).ToArray();
         Assert.Equal(3, damage.Length);
-        Assert.All(damage, e => Assert.Equal(4, Convert.ToInt32(e.Payload["damageAmount"])));
+        Assert.All(damage, e => Assert.Equal(4, Convert.ToInt32(e.Payload["damage"])));
         Assert.Contains("ANNIE", game.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("ALLY", game.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("ENEMY", game.State.PlayerZones["P2"].Graveyard); await game.Replay();
