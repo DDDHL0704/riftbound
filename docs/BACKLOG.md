@@ -56,7 +56,7 @@
   - [x] [#281](https://github.com/DDDHL0704/riftbound/pull/281) 已合入：厄斐琉斯·出尘、伊泽瑞尔·翩然俊朗、永恩·一剑封尘、凯隐·巨镰奔扬、瑟提·魁首、放逐之刃、铁铠冥魂及轮回绝境，共八项效果、17 个新 RAD 印次；同时补齐三个既有 SFD 伊泽瑞尔印次。六片完整规则与 `L2 required` 全部通过，对应八项已从 CARD_BACKLOG 移除，RAD 剩余 164 项效果。
   - [x] [#285](https://github.com/DDDHL0704/riftbound/pull/285) 已合入：莫德凯撒·冥王进军与冥途二渡，共两个英雄效果、四个官方印次；可选弃牌摧毁、每个文本实例每回合一次的摧毁费用与休眠召回均已接入，九片完整规则和 `L2 required` 全部通过。对应两项已从 CARD_BACKLOG 移除，RAD 剩余 162 项效果。
   - B 线 [#293](https://github.com/DDDHL0704/riftbound/pull/293)（`b/rad-entry-cost`）：艾克·灵光一现与放逐之锋合批，共两项效果、三个 RAD 印次。接入返回友方单位的必付额外费用、装配费用二选一及百炼减费后的费用选择（204.1.b、818.1.c、821.1.c）；定向 311/311 通过，L2 验证中，合入后移除清单。
-  - B 线本地 `b/rad-equipment-play-discount`：奥莉安娜·机械奇迹两个印次，按公开战场技能文本实例记录每回合一次的可选装备打出减费，同时减免 1 法力和任意符能（356.4）；恢复和隐私定向回归中，#293 合入并同步 main 后再开 PR。
+  - B 线本地 `b/rad-equipment-play-discount`：奥莉安娜·机械奇迹两个印次与星籁歌姬传奇五个印次合批。接入每回合一次的可选装备减费，以及传奇和三名活跃友方单位休眠的法术额外费用（356.4）；补齐真实付款、重复或跨来源付款拒绝、恢复及隐私回放测试，定向验证排队中。#293 合入并同步 main 后再开 PR。
 - [x] **P2-5 杰斯英雄遗漏与现有效果修正**：VEN·068 / 068a「进步先锋」与 VEN·088 / 088a「举锤待发」由 #260 合入；VEN·175「推陈出新」及 SFD·084/221 的完整技能由 #254 合入。使用中国区 260403 勘误后的“若如此做”，按实际摧毁结果授予装备打出权限。
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
@@ -118,3 +118,4 @@ git show <分支>:<路径> > <路径>
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
   - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
   - `b/rad-equipment-play-discount` 前端需适配：从装备出牌的 `sourceRequirements.optionalCostChoices` 选择 `USE_PLAY_COST_REDUCTION:<hash>`，按原值通过 `PLAY_CARD.optionalCosts` 提交；不选时支付原费用并保留该技能本回合的使用次数。询价返回“可选打出减费”费用明细。
+  - `b/rad-equipment-play-discount` 前端需适配：法术出牌的 `optionalPlayCostReductionGroups` 给出减费来源、父选择 `choiceId`、`requiredUnitCount` 和 `unitChoiceIds`。选用星籁歌姬时，把父选择及恰好三个不同单位的选择一起原样提交到 `PLAY_CARD.optionalCosts`；这些是费用，不是法术目标。

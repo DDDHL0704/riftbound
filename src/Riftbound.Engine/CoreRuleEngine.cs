@@ -3811,6 +3811,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.TryGetValue(optionalCostTargetObjectId, out var existingTarget)
                 ? existingTarget
                 : new CardObjectState(optionalCostTargetObjectId);
+            if (state.ObjectLocations.TryGetValue(optionalCostTargetObjectId, out var costLocation)
+                && costLocation.Zone == "LEGEND")
+            {
+                cardObjects[optionalCostTargetObjectId] = targetState with { IsExhausted = true };
+                events.Add(new("LEGEND_EXHAUSTED", "支付打出卡牌的休眠费用", new Dictionary<string, object?> {
+                    ["playerId"] = intent.PlayerId, ["sourceObjectId"] = optionalCostTargetObjectId,
+                    ["playedSourceObjectId"] = command.SourceObjectId, ["reason"] = "PLAY_COST_REDUCTION" }));
+                continue;
+            }
             targetState = ApplyExhaustState(
                 targetState,
                 behavior,
@@ -18259,7 +18268,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var playCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalPlayCostReductionChoice).ToArray();
         if (costsWithoutPowerSpend.Count(IsOptionalPlayCostReductionChoice) != playCostReductionChoices.Length
-            || !TrySelectOptionalPlayCostReducers(state, intent.PlayerId, behavior, playCostReductionChoices, out var playCostReducers))
+            || !TrySelectOptionalPlayCostReducers(state, intent.PlayerId, behavior, playCostReductionChoices,
+                out var playCostReducers, out var reductionExhaustedObjects))
         {
             rejection = Reject(state, "所选打出减费技能无效或已使用。", ErrorCodes.InvalidTarget);
             return false;
@@ -18419,6 +18429,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
             return false;
         }
+
+        if (reductionExhaustedObjects.Intersect(exhaustedOptionalCostTargetObjectIds, StringComparer.Ordinal).Any())
+        {
+            rejection = Reject(state, "同一物体不能重复支付休眠费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Concat(reductionExhaustedObjects).ToArray();
 
         if ((behavior.RequiresDestroyFriendlyUnitAdditionalCost || behavior.MaySacrificeUnitForPrintedCostReduction)
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
@@ -18723,7 +18740,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 EmpoweredSpellCostReductionPower = empoweredPowerReduction,
                 OptionalPlayCostReductionMana = playCostManaReduction, OptionalPlayCostReductionPower = playCostPowerReduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
-                OptionalPlayCostReductionUses = playCostReducers.Select(source => source.Use).ToArray(),
+                OptionalPlayCostReductionUses = playCostReducers.Where(source => source.Spec.OncePerTurn).Select(source => source.Use).ToArray(),
                 PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
