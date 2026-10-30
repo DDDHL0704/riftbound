@@ -25,7 +25,7 @@ public sealed class Ven124LastBreathCostInteractionTests
         try
         {
             var neededMana = 3 + unitMana + copies;
-            for (var i = 0; i < neededMana; i++) await game.Act("P1", new TapRuneCommand("COST-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, neededMana).Select(i => "COST-RUNE-" + i));
             Assert.Equal(neededMana, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             if (unitPower == 1)
             {

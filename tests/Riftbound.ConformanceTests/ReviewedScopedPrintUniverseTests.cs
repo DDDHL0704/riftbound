@@ -35,7 +35,8 @@ public sealed class ReviewedScopedPrintUniverseTests
     public static IEnumerable<object[]> ResetRows => PhysicalRows.SelectMany(row =>
         new[] { "HAND", "GRAVEYARD" }.Select(zone => row.Append(zone).ToArray()));
     public static IEnumerable<object[]> ResourceCostRows => Sources.Select(row => new[] { row[0], row[1], row[4], row[5] });
-    public static IEnumerable<object[]> PlayRows => Sources.Select(row => new[] { row[0], row[1] });
+    private static bool Admitted(string no) => no is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167";
+    public static IEnumerable<object[]> PlayRows => Sources.Where(row => !Admitted((string)row[1])).Select(row => new[] { row[0], row[1] });
 
     [Theory]
     [MemberData(nameof(AllRows))]
@@ -58,7 +59,7 @@ public sealed class ReviewedScopedPrintUniverseTests
             Assert.Equal("机械", grant.RequiredUnitTag); Assert.Equal(1, grant.Value);
         }
         else Assert.Empty(spec.FriendlyGrants);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
         Keep("metadata-" + id, new { card, spec });
     }
 
@@ -71,7 +72,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("create-" + id, new { no, accepted, card });
         Assert.True(accepted, no);
         Printed(card, no, mana, might, color, tag, hero);
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Theory]
@@ -137,7 +138,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("unsupported-" + id, new { initial, result });
         Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(initial)); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Fact]

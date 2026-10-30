@@ -9355,10 +9355,24 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsEquipment: true)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantDisarmUnits =
+    [
+        new("RAD·050/167", "神秘的时间法师", 5, "MYSTERIOUS_CHRONOMANCER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "缴械2", InsightCount: 2),
+        new("RAD·054/167", "饰品商贩", 3, "TRINKET_PEDDLER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "约德尔人|缴械"),
+        new("RAD·055/167", "叮响巡警", 3, "CLINKING_PATROLLER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "机械"),
+        new("RAD·093/167", "处置专家", 4, "DISPOSAL_EXPERT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "约德尔人|缴械2"),
+        new("RAD·097/167", "浅滩海妖", 2, "SHALLOWS_SIREN_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "游走|缴械")
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

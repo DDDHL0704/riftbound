@@ -19,7 +19,7 @@ public sealed class Ven093And122PhysicalSelfConsumers
         try {
             if (actor == "P2") await game.Act("P1", new EndTurnCommand());
             Assert.Equal(0, game.State.RunePools[actor].Mana); Assert.Equal(0, game.State.RunePools[actor].TotalPower);
-            for (var i=0;i<printedMana;i++) await game.Act(actor,new TapRuneCommand(Rune(actor,i)));
+            await game.TapRunes(actor, Enumerable.Range(0, printedMana).Select(i => Rune(actor, i)));
             var prefix=game.Events().Length;await game.Act(actor,new PlayCardCommand(id,no,[]));
             Cost(game.Events().Skip(prefix),printedMana,0);Assert.Equal(0,game.State.RunePools[actor].Mana);
             Assert.Equal(printedMight,Might(game.State,actor,id));Assert.Equal(printedMight,game.State.CardObjects[id].Power);

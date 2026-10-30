@@ -123,7 +123,7 @@ public sealed class Ven043ZeroMightEmpowerConsumerTests
     }
     private static string Rune(string actor, int number) => "VEN043-" + actor + "-RUNE-" + number;
     private static async Task Tap(Driver game, string actor, int first, int count)
-    { for (var i = first; i < first + count; i++) await game.Act(actor, new TapRuneCommand(Rune(actor, i))); }
+    { await game.TapRunes(actor, Enumerable.Range(first, count).Select(i => Rune(actor, i))); }
     private static async Task Play(Driver game, string owner)
     { await game.Act(owner, new PlayCardCommand("UNIT", No, [])); Check(game.State, owner, false); }
     private static void Check(MatchState state, string owner, bool empowered)
