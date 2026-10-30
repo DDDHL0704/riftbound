@@ -312,7 +312,54 @@ public sealed class RadNextUnitPlayGrantTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task ARealCopyAndDetachmentPreserveTheEarnedBoonAndItsSpentPermission(bool detach)
+    {
+        var state = HandDiscardObserverTests.Put(Position(), "GLASSES", "VEN·137", "P1", "BASE");
+        state = HandDiscardObserverTests.Put(state, "COPY-SOURCE", "OGN·219/298", "P1", "BASE");
+        state = HandDiscardObserverTests.Put(state, "ATTACH", "SFD·011/221", "P1", "HAND");
+        state = HandDiscardObserverTests.Put(state, "DETACH", "SFD·011/221", "P1", "HAND");
+        var game = new Driver(state); await Grant(game);
+        await game.Act("P1", new PlayCardCommand("UNIT", Unit, [], Destination: "BASE"));
+        var earned = Assert.Single(game.State.StackItems).TurnUnitPlayBoon!;
+        var receipt = Assert.Single(game.State.UntilEndOfTurnEffects, e => e.StartsWith(Used, StringComparison.Ordinal));
+        await game.Act("P1", new PlayCardCommand("ATTACH", "SFD·011/221", ["UNIT", "GLASSES"])); await game.Top();
+        var choice = Assert.IsType<RuleChoiceContinuation>(game.State.PendingRuleChoice);
+        Assert.Equal("ATTACHMENT_COPY_SELECTION", choice.Request.Kind);
+        await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:COPY-SOURCE"]));
+        Assert.Equal("OGN·219/298", game.State.CardObjects["UNIT"].CardNo);
+        Assert.Equal(earned.Unit.Generation, game.State.CardObjects["UNIT"].ObjectGeneration);
+        Assert.Equal(earned, Assert.Single(game.State.StackItems).TurnUnitPlayBoon);
+        Assert.Contains(receipt, game.State.UntilEndOfTurnEffects);
+        // A later public copy cannot rewrite the face of the earlier play.
+        foreach (var revision in new[] { earned.FaceRevision, game.State.CardObjects["UNIT"].CopyFaceTransitions!.Count }) {
+            var forged = game.State with { StackItems = game.State.StackItems.Select(item => item with {
+                TurnUnitPlayBoon = earned with { UnitCardNo = "OGN·219/298", FaceRevision = revision } }).ToArray() };
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), error => error.Contains("unit play boon", StringComparison.Ordinal));
+            var use = JsonSerializer.Deserialize<TurnUnitPlayGrantUse>(Convert.FromBase64String(receipt[Used.Length..]))!;
+            var altered = Used + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(use with {
+                UnitCardNo = "OGN·219/298", FaceRevision = revision }));
+            forged = game.State with { UntilEndOfTurnEffects = game.State.UntilEndOfTurnEffects.Select(e => e == receipt ? altered : e).ToArray() };
+            Assert.Contains("invalid temporary unit play grant", OfficialInsightAndSpellLockTests.Errors(forged));
+        }
+        if (detach) {
+            await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["UNIT", "GLASSES"])); await game.Top();
+            Assert.Equal(Unit, game.State.CardObjects["UNIT"].CardNo);
+            Assert.Null(game.State.CardObjects["UNIT"].AttachmentUnitCopies);
+            Assert.Equal(earned, Assert.Single(game.State.StackItems).TurnUnitPlayBoon);
+        }
+        await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags);
+        Assert.Contains(receipt, game.State.UntilEndOfTurnEffects);
+        await CloseShowdown(game);
+        await Reject(game.State, new("FOLLOW", Unit, [], Destination: "BATTLEFIELD:OTHER"));
+        await game.Act("P1", new PlayCardCommand("FOLLOW", Unit, [], Destination: "BASE"));
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["FOLLOW"].Tags);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Theory]
     [InlineData("future")] [InlineData("before-grant")] [InlineData("unit-generation")] [InlineData("card")] [InlineData("null-unit")]
+    [InlineData("face-revision")] [InlineData("token-factory")]
     [InlineData("malformed")] [InlineData("duplicate")]
     public async Task RecoveryRejectsForgedNextUnitUseReceipts(string branch)
     {
@@ -326,6 +373,8 @@ public sealed class RadNextUnitPlayGrantTests
             "unit-generation" => use with { Unit = use.Unit with { Generation = use.Unit.Generation + 1 } },
             "card" => use with { UnitCardNo = "OGN·002/298" },
             "null-unit" => use with { Unit = null! },
+            "face-revision" => use with { FaceRevision = use.FaceRevision + 1 },
+            "token-factory" => use with { TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo },
             _ => use
         };
         var bad = Used + (branch == "malformed" ? "invalid-base64" : Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(changed)));
