@@ -118,24 +118,32 @@ public sealed class VenRunePrintingConsumerTests
             {
                 if (driver.State.TurnPlayerId != player) await driver.Act(driver.State.TurnPlayerId!, new EndTurnCommand());
                 Assert.Equal(12, driver.State.PlayerZones[player].Base.Count(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)));
-                foreach (var no in numbers)
+                var entered = numbers.Select(no =>
                 {
                     var id = driver.State.PlayerZones[player].Base.First(id => driver.State.CardObjects[id].CardNo == no);
-                    var entered = driver.State.CardObjects[id]; Assert.Equal(1, entered.ObjectGeneration); Assert.False(entered.IsExhausted);
-                    var mana = driver.State.RunePools[player].Mana;
-                    await driver.Act(player, new TapRuneCommand(id)); Assert.Equal(mana + 1, driver.State.RunePools[player].Mana); Assert.True(driver.State.CardObjects[id].IsExhausted);
-                    await driver.Act(player, new TapRuneCommand(id), false);
-                    var before = driver.State; var power = before.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
-                    await driver.Act(player, new RecycleRuneCommand(id));
-                    Assert.Equal(power + 1, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
-                    Assert.Equal(before.PlayerZones[player].RuneDeck.Append(id), driver.State.PlayerZones[player].RuneDeck);
-                    Assert.Equal(before.RngCursor, driver.State.RngCursor); Assert.DoesNotContain(id, driver.State.PlayerZones[player].Base);
-                    Assert.Equal("RUNE_DECK", driver.State.ObjectLocations[id].Zone); Assert.Equal(no, driver.State.CardObjects[id].CardNo);
-                    Assert.Equal(entered.ObjectGeneration + 1, driver.State.CardObjects[id].ObjectGeneration); Assert.False(driver.State.CardObjects[id].IsExhausted);
-                    cycled.Add((player, id, no, entered.ObjectGeneration));
-                    lifecycle.Add(new { player, no, id, enteredGeneration = entered.ObjectGeneration, recycledGeneration = driver.State.CardObjects[id].ObjectGeneration });
-                    await driver.Act(player, new RecycleRuneCommand(id), false);
+                    var state = driver.State.CardObjects[id]; Assert.Equal(1, state.ObjectGeneration); Assert.False(state.IsExhausted);
+                    return (Id: id, No: no, Generation: state.ObjectGeneration);
+                }).ToArray();
+                var enteredIds = entered.Select(r => r.Id).ToArray();
+                var cycleBefore = driver.State; var cycleMana = cycleBefore.RunePools[player].Mana;
+                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds));
+                Assert.Equal(cycleMana + enteredIds.Length, driver.State.RunePools[player].Mana);
+                Assert.All(enteredIds, id => Assert.True(driver.State.CardObjects[id].IsExhausted));
+                await driver.Act(player, new TapRuneCommand(enteredIds[0], enteredIds), false);
+                var recycleBefore = driver.State; var cyclePower = recycleBefore.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
+                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds));
+                Assert.Equal(cyclePower + enteredIds.Length, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
+                Assert.Equal(recycleBefore.PlayerZones[player].RuneDeck.Concat(enteredIds), driver.State.PlayerZones[player].RuneDeck);
+                Assert.Equal(recycleBefore.RngCursor, driver.State.RngCursor);
+                foreach (var entry in entered)
+                {
+                    Assert.DoesNotContain(entry.Id, driver.State.PlayerZones[player].Base);
+                    Assert.Equal("RUNE_DECK", driver.State.ObjectLocations[entry.Id].Zone); Assert.Equal(entry.No, driver.State.CardObjects[entry.Id].CardNo);
+                    Assert.Equal(entry.Generation + 1, driver.State.CardObjects[entry.Id].ObjectGeneration); Assert.False(driver.State.CardObjects[entry.Id].IsExhausted);
+                    cycled.Add((player, entry.Id, entry.No, entry.Generation));
+                    lifecycle.Add(new { player, no = entry.No, id = entry.Id, enteredGeneration = entry.Generation, recycledGeneration = driver.State.CardObjects[entry.Id].ObjectGeneration });
                 }
+                await driver.Act(player, new RecycleRuneCommand(enteredIds[0], enteredIds), false);
                 var available = numbers.Reverse().Select(no => driver.State.PlayerZones[player].Base.First(id => driver.State.CardObjects[id].CardNo == no && !driver.State.CardObjects[id].IsExhausted)).ToArray();
                 var opponent = player == "P1" ? "P2" : "P1";
                 var foreign = driver.State.PlayerZones[opponent].Base.First(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
