@@ -48,6 +48,7 @@ python3 -m unittest discover -s scripts/tests
 ## CI
 
 - **`Backend L2`**（PR 与 main）：构建一次，全部规则测试分 9 个 Linux ARM64 分片并行，外加两局完整对局。检查名 `L2 required` 是合入的唯一门槛。同一 PR 推送新提交会取消旧的运行。
+- 公开仓库免费账户约有 20 个并发任务名额。常规 L2 共 11 个任务，规则峰值为 9 个；文档 PR 只需两个轻量任务。按全仓任务数控制负载，避免叠加依赖尚未合入分支的 PR；及时取消被新提交取代或已关闭 PR 的运行。
 - **`Backend L3 nightly`**：每天北京时间 02:00 对 main 跑完整验收（全部规则、PostgreSQL 分区、SignalR、进程重启、回放）。失败时由 A 线在 BACKLOG 的 P0 里登记并修复；它不阻塞无关的合入。
 - 改了 `.github/workflows` 或 CI 脚本时，`backend-harness` 会额外检查验收驱动。
 
