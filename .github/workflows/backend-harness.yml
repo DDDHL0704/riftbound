@@ -12,7 +12,7 @@ on:
       - 'tests/Riftbound.NativeNetworkSmoke/ProcessRestartAcceptance.cs'
       - 'tests/Riftbound.NativeNetworkSmoke/Program.cs'
       - 'tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj'
-      - 'tests/Riftbound.PostgresAcceptance/SqlAcceptancePartition.cs'
+      - 'tests/Riftbound.PostgresAcceptance/**'
       - 'tests/Riftbound.PaymentResourceSurplusAcceptance/Program.cs'
       - 'tests/Riftbound.PaymentResourceSurplusAcceptance/Riftbound.PaymentResourceSurplusAcceptance.csproj'
       - 'tests/Riftbound.InstructionPaymentAcceptance/Program.cs'
@@ -64,6 +64,8 @@ jobs:
           python3 -m unittest discover -s scripts/tests -p test_sql_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_full_ci_gate.py -v
           python3 -m unittest discover -s scripts/tests -p test_l3_workflow.py -v
+      - name: Compile the complete nightly PostgreSQL acceptance in Release
+        run: dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1 --nologo -v:q
       - name: Real PostgreSQL and two-player SignalR with actual API process restart
         run: python3 scripts/run-process-restart-ci.py --expected "${{ github.sha }}" --output var/qa/ci-process-restart
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

@@ -254,8 +254,8 @@ public static partial class MatchRecoveryValidator
     private static void ValidateBattlefieldConquestMightPayload(object? payload, string? effect, List<string> errors)
     {
         var context = ReadBattlefieldConquestMightView(payload);
-        if (effect == TriggerKinds.BattlefieldConquerPowerfulPayDraw || context is not null)
-            if (context is null || effect != TriggerKinds.BattlefieldConquerPowerfulPayDraw
+        if (CoreRuleEngine.IsCapturedConquestDrawKind(effect) || context is not null)
+            if (context is null || !CoreRuleEngine.ValidCapturedConquestDrawKind(context, effect)
                 || !CoreRuleEngine.ValidBattlefieldConquestMightFrame(context)) errors.Add("invalid public captured conquest Might");
     }
 

@@ -105,7 +105,7 @@ public sealed partial class CoreRuleEngine
                     ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = selected[0],
                     ["discardedByPlayerId"] = item.ControllerId, ["destinationZone"] = "GRAVEYARD" }));
                 ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, owner, "CARD_DISCARDED", item.SourceObjectId, selected, events);
-                effects = MarkPlayerDiscardedHandCardsThisTurn(effects, owner, selected);
+                effects = MarkPlayerDiscardedHandCardsThisTurn(effects, owner, selected, zones);
                 var drawn = ApplyDrawToPlayer(state, zones, scores, owner, 1, rng, events, deferNormalVictory: true);
                 scores = drawn.PlayerScores; rng = drawn.RngCursor; winner = drawn.WinnerPlayerId ?? winner;
             }

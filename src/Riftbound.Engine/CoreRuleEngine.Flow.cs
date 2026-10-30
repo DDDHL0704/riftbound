@@ -48,8 +48,15 @@ public sealed partial class CoreRuleEngine
         CardBehaviorDefinition behavior, IReadOnlyList<string>? selections, out CardBehaviorDefinition selected,
         out IReadOnlyList<string> remaining)
     {
+        var normalGraveyardPlay = (selections ?? []).Any(c => string.Equals(c?.Trim(), NormalGraveyardPlayChoice, StringComparison.Ordinal));
         var choices = (selections ?? []).Where(c => c?.Trim().StartsWith(FlowCostChoicePrefix, StringComparison.Ordinal) == true).ToArray();
-        remaining = (selections ?? []).Where(c => c?.Trim().StartsWith(FlowCostChoicePrefix, StringComparison.Ordinal) != true).ToArray();
+        remaining = (selections ?? []).Where(c => c?.Trim().StartsWith(FlowCostChoicePrefix, StringComparison.Ordinal) != true
+            && !string.Equals(c?.Trim(), NormalGraveyardPlayChoice, StringComparison.Ordinal)).ToArray();
+        if (normalGraveyardPlay && choices.Length == 0)
+        {
+            selected = behavior;
+            return true;
+        }
         var variants = FlowPlayBehaviors(state, player, source, behavior);
         selected = variants.FirstOrDefault(b => choices.Length == 0 || b.AppliedFlowCost is { } cost
             && FlowCostChoiceId(cost) == choices[0])!;

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One fixed build, duration-balanced rule execution, and exact case coverage."""
 import argparse
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 import hashlib
 import importlib.util
 import json
@@ -304,8 +304,15 @@ def aggregate_full(prepared, inputs, commit, jobs):
 
 
 def run_logged(command, output):
-    with Path(output).open('x') as log:
-        subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
+    try:
+        with Path(output).open('x') as log:
+            subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
+    except subprocess.CalledProcessError:
+        print(f'Command failed; last 80 lines of {output}:', flush=True)
+        with Path(output).open(encoding='utf-8', errors='replace') as log:
+            tail = ''.join(deque(log, maxlen=80))
+        print(tail, end='' if tail.endswith('\n') else '\n', flush=True)
+        raise
 
 
 def processor_identity(cpuinfo=Path('/proc/cpuinfo'), topology=Path('/sys/devices/system/cpu'), affinity=None):

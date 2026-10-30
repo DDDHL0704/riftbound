@@ -8894,7 +8894,7 @@ public sealed class CardCatalogBaselineTests
             equipmentKeywordSource,
             StringComparison.Ordinal);
         Assert.Contains("BehaviorSpecCatalogBuilder.Build", assembleProfileCatalogSource, StringComparison.Ordinal);
-        Assert.Contains("OfficialCardCatalog.LoadDefaultAsync", assembleProfileCatalogSource, StringComparison.Ordinal);
+        Assert.Contains("OfficialCardCatalog.LoadRuntimeAsync", assembleProfileCatalogSource, StringComparison.Ordinal);
         Assert.DoesNotContain("private static readonly IReadOnlyDictionary<string, AssembleEquipmentProfile> Profiles", assembleProfileCatalogSource, StringComparison.Ordinal);
         Assert.DoesNotContain("private const string LongSwordCardNo", assembleProfileCatalogSource, StringComparison.Ordinal);
         Assert.DoesNotContain("[LongSwordCardNo] = new(", assembleProfileCatalogSource, StringComparison.Ordinal);

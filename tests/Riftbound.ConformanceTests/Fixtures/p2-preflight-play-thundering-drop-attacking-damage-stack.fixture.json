@@ -167,7 +167,7 @@
           "damage": 4,
           "power": 5,
           "isAttacking": true,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

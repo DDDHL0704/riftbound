@@ -25,7 +25,8 @@ public sealed partial class CoreRuleEngine
 
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
-        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0, string? ResponsiblePlayerId = null);
+        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0,
+        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -68,6 +69,7 @@ public sealed partial class CoreRuleEngine
                 .Select(rule => new CapturedLocalRecallSource(new(source.ObjectId, source.ObjectGeneration), rule)))
             .ToArray();
         var startedLocalSources = new HashSet<string>(StringComparer.Ordinal);
+        var graveyardGroups = new Dictionary<string, IReadOnlyList<CapturedDestructionOption>>(StringComparer.Ordinal);
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
@@ -88,7 +90,10 @@ public sealed partial class CoreRuleEngine
                     // that context before another replacement can intervene.
                     var localRecalls = activeLocalGroup ?? CaptureLocalDestructionRecalls(state, zones, cards,
                         ReconcileObjectLocations(locations ?? state.ObjectLocations, zones), remaining, localRecallSources)
-                        .Where(c => !startedLocalSources.Contains(c.Option.EffectKey)).ToArray();
+                        .Concat(CaptureGraveyardDestructionBanishes(zones, cards, remaining)
+                            .Where(c => !graveyardGroups.ContainsKey(c.Option.EffectKey)))
+                        .Concat(graveyardGroups.Values.SelectMany(group => group).Where(c => remaining.Contains(c.Option.Target)))
+                        .Where(c => !startedLocalSources.Contains(c.Option.EffectKey) || graveyardGroups.ContainsKey(c.Option.EffectKey)).ToArray();
                     var options = new List<DestructionOption>();
                     var canPayOptional = false;
                     foreach (var target in remaining.Order(StringComparer.Ordinal)) {
@@ -124,9 +129,11 @@ public sealed partial class CoreRuleEngine
                         continue;
                     }
                     var option = options.Single(o => o.Choice.Id == selected);
-                    if (option.Kind == "LOCAL_RECALL" && activeLocalGroup is null) {
+                    if ((option.Kind == "LOCAL_RECALL" || option.EffectKey.StartsWith("GRAVEYARD_BANISH:", StringComparison.Ordinal)) && activeLocalGroup is null) {
                         startedLocalSources.Add(option.EffectKey);
                         activeLocalGroup = localRecalls.Where(c => c.Option.EffectKey == option.EffectKey).ToArray();
+                        if (option.EffectKey.StartsWith("GRAVEYARD_BANISH:", StringComparison.Ordinal))
+                            graveyardGroups[option.EffectKey] = activeLocalGroup;
                     }
                     var unitBefore = cards[option.Target];
                     var previousChain = frame.AppliedDestructionReplacements;
@@ -144,6 +151,7 @@ public sealed partial class CoreRuleEngine
                 && AttachedRuleTextRules.Instances(zones, cards, unit).Any(i => UnitDestroyedTriggerSpecRules.SelfDrawTriggers(i.CardNo).Count > 0
                     || UnitDestroyedTriggerSpecRules.LastBreathBattlefieldDamageTriggers(i.CardNo).Count > 0))
                 ? CapturePublicMightFrame(state, zones, cards, locations) : null;
+
             return scope;
         } catch { scope.Dispose(); throw; }
     }
@@ -259,6 +267,7 @@ public sealed partial class CoreRuleEngine
             Add("GEAR", source, $"由中娅沙漏（{source}）替换，摧毁沙漏并休眠召回");
         }
         if (declinedOptional) return options;
+        options.AddRange(SourceSacrificeRecallOptions(zones, cards, unit, player));
         var field = ResolveDestroyedSourceBattlefieldObjectId(locations, target, battlefieldId);
         var inBattle = cause?.EffectKind == "DECLARE_BATTLE_COMBAT_DAMAGE" && field == battlefieldId
             || state.BattleState.IsActive && field == state.BattleState.BattlefieldObjectId;
@@ -301,6 +310,8 @@ public sealed partial class CoreRuleEngine
         var gearReplacementEffect = attachedGear ? ReplacementKinds.AttachedUnitDestroyedDestroySourceRecallExhausted : FriendlyUnitDestroyedEquipmentRecallEffectId;
         var stack = new StackItemState($"replacement-{state.Tick}-{effectSource}", player, effectSource,
             "DESTRUCTION_REPLACEMENT", effectCardNo, [], 0, 0, []);
+        if (option.Kind == SourceSacrificeRecallKind)
+            ApplySourceSacrificeRecallCost(state, zones, cards, pools, player, option, stack, events);
         if (option.Kind is "GEAR" or "ATTACHED_GEAR") {
             // A replacement-generated destruction is a new event in the same replacement chain (CN 370.2).
             var nested = ResolveFieldDestructions(state, zones, cards, stack, new HashSet<string>(),
@@ -343,6 +354,7 @@ public sealed partial class CoreRuleEngine
             ["replacementEffectId"] = option.Kind is "GEAR" or "ATTACHED_GEAR" ? gearReplacementEffect
                 : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId
                 : option.Kind == "LOCAL_RECALL" ? ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
+                : option.Kind == SourceSacrificeRecallKind ? ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn
                 : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
     }
 

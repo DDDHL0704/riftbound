@@ -158,7 +158,7 @@
         "P2-UNIT-001": {
           "damage": 3,
           "power": 4,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "commit": "e9bdfd0d2778c089f1a9bbb23c3b520728834d7d",
-  "manifestSha256": "e17fec8eeb043d3efffcfd518ab0cb3f2801cca3479e858f4d95b6b9ee57873f",
-  "meaning": "Historical provenance only. Current implementation drift reopens affected contexts; no whole-card or current-CI certification.",
-  "retainedInputRoles": [
-    "active"
-  ]
-}
