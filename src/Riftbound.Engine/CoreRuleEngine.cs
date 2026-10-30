@@ -32986,8 +32986,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
     {
         return cardObjects
-            .Where(entry => FieldObjectTypeRules.IsUnattachedNonUnitEquipment(entry.Value)
-                && !StandbyRules.AllowsBattlefieldEquipment(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
+            .Where(entry => FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
                 && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
                 && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
