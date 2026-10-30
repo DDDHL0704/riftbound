@@ -328,7 +328,7 @@ public sealed partial class Ven035DelayedEmpowerConsumerTests
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             var paid = JsonSerializer.Serialize(game.State.RunePools["P1"], Json);
             if (game.State.PriorityPlayerId != "P2") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-            for (var i = 0; i < 3; i++) await game.Act("P2", new TapRuneCommand("RESPONSE-RUNE-" + i));
+            await game.TapRunes("P2", Enumerable.Range(0, 3).Select(i => "RESPONSE-RUNE-" + i));
             await game.Act("P2", new RecycleRuneCommand("RESPONSE-RUNE-0"));
             Assert.Equal(3, game.State.RunePools["P2"].Mana); Assert.Equal(1, game.State.RunePools["P2"].PowerByTrait[RuneTrait.Green]);
             await game.Act("P2", new PlayCardCommand("RESPONSE", No, [unit], Mode: Remove));

@@ -105,7 +105,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
         await game.Act("P1", new EndTurnCommand());
         Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower);
-        for (var i = 0; i < 8; i++) await game.Act("P2", new TapRuneCommand("TAKE-RUNE-" + i));
+        await game.TapRunes("P2", Enumerable.Range(0, 8).Select(i => "TAKE-RUNE-" + i));
         for (var i = 0; i < 3; i++) await game.Act("P2", new RecycleRuneCommand("TAKE-RUNE-" + i));
         await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
         var before = game.State.RunePools["P2"];
@@ -183,7 +183,7 @@ public sealed class Ven050RuneDiscountConsumerTests
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = RunePool.Empty } };
         var game = await Play(initial); if (empowered) { await game.Act("P1", Activate()); await game.Top(); }
         await game.Act("P1", new EndTurnCommand());
-        foreach (var id in game.State.PlayerZones["P2"].Base.ToArray()) await game.Act("P2", new TapRuneCommand(id));
+        await game.TapRunes("P2", game.State.PlayerZones["P2"].Base);
         if (power == 1) await game.Act("P2", new RecycleRuneCommand("OPPONENT-RUNE"));
         Assert.Equal(7, game.State.RunePools["P2"].Mana); Assert.Equal(power, game.State.RunePools["P2"].TotalPower);
         var command = new PlayCardCommand("NEGATIVE", "UNL-066/219", ["UNIT"]);
