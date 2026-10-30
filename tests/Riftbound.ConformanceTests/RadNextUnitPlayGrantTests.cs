@@ -22,7 +22,7 @@ public sealed class RadNextUnitPlayGrantTests
             cards[id] = new(id, cardNo: "OGN·278/298", ownerId: "P2", controllerId: id == "OTHER" ? "P2" : null,
                 tags: [P6TokenFactoryCatalog.BattlefieldCardTag]);
             locations[id] = new("P2", "BATTLEFIELD", id);
-            zones["P2"] = zones["P2"] with { Battlefields = zones["P2"].Battlefields.Append(id).ToArray() };
+            zones["P2"] = zones["P2"] with { Battlefields = zones["P2"].Battlefields.Append(id).Distinct(StringComparer.Ordinal).ToArray() };
         }
         return state with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
     }
@@ -151,11 +151,17 @@ public sealed class RadNextUnitPlayGrantTests
         Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["UNIT"].Tags); await game.Replay();
     }
 
-    [Fact]
-    public async Task MultipleGrantsObserveTheSameNextUnitAndNeverApplyToTheFollowingUnit()
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task MultipleGrantsObserveTheSameNextUnitAndNeverApplyToTheFollowingUnit(bool echo)
     {
-        var game = new Driver(HandDiscardObserverTests.Put(Position(), "GRANT2", Spell, "P1", "HAND"));
-        await Grant(game); await Grant(game, "GRANT2");
+        var state = HandDiscardObserverTests.Put(Position(), "GRANT2", Spell, "P1", "HAND");
+        if (echo) state = state with { UntilEndOfTurnEffects = state.UntilEndOfTurnEffects.Append(EchoCostRules.GrantPrefix + "P1").ToArray() };
+        var game = new Driver(state);
+        if (echo) {
+            await game.Act("P1", new PlayCardCommand("GRANT", Spell, [], OptionalCosts: ["ECHO"])); await game.Top();
+        }
+        else { await Grant(game); await Grant(game, "GRANT2"); }
         await game.Act("P1", new PlayCardCommand("UNIT", Unit, [], Destination: "BASE"));
         Assert.Equal(2, game.State.TriggerQueue.Count); Assert.Equal(2, game.State.UntilEndOfTurnEffects.Count(e => e.StartsWith(Used, StringComparison.Ordinal)));
         await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
@@ -256,6 +262,7 @@ public sealed class RadNextUnitPlayGrantTests
     {
         var state = HandDiscardObserverTests.Put(Position(), "TOKEN-SPELL", "SFD·031/221", "P1", "HAND");
         state = OfficialHoldSequenceTests.AddUnit(state, "ENEMY-ANCHOR", Unit, "OTHER", "P2");
+        state = OfficialHoldSequenceTests.AddUnit(state, "LOCATION-ANCHOR", Unit, "F", "P1");
         var game = new Driver(state); await Grant(game);
         await game.Act("P1", new PlayCardCommand("TOKEN-SPELL", "SFD·031/221", [], OptionalCosts: ["ECHO"])); await game.Top();
         await ChooseTokenLocation(game, "BATTLEFIELD:OTHER");
