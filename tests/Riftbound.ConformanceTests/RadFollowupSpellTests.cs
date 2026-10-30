@@ -28,7 +28,7 @@ public sealed class RadFollowupSpellTests
         Assert.True(behavior.CanPlayDuringSpellDuel);
         Assert.Equal(BehaviorImplementationStatuses.Implemented,
             Assert.Single(BehaviorSpecCatalogBuilder.Build(
-                await OfficialCardCatalog.LoadRuntimeAsync(),
+                (await OfficialCardCatalog.LoadRuntimeAsync()).Cards,
                 FunctionalUnitBuilder.Build((await OfficialCardCatalog.LoadRuntimeAsync()).Cards),
                 OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(
                     (await OfficialCardCatalog.LoadRuntimeAsync()).Cards,
