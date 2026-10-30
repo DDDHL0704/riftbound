@@ -5,7 +5,11 @@ namespace Riftbound.Engine;
 public sealed record UnitEventAbilitySpec(string Timing, string Effect, int Amount = 0, bool RequiresNoDamageThisTurn = false,
     bool RequiresEmpowered = false, int LeadingPowerCost = 0, string? LeadingPowerTrait = null, bool Optional = false,
     bool AnyNumberOfTargets = false, bool LeadingSelfBanish = false, int LeadingManaCost = 0,
-    int LeadingDestroyOtherFriendlyPermanents = 0);
+    int LeadingDestroyOtherFriendlyPermanents = 0, IReadOnlyList<UnitEventModeSpec>? Modes = null,
+    string? CreatedTokenFactoryCardNo = null);
+public sealed record UnitEventModeSpec(string Id, string Label, string Effect, int Amount = 0,
+    int LeadingPowerCost = 0, string? LeadingPowerTrait = null, int LeadingManaCost = 0,
+    string? CreatedTokenFactoryCardNo = null);
 public sealed record EmpowerInteractionSpec(string Timing, string Effect, int MinimumRunes = 0,
     int? MaximumMana = null, int? MaximumPower = null, int MillCount = 0);
 
@@ -9458,6 +9462,14 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantResourceObserverUnits =
     [
+        new("RAD·105/167", "鲁莽的发明家", 3, "EXHAUST_CHOOSE_RESOURCE_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Purple,
+            UnitEventAbility: new("BECAME_EXHAUSTED", "CHOOSE_MODE", Modes: [
+                new("CREATE_GOLD", "打出一个休眠的金币装备指示物", "CREATE_EQUIPMENT_TOKEN", 1,
+                    CreatedTokenFactoryCardNo: "UNL·T05"),
+                new("PAY_DRAW", "支付 1 紫色符能，以此抽一张牌", "DRAW", 1,
+                    LeadingPowerCost: 1, LeadingPowerTrait: "purple") ])),
         new("RAD·053/167", "翼之神谕者", 2, "EXHAUST_INSIGHT_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "鸟类",
             UnitEventAbility: new("BECAME_EXHAUSTED", "INSIGHT", 1)),

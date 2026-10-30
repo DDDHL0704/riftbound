@@ -94,9 +94,10 @@ public sealed class RadResourceObserverUnitTests
     }
 
     private const string Oracle = "RAD·053/167";
-    private static MatchState OraclePosition(bool exhausted = false)
+    private static MatchState OraclePosition(bool exhausted = false) => ObserverPosition(Oracle, exhausted);
+    private static MatchState ObserverPosition(string no, bool exhausted = false)
     {
-        var state = VenUnitEntryBasicTests.Position(Oracle);
+        var state = VenUnitEntryBasicTests.Position(no);
         return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["UNIT"] = state.CardObjects["UNIT"] with { IsExhausted = exhausted } },
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
@@ -252,5 +253,118 @@ public sealed class RadResourceObserverUnitTests
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Cluster);
         Assert.Equal(39506, card.Id); Assert.Equal(4, card.Energy); Assert.Equal(4, card.Power); Assert.Equal(2, card.ReturnEnergy);
+    }
+
+    private const string Inventor = "RAD·105/167";
+    private static async Task Reject(MatchState state, string player, GameCommand command)
+    {
+        var result = await new CoreRuleEngine().ResolveAsync(state, new("invalid-observer", player, command.CmdType), command, default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+    }
+
+    private static async Task ChooseInventorMode(Driver game, string mode)
+    {
+        var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+        Assert.Equal("UNIT_EVENT_MODE_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Null(game.State.PriorityPlayerId); Assert.Equal(new[] { "CREATE_GOLD", "PAY_DRAW" }, choice.LegalObjectIds);
+        await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [mode]));
+    }
+
+    [Theory]
+    [InlineData("CREATE_GOLD", true)] [InlineData("PAY_DRAW", true)] [InlineData("PAY_DRAW", false)]
+    public async Task InventorChoosesAModeAndPaysBeforeResponsesButResolvesItsEffectAfterResponses(string mode, bool pay)
+    {
+        var game = new Driver(ObserverPosition(Inventor));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        var before = game.State.RunePools["P1"];
+        Assert.Empty(game.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(game.State.CardObjects.Values, c => c.TokenFactoryCardNo is not null);
+        await ChooseInventorMode(game, mode);
+        if (mode == "PAY_DRAW") {
+            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+            Assert.Equal(0, payment.ManaCost); Assert.Equal(1, payment.PowerCost);
+            Assert.Equal(1, payment.PowerCostByTrait[RuneTrait.Purple]);
+            Assert.Null(game.State.PriorityPlayerId);
+            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
+            Assert.Equal(before.TotalPower - (pay ? 1 : 0), game.State.RunePools["P1"].TotalPower);
+        }
+        Assert.Empty(game.State.PlayerZones["P1"].Hand);
+        if (mode == "CREATE_GOLD" || pay) await game.Top();
+        if (mode == "CREATE_GOLD") {
+            var token = Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo is not null);
+            Assert.Contains(CardObjectTags.EquipmentCard, token.Tags); Assert.Contains("金币", token.Tags);
+            Assert.True(token.IsExhausted); Assert.Contains(token.ObjectId, game.State.PlayerZones["P1"].Base);
+            Assert.Equal(before.TotalPower, game.State.RunePools["P1"].TotalPower);
+            var ability = token.CardNo == P4ActivatedAbilityCatalog.GoldTokenUnlCardNo
+                ? P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId : P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId;
+            await Reject(game.State, "P1", new ActivateAbilityCommand(token.ObjectId, ability, []));
+        } else Assert.Equal(pay ? new[] { "P1-DRAW-1" } : [], game.State.PlayerZones["P1"].Hand);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("none", false)] [InlineData("blue", false)] [InlineData("purple", true)] [InlineData("wild", true)]
+    public async Task InventorDrawRequiresItsOwnTraitOrWildcardPowerAndRejectedPaymentsChangeNothing(string trait, bool canPay)
+    {
+        var initial = ObserverPosition(Inventor);
+        var pool = trait == "wild" ? new RunePool(0, 1) : new RunePool(0, 0,
+            trait == "none" ? null : new Dictionary<string, int> { [trait] = 1 });
+        var game = new Driver(initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = pool } });
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        await ChooseInventorMode(game, "PAY_DRAW"); var payment = game.State.PendingPayment!;
+        await Reject(game.State, "P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        if (!canPay) await Reject(game.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [canPay ? "PAY" : "DECLINE"]));
+        if (canPay) await game.Top();
+        Assert.Equal(canPay ? new[] { "P1-DRAW-1" } : [], game.State.PlayerZones["P1"].Hand);
+        Assert.Equal(canPay ? 0 : pool.TotalPower, game.State.RunePools["P1"].TotalPower); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("CREATE_GOLD")] [InlineData("PAY_DRAW")]
+    public async Task InventorLeavingDuringResponseKeepsTheConfirmedModeAndPaidCost(string mode)
+    {
+        var game = new Driver(OfficialCopyIdentityTests.AddSpell(ObserverPosition(Inventor), "RETURN", "OGN·104/298"));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF")); await ChooseInventorMode(game, mode);
+        if (mode == "PAY_DRAW") {
+            var payment = game.State.PendingPayment!;
+            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        }
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["UNIT"])); await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand); await game.Top();
+        if (mode == "PAY_DRAW") Assert.Contains("P1-DRAW-1", game.State.PlayerZones["P1"].Hand);
+        else Assert.Single(game.State.CardObjects.Values, c => c.TokenFactoryCardNo is not null && c.Tags.Contains("金币"));
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task InventorHastePaysThePrintedOptionalCostAndNeitherEntryStateCountsAsExhausting(bool haste)
+    {
+        var initial = VenUnitEntryBasicTests.Position(Inventor); var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("UNIT", Inventor, [], OptionalCosts: haste ? [HasteOptionalCostNames.HasteReady] : []));
+        Assert.Equal(!haste, game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(haste ? 16 : 17, game.State.RunePools["P1"].Mana);
+        Assert.Equal(haste ? 19 : 20, game.State.RunePools["P1"].TotalPower);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingCardChoice); await game.Replay();
+    }
+
+    [Fact]
+    public async Task InventorRejectsIllegalModesAndForgedRecoveryWhileKeepingTheChoiceUsable()
+    {
+        var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == Inventor);
+        Assert.Equal(39607, card.Id); Assert.Equal(3, card.Energy); Assert.Equal(3, card.Power); Assert.Null(card.ReturnEnergy);
+        var game = new Driver(ObserverPosition(Inventor));
+        await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF")); var choice = game.State.PendingCardChoice!;
+        foreach (var selected in new string[][] { [], ["UNIT"], ["missing"], ["CREATE_GOLD", "PAY_DRAW"] })
+            await Reject(game.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, selected));
+        await Reject(game.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["CREATE_GOLD"]));
+        var item = Assert.Single(game.State.StackItems);
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [item with {
+            UnitEvent = item.UnitEvent! with { Mode = "missing" } }] }));
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with {
+            PendingCardChoice = choice with { LegalObjectIds = ["CREATE_GOLD"] } }));
+        await ChooseInventorMode(game, "CREATE_GOLD"); await game.Top(); await game.Replay();
     }
 }

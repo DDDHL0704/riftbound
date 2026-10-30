@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record UnitEventContext(string CardNo, long SourceGeneration, long FaceRevision, long CapturedTick,
     string Timing, string? TokenFactoryCardNo = null, RuleTextInstanceBinding? Origin = null,
     ObjectLocationState? Here = null, int? LastKnownPower = null, UnitEventOtherObject? Other = null,
-    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null);
+    BurnedUnitFact? BurnedUnit = null, long? ReflexiveTick = null, string? Mode = null);
 public sealed record UnitEventOtherObject(ObjectBinding Binding, string CardNo, long FaceRevision, string? TokenFactoryCardNo = null);
 public sealed record BurnedUnitFact(ObjectBinding Binding, string CardNo, long FaceRevision, int Power);
 
@@ -216,6 +216,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidUnitEvent(MatchState state, UnitEventContext? c, string effect, string source, string? no = null)
         => c is null ? effect != UnitEventEffect : effect == UnitEventEffect && (no is null || no == c.CardNo)
             && UnitEventSpec(c.CardNo) is { } spec && spec.Timing == c.Timing && c.SourceGeneration >= 0 && c.FaceRevision >= 0
+            && (c.Mode is null || spec.Modes?.Any(m => m.Id == c.Mode) == true)
             && c.CapturedTick > 0 && c.CapturedTick <= state.Tick
             && (spec.Effect == "BURN_MIGHT_FRIENDLY"
                 ? c.BurnedUnit is { } burned
@@ -307,7 +308,8 @@ public sealed partial class CoreRuleEngine
         var context = item.UnitEvent!;
         if (!ValidUnitEvent(state, context, item.EffectKind, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured unit event.");
-        var spec = UnitEventSpec(context.CardNo)!;
+        var spec = SelectedUnitEventSpec(context)!;
+        if (spec.Modes is not null) throw new InvalidOperationException("Unconfirmed unit event mode.");
         if (spec.Effect == "BANISH_HAND_GRAVEYARD_BURN") return ResolveBanishHandGraveyardBurn(state, item);
         if (spec.Effect == "BURN_MIGHT_FRIENDLY") return ResolveBurnMightAbility(state, item);
         if (spec.Effect == "SCORE" && item.TriggerCost is not null) {
@@ -332,6 +334,16 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent> { new("TRIGGER_RESOLVED", "单位触发技能结算", new Dictionary<string, object?> {
             ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo, ["effectKind"] = item.EffectKind }) };
+        if (spec.Effect == "CREATE_EQUIPMENT_TOKEN") {
+            if (!P6TokenFactoryCatalog.TryGetByCardNo(spec.CreatedTokenFactoryCardNo!, out var factory)
+                || !factory.Tags.Contains(CardObjectTags.EquipmentCard))
+                throw new InvalidOperationException("Invalid unit event equipment token factory.");
+            for (var i = 0; i < spec.Amount; i++)
+                CreateLegendEquipmentToken(zones, cards, item.ControllerId, item.SourceObjectId, item.EffectKind,
+                    factory.TokenFamilyName, factory.Tags, true, events, context.CardNo);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), Events = events };
+        }
         if (spec.Effect == "MIGHT_FRIENDLY" && item.TriggerCost is not null && item.TargetObjectIds.SingleOrDefault() is { } buffed
             && StackObjectRules.ReferencesCurrentObject(state, item, buffed) && UnitEventTargets(state, item).Contains(buffed)) {
             var behavior = new CardBehaviorDefinition(context.CardNo, "弃牌触发战力加成", 0, item.EffectKind, 0, 1, PowerModifierAmount: spec.Amount);

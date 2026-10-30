@@ -1792,7 +1792,10 @@ public sealed partial record ResolutionResult(
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && item.UnitPlayMight is not null) view["abilityLabel"] = "打出单位：本回合战力 +1";
         if (!hiddenSource && state.TriggerQueue.Any(t => t.PermanentPlayStackItemId == item.StackItemId)) view["awaitingTriggerOrder"] = true;
-        if (!hiddenSource && item.UnitEvent is not null) view["abilityLabel"] = "单位事件触发技能";
+        if (!hiddenSource && item.UnitEvent is { } unitEvent) {
+            view["abilityLabel"] = "单位事件触发技能";
+            if (unitEvent.Mode is { } mode) view["mode"] = mode;
+        }
         if (!hiddenSource && item.ReadyObjectTrigger is not null) view["abilityLabel"] = "活跃其他物体";
         if (!hiddenSource && item.SourceReadied is { } readied) { view["abilityLabel"] = "活跃后获得关键词"; if (readied.Mode is { } mode) view["mode"] = mode; }
         if (!hiddenSource && item.SourcePlayDraw is not null) view["abilityLabel"] = "其他装备条件抽牌";
@@ -4453,6 +4456,8 @@ internal static partial class ActionPromptBuilder
         return choice.LegalObjectIds
             .Select(objectId => choice.ChoiceWindow == CoreRuleEngine.ReadiedModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.ReadiedModeLabel(objectId), choice.Reason)
+                : choice.ChoiceWindow == CoreRuleEngine.UnitEventModeWindow
+                ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.UnitEventModeLabel(state, choice, objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.AttachmentModeLabel(state, choice, objectId), choice.Reason)
                 : choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow

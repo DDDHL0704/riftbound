@@ -3217,6 +3217,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (pendingChoice.ChoiceWindow is EmpowerRemovalCostWindow or EmpowerOpponentWindow) return ResolveEmpowerInteractionChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == UnitEventModeWindow) return ResolveUnitEventMode(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ReadiedModeWindow) return ResolveReadiedMode(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DravenDeathOpponentWindow) return ResolveDravenDeathOpponentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);

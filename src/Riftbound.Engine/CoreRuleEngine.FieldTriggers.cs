@@ -154,7 +154,7 @@ public sealed partial class CoreRuleEngine
 
     private static bool NeedsTriggerConfirmation(StackItemState i)
         => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasMovementDamage(i) && i.TargetGenerations is null ||
-            NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
+            NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
@@ -187,6 +187,7 @@ public sealed partial class CoreRuleEngine
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.EmpowerInteraction is not null) return PrepareEmpowerInteraction(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
+        if (NeedsUnitEventMode(item)) return PrepareUnitEventMode(result, item);
         if (NeedsUnitEventTarget(item) && item.TargetGenerations is null) return PrepareUnitEventTarget(result, item);
         if (item.ReadyObjectTrigger is not null) return PrepareReadyOtherObject(result, item);
         if (item.SourceReadied is not null) return PrepareReadiedMode(result, item);

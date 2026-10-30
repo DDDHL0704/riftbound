@@ -4114,13 +4114,16 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!BattleResultRecoveryRules.Valid(state, item)) errors.Add("invalid queued battle-result skill");
         foreach (var trigger in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId))
+            if (!CoreRuleEngine.ValidUnitEvent(state, trigger.UnitEvent, trigger.EffectKind, trigger.SourceObjectId)
+                || trigger.UnitEvent is { Mode: not null })
                 errors.Add("invalid captured unit event trigger");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidUnitEvent(state, item.UnitEvent, item.EffectKind, item.SourceObjectId, item.CardNo)
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
                     || !CoreRuleEngine.ValidUnitEventTargets(item)))
                 errors.Add("invalid captured unit event stack");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.UnitEventModeWindow } unitEventMode
+            && !CoreRuleEngine.ValidUnitEventModeChoice(state, unitEventMode)) errors.Add("invalid unit event mode choice");
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEmpowerInteraction(state, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 errors.Add("invalid empower interaction trigger");
@@ -5104,7 +5107,7 @@ public static partial class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.UnitEventModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
                 && !(choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow && CoreRuleEngine.ValidTemperedBaseCostChoice(authoritativeState, choice)))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
