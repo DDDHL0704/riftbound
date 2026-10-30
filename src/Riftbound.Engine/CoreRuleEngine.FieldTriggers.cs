@@ -149,7 +149,7 @@ public sealed partial class CoreRuleEngine
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static bool NeedsTriggerConfirmation(StackItemState i)
-        => HasMovementDamage(i) && i.TargetGenerations is null ||
+        => NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasMovementDamage(i) && i.TargetGenerations is null ||
             NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
@@ -173,6 +173,7 @@ public sealed partial class CoreRuleEngine
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(NeedsTriggerConfirmation);
         if (item is null) return result;
+        if (NeedsDeathObserverTarget(item)) return PrepareDeathObserverTarget(result, item);
         if (NeedsMovementInstructionConfirmation(item)) return PrepareMovementInstruction(result, item);
         if (HasMovementDamage(item)) return PrepareMovementDamage(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
@@ -278,7 +279,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == FieldTriggerMinimumTargets(context) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice);
+            || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {

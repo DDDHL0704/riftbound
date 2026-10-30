@@ -9411,10 +9411,18 @@ public static class CardBehaviorRegistry
             MayReturnFriendlyEquipmentAdditionalCost: true, ManaReductionIfEquipmentReturned: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
+    [
+        new("RAD·036/167", "风暴锋喙鸟", 6, "STUNNED_ENEMY_DEATH_DRAW_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "鸟类|法盾"),
+        new("RAD·131/167", "光照者教团", 3, "FRIENDLY_DEATH_BATCH_BOON_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Concat(RadiantEntryCostUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Concat(RadiantEntryCostUnits).Concat(RadiantDestructionUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

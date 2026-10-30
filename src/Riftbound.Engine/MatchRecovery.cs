@@ -4040,6 +4040,7 @@ public static partial class MatchRecoveryValidator
                 errors.Add("obsolete uncaptured death observer stack");
         foreach(var item in state.StackItems)
             if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(state,death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
+                || !CoreRuleEngine.ValidDeathObserverTargets(item)
                 || item.StackItemId.StartsWith("ordered-copied-death-", StringComparison.Ordinal) != (death.Origin is not null)
                 || death.RuleTextInstanceId is { } stackInstance && !item.StackItemId.EndsWith(":" + stackInstance, StringComparison.Ordinal)
                 || !state.Seats.ContainsKey(death.Destroyed.OwnerId)

@@ -1204,6 +1204,15 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var stunnedEnemyDraw = Regex.Match(segment,
+            @"^当一名被眩晕的敌方单位在此处被摧毁时，抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
+        if (stunnedEnemyDraw.Success)
+            return new TriggerSpec(TriggerKinds.UnitStunnedEnemyDestroyedHereDraw, TriggerTimings.UnitDestroyed, segment,
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, DrawCount: ParseChineseNumber(stunnedEnemyDraw.Groups[1].Value));
+        if (Regex.IsMatch(segment, @"^当至少一名友方单位被摧毁时，给予一名友方单位\{\{增益\}\}。?$", RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitFriendlyBatchDestroyedBoon, TriggerTimings.UnitDestroyed, segment,
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField, BoonCount: 1);
+
         var unitEnemyDestroyedHereCallRuneMatch = Regex.Match(
             segment,
             @"每回合一次，当此处有一名敌方单位被摧毁时，召出([0-9一两二三四五六七八九十]+)枚休眠的符文。?$",
