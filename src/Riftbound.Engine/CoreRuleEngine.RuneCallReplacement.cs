@@ -7,7 +7,7 @@ public sealed partial class CoreRuleEngine
     // A replacement adds new objects to the same event; it does not turn them
     // into the original instruction's objects or apply itself recursively.
     private static RuneCallResult ApplyRuneCall(Dictionary<string, PlayerZones> zones,
-        Dictionary<string, CardObjectState> cards, string playerId, int originalCount, bool originalExhausted)
+        Dictionary<string, CardObjectState> cards, string playerId, int originalCount, bool originalExhausted, int maximumCount = int.MaxValue)
     {
         if (originalCount <= 0 || !zones.TryGetValue(playerId, out var own)) return new([], []);
 
@@ -23,9 +23,9 @@ public sealed partial class CoreRuleEngine
             }
         }
 
-        var originals = TakeControlledRuneDeckPrefix(cards, playerId, own.RuneDeck, originalCount);
+        var originals = TakeControlledRuneDeckPrefix(cards, playerId, own.RuneDeck, Math.Min(originalCount, maximumCount));
         var extras = TakeControlledRuneDeckPrefix(cards, playerId,
-            own.RuneDeck.Skip(originals.Length).ToArray(), extraCount);
+            own.RuneDeck.Skip(originals.Length).ToArray(), Math.Min(extraCount, maximumCount - originals.Length));
         var all = originals.Concat(extras).ToArray();
         if (all.Length == 0) return new([], []);
         zones[playerId] = own with { RuneDeck = own.RuneDeck.Skip(all.Length).ToArray(), Base = own.Base.Concat(all).ToArray() };

@@ -85,7 +85,7 @@ public sealed partial class CoreRuleEngine
                             ["playerId"] = group.Key, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["destinationZone"] = "GRAVEYARD" }));
                     }
                     ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, group.Key, "CARD_DISCARDED", item.SourceObjectId, ids, events);
-                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, group.Key, ids);
+                    effects = MarkPlayerDiscardedHandCardsThisTurn(effects, group.Key, ids, zones);
                 }
                 result = result with { UntilEndOfTurnEffects = effects };
             }

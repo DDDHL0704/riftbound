@@ -57,10 +57,7 @@ public sealed class SwainSourceClassificationTests
 
     private static JsonDocument Read(string name)
     {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
-        Assert.NotNull(root);
-        return JsonDocument.Parse(File.ReadAllText(Path.Combine(root.FullName,
-            "docs/legacy/evidence/swain-source-2026-10-15", name)));
+        return JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            "Fixtures", "official-source", "swain", name)));
     }
 }

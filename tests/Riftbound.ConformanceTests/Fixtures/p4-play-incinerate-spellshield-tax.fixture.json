@@ -223,7 +223,7 @@
             "CARD_TYPE:UNIT",
             "法盾"
           ],
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },
