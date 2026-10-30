@@ -9153,6 +9153,10 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·065/167", "萨勒芬妮", 4, "RAD_065_SERAPHINE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "缴械2"),
+        new("RAD·065a/167", "萨勒芬妮", 4, "RAD_065A_SERAPHINE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "缴械2"),
         new("RAD·090/167", "伊芙琳", 5, "RAD_090_EVELYNN_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "恶魔|伏击"),
         new("RAD·090a/167", "伊芙琳", 5, "RAD_090A_EVELYNN_PLAY_UNIT", 0, 0,

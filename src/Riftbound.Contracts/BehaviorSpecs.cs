@@ -61,6 +61,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string ControllerExhaustedUnitGroupDraw = "CONTROLLER_EXHAUSTED_UNIT_GROUP_DRAW";
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
@@ -293,6 +294,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string ControllerExhaustedUnitGroup = "CONTROLLER_EXHAUSTED_UNIT_GROUP";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
     public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
     public const string SourceReadied = "SOURCE_READIED";

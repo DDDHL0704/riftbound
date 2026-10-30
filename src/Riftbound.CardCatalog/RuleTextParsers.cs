@@ -474,6 +474,14 @@ public static class TriggerParser
             TargetScope: TriggerTargetScopes.FriendlyEquipment, DestroyCount: 1, PlayCount: 1,
             PlayOriginZone: TriggerZones.Hand, MaximumPlayedCardManaCost: int.Parse(destroyEquipmentGrant.Groups["mana"].Value),
             IgnorePlayManaCost: true, PayPlayPowerCosts: true, Duration: TriggerDurations.UntilEndOfTurn, Optional: true));
+        var groupExhaustionDraw = Regex.Match(text,
+            @"每回合限一次，当你同时让不少于(?<units>[0-9一两二三四五六七八九十]+)名友方单位变为休眠状态时，你可以选择抽(?<draws>[0-9一两二三四五六七八九十]+)张牌。?",
+            RegexOptions.CultureInvariant);
+        if (groupExhaustionDraw.Success)
+            triggers.Add(new(TriggerKinds.ControllerExhaustedUnitGroupDraw, TriggerTimings.ControllerExhaustedUnitGroup,
+                groupExhaustionDraw.Value, "Capture one simultaneous exhaustion instruction; declining preserves the turn allowance (383.3.e.2).",
+                RequiredUnitCount: ParseChineseNumber(groupExhaustionDraw.Groups["units"].Value),
+                DrawCount: ParseChineseNumber(groupExhaustionDraw.Groups["draws"].Value), Optional: true, OncePerTurn: true));
         var selfActionPower = Regex.Match(text,
             @"当你选择我为目标[、,，]?或让我变为活跃状态时[，,]\s*(?:给予|让)我(?:在)?本回合内\{\{S\}\}\+(?<might>[0-9一两二三四五六七八九十]+)。?",
             RegexOptions.CultureInvariant);

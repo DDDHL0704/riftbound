@@ -123,6 +123,7 @@ TurnStartStep = null, Phase = MatchPhases.Main,
             }
             var collected = QueueSourceReadied(RecordDeathObservers(stepStart, RecordDrawTriggers(stepStart, QueueBattlefieldReturnTriggers(new(true, null, state, events.Skip(stepEventIndex).ToArray(), ResolutionResult.BuildSnapshots(state), BuildCorePrompts(state))))));
             collected = QueueSelfActionObservers(stepStart, collected);
+            collected = QueueExhaustionObservers(stepStart, collected);
             collected = QueueSourceUnitTokens(stepStart, collected);
             events.RemoveRange(stepEventIndex, events.Count - stepEventIndex); events.AddRange(collected.Events);
             var published = PrepareTriggerConfirmation(PublishPendingTriggers(collected with { Events = [] }));

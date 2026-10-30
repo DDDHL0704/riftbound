@@ -14,6 +14,8 @@ public sealed record FieldTriggerContext(string CardNo, string Kind, long Source
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SelfActionOrigin? SelfAction { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ExhaustionObserverOrigin? ExhaustionObserver { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public AttackMightDamageOrigin? AttackMightDamage { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RecycledCardBoonOrigin? RecycledBoon { get; init; }
@@ -45,6 +47,8 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
+        if (context.Kind == ExhaustionDrawKind) return ValidExhaustionObserverShape(context, effect, cardNo);
+        if (context.ExhaustionObserver is not null) return false;
         if (context.Kind == DisarmKind) return ValidDisarmShape(context, effect, cardNo);
         if (context.Disarm is not null) return false;
         if (context.Kind == AttackMightDamageKind) return context.PaidUnitTrigger is null && context.StunObserver is null && context.SelfAction is null && ValidAttackMightDamageShape(context, effect, cardNo);
@@ -151,11 +155,12 @@ public sealed partial class CoreRuleEngine
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
             || i.ReadyObjectTrigger is not null && i.TargetGenerations is null || i.SourceReadied is { Mode: null }
+            || i.FieldContext is { Kind: ExhaustionDrawKind, ExhaustionObserver.Confirmed: false }
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.HighCostPlayObserver is not null && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or ExhaustionDrawKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);
 
@@ -179,6 +184,7 @@ public sealed partial class CoreRuleEngine
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
         if (item.ReadyObjectTrigger is not null) return PrepareReadyOtherObject(result, item);
         if (item.SourceReadied is not null) return PrepareReadiedMode(result, item);
+        if (item.FieldContext?.Kind == ExhaustionDrawKind) return PrepareExhaustionDraw(result, item);
         if (item.UnitPlayMight is not null) return PrepareUnitPlayMight(result, item);
         if (item.MightySkill is { Confirmed: false }) return PrepareMightySkill(result, item);
         if (NeedsAttachmentModeConfirmation(item)) return PrepareAttachmentMode(result, item);
@@ -398,6 +404,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item.FieldContext?.Kind == CombatKeywordDoubleKind) return ResolveCombatKeywordDouble(state, item);
         if (item.FieldContext?.Kind == SelfActionPowerKind) return ResolveSelfActionObserver(state, item);
+        if (item.FieldContext?.Kind == ExhaustionDrawKind) return ResolveExhaustionDraw(state, item);
         if (item.FieldContext is { Kind: AttackMightDamageKind }) return ResolveAttackMightDamage(state, item);
         if (item.FieldContext is { Kind: CombatMightDamageKind } context)
         {
