@@ -85,7 +85,10 @@ class FullCiGateTests(unittest.TestCase):
         self.assertIn('needs: [scope, postgres_partitions, native_network, related_network]', jobs['postgres'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('needs: [scope, rule_suite, postgres]', jobs['rules'])
-        self.assertIn('if: ${{ always() }}', jobs['rules'])
+        for job in ['postgres', 'rules']:
+            header = jobs[job].split('    steps:', 1)[0]
+            self.assertIn('    if: ${{ always() && !cancelled() }}\n', header)
+            self.assertNotIn('    if: ${{ always() }}\n', header)
         self.assertIn('python3 scripts/full-ci-gate.py', jobs['rules'])
         for job in ['scope', 'rule_suite', 'postgres']:
             self.assertIn('${{ needs.' + job + '.result }}', jobs['rules'])

@@ -73,6 +73,8 @@ public sealed class SingleDeckPlaySequenceTests
     [Theory]
     [InlineData("OGN·208/298", "DESTROY_FRIENDLY_UNIT:HOST")]
     [InlineData("SFD·044/221", "RETURN_FRIENDLY_EQUIPMENT:COST_GEAR")]
+    [InlineData("RAD·061/167", "RETURN_FRIENDLY_UNIT:HOST")]
+    [InlineData("RAD·061a/167", "RETURN_FRIENDLY_UNIT:HOST")]
     [InlineData("UNL-166/219", "DESTROY_FRIENDLY_TRAIT_UNIT:COST_PORO")]
     public async Task ChosenUnitsOfferTheirActualMandatoryAdditionalCostToTheProductionComposer(string unit, string cost)
     {
@@ -120,6 +122,8 @@ public sealed class SingleDeckPlaySequenceTests
     [InlineData("OGN·208/298")]
     [InlineData("SFD·044/221")]
     [InlineData("UNL-166/219")]
+    [InlineData("RAD·061/167")]
+    [InlineData("RAD·061a/167")]
     public async Task AnUnavailableMandatoryCostReturnsTheChosenUnitToBanishmentWithoutInventingAPlay(string unit)
     {
         var initial=DeckPlaySequenceTests.TopCard(Position(Reinforce),"P1_TOP",unit);
