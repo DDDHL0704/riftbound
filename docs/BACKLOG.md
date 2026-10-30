@@ -128,6 +128,7 @@
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
+- [ ] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`，统计先行）：2026-10-30 查询到 29 个 `feat(cards)` PR。`src/Riftbound.Engine/CardBehaviorRegistry.cs` 与 `src/Riftbound.Engine/CoreRuleEngine.cs` 各被 29/29 个 PR 修改；`tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs` 被 28/29 个修改；`src/Riftbound.CardCatalog/RuleTextParsers.cs` 被 27/29 个修改；`src/Riftbound.CardCatalog/VendettaCardSources.cs` 被 20/29 个修改；`src/Riftbound.Engine/PrintedCardFactory.cs` 被 16/29 个修改；`tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 被 3/29 个修改。RAD 批次中 `RadiantCardSources.cs` 被 9/9 个修改。下一 PR 要把这些汇总表改为按批次独立登记并从数据推导计数；当前 #287（31 文件、1,827 行新增）仍在等待合入且正修改上述共享文件，按约束待其合入后再开独立拆分 PR，避免与 B/D 的大 PR 交叉冲突。
 
 ## 接手旧分支
 
