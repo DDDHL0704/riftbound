@@ -148,16 +148,18 @@ public sealed class RadBattlefieldObjectPowerTests
     [Fact]
     public async Task ActuallyCopiedPrintedTextAddsOneFixedBonusAndLosesItWhenTheArmamentLeaves()
     {
-        var state = (await AttachedRuleTextTests.Attach(AttachedRuleTextTests.Position(Ranger, 0))).State;
+        var state = AttachedRuleTextTests.Position(Ranger, 0);
         foreach (var id in new[] { "HOST", "GEAR" })
             state = RadUnitEffectTestFixture.Place(state, id, "P1", "BATTLEFIELD", "F");
         for (var i = 1; i <= 2; i++)
             state = RadUnitEffectTestFixture.Place(HandDiscardObserverTests.Put(state, "A" + i, "OGN·219/298", "P1", "HAND"),
                 "A" + i, "P1", "BATTLEFIELD", "F");
-        Assert.Equal(7, ArmamentMightTests.Might(state));
-        ArmamentMightTests.PublicRecovery(state);
         state = HandDiscardObserverTests.Put(state, "RETURN", "SFD·135/221", "P1", "HAND");
         var game = new Driver(state);
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_GREEN"]));
+        await game.Top();
+        Assert.Equal(7, ArmamentMightTests.Might(game.State));
+        ArmamentMightTests.PublicRecovery(game.State);
         await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["GEAR"]));
         Assert.Equal(7, ArmamentMightTests.Might(game.State));
         await game.Top();
@@ -203,7 +205,7 @@ public sealed class RadBattlefieldObjectPowerTests
             state = RadUnitEffectTestFixture.Place(HandDiscardObserverTests.Put(state, id, "SFD·022/221", "P1", "HAND"),
                 id, "P1", "BATTLEFIELD", "BF");
             state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                [id] = state.CardObjects[id] with { AttachedToObjectId = units > 0 ? "A1" : "UNIT", AttachmentRevision = 1 } } };
+                [id] = state.CardObjects[id] with { AttachedToObjectId = units > 0 ? "A1" : "UNIT" } } };
         }
         return state;
     }

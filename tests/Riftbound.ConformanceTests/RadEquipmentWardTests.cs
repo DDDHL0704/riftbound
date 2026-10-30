@@ -113,9 +113,20 @@ public sealed class RadEquipmentWardTests
     [Fact]
     public async Task ActuallyCopyingThePrintedTextAddsAnIndependentWardInstance()
     {
-        var state = (await AttachedRuleTextTests.Attach(AttachedRuleTextTests.Position(Collector, 0))).State;
-        state = WithRecall(state, "P2") with { TurnPlayerId = "P2", ActivePlayerId = "P2",
-            RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P2"] = new(20, 20) } };
+        var state = WithRecall(AttachedRuleTextTests.Position(Collector, 0), "P2");
+        for (var i = 1; i <= 3; i++)
+            state = RadUnitEffectTestFixture.Place(HandDiscardObserverTests.Put(state, "WARD-R" + i, "OGN·007/298", "P2", "HAND"),
+                "WARD-R" + i, "P2", "BASE");
+        state = RadUnitEffectTestFixture.Place(HandDiscardObserverTests.Put(state, "P2-DRAW", "OGN·219/298", "P2", "HAND"),
+            "P2-DRAW", "P2", "MAIN_DECK");
+        var game = new Driver(state);
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_GREEN"]));
+        await game.Top();
+        await game.Act("P1", new EndTurnCommand());
+        await game.Act("P2", new TapRuneCommand("WARD-R1"));
+        await game.Act("P2", new RecycleRuneCommand("WARD-R2"));
+        await game.Act("P2", new RecycleRuneCommand("WARD-R3"));
+        state = game.State;
         Assert.Equal(2, TaxQuote(state).Cost!.GenericPower);
         var auras = Auras(state);
         Assert.Equal(2, auras.Length);
@@ -127,7 +138,6 @@ public sealed class RadEquipmentWardTests
             Assert.Null(a.TargetDependencyObjectIds);
             Assert.Null(a.ParticipantDependencyObjectIds);
         });
-        var game = new Driver(state);
         var power = state.RunePools["P2"].TotalPower;
         await game.Act("P2", new PlayCardCommand("SPELL", Recall, ["GEAR"]));
         Assert.Equal(power - 2, game.State.RunePools["P2"].TotalPower);
@@ -292,7 +302,7 @@ public sealed class RadEquipmentWardTests
         {
             state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
             state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["GEAR"] = state.CardObjects["GEAR"] with { AttachedToObjectId = "ALLY", AttachmentRevision = 1 } } };
+                ["GEAR"] = state.CardObjects["GEAR"] with { AttachedToObjectId = "ALLY" } } };
         }
         return WithRecall(state, "P2")
             with { TurnPlayerId = "P2", ActivePlayerId = "P2" };

@@ -93,6 +93,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidSourceUnitTokens(state, item.SourceUnitTokens, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
             throw new InvalidOperationException("Invalid source unit token trigger.");
+        if (BeginTokenReplacement(state, item) is { } replacement) return replacement;
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
         if (!TrySourceUnitTokenDestination(state, item, out var battlefield)) return NoopStackResolutionResult(state);
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,

@@ -16,6 +16,7 @@ internal static class RadUnitEffectTestFixture
         var destination = zones[controller];
         zones[controller] = zone switch {
             "HAND" => destination with { Hand = [..destination.Hand, id] },
+            "MAIN_DECK" => destination with { MainDeck = [..destination.MainDeck, id] },
             "BASE" => destination with { Base = [..destination.Base, id] },
             "BATTLEFIELD" => destination with { Battlefields = [..destination.Battlefields, id] },
             "GRAVEYARD" => destination with { Graveyard = [..destination.Graveyard, id] },

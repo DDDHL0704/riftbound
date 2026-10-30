@@ -265,7 +265,16 @@ public sealed class VenBasicFlowSpellTests
             }
             await Replay();
         }
-        internal async Task Top() { await Act(State.PriorityPlayerId!, new PassPriorityCommand()); await Act(State.PriorityPlayerId!, new PassPriorityCommand()); }
+        internal async Task Top()
+        {
+            var top = State.StackItems[^1].StackItemId;
+            for (var passes = 0; State.StackItems.Any(item => item.StackItemId == top)
+                && State.PriorityPlayerId is { } player; passes++)
+            {
+                Assert.True(passes < 4, "The top item did not resolve or open a choice after both players passed.");
+                await Act(player, new PassPriorityCommand());
+            }
+        }
         internal async Task Replay()
         {
             var result = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State, new CoreRuleEngine(), default, Events());

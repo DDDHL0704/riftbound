@@ -157,13 +157,14 @@ public sealed class RadCardCostSpellTests
     [Fact]
     public async Task AnIllegalEquipmentReferenceSuppliesNoDamageEvenWithAnnie()
     {
-        const string recall = "SFD·135/221";
-        var initial = HandDiscardObserverTests.Put(WithAnnie(TossPosition()), "RETURN", recall, "P1", "HAND");
+        var initial = WithAnnie(TossPosition());
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo("UNL·T05", out var factory));
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["GEAR"] = factory.CreateObject("GEAR", "P1", "P1") } };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Toss, ["GEAR", "ENEMY"]));
-        await game.Act("P1", new PlayCardCommand("RETURN", recall, ["GEAR"]));
-        await game.Top();
-        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand);
+        await game.Act("P1", new ActivateAbilityCommand("GEAR", P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId, []));
+        Assert.DoesNotContain("GEAR", game.State.CardObjects.Keys);
         Assert.Single(game.State.StackItems);
         await game.Top();
         Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
@@ -234,6 +235,12 @@ public sealed class RadCardCostSpellTests
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", equipment, "P1") } };
         state = RadUnitEffectTestFixture.Place(state, "GEAR", "P1", zone, zone == "BATTLEFIELD" ? "BF" : null);
+        if (zone == "BATTLEFIELD")
+        {
+            state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["GEAR"] = state.CardObjects["GEAR"] with { AttachedToObjectId = "ALLY" } } };
+        }
         return RadUnitEffectTestFixture.Place(state, "ENEMY", "P2", "BATTLEFIELD", "OTHER");
     }
 

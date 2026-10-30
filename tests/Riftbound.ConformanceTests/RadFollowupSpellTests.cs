@@ -60,7 +60,7 @@ public sealed class RadFollowupSpellTests
     public async Task PlayThenFollowDoesNotTreatAnEarlierSpellAsAUnitOrEquipment()
     {
         var state = VenUnitEntryBasicTests.Position("RAD·070/167") with {
-            PlayerCardsPlayedThisTurn = new Dictionary<string, int> { ["P1"] = 1, ["P2"] = 0 },
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int> { ["P1"] = 1 },
             UntilEndOfTurnEffects = ["PLAYED_SPELL_THIS_TURN:P1"]
         };
         var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
@@ -81,6 +81,7 @@ public sealed class RadFollowupSpellTests
         var initial = HandDiscardObserverTests.Put(VenUnitEntryBasicTests.Position("RAD·070/167"), "FIRST", first, "P1", "HAND");
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("FIRST", first, first == "SFD·022/221" ? ["ALLY"] : [], Destination: "BASE"));
+        if (first == "SFD·022/221") await game.Top();
         var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana);
@@ -103,9 +104,14 @@ public sealed class RadFollowupSpellTests
     [Fact]
     public async Task APreviousTurnsBattlefieldPlayDoesNotReduceThisTurnsSpell()
     {
-        var game = new Driver(AddFirstUnit(VenUnitEntryBasicTests.Position("RAD·070/167")));
+        var initial = AddFirstUnit(VenUnitEntryBasicTests.Position("RAD·070/167"));
+        for (var i = 1; i <= 3; i++)
+            initial = RadUnitEffectTestFixture.Place(HandDiscardObserverTests.Put(initial, "FOLLOW-R" + i, "OGN·007/298", "P1", "HAND"),
+                "FOLLOW-R" + i, "P1", "BASE");
+        var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("FIRST", "VEN·002", [], Destination: "BATTLEFIELD:BF"));
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        await game.Act("P1", new TapRuneCommand("FOLLOW-R1", ["FOLLOW-R1", "FOLLOW-R2", "FOLLOW-R3"]));
         var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana); await game.Replay();

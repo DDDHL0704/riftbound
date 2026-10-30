@@ -22083,19 +22083,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var card) && !card.IsFaceDown
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
     {
         return IsPlayerControlledFieldObject(state, playerId, objectId)
-            && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+            && IsEquipmentObject(state, objectId);
     }
 
     private static bool IsEnemyEquipmentObject(MatchState state, string playerId, string objectId)
     {
         return IsEnemyFieldObject(state, playerId, objectId)
-            && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+            && IsEquipmentObject(state, objectId);
     }
 
     private static bool IsAttackingBattlefieldObject(MatchState state, string objectId)
