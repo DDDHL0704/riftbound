@@ -140,7 +140,7 @@ public sealed class RadMovementBaseMightTests
         Assert.Equal(4, Unit(game.State, "ALLY").GetProperty("basePower").GetInt32());
         Assert.Equal(5, Unit(game.State, "ALLY").GetProperty("effectivePower").GetInt32());
         for (var passes = 0; game.State.SpellDuelState.IsActive && passes < 4; passes++) {
-            if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            if (game.State.StackItems.Count > 0 && game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
             else await game.Act(game.State.SpellDuelState.FocusPlayerId!, new PassFocusCommand());
         }
         Assert.False(game.State.SpellDuelState.IsActive);

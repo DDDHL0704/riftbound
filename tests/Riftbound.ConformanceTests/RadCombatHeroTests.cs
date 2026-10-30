@@ -207,6 +207,11 @@ public sealed class RadCombatHeroTests
         if (game.State.TurnPlayerId != "P2") await FaceDownPlayTestDriver.NextTurn(game);
         await game.Act("P2", new MoveUnitCommand("ENEMY1", "BASE", "BATTLEFIELD:F", [],
             SourceObjectIds: ["ENEMY1", "ENEMY2", "ENEMY3"]));
+        for (var step = 0; game.State.SpellDuelState.IsActive && step < 8; step++) {
+            if (game.State.StackItems.Count > 0) await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            else await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        }
+        Assert.False(game.State.SpellDuelState.IsActive); Assert.False(game.State.BattleState.IsActive);
         await FaceDownPlayTestDriver.NextTurn(game);
         Assert.Equal("P1", game.State.TurnPlayerId);
         return game;
