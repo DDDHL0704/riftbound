@@ -70,6 +70,26 @@ public sealed class RadAlternativeAssembleCostTests
     }
 
     [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task EitherAlternativeConsumesTheForgesFirstEquipmentAbilityWithoutReducingItsNonManaCost(bool exhaust)
+    {
+        var initial = HandDiscardObserverTests.Put(Position(), "BOOK", "VEN·054", "P1", "BASE");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["F"] = OfficialGarenConquestBattlefieldCountTests.Printed("F", "VEN·161", "P1"),
+            ["BOOK"] = initial.CardObjects["BOOK"] with { IsEmpowered = true } } };
+        var game = new Driver(initial);
+        await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", [exhaust ? Exhaust("HOST") : PowerCost]));
+        Assert.Equal(20, game.State.RunePools["P1"].Mana);
+        Assert.Equal(exhaust ? 20 : 19, game.State.RunePools["P1"].TotalPower);
+        Assert.Equal(exhaust, game.State.CardObjects["HOST"].IsExhausted);
+        await game.Top();
+        Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        await game.Act("P1", new ActivateAbilityCommand("BOOK", "BOOK_REMOVE_EMPOWER_DRAW", []));
+        Assert.Equal(19, game.State.RunePools["P1"].Mana);
+        await game.Top(); await game.Replay();
+    }
+
+    [Theory]
     [InlineData("base")] [InlineData("battlefield")] [InlineData("opponent-owned")]
     public async Task AControlledUnitAtAnyLocationCanPayAndWardAddsNoTargetTax(string branch)
     {
