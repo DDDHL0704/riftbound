@@ -9513,6 +9513,20 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "游走|缴械")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
+    [
+        new("RAD·074/167", "狂热目击者", 3, "ZEALOUS_WITNESS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·078/167", "重甲象骑", 6, "ARMORED_ELEPHANT_RIDER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守3|壁垒"),
+        new("RAD·076/167", "古灵翼兽", 2, "FLEDGLING_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
+        new("RAD·080/167", "觅血虫群", 8, "BLOODSEEKING_SWARM_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8),
+        new("RAD·030/167", "圣所保管员", 5, "SANCTUARY_KEEPER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5)
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantEntryCostUnits =
     [
         new("RAD·014/167", "微光泳者", 3, "OPTIONAL_DESTROY_PERMANENT_DEAL_DAMAGE", 2, 1,
@@ -9536,7 +9550,8 @@ public static class CardBehaviorRegistry
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Concat(RadiantEntryCostUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
+            .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
