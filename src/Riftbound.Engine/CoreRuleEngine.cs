@@ -13791,45 +13791,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
-        keywordBonus = CombatKeywordAmount(NonRuleDerivedTags(cardObject), combatKeyword)
-            + CombatKeywordAmount(cardObject.RuleDerivedTags ?? [], combatKeyword);
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSourceObjectKeywordStaticAuraBonus(
-                state,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveBattlefieldKeywordStaticAuraBonus(
-                state,
-                playerZones,
-                battlefieldId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
-            ResolveFriendlyFilteredUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
+        keywordBonus = ResolveCountedCombatKeywordFromLayer(state, playerZones, cardObject, battlefieldId, combatKeyword);
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
         }
-
-        keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
-        keywordBonus += CopiedRuleTextKeywordAmount(state, cardObject, combatKeyword);
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
             state,

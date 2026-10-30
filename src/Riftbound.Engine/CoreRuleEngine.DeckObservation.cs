@@ -170,7 +170,7 @@ public sealed partial class CoreRuleEngine
             var count=TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0?DeckPlayLookCount(play)
                 : TryGetDeckChoiceBehavior(state,parent,out var choice)?choice.MainDeckLookCount
                 : parent.InsightContext is { } insight?insight.Count
-                : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower}?1
+                : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?1
                 : CardBehaviorRegistry.TryGetByCardNo(parent.CardNo??"",out var printed)
                     ? printed.PerformsInsight?printed.InsightCount:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
                     : BattlefieldTriggerSpecRules.TryGetTrigger(parent.CardNo,
@@ -202,7 +202,7 @@ public sealed partial class CoreRuleEngine
     private static bool ValidObservationParent(MatchState state,StackItemState parent)
         => parent.EndAbility is not null ? ValidEndAbility(state,parent)
             : parent.DestroyDeckPlay is not null ? ValidDestroyDeckPlayContext(state,parent)
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower} movement
+            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle} movement
                 ? ValidMovementObserver(state,movement,parent.EffectKind,parent.ControllerId,parent.SourceObjectId,parent.CardNo)
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
@@ -220,7 +220,7 @@ public sealed partial class CoreRuleEngine
 
     private static string ExpectedObservationKind(StackItemState parent)
         => parent.InsightContext is { } insight ? insight.Kind=="DUEL" && parent.InsightCompleted?"REVEAL":"LOOK"
-            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower}?"REVEAL"
+            : parent.MovementObserver is {Kind:TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower or TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle}?"REVEAL"
             : TryGetEffectPlayDefinition(parent,out var play)&&play.DeckPlayKind.Length>0
                 ? DeckPlaySequenceReveals(parent)?"REVEAL":"LOOK"
             : parent.FieldContext is {Kind:"STANDBY_DEFEND"}?"REVEAL"

@@ -9384,10 +9384,19 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "游走|缴械")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantConditionalTriggerUnits =
+    [
+        new("RAD·074/167", "狂热目击者", 3, "ZEALOUS_WITNESS_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·078/167", "重甲象骑", 6, "ARMORED_ELEPHANT_RIDER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "坚守3|壁垒")
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
+            .Concat(RadiantConditionalTriggerUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

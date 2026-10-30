@@ -191,10 +191,12 @@ public static class TriggerKinds
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDamageAtOriginOrDestination = "UNIT_MOVED_DAMAGE_AT_ORIGIN_OR_DESTINATION";
+    public const string UnitMovedSourceKeywordDamage = "UNIT_MOVED_SOURCE_KEYWORD_DAMAGE";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitFirstMovementMillPlayer = "UNIT_FIRST_MOVEMENT_MILL_PLAYER";
     public const string UnitMovedAllPlayersDrawOrDiscard = "UNIT_MOVED_ALL_PLAYERS_DRAW_OR_DISCARD";
     public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
+    public const string UnitMovedRevealTopDrawPowerfulUnitOrRecycle = "UNIT_MOVED_REVEAL_TOP_DRAW_POWERFUL_UNIT_OR_RECYCLE";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedDrawDiscardTypes = "UNIT_MOVED_DRAW_DISCARD_TYPES";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
@@ -338,6 +340,7 @@ public static class TriggerTargetScopes
     public const string ExhaustedUnitOnField = "EXHAUSTED_UNIT_ON_FIELD";
     public const string UnitAtThisBattlefield = "UNIT_AT_THIS_BATTLEFIELD";
     public const string UnitAtMovementEndpointBattlefield = "UNIT_AT_MOVEMENT_ENDPOINT_BATTLEFIELD";
+    public const string UnitOnAnyBattlefield = "UNIT_ON_ANY_BATTLEFIELD";
     public const string EachPlayer = "EACH_PLAYER";
     public const string OwnedHeroUnitInGraveyard = "OWNED_HERO_UNIT_IN_GRAVEYARD";
     public const string ControlledUnitsAtThisBattlefield = "CONTROLLED_UNITS_AT_THIS_BATTLEFIELD";
@@ -710,7 +713,9 @@ public sealed record TriggerSpec(
     int? EmpoweredDamageAmount = null,
     int? ExperienceCost = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? ObjectReadyCount = null);
+    int? ObjectReadyCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? DamageSourceKeyword = null);
 
 public sealed record ReplacementSpec(
     string Kind,

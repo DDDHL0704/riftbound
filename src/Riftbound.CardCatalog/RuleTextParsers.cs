@@ -415,6 +415,13 @@ public static class TriggerParser
                 movedOriginDamage.Value, "Choose a unit at the recorded movement origin or destination battlefield; damage uses the source's current empowerment.",
                 TargetScope: TriggerTargetScopes.UnitAtMovementEndpointBattlefield, DamageAmount: ParseChineseNumber(movedOriginDamage.Groups["normal"].Value),
                 Optional: true, EmpoweredDamageAmount: ParseChineseNumber(movedOriginDamage.Groups["empowered"].Value)));
+        var movedKeywordDamage = Regex.Match(text,
+            @"当我移动时，你可以选择对战场上的一名单位造成等同于我\{\{(?<keyword>坚守)\}\}数值的伤害。",
+            RegexOptions.CultureInvariant);
+        if (movedKeywordDamage.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedSourceKeywordDamage, TriggerTimings.UnitMoved,
+                movedKeywordDamage.Value, TargetScope: TriggerTargetScopes.UnitOnAnyBattlefield,
+                Optional: true, DamageSourceKeyword: movedKeywordDamage.Groups["keyword"].Value));
         var movedTypedDiscard = Regex.Match(text,
             @"当我移动时，抽一张牌，然后弃置一张手牌。\s*随后，根据被弃置卡牌的类型，执行以下效果：\s*\*法术\s*—\s*抽一张牌。\s*\*装备\s*—\s*让最多两枚符文变为活跃状态。\s*\*单位\s*—\s*让我本回合内\{\{S\}\}\+3。?",
             RegexOptions.CultureInvariant);
@@ -433,6 +440,15 @@ public static class TriggerParser
                 Duration: TriggerDurations.UntilEndOfTurn, DrawCount: 1, RevealCount: 1,
                 RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:UNIT",
                 RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.Graveyard));
+        var movedPowerfulReveal = Regex.Match(text,
+            @"当我移动时，展示你主牌堆顶部的一张牌。\s*如果其为\{\{强力\}\}单位，则抽取该卡牌。\s*否则将其回收。",
+            RegexOptions.CultureInvariant);
+        if (movedPowerfulReveal.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle, TriggerTimings.UnitMoved,
+                movedPowerfulReveal.Value, TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: 1, RevealCount: 1, RequiredPowerThreshold: PowerfulUnitPowerThreshold,
+                RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:UNIT",
+                RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.MainDeck));
         var endReveal = Regex.Match(text, @"在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。", RegexOptions.CultureInvariant);
         if (endReveal.Success) triggers.Add(new(TriggerKinds.TurnEndRevealUntilUnit, TriggerTimings.TurnEnd, endReveal.Value,
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
