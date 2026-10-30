@@ -157,7 +157,7 @@ public sealed partial class CoreRuleEngine
             || i.ReadyObjectTrigger is not null && i.TargetGenerations is null || i.SourceReadied is { Mode: null }
             || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
-            || i.HighCostPlayObserver is not null && i.TargetGenerations is null
+            || i.HighCostPlayObserver is not null && !HighCostReadiesSource(i.CardNo) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)

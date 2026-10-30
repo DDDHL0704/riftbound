@@ -94,10 +94,14 @@ public sealed partial class CoreRuleEngine
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
-    private static ResolutionResult ResolveImmediateResourceTriggers(ResolutionResult result)
+    private static bool IsImmediateResourceTrigger(TriggerQueueItemState trigger)
+        => IsImmediateMovementResourceTrigger(trigger)
+            || trigger.ConquestSource?.Kind == TriggerKinds.UnitConquestGainResources;
+
+    private static ResolutionResult ResolveImmediateResourceTriggers(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var triggers = result.State.TriggerQueue.Where(IsImmediateMovementResourceTrigger).ToArray();
+        var triggers = result.State.TriggerQueue.Where(IsImmediateResourceTrigger).ToArray();
         if (triggers.Length == 0) return result;
         var pools = result.State.RunePools.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = result.Events.ToList();
@@ -105,10 +109,15 @@ public sealed partial class CoreRuleEngine
         {
             // The trigger has already captured its controller and source. Moving again,
             // leaving play, or changing controller cannot cancel an earned resource.
-            var spec = trigger.MovementObserver is { } movement
-                ? UnitMovedTriggerSpecRules.MovementTriggers(movement.CardNo).Single(t => t.Kind == movement.Kind) : null;
-            var mana = spec?.ManaDelta ?? 1; var power = spec?.GeneratedPower ?? 1;
             var pool = pools.GetValueOrDefault(trigger.ControllerId, RunePool.Empty);
+            var movementSpec = trigger.MovementObserver is { } movement
+                ? UnitMovedTriggerSpecRules.MovementTriggers(movement.CardNo).Single(t => t.Kind == movement.Kind) : null;
+            var conquestSpec = trigger.ConquestSource is { } conquest ? ConquestSourceSpec(conquest.CardNo) : null;
+            var mana = movementSpec?.ManaDelta ?? conquestSpec?.ManaDelta ?? 1;
+            var power = movementSpec?.GeneratedPower ?? conquestSpec?.GeneratedPower ?? 1;
+            if (!pool.HasSupportedAmounts || (long)pool.TotalStoredMana + mana > int.MaxValue
+                || (long)pool.TotalStoredPower + power > int.MaxValue)
+                return RejectWithCorePrompts(before, "资源技能获得的费用资源超出支持范围。", ErrorCodes.UnsupportedCardBehavior);
             pools[trigger.ControllerId] = pool with { Mana = pool.Mana + mana, Power = pool.Power + power };
             var payload = new Dictionary<string, object?>
             {
@@ -117,11 +126,13 @@ public sealed partial class CoreRuleEngine
                 ["resourceLifecycle"] = "rune-pool", ["resourceSkill"] = true
             };
             events.Add(BuildTriggerResolvedEvent(trigger));
-            events.Add(new("MANA_GAINED", $"移动触发：获得 {mana} 点法力", payload));
-            events.Add(new("POWER_GAINED", $"移动触发：获得 {power} 点任意特性符能", payload));
+            if (mana > 0)
+                events.Add(new("MANA_GAINED", movementSpec is not null ? $"移动触发：获得 {mana} 点法力" : "资源技能获得法力", payload));
+            if (power > 0)
+                events.Add(new("POWER_GAINED", movementSpec is not null ? $"移动触发：获得 {power} 点任意特性符能" : "资源技能获得任意特性符能", payload));
         }
         var state = result.State with { RunePools = pools,
-            TriggerQueue = result.State.TriggerQueue.Where(t => !IsImmediateMovementResourceTrigger(t)).ToArray() };
+            TriggerQueue = result.State.TriggerQueue.Where(t => !IsImmediateResourceTrigger(t)).ToArray() };
         return result with { State = state, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }

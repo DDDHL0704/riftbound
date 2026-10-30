@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
     // Resource skills remain available for payment. Other pending triggers must reach
     // the response/ordering window before the next ordinary action or battlefield task.
     internal static bool IsImmediateTrigger(TriggerQueueItemState trigger) =>
-        !IsImmediateMovementResourceTrigger(trigger)
+        !IsImmediateResourceTrigger(trigger)
         && !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal);
 
     private static ResolutionResult CaptureDeathTriggerSources(MatchState before, ResolutionResult result)
