@@ -51,7 +51,7 @@ class AffectedBranchOutOfDate(ValueError):
 def _test_class_names(text):
     names = _declared_type_names(text)
     return {name for name in names
-            if name.endswith(('Tests', 'Test', 'Guard', 'Privacy', 'Provenance'))}
+            if name.endswith(('Tests', 'Test', 'Consumers', 'Guard', 'Privacy', 'Provenance'))}
 
 
 def _declared_type_names(text):
