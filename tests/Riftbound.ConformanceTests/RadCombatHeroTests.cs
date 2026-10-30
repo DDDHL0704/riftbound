@@ -161,9 +161,9 @@ public sealed class RadCombatHeroTests
         Assert.Equal(ids.Length, ids.Distinct(StringComparer.Ordinal).Count()); await game.Replay();
     }
 
-    // Prepare Night's Edge through real commands. With no friendly unit here,
-    // its mandatory attachment skill has no legal target and is discarded.
-    // The equipment stays here when the opponent subsequently conquers it.
+    // Keep a unit here while hiding Night's Edge, then recall the attachment
+    // target in response. The independent skill loses its target and the
+    // equipment stays here when the opponent subsequently conquers it.
     private static async Task<Driver> WithUnattachedEquipment(MatchState s, string controller,
         bool inBase = false, bool faceDown = false, string? response = null)
     {
@@ -174,6 +174,8 @@ public sealed class RadCombatHeroTests
         if (inBase) return new Driver(s);
         foreach (var id in new[] { "ENEMY1", "ENEMY2", "ENEMY3" })
             s = LocalDestructionRecallTests.At(s, id, "P2", "BASE");
+        s = OfficialHoldSequenceTests.AddUnit(s, "PREP-ANCHOR", "OGN·001/298", "F", controller);
+        s = AttackDamageDistributionTests.Spell(s, "PREP-RECALL", "OGN·169/298", controller);
         var cards = s.CardObjects.ToDictionary(); var zones = s.PlayerZones.ToDictionary(); var locations = s.ObjectLocations.ToDictionary();
         cards["F"] = cards["F"] with { ControllerId = controller };
         zones[controller] = zones[controller] with {
@@ -201,6 +203,11 @@ public sealed class RadCombatHeroTests
         if (!faceDown) {
             await FaceDownPlayTestDriver.NextTurn(game); await FaceDownPlayTestDriver.NextTurn(game);
             await game.Act(controller, new PlayCardCommand("GEAR", no, []));
+            var attach = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
+            await game.Act(controller, new ChooseCardsCommand(attach.ChoiceId, attach.ChoiceWindow, ["PREP-ANCHOR"]));
+            await game.Act(controller, new TapRuneCommand($"COMBAT-RUNE-{controller}-5"));
+            await game.Act(controller, new PlayCardCommand("PREP-RECALL", "OGN·169/298", ["PREP-ANCHOR"]));
+            await game.Top(); await game.Top();
             Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems);
             Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
         }
@@ -259,8 +266,9 @@ public sealed class RadCombatHeroTests
 
     private static async Task FinishCombat(Driver game, string source, int expectedPool)
     {
+        var firstEvent = game.Events().Length;
         var sawPool = false;
-        for (var step = 0; step < 35 && !game.Events().Any(e => e.Event.Kind == "BATTLE_CLOSED"); step++) {
+        for (var step = 0; step < 35 && !game.Events().Skip(firstEvent).Any(e => e.Event.Kind == "BATTLE_CLOSED"); step++) {
             var s = game.State; var prompts = ResolutionResult.BuildPrompts(s);
             var assignment = prompts.Values.FirstOrDefault(p => p.Candidates?.Any(c => c.Action == CommandTypes.AssignCombatDamage && c.Enabled) == true);
             if (assignment is not null) {
@@ -276,8 +284,8 @@ public sealed class RadCombatHeroTests
                 await game.Act(actor, new DeclareBattleCommand("F", s.BattleState.AttackerObjectIds, s.BattleState.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
             }
         }
-        Assert.Contains(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");
-        var dealt = game.Events().Where(e => e.Event.Kind == "DAMAGE_APPLIED"
+        Assert.Contains(game.Events().Skip(firstEvent), e => e.Event.Kind == "BATTLE_CLOSED");
+        var dealt = game.Events().Skip(firstEvent).Where(e => e.Event.Kind == "DAMAGE_APPLIED"
             && Equals(e.Event.Payload.GetValueOrDefault("sourceObjectId"), source) && e.Event.Payload.ContainsKey("combatRole")).ToArray();
         Assert.Equal(expectedPool, dealt.Sum(e => Convert.ToInt32(e.Event.Payload["damage"])));
         if (expectedPool > 0) Assert.True(sawPool);
