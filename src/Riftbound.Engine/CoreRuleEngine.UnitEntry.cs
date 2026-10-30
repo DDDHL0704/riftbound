@@ -113,6 +113,7 @@ public sealed partial class CoreRuleEngine
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
                 || behavior.EntersReadyAfterFriendlyPermanentDestroyed
                     && FriendlyPermanentDestroyedThisTurn(stackItem.ControllerId, turnNumber)
+                || countsAsPlay && behavior.Showcase?.ReadyEntry == true && stackItem.Showcase is not null
                 || readyWithMovementProhibition
                 || sourceReadyOptionalCostPaid
                 || hasteReadyOptionalCostPaid

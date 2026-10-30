@@ -93,6 +93,7 @@ public sealed partial class CoreRuleEngine
                         context.OptionalCosts, context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId,
                         context.CombatStarted, context.InitialRolesEstablished, ceased, context.PublicObjectBindings)) };
         }
+        state = RecordCeasedShowcaseTokens(before, state, departed);
         var events = result.Events.ToList();
         foreach (var id in departed)
             if (!events.Any(e => e.Kind == "TOKEN_CEASED_TO_EXIST"

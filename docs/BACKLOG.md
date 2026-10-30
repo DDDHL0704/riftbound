@@ -92,7 +92,10 @@
 - [x] E 线移动与条件触发五张：狂热目击者、重甲象骑、古灵翼兽、觅血虫群、圣所保管员。共享移动展示／强力判定／回收、按当前坚守值计算伤害、立即结算征服资源技能、按本回合实际征服战场减费，以及成功打出高费用卡牌后的来源活跃；正常、非法目标、费用、来源离场、恢复与回放测试及 CARD_BACKLOG 五项移除放在同一 PR。
 - [x] E 线摧毁与据守触发五张：风暴锋喙鸟、光照者教团、哀戚悲灵、战地甲胄师、钟塔守护者。共享眩晕敌方死亡观察、每批友方死亡增益、死亡位置捕获后的可选摧毁、战场装备死亡付费返手、据守洞察，以及绝念放逐牌库顶后可选打出；只免法力时保留符能及额外费用。Release 零错误，装备复制文本与回放 9/9、其余新牌及完整 ConformanceFixtureRunnerTests、目录／隐私／来源身份／Provenance 守卫 3669/3669 通过；CARD_BACKLOG 五项删除随同一 PR 合入。
 
+- [x] E 线亮出与打出选择批次（`e/rad-reveal-play`，#315）：龙犬驯兽师、冥顽构装体、苍穹腾蛟、暗巷守护者、祸心陌客。亮出在确认阶段选择并锁定信息，手牌展示、场上只挑选且排除背面待命；零符能亮出仍完成后续抽牌。龙犬展示全部对手后合计选一张免费打出，祸心在进场后确认战场与可选返手目标、结算时检查四单位门槛。亮出卡牌排除指示物，亮出机械允许机器人及机械复制指示物，并记录其后消失时的身份凭据。Release 零警告错误；初批回归 3763/3763、共享洞察／目标／恢复／待命 248/248；补充指示物边界与完整 ConformanceFixtureRunnerTests、目录／隐私／来源身份／Provenance 回归 3732/3732 通过，均含冷恢复与完整回放。九片规则与 L2 required 全部通过，#315 已合入；CARD_BACKLOG 五项已移除，指定 42 张累计完成 31 张。依据：核心 185、832.1.c.2 / 832.1.c.4 / 832.1.d.1、355.8；暗巷 FAQ、811.5.a、129.4。
+
 - [ ] E 线休眠与资源观察五张（`e/rad-resource-observers`）：翼之神谕者、鲁莽的发明家、能量聚合体、皮城向导机器人、细心的修复师。能量聚合体已实现回合结束回收全部符文后召出四枚休眠符文，共享按拥有者安排符文牌堆底部顺序（核心 417.5.a）、保留离场再进场的对象代际，并修复结束步骤技能来源进入隐藏区域后的投影与恢复。Release 零警告错误；新牌九项、既有结束步骤／符文召出、完整 ConformanceFixtureRunnerTests 和目录／隐私／来源身份／Provenance 回归合计 3721/3721 通过。翼之神谕者已接入共享休眠指令捕获与洞察 1，覆盖移动／可选费用／装配费用、重复横置／休眠进场、先横置后死亡、复制指示物消失、空牌堆、非法私有选择及伪造凭据；目录与本批 28/28 通过，待同步 main 后完成受影响回归。其余三张待扩展多模式与打出观察、基础战力替换流程；五张与正常／非法或边界测试齐备后同一 PR 移除 CARD_BACKLOG 条目。
+
 
 ## P3 · 工程与提速（A 线，L2 提速最优先）
 
@@ -131,6 +134,7 @@
   - 包含 #262 和 #278 的 main [40946282257](https://github.com/DDDHL0704/riftbound/actions/runs/40946282257)（固定 `afab4e71`）已完整通过 9,406 个方法、19,220 条用例和门槛，Counter 与 #262 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
 - [x] **P3-4 推送前受影响测试**（`a/affected-tests`）：[#304](https://github.com/DDDHL0704/riftbound/pull/304) 已合入。`scripts/test-rules.py affected --base origin/main --jobs 1` 根据源码、测试文件和 RAD/VEN 卡号选择受影响测试，并固定追加卡牌目录、隐私、来源身份、Provenance、OfficialOpening 及源码架构守卫；分支落后 main 时先提示同步。184 项脚本测试、Release 构建及 26 个测试类 / 1,300 个用例定向回归通过，0 跳过。
+  - `a/affected-consumers`：修复七个以 `Consumers` 结尾的真实规则测试类在改测试文件、源码类型或卡号时被漏选的问题，继续排除嵌套的 Driver／Store 等辅助类；受影响筛选回归加入 L2 准备阶段。
 - [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 - [ ] **P3-5 卡牌登记冲突热点**（`a/registration-hotspots`，统计先行）：2026-10-30 查询到 29 个 `feat(cards)` PR。`src/Riftbound.Engine/CardBehaviorRegistry.cs` 与 `src/Riftbound.Engine/CoreRuleEngine.cs` 各被 29/29 个 PR 修改；`tests/Riftbound.ConformanceTests/ReviewedRuntimeCatalogAdmissionTests.cs` 被 28/29 个修改；`src/Riftbound.CardCatalog/RuleTextParsers.cs` 被 27/29 个修改；`src/Riftbound.CardCatalog/VendettaCardSources.cs` 被 20/29 个修改；`src/Riftbound.Engine/PrintedCardFactory.cs` 被 16/29 个修改；`tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 被 3/29 个修改。RAD 批次中 `RadiantCardSources.cs` 被 9/9 个修改。下一 PR 要把这些汇总表改为按批次独立登记并从数据推导计数；当前 #287（31 文件、1,827 行新增）仍在等待合入且正修改上述共享文件，按约束待其合入后再开独立拆分 PR，避免与 B/D 的大 PR 交叉冲突。
 
@@ -158,8 +162,8 @@ git show <分支>:<路径> > <路径>
 
 - 网页对战前端在 `clients/web`，PR #233 / #234 及分支 `web/battle-polish-2-20261028` 已覆盖桌面、卡组编辑器、战绩、音效、导览等。
 - 服务端规则改了提示或命令格式时，在这里追加一条"前端需适配"，写明 PR 号。
+  - `e/rad-reveal-play` 前端需适配：亮出候选位于打出提示的 `optionalCostChoices`，原样通过 `PLAY_CARD.optionalCosts` 提交最多一个 `SHOWCASE:<objectId>`；可以不选。此选择不支付费用，确认时锁定信息，手牌执行展示，场上卡牌只作挑选。
   - #262 前端需适配：凯尔的强化层数通过 `empowermentCount` 显示，最多三层。凯南征服授予流转新增可选费用：提示 `flowCostChoiceId` / `flowCostChoices`，通过 `PLAY_CARD.optionalCosts` 提交对应的 `FLOW_COST:<mana>:<power>:<traits>`。
   - #262 前端需适配：终极统治授予的回合内技能复用 `ACTIVATE_ABILITY` 提示，按返回的 `GRANTED:<hash>` 原样提交 `abilityId`，展示两点任意符能费用及付款候选；结算链的 `grantedAbilityId` 用于对应技能展示。
   - #281 前端需适配：铁铠冥魂的 `LEGEND_ACT` 提示新增 `additionalCostChoices` 和 `requiredAdditionalCostChoiceCount: 1`，从中选择一个放逐费用，按原值通过 `optionalCosts` 提交；这些费用候选不是技能目标。
   - `b/rad-discard-destroy` 前端需适配：选择触发目标后，使用 `CHOOSE_CARDS` / `TRIGGER_HAND_DISCARD_COST` 选择一张手牌；空选择放弃技能。若随后出现 `TRIGGER_TARGET_COST`，支付或放弃法盾费用与弃牌一起提交，支付成功后再开放响应。所选手牌在付款前只对操作者可见。
-
