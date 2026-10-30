@@ -8,7 +8,7 @@ internal static class PermanentPlayTriggerRecoveryRules
     // Rebuild the restricted source family from immutable printed text rather
     // than trusting the producer's decision or any reconstructed player view.
     private static readonly Lazy<IReadOnlySet<string>> BattlefieldOnlySources = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(card => Regex.IsMatch(card.CardEffect,
                     @"(?:^|[。\n])\s*每?当你将我打出到一处战场时", RegexOptions.CultureInvariant)
                 && !Regex.IsMatch(card.CardEffect,
@@ -17,7 +17,7 @@ internal static class PermanentPlayTriggerRecoveryRules
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
 
     private static readonly Lazy<IReadOnlySet<string>> HereDamageSources = new(() =>
-        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Where(card => BattlefieldOnlySources.Value.Contains(card.CardNo)
                 && card.CardEffect.Contains("对此处的一名敌方单位造成2点伤害", StringComparison.Ordinal))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
@@ -35,6 +35,13 @@ internal static class PermanentPlayTriggerRecoveryRules
             && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var hereBehavior) && item.EffectKind == hereBehavior.EffectKind;
         var declares = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var named)
             && item.EffectKind == named.EffectKind && named.SourceStaticLimits?.DeclaresSpellNameAndProhibitsItOnEnemyBattlefield == true;
+        var sourceInstruction = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var instruction)
+            && item.EffectKind == instruction.EffectKind
+            && (instruction.RecyclesSourceIfPlayedFromStandby || instruction.GrantsSourceEphemeralIfOpponentTurn
+                || instruction.PlayTargetsAtSourceLocation && battlefield);
+        if (sourceInstruction && (CoreRuleEngine.PlayInstructionSource(state, item) is not { } receipt
+            || !state.CardObjects.TryGetValue(receipt.ObjectId, out var entered) || entered.ObjectGeneration < receipt.Generation
+            || item.PlayedFromStandby is { } shadow && receipt.Generation != shadow.SourceGeneration + 1)) return false;
         var graveyardCost = item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var paid)
             && paid.PlayTriggerBanishesGraveyardCardAsCost && item.EffectKind == paid.EffectKind;
         if (item.PermanentPlaySource is { } binding
