@@ -11,7 +11,7 @@ public sealed class RadEntryCostUnitTests
 {
     public static TheoryData<string, long, int, int, int> Cards => new()
     {
-        { "RAD·005/167", 39495, 2, 0, 2 }, { "RAD·026/167", 39519, 2, 0, 2 },
+        { "RAD·005/167", 39495, 2, 0, 2 }, { "RAD·014/167", 39504, 3, 0, 3 }, { "RAD·026/167", 39519, 2, 0, 2 },
         { "RAD·066/167", 39564, 6, 1, 4 }, { "RAD·072/167", 39571, 2, 0, 2 },
         { "RAD·075/167", 39574, 5, 0, 4 }
     };
@@ -32,7 +32,7 @@ public sealed class RadEntryCostUnitTests
     }
 
     [Theory]
-    [InlineData("RAD·005/167")] [InlineData("RAD·026/167")] [InlineData("RAD·066/167")]
+    [InlineData("RAD·005/167")] [InlineData("RAD·014/167")] [InlineData("RAD·026/167")] [InlineData("RAD·066/167")]
     [InlineData("RAD·072/167")] [InlineData("RAD·075/167")]
     public async Task IllegalEntryDestinationAndUnrecognizedChoiceCannotChangeAnyState(string no)
     {
@@ -42,6 +42,62 @@ public sealed class RadEntryCostUnitTests
         await Reject(state, "P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: ["INVENTED_COST"]));
         await Reject(state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = RunePool.Empty } },
             "P1", new PlayCardCommand("UNIT", no, []));
+    }
+
+    [Theory]
+    [InlineData("GEAR", "UNIT")] [InlineData("GEAR", "ALLY")] [InlineData("GEAR", "ENEMY")]
+    [InlineData("ALLY", "UNIT")] [InlineData("ALLY", "ENEMY")]
+    public async Task OptionalPermanentDestructionIsPaidBeforeEntryAndDamageWaitsForResponses(string cost, string target)
+    {
+        const string no = "RAD·014/167"; var initial = VenUnitEntryBasicTests.Position(no); var driver = new Driver(initial);
+        Assert.Contains("DESTROY_FRIENDLY_PERMANENT:" + cost, JsonSerializer.Serialize(driver.PromptFor("P1")));
+        await driver.Act("P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: ["DESTROY_FRIENDLY_PERMANENT:" + cost]));
+        Assert.Contains(cost, driver.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("UNIT", driver.State.PlayerZones["P1"].Base); Assert.Equal(17, driver.State.RunePools["P1"].Mana);
+        var choice = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        Assert.DoesNotContain(cost, choice.LegalObjectIds); Assert.Contains(target, choice.LegalObjectIds);
+        await Reject(driver.State, "P2", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+        await Reject(driver.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [cost]));
+        await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
+        Assert.Equal(0, driver.State.CardObjects[target].Damage); Assert.NotNull(driver.State.PriorityPlayerId);
+        await driver.Top(); Assert.Equal(2, driver.State.CardObjects[target].Damage); await driver.Replay();
+    }
+
+    [Theory]
+    [InlineData("enemy")] [InlineData("hidden")] [InlineData("graveyard")] [InlineData("source")]
+    [InlineData("missing")] [InlineData("multiple")] [InlineData("battlefield")]
+    public async Task OptionalPermanentDestructionRejectsIllegalCostsWithoutPayingOrEntering(string branch)
+    {
+        const string no = "RAD·014/167"; var state = VenUnitEntryBasicTests.Position(no);
+        if (branch == "hidden") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["GEAR"] = state.CardObjects["GEAR"] with { IsFaceDown = true } } };
+        var target = branch switch { "enemy" => "ENEMY", "graveyard" => "GRAVE", "source" => "UNIT",
+            "missing" => "MISSING", "battlefield" => "BF", _ => "GEAR" };
+        await Reject(state, "P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: branch == "multiple"
+            ? ["DESTROY_FRIENDLY_PERMANENT:GEAR", "DESTROY_FRIENDLY_PERMANENT:ALLY"]
+            : ["DESTROY_FRIENDLY_PERMANENT:" + target]));
+    }
+
+    [Fact]
+    public async Task AResponseCanRemoveTheConfirmedDamageTargetAndThePaidCostStaysDestroyed()
+    {
+        const string no = "RAD·014/167"; var driver = new Driver(Hand(VenUnitEntryBasicTests.Position(no), "RETURN", "OGN·104/298"));
+        await driver.Act("P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: ["DESTROY_FRIENDLY_PERMANENT:GEAR"]));
+        var choice = driver.State.PendingCardChoice!;
+        await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]));
+        await driver.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"]));
+        await driver.Top(); await driver.Top();
+        Assert.Contains("ALLY", driver.State.PlayerZones["P1"].Hand); Assert.Equal(0, driver.State.CardObjects["ALLY"].Damage);
+        Assert.Contains("GEAR", driver.State.PlayerZones["P1"].Graveyard); await driver.Replay();
+    }
+
+    [Fact]
+    public async Task RecoveryRejectsAnUnpaidConditionalDestructionAbility()
+    {
+        const string no = "RAD·014/167"; var driver = new Driver(VenUnitEntryBasicTests.Position(no));
+        await driver.Act("P1", new PlayCardCommand("UNIT", no, [], OptionalCosts: ["DESTROY_FRIENDLY_PERMANENT:GEAR"]));
+        var item = Assert.Single(driver.State.StackItems);
+        Assert.NotEmpty(MatchRecoveryValidator.ValidateComponentStateAndViews(driver.State with { StackItems = [item with { OptionalCosts = [] }] }));
     }
 
     [Theory]
@@ -117,6 +173,26 @@ public sealed class RadEntryCostUnitTests
         var driver = new Driver(state); await driver.Act("P1", new PlayCardCommand("KILL", equipment ? "VEN·003" : "OGN·229/298", [target]));
         await driver.Top(); await driver.Act("P1", new PlayCardCommand("UNIT", no, []));
         Assert.Equal(!ready, driver.State.CardObjects["UNIT"].IsExhausted); await driver.Replay();
+    }
+
+    [Fact]
+    public async Task FriendlyPermanentDestructionFromAnEarlierTurnDoesNotReadyALaterEntry()
+    {
+        const string no = "RAD·005/167";
+        var state = Hand(VenUnitEntryBasicTests.Position(no), "KILL", "VEN·003");
+        var runes = new[] { "TURN-RUNE-1", "TURN-RUNE-2" };
+        state = state with {
+            CardObjects = state.CardObjects.Concat(runes.Select(id => new KeyValuePair<string, CardObjectState>(id,
+                OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·007/298", "P1")))).ToDictionary(),
+            ObjectLocations = state.ObjectLocations.Concat(runes.Select(id => new KeyValuePair<string, ObjectLocationState>(id, new("P1", "BASE")))).ToDictionary(),
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { Base = [..state.PlayerZones["P1"].Base, ..runes] } }
+        };
+        var driver = new Driver(state);
+        await driver.Act("P1", new PlayCardCommand("KILL", "VEN·003", ["GEAR"])); await driver.Top();
+        await driver.Act("P1", new EndTurnCommand()); await driver.Act("P2", new EndTurnCommand());
+        await driver.TapRunes("P1", runes);
+        await driver.Act("P1", new PlayCardCommand("UNIT", no, []));
+        Assert.True(driver.State.CardObjects["UNIT"].IsExhausted); await driver.Replay();
     }
 
     [Theory]

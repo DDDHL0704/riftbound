@@ -91,6 +91,8 @@ public sealed record CardBehaviorDefinition(
     bool CreatedBaseUnitTokenCopiesFirstTarget = false,
     bool DiscardsAllPlayersHandsThenDraws = false,
     bool RequiresDestroyFriendlyUnitAdditionalCost = false,
+    bool MayDestroyFriendlyPermanentAdditionalCost = false,
+    bool PlayAbilityRequiresPermanentDestructionCost = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool RequiresReturnFriendlyEquipmentAdditionalCost = false,
     bool MayReturnFriendlyEquipmentAdditionalCost = false,
@@ -9368,6 +9370,9 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantEntryCostUnits =
     [
+        new("RAD·014/167", "微光泳者", 3, "OPTIONAL_DESTROY_PERMANENT_DEAL_DAMAGE", 2, 1,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, TargetScope: CardTargetScopes.AnyUnit,
+            MayDestroyFriendlyPermanentAdditionalCost: true, PlayAbilityRequiresPermanentDestructionCost: true),
         new("RAD·066/167", "熔炉之灵", 6, "RETURN_EQUIPMENT_READY_AND_POWER", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "灵体",
             MayReturnFriendlyEquipmentAdditionalCost: true, ReadiesSourceAndAddsReturnedEquipmentManaPower: true),

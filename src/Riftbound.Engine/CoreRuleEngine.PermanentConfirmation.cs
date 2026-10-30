@@ -15,6 +15,7 @@ public sealed partial class CoreRuleEngine
                 && (behavior.CreatedBaseUnitTokenConditionKind != CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
                     || ShouldCreateBaseUnitTokens(behavior, item))
                 && behavior.EmpowerInteraction?.Timing is not ("PLAY" or "STANDBY_PLAY")
+                && (!behavior.PlayAbilityRequiresPermanentDestructionCost || OptionalPermanentDestructionWasPaid(item))
                 && (!behavior.ReadiesSourceAndAddsReturnedEquipmentManaPower || item.ReturnedEquipmentManaCost is not null)
                 && (!HasTargetEffectAdditionalCost(behavior) || TargetEffectAdditionalCostPaid(behavior, item.OptionalCosts)))
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))

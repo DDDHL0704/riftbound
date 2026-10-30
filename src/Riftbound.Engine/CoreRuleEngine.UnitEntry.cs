@@ -20,6 +20,7 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        int turnNumber,
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
@@ -111,8 +112,7 @@ public sealed partial class CoreRuleEngine
                 || entersReadyFromOtherFriendlyStaticAbility
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
                 || behavior.EntersReadyAfterFriendlyPermanentDestroyed
-                    && (untilEndOfTurnEffects.Contains(FriendlyPermanentDestroyedMarker(stackItem.ControllerId))
-                        || RuleChoices.Value?.DestroyedPermanentControllers.Contains(stackItem.ControllerId) == true)
+                    && FriendlyPermanentDestroyedThisTurn(stackItem.ControllerId, turnNumber)
                 || readyWithMovementProhibition
                 || sourceReadyOptionalCostPaid
                 || hasteReadyOptionalCostPaid
@@ -167,7 +167,7 @@ public sealed partial class CoreRuleEngine
             var entry = PrepareUnitEntry(playerZones, cardObjects, behavior,
                 new StackItemState(controllerId: controllerId, sourceObjectId: unit.ObjectId,
                     cardNo: unit.CardNo, destination: toBattlefield ? "BATTLEFIELD:ENTRY" : "BASE"),
-                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay,
+                context.TurnNumber, context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay,
                 context.PlayerScores);
             unit = entry.UnitState;
         }

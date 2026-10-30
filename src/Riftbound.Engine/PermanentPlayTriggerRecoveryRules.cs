@@ -24,6 +24,8 @@ internal static class PermanentPlayTriggerRecoveryRules
 
     internal static bool Valid(MatchState state, StackItemState item)
     {
+        if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var sacrificed)
+            && sacrificed.PlayAbilityRequiresPermanentDestructionCost && !CoreRuleEngine.OptionalPermanentDestructionWasPaid(item)) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var returnedEquipment)
             && returnedEquipment.ReadiesSourceAndAddsReturnedEquipmentManaPower && item.ReturnedEquipmentManaCost is null) return false;
         if (item.ReturnedEquipmentManaCost is { } mana

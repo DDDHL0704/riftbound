@@ -4021,7 +4021,11 @@ public static partial class MatchRecoveryValidator
                         || field.ObjectGeneration < entry.Battlefield.Generation)))) errors.Add("invalid turn battlefield conquests");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
-            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)) errors.Add("invalid death ledger");
+            || state.DeathLedger.Counts.Any(p=>!state.Seats.ContainsKey(p.Key) || p.Value<=0)
+            || state.DeathLedger.PermanentControllers is null
+            || state.DeathLedger.PermanentControllers.Any(player => !state.Seats.ContainsKey(player))
+            || state.DeathLedger.PermanentControllers.Distinct(StringComparer.Ordinal).Count() != state.DeathLedger.PermanentControllers.Count
+            || state.DeathLedger.PermanentControllers.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber) errors.Add("invalid death ledger");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.DeathObserver is null && IsUncapturedDeathObserver(trigger.EffectKind, trigger.TriggerId))
                 errors.Add("obsolete uncaptured death observer");

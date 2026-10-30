@@ -7,7 +7,27 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal const string ReadyRestrictedEntryChoice = "ENTER_READY_CANNOT_MOVE";
-    private static string FriendlyPermanentDestroyedMarker(string controller) => "FRIENDLY_PERMANENT_DESTROYED:" + controller;
+    internal const string DestroyFriendlyPermanentAdditionalCostPrefix = "DESTROY_FRIENDLY_PERMANENT:";
+
+    private static bool CanDestroyFriendlyPermanentAsAdditionalCost(MatchState state, string player, string id)
+        => IsPlayerControlledFieldObject(state, player, id) && state.CardObjects.TryGetValue(id, out var card)
+            && !card.IsFaceDown && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard));
+
+    internal static IReadOnlyList<string> OptionalPermanentDestructionChoices(MatchState state, string player)
+        => state.CardObjects.Keys.Order(StringComparer.Ordinal).Where(id => CanDestroyFriendlyPermanentAsAdditionalCost(state, player, id))
+            .Select(id => DestroyFriendlyPermanentAdditionalCostPrefix + id).ToArray();
+
+    internal static bool OptionalPermanentDestructionWasPaid(StackItemState item)
+        => item.OptionalCosts.Count(cost => cost.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)
+            && cost.Length > DestroyFriendlyPermanentAdditionalCostPrefix.Length) == 1;
+
+    private static bool FriendlyPermanentDestroyedThisTurn(string controller, int turnNumber)
+    {
+        if (RuleChoices.Value is not { } frame) return false;
+        var ledger = frame.ResourceDeathLedger ?? frame.Origin.DeathLedger;
+        return frame.DestroyedPermanentControllers.Contains((turnNumber, controller))
+            || ledger.TurnNumber == turnNumber && ledger.PermanentControllers.Contains(controller);
+    }
 
     internal static IReadOnlyList<string> OptionalReturnEquipmentChoices(MatchState state, string player, CardBehaviorDefinition behavior)
         => behavior.MayReturnFriendlyEquipmentAdditionalCost ? state.CardObjects.Keys.Order(StringComparer.Ordinal)

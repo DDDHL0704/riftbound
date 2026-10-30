@@ -3,7 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
-public sealed record TurnDeathLedger(int TurnNumber, IReadOnlyDictionary<string,int> Counts);
+public sealed record TurnDeathLedger(int TurnNumber, IReadOnlyDictionary<string,int> Counts)
+{
+    public IReadOnlyList<string> PermanentControllers { get; init; } = [];
+}
 public sealed record DestroyedUnitFact(string ObjectId, string CardNo, string OwnerId, string ControllerId, long Generation, bool WasMinion);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record DeathObserverContext(string CardNo, string Kind, long SourceGeneration, DestroyedUnitFact Destroyed)
@@ -140,9 +143,10 @@ public sealed partial class CoreRuleEngine
             .ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var events=new List<GameEvent>(); var queue=state.TriggerQueue.ToList(); var seen=new HashSet<string>();
         var effects = state.UntilEndOfTurnEffects;
-        if (RuleChoices.Value is { } frame && before.TurnNumber == state.TurnNumber)
-            foreach (var controller in frame.DestroyedPermanentControllers)
-                effects = AddUntilEndOfTurnEffect(effects, FriendlyPermanentDestroyedMarker(controller));
+        var permanentControllers = (ledger.TurnNumber == state.TurnNumber ? ledger.PermanentControllers : [])
+            .Concat(RuleChoices.Value?.DestroyedPermanentControllers.Where(entry => entry.TurnNumber == state.TurnNumber)
+                .Select(entry => entry.ControllerId) ?? [])
+            .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         var deaths = result.Events.Select(e => e.Payload.GetValueOrDefault("capturedUnitDeath"))
             .OfType<CapturedUnitDeath>().DistinctBy(d => d.Id).Where(d => d.TurnNumber == state.TurnNumber).ToArray();
         var firstChoices = new Dictionary<(int Batch, string Source, string? Instance), string>();
@@ -237,7 +241,7 @@ public sealed partial class CoreRuleEngine
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
             }
         }
-        state=state with { DeathLedger=new(state.TurnNumber,counts),TriggerQueue=queue,UntilEndOfTurnEffects=effects };
+        state=state with { DeathLedger=new(state.TurnNumber,counts) { PermanentControllers = permanentControllers },TriggerQueue=queue,UntilEndOfTurnEffects=effects };
         return result with { State=state,Events=events,Snapshots=ResolutionResult.BuildSnapshots(state),Prompts=BuildCorePrompts(state) };
     }
 

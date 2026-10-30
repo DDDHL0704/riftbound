@@ -3940,6 +3940,12 @@ internal static partial class ActionPromptBuilder
             choices.Add(new(CoreRuleEngine.NormalGraveyardPlayChoice, "从废牌堆支付普通费用打出", "遵守正常时机，支付卡面费用和额外费用"));
         if (behavior.MayEnterReadyWithMovementProhibition)
             choices.Add(new(CoreRuleEngine.ReadyRestrictedEntryChoice, "以活跃状态进场", "本回合无法移动"));
+        if (!ignoresAllCosts && behavior.MayDestroyFriendlyPermanentAdditionalCost)
+            foreach (var cost in CoreRuleEngine.OptionalPermanentDestructionChoices(state, playerId))
+            {
+                var target = ObjectChoice(state, cost[CoreRuleEngine.DestroyFriendlyPermanentAdditionalCostPrefix.Length..], "可选额外费用；摧毁此单位或装备");
+                choices.Add(new(cost, "摧毁友方永久物：" + target.Label, target.Reason));
+            }
         if (!ignoresAllCosts && behavior.MayReturnFriendlyEquipmentAdditionalCost)
             foreach (var cost in CoreRuleEngine.OptionalReturnEquipmentChoices(state, playerId, behavior))
             {
