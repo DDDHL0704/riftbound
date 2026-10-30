@@ -105,6 +105,7 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesUnselectedMainDeckLookCards = false,
     bool UsesFriendlyBattlefieldUnitCountAsMaxTargetCount = false,
     bool UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier = false,
+    bool UsesControlledExhaustedUnitCountAsPowerModifierMultiplier = false,
     int PowerModifierTargetIndex = -1,
     int StatusEffectTargetIndex = -1,
     string TargetForbiddenTag = "",
@@ -440,6 +441,7 @@ public static class CardCostReductionConditionKinds
     public const string None = "NONE";
     public const string EnemyUnitDestroyedThisTurn = "ENEMY_UNIT_DESTROYED_THIS_TURN";
     public const string ControllerHighestUnitPower = "CONTROLLER_HIGHEST_UNIT_POWER";
+    public const string ControllerExhaustedUnitCount = "CONTROLLER_EXHAUSTED_UNIT_COUNT";
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
     public const string ControllerControlsEmpoweredObject = "CONTROLLER_CONTROLS_EMPOWERED_OBJECT";
@@ -715,6 +717,12 @@ public static class CardBehaviorRegistry
         new("RAD·025/167", "聆听天意", 1, "LISTEN_TO_FATE_STEADFAST_TWO_INSIGHT", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             StatusEffectId: "COMBAT_KEYWORD:坚守2", InsightCount: 1, CanPlayDuringPriority: true),
+        new("RAD·034/167", "气敛神聚", 1, "CENTERING_READY_RESTRICT_MOVEMENT_DRAW", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, ReadiesTarget: true,
+            StatusEffectId: MovementRestrictionRules.AllPlayers, DrawCount: 1, CanPlayDuringPriority: true),
+        new("RAD·048/167", "清籁穿云", 3, "CLEAR_CHORUS_EXHAUSTED_UNIT_COUNT_MIGHT_REDUCTION", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: -1,
+            UsesControlledExhaustedUnitCountAsPowerModifierMultiplier: true, CanPlayDuringPriority: true),
         new("RAD·049/167", "勤勉的机械匠", 4, "DILIGENT_MECHANIC_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
         new("RAD·058/167", "怒海法师", 4, "SEASPRAY_MAGE_PLAY_UNIT_ENEMY_POWER_MINUS_THREE", 0, 1,
@@ -754,6 +762,9 @@ public static class CardBehaviorRegistry
             BasePowerUntilEndOfTurn: 5, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("RAD·119/167", "狩猎犬", 3, "HUNTING_HOUNDS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
+        new("RAD·122/167", "不速之客", 9, "UNINVITED_GUEST_EXHAUSTED_UNIT_COST_REDUCTION", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: CardObjectTags.Bulwark,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExhaustedUnitCount, CostReductionMana: 1),
         new("RAD·123/167", "守护者之盾", 2, "GUARDIANS_SHIELD_AGILE_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "武装|灵便"),
         new("RAD·125/167", "沙丘吞噬者", 7, "DUNE_SWALLOWER_OPTIONAL_SACRIFICE_WARD_UNIT", 0, 0,

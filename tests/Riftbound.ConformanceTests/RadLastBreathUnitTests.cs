@@ -86,7 +86,7 @@ public sealed class RadLastBreathUnitTests
     public async Task TheDeathControllerReceivesTheTokenWhileThePhysicalSourceReturnsToItsOwner(string no)
     {
         var initial = WithHandCard(VenUnitEntryBasicTests.Position(no), "KILL", Kill);
-        initial = LocalDestructionRecallTests.At(initial, "UNIT", "P2", "BASE");
+        initial = RadUnitEffectTestFixture.Place(initial, "UNIT", "P2", "BASE");
         var game = new Driver(initial);
         Assert.Equal("P1", game.State.CardObjects["UNIT"].OwnerId);
         await game.Act("P1", new PlayCardCommand("KILL", Kill, ["UNIT"]));
@@ -124,8 +124,8 @@ public sealed class RadLastBreathUnitTests
         var state = VenUnitEntryBasicTests.Position(no);
         if (reason == "mana") state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = RunePool.Empty } };
         if (reason == "turn") state = state with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
-        if (reason == "owner") state = LocalDestructionRecallTests.At(state, "UNIT", "P2", "HAND");
-        if (reason == "graveyard") state = LocalDestructionRecallTests.At(state, "UNIT", "P1", "GRAVEYARD");
+        if (reason == "owner") state = RadUnitEffectTestFixture.Place(state, "UNIT", "P2", "HAND");
+        if (reason == "graveyard") state = RadUnitEffectTestFixture.Place(state, "UNIT", "P1", "GRAVEYARD");
         var before = MatchStateHasher.Hash(state);
         var snapshots = JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(state));
         var prompts = JsonSerializer.Serialize(ResolutionResult.BuildPrompts(state));

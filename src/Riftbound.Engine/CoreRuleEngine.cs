@@ -22804,6 +22804,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerHighestUnitPower
                 => HighestControlledUnitPower(state, playerId),
+            CardCostReductionConditionKinds.ControllerExhaustedUnitCount
+                => behavior.CostReductionMana * CountControlledExhaustedUnits(state.PlayerZones, state.CardObjects, playerId),
             CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
                 => OpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerControlsTaggedUnit
@@ -30693,6 +30695,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier)
         {
             return behavior.PowerModifierAmount * CountEnemyBattlefieldUnits(playerZones, cardObjects, controllerId);
+        }
+
+        if (behavior.UsesControlledExhaustedUnitCountAsPowerModifierMultiplier)
+        {
+            return behavior.PowerModifierAmount * CountControlledExhaustedUnits(playerZones, cardObjects, controllerId);
         }
 
         if (!string.IsNullOrWhiteSpace(behavior.PowerModifierControlledUnitTags))
