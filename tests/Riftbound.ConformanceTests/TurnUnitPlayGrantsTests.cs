@@ -350,8 +350,9 @@ public sealed class TurnUnitPlayGrantsTests
         var next = await driver.Act("P1", new EndTurnCommand());
         await TurnSequenceTestDriver.Complete(next, (player, command) => new(driver.Act(player, command)));
         Assert.DoesNotContain(driver.State.UntilEndOfTurnEffects, e => e.StartsWith("TURN_UNIT_PLAY_GRANT|"));
-        foreach (var rune in driver.State.PlayerZones["P2"].Base.Where(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
-            && !driver.State.CardObjects[id].IsExhausted).Take(5).ToArray()) await driver.Act("P2", new TapRuneCommand(rune));
+        var readyRunes = driver.State.PlayerZones["P2"].Base.Where(id => driver.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
+            && !driver.State.CardObjects[id].IsExhausted).Take(5).ToArray();
+        if (readyRunes.Length > 0) await driver.Act("P2", new TapRuneCommand(readyRunes[0], readyRunes));
         await driver.Act("P2", new PlayCardCommand("ENEMY_UNIT", "OGN·001/298", [], Destination: "BASE"));
         Assert.True(driver.State.CardObjects["ENEMY_UNIT"].IsExhausted);
         Assert.DoesNotContain(CardObjectTags.Boon, driver.State.CardObjects["ENEMY_UNIT"].Tags);
