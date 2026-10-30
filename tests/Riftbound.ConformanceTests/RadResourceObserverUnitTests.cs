@@ -432,10 +432,7 @@ public sealed class RadResourceObserverUnitTests
     {
         var game = new Driver(RepairerPosition("OGN·088/298"));
         await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
-        await game.Top();
-        var trigger = Assert.Single(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
-        Assert.Equal("CARD_PLAY_COMPLETED", trigger.TriggeredByEventKind);
-        await game.Act("P1", new OrderTriggersCommand([trigger.TriggerId]));
+        var item = Assert.Single(game.State.StackItems, item => item.HighCostPlayObserver?.CardNo == Repairer);
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         Assert.Equal(0, payment.ManaCost); Assert.Equal(0, payment.PowerCost);
         Assert.Equal(1, payment.PowerCostByTrait[RuneTrait.Yellow]);
@@ -459,8 +456,13 @@ public sealed class RadResourceObserverUnitTests
     {
         var game = new Driver(RepairerPosition(playedCard));
         await game.Act("P1", new PlayCardCommand("HIGH", playedCard, [], Destination: "BASE"));
-        await game.Top();
-        Assert.Equal(qualifies, game.State.TriggerQueue.Any(item => item.SourceCardNo == Repairer));
+        var observed = game.State.StackItems.Any(item => item.HighCostPlayObserver?.CardNo == Repairer);
+        Assert.Equal(qualifies, observed);
+        if (qualifies)
+        {
+            var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+            await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        }
         Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Base);
         await game.Replay();
     }
@@ -480,8 +482,8 @@ public sealed class RadResourceObserverUnitTests
         };
         var game = new Driver(initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones });
         await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
-        await game.Top();
         Assert.DoesNotContain(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
+        Assert.DoesNotContain(game.State.StackItems, item => item.HighCostPlayObserver?.CardNo == Repairer);
         Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Graveyard);
         await game.Replay();
     }
@@ -500,9 +502,6 @@ public sealed class RadResourceObserverUnitTests
             }
         });
         await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
-        await game.Top();
-        var trigger = Assert.Single(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
-        await game.Act("P1", new OrderTriggersCommand([trigger.TriggerId]));
         var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
         await Reject(game.State, "P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
         await Reject(game.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
