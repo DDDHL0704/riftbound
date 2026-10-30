@@ -374,6 +374,7 @@ public static class TriggerParser
         if (outsideHandPlay.Success)
             triggers.Add(new(TriggerKinds.ControllerOutsideHandPlayEmpowerSource, "CARD_PLAY_COMPLETED", outsideHandPlay.Value,
                 "When this controller completes a card play from outside their hand, empower the source."));
+        triggers.AddRange(EquipmentKeywordParser.ParseConquest(text));
         var attackGraveyardBanish = Regex.Match(text,
             @"(?:^|\n)当我进攻时，你可以选择从你的废牌堆中放逐一名单位。\s*若如此做，则给予我在本回合内\{\{强攻(?<amount>[0-9]+)\}\}。",
             RegexOptions.CultureInvariant);
@@ -3626,6 +3627,7 @@ public static class StaticAuraParser
     public static IReadOnlyList<StaticAuraSpec> Parse(string text)
     {
         var auras = new List<StaticAuraSpec>();
+        auras.AddRange(EquipmentKeywordParser.ParseOwnedKeywordGrants(text));
         var empoweredFriendlyPower = Regex.Match(text,
             @"你的单位获得\{\{S\}\}\+(\d+)。如果我\{\{已强化\}\}，则改为让其获得\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
         if (empoweredFriendlyPower.Success)

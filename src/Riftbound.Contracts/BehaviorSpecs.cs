@@ -169,6 +169,7 @@ public static class TriggerKinds
     public const string UnitConquestDrawOne =
         "UNIT_CONQUEST_DRAW_ONE";
     public const string UnitConquestGainResources = "UNIT_CONQUEST_GAIN_RESOURCES";
+    public const string UnitConquestCallDormantRune = "UNIT_CONQUEST_CALL_DORMANT_RUNE";
     public const string UnitConquestDrawOneOrCallRune =
         "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE";
     public const string UnitConquestCreateDormantGold =
@@ -469,6 +470,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string OwnedFilteredEquipmentKeyword = "OWNED_FILTERED_EQUIPMENT_KEYWORD";
     public const string SourceObjectPowerWithFriendlyEquipment = "SOURCE_POWER_WITH_FRIENDLY_EQUIPMENT";
     public const string SourceOtherSameNameUnitCountPower = "SOURCE_OTHER_SAME_NAME_UNIT_COUNT_POWER";
     public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
@@ -511,6 +513,7 @@ public static class StaticAuraKinds
 
 public static class StaticAuraTargetScopes
 {
+    public const string OwnedFilteredEquipment = "OWNED_FILTERED_EQUIPMENT";
     public const string SameLocationEnemyFilteredUnits = "SAME_LOCATION_ENEMY_FILTERED_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
@@ -722,7 +725,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     string? DamageSourceKeyword = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? GeneratedPower = null);
+    int? GeneratedPower = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? RequiresFriendlyEquipmentKeywordHere = null);
 
 public sealed record ReplacementSpec(
     string Kind,
