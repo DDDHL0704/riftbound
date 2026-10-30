@@ -3642,6 +3642,27 @@ public static class StaticAuraParser
                 }
             }
 
+            var friendlyObjectThreshold = Regex.Match(segment,
+                @"^只要我所在的战场(?:上)?有不少于(?<count>[0-9]+|[一两二三四五六七八九十])个其他友方单位和/或装备，我便具有\{\{S\}\}\+(?<delta>[0-9]+)。?$",
+                RegexOptions.CultureInvariant);
+            if (friendlyObjectThreshold.Success
+                && int.TryParse(friendlyObjectThreshold.Groups["delta"].Value, out var thresholdDelta))
+            {
+                var rawCount = friendlyObjectThreshold.Groups["count"].Value;
+                var required = int.TryParse(rawCount, out var numericCount) ? numericCount
+                    : rawCount == "两" ? 2 : "一二三四五六七八九十".IndexOf(rawCount, StringComparison.Ordinal) + 1;
+                if (required > 0)
+                {
+                    auras.Add(new(StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower, StaticAuraLayer,
+                        "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                        StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment,
+                        thresholdDelta, segment, BehaviorImplementationStatuses.Unimplemented,
+                        "A fixed bonus while enough other friendly public units or equipment occupy the source battlefield.",
+                        RequiredParticipantCount: required));
+                    continue;
+                }
+            }
+
             var sourceSameLocationOtherFriendlyUnitPowerMatch = Regex.Match(
                 segment,
                 @"如果你在此处有其他单位，则我获得\{\{S\}\}\+(\d+)",

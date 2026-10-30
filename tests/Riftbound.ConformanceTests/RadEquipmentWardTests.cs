@@ -288,6 +288,12 @@ public sealed class RadEquipmentWardTests
         var state = VenUnitEntryBasicTests.Position(Collector);
         state = RadUnitEffectTestFixture.Place(state, "UNIT", "P1", source, source == "BATTLEFIELD" ? "BF" : null);
         state = RadUnitEffectTestFixture.Place(state, "GEAR", "P1", equipment, equipment == "BATTLEFIELD" ? "BF" : null);
+        if (equipment == "BATTLEFIELD")
+        {
+            state = RadUnitEffectTestFixture.Place(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["GEAR"] = state.CardObjects["GEAR"] with { AttachedToObjectId = "ALLY", AttachmentRevision = 1 } } };
+        }
         return WithRecall(state, "P2")
             with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
     }

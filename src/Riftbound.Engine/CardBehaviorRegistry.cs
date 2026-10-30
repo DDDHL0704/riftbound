@@ -780,6 +780,8 @@ public static class CardBehaviorRegistry
         new("RAD·125/167", "沙丘吞噬者", 7, "DUNE_SWALLOWER_OPTIONAL_SACRIFICE_WARD_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "法盾",
             MaySacrificeUnitForPrintedCostReduction: true, FixedUnitSacrificeManaReduction: 2),
+        new("RAD·128/167", "坚定游骑", 4, "STEADFAST_RANGER_FRIENDLY_OBJECT_THRESHOLD_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: CardCombatKeywordNames.Bulwark),
         new("RAD·134/167", "炸裂神曲", 7, "BANGER_READY_FRIENDLY_UNITS_POWER_PLUS_THREE", 0, 0,
             ReadiesAllFriendlyUnits: true, ModifiesAllFriendlyUnits: true, PowerModifierAmount: 3),
         new("VEN·084", "安蓓萨 · 恶狼意志", 4, "VEN_AMBESSA_DAMAGE_IMMUNITY_PLAY_UNIT", 0, 0,

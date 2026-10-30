@@ -336,7 +336,10 @@ internal static class StaticAuraSpecRules
             return false;
         }
 
-        return string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, StringComparison.Ordinal)
+        return aura.Kind == StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower
+                && aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldOtherFriendlyPublicUnitsOrEquipment
+                && aura.RequiredParticipantCount is > 0
+            || string.Equals(aura.ParticipantScope, StaticAuraParticipantScopes.FriendlyFilteredPublicUnits, StringComparison.Ordinal)
             || string.Equals(
                 aura.ParticipantScope,
                 StaticAuraParticipantScopes.FriendlyPublicFieldEquipment,

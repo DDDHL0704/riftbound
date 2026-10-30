@@ -1818,7 +1818,8 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower)
+                if (effectKind is StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
+                    or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
                         $"STATIC_AURA:{effectKind}:{sourceObjectId}", "object static aura effect id", errors);
@@ -2267,7 +2268,8 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (effectKind == StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower)
+                if (effectKind is StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower
+                    or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower)
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(a => a.Kind == effectKind))
                         errors.Add($"{effectLabel} source lacks the controlled unit count aura");
@@ -2782,7 +2784,8 @@ public static partial class MatchRecoveryValidator
             ? Array.Empty<StaticAuraSpec>()
             : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if (effectKind is StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy
+                or StaticAuraKinds.SourceBattlefieldFriendlyObjectThresholdPower
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return participantCount >= enemyAura.RequiredParticipantCount.GetValueOrDefault(1) ? enemyAura.PowerDeltaPerParticipant : 0;
 

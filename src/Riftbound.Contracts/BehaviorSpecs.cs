@@ -452,6 +452,7 @@ public static class ReplacementKinds
 
 public static class StaticAuraKinds
 {
+    public const string SourceBattlefieldFriendlyObjectThresholdPower = "SOURCE_BATTLEFIELD_FRIENDLY_OBJECT_THRESHOLD_POWER";
     public const string FriendlyFilteredUnitCountToSourcePower = "FRIENDLY_FILTERED_UNIT_COUNT_TO_SOURCE_POWER";
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
@@ -510,6 +511,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameBattlefieldOtherFriendlyPublicUnitsOrEquipment = "SAME_BATTLEFIELD_OTHER_FRIENDLY_PUBLIC_UNITS_OR_EQUIPMENT";
     public const string SameLocationEnemyFilteredPublicUnits = "SAME_LOCATION_ENEMY_FILTERED_PUBLIC_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
