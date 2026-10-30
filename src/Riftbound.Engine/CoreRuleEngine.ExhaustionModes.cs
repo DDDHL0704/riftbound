@@ -96,7 +96,7 @@ public sealed partial class CoreRuleEngine
         if (item?.FieldContext is not { Kind: SourceExhaustionModeKind, ExhaustionObserver.Confirmed: false }
             || !ValidFieldContextState(state, item.FieldContext, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
             || !ValidExhaustionModeStack(state, item) || item.TargetGenerations is not null
-            || item.FieldContext.ExhaustionObserver.Mode is not null && SelectedExhaustionMode(item.FieldContext)?.StunTarget != true) return false;
+            || item.FieldContext.ExhaustionObserver!.Mode is not null && SelectedExhaustionMode(item.FieldContext)?.StunTarget != true) return false;
         var expected = ExhaustionModeChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow && choice.PlayerId == expected.PlayerId
             && choice.SourceObjectId == expected.SourceObjectId && choice.EffectKind == expected.EffectKind
