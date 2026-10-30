@@ -3,7 +3,7 @@ using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
-using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
+using Driver = Riftbound.ConformanceTests.FaceDownPlayTestDriver;
 
 namespace Riftbound.ConformanceTests;
 
@@ -38,13 +38,15 @@ public sealed class RadFaceDownPlayHeroTests
     [Theory, MemberData(nameof(Prints))]
     public async Task AmbushUsesAnOccupiedFriendlyBattlefieldAndTheOrdinaryPaidResponsePath(string no)
     {
-        var s = await AmbushPermissionTests.Response(AmbushPermissionTests.Position(no));
+        var initial = OfficialCopyIdentityTests.AddSpell(AmbushPermissionTests.Position(no), "SPELL", "OGN·048/298");
+        var game = new Driver(initial); await game.Act("P1", new PlayCardCommand("SPELL", "OGN·048/298", []));
+        var s = game.State;
         var command = new PlayCardCommand("AMBUSH", no, [], Destination: "BATTLEFIELD:F");
         var quote = new CoreRuleEngine().PreviewPlayCard(s, "P1", PlayCostPreviewTests.Request(s, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(5, quote.Cost!.Mana);
         Assert.Equal(1, quote.Cost.PowerByTrait[RuneTrait.Orange]);
-        var game = new Driver(s); await game.Act("P1", command);
-        Assert.Equal(15, game.State.RunePools["P1"].Mana);
+        await game.Act("P1", command);
+        Assert.Equal(s.RunePools["P1"].Mana - 5, game.State.RunePools["P1"].Mana);
         Assert.Contains("AMBUSH", game.State.PlayerZones["P1"].Battlefields);
         Assert.Equal("F", game.State.ObjectLocations["AMBUSH"].BattlefieldObjectId);
         Assert.True(game.State.CardObjects["AMBUSH"].IsExhausted); Assert.Equal(5, game.State.CardObjects["AMBUSH"].Power);
@@ -82,10 +84,11 @@ public sealed class RadFaceDownPlayHeroTests
         return s with { CardObjects = cards };
     }
 
-    private static async Task<Driver> Ready(string no, bool exhausted = true, bool copied = false)
+    private static Task<Driver> Ready(string no, bool exhausted = true, bool copied = false,
+        Func<MatchState, MatchState>? configure = null)
     {
-        var s = await StandbySourceRulesTests.ReadyShadow(initial: Board(no, exhausted, copied));
-        return new(s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(20, 20) } });
+        var state = Board(no, exhausted, copied);
+        return Driver.Ready(configure is null ? state : configure(state));
     }
 
     private static async Task PlayShadow(Driver game)
@@ -138,9 +141,8 @@ public sealed class RadFaceDownPlayHeroTests
     [Theory, MemberData(nameof(Prints))]
     public async Task ReturningTheSourceBeforeResolutionCannotBuffItsNewIncarnation(string no)
     {
-        var game = await Ready(no);
-        var s = OfficialCopyIdentityTests.AddSpell(game.State, "RETURN", "OGN·104/298");
-        game = new Driver(s); await PlayShadow(game);
+        var game = await Ready(no, configure: state => OfficialCopyIdentityTests.AddSpell(state, "RETURN", "OGN·104/298"));
+        await PlayShadow(game);
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         Assert.Contains("HOST", game.State.PlayerZones["P1"].Hand);
         await game.Top(); Assert.Equal(5, game.State.CardObjects["HOST"].Power);
@@ -151,10 +153,9 @@ public sealed class RadFaceDownPlayHeroTests
     [Theory, MemberData(nameof(Prints))]
     public async Task ATargetlessSelfEffectRejectsACounterThatRequiresAFriendlyTarget(string no)
     {
-        var ready = await Ready(no);
-        var s = AttackDamageDistributionTests.Spell(ready.State, "COUNTER", "SFD·045/221", "P2");
-        s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P2"] = new(20, 20) } };
-        var game = new Driver(s); await PlayShadow(game);
+        var game = await Ready(no, configure: state =>
+            AttackDamageDistributionTests.Spell(state, "COUNTER", "SFD·045/221", "P2"));
+        await PlayShadow(game);
         var observer = Assert.Single(game.State.StackItems, i => i.StandbyObserver is not null);
         await game.Act("P1", new PassPriorityCommand());
         var command = new PlayCardCommand("COUNTER", "SFD·045/221", [observer.StackItemId]);

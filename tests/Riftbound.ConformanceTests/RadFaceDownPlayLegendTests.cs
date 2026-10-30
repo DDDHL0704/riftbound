@@ -4,7 +4,7 @@ using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
-using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
+using Driver = Riftbound.ConformanceTests.FaceDownPlayTestDriver;
 
 namespace Riftbound.ConformanceTests;
 
@@ -29,23 +29,9 @@ public sealed class RadFaceDownPlayLegendTests
         };
     }
 
-    private static async Task<Driver> Ready(string no, bool ownTurn = false, bool second = false)
-    {
-        var state = Board(no);
-        if (second)
-        {
-            state = AttackDamageDistributionTests.Spell(state, "SECOND", "OGN·057/298", "P1");
-            state = (await OfficialGraveyardRecastTests.Act(state, "P1", new HideCardCommand(
-                "SECOND", "OGN·057/298", "BATTLEFIELD:F", ["STANDBY_A"]))).State;
-        }
-        state = await StandbySourceRulesTests.ReadyShadow(initial: state);
-        if (ownTurn)
-        {
-            state = (await OfficialGraveyardRecastTests.Top(state)).State;
-            state = await StandbySourceRulesTests.NextTurn(state);
-        }
-        return new(state);
-    }
+    private static Task<Driver> Ready(string no, bool ownTurn = false, bool second = false,
+        Func<MatchState, MatchState>? configure = null)
+        => Driver.Ready(configure is null ? Board(no) : configure(Board(no)), ownTurn, second);
 
     private static async Task Play(Driver game, string source = "SHADOW")
     {
@@ -127,14 +113,15 @@ public sealed class RadFaceDownPlayLegendTests
     {
         var game = await Ready(no, second: true); await Play(game); await game.Top(); await Discard(game);
         while (game.State.PriorityPlayerId is not null) await game.Top();
-        var ended = await OfficialGraveyardRecastTests.Act(game.State, game.State.TurnPlayerId, new EndTurnCommand());
-        var completed = await TurnSequenceTestDriver.Complete(ended);
-        var next = completed.State;
-        Assert.Equal(game.State.TurnNumber + 1, next.TurnNumber);
+        var previousTurn = game.State.TurnNumber;
+        await game.NextTurn();
+        var next = game.State;
+        Assert.Equal(previousTurn + 1, next.TurnNumber);
         Assert.DoesNotContain(next.UntilEndOfTurnEffects, effect => effect.StartsWith("STANDBY_DRAW_USED", StringComparison.Ordinal));
-        var publicResult = JsonSerializer.Serialize(new { completed.Events, completed.Snapshots, completed.Prompts });
+        var publicResult = JsonSerializer.Serialize(new { Events = game.Events(),
+            Snapshots = ResolutionResult.BuildSnapshots(next), Prompts = ResolutionResult.BuildPrompts(next) });
         Assert.DoesNotContain("STANDBY_DRAW_USED", publicResult);
-        game = new Driver(next); await Play(game, "SECOND");
+        game.BeginScenario(); await Play(game, "SECOND");
         Assert.Single(game.State.StackItems, i => i.EffectKind == Effect); await game.Top();
         Assert.Null(game.State.PendingHandChoice); Assert.Single(game.Events(), e => e.Event.Kind == "CARD_DRAWN");
         await game.Top(); await game.Replay();
@@ -173,10 +160,9 @@ public sealed class RadFaceDownPlayLegendTests
     [Fact]
     public async Task ATargetlessDrawSkillCannotBeCounteredByASpellThatRequiresAFriendlyTarget()
     {
-        var ready = await Ready(Normal);
-        var state = AttackDamageDistributionTests.Spell(ready.State, "COUNTER", "SFD·045/221", "P2");
-        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P2"] = new(20, 20) } };
-        var game = new Driver(state); await Play(game);
+        var game = await Ready(Normal, configure: state =>
+            AttackDamageDistributionTests.Spell(state, "COUNTER", "SFD·045/221", "P2"));
+        await Play(game);
         var skill = Assert.Single(game.State.StackItems, i => i.EffectKind == Effect);
         await game.Act("P1", new PassPriorityCommand());
         await Reject(game.State, "P2", new PlayCardCommand("COUNTER", "SFD·045/221", [skill.StackItemId]));
@@ -186,10 +172,9 @@ public sealed class RadFaceDownPlayLegendTests
     [Fact]
     public async Task CounteringTheOriginalFaceDownSpellDoesNotUndoTheEarnedDrawSkill()
     {
-        var ready = await Ready(Normal);
-        var state = AttackDamageDistributionTests.Spell(ready.State, "COUNTER", "OGN·064/298", "P2");
-        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P2"] = new(20, 20) } };
-        var game = new Driver(state); await Play(game);
+        var game = await Ready(Normal, configure: state =>
+            AttackDamageDistributionTests.Spell(state, "COUNTER", "OGN·064/298", "P2"));
+        await Play(game);
         var spell = Assert.Single(game.State.StackItems, i => i.SourceObjectId == "SHADOW");
         await game.Act("P1", new PassPriorityCommand());
         await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·064/298", [spell.StackItemId]));
@@ -203,15 +188,18 @@ public sealed class RadFaceDownPlayLegendTests
     [InlineData(true)] [InlineData(false)]
     public async Task EmptyDeckUsesNormalBurnoutAndVictoryCompletesBeforeAnyDiscard(bool refill)
     {
-        var ready = await Ready(Normal); var state = ready.State; var deck = state.PlayerZones["P1"].MainDeck;
-        state = state with {
-            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with {
-                MainDeck = [], Graveyard = refill ? deck : [], Banished = refill ? [] : deck } },
-            ObjectLocations = state.ObjectLocations.ToDictionary(p => p.Key, p => deck.Contains(p.Key)
-                ? new ObjectLocationState("P1", refill ? "GRAVEYARD" : "BANISHED") : p.Value),
-            PlayerScores = new Dictionary<string, int>(state.PlayerScores) { ["P2"] = refill ? 0 : 7 }
-        };
-        var game = new Driver(state); await Play(game); await game.Top();
+        IReadOnlyList<string> deck = [];
+        var game = await Ready(Normal, configure: state => {
+            deck = state.PlayerZones["P1"].MainDeck;
+            return state with {
+                PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with {
+                    MainDeck = [], Graveyard = refill ? deck : [], Banished = refill ? [] : deck } },
+                ObjectLocations = state.ObjectLocations.ToDictionary(p => p.Key, p => deck.Contains(p.Key)
+                    ? new ObjectLocationState("P1", refill ? "GRAVEYARD" : "BANISHED") : p.Value),
+                PlayerScores = new Dictionary<string, int>(state.PlayerScores) { ["P2"] = refill ? 0 : 7 }
+            };
+        });
+        await Play(game); await game.Top();
         if (refill)
         {
             Assert.Equal(1, game.State.PlayerScores["P2"]); Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
