@@ -1,6 +1,11 @@
+import argparse
+from contextlib import redirect_stdout
 import importlib.util
+import io
+import json
 from pathlib import Path
 import subprocess
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -102,6 +107,81 @@ class AffectedRuleTests(unittest.TestCase):
              patch.object(runner.subprocess, 'run', side_effect=failure):
             with self.assertRaisesRegex(runner.AffectedBranchOutOfDate, 'sync origin/main'):
                 runner.affected_selection('origin/main', repo=Path('/tmp/repo'))
+
+
+class AffectedExecutionTests(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.output = Path(self.folder.name) / 'results'
+        self.args = argparse.Namespace(base='origin/main', print_filter=False,
+                                       configuration='Release', output=self.output, jobs=1)
+        self.selection = {'baseSha': 'base', 'headSha': 'head', 'changedPaths': ['CardTests.cs'],
+                          'classes': ['CardTests', 'OfficialOpeningTests'], 'cardTokens': [],
+                          'filter': '(FullyQualifiedName~CardTests|FullyQualifiedName~OfficialOpeningTests)'}
+        self.trx = ('<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">'
+                    '<Results><UnitTestResult testName="CardTests.Case" outcome="Passed" /></Results>'
+                    '<ResultSummary><Counters total="1" passed="1" failed="0" notExecuted="0" />'
+                    '</ResultSummary></TestRun>')
+        selection_patch = patch.object(runner, 'affected_selection', return_value=self.selection)
+        selection_patch.start()
+        self.addCleanup(selection_patch.stop)
+        dotnet_patch = patch.object(runner.shutil, 'which', return_value='/path/limited-dotnet')
+        dotnet_patch.start()
+        self.addCleanup(dotnet_patch.stop)
+        self.stdout = io.StringIO()
+
+    def run_with_report(self, command, **kwargs):
+        (self.output / 'results.trx').write_text(self.trx)
+        return subprocess.CompletedProcess(command, 0)
+
+    def test_one_filtered_invocation_builds_and_runs_with_visible_diagnostics(self):
+        with patch.object(runner.subprocess, 'run', side_effect=self.run_with_report) as child, \
+             redirect_stdout(self.stdout):
+            self.assertEqual(0, runner.run_affected(self.args))
+        child.assert_called_once()
+        command = child.call_args.args[0]
+        self.assertEqual(['/path/limited-dotnet', 'test', str(runner.PROJECT)], command[:3])
+        self.assertEqual('Release', command[command.index('-c') + 1])
+        self.assertIn('-m:1', command)
+        self.assertNotIn('--no-build', command)
+        self.assertNotIn('--no-restore', command)
+        self.assertEqual(self.selection['filter'], command[command.index('--filter') + 1])
+        self.assertEqual(str(self.output.resolve()), command[command.index('--results-directory') + 1])
+        self.assertTrue(child.call_args.kwargs['check'])
+        self.assertEqual(runner.ROOT, child.call_args.kwargs['cwd'])
+        # Inherit stdout/stderr, so compilation errors remain visible while queued tests build.
+        self.assertNotIn('stdout', child.call_args.kwargs)
+        self.assertNotIn('stderr', child.call_args.kwargs)
+        self.assertNotIn('capture_output', child.call_args.kwargs)
+        self.assertEqual(self.selection, json.loads((self.output / 'selection.json').read_text()))
+
+    def test_compile_or_test_failure_cannot_publish_a_passing_selection(self):
+        failure = subprocess.CalledProcessError(1, ['dotnet', 'test'])
+        with patch.object(runner.subprocess, 'run', side_effect=failure) as child, \
+             redirect_stdout(self.stdout):
+            with self.assertRaises(subprocess.CalledProcessError):
+                runner.run_affected(self.args)
+        child.assert_called_once()
+        self.assertFalse((self.output / 'selection.json').exists())
+
+    def test_skipped_test_cannot_publish_a_passing_selection(self):
+        self.trx = self.trx.replace('outcome="Passed"', 'outcome="NotExecuted"') \
+                           .replace('passed="1"', 'passed="0"') \
+                           .replace('notExecuted="0"', 'notExecuted="1"')
+        with patch.object(runner.subprocess, 'run', side_effect=self.run_with_report), \
+             redirect_stdout(self.stdout):
+            with self.assertRaisesRegex(ValueError, 'Tests did not all pass'):
+                runner.run_affected(self.args)
+        self.assertFalse((self.output / 'selection.json').exists())
+
+    def test_print_filter_does_not_build_or_run_tests(self):
+        self.args.print_filter = True
+        with patch.object(runner.subprocess, 'run') as child, redirect_stdout(self.stdout):
+            self.assertEqual(0, runner.run_affected(self.args))
+        child.assert_not_called()
+        self.assertEqual(self.selection['filter'], self.stdout.getvalue().strip())
+        self.assertFalse(self.output.exists())
 
 
 if __name__ == '__main__':
