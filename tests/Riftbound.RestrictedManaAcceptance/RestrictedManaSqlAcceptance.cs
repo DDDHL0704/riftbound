@@ -79,7 +79,16 @@ internal static partial class RestrictedManaSqlAcceptance
             var remaining = (await Load(source, room)).AuthoritativeState!;
             Check(remaining.RunePools[actor] is { Mana: 1, SpellOnlyMana: 2 } && remaining.RunePools[peer].SpellOnlyMana == 2,
                 "Keep both players' genuine restricted balances across two spells.");
-            await Act(actor, new PlayCardCommand("QA-UNIT", "OGN·044/298", []), false);
+            var unit = new PlayCardCommand("QA-UNIT", "OGN·044/298", []);
+            var unitHash = MatchStateHasher.Hash(remaining);
+            var denied = await new CoreRuleEngine().ResolveAsync(remaining,
+                new("restricted-sql-unit-engine", actor, unit.CmdType), unit, default);
+            Check(!denied.Accepted && denied.ErrorCode == ErrorCodes.InsufficientCost && denied.Events.Count == 0
+                && MatchStateHasher.Hash(denied.State) == unitHash && MatchStateHasher.Hash(remaining) == unitHash,
+                "The engine must reject unit payment using restricted mana without effects.");
+            Check(!(session.PromptFor(actor).Candidates ?? []).Any(c => c.Action == CommandTypes.PlayCard && c.Enabled),
+                "The current prompt must not offer an unaffordable card play.");
+            await Act(actor, unit, false);
             await Act(actor, new EndTurnCommand());
             var final = await Load(source, room);
             Check(final.AuthoritativeState!.RunePools.Values.All(p => p == RunePool.Empty)
@@ -99,12 +108,14 @@ internal static partial class RestrictedManaSqlAcceptance
                 var raw = JsonSerializer.SerializeToElement(node); var id = "restricted-sql-" + frame.Commands.Count;
                 var result = await session.SubmitAsync(player, id, command, raw, default);
                 Check(result.Accepted == accepted, result.ErrorMessage);
-                if (!accepted) Check(result.ErrorCode == ErrorCodes.InsufficientCost && result.Events.Count == 0,
-                    "A unit cannot spend restricted mana; its rejected action has no effects.");
+                if (!accepted) Check(result.ErrorCode == ErrorCodes.PromptExpired && result.Events.Count == 0
+                    && MatchStateHasher.Hash(result.State) == MatchStateHasher.Hash(frame.AuthoritativeState!),
+                    "An unoffered unit command is rejected without spending restricted mana or changing state.");
                 var cold = await Load(source, room); var digest = await Digest(source, room);
                 if (accepted) { session = Restore(cold); coldRestores++; }
                 var duplicate = await session.SubmitAsync(player, id, command, raw, default);
-                Check(duplicate.Accepted == accepted && await Digest(source, room) == digest, "A cold duplicate must preserve every original table.");
+                Check(duplicate.Accepted == accepted && duplicate.ErrorCode == result.ErrorCode
+                    && await Digest(source, room) == digest, "A cold duplicate must preserve every original table and rejection code.");
             }
             async Task Decide(string choice)
             {
