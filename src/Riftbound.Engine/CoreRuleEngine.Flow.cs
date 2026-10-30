@@ -72,7 +72,10 @@ public sealed partial class CoreRuleEngine
     // The receipt follows this confirmed play, even if its controller changes.
     private static string FlowStackExitDestination(IReadOnlyDictionary<string, CardObjectState> cards,
         StackItemState item, string destination)
-        => item.FlowPlay is { } flow && flow.Source.ObjectId == item.SourceObjectId
+        => item.PlayedFromNormalGraveyard && CardBehaviorRegistry.GetAll()
+                .Where(b => b.CardNo == item.CardNo).Any(IsSpellPlayBehavior)
+            ? "BANISHED"
+            : item.FlowPlay is { } flow && flow.Source.ObjectId == item.SourceObjectId
             && cards.TryGetValue(item.SourceObjectId, out var card) && card.ObjectGeneration == flow.Source.Generation
                 ? "BANISHED" : destination;
 
