@@ -152,7 +152,7 @@ public sealed class RadAkaliMovementTests
         var toBattlefield = location.Zone == "BASE";
         await game.Act("P1", toBattlefield
             ? new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF")
-            : new MoveUnitCommand("UNIT", "BATTLEFIELD:BF", "BASE"));
+            : new MoveUnitCommand("UNIT", "BATTLEFIELD", "BASE"));
         Assert.Equal(no, game.State.CardObjects["UNIT"].CardNo);
     }
 
