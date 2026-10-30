@@ -38,6 +38,9 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
         string effect, string controller, string source, string? cardNo)
     {
+        if (context.Kind == DeploymentHeldKind)
+            return ValidDeploymentHeldContext(state, context, effect, controller, source, cardNo);
+        if (context.Deployment is not null) return false;
         var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
         if (context.Kind == "BURN") return HeldDefinition(context.CardNo) is { Kind: "BURN" } burn
             && context.Amount == burn.Amount && effect == "HOLD_BURN" && cardNo == context.CardNo
@@ -126,12 +129,13 @@ public sealed partial class CoreRuleEngine
                     }
             }
         }
-        return state with { TriggerQueue = queue, DelayedResourceGains = delayed };
+        return QueueDeploymentHeldAbilities(state with { TriggerQueue = queue, DelayedResourceGains = delayed }, fields, events);
     }
 
     private static StackResolutionResult ResolveHeldStackItem(MatchState state, StackItemState item)
     {
         var context = item.HeldContext!;
+        if (context.Kind == DeploymentHeldKind) return ResolveDeploymentHeld(state, item);
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);

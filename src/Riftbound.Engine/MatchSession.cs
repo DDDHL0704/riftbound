@@ -1641,6 +1641,8 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
+            return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         if (trigger.ConquestToken is not null || trigger.SourceUnitTokens is not null || trigger.ReadyObjectTrigger is not null || trigger.SourceReadied is not null || trigger.BeginningRune is not null || trigger.LastBreathUnitCreation is not null || trigger.LastBreathRuneCall is not null || trigger.LastBreathDraw is not null || trigger.LastBreathBattlefieldDamage is not null || trigger.DelayedEmpower is not null || trigger.EmpowerOtherObserver is not null || trigger.OutsideHandPlayObserver is not null || trigger.HighCostPlayObserver is not null || trigger.ConquestSource is not null || trigger.DeathObserver is not null || trigger.MovementObserver is not null || trigger.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || trigger.HandDiscardObserver is not null || trigger.UnitBattleWinDraw is not null || trigger.LegendBattleWinDraw is not null || trigger.KhazixBattleWin is not null || trigger.DravenBattleWinScore is not null || trigger.DravenBattleDeathScore is not null)
             return VisibleObjectIdForViewer(state, trigger.SourceObjectId, viewerPlayerId);
         return IsHiddenTriggerSourceForViewer(state, trigger, viewerPlayerId)
@@ -1663,6 +1665,7 @@ public sealed partial record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
+        if (trigger.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
         return trigger.ConquestFlow is null && trigger.ConquestToken is null && trigger.UnitEvent is null && trigger.EmpowerInteraction is null && trigger.DamageDestruction is null && trigger.GraveyardPlay is null && trigger.LastBreathUnitCreation is null && trigger.LastBreathRuneCall is null && trigger.LastBreathDraw is null && trigger.LastBreathBattlefieldDamage is null && trigger.DelayedEmpower is null && trigger.EmpowerOtherObserver is null && trigger.OutsideHandPlayObserver is null && trigger.HighCostPlayObserver is null && trigger.ConquestSource is null && trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.HandDiscardObserver is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
@@ -1733,6 +1736,12 @@ public sealed partial record ResolutionResult(
             ["targetObjectIds"] = VisibleObjectIdsForViewer(state, item.TargetObjectIds, viewerPlayerId),
             ["damageAmount"] = item.DamageAmount
         };
+        if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind)
+        {
+            view["sourceObjectId"] = VisibleObjectIdForViewer(state, item.SourceObjectId, viewerPlayerId);
+            view["sourceVisibility"] = Equals(view["sourceObjectId"], "HIDDEN") ? "HIDDEN" : "VISIBLE";
+            view["abilityLabel"] = "部署：对手据守时摧毁此牌";
+        }
         if (item.RepeatExecutions is { } executions && !hiddenSource)
             view["repeatExecutions"] = executions.Select((execution, index) =>
             {
@@ -1865,6 +1874,7 @@ public sealed partial record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
+        if (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind) return false;
         return item.ConquestFlow is null && item.ConquestToken is null && item.NamedUnitSwap is null && item.UnitEvent is null && item.EmpowerInteraction is null && item.DamageDestruction is null && item.GraveyardPlay is null && item.LastBreathUnitCreation is null && item.LastBreathRuneCall is null && item.LastBreathDraw is null && item.LastBreathBattlefieldDamage is null && item.DelayedEmpower is null && item.EmpowerOtherObserver is null && item.OutsideHandPlayObserver is null && item.HighCostPlayObserver is null && item.ConquestSource is null && item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.HandDiscardObserver is null && item.MovementObserver is null && item.DeathObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
@@ -2181,7 +2191,12 @@ internal static partial class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         int ManaCost,
         bool Composable,
-        string? UnsupportedReason);
+        string? UnsupportedReason)
+    {
+        public IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices { get; init; } = [];
+        public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice { get; init; }
+            = new Dictionary<string, IReadOnlyDictionary<string, object?>>();
+    }
 
     private sealed record RevealCardPromptRequirement(
         string SourceObjectId,
@@ -2566,6 +2581,8 @@ internal static partial class ActionPromptBuilder
 
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         if (destinationChoices.Length == 0) return [];
+        var resources = RecycleRunePaymentResourceChoices(state, playerId, "回收符文获得符能并支付待命布置费用");
+        var byChoice = ActivateAbilityPaymentResourcePowerByChoice(state, resources);
         var requirements = new List<HideCardPromptRequirement>();
         foreach (var objectId in CoreRuleEngine.StandbyHideSources(state, playerId))
         {
@@ -2584,7 +2601,7 @@ internal static partial class ActionPromptBuilder
                 costChoices.Where(c => c.Id == StandbyHideTeemoOptionalCost || StandbyRules.HasPrintedKeyword(behavior.CardNo)).ToArray(),
                 0,
                 true,
-                null));
+                null) { PaymentResourceChoices = resources, PaymentResourcePowerByChoice = byChoice });
         }
 
         return requirements;
@@ -2653,7 +2670,8 @@ internal static partial class ActionPromptBuilder
     {
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
-        if (pool.TotalPower >= 1) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
+        if (pool.TotalPower >= 1 || CoreRuleEngine.RecycleRunePaymentResourceActionIds(state, playerId).Count > 0)
+            choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
         if (PaymentCostRules.AvailableMana(pool, ManaPaymentPurpose.Other, state) >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
@@ -3900,7 +3918,7 @@ internal static partial class ActionPromptBuilder
         string playerId)
     {
         var choices = HideCardSourceRequirements(state, playerId)
-            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .SelectMany(requirement => requirement.OptionalCostChoices.Concat(requirement.PaymentResourceChoices))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
@@ -4632,6 +4650,8 @@ internal static partial class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["destinationChoices"] = requirement.DestinationChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["manaCost"] = requirement.ManaCost,
             ["powerCost"] = requirement.OptionalCostChoices.Any(c => c.Id == StandbyHideOptionalCost) ? 1 : 0,
             ["costsByChoice"] = requirement.OptionalCostChoices.ToDictionary(c => c.Id, c => (object)new Dictionary<string, object?> { ["mana"] = c.Id == StandbyHideTeemoOptionalCost ? 1 : 0, ["power"] = c.Id == StandbyHideOptionalCost ? 1 : 0 }),
