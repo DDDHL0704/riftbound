@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
     int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false, int BattlefieldTargetIndex = 0,
     int? DamageFromUnitTargetIndex = null, int? PrimaryEnemyTargetIndex = null,
-    int? RequiredFriendlyUnitCount = null);
+    int? RequiredFriendlyUnitCount = null, int? OptionalEnemyReturnMinimumUnitCount = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -63,6 +63,16 @@ public sealed partial class CoreRuleEngine
             // is collected after movement and neither pays Ward nor gets retargeted.
             var affected = cards.Keys.Where(id => BattlefieldLocalRules.AtUnit(current, id)?.ObjectId == field)
                 .Order(StringComparer.Ordinal).ToArray();
+            if (spec.OptionalEnemyReturnMinimumUnitCount is { } minimum && affected.Length >= minimum
+                && spec.PrimaryEnemyTargetIndex is { } returnIndex && item.TargetObjectIds.Count > returnIndex
+                && !string.IsNullOrWhiteSpace(item.TargetObjectIds[returnIndex]))
+            {
+                var target = item.TargetObjectIds[returnIndex];
+                if (IsLegalChosenCardTarget(current, item.ControllerId, target, returnIndex, item.TargetObjectIds,
+                        PlayCardTargetScopeForBehavior(behavior), behavior)
+                    && TryReturnTargetToHand(zones, cards, target, out var owner, out var equipment))
+                    events.Add(BuildReturnedToHandEvent(behavior.DisplayName, item, target, owner, equipment));
+            }
             var friendlyCountMatches = spec.RequiredFriendlyUnitCount is not { } required
                 || affected.Count(id => IsPlayerControlledFieldUnitObject(current, item.ControllerId, id)) == required;
             // Snapshot simultaneous damage bonuses and group Might before
