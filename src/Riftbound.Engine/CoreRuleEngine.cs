@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
-    private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
+    internal const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
@@ -3223,6 +3223,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TemperedBaseCostWindow) return ResolveTemperedBaseCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
@@ -4002,7 +4003,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
-        var amounts = EquipmentCosts(state, assembleProfile, targetState);
+        var exhaustedCost = SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts);
+        var amounts = EquipmentCosts(state, assembleProfile, targetState, exhaustUnitInstead: exhaustedCost is not null);
         var assembleManaCost = amounts.Mana;
         var assembleAnyPowerCost = amounts.GenericPower;
         var assemblePowerCostByTrait = amounts.PowerByTrait;
@@ -4072,6 +4074,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
         var costTriggers = new List<TriggerQueueItemState>();
+        if (exhaustedCost is not null)
+            assembleRemovalEvents.Add(ExhaustEquipmentCost(cardObjects, exhaustedCost, command.SourceObjectId, intent.PlayerId));
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
         {
             var removal = ResolveFieldDestructions(state with { PlayerExperience = playerExperience }, playerZones, cardObjects,
@@ -4137,7 +4141,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["mana"] = assembleManaCost,
                     ["baseManaCost"] = assembleProfile.ManaCost,
                     ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState),
-                    ["power"] = assembleProfile.PowerCost,
+                    ["power"] = assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
@@ -4264,6 +4268,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         destroyedAdditionalCostTargetObjectIds = [];
         recycledAdditionalCostTargetObjectIds = [];
+        if (SelectedEquipmentExhaustCost(assembleProfile, behaviorOptionalCosts) is { } exhausted)
+            return CanExhaustUnitForEquipmentCost(state, playerId, exhausted);
         var requiredAdditionalCostCount = (assembleProfile.RequiresDestroyFriendlyUnitCost ? 1 : 0)
             + assembleProfile.RequiredGraveyardRecycleCardCount;
         if (requiredAdditionalCostCount == 0)

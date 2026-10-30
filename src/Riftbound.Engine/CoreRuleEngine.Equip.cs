@@ -35,7 +35,9 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         TryAttachEquipment(state, zones, cards, state.ObjectLocations, item.ControllerId, gear.ObjectId, gear.ObjectId,
             targetId, EquipEffect, events, out var locations, new Dictionary<string, object?> {
-                ["targetPower"] = ResolveCurrentFieldUnitPower(state, target), ["optionalCosts"] = item.OptionalCosts.ToArray(),
+                ["targetPower"] = ResolveCurrentFieldUnitPower(state, target),
+                ["optionalCosts"] = item.OptionalCosts.Select(cost => TryParseExhaustFriendlyUnitOptionalCost(cost, out var costId)
+                    ? ExhaustFriendlyUnitOptionalCostPrefix + ResolutionResult.VisibleObjectIdForViewer(state, costId, string.Empty) : cost).ToArray(),
                 ["paymentResourceActions"] = item.OptionalCosts.Where(c => c.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)).ToArray() });
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             ObjectLocations = locations, Events = events };

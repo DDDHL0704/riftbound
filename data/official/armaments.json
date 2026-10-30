@@ -272,6 +272,15 @@
       "effectText": "I am a copy of the chosen unit.",
       "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
       "copiesChosenFriendlyUnit": true
+    },
+    {
+      "cardNo": "RAD·150/167",
+      "sourceCardNo": "RAD-150/167",
+      "baseMightBonus": 3,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20261012/473ee5861e3843eb941c74e3cd6315e1.png",
+      "sourceSnapshot": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+      "sourceField": "power"
     }
   ],
   "scopedAdditions": [

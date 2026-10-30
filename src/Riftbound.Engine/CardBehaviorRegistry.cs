@@ -9186,10 +9186,16 @@ public static class CardBehaviorRegistry
             DealsMutualTargetPowerDamage: true)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantEquipment =
+    [
+        new("RAD·150/167", "放逐之锋", 3, "BLADE_OF_THE_EXILE_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
-        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Select(ApplyLifecycleKeywordDefaults).ToArray();
+        RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {
