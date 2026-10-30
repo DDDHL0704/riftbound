@@ -30,9 +30,9 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertNotIn('dotnet test', jobs['l2_required'])
         self.assertIn('scripts/l2-distributed.py shard', jobs['rule_suite'])
         self.assertIn('fail-fast: false', jobs['rule_suite'])
-        self.assertIn('max-parallel: 8', jobs['rule_suite'])
-        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8]', jobs['rule_suite'])
-        self.assertIn('--shards 8', jobs['prepare'])
+        self.assertIn('max-parallel: 9', jobs['rule_suite'])
+        self.assertIn('shard: [shard-1, shard-2, shard-3, shard-4, shard-5, shard-6, shard-7, shard-8, shard-9]', jobs['rule_suite'])
+        self.assertIn('--shards 9', jobs['prepare'])
         for forbidden in ['services:', 'needs.postgres', 'needs.native_network', 'needs.related_network',
                           'continue-on-error', 'Riftbound.NativeNetworkSmoke', 'test_process_restart',
                           'unittest discover -s scripts/tests -v']:
