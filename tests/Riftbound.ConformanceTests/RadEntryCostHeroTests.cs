@@ -177,12 +177,12 @@ public sealed class RadEntryCostHeroTests
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["OTHER"] = s.CardObjects["OTHER"] with { ControllerId = "P1" } },
             UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("BF"), BattlefieldTaskMarkers.SpellDuelCompleted("OTHER")] };
+        // Keep the entry and ready spell in one journal so recovery sees every command.
+        s = OfficialCopyIdentityTests.AddSpell(s, "READY", "VEN·150");
+        s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) {
+            ["P1"] = new(6, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }) } };
         var game = new Driver(s); await game.Act("P1", Play(no) with { Destination = "BATTLEFIELD:BF" });
-        // A real ready spell, rather than a state edit, supplies the move's exhaust cost.
-        var ready = OfficialCopyIdentityTests.AddSpell(game.State, "READY", "VEN·150");
-        ready = ready with { RunePools = new Dictionary<string, RunePool>(ready.RunePools) {
-            ["P1"] = new(3, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }) } };
-        game = new Driver(ready); await game.Act("P1", new PlayCardCommand("READY", "VEN·150", ["UNIT"])); await game.Top();
+        await game.Act("P1", new PlayCardCommand("READY", "VEN·150", ["UNIT"])); await game.Top();
         Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
         await game.Act("P1", new MoveUnitCommand("UNIT", "BATTLEFIELD:BF", "BATTLEFIELD:OTHER", [], ["UNIT"]));
         Assert.Equal("OTHER", game.State.ObjectLocations["UNIT"].BattlefieldObjectId);
