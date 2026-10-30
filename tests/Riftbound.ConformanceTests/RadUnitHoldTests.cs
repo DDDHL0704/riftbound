@@ -117,6 +117,7 @@ public sealed class RadUnitHoldTests
         if (branch == "other-field") {
             state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
                 ["OTHER"] = state.CardObjects["OTHER"] with { ControllerId = "P1" } } };
+            state = OfficialHoldSequenceTests.AddUnit(state, "OTHER-ANCHOR", "OGN·001/298", "OTHER", "P1");
             state = PlaceStandby(state, "P1", "OTHER");
         }
         var game = await Ready(state); await game.Act("P2", new EndTurnCommand());
