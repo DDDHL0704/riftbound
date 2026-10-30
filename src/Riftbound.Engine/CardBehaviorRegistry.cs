@@ -5324,6 +5324,15 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
+            "RAD·038/167",
+            "阿狸",
+            4,
+            "RAD_AHRI_COMBAT_MIGHT_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4),
+        new(
             "OGN·119a/298",
             "阿狸",
             3,

@@ -19,9 +19,9 @@ public sealed class AhriCombatMightTests
 
     [Theory]
     [InlineData("OGN·119/298", false)] [InlineData("OGN·119a/298", false)]
-    [InlineData("SFD·227/221", false)] [InlineData("SFD·227*/221", false)] [InlineData("VEN·SP3", false)]
+    [InlineData("SFD·227/221", false)] [InlineData("SFD·227*/221", false)] [InlineData("VEN·SP3", false)] [InlineData("RAD·038/167", false)]
     [InlineData("OGN·119/298", true)] [InlineData("OGN·119a/298", true)]
-    [InlineData("SFD·227/221", true)] [InlineData("SFD·227*/221", true)] [InlineData("VEN·SP3", true)]
+    [InlineData("SFD·227/221", true)] [InlineData("SFD·227*/221", true)] [InlineData("VEN·SP3", true)] [InlineData("RAD·038/167", true)]
     public async Task EachCurrentPrintingConfirmsOneLocalEnemyWhenItsBattleRoleIsEstablished(string printing, bool defending)
     {
         var initial = Board(printing, defending); Restore(initial);
