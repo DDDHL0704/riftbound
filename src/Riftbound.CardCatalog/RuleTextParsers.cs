@@ -336,6 +336,15 @@ public static class TriggerParser
             triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalPaidStun, TriggerTimings.SourceUnitPlayedOrAttack,
                 paidStun.Value, "Confirm a unit target, then pay the optional mana and any target costs together before responses.",
                 TargetScope: TriggerTargetScopes.AnyUnitOnField, ManaCost: ParseChineseNumber(paidStun.Groups["mana"].Value), Optional: true));
+        var discardDestroy = Regex.Match(text,
+            @"当你打出我时[，,]\s*或当我进攻时[，,]\s*你可以选择弃置一张手牌[，,]\s*以此摧毁一个单位或装备[。.]?",
+            RegexOptions.CultureInvariant);
+        if (discardDestroy.Success)
+            triggers.Add(new(TriggerKinds.UnitPlayedOrAttacksOptionalDiscardDestroy, TriggerTimings.SourceUnitPlayedOrAttack,
+                discardDestroy.Value, "Confirm a unit or equipment target and pay one hand-card discard before responses; destroy only on resolution.",
+                TargetScope: TriggerTargetScopes.UnitOrEquipmentOnField, Optional: true,
+                DiscardCount: 1, DiscardSourceZone: TriggerZones.Hand, DiscardDestinationZone: TriggerZones.Graveyard,
+                DestroyCount: 1));
         var highCostRunes = Regex.Match(text,
             @"当你打出一个法力费用不低于\{\{(?<mana>[0-9]+)\}\}的单位、装备或主动技能时，你可以选择让我变为休眠状态，以此让最多(?<runes>[0-9一两二三四五六七八九十]+)枚符文变为活跃状态。",
             RegexOptions.CultureInvariant);
@@ -2630,6 +2639,11 @@ public static class ReplacementParser
 
     private static string DetermineKind(string segment)
     {
+        if (Regex.IsMatch(segment,
+            @"^每回合限一次[，,]\s*如果我将被摧毁[，,]\s*则你可以选择改为摧毁一名友方单位[，,]\s*以此移除我所受伤害[、,，]\s*让我变为休眠状态[、,，]\s*并将我召回$",
+            RegexOptions.CultureInvariant))
+            return ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn;
+
         if (segment.Contains("你在此处控制的另一名单位被摧毁", StringComparison.Ordinal)
             && segment.Contains("战力低于我", StringComparison.Ordinal)
             && segment.Contains("改为移除其所受伤害", StringComparison.Ordinal)
@@ -2659,6 +2673,9 @@ public static class ReplacementParser
 
     private static string DetermineAppliesTo(string segment)
     {
+        if (DetermineKind(segment) == ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn)
+            return "source-unit-destroyed";
+
         if (DetermineKind(segment) == ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
             || segment.Contains("友方单位被摧毁", StringComparison.Ordinal))
         {

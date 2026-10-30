@@ -48,9 +48,13 @@ internal static class CardReplacementSpecRules
         => replacement.Kind == ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
             && replacement.AppliesTo == "friendly-unit-destroyed";
 
+    public static bool IsSourceDestroyedSacrificeFriendlyRecallReplacement(ReplacementSpec replacement)
+        => replacement.Kind == ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn
+            && replacement.AppliesTo == "source-unit-destroyed";
+
     private static IReadOnlyDictionary<string, IReadOnlyList<ReplacementSpec>> BuildReplacementMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

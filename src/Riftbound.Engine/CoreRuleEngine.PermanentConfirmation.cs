@@ -8,6 +8,7 @@ public sealed partial class CoreRuleEngine
         => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
                 && SourcePlayDrawSpec(behavior.CardNo) is null
                 && PaidUnitStunSpec(behavior.CardNo) is null
+                && PaidUnitTriggerSpec(behavior.CardNo, PaidUnitDestroyKind) is null
                 && !SourceUnitTokenSpecs.Value.ContainsKey(behavior.CardNo)
                 && !ReadyOtherObjectSpecs.Value.ContainsKey(behavior.CardNo)
                 && UnitEventSpec(behavior.CardNo)?.Timing is not ("PLAY" or "PLAY_OR_START")

@@ -45,7 +45,7 @@ public sealed partial class CoreRuleEngine
             result = QueuePrintedPredict(state, result);
             result = QueueUnitEvents(state, result);
             result = QueueSourcePlayDraw(state, result);
-            result = QueuePaidUnitPlayStuns(state, result);
+            result = QueuePaidUnitPlayTriggers(state, result);
             result = QueueReadyOtherObjects(state, result);
             result = QueueSourceReadied(result);
             result = QueueSourceUnitTokens(state, result);

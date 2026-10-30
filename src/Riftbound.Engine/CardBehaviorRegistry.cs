@@ -9290,6 +9290,16 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·020/167", "莫德凯撒", 7, "RAD_020_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "灵体|急速|强攻3",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("RAD·020a/167", "莫德凯撒", 7, "RAD_020A_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, SourceUnitTags: "灵体|急速|强攻3",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("RAD·137/167", "莫德凯撒", 9, "RAD_137_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "灵体"),
+        new("RAD·137a/167", "莫德凯撒", 9, "RAD_137A_MORDEKAISER_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "灵体"),
         new("RAD·179*/167", "厄斐琉斯", 4, "RAD_179_STAR_APHELIOS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("RAD·179/167", "厄斐琉斯", 4, "RAD_179_APHELIOS_PLAY_UNIT", 0, 0,
