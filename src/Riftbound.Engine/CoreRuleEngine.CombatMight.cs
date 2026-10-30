@@ -84,7 +84,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
         if (context.Kind == SelfActionPowerKind) return ValidSelfActionSource(state, context, sourceId, controller);
-        if (context.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind) return ValidExhaustionObserverSource(state, context, sourceId, controller);
+        if (context.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind) return ValidExhaustionObserverSource(state, context, sourceId, controller);
         if (context.Kind == AttackMightDamageKind) return ValidAttackMightDamageSource(state, context, sourceId, controller);
         if (BattleLimitedMarkers.Kind(context.Kind)) return ValidBattleLimitedContextState(state, context, sourceId, controller, effect, cardNo);
         if (IsStunObserverKind(context.Kind)) return ValidStunObserverSource(state, context, sourceId, controller);

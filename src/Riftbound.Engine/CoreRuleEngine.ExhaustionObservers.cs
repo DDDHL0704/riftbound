@@ -10,7 +10,7 @@ public sealed record ExhaustedUnitFact(ObjectBinding Unit, string CardNo, long F
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ExhaustionObserverOrigin(ObjectBinding Source, string Actor, string CauseId, IReadOnlyList<ExhaustedUnitFact> Units,
     int TurnNumber, long CapturedTick, long FaceRevision, string InstanceId, bool Confirmed = false,
-    CeasedEmpoweredSource? CeasedSource = null);
+    CeasedEmpoweredSource? CeasedSource = null, string? Mode = null);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ExhaustionDrawUse(string SourceId, FieldTriggerContext Context);
 
@@ -33,17 +33,17 @@ public sealed partial class CoreRuleEngine
             t.Kind == TriggerKinds.OtherFriendlyUnitExhaustedSourcePower && t.PowerDelta is > 0
             && t.Duration == TriggerDurations.UntilEndOfTurn);
 
-    private static ExhaustionCapture[] CaptureOtherExhaustionPower(IReadOnlyDictionary<string, PlayerZones> zones,
+    private static ExhaustionCapture[] CaptureUnitExhaustionObservers(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units, string cause)
         => units.Where(unit => !unit.IsExhausted && IsFaceUpNonStandbyUnit(unit) && IsObjectOnField(zones, unit.ObjectId))
-            .SelectMany(unit => cards.Values.Where(source => source.ObjectId != unit.ObjectId && IsFaceUpNonStandbyUnit(source)
+            .SelectMany(unit => cards.Values.Where(source => IsFaceUpNonStandbyUnit(source)
                     && IsObjectOnField(zones, source.ObjectId)
                     && EffectiveFieldControllerId(zones, source.ObjectId, source) == EffectiveFieldControllerId(zones, unit.ObjectId, unit))
                 .OrderBy(source => source.ObjectId, StringComparer.Ordinal)
                 .SelectMany(source => AttachedRuleTextRules.Instances(zones, cards, source)
-                    .Where(instance => OtherExhaustionPowerSpec(instance.CardNo) is not null)
+                    .Where(instance => source.ObjectId == unit.ObjectId ? ExhaustionModeSpec(instance.CardNo) is not null : OtherExhaustionPowerSpec(instance.CardNo) is not null)
                     .Select(instance => new ExhaustionCapture(source.ObjectId, EffectiveFieldControllerId(zones, source.ObjectId, source),
-                        new(instance.CardNo, OtherExhaustionPowerKind, source.ObjectGeneration) {
+                        new(instance.CardNo, source.ObjectId == unit.ObjectId ? SourceExhaustionModeKind : OtherExhaustionPowerKind, source.ObjectGeneration) {
                             Origin = instance.Origin, SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
                             ExhaustionObserver = new(new(source.ObjectId, source.ObjectGeneration),
                                 EffectiveFieldControllerId(zones, source.ObjectId, source), cause,
@@ -51,10 +51,10 @@ public sealed partial class CoreRuleEngine
                                 0, 0, instance.Origin?.FaceRevision ?? source.CopyFaceTransitions?.Count ?? 0, instance.Id)
                         })))).ToArray();
 
-    private static GameEvent CaptureOtherExhaustionPower(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+    private static GameEvent CaptureUnitExhaustionObservers(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units)
     {
-        var captures = CaptureOtherExhaustionPower(zones, cards, units,
+        var captures = CaptureUnitExhaustionObservers(zones, cards, units,
             ev.Kind + ":" + ev.Payload.GetValueOrDefault("sourceObjectId"));
         return captures.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [ExhaustionObservationKey] = (ev.Payload.GetValueOrDefault(ExhaustionObservationKey) as ExhaustionCapture[] ?? []).Concat(captures).ToArray() } };
@@ -90,16 +90,16 @@ public sealed partial class CoreRuleEngine
     {
         if (!result.Accepted) return result;
         var explicitUnits = result.Events.SelectMany(ev => ev.Payload.GetValueOrDefault(ExhaustionObservationKey) as ExhaustionCapture[] ?? [])
-            .Where(c => c.Context.Kind == OtherExhaustionPowerKind).SelectMany(c => c.Context.ExhaustionObserver!.Units).Select(u => u.Unit)
-            .Concat(result.State.TriggerQueue.Where(t => t.FieldContext is { Kind: OtherExhaustionPowerKind } c && c.ExhaustionObserver!.CapturedTick == result.State.Tick)
+            .Where(c => c.Context.Kind is OtherExhaustionPowerKind or SourceExhaustionModeKind).SelectMany(c => c.Context.ExhaustionObserver!.Units).Select(u => u.Unit)
+            .Concat(result.State.TriggerQueue.Where(t => t.FieldContext is { Kind: OtherExhaustionPowerKind or SourceExhaustionModeKind } c && c.ExhaustionObserver!.CapturedTick == result.State.Tick)
                 .SelectMany(t => t.FieldContext!.ExhaustionObserver!.Units).Select(u => u.Unit))
-            .Concat(result.State.StackItems.Where(t => t.FieldContext is { Kind: OtherExhaustionPowerKind } c && c.ExhaustionObserver!.CapturedTick == result.State.Tick)
+            .Concat(result.State.StackItems.Where(t => t.FieldContext is { Kind: OtherExhaustionPowerKind or SourceExhaustionModeKind } c && c.ExhaustionObserver!.CapturedTick == result.State.Tick)
                 .SelectMany(t => t.FieldContext!.ExhaustionObserver!.Units).Select(u => u.Unit)).ToHashSet();
         var changed = before.CardObjects.Values.Where(unit => !unit.IsExhausted && !explicitUnits.Contains(new(unit.ObjectId, unit.ObjectGeneration))
             && result.State.CardObjects.TryGetValue(unit.ObjectId, out var after) && after.IsExhausted
             && after.ObjectGeneration == unit.ObjectGeneration && after.CardNo == unit.CardNo
             && (after.CopyFaceTransitions?.Count ?? 0) == (unit.CopyFaceTransitions?.Count ?? 0)).ToArray();
-        var fallback = CaptureOtherExhaustionPower(before.PlayerZones, before.CardObjects, changed, "COST:" + result.State.Tick);
+        var fallback = CaptureUnitExhaustionObservers(before.PlayerZones, before.CardObjects, changed, "COST:" + result.State.Tick);
         if (fallback.Length > 0) result = result with { Events = result.Events.Append(new GameEvent("INTERNAL_EXHAUSTION_INSTRUCTION", "",
             new Dictionary<string, object?> { [ExhaustionObservationKey] = fallback })).ToArray() };
         var queue = result.State.TriggerQueue.ToList(); var events = new List<GameEvent>();
@@ -130,14 +130,18 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool ValidExhaustionObserverShape(FieldTriggerContext c, string effect, string? no)
-        => effect == FieldTriggerEffect && (no is null || no == c.CardNo) && c.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind
-            && c.SourceGeneration >= 0 && (c.Kind == ExhaustionDrawKind ? ExhaustionDrawSpec(c.CardNo) is not null : OtherExhaustionPowerSpec(c.CardNo) is not null)
+        => effect == FieldTriggerEffect && (no is null || no == c.CardNo) && c.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind
+            && c.SourceGeneration >= 0 && (c.Kind == ExhaustionDrawKind ? ExhaustionDrawSpec(c.CardNo) is not null
+                : c.Kind == SourceExhaustionModeKind ? ExhaustionModeSpec(c.CardNo) is not null : OtherExhaustionPowerSpec(c.CardNo) is not null)
             && c.ExhaustionObserver is { Source.Generation: >= 0, CapturedTick: > 0, FaceRevision: >= 0, TurnNumber: > 0, Units: not null } birth
             && !string.IsNullOrWhiteSpace(birth.Source.ObjectId) && birth.Source.Generation == c.SourceGeneration
             && !string.IsNullOrWhiteSpace(birth.Actor) && !string.IsNullOrWhiteSpace(birth.CauseId)
             && !string.IsNullOrWhiteSpace(birth.InstanceId)
             && (c.Kind == ExhaustionDrawKind ? birth.Units.Count >= ExhaustionDrawSpec(c.CardNo)!.RequiredUnitCount
-                : !birth.Confirmed && birth.Units.Count == 1 && birth.Units[0].Unit.ObjectId != birth.Source.ObjectId)
+                : birth.Units.Count == 1 && birth.Units[0] is { } fact && (c.Kind == SourceExhaustionModeKind ? fact.Unit == birth.Source
+                    && (birth.Mode is null ? !birth.Confirmed : ExhaustionModeSpec(c.CardNo)!.Modes!.Any(m => m.Id == birth.Mode))
+                    : !birth.Confirmed && fact.Unit.ObjectId != birth.Source.ObjectId))
+            && (c.Kind == SourceExhaustionModeKind || birth.Mode is null)
             && birth.Units.All(u => u is { Unit.Generation: >= 0, FaceRevision: >= 0 }
                 && !string.IsNullOrWhiteSpace(u.Unit.ObjectId) && !string.IsNullOrWhiteSpace(u.CardNo)
                 && (u.TokenFactoryCardNo is null || P6TokenFactoryCatalog.TryGetByCardNo(u.TokenFactoryCardNo, out var unitFactory)

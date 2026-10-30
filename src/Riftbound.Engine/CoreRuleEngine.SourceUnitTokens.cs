@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units, bool captureOtherObservers = true)
     {
         var originals = units.ToArray();
-        if (captureOtherObservers) ev = CaptureOtherExhaustionPower(ev, zones, cards, originals);
+        if (captureOtherObservers) ev = CaptureUnitExhaustionObservers(ev, zones, cards, originals);
         var captures = originals.SelectMany(unit => CaptureSourceExhaustionTokens(zones, cards, unit)).ToArray();
         return captures.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [SourceUnitTokenObservationKey] = captures } };

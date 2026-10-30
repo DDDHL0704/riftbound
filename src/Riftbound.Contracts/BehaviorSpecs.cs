@@ -71,6 +71,7 @@ public static class TriggerKinds
     public const string ControllerOpponentTurnPlayCreateMinion = "CONTROLLER_OPPONENT_TURN_PLAY_CREATE_MINION";
     public const string SourceUnitPlayedDestroyEquipmentGrantTurnPlay = "SOURCE_UNIT_PLAYED_DESTROY_EQUIPMENT_GRANT_TURN_PLAY";
     public const string ControllerTargetedOrReadiedSourcePower = "CONTROLLER_TARGETED_OR_READIED_SOURCE_POWER";
+    public const string SourceExhaustedChooseUnusedMode = "SOURCE_EXHAUSTED_CHOOSE_UNUSED_MODE";
     public const string SourceReadiedChooseKeyword = "SOURCE_READIED_CHOOSE_KEYWORD";
     public const string SourcePlayedOrFirstEquipmentReadyOtherObject = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_READY_OTHER_OBJECT";
     public const string ControllerEmpoweredOtherEmpowerSource = "CONTROLLER_EMPOWERED_OTHER_EMPOWER_SOURCE";
@@ -302,6 +303,7 @@ public static class TriggerTimings
     public const string SourceUnitPlayedOrExhausted = "SOURCE_UNIT_PLAYED_OR_EXHAUSTED";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
     public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
+    public const string SourceExhausted = "SOURCE_EXHAUSTED";
     public const string SourceReadied = "SOURCE_READIED";
     public const string SourcePlayedOrFirstEquipmentPlayed = "SOURCE_PLAYED_OR_FIRST_EQUIPMENT_PLAYED";
     public const string SourceUnitPlayedOrScored = "SOURCE_UNIT_PLAYED_OR_SCORED";
@@ -332,6 +334,7 @@ public static class TriggerTimings
 public static class TriggerTargetScopes
 {
     public const string OtherExhaustedFieldObject = "OTHER_EXHAUSTED_FIELD_OBJECT";
+    public const string EnemyUnitOnField = "ENEMY_UNIT_ON_FIELD";
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
     public const string FriendlyUnitHere = "FRIENDLY_UNIT_HERE";
     public const string AllEnemyUnitsHere = "ALL_ENEMY_UNITS_HERE";
@@ -605,7 +608,13 @@ public sealed record TargetSpec(
 public sealed record TriggerModeSpec(string Id, string Label,
     int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    string? GrantedKeyword = null);
+    string? GrantedKeyword = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    bool ConsumeSourceBoon = false,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    bool ReadySource = false,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    bool StunTarget = false);
 
 public sealed record TriggerSpec(
     string Kind,

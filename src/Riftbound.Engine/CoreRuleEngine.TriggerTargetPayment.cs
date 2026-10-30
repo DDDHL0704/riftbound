@@ -7,7 +7,9 @@ public sealed partial class CoreRuleEngine
     internal const string TriggerTargetCostWindow = "TRIGGER_TARGET_COST";
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
-        => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
+        => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId)?.FieldContext?.Kind == SourceExhaustionModeKind
+            ? ValidExhaustionModePayment(state, payment)
+            : state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
             && (HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
                 || item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
@@ -46,6 +48,8 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveTriggerTargetPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
         IReadOnlyList<string> choices, int rawCount)
     {
+        if (state.StackItems.FirstOrDefault(i => i.StackItemId == pending.ResolvingStackItemId)?.FieldContext?.Kind == SourceExhaustionModeKind)
+            return ResolveExhaustionModePayment(state, pending, choices, rawCount);
         if (!ValidTriggerTargetPayment(state, pending) || rawCount != 1 || choices.Count != 1 || choices[0] is not ("PAY" or "DECLINE"))
             return RejectWithCorePrompts(state, "请选择支付法盾费用或放弃技能。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);

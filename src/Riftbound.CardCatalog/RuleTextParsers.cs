@@ -490,6 +490,14 @@ public static class TriggerParser
                 selfActionPower.Value, "Controller targeting and ready instructions each earn a separate self Might ability.",
                 TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(selfActionPower.Groups["might"].Value),
                 Duration: TriggerDurations.UntilEndOfTurn));
+        var exhaustedModes = Regex.Match(text,
+            @"当我变为休眠状态时，选择一个本回合未选过的效果\s*[—-]\s*-\s*给予我\{\{增益\}\}。(?:（[^）]*）)?\s*-\s*消耗我的增益，以此\{\{眩晕\}\}一名敌方单位。(?:（[^）]*）)?\s*-\s*消耗我的增益，以此让我变为活跃状态。",
+            RegexOptions.CultureInvariant);
+        if (exhaustedModes.Success) triggers.Add(new(TriggerKinds.SourceExhaustedChooseUnusedMode, TriggerTimings.SourceExhausted,
+            exhaustedModes.Value, "Choose an unused mode and pay its leading boon cost before confirmation (CN 355.3 / 383.3.b).",
+            DistinctModesPerTurn: true, Modes: [new("BOON_SELF", "给予我增益", BoonCount: 1, TargetScope: TriggerTargetScopes.SourceUnit),
+                new("BOON_STUN_ENEMY", "消耗我的增益：眩晕一名敌方单位", TargetScope: TriggerTargetScopes.EnemyUnitOnField, ConsumeSourceBoon: true, StunTarget: true),
+                new("BOON_READY_SELF", "消耗我的增益：让我活跃", TargetScope: TriggerTargetScopes.SourceUnit, ConsumeSourceBoon: true, ReadySource: true)]));
         var readiedModes = Regex.Match(text,
             @"当我变为活跃状态时，选择一个给予我在本回合内的效果\s*[—-]\s*-\s*\{\{强攻2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{法盾2\}\}(?:（[^）]*）)?[。]?\s*-\s*\{\{游走\}\}(?:（[^）]*）)?[。]?",
             RegexOptions.CultureInvariant);
@@ -610,6 +618,7 @@ public static class TriggerParser
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
             .Where(segment => !destroyEquipmentGrant.Success || !segment.StartsWith("当你打出我时，你可以选择摧毁一件友方装备", StringComparison.Ordinal))
+            .Where(segment => !exhaustedModes.Success || !segment.Contains("当我变为休眠状态时，选择一个本回合未选过的效果", StringComparison.Ordinal))
             .Where(segment => !readiedModes.Success || !segment.Contains("当我变为活跃状态时，选择一个给予我", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
