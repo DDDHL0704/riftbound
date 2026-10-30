@@ -20979,6 +20979,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
+            CardTargetScopes.AnyUnitOrEquipment => IsFieldUnitOrEquipment(state, objectId),
             CardTargetScopes.UnitEquipmentOrRune => IsFieldUnitEquipmentOrRune(state, objectId),
             CardTargetScopes.AnyEmpoweredUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
                 && state.CardObjects.TryGetValue(objectId, out var empoweredTarget) && empoweredTarget.IsEmpowered,
@@ -21072,6 +21073,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             _ => IsBattlefieldObject(state, objectId)
         };
     }
+
+    internal static bool IsFieldUnitOrEquipment(MatchState state, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var permanent) && !permanent.IsFaceDown
+            && (IsEquipmentObject(state, objectId)
+                || IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId));
 
     internal static bool IsFieldUnitEquipmentOrRune(MatchState state, string objectId)
         => IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
@@ -22016,11 +22022,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObject.IsAttacking;
     }
 
-    private static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
+    internal static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
     {
         return behavior.MaxTargetPower <= 0
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
-                && ResolveCurrentFieldUnitPower(state, targetState) <= behavior.MaxTargetPower);
+                && (behavior.TargetEquipmentIgnoresPowerLimit
+                        && targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                    || ResolveCurrentFieldUnitPower(state, targetState) <= behavior.MaxTargetPower));
     }
 
     internal static bool HasValidTotalTargetPower(
@@ -23744,6 +23752,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.AnyUnitOrEquipment) return "unit or equipment";
         if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
         if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit) return "friendly equipment then battlefield unit";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
@@ -24973,7 +24982,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (behavior.DamagesAllBattlefieldUnits)
             {
-                ApplyDamageToBattlefieldUnits(
+                ApplyDamageToFieldUnits(
                     state,
                     playerZones,
                     cardObjects,
@@ -24986,9 +24995,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     PreventSpellAndSkillDamageThisTurnEffectId);
             }
         }
-        else if (behavior.DamagesAllBattlefieldUnits)
+        else if (behavior.DamagesAllBattlefieldUnits || behavior.DamagesAllBaseUnits)
         {
-            ApplyDamageToBattlefieldUnits(
+            ApplyDamageToFieldUnits(
                 state,
                 playerZones,
                 cardObjects,
@@ -25980,13 +25989,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         targetObjectId,
                         targetState);
                     var removalAction = ConditionalRemovalAction(state with { PlayerZones = playerZones, CardObjects = cardObjects }, behavior, targetObjectId);
-                    if (removalAction == "BANISH"
+                    if ((behavior.BanishesTarget || removalAction == "BANISH")
                         && TryRemoveFieldTargetCore(playerZones, cardObjects, targetObjectId, true, out var banishedRemoval))
                     {
-                        events.Add(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标单位", new Dictionary<string, object?> {
+                        events.Add(CaptureOwnedBanishObservers(new("UNIT_BANISHED", $"{behavior.DisplayName}放逐目标", new Dictionary<string, object?> {
                             ["sourceObjectId"] = stackItem.SourceObjectId, ["targetObjectId"] = targetObjectId,
                             ["playerId"] = banishedRemoval.OwnerPlayerId, ["destinationZone"] = banishedRemoval.DestinationZone,
-                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }));
+                            ["detachedEquipmentObjectIds"] = banishedRemoval.DetachedEquipmentObjectIds.ToArray() }),
+                            playerZones, cardObjects, stackItem.ControllerId, [targetObjectId]));
                         continue;
                     }
                     if ((ShouldDestroyChosenTarget(behavior, targetIndex) || removalAction == "DESTROY")
@@ -26336,6 +26346,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
+        }
+
+        if (behavior.BurnAfterEffectCount > 0)
+        {
+            var burn = ApplyBurnToPlayer(state, playerZones, cardObjects, playerScores, stackItem.ControllerId,
+                behavior.BurnAfterEffectCount * stackItem.EffectRepeatCount, rngCursor, stackItem, events);
+            playerScores = burn.PlayerScores; rngCursor = burn.RngCursor; winnerPlayerId = burn.WinnerPlayerId;
         }
 
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
@@ -28437,7 +28454,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId, gearId, unitId, behavior.EffectKind, events, out locations);
     }
 
-    private static void ApplyDamageToBattlefieldUnits(
+    private static void ApplyDamageToFieldUnits(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -28456,12 +28473,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var current = state with { PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) };
-        foreach (var targetObjectId in GetBattlefieldUnitObjectIds(playerZones, cardObjects))
+        var instructionState = current with { CardObjects = cardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+        var targets = behavior.DamagesAllBaseUnits
+            ? GetFieldUnitObjectIds(playerZones, cardObjects).Where(id => IsBaseObject(current, id)).ToArray()
+            : GetBattlefieldUnitObjectIds(playerZones, cardObjects);
+        foreach (var targetObjectId in targets)
         {
             // Controller-wide bonuses are already included once by the caller.
             // Each actual recipient supplies only its own battlefield modifier.
             var targetDamage = IsSpellPlayBehavior(behavior) || stackItem.SourceConfirmed
-                ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
+                ? ApplyBattlefieldTargetSpellSkillDamageBonus(instructionState, targetObjectId, damageAmount)
                 : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
                 current,

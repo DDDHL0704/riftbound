@@ -33,12 +33,15 @@ public sealed record CardBehaviorDefinition(
     MovementScoreSpec? MovementScore = null,
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
+    bool DamagesAllBaseUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
     bool DestroysAllEquipment = false,
     int OtherEnemyBattlefieldUnitsDamageAmount = 0,
     bool ModifiesAllFriendlyUnits = false,
     int MaxTargetManaCost = 0,
     int MaxTargetPower = 0,
+    bool TargetEquipmentIgnoresPowerLimit = false,
+    bool BanishesTarget = false,
     string DrawRecipientKind = CardDrawRecipientKinds.Controller,
     bool DestroysAllUnits = false,
     bool ReturnsTargetToHand = false,
@@ -302,6 +305,7 @@ public sealed record CardBehaviorDefinition(
     string? AppliedFlowGrant = null,
     bool GrantsPrintedCostFlowOnConquest = false,
     int BurnCount = 0,
+    int BurnAfterEffectCount = 0,
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int DamageAmountIfDiscardHandCardOptionalCost = 0,
     int ExtraDamagePerSameNameInControllerGraveyard = 0,
@@ -351,6 +355,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string AnyUnitOrEquipment = "ANY_UNIT_OR_EQUIPMENT";
     public const string UnitEquipmentOrRune = "UNIT_EQUIPMENT_OR_RUNE";
     public const string AnyEmpoweredUnit = "ANY_EMPOWERED_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
@@ -764,6 +769,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new("RAD·077/167", "弗雷尔卓德之怒", 9, "FRELJORD_FURY_PLAY_READY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "灵体|坚守3", SourceUnitIsExhausted: false),
+        new("RAD·079/167", "雪崩", 5, "AVALANCHE_DAMAGE_ALL_BASE_UNITS_THREE", 3, 0,
+            DamagesAllBaseUnits: true),
         new("RAD·083/167", "坚毅牧羊人", 4, "RESOLUTE_SHEPHERD_PLAY_UNIT_DESTROY_CHEAP_EQUIPMENT", 0, 1,
             TargetScope: CardTargetScopes.Equipment, MinTargetCount: 0, DestroysTarget: true, MaxTargetManaCost: 4,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "坚守2"),
@@ -774,6 +781,9 @@ public static class CardBehaviorRegistry
         new("RAD·118/167", "帝皇令使", 5, "EMPERORS_HERALD_PLAY_UNIT_SET_FRIENDLY_BASE_MIGHT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             BasePowerUntilEndOfTurn: 5, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·117/167", "为了德玛西亚！", 3, "FOR_DEMACIA_BATTLEFIELD_FRIENDLY_STEADFAST_TWO", 0, 1,
+            TargetScope: CardTargetScopes.Battlefield, CanPlayDuringPriority: true,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, FriendlyStatusEffectId: "COMBAT_KEYWORD:坚守2")),
         new("RAD·119/167", "狩猎犬", 3, "HUNTING_HOUNDS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "犬形"),
         new("RAD·122/167", "不速之客", 9, "UNINVITED_GUEST_EXHAUSTED_UNIT_COST_REDUCTION", 0, 0,
@@ -781,6 +791,9 @@ public static class CardBehaviorRegistry
             CostReductionConditionKind: CardCostReductionConditionKinds.ControllerExhaustedUnitCount, CostReductionMana: 1),
         new("RAD·123/167", "守护者之盾", 2, "GUARDIANS_SHIELD_AGILE_PLAY_EQUIPMENT", 0, 0,
             PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: "武装|灵便"),
+        new("RAD·124/167", "冥火销魂", 3, "BALEFIRE_BANISH_UNIT_OR_EQUIPMENT_BURN_TWO", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnitOrEquipment, MaxTargetPower: 3,
+            TargetEquipmentIgnoresPowerLimit: true, BanishesTarget: true, BurnAfterEffectCount: 2),
         new("RAD·125/167", "沙丘吞噬者", 7, "DUNE_SWALLOWER_OPTIONAL_SACRIFICE_WARD_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "法盾",
             MaySacrificeUnitForPrintedCostReduction: true, FixedUnitSacrificeManaReduction: 2),
