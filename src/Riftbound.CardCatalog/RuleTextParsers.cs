@@ -3931,6 +3931,18 @@ public static class StaticAuraParser
                 }
             }
 
+            var equipmentCondition = Regex.Match(segment, @"只要我所在的战场上有拥有\{\{([^}]+)\}\}的友方装备，我便具有\{\{S\}\}\+(\d+)", RegexOptions.CultureInvariant);
+            if (equipmentCondition.Success)
+            {
+                auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment,
+                    int.Parse(equipmentCondition.Groups[2].Value, CultureInfo.InvariantCulture), segment,
+                    BehaviorImplementationStatuses.Unimplemented, "Conditional equipment participant aura.",
+                    TargetFilter: "TAG:" + equipmentCondition.Groups[1].Value, RequiredParticipantCount: 1));
+                continue;
+            }
+
             var battlefieldFilteredKeywordMatch = Regex.Match(
                 segment,
                 @"此处拥有(?:\{\{)?([^}，。]+)(?:\}\})?的单位获得\{\{([^}]+)\}\}(?!\+)",

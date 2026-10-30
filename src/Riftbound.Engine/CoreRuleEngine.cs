@@ -3619,6 +3619,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
             timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
+                ReturnedEquipmentManaCost = ReturnedEquipmentManaCost(state, plan),
                 PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 FlowPlay = FlowReceipt(state, intent.PlayerId, command.SourceObjectId, behavior),
@@ -14566,6 +14567,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId,
         StaticAuraSpec aura)
     {
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment)
+            return SameBattlefieldFriendlyEquipmentParticipants(state with { PlayerZones = playerZones }, objectId, controllerId, aura).Count;
         if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationOtherFriendlySameNameUnits)
             return SameLocationOtherFriendlySameNameUnitIds(
                 ReferenceEquals(playerZones, state.PlayerZones) ? state : state with { PlayerZones = playerZones }, objectId).Count;
@@ -14633,7 +14636,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return participantCount * aura.PowerDeltaPerParticipant;
         }
 
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
+        if (aura.ParticipantScope == StaticAuraParticipantScopes.SameBattlefieldFriendlyFilteredEquipment
+            || aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits)
             return participantCount >= aura.RequiredParticipantCount.GetValueOrDefault(1) ? aura.PowerDeltaPerParticipant : 0;
 
         if (string.Equals(
@@ -18449,6 +18453,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.MayDestroyFriendlyPermanentAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Any(id => !CanDestroyFriendlyPermanentAsAdditionalCost(state, intent.PlayerId, id)))
+        {
+            rejection = Reject(state, "额外费用必须摧毁一个正面友方单位或装备。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if ((behavior.RequiresDestroyFriendlyUnitAdditionalCost || behavior.MaySacrificeUnitForPrintedCostReduction)
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
@@ -18482,7 +18493,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+        if ((behavior.RequiresReturnFriendlyEquipmentAdditionalCost || behavior.MayReturnFriendlyEquipmentAdditionalCost)
             && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanReturnFriendlyEquipmentAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -22206,6 +22217,44 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (behavior.MayDestroyFriendlyPermanentAdditionalCost
+            && normalizedOptionalCosts.Any(cost => cost.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)))
+        {
+            var selected = normalizedOptionalCosts.Where(cost => cost.StartsWith(DestroyFriendlyPermanentAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (selected.Length != 1 || selected[0].Length == DestroyFriendlyPermanentAdditionalCostPrefix.Length) return false;
+            var target = selected[0][DestroyFriendlyPermanentAdditionalCostPrefix.Length..];
+            if (!TryBuildOptionalCostPlan(state, playerId, normalizedOptionalCosts.Except(selected).ToArray(),
+                    behavior with { MayDestroyFriendlyPermanentAdditionalCost = false }, out _, out extraManaCost,
+                    out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                    out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                    out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds)) return false;
+            destroyedAdditionalCostTargetObjectIds = destroyedAdditionalCostTargetObjectIds.Append(target).ToArray();
+            return true;
+        }
+
+        if (behavior.MayEnterReadyWithMovementProhibition && normalizedOptionalCosts.Contains(ReadyRestrictedEntryChoice))
+        {
+            var remaining = normalizedOptionalCosts.Where(c => c != ReadyRestrictedEntryChoice).ToArray();
+            return TryBuildOptionalCostPlan(state, playerId, remaining,
+                behavior with { MayEnterReadyWithMovementProhibition = false }, out _, out extraManaCost,
+                out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds);
+        }
+        if (behavior.MayReturnFriendlyEquipmentAdditionalCost
+            && normalizedOptionalCosts.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix, StringComparison.Ordinal)))
+        {
+            var selected = normalizedOptionalCosts.Where(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (selected.Length != 1 || !TryParseReturnFriendlyEquipmentAdditionalCost(selected[0], out var equipment)) return false;
+            if (!TryBuildOptionalCostPlan(state, playerId, normalizedOptionalCosts.Except(selected).ToArray(),
+                    behavior with { MayReturnFriendlyEquipmentAdditionalCost = false }, out _, out extraManaCost,
+                    out extraPowerCost, out extraPowerCostByTrait, out experienceCost, out optionalCostManaReduction,
+                    out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds, out destroyedAdditionalCostTargetObjectIds,
+                    out returnedAdditionalCostTargetObjectIds, out discardedOptionalCostTargetObjectIds)) return false;
+            returnedAdditionalCostTargetObjectIds = returnedAdditionalCostTargetObjectIds.Append(equipment).ToArray();
+            return true;
+        }
+
         var battlefieldCosts = normalizedOptionalCosts.Where(IsBattlefieldUnitPlayCost).ToArray();
         if (battlefieldCosts.Length > 0)
         {
@@ -22844,7 +22893,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsFriendlyEquipmentObject(state, playerId, targetObjectId);
+        return IsFriendlyEquipmentObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var equipment) && !equipment.IsFaceDown;
     }
 
     private static bool CanReturnFriendlyUnitAsAdditionalCost(MatchState state, string playerId, string targetObjectId)
@@ -24273,6 +24323,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     behavior,
                     stackItem,
+                    state.TurnNumber,
                     state.PlayerExperience,
                     state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
@@ -24285,6 +24336,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     behavior,
                     stackItem,
+                    state.TurnNumber,
                     state.PlayerExperience,
                     state.DestroyedUnitOwnerIdsThisTurn,
                     untilEndOfTurnEffects,
@@ -24382,6 +24434,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
+
+            ResolveReturnedEquipmentSourceInstruction(state, behavior, stackItem, playerZones, cardObjects, events);
 
             TryResolveSourceUnitOptionalReadyPower(
                 playerZones,
@@ -30019,6 +30073,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        int turnNumber,
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
@@ -30032,7 +30087,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var (unitState, hasteReadyOptionalCostPaid, sourceReadyOptionalCostPaid,
             friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
             appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
-            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
+            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, turnNumber, playerExperience,
                 destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects, playerScores: playerScores);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
@@ -30078,6 +30133,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        int turnNumber,
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
         IReadOnlyList<string> untilEndOfTurnEffects,
@@ -30091,7 +30147,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var (unitState, hasteReadyOptionalCostPaid, sourceReadyOptionalCostPaid,
             friendlyEquipmentPowerBonus, appliedEntryStaticAbility,
             appliedEntryStaticAbilitySourceObjectId, appliedEntryStaticAbilitySourceCardNo) =
-            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, playerExperience,
+            PrepareUnitEntry(playerZones, cardObjects, behavior, stackItem, turnNumber, playerExperience,
                 destroyedUnitOwnerIdsThisTurn, untilEndOfTurnEffects, playerScores: playerScores);
         cardObjects[stackItem.SourceObjectId] = unitState;
 
@@ -31620,6 +31676,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
+        if (removed && removal.WasDestroyed && before is { IsFaceDown: false }
+            && (before.Tags.Contains(CardObjectTags.UnitCard) || before.Tags.Contains(CardObjectTags.EquipmentCard)))
+            RuleChoices.Value!.DestroyedPermanentControllers.Add((state.TurnNumber, controller));
         return removed;
     }
 
