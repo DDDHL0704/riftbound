@@ -1158,7 +1158,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var tokenEvents = new List<GameEvent>();
         var tokenLocations = state.ObjectLocations.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var tokenItem = new StackItemState("token-" + pendingPayment.PaymentId, intent.PlayerId, battlefieldObjectId, trigger.Kind)
-            { CardNo = battlefieldState.CardNo };
+            { CardNo = battlefieldState.CardNo ?? string.Empty };
         AppendUnitTokenBatch(state, tokenItem, tokenDefinition.CardNo, 1,
             entersReady: trigger.CreatedTokenExhausted != true, playerZones, cardObjects, runePools, tokenEvents,
             tokenLocations, battlefieldId: battlefieldObjectId, abilityId: trigger.Kind,
@@ -17218,7 +17218,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var tokenEvents = new List<GameEvent>();
         var tokenItem = new StackItemState($"conquest-token-{state.Tick}-{battlefieldObjectId}", playerId,
-            battlefieldObjectId, trigger.Kind) { CardNo = battlefieldState.CardNo };
+            battlefieldObjectId, trigger.Kind) { CardNo = battlefieldState.CardNo ?? string.Empty };
         AppendUnitTokenBatch(state, tokenItem, tokenDefinition.CardNo, 1, true,
             playerZones, cardObjects, runePools, tokenEvents, turnEffects: turnEffects,
             battlefieldId: battlefieldObjectId, abilityId: trigger.Kind,
