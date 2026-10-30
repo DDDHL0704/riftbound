@@ -160,7 +160,7 @@ public sealed class RadExhaustCostSpellTests
         initial = initial with { UntilEndOfTurnEffects = EchoCostRules.AddBaseCostGrant(initial.UntilEndOfTurnEffects, "P1") };
         var game = new Driver(initial);
         await game.Act("P1", Play(no) with { OptionalCosts = [Exhaust + "ALLY", "ECHO"],
-            RepeatChoices = no == Roar ? [new(null, ["ALLY"])] : null }); await game.Top();
+            RepeatChoices = no == Roar ? [new("", ["ALLY"])] : null }); await game.Top();
         Assert.Equal(18, game.State.RunePools["P1"].Mana);
         Assert.Single(game.Events(), e => e.Event.Kind == "UNIT_EXHAUSTED" && Equals(e.Event.Payload.GetValueOrDefault("targetObjectId"), "ALLY"));
         if (no == Roar) foreach (var id in new[] { "ALLY", "ENEMY" }) Assert.Contains("STUNNED", game.State.CardObjects[id].UntilEndOfTurnEffects);

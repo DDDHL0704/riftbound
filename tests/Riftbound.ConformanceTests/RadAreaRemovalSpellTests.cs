@@ -231,7 +231,7 @@ public sealed class RadAreaRemovalSpellTests
             UntilEndOfTurnEffects = EchoCostRules.AddBaseCostGrant(initial.UntilEndOfTurnEffects, "P1") };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("UNIT", Balefire, ["GEAR"], OptionalCosts: ["ECHO"],
-            RepeatChoices: [new(null, ["ALLY"])])); await game.Top();
+            RepeatChoices: [new("", ["ALLY"])])); await game.Top();
         Assert.Equal(new[] { "ALLY", "GEAR" }, game.State.PlayerZones["P1"].Banished.Order().ToArray());
         var instructions = game.Events().Where(e => e.Event.Kind is "UNIT_BANISHED" or "CARDS_BURNED").Select(e => e.Event.Kind).ToArray();
         var once = new[] { "UNIT_BANISHED", "CARDS_BURNED", "CARDS_BURNED" };
