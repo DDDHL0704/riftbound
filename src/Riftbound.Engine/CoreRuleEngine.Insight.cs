@@ -113,6 +113,7 @@ public sealed partial class CoreRuleEngine
                 StackItems = state.StackItems.Where(s => s.StackItemId != item.StackItemId).ToArray(), Events = triggerEvents };
         }
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
+        behavior = ShowcaseDefinition(behavior, item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
@@ -199,7 +200,7 @@ public sealed partial class CoreRuleEngine
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;
         var count = item.InsightContext is { } captured && ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
-            ? captured.Count : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) ? behavior.InsightCount : 0;
+            ? captured.Count : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) ? ShowcaseDefinition(behavior, item).InsightCount : 0;
         var viewedCount = choice.ContextObjectIds.Count;
         if (count == 0 || viewedCount == 0 || !zones.MainDeck.Take(viewedCount).SequenceEqual(choice.ContextObjectIds)
             || !choice.ContextObjectIds.SequenceEqual(choice.LegalObjectIds)) return false;
