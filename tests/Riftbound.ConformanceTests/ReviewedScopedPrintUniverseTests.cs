@@ -139,7 +139,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("unsupported-" + id, new { initial, result });
         Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(initial)); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
-        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(ImplementedPrints.Contains(no, StringComparer.Ordinal), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Fact]
