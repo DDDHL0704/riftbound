@@ -113,9 +113,10 @@ public sealed partial class CoreRuleEngine
                 unitChoiceIds = source.SupportingUnits.Select(unit => PlayCostReductionUnitChoice(source, unit)).ToArray() }).ToArray();
 
     private static bool TrySelectOptionalPlayCostReducers(MatchState state, string player, CardBehaviorDefinition behavior,
-        IReadOnlyList<string> costs, out IReadOnlyList<OptionalPlayCostReducer> selected, out IReadOnlyList<string> exhausted)
+        IReadOnlyList<string> costs, out IReadOnlyList<OptionalPlayCostReducer> selected, out IReadOnlyList<string> exhausted,
+        out IReadOnlyList<IReadOnlyList<string>> exhaustionGroups)
     {
-        exhausted = [];
+        exhausted = []; exhaustionGroups = [];
         var choices = costs.Where(choice => choice.StartsWith(OptionalPlayCostReductionChoicePrefix, StringComparison.Ordinal)).ToArray();
         var available = OptionalPlayCostReducers(state, player, behavior).ToDictionary(source => source.ChoiceId, StringComparer.Ordinal);
         selected = choices.Where(available.ContainsKey).Select(id => available[id]).ToArray();
@@ -124,16 +125,18 @@ public sealed partial class CoreRuleEngine
             (Id: PlayCostReductionUnitChoice(source, unit), Source: source.ChoiceId, Unit: unit))).ToDictionary(row => row.Id, StringComparer.Ordinal);
         var selectedSupport = costs.Where(cost => cost.StartsWith(PlayCostReductionUnitPrefix, StringComparison.Ordinal)).ToArray();
         if (selectedSupport.Any(id => !support.ContainsKey(id))) return false;
-        var paid = new List<string>();
+        var paid = new List<string>(); var groups = new List<IReadOnlyList<string>>();
         foreach (var source in selected)
         {
             var units = selectedSupport.Where(id => support[id].Source == source.ChoiceId).Select(id => support[id].Unit).ToArray();
             if (units.Length != source.Spec.SupportingUnitCount) return false;
-            if (source.Spec.ExhaustSource) paid.Add(source.Use.Source.ObjectId);
-            paid.AddRange(units);
+            var group = (source.Spec.ExhaustSource ? new[] { source.Use.Source.ObjectId } : [])
+                .Concat(units).ToArray();
+            paid.AddRange(group);
+            if (group.Length > 0) groups.Add(group);
         }
         if (paid.Distinct(StringComparer.Ordinal).Count() != paid.Count) return false;
-        exhausted = paid; return true;
+        exhausted = paid; exhaustionGroups = groups; return true;
     }
 
     private static int MaximumOptionalPlayReduction(MatchState state, string player, CardBehaviorDefinition behavior, bool mana)

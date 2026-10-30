@@ -18269,7 +18269,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var playCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalPlayCostReductionChoice).ToArray();
         if (costsWithoutPowerSpend.Count(IsOptionalPlayCostReductionChoice) != playCostReductionChoices.Length
             || !TrySelectOptionalPlayCostReducers(state, intent.PlayerId, behavior, playCostReductionChoices,
-                out var playCostReducers, out var reductionExhaustedObjects))
+                out var playCostReducers, out var reductionExhaustedObjects, out var reductionExhaustionGroups))
         {
             rejection = Reject(state, "所选打出减费技能无效或已使用。", ErrorCodes.InvalidTarget);
             return false;
@@ -18743,6 +18743,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 OptionalPlayCostReductionMana = playCostManaReduction, OptionalPlayCostReductionPower = playCostPowerReduction,
                 SpellPowerReductionChoices = spellPowerChoices.Count == 0 ? null : spellPowerChoices,
                 OptionalPlayCostReductionUses = playCostReducers.Where(source => source.Spec.OncePerTurn).Select(source => source.Use).ToArray(),
+                SimultaneousExhaustionCostGroups = reductionExhaustionGroups,
                 PowerSpend = powerSpend, RenektonResourceAction = renektonResourceAction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
@@ -34625,6 +34626,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AvailableExperience,
         int AdditionalManaCost)
     {
+        public IReadOnlyList<IReadOnlyList<string>> SimultaneousExhaustionCostGroups { get; init; } = [];
         public IReadOnlyList<OptionalPlayCostReductionUse> OptionalPlayCostReductionUses { get; init; } = [];
         public int OptionalPlayCostReductionMana { get; init; }
         public int OptionalPlayCostReductionPower { get; init; }
