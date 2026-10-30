@@ -118,7 +118,7 @@ public sealed partial class CoreRuleEngine
             || c.SourceLocation is not { } location || !state.Seats.ContainsKey(location.PlayerId)
             || !(location.Zone == "BASE" && location.BattlefieldObjectId is null
                 || location.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, location.BattlefieldObjectId) is not null)
-            || !ValidCapturedFieldSource(state, c, source)
+            || (c.SourceCeasedToExist ? !ValidCapturedFieldSource(state, c, source) : !state.CardObjects.ContainsKey(source))
             || !PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, d.FaceRevision, d.CapturedTick, c.SourceTokenFactoryCardNo)
             || CombatMightSourceLocation(state, source, c.SourceGeneration) is { } current && current != location)
             return false;
