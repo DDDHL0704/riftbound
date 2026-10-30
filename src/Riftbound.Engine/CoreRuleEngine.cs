@@ -12019,6 +12019,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             queue.AddRange(CaptureRoleUnitEvents(attackState, defenderObjectIds, "DEFEND", TimingStates.NeutralClosed, "BATTLE_DECLARED"));
             queue.AddRange(CaptureAttackAreaDamageTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackWeaponDamageTriggers(attackState, attackerObjectIds, battlefieldId));
+            queue.AddRange(CaptureDisarmTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureEmpoweredAttackDestroyTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CapturePaidUnitAttackTriggers(attackState, attackerObjectIds, battlefieldId));
             queue.AddRange(CaptureAttackMightDamage(attackState, attackerObjectIds, battlefieldId));
@@ -19123,7 +19124,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     ["stackItemId"] = resolvedItem.StackItemId,
                     ["controllerId"] = resolvedItem.ControllerId,
-                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
+                    ["sourceObjectId"] = resolvedItem.SelfMovement is null && resolvedItem.ConquestToken is null && resolvedItem.NamedUnitSwap is null && resolvedItem.SourceUnitTokens is null && resolvedItem.ReadyObjectTrigger is null && resolvedItem.SourceReadied is null && resolvedItem.BeginningRune is null && !HasMovementDamage(resolvedItem) && resolvedItem.EmpowerActivation is null && resolvedItem.EmpowerOtherObserver is null && resolvedItem.OutsideHandPlayObserver is null && resolvedItem.HighCostPlayObserver is null && resolvedItem.SelfMightActivation is null && resolvedItem.RecycleMightActivation is null && resolvedItem.MightySkill is null && resolvedItem.SourceBoonMight is null && resolvedItem.ConquestSource is null && resolvedItem.FieldContext?.Kind is not (AttackAreaDamageKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind or StunReadyPowerKind or StunBoonKind or SelfActionPowerKind)
                         ? resolvedItem.SourceObjectId
                         : ResolutionResult.VisibleObjectIdForViewer(nextState, resolvedItem.SourceObjectId, "__spectator__"),
                     ["effectKind"] = resolvedItem.EffectKind,
@@ -23964,7 +23965,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 [new("NEXT_SPELL_ECHO_GRANTED", "下一个法术获得等同基础费用的回响", new Dictionary<string, object?>
                     { ["playerId"] = stackItem.ControllerId, ["sourceObjectId"] = stackItem.SourceObjectId })],
                 [], null, [], null, [], state.RngCursor);
-        if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight)
+        if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight
+            && (IsSpellPlayBehavior(insightBehavior) || stackItem.SourceConfirmed))
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }
             && !(CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var deckRepeat) && deckRepeat.DeckPlayKind.Length > 0))
@@ -29866,6 +29868,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return false;
         }
+
+        if (ability.MaxOtherControlledUnitCount is { } maximum
+            && playerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
+                .Count(id => id != sourceObjectId && cardObjects.TryGetValue(id, out var unit)
+                    && !unit.IsFaceDown && unit.Tags.Contains(CardObjectTags.UnitCard)
+                    && EffectiveFieldControllerId(playerZones, id, unit) == controllerId) > maximum)
+            return false;
 
         if (ability.RequiresUnitDestroyedThisTurn is true
             && destroyedUnitOwnerIdsThisTurn.Count == 0)
