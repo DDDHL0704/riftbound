@@ -128,6 +128,10 @@ public sealed class RadNextUnitPlayGrantTests
         await Reject(game.State, new("SHADOW", "OGN·135/298", [], Destination: "BATTLEFIELD:OTHER"));
         foreach (var n in new[] { 1, 2 }) await game.Act("P1", new TapRuneCommand("NEXT-UNIT-MANA-" + n));
         await Grant(game);
+        // Resolving the reaction returns priority to the turn player. The
+        // face-down unit still needs its own legal response window.
+        Assert.Equal("P2", game.State.PriorityPlayerId);
+        await game.Act("P2", new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand("SHADOW", "OGN·135/298", [], Destination: "BATTLEFIELD:OTHER"));
         Assert.False(game.State.CardObjects["SHADOW"].IsFaceDown);
         Assert.Equal("OTHER", game.State.ObjectLocations["SHADOW"].BattlefieldObjectId);
