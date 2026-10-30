@@ -59,6 +59,10 @@ public sealed partial class BattleWinnerPhaseBoundaryTests
         Assert.Equal("RESULT_TRIGGERS", run.State.PendingBattleResult!.Stage); Assert.Equal("P1", run.State.CardObjects["HOME"].ControllerId);
         Assert.Null(run.State.PendingHandChoice); await run.Top();
         Assert.Equal("CONTROL_TRIGGERS", run.State.PendingBattleResult!.Stage);
+        Assert.Null(run.State.PendingHandChoice);
+        Assert.Single(run.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        Assert.DoesNotContain(run.Events(), e => e.Event.Kind is "BATTLE_CLOSED" or "CARD_DISCARDED");
+        await run.Top();
         var choice = Assert.IsType<PendingHandChoiceState>(run.State.PendingHandChoice);
         Assert.Equal("P2", run.State.CardObjects["HOME"].ControllerId); Assert.Equal(1, choice.RequiredCount);
         Assert.Contains("P2-DRAW-1", choice.LegalObjectIds); Assert.DoesNotContain(run.Events(), e => e.Event.Kind is "BATTLE_CLOSED" or "CARD_DISCARDED");

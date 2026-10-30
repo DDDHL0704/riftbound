@@ -173,6 +173,7 @@ public sealed partial class CoreRuleEngine
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend or EquipmentDeathReturnKind } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
+            || NeedsBattlefieldConquestReadyEquipmentConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);
 
     private static ResolutionResult PrepareTriggerConfirmation(ResolutionResult result)
@@ -191,6 +192,7 @@ public sealed partial class CoreRuleEngine
         if (HasMovementDamage(item)) return PrepareMovementDamage(result, item);
         if (item.DravenBattleDeathScore is not null) return PrepareDravenDeathOpponent(result, item);
         if (item.HighCostPlayObserver is not null) return PrepareHighCostRuneChoice(result, item);
+        if (NeedsBattlefieldConquestReadyEquipmentConfirmation(item)) return PrepareBattlefieldConquestReadyEquipmentConfirmation(result, item);
         if (NeedsMovementDiscardRuneConfirmation(item)) return PrepareMovementDiscardRunes(result, item);
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.EmpowerInteraction is not null) return PrepareEmpowerInteraction(result, item);
@@ -294,7 +296,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == FieldTriggerMinimumTargets(context) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice);
+            || ValidLastBreathHereChoice(state, choice) || ValidDeathObserverChoice(state, choice) || ValidUnitEventChoice(state, choice) || ValidEmpowerInteractionChoice(state, choice) || ValidReadyObjectChoice(state, choice) || ValidMovementDamageChoice(state, choice) || ValidHighCostRuneChoice(state, choice) || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice) || ValidConquestFlowChoice(state, choice) || ValidBattlefieldConquestReadyEquipmentTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -308,6 +310,12 @@ public sealed partial class CoreRuleEngine
         if (selected.Count == 0 && item.CreatedTokenReady is null && item.HighCostPlayObserver is null) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.BattlefieldConquestReadyEquipment is { } equipmentContext)
+        {
+            var target = state.CardObjects[selected.Single()];
+            bound = bound with { BattlefieldConquestReadyEquipment = equipmentContext with {
+                TargetTokenFactoryCardNo = TokenObjectRules.IsToken(target) ? target.TokenFactoryCardNo ?? target.CardNo : null } };
+        }
         if (item.UnitPlayMight is { } unitPlay)
         {
             var target = state.CardObjects[selected.Single()];
@@ -418,10 +426,17 @@ public sealed partial class CoreRuleEngine
             confirmed = confirmed with { ReflexiveCopy = copy with {
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
-        events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
+        var confirmationPayload = new Dictionary<string, object?> {
             ["sourceObjectId"] = NeedsLastBreathHereTarget(item) || HasMovementDamage(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind || IsStunObserverKind(field.Kind))
-                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
-            ["targetObjectIds"] = selected.ToArray() }));
+                ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId, ["targetObjectIds"] = selected.ToArray() };
+        if (item.BattlefieldConquestReadyEquipment is { } equipment)
+        {
+            confirmationPayload["stackItemId"] = item.StackItemId;
+            confirmationPayload["targetGeneration"] = item.TargetGenerations![selected.Single()];
+            if (equipment.TargetTokenFactoryCardNo is not null)
+                confirmationPayload["targetTokenFactoryCardNo"] = equipment.TargetTokenFactoryCardNo;
+        }
+        events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", confirmationPayload));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 

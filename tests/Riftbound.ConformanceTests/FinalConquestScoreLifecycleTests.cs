@@ -86,11 +86,15 @@ public sealed class FinalConquestScoreLifecycleTests
         var initial = Position(7, battlefield: "OGN·298/298");
         var driver = new StandbyDefendObserverTests.Driver(initial);
         var result = await Conquer(driver);
+        Assert.Null(driver.State.PendingHandChoice);
+        Assert.Single(driver.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        Assert.Single(result.Events, e => e.Kind == "CARD_DRAWN");
+        Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DISCARDED");
+        await driver.Top();
         var choice = Assert.IsType<PendingHandChoiceState>(driver.State.PendingHandChoice);
         Assert.Contains("DRAW1", choice.LegalObjectIds);
         Assert.Equal(new[] { "H1", "H2", "H3", "DRAW1" }, driver.State.PlayerZones["P1"].Hand);
         Assert.Equal(7, driver.State.PlayerScores["P1"]);
-        Assert.Single(result.Events, e => e.Kind == "CARD_DRAWN");
         await driver.Act("P1", new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["DRAW1"]));
         Assert.Equal(new[] { "H1", "H2", "H3", "DRAW2" }, driver.State.PlayerZones["P1"].Hand);
         Assert.Contains("DRAW1", driver.State.PlayerZones["P1"].Graveyard);

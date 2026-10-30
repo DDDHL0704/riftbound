@@ -229,7 +229,10 @@ public sealed class OptionalSacrificeOpeningTests
         IEnumerable<string> Runes() => state.PlayerZones["P1"].Base.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
         bool IsYellow(string id) => PrintedPowerCostRules.ForCard(state.CardObjects[id].CardNo!).Traits.Contains(RuneTrait.Yellow);
         async Task TapAll()
-        { foreach (var rune in Runes().Where(id => !state.CardObjects[id].IsExhausted).ToArray()) await Act("P1", new TapRuneCommand(rune)); }
+        {
+            var ready = Runes().Where(id => !state.CardObjects[id].IsExhausted).ToArray();
+            if (ready.Length > 0) await Act("P1", new TapRuneCommand(ready[0], ready));
+        }
         async Task NextOwnTurn()
         { do { await Act(state.TurnPlayerId, new EndTurnCommand()); } while (state.TurnPlayerId != "P1"); }
     }
