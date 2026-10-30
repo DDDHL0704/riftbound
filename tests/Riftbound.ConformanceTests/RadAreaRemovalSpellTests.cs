@@ -197,11 +197,23 @@ public sealed class RadAreaRemovalSpellTests
     [Fact]
     public async Task BalefireDoesNotBanishAReturnedTargetAndItsLaterBurnStillExecutes()
     {
-        var initial = AttackDamageDistributionTests.Spell(Position(Balefire), "RETURN", "SFD·135/221", "P1");
+        // Emergency Recall is Swift and is legal only in an open spell duel;
+        // Balefire opens an ordinary closed stack.  Use the printed Reaction
+        // that returns a unit so this response follows the official timing
+        // window while still exercising the target-leaves-before-resolution
+        // boundary.
+        var initial = AttackDamageDistributionTests.Spell(Position(Balefire), "RETURN", "OGN·104/298", "P1");
+        initial = initial with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects)
+            {
+                ["ALLY"] = initial.CardObjects["ALLY"] with { Power = 3 }
+            }
+        };
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("UNIT", Balefire, ["GEAR"]));
-        await game.Act("P1", new PlayCardCommand("RETURN", "SFD·135/221", ["GEAR"])); await game.Top(); await game.Top();
-        Assert.Contains("GEAR", game.State.PlayerZones["P1"].Hand); Assert.Empty(game.State.PlayerZones["P1"].Banished);
+        await game.Act("P1", new PlayCardCommand("UNIT", Balefire, ["ALLY"]));
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["ALLY"])); await game.Top(); await game.Top();
+        Assert.Contains("ALLY", game.State.PlayerZones["P1"].Hand); Assert.Empty(game.State.PlayerZones["P1"].Banished);
         Assert.Single(game.State.PlayerZones["P1"].MainDeck); await game.Replay();
     }
 

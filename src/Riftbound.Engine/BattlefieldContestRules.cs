@@ -5,6 +5,40 @@ internal static class BattlefieldContestRules
 {
     internal const string InitiatorPrefix = "BATTLEFIELD_CONTEST_INITIATOR:";
 
+    /// <summary>
+    /// Test/recovery fixtures can import a board that is already contested at
+    /// tick zero.  Such a position has no contest-causing command to resume;
+    /// creating the normal cleanup/duel tasks would incorrectly block the
+    /// first command against the imported state.  A contest created by the
+    /// engine records its initiator, so it remains eligible for task creation.
+    /// </summary>
+    internal static bool IsInitialStaticContest(
+        MatchState state,
+        BattlefieldState battlefield,
+        bool hasStateBasedCleanup)
+    {
+        if (state.Tick != 0
+            || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            || state.TriggerQueue.Count > 0
+            || state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingCardChoice is not null
+            || state.PendingEffectPlay is not null
+            || state.BattleState.IsActive
+            || hasStateBasedCleanup)
+        {
+            return false;
+        }
+
+        var prefix = MarkerPrefix(battlefield.BattlefieldObjectId);
+        return !state.UntilEndOfTurnEffects.Any(effect => effect.StartsWith(prefix, StringComparison.Ordinal));
+    }
+
     public static string Initiator(MatchState state, BattlefieldState battlefield)
     {
         if (CoreRuleEngine.IsInitialBattleDuel(state, out var captured)
