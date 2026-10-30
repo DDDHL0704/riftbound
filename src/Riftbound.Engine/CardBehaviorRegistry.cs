@@ -9463,7 +9463,7 @@ public static class CardBehaviorRegistry
     private static readonly CardBehaviorDefinition[] RadiantResourceObserverUnits =
     [
         new("RAD·105/167", "鲁莽的发明家", 3, "EXHAUST_CHOOSE_RESOURCE_UNIT", 0, 0,
-            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",
             HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Purple,
             UnitEventAbility: new("BECAME_EXHAUSTED", "CHOOSE_MODE", Modes: [
                 new("CREATE_GOLD", "打出一个休眠的金币装备指示物", "CREATE_EQUIPMENT_TOKEN", 1,
