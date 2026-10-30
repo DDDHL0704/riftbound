@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Riftbound.ConformanceTests;
 
@@ -37,6 +38,7 @@ internal static class CiTestHostObservation
                         serverGCRequested = Environment.GetEnvironmentVariable("DOTNET_gcServer"),
                         serverGC = GCSettings.IsServerGC,
                         latencyMode = GCSettings.LatencyMode.ToString(),
+                        regexCacheSize = Regex.CacheSize,
                         totalAllocatedBytes = GC.GetTotalAllocatedBytes(precise: true),
                         totalGCPauseSeconds = GC.GetTotalPauseDuration().TotalSeconds,
                         collections = Enumerable.Range(0, GC.MaxGeneration + 1).Select(GC.CollectionCount).ToArray(),
