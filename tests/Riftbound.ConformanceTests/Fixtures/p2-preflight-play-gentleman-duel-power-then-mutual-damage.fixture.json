@@ -236,7 +236,7 @@
         "P1-UNIT-GENTLEMAN-001": {
           "damage": 3,
           "power": 5,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "untilEndOfTurnPowerModifier": 3
         }
       }

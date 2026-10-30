@@ -257,6 +257,19 @@ internal static class BattlefieldTriggerSpecRules
             && trigger.DrawCountPerParticipant is > 0;
     }
 
+    public static bool IsBattlefieldConquerLowRunesPayDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.BattlefieldConquerLowRunesPayDraw
+            && trigger.Timing == TriggerTimings.BattlefieldConquered && trigger.ManaCost is > 0
+            && trigger.DrawCount is > 0 && trigger.MaximumControlledRunes is >= 0 && trigger.Optional == true;
+
+    public static bool IsBattlefieldHeldBurnTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.BattlefieldHeldBurn && trigger.Timing == TriggerTimings.BattlefieldHeld
+            && trigger.MillCount is > 0;
+
+    public static bool IsBattlefieldBattleStartManaTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.BattlefieldBattleStartMana && trigger.Timing == "BATTLE_STARTED"
+            && trigger.ManaDelta is > 0 && trigger.TargetScope == TriggerTargetScopes.EachPlayer;
+
     public static bool IsBattlefieldConquerPowerfulPayDrawTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal)
@@ -408,6 +421,9 @@ internal static class BattlefieldTriggerSpecRules
             TriggerKinds.BattlefieldHeldNextSpellEcho => true,
             TriggerKinds.BattlefieldHeldUnitCostIncrease => true,
             TriggerKinds.BattlefieldHeldDrawOne => true,
+            TriggerKinds.BattlefieldHeldBurn => true,
+            TriggerKinds.BattlefieldBattleStartMana => true,
+            TriggerKinds.BattlefieldConquerLowRunesPayDraw => true,
             TriggerKinds.BattlefieldHeldCallRune => true,
             TriggerKinds.BattlefieldHeldEachPlayerCallRune => true,
             TriggerKinds.BattlefieldHeldMoveUnitToBase => true,
@@ -461,7 +477,7 @@ internal static class BattlefieldTriggerSpecRules
 
     private static IReadOnlyDictionary<string, IReadOnlyList<TriggerSpec>> BuildTriggerMap()
     {
-        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(

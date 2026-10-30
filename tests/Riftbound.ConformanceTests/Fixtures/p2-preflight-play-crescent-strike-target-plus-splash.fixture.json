@@ -409,12 +409,12 @@
         "P2-CRESCENT-PRIMARY-001": {
           "damage": 4,
           "power": 6,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         },
         "P2-CRESCENT-SPLASH-001": {
           "damage": 1,
           "power": 5,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

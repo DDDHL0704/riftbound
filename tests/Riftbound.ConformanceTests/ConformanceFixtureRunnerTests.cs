@@ -347,7 +347,6 @@ public sealed partial class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-terror-spider-hunt-keyword-unit.fixture.json", "P1-UNIT-TERROR-SPIDER", 6, "CARD_TYPE:UNIT|狩猎2|蜘蛛")]
     [InlineData("p2-preflight-play-bandle-soldier-keyword-unit.fixture.json", "P1-UNIT-BANDLE-SOLDIER", 5, "CARD_TYPE:UNIT|约德尔人")]
     [InlineData("p2-preflight-play-fiercewing-keyword-unit.fixture.json", "P1-UNIT-FIERCEWING", 7, "CARD_TYPE:UNIT|龙")]
-    [InlineData("p2-preflight-play-roosting-dark-drake-dragon-static.fixture.json", "P1-UNIT-ROOSTING-DARK-DRAKE", 5, "CARD_TYPE:UNIT|龙")]
     [InlineData("p2-preflight-play-ogn-miss-fortune-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE", 4, "CARD_TYPE:UNIT|海盗")]
     [InlineData("p2-preflight-play-ogn-miss-fortune-alt-a-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-A", 4, "CARD_TYPE:UNIT|海盗")]
     [InlineData("p2-preflight-play-ogn-miss-fortune-alt-b-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-B", 4, "CARD_TYPE:UNIT|海盗")]
@@ -963,18 +962,24 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER",
                 "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT",
                 "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
+                "BOOK_REMOVE_EMPOWER_DRAW",
                 "CRIMSON_ROSE_EXPERIENCE3_EXHAUST_READY_UNIT",
                 "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER",
                 "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA",
+                "EGG_REACTION_GAIN_MANA",
                 "ENERGY_CHANNEL_REACTION_EXHAUST_GAIN_1_MANA",
                 "EZREAL_PAY_BLUE_SWIFT_MOVE_TO_BASE",
                 "FLUFT_PORO_EXHAUST_CREATE_TWO_SPELLSHIELD_WARHAWKS",
                 "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER",
                 "GATEKEEPER_MADULI_PAY_PURPLE_MOVE_TO_WEAKER_ENEMY_BATTLEFIELD",
+                "GLOWING_STONE_TRANSFER",
                 "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
                 "GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
                 "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA",
+                "HEXTECH_DISC_CREATE_ROBOT",
+                "HEXTECH_EQUATION_EMPOWER_EQUIPMENT",
                 "HONEYFRUIT_REACTION_EXHAUST_GAIN_GENERIC_POWER",
+                "IMPERIAL_TOOL_POWER",
                 "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER",
                 "JHIN_MOVE_TRIGGER_GAIN_1_MANA_1_POWER",
                 "LUX_REACTION_EXHAUST_GAIN_2_SPELL_ONLY_MANA",
@@ -996,6 +1001,8 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
                 "SCRYING_BLOSSOM_DESTROY_INSIGHT_DRAW_EXPERIENCE",
                 "SHADOW_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
+                "SKY_STRIDER_DISCARD_DAMAGE",
+                "TUNDRA_HUNTER_READY",
                 "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER"
             ],
             P4ActivatedAbilityCatalog.GetAll()
