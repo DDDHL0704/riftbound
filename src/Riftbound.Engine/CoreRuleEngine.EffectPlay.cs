@@ -135,7 +135,8 @@ public sealed partial class CoreRuleEngine
                 RequiresDestroyFriendlyUnitAdditionalCost = false,
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
-                RequiresReturnFriendlyEquipmentAdditionalCost = false
+                RequiresReturnFriendlyEquipmentAdditionalCost = false,
+                RequiresReturnFriendlyUnitAdditionalCost = false
             } : behavior with { IgnorePrintedPowerCost = pending.IgnoreBasePower } : behavior;
 
     internal static IReadOnlyList<string> EffectPlayDestinations(MatchState state, string playerId)

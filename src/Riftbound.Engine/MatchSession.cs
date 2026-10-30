@@ -3921,7 +3921,8 @@ internal static partial class ActionPromptBuilder
                 var choice = ObjectChoice(state, parts[1], "必付额外费用；不是法术目标");
                 var label = parts[0] switch {
                     "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
-                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", _ => "摧毁友方单位" };
+                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", "RETURN_FRIENDLY_UNIT" => "返回友方单位",
+                    _ => "摧毁友方单位" };
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
 

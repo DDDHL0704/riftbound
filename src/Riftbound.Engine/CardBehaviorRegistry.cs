@@ -87,6 +87,7 @@ public sealed record CardBehaviorDefinition(
     bool RequiresDestroyFriendlyUnitAdditionalCost = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool RequiresReturnFriendlyEquipmentAdditionalCost = false,
+    bool RequiresReturnFriendlyUnitAdditionalCost = false,
     bool DestroysFirstTargetAndBuffsSecondByDestroyedPower = false,
     string SecondaryStatusEffectId = "",
     int EffectRepeatCountIfDiscardHandCardOptionalCost = 0,
@@ -9152,6 +9153,12 @@ public static class CardBehaviorRegistry
 
     private static readonly CardBehaviorDefinition[] RadiantHeroReprints =
     [
+        new("RAD·061/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061", 0, 0,
+            RequiresReturnFriendlyUnitAdditionalCost: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
+        new("RAD·061a/167", "艾克 - 灵光一现", 3, "UNIT_RETURN_FRIENDLY_UNIT_ADDITIONAL_COST:RAD061A", 0, 0,
+            RequiresReturnFriendlyUnitAdditionalCost: true,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "游走"),
         new("RAD·179*/167", "厄斐琉斯", 4, "RAD_179_STAR_APHELIOS_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4),
         new("RAD·179/167", "厄斐琉斯", 4, "RAD_179_APHELIOS_PLAY_UNIT", 0, 0,
