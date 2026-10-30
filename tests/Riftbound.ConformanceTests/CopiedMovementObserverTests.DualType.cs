@@ -56,7 +56,7 @@ public sealed partial class CopiedMovementObserverTests
                 Assert.False(game.State.CardObjects["R0"].IsExhausted); Assert.False(game.State.CardObjects["R1"].IsExhausted);
                 if (i < copies)
                 {
-                    await game.Act("P2", new TapRuneCommand("R0")); await game.Act("P2", new TapRuneCommand("R1"));
+                    await game.Act("P2", new TapRuneCommand("R0", ["R0", "R1"]));
                 }
             }
             Assert.Empty(game.State.TriggerQueue); Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingHandChoice);
