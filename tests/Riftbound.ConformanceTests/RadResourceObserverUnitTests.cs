@@ -367,4 +367,166 @@ public sealed class RadResourceObserverUnitTests
             PendingCardChoice = choice with { LegalObjectIds = ["CREATE_GOLD"] } }));
         await ChooseInventorMode(game, "CREATE_GOLD"); await game.Top(); await game.Replay();
     }
+
+    private const string GuideRobot = "RAD·057/167";
+    private const string Repairer = "RAD·120/167";
+
+    [Theory]
+    [InlineData(true, 2)]
+    [InlineData(false, 3)]
+    public async Task GuideRobotMaySetItsBaseMightToThePrintedCostOfACompletedCard(bool accept, int expectedPower)
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(ObserverPosition(GuideRobot), "PLAY", "OGN·048/298");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("PLAY", "OGN·048/298", []));
+        await game.Top();
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(0, payment.ManaCost); Assert.Equal(0, payment.PowerCost);
+        Assert.Empty(payment.PowerCostByTrait);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [accept ? "PAY" : "DECLINE"]));
+        if (accept) await game.Top();
+        Assert.Equal(expectedPower, game.State.CardObjects["UNIT"].Power);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingPayment);
+        await game.Act("P1", new EndTurnCommand());
+        Assert.Equal(3, game.State.CardObjects["UNIT"].Power);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task GuideRobotDoesNotTriggerForAPlayThatNeverCompletes()
+    {
+        var initial = AttackDamageDistributionTests.Spell(
+            OfficialCopyIdentityTests.AddSpell(ObserverPosition(GuideRobot), "PLAY", "OGN·123/298"),
+            "COUNTER", "OGN·064/298", "P2");
+        var game = new Driver(initial);
+        await game.Act("P1", new PlayCardCommand("PLAY", "OGN·123/298", []));
+        var spell = Assert.Single(game.State.StackItems).StackItemId;
+        await game.Act("P1", new PassPriorityCommand());
+        await game.Act("P2", new PlayCardCommand("COUNTER", "OGN·064/298", [spell]));
+        await game.Top();
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingPayment);
+        Assert.Equal(3, game.State.CardObjects["UNIT"].Power);
+        Assert.DoesNotContain(game.State.TriggerQueue, trigger => trigger.SourceCardNo == GuideRobot);
+        await game.Replay();
+    }
+
+    private static MatchState RepairerPosition(string playedCard)
+    {
+        var initial = ObserverPosition(Repairer);
+        var cards = initial.CardObjects.ToDictionary();
+        var locations = initial.ObjectLocations.ToDictionary();
+        cards["HIGH"] = OfficialGarenConquestBattlefieldCountTests.Printed("HIGH", playedCard, "P1");
+        locations["HIGH"] = new("P1", "HAND");
+        var zones = initial.PlayerZones.ToDictionary(pair => pair.Key, pair => pair.Value);
+        zones["P1"] = zones["P1"] with {
+            Hand = ["HIGH"],
+            Base = zones["P1"].Base.Where(id => id != "UNIT").ToArray(),
+            Graveyard = [..zones["P1"].Graveyard, "UNIT"]
+        };
+        locations["UNIT"] = new("P1", "GRAVEYARD");
+        return initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones };
+    }
+
+    [Fact]
+    public async Task RepairerCanBePaidWithYellowPowerToPlayFromItsGraveyardAfterASevenCostCard()
+    {
+        var game = new Driver(RepairerPosition("OGN·088/298"));
+        await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
+        await game.Top();
+        var trigger = Assert.Single(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
+        Assert.Equal("CARD_PLAY_COMPLETED", trigger.TriggeredByEventKind);
+        await game.Act("P1", new OrderTriggersCommand([trigger.TriggerId]));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        Assert.Equal(0, payment.ManaCost); Assert.Equal(0, payment.PowerCost);
+        Assert.Equal(1, payment.PowerCostByTrait[RuneTrait.Yellow]);
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        Assert.NotNull(game.State.PendingEffectPlay);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        await game.Act("P1", new PlayCardCommand("UNIT", Repairer, [], Destination: "BASE"));
+        await game.Top();
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(19, game.State.RunePools["P1"].TotalPower);
+        Assert.Empty(game.State.StackItems); Assert.Null(game.State.PendingEffectPlay);
+        await game.Replay();
+    }
+
+    [Theory]
+    [InlineData("OGN·219/298", false)]
+    [InlineData("OGN·088/298", true)]
+    public async Task RepairerOnlyObservesACompletedCardWithAtLeastSevenPrintedMana(string playedCard, bool qualifies)
+    {
+        var game = new Driver(RepairerPosition(playedCard));
+        await game.Act("P1", new PlayCardCommand("HIGH", playedCard, [], Destination: "BASE"));
+        await game.Top();
+        Assert.Equal(qualifies, game.State.TriggerQueue.Any(item => item.SourceCardNo == Repairer));
+        Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Base);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task RepairerOnTheFieldDoesNotUseItsGraveyardPlayTrigger()
+    {
+        var initial = ObserverPosition(Repairer);
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HIGH"] = OfficialGarenConquestBattlefieldCountTests.Printed("HIGH", "OGN·088/298", "P1")
+        };
+        var locations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+            ["HIGH"] = new("P1", "HAND")
+        };
+        var zones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+            ["P1"] = initial.PlayerZones["P1"] with { Hand = ["HIGH"] }
+        };
+        var game = new Driver(initial with { CardObjects = cards, ObjectLocations = locations, PlayerZones = zones });
+        await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
+        await game.Top();
+        Assert.DoesNotContain(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
+        Assert.DoesNotContain("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        await game.Replay();
+    }
+
+    [Fact]
+    public async Task RepairerRejectsWrongTraitPaymentAndForgedObserverSourceWithoutChangingState()
+    {
+        var initial = RepairerPosition("OGN·088/298");
+        var cards = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HIGH"] = initial.CardObjects["HIGH"]
+        };
+        var game = new Driver(initial with {
+            CardObjects = cards,
+            RunePools = new Dictionary<string, RunePool>(initial.RunePools) {
+                ["P1"] = new RunePool(20, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 })
+            }
+        });
+        await game.Act("P1", new PlayCardCommand("HIGH", "OGN·088/298", [], Destination: "BASE"));
+        await game.Top();
+        var trigger = Assert.Single(game.State.TriggerQueue, item => item.SourceCardNo == Repairer);
+        await game.Act("P1", new OrderTriggersCommand([trigger.TriggerId]));
+        var payment = Assert.IsType<PendingPaymentState>(game.State.PendingPayment);
+        await Reject(game.State, "P2", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        await Reject(game.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
+        var item = Assert.Single(game.State.StackItems);
+        var forged = item with { HighCostPlayObserver = item.HighCostPlayObserver! with {
+            Source = item.HighCostPlayObserver.Source with { Generation = item.HighCostPlayObserver.Source.Generation + 1 }
+        } };
+        Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { StackItems = [forged] }));
+        await game.Act("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]));
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(game.State.StackItems); await game.Replay();
+    }
+
+    [Theory]
+    [InlineData(GuideRobot, 39553, 4, 3, TriggerKinds.ControllerCardPlayBasePowerSource)]
+    [InlineData(Repairer, 39625, 2, 2, TriggerKinds.ControllerHighCostGraveyardPlaySource)]
+    public async Task OfficialResourceObserverPrintingsAndTriggerSpecsRemainBound(string no, long id, int mana, int power, string kind)
+    {
+        var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
+        Assert.Equal(id, card.Id); Assert.Equal(mana, card.Energy); Assert.Equal(power, card.Power);
+        var spec = Assert.Single(TriggerParser.Parse(card.CardEffect));
+        Assert.Equal(kind, spec.Kind); Assert.Equal(TriggerTargetScopes.SourceUnit, spec.TargetScope);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(no, out var behavior));
+        Assert.True(behavior.PlaysSourceToBaseAsUnit); Assert.Equal(mana, behavior.ManaCost);
+        Assert.Equal(power, behavior.SourceUnitPower);
+    }
 }

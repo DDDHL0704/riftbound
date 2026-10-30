@@ -55,7 +55,8 @@ public sealed partial class CoreRuleEngine
                 && SourceObjectControlledByPlayerOrLegacyOwned(source, player))
             .Order(StringComparer.Ordinal)
             .SelectMany(id => AttachedRuleTextRules.Instances(zones, cards, cards[id])
-                .Where(instance => HighCostPlaySpec(instance.CardNo) is not null)
+                .Where(instance => HighCostPlaySpec(instance.CardNo) is not null
+                    && !HighCostPlaysSourceFromGraveyard(instance.CardNo))
                 .Select(instance => new HighCostPlayObserverCandidate(new(id, cards[id].ObjectGeneration),
                     instance.CardNo, player, instance.Origin?.FaceRevision ?? cards[id].CopyFaceTransitions?.Count ?? 0,
                     instance.Id, cards[id].TokenFactoryCardNo, instance.Origin)))
@@ -260,7 +261,8 @@ public sealed partial class CoreRuleEngine
                 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed;
         if (HighCostSetsSourceBasePower(context.CardNo) || HighCostPlaysSourceFromGraveyard(context.CardNo))
             return item.StackItemId.StartsWith($"ordered-high-cost-play-{context.CapturedTick}-", StringComparison.Ordinal)
-                && (!context.Paid && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+                && (!context.Paid && item.TargetObjectIds.Count == 0
+                    && (item.TargetGenerations is null || item.TargetGenerations.Count == 0)
                     || context.Paid && item.TargetObjectIds.Count <= 1
                         && (item.TargetGenerations is null || item.TargetGenerations.Count == item.TargetObjectIds.Count))
                 && item.OptionalCosts.Count == 0 && item.DamageAmount == 0 && item.EffectRepeatCount == 1 && !item.SourceConfirmed;
