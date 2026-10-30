@@ -65,7 +65,7 @@ public sealed class RadExhaustionModeTests
         await Choose(game, mode);
         if (mode == Stun) { Assert.Equal(TargetWindow, game.State.PendingCardChoice!.ChoiceWindow); await Choose(game, "ENEMY"); }
         if (mode != Boon) {
-            Assert.True(game.State.CardObjects["HOST"].Tags.Contains(CardObjectTags.Boon));
+            Assert.Contains(CardObjectTags.Boon, game.State.CardObjects["HOST"].Tags);
             await Pay(game); Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects["HOST"].Tags);
             Assert.Equal(4, game.State.CardObjects["HOST"].Power);
         }
