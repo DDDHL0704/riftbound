@@ -3,7 +3,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record TemperedGrant(ObjectBinding Source, string CardNo);
-public sealed record ReferencedEquipmentCosts(ObjectBinding? DestroyedUnit = null, IReadOnlyList<ObjectBinding>? RecycledCards = null);
+public sealed record ReferencedEquipmentCosts(ObjectBinding? DestroyedUnit = null, IReadOnlyList<ObjectBinding>? RecycledCards = null,
+    bool? ExhaustInstead = null, ObjectBinding? ExhaustedUnit = null);
 public sealed record TemperedContext(string CardNo, ObjectBinding Unit, string? TokenFactoryCardNo = null,
     TemperedGrant? Grant = null, ObjectBinding? Equipment = null, ReferencedEquipmentCosts? Costs = null,
     bool UnableToPay = false);
@@ -13,6 +14,7 @@ public sealed partial class CoreRuleEngine
     internal const string TemperedEffect = "PLAYED_UNIT_WEAPONMASTER";
     internal const string TemperedConfirmationWindow = "TEMPERED_CONFIRMATION";
     internal const string TemperedCostWindow = "TEMPERED_EQUIPMENT_COST";
+    internal const string TemperedBaseCostWindow = "TEMPERED_BASE_COST";
     internal const string TemperedPaymentWindow = "TEMPERED_EQUIPMENT_PAYMENT";
     private const string TemperedObservationKey = "temperedObservation";
     private sealed record TemperedObservation(string Controller, TemperedContext Context);
@@ -64,10 +66,13 @@ public sealed partial class CoreRuleEngine
         if (context.Costs is not { } costs) return true;
         if (!state.CardObjects.TryGetValue(gear.ObjectId, out var card)
             || !AssembleEquipmentProfileCatalog.TryGet(card.CardNo ?? string.Empty, out var profile)) return false;
-        if (costs.DestroyedUnit is null && costs.RecycledCards is null) return false;
+        if (costs.DestroyedUnit is null && costs.RecycledCards is null && costs.ExhaustInstead is null) return false;
         bool Binding(ObjectBinding binding) => binding.Generation >= 0 && !string.IsNullOrWhiteSpace(binding.ObjectId)
             && state.CardObjects.TryGetValue(binding.ObjectId, out var known) && binding.Generation <= known.ObjectGeneration;
-        return (costs.DestroyedUnit is null || profile.RequiresDestroyFriendlyUnitCost && Binding(costs.DestroyedUnit))
+        return (costs.ExhaustInstead is null ? costs.ExhaustedUnit is null
+                : profile.HasExhaustUnitAlternative && (costs.ExhaustInstead.Value
+                    ? costs.ExhaustedUnit is { } exhausted && Binding(exhausted) : costs.ExhaustedUnit is null))
+            && (costs.DestroyedUnit is null || profile.RequiresDestroyFriendlyUnitCost && Binding(costs.DestroyedUnit))
             && (costs.RecycledCards is null || costs.RecycledCards.Count == profile.RequiredGraveyardRecycleCardCount
                 && costs.RecycledCards.Count > 0 && costs.RecycledCards.All(Binding)
                 && costs.RecycledCards.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() == costs.RecycledCards.Count);
@@ -210,12 +215,47 @@ public sealed partial class CoreRuleEngine
             { ResolvingStackItemId = item.StackItemId, ExperienceCost = amounts.Experience };
 
     private static EquipmentCostAmounts TemperedAmounts(MatchState state, StackItemState item, AssembleEquipmentProfile profile)
-        => EquipmentCosts(state, profile, state.CardObjects[item.SourceObjectId], genericPowerReduction: 1);
+        => EquipmentCosts(state, profile, state.CardObjects[item.SourceObjectId], genericPowerReduction: 1,
+            exhaustUnitInstead: item.Tempered!.Costs?.ExhaustInstead == true);
+
+    private static bool NeedsTemperedBaseCost(StackItemState item, AssembleEquipmentProfile profile)
+        => profile.HasExhaustUnitAlternative && item.Tempered!.Costs?.ExhaustInstead is null;
+
+    private static PendingCardChoiceState TemperedBaseCostChoice(MatchState state, StackItemState item, AssembleEquipmentProfile profile)
+        => new("TEMPERED-BASE-COST:" + item.StackItemId, TemperedBaseCostWindow, item.ControllerId, 1, 1,
+            new[] { profile.OptionalCost }.Concat(EquipmentExhaustCostChoices(state, item.ControllerId)).ToArray(),
+            [item.SourceObjectId], "百炼结算：选择装配的基础费用，再应用费用调整。", item.SourceObjectId, TemperedEffect)
+            { ResolvingStackItemId = item.StackItemId };
+
+    internal static bool ValidTemperedBaseCostChoice(MatchState state, PendingCardChoiceState choice)
+    {
+        if (state.StackItems.LastOrDefault() is not { } item || item.StackItemId != choice.ResolvingStackItemId
+            || !TemperedGear(state, item, out _, out var profile) || !NeedsTemperedBaseCost(item, profile)) return false;
+        var expected = TemperedBaseCostChoice(state, item, profile);
+        return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
+            && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId && choice.EffectKind == expected.EffectKind
+            && choice.RequiredCount == 1 && choice.MaxCount == 1 && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds)
+            && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds);
+    }
+
+    private static ResolutionResult ResolveTemperedBaseCostChoice(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
+    {
+        if (!ValidTemperedBaseCostChoice(state, choice) || selected.Count != 1 || !choice.LegalObjectIds.Contains(selected[0]))
+            return RejectWithCorePrompts(state, "百炼基础费用选择已失效。", ErrorCodes.InvalidTarget);
+        var item = state.StackItems[^1];
+        var exhaust = TryParseExhaustFriendlyUnitOptionalCost(selected[0], out var id);
+        var costs = (item.Tempered!.Costs ?? new()) with { ExhaustInstead = exhaust,
+            ExhaustedUnit = exhaust ? new(id, state.CardObjects[id].ObjectGeneration) : null };
+        var next = state with { PendingCardChoice = null, StackItems = state.StackItems.Take(state.StackItems.Count - 1)
+            .Append(item with { Tempered = item.Tempered with { Costs = costs } }).ToArray() };
+        return ResolvePassPriority(next, new("tempered-base-cost-continuation", item.ControllerId, CommandTypes.PassPriority), forceResolve: true);
+    }
 
     internal static bool ValidTemperedPayment(MatchState state, PendingPaymentState payment)
     {
         if (state.StackItems.LastOrDefault() is not { } item || item.StackItemId != payment.ResolvingStackItemId
-            || !TemperedGear(state, item, out _, out var profile) || NextTemperedCost(item, profile, out _, out _)
+            || !TemperedGear(state, item, out _, out var profile) || NeedsTemperedBaseCost(item, profile)
+            || NextTemperedCost(item, profile, out _, out _)
             || !state.CardObjects.ContainsKey(item.SourceObjectId)) return false;
         var expected = TemperedPayment(item, TemperedAmounts(state, item, profile));
         return payment.PaymentId == expected.PaymentId && payment.PaymentWindow == expected.PaymentWindow
@@ -260,6 +300,8 @@ public sealed partial class CoreRuleEngine
     {
         if (!TemperedGear(state, item, out var gear, out var profile) || item.Tempered!.UnableToPay
             || !state.CardObjects.ContainsKey(item.SourceObjectId)) return NoopStackResolutionResult(state);
+        if (NeedsTemperedBaseCost(item, profile))
+            return NoopStackResolutionResult(state) with { PendingCardChoice = TemperedBaseCostChoice(state, item, profile), StackItems = state.StackItems };
         if (NextTemperedCost(item, profile, out var destroy, out var count))
         {
             var choice = TemperedCostChoice(state, item, profile, destroy, count);
@@ -269,6 +311,7 @@ public sealed partial class CoreRuleEngine
         var costs = item.Tempered.Costs;
         bool Continuous(ObjectBinding binding) => state.CardObjects.TryGetValue(binding.ObjectId, out var c) && c.ObjectGeneration == binding.Generation;
         if (costs?.DestroyedUnit is { } destroyed && (!Continuous(destroyed) || !CanDestroyFriendlyUnitAsAdditionalCost(state, item.ControllerId, destroyed.ObjectId))
+            || costs?.ExhaustedUnit is { } exhausted && (!Continuous(exhausted) || !CanExhaustUnitForEquipmentCost(state, item.ControllerId, exhausted.ObjectId))
             || costs?.RecycledCards is { } recycled && recycled.Any(b => !Continuous(b) || !CanRecycleGraveyardCardAsAdditionalCost(state, item.ControllerId, b.ObjectId)))
             return NoopStackResolutionResult(state);
         var amounts = TemperedAmounts(state, item, profile);
@@ -288,6 +331,8 @@ public sealed partial class CoreRuleEngine
                 ["equipmentObjectId"] = gear.ObjectId, ["effectKind"] = TemperedEffect, ["targetPower"] = ResolveCurrentFieldUnitPower(state, cards[item.SourceObjectId]) })) };
         var paid = state with { RunePools = commit.RunePools, PlayerExperience = commit.PlayerExperience };
         var result = NoopStackResolutionResult(paid);
+        if (costs?.ExhaustedUnit is { } exhaustedCost)
+            events.Add(ExhaustEquipmentCost(cards, exhaustedCost.ObjectId, item.SourceObjectId, item.ControllerId));
         if (costs?.DestroyedUnit is { } costUnit)
         {
             var removal = ResolveFieldDestructions(paid, zones, cards, item, new HashSet<string>(),

@@ -1533,20 +1533,25 @@ internal static partial class ActionPromptBuilder
         var manaCost = manaCostByTargetObjectId.Count > 0
             ? manaCostByTargetObjectId.Values.Min()
             : assembleProfile.ManaCost;
+        var costChoices = new[] { new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel) }
+            .Concat(assembleProfile.HasExhaustUnitAlternative
+                ? CoreRuleEngine.EquipmentExhaustCostChoices(state, playerId).Select(id => new ActionPromptChoiceDto(id,
+                    "让友方单位变为休眠状态：" + ObjectChoice(state, id[CoreRuleEngine.ExhaustFriendlyUnitOptionalCostPrefix.Length..], "装配费用").Label)) : [])
+            .ToArray();
 
         return new AssembleEquipmentPromptRequirement(
             objectId,
             assembleProfile.CardNo,
             assembleProfile.DisplayName,
             targetChoices,
-            [new ActionPromptChoiceDto(assembleProfile.OptionalCost, assembleProfile.OptionalCostLabel)],
+            costChoices,
             additionalCostChoices,
             AssembleEquipmentRequiredAdditionalCostChoiceCount(assembleProfile),
             paymentResourceChoices,
             AssembleEquipmentPaymentResourcePowerByChoice(state, playerId, assembleProfile),
             PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
             PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
-            [assembleProfile.OptionalCost],
+            assembleProfile.HasExhaustUnitAlternative ? [] : [assembleProfile.OptionalCost],
             manaCost,
             assembleProfile.ManaCost,
             manaCostByTargetObjectId,
@@ -1554,7 +1559,8 @@ internal static partial class ActionPromptBuilder
             assembleProfile.PowerCost,
             assembleProfile.ExperienceCost,
             true,
-            null) { PowerReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait) };
+            null) { PowerReachability = new RunePaymentReachability(runePool, paymentResourcePowerByTrait),
+                HasAlternativeCost = assembleProfile.HasExhaustUnitAlternative };
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
@@ -1756,6 +1762,8 @@ internal static partial class ActionPromptBuilder
         IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null,
         int manaCost = 0)
     {
+        if (assembleProfile.HasExhaustUnitAlternative && CoreRuleEngine.EquipmentExhaustCostChoices(state, playerId).Length > 0)
+            return true;
         runePool = PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Equipment);
         if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < manaCost)
         {
