@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Security.Cryptography;
-using System.Text;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -86,7 +84,7 @@ public sealed class RadUnitHoldTests
     public async Task EveryPrintingResolvesItsHoldAfterResponsesAndBeforeNormalChannel(string no, long id, bool score)
     {
         _ = id;
-        var game = new Driver(Position(no, hidden: score));
+        var game = await Ready(Position(no, hidden: score));
         await game.Act("P2", new EndTurnCommand());
         var item = Assert.Single(game.State.StackItems);
         Assert.Equal(score ? "UNIT_HIDDEN_HERE_SCORE" : "UNIT_CHANNEL", item.HeldContext!.Kind);
@@ -121,7 +119,7 @@ public sealed class RadUnitHoldTests
                 ["OTHER"] = state.CardObjects["OTHER"] with { ControllerId = "P1" } } };
             state = PlaceStandby(state, "P1", "OTHER");
         }
-        var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(state); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(Holds(game.State), h => h.Kind == "UNIT_HIDDEN_HERE_SCORE");
         Assert.Equal(branch == "other-field" ? 2 : 1, game.State.PlayerScores["P1"]); await game.Replay();
     }
@@ -135,7 +133,7 @@ public sealed class RadUnitHoldTests
         state = state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
             ["P1"] = state.PlayerZones["P1"] with { RuneDeck = state.PlayerZones["P1"].RuneDeck.Take(available).ToArray() } } };
         foreach (var rune in alreadyCalled) state = LocalDestructionRecallTests.At(state, rune, "P1", "BASE");
-        var game = new Driver(state); await game.Act("P2", new EndTurnCommand()); await game.Top();
+        var game = await Ready(state); await game.Act("P2", new EndTurnCommand()); await game.Top();
         var call = Assert.Single(game.Events(), e => e.Event.Kind == "RUNES_CALLED" && e.Event.Payload.ContainsKey("sourceObjectId")).Event;
         Assert.Equal(available, Convert.ToInt32(call.Payload["count"]));
         Assert.Empty(game.State.PlayerZones["P1"].RuneDeck);
@@ -147,7 +145,7 @@ public sealed class RadUnitHoldTests
     public async Task OpponentsTurnCannotTriggerTheseUnitsHold(string no)
     {
         var state = Position(no, hidden: true) with { ActivePlayerId = "P1", TurnPlayerId = "P1" };
-        var game = new Driver(state); await game.Act("P1", new EndTurnCommand());
+        var game = await Ready(state); await game.Act("P1", new EndTurnCommand());
         Assert.Empty(Holds(game.State)); Assert.Equal(0, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
@@ -157,7 +155,7 @@ public sealed class RadUnitHoldTests
     {
         var state = AttackDamageDistributionTests.Spell(Position(no, hidden: true), "RETURN", "OGN·104/298", "P1");
         state = AddResponseRune(state);
-        var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(state); await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new TapRuneCommand("RESPONSE-RUNE"));
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         Assert.Equal("HAND", game.State.ObjectLocations["HOST"].Zone);
@@ -172,7 +170,7 @@ public sealed class RadUnitHoldTests
     [Fact]
     public async Task RemovingTheFaceDownCardDuringResponsesDoesNotRecheckTheCapturedCondition()
     {
-        var game = new Driver(Position(Evelynn, hidden: true)); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(Position(Evelynn, hidden: true)); await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new RevealCardCommand("PRIVATE-STANDBY", "OGN·057/298", ["HOST"],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
         await game.Top(); Assert.Equal("GRAVEYARD", game.State.ObjectLocations["PRIVATE-STANDBY"].Zone);
@@ -187,7 +185,7 @@ public sealed class RadUnitHoldTests
         var state = Position(no, hidden: true) with { ActivePlayerId = "P1", TurnPlayerId = "P1" };
         state = AttachedRuleTextTests.AddSong(state, "SONG");
         if (blue) state = OfficialHoldSequenceTests.AddUnit(state, "BLUE", "UNL-087/219", "F", "P1");
-        var game = new Driver(state);
+        var game = await Ready(state);
         await game.Act("P1", new AssembleEquipmentCommand("SONG", "HOST", ["ASSEMBLE_GREEN"])); await game.Top();
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
         var held = Holds(game.State).ToArray(); Assert.Equal(blue ? 4 : 2, held.Length);
@@ -203,7 +201,7 @@ public sealed class RadUnitHoldTests
     {
         var state = Position(Evelynn, hidden: true);
         state = state with { PlayerScores = new Dictionary<string, int>(state.PlayerScores) { ["P1"] = 6 } };
-        var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(state); await game.Act("P2", new EndTurnCommand());
         Assert.Equal(7, game.State.PlayerScores["P1"]); Assert.Null(game.State.WinnerPlayerId);
         await game.Top(); Assert.Equal(8, game.State.PlayerScores["P1"]); Assert.Equal("P1", game.State.WinnerPlayerId);
         Assert.Equal(MatchStatuses.Finished, game.State.Status); await game.Replay();
@@ -222,7 +220,7 @@ public sealed class RadUnitHoldTests
         state = LocalDestructionRecallTests.At(state, "TOKEN", "P1", "BATTLEFIELD", "F");
         state = LocalDestructionRecallTests.At(state, "COPY-GEAR", "P1", "BASE");
         state = AddResponseRune(AttackDamageDistributionTests.Spell(state, "RETURN", "OGN·104/298", "P1"));
-        var game = new Driver(state);
+        var game = await Ready(state);
         await game.Act("P1", new AssembleEquipmentCommand("COPY-GEAR", "TOKEN", ["ASSEMBLE_YELLOW"])); await game.Top();
         var choice = game.State.PendingRuleChoice!;
         await game.Act("P1", new PayCostCommand(choice.Request.Id, "RULE_REPLACEMENT", ["COPY:HOST"]));
@@ -246,7 +244,7 @@ public sealed class RadUnitHoldTests
     public async Task PublicStackCannotAcquirePrivateHoldContextOrPrivateIdentity(string key)
     {
         var state = AddResponseRune(AttackDamageDistributionTests.Spell(Position(Evelynn, hidden: true), "RETURN", "OGN·104/298", "P1"));
-        var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(state); await game.Act("P2", new EndTurnCommand());
         await game.Act("P1", new TapRuneCommand("RESPONSE-RUNE"));
         await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["HOST"])); await game.Top();
         state = game.State;
@@ -272,7 +270,7 @@ public sealed class RadUnitHoldTests
     [InlineData("factory")] [InlineData("ceased")] [InlineData("source")] [InlineData("missing")]
     public async Task ColdRecoveryRejectsForgedCapturedUnitHold(string mutation)
     {
-        var game = new Driver(Position(Ksante)); await game.Act("P2", new EndTurnCommand());
+        var game = await Ready(Position(Ksante)); await game.Act("P2", new EndTurnCommand());
         var item = Assert.Single(game.State.StackItems); var held = item.HeldContext!;
         var changed = mutation switch {
             "amount" => held with { Amount = 2 }, "card" => held with { CardNo = Evelynn },
@@ -309,13 +307,32 @@ public sealed class RadUnitHoldTests
     private static MatchState PlaceStandby(MatchState state, string controller, string field)
     {
         const string id = "PRIVATE-STANDBY", no = "OGN·057/298";
-        var printed = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.Single(c => c.CardNo == no);
-        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(printed.CardEffect))).ToLowerInvariant();
-        state = state with { Tick = Math.Max(2, state.Tick), CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, controller) with { IsFaceDown = true,
-                StandbyPlacement = new(id, 0, no, controller, new(field, state.CardObjects[field].ObjectGeneration),
-                    state.TurnNumber - 1, 1, "PRINTED", hash) } } };
+        // This describes the requested scenario. Ready executes the actual hide
+        // in the same journal before any assertion or scenario command.
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, controller) with { IsFaceDown = true } } };
         return LocalDestructionRecallTests.At(state, id, controller, "BATTLEFIELD", field);
+    }
+
+    private static async Task<Driver> Ready(MatchState state)
+    {
+        const string id = "PRIVATE-STANDBY", no = "OGN·057/298";
+        if (!state.CardObjects.TryGetValue(id, out var hidden) || !hidden.IsFaceDown) return new Driver(state);
+        var player = hidden.ControllerId!;
+        var field = state.ObjectLocations[id].BattlefieldObjectId!;
+        var desiredTurn = state.TurnPlayerId;
+        var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value with {
+            Hand = p.Value.Hand.Where(card => card != id).ToArray(),
+            Battlefields = p.Value.Battlefields.Where(card => card != id).ToArray() });
+        zones[player] = zones[player] with { Hand = zones[player].Hand.Append(id).ToArray() };
+        state = state with { ActivePlayerId = player, TurnPlayerId = player,
+            PlayerZones = zones, CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                [id] = hidden with { IsFaceDown = false } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(player, "HAND") } };
+        var game = new Driver(state);
+        await game.Act(player, new HideCardCommand(id, no, "BATTLEFIELD:" + field, ["STANDBY_A"]));
+        if (desiredTurn != player) await FaceDownPlayTestDriver.NextTurn(game);
+        return game;
     }
 
     private static IEnumerable<HeldTriggerContext> Holds(MatchState state)

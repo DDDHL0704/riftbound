@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Security.Cryptography;
-using System.Text;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -163,55 +161,93 @@ public sealed class RadCombatHeroTests
         Assert.Equal(ids.Length, ids.Distinct(StringComparer.Ordinal).Count()); await game.Replay();
     }
 
-    // Night's Edge may legally remain unattached at its battlefield after being
-    // played from standby. The initial position retains that public play receipt.
-    private static async Task<MatchState> WithUnattachedEquipment(MatchState s, string controller, bool inBase = false, bool faceDown = false)
+    // Prepare Night's Edge through real commands. With no friendly unit here,
+    // its mandatory attachment skill has no legal target and is discarded.
+    // The equipment stays here when the opponent subsequently conquers it.
+    private static async Task<Driver> WithUnattachedEquipment(MatchState s, string controller,
+        bool inBase = false, bool faceDown = false, string? response = null)
     {
         const string no = "SFD·139/221";
-        var printed = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
-        var textHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(printed.CardEffect))).ToLowerInvariant();
-        var origin = new StandbyPlacement("GEAR", 0, no, controller, new("F", s.CardObjects["F"].ObjectGeneration),
-            s.TurnNumber - 1, 1, "PRINTED", textHash);
-        s = s with { Tick = Math.Max(2, s.Tick), CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
-            ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", no, controller) with {
-                ObjectGeneration = inBase || faceDown ? 0 : 1, IsFaceDown = faceDown,
-                StandbyPlacement = faceDown ? origin : null, LastStandbyPlay = inBase || faceDown ? null : origin } } };
-        return LocalDestructionRecallTests.At(s, "GEAR", controller, inBase ? "BASE" : "BATTLEFIELD", inBase ? null : "F");
+        if (response is not null) s = EquipChainTests.Response(s, response, "P2");
+        s = LocalDestructionRecallTests.At(s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["GEAR"] = OfficialGarenConquestBattlefieldCountTests.Printed("GEAR", no, controller) } }, "GEAR", controller, "BASE");
+        if (inBase) return new Driver(s);
+        foreach (var id in new[] { "ENEMY1", "ENEMY2", "ENEMY3" })
+            s = LocalDestructionRecallTests.At(s, id, "P2", "BASE");
+        var cards = s.CardObjects.ToDictionary(); var zones = s.PlayerZones.ToDictionary(); var locations = s.ObjectLocations.ToDictionary();
+        cards["F"] = cards["F"] with { ControllerId = controller };
+        zones[controller] = zones[controller] with {
+            Base = zones[controller].Base.Where(id => id != "GEAR").ToArray(),
+            Hand = zones[controller].Hand.Append("GEAR").ToArray() };
+        locations["GEAR"] = new(controller, "HAND");
+        foreach (var player in new[] { "P1", "P2" }) {
+            var deck = Enumerable.Range(0, 8).Select(n => $"COMBAT-PREP-{player}-{n}").ToArray();
+            foreach (var id in deck) {
+                cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·001/298", player);
+                locations[id] = new(player, "MAIN_DECK");
+            }
+            zones[player] = zones[player] with { MainDeck = zones[player].MainDeck.Concat(deck).ToArray() };
+            foreach (var n in Enumerable.Range(0, 6)) {
+                var id = $"COMBAT-RUNE-{player}-{n}";
+                cards[id] = new(id, cardNo: "UNL-R06", ownerId: player, controllerId: player,
+                    tags: [CardObjectTags.RuneCard, "COLOR:purple"]);
+                locations[id] = new(player, "BASE");
+                zones[player] = zones[player] with { Base = zones[player].Base.Append(id).ToArray() };
+            }
+        }
+        var game = new Driver(s with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
+            ActivePlayerId = controller, TurnPlayerId = controller });
+        await game.Act(controller, new HideCardCommand("GEAR", no, "BATTLEFIELD:F", ["STANDBY_A"]));
+        if (!faceDown) {
+            await FaceDownPlayTestDriver.NextTurn(game); await FaceDownPlayTestDriver.NextTurn(game);
+            await game.Act(controller, new PlayCardCommand("GEAR", no, []));
+            Assert.Null(game.State.PendingCardChoice); Assert.Empty(game.State.StackItems);
+            Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        }
+        if (game.State.TurnPlayerId != "P2") await FaceDownPlayTestDriver.NextTurn(game);
+        await game.Act("P2", new MoveUnitCommand("ENEMY1", "BASE", "BATTLEFIELD:F", [],
+            SourceObjectIds: ["ENEMY1", "ENEMY2", "ENEMY3"]));
+        await FaceDownPlayTestDriver.NextTurn(game);
+        Assert.Equal("P1", game.State.TurnPlayerId);
+        return game;
     }
 
     public static IEnumerable<object[]> EquipmentCases() => Prints.Where(no => no != Graves).SelectMany(no =>
-        new[] { "here", "exhausted", "base", "enemy", "face-down" }.Select(branch => new object[] { no, branch }));
+        new[] { "here", "attached", "base", "enemy", "face-down" }.Select(branch => new object[] { no, branch }));
 
     [Theory, MemberData(nameof(EquipmentCases))]
     public async Task OriannaNeedsACurrentFriendlyPublicEquipmentHereAndDoesNotRequireAnAttachment(string no, string branch)
     {
         var defend = branch == "face-down";
         var controller = defend ? "P2" : "P1";
-        var s = await WithUnattachedEquipment(Board(no, defend), branch == "enemy" ? "P2" : controller,
+        var game = await WithUnattachedEquipment(Board(no, defend), branch == "enemy" ? "P2" : controller,
             inBase: branch == "base", faceDown: branch == "face-down");
-        if (branch == "exhausted") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
-            ["GEAR"] = s.CardObjects["GEAR"] with { IsExhausted = true } } };
-        Assert.Null(s.CardObjects["GEAR"].AttachedToObjectId);
-        var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        await FinishCombat(game, defend ? "ENEMY1" : "HOST", branch is "here" or "exhausted" ? 4 : 0); await game.Replay();
+        Assert.Null(game.State.CardObjects["GEAR"].AttachedToObjectId);
+        if (branch == "attached") {
+            await game.Act("P1", new RecycleRuneCommand("COMBAT-RUNE-P1-0"));
+            await game.Act("P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_PURPLE"])); await game.Top();
+            Assert.Equal("HOST", game.State.CardObjects["GEAR"].AttachedToObjectId);
+        }
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        await FinishCombat(game, defend ? "ENEMY1" : "HOST", branch is "here" or "attached" ? 4 : 0); await game.Replay();
     }
 
     [Theory, InlineData("RAD·042/167"), InlineData("RAD·042a/167")]
     public async Task OriannaCanDealHerHoldfastMightWhenDefendingBesideFriendlyEquipment(string no)
     {
-        var s = await WithUnattachedEquipment(Board(no, defend: true), "P2");
-        var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var game = await WithUnattachedEquipment(Board(no, defend: true), "P2");
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         await FinishCombat(game, "ENEMY1", 5); await game.Replay();
     }
 
     [Theory, InlineData("OGN·022/298"), InlineData("SFD·135/221")]
     public async Task DestroyingOrRecallingTheEquipmentDuringResponsesDisablesCombatDamageImmediately(string response)
     {
-        var s = await WithUnattachedEquipment(Board("RAD·042/167"), "P1");
-        s = EquipChainTests.Response(s, response, "P2");
-        var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var game = await WithUnattachedEquipment(Board("RAD·042/167"), "P1", response: response);
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         // The open battle duel lets either player answer before combat damage.
         if (game.State.FocusPlayerId == "P1") await game.Act("P1", new PassFocusCommand());
+        foreach (var n in Enumerable.Range(0, 6)) await game.Act("P2", new TapRuneCommand($"COMBAT-RUNE-P2-{n}"));
         await game.Act("P2", new PlayCardCommand("RESPONSE", response, response == "SFD·135/221" ? ["GEAR"] : []));
         await game.Top(); await FinishCombat(game, "HOST", 0); await game.Replay();
     }

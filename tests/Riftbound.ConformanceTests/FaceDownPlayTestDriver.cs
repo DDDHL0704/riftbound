@@ -17,8 +17,12 @@ internal sealed class FaceDownPlayTestDriver(MatchState initial)
     internal RecoveredEvent[] Events() => journal.Events().Skip(firstScenarioEvent).ToArray();
     internal void BeginScenario() => firstScenarioEvent = journal.Events().Length;
 
-    internal async Task NextTurn()
+    internal Task NextTurn() => NextTurn(journal);
+
+    internal static async Task NextTurn(VenBasicFlowSpellTests.Driver journal)
     {
+        var State = journal.State;
+        async Task Act(string player, GameCommand command) { await journal.Act(player, command); State = journal.State; }
         var turn = State.TurnNumber;
         await Act(State.TurnPlayerId, new EndTurnCommand());
         for (var step = 0; step < 60 && State.TurnStartStep is not null
