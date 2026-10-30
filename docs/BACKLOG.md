@@ -35,7 +35,7 @@
 - [x] **P1-2 出牌候选计入可横置的符文**。出牌候选现计入可横置的活跃符文，并允许 `PLAY_CARD` 在同一原子命令中携带 `TAP_RUNE:<objectId>` 完成资源获取与支付；容量、顺序、恢复和回放均由共享支付流程校验。规则依据：204.4.b.1、430.3（S1）。
 - [x] **P1-3 待命布置时允许回收符文支付**。[#259](https://github.com/DDDHL0704/riftbound/pull/259) 已实现：`HIDE_CARD` 候选在支付待命费用时可携带回收符文资源动作，并在同一原子结算中完成回收与扣费。依据：811.1.b、430.3（见 S2）。
 - [ ] **P1-4 其余前端反馈的服务端问题**：详见 `clients/web/docs/server-findings.md`。2026-10-30 已在 main 上逐条复核，以下问题仍然存在。每条单独一个小 PR，按顺序做：
-  - [ ] **P1-4a 支付窗口里允许横置符文（S5）**。`PAY_COST` 的 `paymentChoiceIds` 像回收符文一样，可以携带横置符文；法力池不够时不再拒绝"资源不足，可以先使用符文"。涉及 `CoreRuleEngine.Tempered.cs`、`CoreRuleEngine.TriggerCosts.cs`。依据：204.4.b.1、430.3。和 P1-2 同属一类，可放在 P1-2 之后、复用同一套"横置付费动作"。
+  - [x] **P1-4a 支付窗口里允许横置符文（S5）**。`PAY_COST` 的 `paymentChoiceIds` 现可携带 `TAP_RUNE:<objectId>`，在同一原子结算中横置符文并继续支付，恢复与回放投影也同步可用候选。依据：204.4.b.1、430.3。
   - [ ] **P1-4b 传奇技能和主动技能的候选按可横置、可回收的符文计算（S2 末尾）**。复核 `LEGEND_ACT`、`ACTIVATE_ABILITY` 的候选是否也只看法力池；有问题的话按 P1-2 的同一方式修。依据同上。
   - [ ] **P1-4c 询价失败时返回具体原因（S4）**。`CoreRuleEngine.PlayCostPreview.cs` 现在固定返回"当前选择无法打出，请检查目标、位置和支付资源。"，丢掉了 `rejection` 的原因。改为返回具体原因（不能泄露隐藏信息）；缺少必选目标时，给出基础费用和已知增减费，并把目标相关的附加费用（如法盾）标注为"取决于目标"。
   - [ ] **P1-4d 拒绝原因改中文（S6）**。`CoreRuleEngine.cs` 里的 "Invalid printed power allocation."、"Payment resource actions are not required to play …"、"Not enough mana / power / experience / resources to play …" 改成中文，错误码不变。
