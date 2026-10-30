@@ -7,6 +7,9 @@ namespace Riftbound.Engine;
 public sealed record ShowcaseSpec(string Filter = "ANY", bool ReadyEntry = false,
     bool InsightFromPowerCost = false, int DrawAfter = 0, int GenericPower = 0);
 
+public sealed record CeasedShowcaseToken(ObjectBinding Object, string FactoryCardNo, long Tick,
+    string CardNo, long FaceRevision, long CapturedTick);
+
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record ShowcaseReceipt(
     [property: JsonRequired] ObjectBinding Object,
@@ -15,7 +18,9 @@ public sealed record ShowcaseReceipt(
     [property: JsonRequired] long Tick,
     [property: JsonRequired] long FaceRevision,
     [property: JsonRequired] int PowerCost,
-    [property: JsonRequired] bool FromHand);
+    [property: JsonRequired] bool FromHand,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TokenFactoryCardNo = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CeasedShowcaseToken? CeasedToken = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -33,8 +38,8 @@ public sealed partial class CoreRuleEngine
             && !string.IsNullOrWhiteSpace(card.CardNo)
             && (zones.Hand.Contains(card.ObjectId) || PublicStaticAuraSourceObjectIds(state.PlayerZones).Contains(card.ObjectId)
                 && EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, card.ObjectId, card) == player)
-            && (spec.Filter == "ANY" || spec.Filter == "MECHANICAL" && card.Tags.Contains("机械")
-                || spec.Filter == "STANDBY" && (card.Tags.Contains("待命") || AttachedRuleTextRules.Instances(state, card).Any(instance => PrintedStandbyCards.Value.Contains(instance.CardNo)))))
+            && (spec.Filter == "ANY" && !IsTokenObject(card) || spec.Filter == "MECHANICAL" && card.Tags.Contains("机械")
+                || spec.Filter == "STANDBY" && !IsTokenObject(card) && (card.Tags.Contains("待命") || AttachedRuleTextRules.Instances(state, card).Any(instance => PrintedStandbyCards.Value.Contains(instance.CardNo)))))
             .Select(card => ShowcaseChoicePrefix + card.ObjectId).Order(StringComparer.Ordinal).ToArray();
     }
 
@@ -50,7 +55,8 @@ public sealed partial class CoreRuleEngine
         var card = state.CardObjects[choices[0][ShowcaseChoicePrefix.Length..]];
         receipt = new(new(card.ObjectId, card.ObjectGeneration), card.CardNo!, player, state.Tick + 1,
             card.CopyFaceTransitions?.Count ?? 0, PrintedPowerCostRules.ForCard(card.CardNo!).Amount,
-            state.PlayerZones[player].Hand.Contains(card.ObjectId));
+            state.PlayerZones[player].Hand.Contains(card.ObjectId),
+            IsTokenObject(card) ? card.TokenFactoryCardNo ?? card.CardNo : null);
         return true;
     }
 
@@ -62,14 +68,41 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidShowcaseReceipt(MatchState state, ShowcaseReceipt? receipt, string sourceCardNo, string source)
     {
         if (receipt is null) return true;
-        return CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var behavior) && behavior.Showcase is not null
+        if (!(CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var behavior) && behavior.Showcase is not null
             && receipt.Object is { Generation: >= 0 } binding && binding.ObjectId != source
-            && state.CardObjects.TryGetValue(binding.ObjectId, out var card) && card.ObjectGeneration >= binding.Generation
+            && !string.IsNullOrWhiteSpace(binding.ObjectId) && !string.IsNullOrWhiteSpace(receipt.PlayerId)
             && state.Seats.ContainsKey(receipt.PlayerId) && receipt.Tick > 0 && receipt.Tick <= state.Tick
             && receipt.FaceRevision >= 0 && !string.IsNullOrWhiteSpace(receipt.CardNo)
-            && receipt.PowerCost == PrintedPowerCostRules.ForCard(receipt.CardNo).Amount
+            && receipt.PowerCost == PrintedPowerCostRules.ForCard(receipt.CardNo).Amount)) return false;
+        if (receipt.TokenFactoryCardNo is { } factory
+            && (receipt.FromHand || behavior.Showcase.Filter != "MECHANICAL" || !P6TokenFactoryCatalog.IsTokenFactory(factory))) return false;
+        if (!state.CardObjects.TryGetValue(binding.ObjectId, out var card))
+            return receipt.TokenFactoryCardNo is not null && receipt.CeasedToken is { } ceased
+                && ceased.Object == binding && ceased.FactoryCardNo == receipt.TokenFactoryCardNo
+                && ceased.Tick >= receipt.Tick && ceased.Tick <= state.Tick && ceased.CardNo == receipt.CardNo
+                && ceased.FaceRevision == receipt.FaceRevision && ceased.CapturedTick == receipt.Tick;
+        return receipt.CeasedToken is null && card.ObjectGeneration >= binding.Generation
+            && (IsTokenObject(card) ? card.TokenFactoryCardNo ?? card.CardNo : null) == receipt.TokenFactoryCardNo
             && (card.ObjectGeneration != binding.Generation || CopyFaceTimeline.Valid(state, card)
                 && CopyFaceTimeline.FaceAt(card, receipt.FaceRevision, receipt.Tick) == receipt.CardNo);
+    }
+
+    private static MatchState RecordCeasedShowcaseTokens(MatchState before, MatchState state, IReadOnlySet<string> departed)
+    {
+        ShowcaseReceipt? Capture(ShowcaseReceipt? receipt)
+        {
+            if (receipt is null || receipt.CeasedToken is not null || !departed.Contains(receipt.Object.ObjectId)
+                || receipt.TokenFactoryCardNo is not { } factory) return receipt;
+            var card = before.CardObjects[receipt.Object.ObjectId];
+            if (card.ObjectGeneration != receipt.Object.Generation || (card.TokenFactoryCardNo ?? card.CardNo) != factory) return receipt;
+            return receipt with { CeasedToken = new(receipt.Object, factory, state.Tick,
+                CopyFaceTimeline.FaceAt(card, receipt.FaceRevision, receipt.Tick) ?? string.Empty, receipt.FaceRevision, receipt.Tick) };
+        }
+        return state with {
+            CardPlays = state.CardPlays with {
+                Finalized = state.CardPlays.Finalized.Select(p => p with { Showcase = Capture(p.Showcase) }).ToArray(),
+                Resolved = state.CardPlays.Resolved.Select(p => p with { Showcase = Capture(p.Showcase) }).ToArray() },
+            StackItems = state.StackItems.Select(i => i with { Showcase = Capture(i.Showcase) }).ToArray() };
     }
 
     internal static bool ValidShowcase(MatchState state, StackItemState item)

@@ -129,6 +129,57 @@ public sealed class RadShowcaseUnitTests
         Assert.Equal(3, game.State.PlayerZones["P1"].Hand.Count); await game.Replay();
     }
 
+    private static MatchState WithRobot(string no, bool copied = false)
+    {
+        var state = Position(no, "RAD·055/167", false);
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo("SFD·T01", out var factory));
+        var robot = copied ? state.CardObjects["SHOWN"] with {
+            TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
+            CopyFaceTransitions = [new(0, 0, P6TokenFactoryCatalog.ImageTokenCardNo, "RAD·055/167")] }
+            : factory.CreateObject("SHOWN", "P1", "P1");
+        return state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["SHOWN"] = robot } };
+    }
+
+    [Theory]
+    [InlineData(Serpent)] [InlineData(Guardian)]
+    public async Task TokensAreObjectsButCannotBeShownAsCardsEvenWithStandby(string no)
+    {
+        var state = WithRobot(no);
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["SHOWN"] = state.CardObjects["SHOWN"] with { Tags = state.CardObjects["SHOWN"].Tags.Append("待命").ToArray() } } };
+        await Reject(state, Play(no, "SHOWCASE:SHOWN"));
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task AMechanicalTokenMayBeShownAndItsLaterDisappearancePreservesRecovery(bool copied)
+    {
+        var initial = OfficialCopyIdentityTests.AddSpell(WithRobot(Construct, copied), "RETURN", "OGN·104/298");
+        var game = new Driver(initial);
+        await game.Act("P1", Play(Construct, "SHOWCASE:SHOWN"));
+        Assert.False(game.State.CardObjects["UNIT"].IsExhausted);
+        var receipt = game.State.CardPlays.Finalized.Single().Showcase!;
+        Assert.Equal(copied ? P6TokenFactoryCatalog.ImageTokenCardNo : "SFD·T01", receipt.TokenFactoryCardNo);
+        Assert.Equal(copied ? 1 : 0, receipt.FaceRevision); Assert.Null(receipt.CeasedToken);
+        await game.Act("P1", new PlayCardCommand("RETURN", "OGN·104/298", ["SHOWN"])); await game.Top();
+        Assert.False(game.State.CardObjects.ContainsKey("SHOWN"));
+        var play = Assert.Single(game.State.CardPlays.Finalized, p => p.CardNo == Construct);
+        var ceased = Assert.IsType<CeasedShowcaseToken>(play.Showcase!.CeasedToken);
+        Assert.Equal(receipt, play.Showcase with { CeasedToken = null });
+        Assert.Equal(play.Showcase, Assert.Single(game.State.CardPlays.Resolved, p => p.CardNo == Construct).Showcase);
+        foreach (var forged in new[] { play.Showcase with { CeasedToken = null },
+            play.Showcase with { TokenFactoryCardNo = "missing" },
+            play.Showcase with { CeasedToken = ceased with { Tick = game.State.Tick + 1 } },
+            play.Showcase with { CeasedToken = ceased with { Object = new("OTHER", 0) } },
+            play.Showcase with { CeasedToken = ceased with { CardNo = Guardian } } }) {
+            var history = game.State.CardPlays with {
+                Finalized = game.State.CardPlays.Finalized.Select(p => p.PlayId == play.PlayId ? p with { Showcase = forged } : p).ToArray(),
+                Resolved = game.State.CardPlays.Resolved.Select(p => p.PlayId == play.PlayId ? p with { Showcase = forged } : p).ToArray() };
+            Assert.NotEmpty(OfficialInsightAndSpellLockTests.Errors(game.State with { CardPlays = history }));
+        }
+        await game.Replay();
+    }
+
     [Theory]
     [InlineData(Construct)] [InlineData(Serpent)] [InlineData(Guardian)]
     public async Task AnUnaffordablePlayDoesNotRevealTheChosenHandCard(string no)
