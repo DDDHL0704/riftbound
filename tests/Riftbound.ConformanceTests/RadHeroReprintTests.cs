@@ -96,7 +96,7 @@ public sealed class RadHeroReprintTests
             "RAD·086/167", "RAD·086a/167", "RAD·090/167", "RAD·090a/167", "RAD·109/167", "RAD·109a/167", "RAD·110/167",
             "RAD·178*/167", "RAD·178/167", "RAD·SP3/005", "RAD·SP5/005",
             "RAD·043/167", "RAD·043a/167", "RAD·065/167", "RAD·065a/167",
-            "RAD·114/167", "RAD·114a/167", "RAD·138/167", "RAD·138a/167" }).Order(),
+            "RAD·114/167", "RAD·114a/167", "RAD·133/167", "RAD·133a/167", "RAD·138/167", "RAD·138a/167" }).Order(),
             printings.Where(card => card.CardCategoryName == "英雄单位").Select(card => card.CardNo).Order());
         Assert.Throws<NotSupportedException>(() => ((IList<OfficialCard>)printings)[0] = printings[0] with { CardEffect = "forged" });
         var play = CardBehaviorRegistry.GetAll().Select(definition => new ImplementedCardBehavior(

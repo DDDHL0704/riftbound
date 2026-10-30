@@ -82,6 +82,8 @@ public sealed partial class CoreRuleEngine
             .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureAttackWeaponDamageTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureAttackRallyTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureEmpoweredAttackDestroyTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CapturePaidUnitAttackTriggers(state, firstAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)

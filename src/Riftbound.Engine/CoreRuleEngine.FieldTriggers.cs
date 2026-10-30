@@ -60,6 +60,7 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == EmpoweredBanishKind) return ValidEmpoweredBanishShape(context, effect, cardNo);
         if (context.Kind == EmpoweredAttackDestroyKind) return ValidEmpoweredAttackDestroyShape(context, effect, cardNo);
         if (context.Kind == AttackWeaponDamageKind) return ValidAttackWeaponDamageShape(context, effect, cardNo);
+        if (context.Kind == AttackRallyKind) return ValidAttackRallyShape(context, effect, cardNo);
         if (context.EmpoweredTransition is not null) return false;
         if (context.Kind != AttackAreaDamageKind && context.AttackConditionFrame is not null) return false;
         return IsBattleLimitedContextShape(context, effect, cardNo) || effect == FieldTriggerEffect && context.SourceGeneration >= 0
@@ -138,6 +139,7 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind == StunBoonKind ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
                 : item.FieldContext.Kind == EmpoweredBanishKind ? IsEmpoweredBanishTarget(state, item, c)
                 : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? IsEmpoweredAttackDestroyTarget(state, item, c)
+                : item.FieldContext.Kind == AttackRallyKind ? IsAttackRallyTarget(state, item, c)
                 : item.FieldContext.Kind == AttackWeaponDamageKind ? IsAttackWeaponDamageTarget(state, item, c)
                 : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? true
                 : item.FieldContext.Kind == CombatKeywordDoubleKind ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) == item.ControllerId
@@ -228,6 +230,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == CombatMightDamageKind ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时按来源当前战力造成伤害"
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
                     : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? "选择此处一名战力低于来源的敌方单位；确认目标和法盾费用后双方可以响应。"
+                    : item.FieldContext.Kind == AttackRallyKind ? "选择你控制的一名单位移动到来源所在的战场，或不选以放弃；确认后双方可以响应。"
                     : item.FieldContext.Kind == AttackWeaponDamageKind ? "选择此处一名敌方单位；确认目标和法盾费用后双方可以响应。"
                     : item.FieldContext.Kind == StunBoonKind ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
@@ -267,12 +270,12 @@ public sealed partial class CoreRuleEngine
     }
 
     private static int FieldTriggerMinimumTargets(FieldTriggerContext context)
-        => context.Kind is "DEFEND" or AttackMightDamageKind or AttackGraveyardBanishKind or PaidUnitDestroyKind
+        => context.Kind is "DEFEND" or AttackMightDamageKind or AttackGraveyardBanishKind or PaidUnitDestroyKind or AttackRallyKind
             || context.Kind == PaidUnitStunKind && PaidUnitStunSpec(context.CardNo)!.Optional == true ? 0 : 1;
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
-            && (context.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or PaidUnitStunKind or PaidUnitDestroyKind or DisarmKind || IsStunObserverKind(context.Kind)
+            && (context.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or PaidUnitStunKind or PaidUnitDestroyKind or DisarmKind || IsStunObserverKind(context.Kind)
                 ? ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : ValidFieldContext(context, item.EffectKind, item.CardNo)) && item.TargetGenerations is null
             && (!IsPaidUnitTriggerKind(context.Kind) || context.PaidUnitTrigger is { CostPaid: false, DiscardCost: null })
@@ -325,7 +328,7 @@ public sealed partial class CoreRuleEngine
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
             var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付费用或放弃技能", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext?.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind
                     ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
                 ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow, ["manaCost"] = mana, ["powerCost"] = tax,
@@ -395,7 +398,7 @@ public sealed partial class CoreRuleEngine
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
         next = RestoreAfterTriggerConfirmation(next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? confirmed : i).ToArray() }, item);
         events.Add(new("TRIGGER_CONFIRMED", "已确认触发技能目标与费用，等待响应", new Dictionary<string, object?> {
-            ["sourceObjectId"] = HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind || IsStunObserverKind(field.Kind))
+            ["sourceObjectId"] = HasTargetedMovementSkill(item) || item.HighCostPlayObserver is not null || item.FieldContext is { } field && (field.Kind is PaidUnitStunKind or PaidUnitDestroyKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind || IsStunObserverKind(field.Kind))
                 ? ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") : item.SourceObjectId,
             ["targetObjectIds"] = selected.ToArray() }));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
@@ -421,6 +424,7 @@ public sealed partial class CoreRuleEngine
         if (item.FieldContext is { Kind: EmpoweredBanishKind }) return ResolveEmpoweredBanish(state, item);
         if (item.FieldContext is { Kind: EmpoweredAttackDestroyKind }) return ResolveEmpoweredAttackDestroy(state, item);
         if (item.FieldContext is { Kind: AttackWeaponDamageKind }) return ResolveAttackWeaponDamage(state, item);
+        if (item.FieldContext is { Kind: AttackRallyKind }) return ResolveAttackRally(state, item);
         if (item.FieldContext is { Kind: PaidUnitDestroyKind }) return ResolveDiscardDestroy(state, item);
         if (item.FieldContext is { Kind: PaidUnitStunKind }) return ResolvePaidUnitStun(state, item);
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);

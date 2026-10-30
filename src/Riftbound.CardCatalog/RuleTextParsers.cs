@@ -1694,6 +1694,12 @@ public static class TriggerParser
             return new TriggerSpec(TriggerKinds.UnitEmpoweredAttackDestroyWeakerEnemyHere, TriggerTimings.UnitAttack, segment,
                 "When an empowered unit attacks, confirm a weaker local enemy before responses and recheck the target on resolution.",
                 TargetScope: TriggerTargetScopes.EnemyUnitHere, RequiresSourceEmpowered: true);
+        if (Regex.IsMatch(segment,
+            @"^当我进攻时[，,]\s*你可以选择将你控制的一名单位移动到我(?:所在的|的)战场[。.]?$",
+            RegexOptions.CultureInvariant))
+            return new TriggerSpec(TriggerKinds.UnitAttackMoveControlledUnitToSourceBattlefield, TriggerTimings.UnitAttack,
+                segment, "Confirm an optional friendly target before responses; move it to the source's current battlefield (CN359.3.f.2).",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField, Optional: true, MovementDestinationZone: "BATTLEFIELD");
         var attackStun = Regex.Match(segment,
             @"^当我进攻时[，,]\s*(?:\{\{眩晕\}\}|眩晕)此处的一名敌方单位[。.]?$",
             RegexOptions.CultureInvariant);
