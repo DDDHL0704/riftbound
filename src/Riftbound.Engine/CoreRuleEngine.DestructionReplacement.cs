@@ -25,7 +25,8 @@ public sealed partial class CoreRuleEngine
 
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
-        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0, string? ResponsiblePlayerId = null);
+        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0,
+        string? ResponsiblePlayerId = null, SacrificeRecallCost? SacrificeCost = null);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -259,6 +260,7 @@ public sealed partial class CoreRuleEngine
             Add("GEAR", source, $"由中娅沙漏（{source}）替换，摧毁沙漏并休眠召回");
         }
         if (declinedOptional) return options;
+        options.AddRange(SourceSacrificeRecallOptions(zones, cards, unit, player));
         var field = ResolveDestroyedSourceBattlefieldObjectId(locations, target, battlefieldId);
         var inBattle = cause?.EffectKind == "DECLARE_BATTLE_COMBAT_DAMAGE" && field == battlefieldId
             || state.BattleState.IsActive && field == state.BattleState.BattlefieldObjectId;
@@ -301,6 +303,8 @@ public sealed partial class CoreRuleEngine
         var gearReplacementEffect = attachedGear ? ReplacementKinds.AttachedUnitDestroyedDestroySourceRecallExhausted : FriendlyUnitDestroyedEquipmentRecallEffectId;
         var stack = new StackItemState($"replacement-{state.Tick}-{effectSource}", player, effectSource,
             "DESTRUCTION_REPLACEMENT", effectCardNo, [], 0, 0, []);
+        if (option.Kind == SourceSacrificeRecallKind)
+            ApplySourceSacrificeRecallCost(state, zones, cards, pools, player, option, stack, events);
         if (option.Kind is "GEAR" or "ATTACHED_GEAR") {
             // A replacement-generated destruction is a new event in the same replacement chain (CN 370.2).
             var nested = ResolveFieldDestructions(state, zones, cards, stack, new HashSet<string>(),
@@ -343,6 +347,7 @@ public sealed partial class CoreRuleEngine
             ["replacementEffectId"] = option.Kind is "GEAR" or "ATTACHED_GEAR" ? gearReplacementEffect
                 : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId
                 : option.Kind == "LOCAL_RECALL" ? ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
+                : option.Kind == SourceSacrificeRecallKind ? ReplacementKinds.SourceUnitDestroyedDestroyFriendlyRecallExhaustedOncePerTurn
                 : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
     }
 

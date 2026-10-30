@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
                 CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
         }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
-            context is { Kind: PaidUnitStunKind, PaidUnitTrigger: { } paid }
+            context is { Kind: PaidUnitStunKind or PaidUnitDestroyKind, PaidUnitTrigger: { } paid }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, PaidUnitTrigger = paid with {

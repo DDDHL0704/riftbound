@@ -1,0 +1,26 @@
+name: Release closed PR L2
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+permissions:
+  contents: read
+
+# Share the PR's Backend L2 group. Cancellation happens before this small job
+# acquires a runner; no API token with actions:write is needed.
+# Keep closure metadata separate from the required check, so reopening a PR
+# still requires its complete verification to finish successfully.
+concurrency:
+  group: l2-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Release closed PR runners
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Finish the superseding run
+        run: ':'
