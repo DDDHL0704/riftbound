@@ -78,7 +78,9 @@ public sealed partial class CoreRuleEngine
                 && IsTargetManaCostAllowed(state, playerId, id, behavior)
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             optionalReduction += behavior.TargetTraitsManaReduction;
-        return CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
+        var cost = CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
             sourceObjectId: sourceObjectId);
+        var reduction = Math.Min(cost.Total, AvailableOptionalPlayManaReduction(state, playerId, behavior));
+        return cost with { Total = cost.Total - reduction, OptionalReduction = cost.OptionalReduction + reduction };
     }
 }

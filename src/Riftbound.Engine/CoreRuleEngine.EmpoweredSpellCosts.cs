@@ -57,9 +57,9 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<SpellPowerReductionOption> SpellPlayPowerOptions(
         MatchState state, string player, CardBehaviorDefinition behavior, string? printedChoice,
         int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
-        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0)
+        IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0, int optionalPlayReduction = 0)
     {
-        var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower);
+        var reduction = EmpoweredSpellCostReducers(state, player, behavior).Sum(s => s.GenericPower) + optionalPlayReduction;
         return PrintedPowerCostRules.OptionsForPlay(behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
             .SelectMany(a => ReduceSpellPower(a.GenericPower, ApplySacrificePowerReduction(a.TypedPower, sacrificeReduction), reduction))
             .DistinctBy(a => (a.ChoiceId, a.GenericPower, PrintedPowerCostRules.ChoiceId(a.TypedPower))).ToArray();
@@ -68,9 +68,10 @@ public sealed partial class CoreRuleEngine
     internal static bool TrySelectPlayPowerCost(MatchState state, string player, CardBehaviorDefinition behavior,
         string? printedChoice, RunePool pool, int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
         out int generic, out IReadOnlyDictionary<string, int> typed,
-        IReadOnlyList<string>? additionalPrinted = null)
+        IReadOnlyList<string>? additionalPrinted = null, int optionalPlayReduction = 0)
     {
-        var selected = SpellPlayPowerOptions(state, player, behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted)
+        var selected = SpellPlayPowerOptions(state, player, behavior, printedChoice, extraGeneric, extraTyped, additionalPrinted,
+                optionalPlayReduction: optionalPlayReduction)
             .OrderBy(a => PaymentCostRules.PowerDeficit(pool, a.GenericPower, a.TypedPower)).FirstOrDefault();
         generic = selected?.GenericPower ?? extraGeneric; typed = selected?.TypedPower ?? extraTyped;
         return selected is not null;
@@ -80,7 +81,7 @@ public sealed partial class CoreRuleEngine
         RunePaymentReachability reachability, int extraGeneric, IReadOnlyDictionary<string, int> extraTyped,
         IReadOnlyList<string>? additionalPrinted = null, int sacrificeReduction = 0)
         => SpellPlayPowerOptions(state, player, behavior, null, extraGeneric, extraTyped,
-                additionalPrinted, sacrificeReduction)
+                additionalPrinted, sacrificeReduction, AvailableOptionalPlayPowerReduction(state, player, behavior))
             .Any(option => reachability.CanPay(option.GenericPower, option.TypedPower));
 
     private static IReadOnlyList<ActionPromptChoiceDto> SpellPowerChoices(IReadOnlyList<SpellPowerReductionOption> options)
@@ -98,5 +99,6 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyList<ActionPromptChoiceDto> SpellPowerReductionChoices(
         MatchState state, string player, CardBehaviorDefinition behavior)
         => SpellPowerChoices(SpellPlayPowerOptions(state, player, behavior, null,
-            SourceReplayPowerCost(state, player), new Dictionary<string, int>()));
+            SourceReplayPowerCost(state, player), new Dictionary<string, int>(),
+            optionalPlayReduction: AvailableOptionalPlayPowerReduction(state, player, behavior)));
 }

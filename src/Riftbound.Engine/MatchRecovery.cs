@@ -4538,6 +4538,7 @@ public static partial class MatchRecoveryValidator
                 || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count
                 || resolution.ResolutionId != $"battle-result:{resolution.Tick}:{resolution.Kind}:{resolution.BattlefieldId}:{resolution.AttackerObjectIds.FirstOrDefault() ?? resolution.AttackingPlayerId}"))
                 errors.Add("invalid captured public battle history reference");
+        if (!CoreRuleEngine.ValidOptionalPlayCostReductionUses(state)) errors.Add("invalid optional play cost reduction use");
         foreach (var card in state.CardObjects.Values)
         {
             if (!EmpowerRules.ValidCount(card)) errors.Add("invalid empowerment count");
