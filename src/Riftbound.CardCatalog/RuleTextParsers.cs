@@ -1008,6 +1008,12 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var otherExhaustedPower = Regex.Match(segment,
+            @"^当另一名友方单位变为休眠状态时，给予我在本回合内\{\{S\}\}\+(?<amount>[1-9][0-9]*)。?$", RegexOptions.CultureInvariant);
+        if (otherExhaustedPower.Success)
+            return new(TriggerKinds.OtherFriendlyUnitExhaustedSourcePower, TriggerTimings.OtherFriendlyUnitExhausted, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: int.Parse(otherExhaustedPower.Groups["amount"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn);
         var playedOrExhaustedToken = Regex.Match(segment,
             @"^当你打出我时，或当我变为休眠状态时，打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>[^”]+)”单位指示物到你的基地。?$",
             RegexOptions.CultureInvariant);
@@ -2745,6 +2751,12 @@ public static class ActivatedAbilityParser
                 var parts = segment.Split(['：', ':'], 2, StringSplitOptions.TrimEntries);
                 var cost = parts.Length > 0 ? parts[0] : string.Empty;
                 var effect = parts.Length > 1 ? parts[1] : string.Empty;
+                if (cost == "让一名友方单位变为休眠状态"
+                    && effect.TrimEnd('。') == "让一名单位变为活跃状态。此技能每回合仅能使用一次")
+                    return new ActivatedAbilitySpec(cost, effect, [], BehaviorImplementationStatuses.Unimplemented,
+                        "Exhaust one active friendly unit as a cost; ready one unit after responses, once per turn per text instance.",
+                        Kind: ActivatedAbilityKinds.ExhaustFriendlyUnitReadyUnit, RequiredTargetCount: 1,
+                        TargetScope: CardTargetScopes.AnyUnit, OncePerTurn: true);
                 if (TryParseSourceBoonMight(cost, effect, out var boonMight)) return boonMight;
                 if (TryParseManaSelfMight(cost, effect, out var selfMight))
                     return selfMight;

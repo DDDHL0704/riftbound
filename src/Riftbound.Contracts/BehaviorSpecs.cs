@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string ExhaustFriendlyUnitReadyUnit = "EXHAUST_FRIENDLY_UNIT_READY_UNIT";
     public const string SwiftMoveSelfToBase = "SWIFT_MOVE_SELF_TO_BASE";
     public const string ConsumeSourceBoonGrantSelfMight = "CONSUME_SOURCE_BOON_GRANT_SELF_MIGHT";
     public const string ManaGrantSelfMight = "MANA_GRANT_SELF_MIGHT";
@@ -61,6 +62,7 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string OtherFriendlyUnitExhaustedSourcePower = "OTHER_FRIENDLY_UNIT_EXHAUSTED_SOURCE_POWER";
     public const string ControllerExhaustedUnitGroupDraw = "CONTROLLER_EXHAUSTED_UNIT_GROUP_DRAW";
     public const string SourceUnitPlayedOrExhaustedCreateUnit = "SOURCE_UNIT_PLAYED_OR_EXHAUSTED_CREATE_UNIT";
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
@@ -295,6 +297,7 @@ public static class TriggerKinds
 
 public static class TriggerTimings
 {
+    public const string OtherFriendlyUnitExhausted = "OTHER_FRIENDLY_UNIT_EXHAUSTED";
     public const string ControllerExhaustedUnitGroup = "CONTROLLER_EXHAUSTED_UNIT_GROUP";
     public const string SourceUnitPlayedOrExhausted = "SOURCE_UNIT_PLAYED_OR_EXHAUSTED";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
@@ -751,7 +754,8 @@ public sealed record ActivatedAbilitySpec(
     string? PlayCardFilter = null,
     int? PowerModifierAmount = null,
     int? MinimumPowerAfterModifier = null,
-    string? TargetUnitName = null);
+    string? TargetUnitName = null,
+    bool? OncePerTurn = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

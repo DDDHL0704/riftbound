@@ -43,9 +43,11 @@ public sealed partial class CoreRuleEngine
             : CaptureSourceUnitTokens(zones, cards, unit, EffectiveFieldControllerId(zones, unit.ObjectId, unit), "EXHAUST");
 
     private static GameEvent CaptureSourceExhaustionTokens(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
-        IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units)
+        IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units, bool captureOtherObservers = true)
     {
-        var captures = units.SelectMany(unit => CaptureSourceExhaustionTokens(zones, cards, unit)).ToArray();
+        var originals = units.ToArray();
+        if (captureOtherObservers) ev = CaptureOtherExhaustionPower(ev, zones, cards, originals);
+        var captures = originals.SelectMany(unit => CaptureSourceExhaustionTokens(zones, cards, unit)).ToArray();
         return captures.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [SourceUnitTokenObservationKey] = captures } };
     }
@@ -88,7 +90,7 @@ public sealed partial class CoreRuleEngine
             && (after.CopyFaceTransitions?.Count ?? 0) == (unit.CopyFaceTransitions?.Count ?? 0) && after.IsExhausted)
             .OrderBy(unit => unit.ObjectId, StringComparer.Ordinal).ToArray();
         var costObservation = CaptureSourceExhaustionTokens(new("INTERNAL_SOURCE_EXHAUSTION", "", new Dictionary<string, object?>()),
-            before.PlayerZones, before.CardObjects, unrecorded);
+            before.PlayerZones, before.CardObjects, unrecorded, captureOtherObservers: false);
         if (costObservation.Payload.ContainsKey(SourceUnitTokenObservationKey))
             result = result with { Events = result.Events.Append(costObservation).ToArray() };
         var events = result.Events.ToList(); var queue = result.State.TriggerQueue.ToList();

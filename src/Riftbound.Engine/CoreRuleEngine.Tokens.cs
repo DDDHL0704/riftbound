@@ -37,7 +37,7 @@ public sealed partial class CoreRuleEngine
                 ? context with { SourceCeasedToExist = true, StunObserver = stun with {
                     CeasedSource = new(result.State.Tick, context.Origin?.CardNo
                         ?? CopyFaceTimeline.FaceAt(before.CardObjects[sourceId], stun.SourceFaceRevision, stun.CapturedTick) ?? string.Empty) } }
-                : context is { Kind: ExhaustionDrawKind, ExhaustionObserver: { } exhaustion }
+                : context is { Kind: ExhaustionDrawKind or OtherExhaustionPowerKind, ExhaustionObserver: { } exhaustion }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, ExhaustionObserver = exhaustion with {

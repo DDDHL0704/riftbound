@@ -47,7 +47,7 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
-        if (context.Kind == ExhaustionDrawKind) return ValidExhaustionObserverShape(context, effect, cardNo);
+        if (context.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind) return ValidExhaustionObserverShape(context, effect, cardNo);
         if (context.ExhaustionObserver is not null) return false;
         if (context.Kind == DisarmKind) return ValidDisarmShape(context, effect, cardNo);
         if (context.Disarm is not null) return false;
@@ -160,7 +160,7 @@ public sealed partial class CoreRuleEngine
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.HighCostPlayObserver is not null && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or ExhaustionDrawKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" or AttackAreaDamageKind or StunReadyPowerKind or SelfActionPowerKind or ExhaustionDrawKind or OtherExhaustionPowerKind or BattleLimitedMarkers.DoubleAttack or BattleLimitedMarkers.DoubleDefend } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false } || NeedsMovementDiscardRuneConfirmation(i)
             || NeedsMovementInstructionConfirmation(i);
 
@@ -404,6 +404,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item.FieldContext?.Kind == CombatKeywordDoubleKind) return ResolveCombatKeywordDouble(state, item);
         if (item.FieldContext?.Kind == SelfActionPowerKind) return ResolveSelfActionObserver(state, item);
+        if (item.FieldContext?.Kind == OtherExhaustionPowerKind) return ResolveOtherExhaustionPower(state, item);
         if (item.FieldContext?.Kind == ExhaustionDrawKind) return ResolveExhaustionDraw(state, item);
         if (item.FieldContext is { Kind: AttackMightDamageKind }) return ResolveAttackMightDamage(state, item);
         if (item.FieldContext is { Kind: CombatMightDamageKind } context)
