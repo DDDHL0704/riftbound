@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
         if (costs.Count != 1 || costs[0] is not (StandbyHideOptionalCost or StandbyHideTeemoOptionalCost or StandbyHideFreeOptionalCost)
             || costs[0] == StandbyHideTeemoOptionalCost && !teemoPermission
             || costs[0] == StandbyHideFreeOptionalCost && !freePermission)
-            return RejectWithCorePrompts(state, "请选择且仅选择一种当前可用的待命布置费用。", ErrorCodes.InvalidTarget);
+            return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该费用进行待命埋伏。", ErrorCodes.UnsupportedCardBehavior);
         if (!TryParseBattlefieldDestination(command.Destination, out var fieldId))
             return RejectWithCorePrompts(state, $"{behavior.DisplayName} 不能以该去向进行待命埋伏。", ErrorCodes.UnsupportedCardBehavior);
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var source) || string.IsNullOrWhiteSpace(source.CardNo))

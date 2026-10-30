@@ -4632,8 +4632,6 @@ internal static partial class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["destinationChoices"] = requirement.DestinationChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
-            ["costChoiceMinCount"] = 1,
-            ["costChoiceMaxCount"] = 1,
             ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
             ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
             ["manaCost"] = requirement.ManaCost,

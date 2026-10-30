@@ -18,8 +18,6 @@ public sealed class StandbyInlineResourcePaymentTests
         Assert.Contains(candidate.OptionalCosts!, c => c.Id == "STANDBY_A");
         Assert.Contains(candidate.OptionalCosts!, c => c.Id == "RECYCLE_RUNE:HIDE-RUNE");
         var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(candidate.Metadata!["sourceRequirements"]));
-        Assert.Equal(1, requirement["costChoiceMinCount"]);
-        Assert.Equal(1, requirement["costChoiceMaxCount"]);
         Assert.Single(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["optionalCostChoices"]));
         Assert.Contains(Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["paymentResourceChoices"]), c => c.Id == "RECYCLE_RUNE:HIDE-RUNE");
         var driver = new Driver(initial);
@@ -123,7 +121,8 @@ public sealed class StandbyInlineResourcePaymentTests
         var command = Command(choices) with { Destination = boundary == "invalid-destination" ? "BATTLEFIELD:UNKNOWN" : "BATTLEFIELD:F" };
         var result = await new CoreRuleEngine().ResolveAsync(initial, new("hide-tap-rejected", "P1", command.CmdType), command, default);
         Assert.False(result.Accepted);
-        Assert.Equal(boundary is "insufficient" or "restricted-mana" ? ErrorCodes.InsufficientCost : ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(boundary is "insufficient" or "restricted-mana" ? ErrorCodes.InsufficientCost
+            : boundary == "missing-fee" ? ErrorCodes.UnsupportedCardBehavior : ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(initial));
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
@@ -156,7 +155,8 @@ public sealed class StandbyInlineResourcePaymentTests
         var before = MatchStateHasher.Hash(initial);
         var result = await new CoreRuleEngine().ResolveAsync(initial, new("hide-rejected", "P1", command.CmdType), command, default);
         Assert.False(result.Accepted);
-        Assert.Equal(boundary == "insufficient" ? ErrorCodes.InsufficientCost : ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(boundary == "insufficient" ? ErrorCodes.InsufficientCost
+            : boundary is "missing-fee" or "two-fees" ? ErrorCodes.UnsupportedCardBehavior : ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(before, MatchStateHasher.Hash(result.State));
         Assert.Equal(before, MatchStateHasher.Hash(initial));
