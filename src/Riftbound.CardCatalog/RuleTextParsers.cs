@@ -1624,7 +1624,7 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.TriggeringAttacker, PowerDelta: enemyAttackDelta,
                 Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: enemyAttackMinimum);
 
-        if (segment == "当我进攻或防守时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍。")
+        if (segment.TrimEnd('。', '.') == "当我进攻或防守时，让此处你控制的一名单位在本回合内{{坚守}}数值翻倍")
             return new TriggerSpec(TriggerKinds.UnitAttackOrDefendDoubleFriendlyKeywordHere, TriggerTimings.UnitAttackOrDefend,
                 segment, "Add the current numeric keyword value as a fixed turn modifier (CN433.1.a).",
                 TargetScope: TriggerTargetScopes.FriendlyUnitHere, Duration: "UNTIL_END_OF_TURN",

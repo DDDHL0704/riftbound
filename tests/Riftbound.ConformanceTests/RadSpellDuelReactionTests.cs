@@ -107,7 +107,13 @@ public sealed class RadSpellDuelReactionTests
         var game = new Driver(Position()); await OpenDuel(game);
         var s = game.State;
         if (branch == "base") s = LocalDestructionRecallTests.At(s, "HOST", "P1", "BASE");
-        if (branch == "elsewhere") s = LocalDestructionRecallTests.At(s, "HOST", "P1", "BATTLEFIELD", "OTHER");
+        if (branch == "elsewhere") {
+            s = LocalDestructionRecallTests.At(s, "HOST", "P1", "BATTLEFIELD", "OTHER");
+            s = OfficialHoldSequenceTests.AddUnit(s, "DUEL-ANCHOR", "OGN·001/298", "F", "P1");
+            s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+                ["OTHER"] = s.CardObjects["OTHER"] with { ControllerId = "P1" } } };
+            Assert.Equal("F", s.SpellDuelState.BattlefieldObjectId);
+        }
         if (branch == "enemy-controller") s = LocalDestructionRecallTests.At(s, "HOST", "P2", "BATTLEFIELD", "F");
         if (branch is "face-down" or "not-unit") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             ["HOST"] = s.CardObjects["HOST"] with { IsFaceDown = branch == "face-down", Tags = branch == "not-unit" ? [CardObjectTags.EquipmentCard] : s.CardObjects["HOST"].Tags } } };
@@ -126,7 +132,7 @@ public sealed class RadSpellDuelReactionTests
     [InlineData("unit")] [InlineData("equipment")]
     public async Task TheGrantNeverMakesUnitsOrEquipmentIntoReactionCards(string type)
     {
-        var no = type == "unit" ? "OGN·001/298" : "SFD·022/221";
+        var no = type == "unit" ? "OGN·001/298" : "SFD·016/221";
         var game = new Driver(HandDiscardObserverTests.Put(Position(), "PERMANENT", no, "P1", "HAND")); await OpenDuel(game);
         Assert.False(Offered(game.State, "P1", "PERMANENT"));
         await Reject(game.State, "P1", new PlayCardCommand("PERMANENT", no, [], Destination: "BASE"));

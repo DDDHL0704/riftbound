@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -113,12 +115,15 @@ public sealed class RadUnitHoldTests
         var state = Position(Evelynn, hidden: branch != "missing");
         if (branch == "face-up") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["PRIVATE-STANDBY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PRIVATE-STANDBY", "OGN·219/298", "P1") } };
-        if (branch == "enemy") state = LocalDestructionRecallTests.At(state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["PRIVATE-STANDBY"] = state.CardObjects["PRIVATE-STANDBY"] with { OwnerId = "P2", ControllerId = "P2" } } }, "PRIVATE-STANDBY", "P2", "BATTLEFIELD", "F");
-        if (branch == "other-field") state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1", "BATTLEFIELD", "OTHER");
+        if (branch == "enemy") state = PlaceStandby(state, "P2", "OTHER");
+        if (branch == "other-field") {
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["OTHER"] = state.CardObjects["OTHER"] with { ControllerId = "P1" } } };
+            state = PlaceStandby(state, "P1", "OTHER");
+        }
         var game = new Driver(state); await game.Act("P2", new EndTurnCommand());
         Assert.DoesNotContain(Holds(game.State), h => h.Kind == "UNIT_HIDDEN_HERE_SCORE");
-        Assert.Equal(1, game.State.PlayerScores["P1"]); await game.Replay();
+        Assert.Equal(branch == "other-field" ? 2 : 1, game.State.PlayerScores["P1"]); await game.Replay();
     }
 
     [Theory]
@@ -126,8 +131,10 @@ public sealed class RadUnitHoldTests
     public async Task RuneCallUsesAllAvailableRunesWithoutAnEmptyDeckPenalty(int available)
     {
         var state = Position(Ksante);
-        foreach (var rune in state.PlayerZones["P1"].RuneDeck.Skip(available).ToArray())
-            state = LocalDestructionRecallTests.At(state, rune, "P1", "BASE");
+        var alreadyCalled = state.PlayerZones["P1"].RuneDeck.Skip(available).ToArray();
+        state = state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+            ["P1"] = state.PlayerZones["P1"] with { RuneDeck = state.PlayerZones["P1"].RuneDeck.Take(available).ToArray() } } };
+        foreach (var rune in alreadyCalled) state = LocalDestructionRecallTests.At(state, rune, "P1", "BASE");
         var game = new Driver(state); await game.Act("P2", new EndTurnCommand()); await game.Top();
         var call = Assert.Single(game.Events(), e => e.Event.Kind == "RUNES_CALLED" && e.Event.Payload.ContainsKey("sourceObjectId")).Event;
         Assert.Equal(available, Convert.ToInt32(call.Payload["count"]));
@@ -292,13 +299,23 @@ public sealed class RadUnitHoldTests
         // Supply P2's next ordinary draw for the copied-text round trip.
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["P2-DECK"] = new("P2-DECK", cardNo: "OGN·219/298", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) } };
-        state = LocalDestructionRecallTests.At(state, "P2-DECK", "P2", "MAIN_DECK");
-        if (hidden) {
-            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-                ["PRIVATE-STANDBY"] = OfficialGarenConquestBattlefieldCountTests.Printed("PRIVATE-STANDBY", "OGN·057/298", "P1") with { IsFaceDown = true } } };
-            state = LocalDestructionRecallTests.At(state, "PRIVATE-STANDBY", "P1", "BATTLEFIELD", "F");
-        }
+        state = state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) {
+            ["P2"] = state.PlayerZones["P2"] with { MainDeck = ["P2-DECK"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["P2-DECK"] = new("P2", "MAIN_DECK") } };
+        if (hidden) state = PlaceStandby(state, "P1", "F");
         return state;
+    }
+
+    private static MatchState PlaceStandby(MatchState state, string controller, string field)
+    {
+        const string id = "PRIVATE-STANDBY", no = "OGN·057/298";
+        var printed = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards.Single(c => c.CardNo == no);
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(printed.CardEffect))).ToLowerInvariant();
+        state = state with { Tick = Math.Max(2, state.Tick), CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            [id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, no, controller) with { IsFaceDown = true,
+                StandbyPlacement = new(id, 0, no, controller, new(field, state.CardObjects[field].ObjectGeneration),
+                    state.TurnNumber - 1, 1, "PRINTED", hash) } } };
+        return LocalDestructionRecallTests.At(state, id, controller, "BATTLEFIELD", field);
     }
 
     private static IEnumerable<HeldTriggerContext> Holds(MatchState state)

@@ -42,7 +42,7 @@ public sealed class EquipChainTests
 
     internal static MatchState Response(MatchState s,string no,string player="P1") => s with {
         CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){["RESPONSE"]=new("RESPONSE",cardNo:no,ownerId:player,controllerId:player,tags:[CardObjectTags.SpellCard])},
-        PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones){[player]=s.PlayerZones[player] with {Hand=[..s.PlayerZones[player].Hand,"RESPONSE"]}},
+        PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones){[player]=s.PlayerZones[player] with {Hand=[..s.PlayerZones[player].Hand.Where(id=>id!="RESPONSE"),"RESPONSE"]}},
         ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations){["RESPONSE"]=new(player,"HAND")},
         RunePools=new Dictionary<string,RunePool>(s.RunePools){[player]=new(20,20)}};
     [Fact]

@@ -51,9 +51,14 @@ public sealed class KsanteKeywordDamageTests
         if (damageBonus) s = DeathObserverAuditTests.Source(s, "OGS·001/024", "ANNIE", "P1");
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             [recalled] = s.CardObjects[recalled] with { Power = 3 } } };
-        var game = new Driver(EquipChainTests.Response(s, "OGN·169/298", "P2"));
-        await game.Act("P1", Cast()); await game.Act("P1", new PassPriorityCommand());
-        await game.Act("P2", new PlayCardCommand("RESPONSE", "OGN·169/298", [recalled])); await game.Top();
+        var responder = branch == "friendly" ? "P1" : "P2";
+        s = EquipChainTests.Response(s, "OGN·104/298", responder);
+        if (responder == "P1") s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) {
+            ["P1"] = new(3, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 1 }) } };
+        var game = new Driver(s);
+        await game.Act("P1", Cast());
+        if (responder == "P2") await game.Act("P1", new PassPriorityCommand());
+        await game.Act(responder, new PlayCardCommand("RESPONSE", "OGN·104/298", [recalled])); await game.Top();
         await game.Top(); Assert.Equal(0, game.State.CardObjects["ENEMY"].Damage);
         if (branch == "friendly") Assert.DoesNotContain("COMBAT_KEYWORD:坚守2:1", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
         else Assert.Contains("COMBAT_KEYWORD:坚守2:1", game.State.CardObjects["HOST"].UntilEndOfTurnEffects);
@@ -109,6 +114,8 @@ public sealed class KsanteKeywordDamageTests
     public async Task ASubsequentRealKeywordGrantIsAddedAfterTheFixedDoublingRatherThanMultipliedAgain()
     {
         var s = AttackDamageDistributionTests.Spell(KsanteKeywordValueTests.Board(), "SPELL", Spell, "P1");
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["ENEMY1"] = s.CardObjects["ENEMY1"] with { Power = 10 } } };
         s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) { ["P1"] = new(2, 0, new Dictionary<string, int> { [RuneTrait.Orange] = 1 }) } };
         var game = new Driver(s); await KsanteKeywordValueTests.Pending(game, "HOST"); await game.Top();
         Assert.Equal(2, KsanteKeywordValueTests.Keyword(game.State, "HOST", "坚守"));

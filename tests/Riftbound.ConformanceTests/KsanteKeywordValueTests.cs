@@ -127,10 +127,10 @@ public sealed class KsanteKeywordValueTests
     [InlineData("duplicate"), InlineData("wrong-player")]
     public async Task InvalidHeroChoicesLeaveTheOriginalChoiceAndAllStateUntouched(string branch)
     {
-        var s = Board(); s = DeathObserverAuditTests.Source(s, "OGN·001/298", "OTHER");
+        var s = Board(); s = DeathObserverAuditTests.Source(s, "OGN·001/298", "REMOTE-UNIT", "P1");
         var game = new Driver(s); await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         var choice = game.State.PendingCardChoice!;
-        var targets = branch switch { "enemy" => new[] { "ENEMY1" }, "equipment" => ["GEAR"], "other-location" => ["OTHER"],
+        var targets = branch switch { "enemy" => new[] { "ENEMY1" }, "equipment" => ["GEAR"], "other-location" => ["REMOTE-UNIT"],
             "missing" => [], "duplicate" => ["HOST", "HOST"], _ => ["HOST"] };
         await Reject(game.State, branch == "wrong-player" ? "P2" : "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, targets));
         await game.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["HOST"]));
@@ -165,8 +165,8 @@ public sealed class KsanteKeywordValueTests
     [Fact]
     public async Task ZeroSteadfastIsALegalTargetAndFriendlySpellshieldDoesNotCreateATax()
     {
-        var s = DeathObserverAuditTests.Source(Board(), "OGN·001/298", "ALLY");
-        s = LocalDestructionRecallTests.At(s, "ALLY", "P1", "BATTLEFIELD", "F");
+        var s = DeathObserverAuditTests.Source(Board(), "OGN·001/298", "ALLY", "P1");
+        s = LocalDestructionRecallTests.At(s, "ALLY", "P1", "BASE");
         s = WithCard(s, "ALLY", c => c with { Tags = [CardObjectTags.UnitCard, "法盾2"] });
         var game = new Driver(s); await Pending(game, "ALLY"); Assert.Null(game.State.PendingPayment);
         await game.Top(); Assert.Equal(0, Keyword(game.State, "ALLY", "坚守"));
@@ -177,8 +177,8 @@ public sealed class KsanteKeywordValueTests
     public async Task ARealRecallInvalidatesHereOrTheTargetAndNeverLeaksTheNewHandIdentity(string branch)
     {
         var s = WithCard(Board(), "HOST", c => c with { Power = 3 });
-        s = DeathObserverAuditTests.Source(s, "OGN·001/298", "ALLY");
-        s = LocalDestructionRecallTests.At(s, "ALLY", "P1", "BATTLEFIELD", "F");
+        s = DeathObserverAuditTests.Source(s, "OGN·001/298", "ALLY", "P1");
+        s = LocalDestructionRecallTests.At(s, "ALLY", "P1", "BASE");
         s = WithCard(s, "ALLY", c => c with { Power = 3, Tags = [CardObjectTags.UnitCard, "坚守2"] });
         var game = new Driver(EquipChainTests.Response(s, "OGN·169/298", "P2"));
         await Pending(game, "ALLY"); await game.Act("P1", new PassPriorityCommand());
@@ -227,7 +227,9 @@ public sealed class KsanteKeywordValueTests
         => s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { [id] = change(s.CardObjects[id]) } };
     internal static async Task Pending(Driver game, string target)
     {
-        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
+        var movers = target != "HOST" && game.State.PlayerZones["P1"].Base.Contains(target, StringComparer.Ordinal)
+            ? new[] { "HOST", target } : new[] { "HOST" };
+        await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", [], SourceObjectIds: movers));
         if (game.State.TriggerQueue.Count > 0) await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         for (var n = 0; game.State.PendingCardChoice is { ChoiceWindow: "TRIGGER_CONFIRMATION" } choice; n++) {
             Assert.True(n < 4); await game.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [target]));
