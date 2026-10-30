@@ -4,6 +4,45 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    private static ResolutionResult ResolvePendingPayCostWithRuneTaps(MatchState state, PlayerIntent intent,
+        PendingPaymentState payment, IReadOnlyList<string> choices, int rawCount)
+    {
+        if (choices.Count != rawCount || choices.Distinct(StringComparer.Ordinal).Count() != rawCount
+            || choices.Contains(DeclinePaymentChoiceId, StringComparer.Ordinal)
+            || !TryExtractTapRunePaymentResourceActions(state, intent.PlayerId, choices,
+                out var spendAndRecycleChoices, out var tapActions, out var tappedRunes)
+            || !TryPreviewOrderedPaymentResources(state, intent.PlayerId,
+                state.RunePools.GetValueOrDefault(intent.PlayerId, RunePool.Empty),
+                choices.Where(c => IsTapRunePaymentResourceActionId(c) || IsRecycleRunePaymentResourceActionId(c)).ToArray(), out _))
+            return RejectWithCorePrompts(state, "PAY_COST 包含非法支付资源动作。", ErrorCodes.InvalidTarget);
+
+        // Stage resource acquisition together with the existing payment resolver. A failed
+        // choice or payment returns the original state, including unexhausted runes.
+        var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var resourceEvents = new List<GameEvent>();
+        var pools = ApplyTapRunePaymentResourceActions(state.RunePools, zones, cards, intent.PlayerId,
+            tappedRunes, resourceEvents, payment.PaymentWindow, payment.PaymentId);
+        var staged = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools };
+        var result = ResolvePendingPayCost(staged, intent, payment, payment.PaymentId, payment.PaymentWindow, spendAndRecycleChoices);
+        if (!result.Accepted)
+            return RejectWithCorePrompts(state, result.ErrorMessage ?? "支付失败。", result.ErrorCode ?? ErrorCodes.InvalidTarget);
+
+        var events = result.Events.Select(e =>
+        {
+            if (e.Kind != "COST_PAID") return e;
+            var payload = new Dictionary<string, object?>(e.Payload, StringComparer.Ordinal)
+            {
+                ["paymentChoiceIds"] = choices.ToArray(),
+                ["tappedRuneObjectIds"] = tappedRunes.ToArray(),
+                ["paymentResourceActions"] = choices.Where(c => tapActions.Contains(c, StringComparer.Ordinal)
+                    || IsRecycleRunePaymentResourceActionId(c)).ToArray()
+            };
+            return e with { Payload = payload };
+        });
+        return result with { Events = resourceEvents.Concat(events).ToArray() };
+    }
+
     private static bool TryExtractTapRunePaymentResourceActions(
         MatchState state,
         string playerId,

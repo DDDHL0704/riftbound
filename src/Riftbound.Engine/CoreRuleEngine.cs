@@ -579,6 +579,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(choiceId => !string.IsNullOrWhiteSpace(choiceId))
             .Select(choiceId => choiceId.Trim())
             .ToArray();
+        if (pendingPayment.PaymentWindow != RuleChoiceWindow
+            && submittedChoices.Any(IsTapRunePaymentResourceActionId))
+            return ResolvePendingPayCostWithRuneTaps(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
         if (pendingPayment.PaymentWindow == TemperedPaymentWindow)
             return ResolveTemperedPayment(state, pendingPayment, submittedChoices, paymentChoiceIds.Count);
