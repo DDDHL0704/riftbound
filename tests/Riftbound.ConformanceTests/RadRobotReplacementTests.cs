@@ -42,8 +42,11 @@ public sealed class RadRobotReplacementTests
 
     private static async Task CloseShowdown(Driver game)
     {
-        for (var step = 0; step < 12 && game.State.SpellDuelState.IsActive; step++)
-            await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        for (var step = 0; step < 12 && (game.State.StackItems.Count > 0 || game.State.SpellDuelState.IsActive); step++)
+            if (game.State.StackItems.Count > 0)
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            else await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+        Assert.Empty(game.State.StackItems);
         Assert.False(game.State.SpellDuelState.IsActive);
     }
 
@@ -238,15 +241,19 @@ public sealed class RadRobotReplacementTests
         var fairy = Assert.Single(Tokens(game.State), token => token.TokenFactoryCardNo != Robot);
         Assert.Equal(new("P1", "BATTLEFIELD", "OTHER"), game.State.ObjectLocations[robot.ObjectId]);
         Assert.Equal(new("P1", "BASE"), game.State.ObjectLocations[fairy.ObjectId]);
-        Assert.True(game.State.StackItems.Count == 1, JsonSerializer.Serialize(new {
-            game.State.TimingState,
-            Triggers = game.State.TriggerQueue.Select(trigger => trigger.EffectKind),
-            Choice = game.State.PendingCardChoice?.ChoiceWindow,
-            Events = game.Events().Select(row => row.Event.Kind)
-        }));
-        Assert.Equal(robot.ObjectId, Assert.Single(game.State.StackItems).TurnUnitPlayBoon!.Unit.ObjectId);
+        // Sprite Burst also earns the fixture's Lux draw. Both earned skills
+        // require a real ordering command before either reaches the stack.
+        var boon = Assert.Single(game.State.TriggerQueue, trigger => trigger.TurnUnitPlayBoon is not null);
+        var draw = Assert.Single(game.State.TriggerQueue, trigger => trigger.SourceObjectId == "LEGEND"
+            && trigger.EffectKind == "SPELL_TRIGGER");
+        Assert.Equal(2, game.State.TriggerQueue.Count);
+        await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: [boon.TriggerId, draw.TriggerId]));
+        Assert.Equal(robot.ObjectId, game.State.StackItems[^1].TurnUnitPlayBoon!.Unit.ObjectId);
         await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects[robot.ObjectId].Tags);
-        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects[fairy.ObjectId].Tags); await game.Replay();
+        Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects[fairy.ObjectId].Tags);
+        var handCount = game.State.PlayerZones["P1"].Hand.Count;
+        await game.Top(); Assert.Equal(handCount + 1, game.State.PlayerZones["P1"].Hand.Count);
+        Assert.Empty(game.State.StackItems); await game.Replay();
     }
 
     [Theory]
