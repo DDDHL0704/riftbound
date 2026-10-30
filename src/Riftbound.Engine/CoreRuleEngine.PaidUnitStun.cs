@@ -5,11 +5,15 @@ namespace Riftbound.Engine;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record PaidUnitTriggerOrigin(string Event, long CapturedTick, long FaceRevision,
-    string RuleTextInstanceId, bool CostPaid = false, CeasedEmpoweredSource? CeasedSource = null);
+    string RuleTextInstanceId, bool CostPaid = false, CeasedEmpoweredSource? CeasedSource = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TriggerHandDiscardCost? DiscardCost = null);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string PaidUnitStunKind = "PLAY_OR_ATTACK_OPTIONAL_PAID_STUN";
+    internal const string PaidUnitDestroyKind = "PLAY_OR_ATTACK_OPTIONAL_DISCARD_DESTROY";
+    private static readonly string[] PaidUnitTriggerKinds = [PaidUnitStunKind, PaidUnitDestroyKind];
+    internal static bool IsPaidUnitTriggerKind(string kind) => kind is PaidUnitStunKind or PaidUnitDestroyKind;
     private const string PaidUnitPlayStunCapture = "paidUnitPlayStunSources";
     private sealed record PaidUnitStunCapture(string SourceId, string Controller, string InstanceId,
         FieldTriggerContext Context);
@@ -21,23 +25,33 @@ public sealed partial class CoreRuleEngine
             || t.Kind == TriggerKinds.UnitAttackStunEnemyHere && t.Timing == TriggerTimings.UnitAttack
                 && t.TargetScope == TriggerTargetScopes.EnemyUnitHere && t.Optional == false && t.ManaCost == 0);
 
-    private static GameEvent CapturePaidUnitPlayStun(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+    private static TriggerSpec? PaidUnitTriggerSpec(string? cardNo, string kind)
+        => kind == PaidUnitStunKind ? PaidUnitStunSpec(cardNo)
+            : kind == PaidUnitDestroyKind ? SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo).FirstOrDefault(t =>
+                t.Kind == TriggerKinds.UnitPlayedOrAttacksOptionalDiscardDestroy
+                && t.Timing == TriggerTimings.SourceUnitPlayedOrAttack && t.Optional == true
+                && t.TargetScope == TriggerTargetScopes.UnitOrEquipmentOnField
+                && t.DiscardCount == 1 && t.DiscardSourceZone == TriggerZones.Hand
+                && t.DiscardDestinationZone == TriggerZones.Graveyard && t.DestroyCount == 1) : null;
+
+    private static GameEvent CapturePaidUnitPlayTriggers(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, CardObjectState entered)
     {
         if (entered.IsFaceDown || ev.Kind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")) return ev;
         var controller = EffectiveFieldControllerId(zones, entered.ObjectId, entered);
         var sources = AttachedRuleTextRules.Instances(zones, cards, entered)
-            .Where(instance => PaidUnitStunSpec(instance.CardNo)?.Timing == TriggerTimings.SourceUnitPlayedOrAttack)
-            .Select(instance => new PaidUnitStunCapture(entered.ObjectId, controller, instance.Id,
-                new(instance.CardNo, PaidUnitStunKind, entered.ObjectGeneration) {
+            .SelectMany(instance => PaidUnitTriggerKinds.Where(kind =>
+                PaidUnitTriggerSpec(instance.CardNo, kind)?.Timing == TriggerTimings.SourceUnitPlayedOrAttack)
+            .Select(kind => new PaidUnitStunCapture(entered.ObjectId, controller, instance.Id,
+                new(instance.CardNo, kind, entered.ObjectGeneration) {
                     Origin = instance.Origin, SourceTokenFactoryCardNo = entered.TokenFactoryCardNo,
-                    PaidUnitTrigger = new("PLAY", 0, instance.Origin?.FaceRevision ?? entered.CopyFaceTransitions?.Count ?? 0, instance.Id) }))
+                    PaidUnitTrigger = new("PLAY", 0, instance.Origin?.FaceRevision ?? entered.CopyFaceTransitions?.Count ?? 0, instance.Id) })))
             .ToArray();
         return sources.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
             [PaidUnitPlayStunCapture] = sources } };
     }
 
-    private static ResolutionResult QueuePaidUnitPlayStuns(MatchState before, ResolutionResult result)
+    private static ResolutionResult QueuePaidUnitPlayTriggers(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
         var events = result.Events.ToList(); var queue = result.State.TriggerQueue.ToList(); var found = false;
@@ -66,16 +80,17 @@ public sealed partial class CoreRuleEngine
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
-    private static TriggerQueueItemState[] CapturePaidUnitAttackStuns(MatchState state, IEnumerable<string> attackers,
+    private static TriggerQueueItemState[] CapturePaidUnitAttackTriggers(MatchState state, IEnumerable<string> attackers,
         string battlefield, string timing = TimingStates.NeutralClosed, string? returnFocusPlayer = null)
     {
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in attackers.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)) {
             if (!state.CardObjects.TryGetValue(id, out var source) || !IsFaceUpNonStandbyUnit(source)) continue;
             var controller = EffectiveFieldControllerId(state.PlayerZones, id, source);
-            foreach (var instance in AttachedRuleTextRules.Instances(state, source)) {
-                if (PaidUnitStunSpec(instance.CardNo) is null) continue;
-                var context = new FieldTriggerContext(instance.CardNo, PaidUnitStunKind, source.ObjectGeneration,
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
+            foreach (var kind in PaidUnitTriggerKinds) {
+                if (PaidUnitTriggerSpec(instance.CardNo, kind) is null) continue;
+                var context = new FieldTriggerContext(instance.CardNo, kind, source.ObjectGeneration,
                     battlefield, returnFocusPlayer) {
                     Origin = instance.Origin, SourceTokenFactoryCardNo = source.TokenFactoryCardNo,
                     PaidUnitTrigger = new("ATTACK", RuleChoices.Value?.CompletionTick ?? state.Tick,
@@ -89,11 +104,15 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidPaidUnitStunShape(FieldTriggerContext context, string effect, string? cardNo)
     {
-        if (context.Kind != PaidUnitStunKind || effect != FieldTriggerEffect || cardNo is not null && cardNo != context.CardNo
-            || PaidUnitStunSpec(context.CardNo) is null || context.SourceGeneration < 0
+        if (!IsPaidUnitTriggerKind(context.Kind) || effect != FieldTriggerEffect || cardNo is not null && cardNo != context.CardNo
+            || PaidUnitTriggerSpec(context.CardNo, context.Kind) is null || context.SourceGeneration < 0
             || context.PaidUnitTrigger is not { CapturedTick: >= 0, FaceRevision: >= 0 } birth
             || birth.Event is not ("PLAY" or "ATTACK") || string.IsNullOrWhiteSpace(birth.RuleTextInstanceId)
-            || birth.Event == "PLAY" && PaidUnitStunSpec(context.CardNo)!.Timing != TriggerTimings.SourceUnitPlayedOrAttack
+            || birth.Event == "PLAY" && PaidUnitTriggerSpec(context.CardNo, context.Kind)!.Timing != TriggerTimings.SourceUnitPlayedOrAttack
+            || context.Kind == PaidUnitStunKind && birth.DiscardCost is not null
+            || birth.DiscardCost is { } discard && (discard.Card is not { Generation: >= 0 }
+                || string.IsNullOrWhiteSpace(discard.Card.ObjectId) || discard.SelectedTick < birth.CapturedTick)
+            || context.Kind == PaidUnitDestroyKind && birth.CostPaid && birth.DiscardCost is null
             || context.RecycledBoon is not null || context.EmpoweredTransition is not null || context.SourceLocation is not null
             || context.AffectedUnit is not null || context.AffectedUnitCeasedToExist || context.AttackConditionFrame is not null
             || birth.Event == "PLAY" && (context.BattlefieldId is not null || context.ReturnFocusPlayerId is not null)
@@ -108,6 +127,7 @@ public sealed partial class CoreRuleEngine
     {
         var birth = context.PaidUnitTrigger!;
         if (string.IsNullOrWhiteSpace(source) || !state.Seats.ContainsKey(controller) || birth.CapturedTick > state.Tick
+            || context.Kind == PaidUnitDestroyKind && !ValidTriggerHandDiscardCost(state, birth, controller)
             || context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)
             || birth.Event == "ATTACK" && BattlefieldLocalRules.Battlefield(state, context.BattlefieldId) is null) return false;
         if (context.SourceCeasedToExist) {
