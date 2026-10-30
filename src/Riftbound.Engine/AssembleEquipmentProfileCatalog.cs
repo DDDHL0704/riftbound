@@ -47,7 +47,8 @@ internal static class AssembleEquipmentProfileCatalog
 
     private static IReadOnlyDictionary<string, AssembleEquipmentProfile> BuildProfiles()
     {
-        var catalog = OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult();
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult()
+            .WithReviewedRuntimeAdditions();
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
         var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(behavior => new ImplementedCardBehavior(
