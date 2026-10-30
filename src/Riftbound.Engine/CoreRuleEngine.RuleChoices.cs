@@ -40,6 +40,7 @@ public sealed partial class CoreRuleEngine
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
         public HashSet<string> NestedDestroyedOwners { get; } = [];
+        public HashSet<string> DestroyedPermanentControllers { get; } = [];
         private int cursor;
         public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null, int manaCost = 0)
         {

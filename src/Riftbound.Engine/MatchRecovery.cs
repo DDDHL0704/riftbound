@@ -1843,10 +1843,11 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
-                        $"STATIC_AURA:{StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy}:{sourceObjectId}",
+                        $"STATIC_AURA:{effectKind}:{sourceObjectId}",
                         "object static aura effect id", errors);
                     return;
                 }
@@ -2327,11 +2328,12 @@ public static partial class MatchRecoveryValidator
                     return;
                 }
 
-                if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal))
+                if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment))
                 {
                     if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo).Any(aura =>
                         aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)))
-                        errors.Add($"{effectLabel} source card has no matching conditional enemy aura");
+                        errors.Add($"{effectLabel} source card has no matching conditional participant aura");
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
                         "CoreRuleEngine.ResolveSourceParticipantCountPowerStaticAuraBonus", "object static aura source path", errors);
                     ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
@@ -2803,7 +2805,8 @@ public static partial class MatchRecoveryValidator
             ? Array.Empty<StaticAuraSpec>()
             : StaticAuraSpecRules.GetStaticAuras(sourceCardNo);
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return participantCount >= enemyAura.RequiredParticipantCount.GetValueOrDefault(1) ? enemyAura.PowerDeltaPerParticipant : 0;
 
@@ -2881,7 +2884,8 @@ public static partial class MatchRecoveryValidator
             return sameBattlefieldCountAura.PowerDeltaPerParticipant;
         }
 
-        if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+        if ((string.Equals(effectKind, StaticAuraKinds.SourceObjectPowerWithSameLocationEnemy, StringComparison.Ordinal)
+                    || effectKind == StaticAuraKinds.SourceObjectPowerWithFriendlyEquipment)
             && staticAuras.FirstOrDefault(aura => aura.Kind == effectKind && StaticAuraSpecRules.IsSourceParticipantCountPowerStaticAura(aura)) is { } enemyAura)
             return enemyAura.PowerDeltaPerParticipant;
 

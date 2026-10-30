@@ -24,6 +24,15 @@ internal static class PermanentPlayTriggerRecoveryRules
 
     internal static bool Valid(MatchState state, StackItemState item)
     {
+        if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var returnedEquipment)
+            && returnedEquipment.ReadiesSourceAndAddsReturnedEquipmentManaPower && item.ReturnedEquipmentManaCost is null) return false;
+        if (item.ReturnedEquipmentManaCost is { } mana
+            && (mana < 0 || !CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var equipmentCost)
+                || !equipmentCost.MayReturnFriendlyEquipmentAdditionalCost
+                || item.OptionalCosts.Count(cost => cost.StartsWith("RETURN_FRIENDLY_EQUIPMENT:", StringComparison.Ordinal)) != 1
+                || item.SourceConfirmed && !state.CardPlays.Resolved.Any(play => play.PlayId == item.StackItemId
+                    && play.CardNo == item.CardNo && play.PlayerId == item.ControllerId
+                    && play.Source.ObjectId == item.SourceObjectId && play.ReturnedEquipmentManaCost == mana))) return false;
         if (item.SourceConfirmed && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var conditional)
             && conditional.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.DiscardHandCardOptionalCostPaid
             && (item.EffectKind != conditional.EffectKind || !item.OptionalCosts.Any(cost =>

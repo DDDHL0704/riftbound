@@ -140,6 +140,9 @@ public sealed partial class CoreRuleEngine
             .ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         var events=new List<GameEvent>(); var queue=state.TriggerQueue.ToList(); var seen=new HashSet<string>();
         var effects = state.UntilEndOfTurnEffects;
+        if (RuleChoices.Value is { } frame && before.TurnNumber == state.TurnNumber)
+            foreach (var controller in frame.DestroyedPermanentControllers)
+                effects = AddUntilEndOfTurnEffect(effects, FriendlyPermanentDestroyedMarker(controller));
         var deaths = result.Events.Select(e => e.Payload.GetValueOrDefault("capturedUnitDeath"))
             .OfType<CapturedUnitDeath>().DistinctBy(d => d.Id).Where(d => d.TurnNumber == state.TurnNumber).ToArray();
         var firstChoices = new Dictionary<(int Batch, string Source, string? Instance), string>();
