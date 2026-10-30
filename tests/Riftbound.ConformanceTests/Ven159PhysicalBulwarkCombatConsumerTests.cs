@@ -143,7 +143,7 @@ public sealed class Ven159PhysicalBulwarkCombatConsumerTests
     private static async Task PayPair(Driver game, string player)
     {
         Assert.Equal(player, game.State.TurnPlayerId); Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
-        for (var i = 0; i < 10; i++) await game.Act(player, new TapRuneCommand(Rune(player, i)));
+        await game.TapRunes(player, Enumerable.Range(0, 10).Select(i => Rune(player, i)));
         await game.Act(player, new RecycleRuneCommand(Rune(player, 0))); var prefix = game.Events().Length;
         await game.Act(player, new PlayCardCommand(Wall(player), WallNo, []));
         var first = Assert.Single(game.Events().Skip(prefix), e => e.Event.Kind == "COST_PAID"); Assert.Equal(6, first.Event.Payload["totalManaCost"]); Assert.Equal(0, first.Event.Payload["totalPowerCost"]);

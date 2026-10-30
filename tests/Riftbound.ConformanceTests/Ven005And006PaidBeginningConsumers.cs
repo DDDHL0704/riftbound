@@ -32,7 +32,7 @@ public sealed class Ven005And006PaidBeginningConsumers
     {
         var game = new Driver(Position(no));
         var initialGeneration = game.State.CardObjects["UNIT"].ObjectGeneration;
-        foreach (var id in Runes(game.State, "P1").Take(mana)) await game.Act("P1", new TapRuneCommand(id));
+        await game.TapRunes("P1", Runes(game.State, "P1").Take(mana));
         Assert.Equal(mana, game.State.RunePools["P1"].Mana);
         await game.Act("P1", new PlayCardCommand("UNIT", no, []));
         Assert.Equal(0, game.State.RunePools["P1"].Mana);

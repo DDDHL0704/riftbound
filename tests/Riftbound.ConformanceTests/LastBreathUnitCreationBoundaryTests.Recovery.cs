@@ -127,7 +127,7 @@ public sealed partial class LastBreathUnitCreationBoundaryTests
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         }
         var game = new Driver(initial);
-        foreach (var id in Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).Append("EMPOWER-RUNE")) await game.Act("P1", new TapRuneCommand(id));
+        await game.TapRunes("P1", Enumerable.Range(0, 4).Select(i => "P1-RUNE-" + i).Append("EMPOWER-RUNE"));
         await game.Act("P1", new RecycleRuneCommand("EMPOWER-RUNE"));
         await game.Act("P1", new ActivateAbilityCommand("UNIT", "EMPOWER:0:0", [])); await game.Top();
         Assert.True(game.State.CardObjects["UNIT"].IsEmpowered);
