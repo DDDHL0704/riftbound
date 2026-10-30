@@ -18,7 +18,7 @@ public sealed class RadDisarmHeroTests
         var game = new Driver(initial);
         await game.Act("P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         var skill = Assert.Single(game.State.StackItems); Assert.Equal("DISARM", skill.FieldContext!.Kind);
-        Assert.Equal(copied ? 2 : 1, skill.FieldContext.Disarm!.Contributions.Sum(c => c.Amount));
+        Assert.Equal(copied ? 2 : 1, skill.FieldContext.Disarm!.Contributions.Sum(c => c.Value));
         var choice = Assert.IsType<PendingCardChoiceState>(game.State.PendingCardChoice);
         Assert.DoesNotContain("HOST", choice.LegalObjectIds); Assert.Contains("ENEMY1", choice.LegalObjectIds);
         Assert.Equal(3, game.State.CardObjects["ENEMY1"].Power);

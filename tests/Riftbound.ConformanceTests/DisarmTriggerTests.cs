@@ -190,14 +190,14 @@ public sealed class DisarmTriggerTests
         var item = Assert.Single(attack.State.StackItems); var field = Assert.IsType<FieldTriggerContext>(item.FieldContext);
         var contribution = Assert.Single(field.Disarm!.Contributions);
         var changed = branch switch {
-            "amount" => contribution with { Amount = 99 }, "zero" => contribution with { Amount = 0 },
-            "negative" => contribution with { Amount = -1 },
+            "amount" => contribution with { Value = 99 }, "zero" => contribution with { Value = 0 },
+            "negative" => contribution with { Value = -1 },
             "foreign-source" => contribution with { Source = new("ENEMY1", 0) },
             "generation" => contribution with { Source = contribution.Source with { Generation = contribution.Source.Generation + 1 } },
             "card" => contribution with { CardNo = "OGN·001/298" },
-            "aura" => contribution with { AuraKey = "FORGED" }, _ => contribution };
+            "aura" => contribution with { FriendlyGrant = true }, _ => contribution };
         Assert.True(field.Disarm!.CapturedTick >= 0);
-        field = field with { Disarm = new(branch == "duplicate" ? [changed, changed] : [changed], field.Disarm.CapturedTick) };
+        field = field with { Disarm = field.Disarm with { Contributions = branch == "duplicate" ? [changed, changed] : [changed] } };
         if (branch == "field-generation") field = field with { SourceGeneration = field.SourceGeneration + 1 };
         if (branch == "missing") field = field with { Disarm = null };
         if (branch == "other-kind") field = field with { Kind = "COMBAT_MIGHT" };

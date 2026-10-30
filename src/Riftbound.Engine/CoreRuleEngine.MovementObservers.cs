@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
                 : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
             || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
             || c.SourceGeneration < 0 || c.SourceWasEmpowered == false || cardNo is not null && cardNo != c.CardNo
-            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
+            || c.TargetTokenFactoryCardNo is not null && (c.Kind is not (TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedSourceKeywordDamage)
                 || !P6TokenFactoryCatalog.IsUnitTokenFactory(c.TargetTokenFactoryCardNo))
             || !ValidMovedUnitFact(c.Unit)
             || (c.Origin is null ? c.RuleTextInstanceId is not null
@@ -132,6 +132,7 @@ public sealed partial class CoreRuleEngine
                 MovementScoreKind => "：第三次移动后获得 1 分",
                 TriggerKinds.UnitMovedSetOtherUnitBaseMight => "：移动后可设置另一名单位本回合的基础战力",
                 TriggerKinds.UnitMovedDamageAtOriginOrDestination => "：移动后可对起点或终点战场的一名单位造成伤害",
+                TriggerKinds.UnitMovedSourceKeywordDamage => "：移动后可对战场上的一名单位造成等同于坚守数值的伤害",
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
                 TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
                 TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
@@ -144,6 +145,7 @@ public sealed partial class CoreRuleEngine
                     "DISCARD" => "：移动后每名玩家各弃置一张手牌",
                     _ => "：移动后选择每名玩家各抽牌或弃牌" },
                 TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower => "：移动后展示顶牌，抽取单位或放入废牌堆并增加战力",
+                TriggerKinds.UnitMovedRevealTopDrawPowerfulUnitOrRecycle => "：移动后展示顶牌，抽取强力单位或回收",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
                 _ => "：离开此处的单位本回合战力 +1" });
@@ -240,7 +242,7 @@ public sealed partial class CoreRuleEngine
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
                 queue.Add(trigger);
                 var queued = BuildTriggerQueuedEvent(trigger);
-                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight)
+                if (observer.Context.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedSourceKeywordDamage)
                     queued = queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
                         ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, trigger.SourceObjectId, "__spectator__") } };
                 events.Add(queued);
@@ -277,7 +279,7 @@ public sealed partial class CoreRuleEngine
             return NoopStackResolutionResult(state) with { Events = events };
         if (context.Kind == TriggerKinds.UnitMovedDrawDiscardTypes)
             return ResolveMovementDrawDiscardTypes(state, item, events[0]);
-        if (context.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower)
+        if (unitSpec is not null && UnitMovedTriggerSpecRules.IsMovementRevealTrigger(unitSpec))
             return ResolveMovementReveal(state, item, unitSpec!, events);
         if (context.Kind == TriggerKinds.UnitMovedCreateUnitToken)
         {

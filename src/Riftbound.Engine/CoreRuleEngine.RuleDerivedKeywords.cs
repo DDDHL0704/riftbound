@@ -12,6 +12,9 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static MatchState RecomputeRuleDerivedKeywords(MatchState state)
+        => RecomputeDisarmKeywords(RecomputeConditionalRuleDerivedKeywords(state));
+
+    private static MatchState RecomputeConditionalRuleDerivedKeywords(MatchState state)
     {
         var field = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal);
         var candidates = field.Where(id => state.CardObjects.TryGetValue(id, out var card)

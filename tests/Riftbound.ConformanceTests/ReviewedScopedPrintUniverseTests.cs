@@ -11,7 +11,7 @@ namespace Riftbound.ConformanceTests;
 // cases do not authorize whole cards, decks or a canonical match birth.
 public sealed class ReviewedScopedPrintUniverseTests
 {
-    internal static readonly string[] ImplementedPrints = ["RAD·063/167", "RAD·065/167", "RAD·065a/167", "RAD·109/167", "RAD·109a/167", "RAD·SP3/005"];
+    internal static readonly string[] ImplementedPrints = ["RAD·050/167", "RAD·054/167", "RAD·055/167", "RAD·093/167", "RAD·097/167", "RAD·063/167", "RAD·065/167", "RAD·065a/167", "RAD·109/167", "RAD·109a/167", "RAD·SP3/005"];
     private static readonly object[][] Sources = [
         [40107L, "RAD·038/167", 4, 4, "green", 1, "", true, 1],
         [40122L, "RAD·050/167", 5, 4, "blue", 0, "", false, 2],
@@ -139,7 +139,7 @@ public sealed class ReviewedScopedPrintUniverseTests
         Keep("unsupported-" + id, new { initial, result });
         Assert.False(result.Accepted); Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events); Assert.Equal(hash, MatchStateHasher.Hash(initial)); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
-        Assert.False(CardBehaviorRegistry.TryGetByCardNo(no, out _));
+        Assert.Equal(Admitted(no), CardBehaviorRegistry.TryGetByCardNo(no, out _));
     }
 
     [Fact]

@@ -109,7 +109,7 @@ public sealed class Ven124FriendlyDestructionConsumerTests
     }
     private static async Task Play(Driver game, string owner)
     {
-        for (var i = 1; i <= 3; i++) await game.Act(owner, new TapRuneCommand("VEN124-RUNE-" + i));
+        await game.TapRunes(owner, Enumerable.Range(1, 3).Select(i => "VEN124-RUNE-" + i));
         Assert.Equal(3, game.State.RunePools[owner].Mana); Assert.Equal(0, game.State.RunePools[owner].TotalPower);
         await game.Act(owner, new PlayCardCommand("UNIT", No, []));
         Assert.Equal(0, game.State.RunePools[owner].Mana); Assert.Equal(0, game.State.RunePools[owner].TotalPower);

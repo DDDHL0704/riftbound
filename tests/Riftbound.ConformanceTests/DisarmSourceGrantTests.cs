@@ -29,8 +29,8 @@ public sealed class DisarmSourceGrantTests
         var item = Assert.Single(attack.State.StackItems);
         Assert.Empty(attack.State.TriggerQueue);
         Assert.Equal(count, item.FieldContext!.Disarm!.Contributions.Count);
-        Assert.Equal(count, item.FieldContext.Disarm.Contributions.Sum(c => c.Amount));
-        Assert.All(item.FieldContext.Disarm.Contributions, c => Assert.NotNull(c.AuraKey));
+        Assert.Equal(count, item.FieldContext.Disarm.Contributions.Sum(c => c.Value));
+        Assert.All(item.FieldContext.Disarm.Contributions, c => Assert.True(c.FriendlyGrant));
         var confirmed = await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1");
         var done = await AttackDamageDistributionTests.Top(confirmed.State);
         Assert.Equal(3 - count, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
@@ -53,7 +53,7 @@ public sealed class DisarmSourceGrantTests
                     Hand = [..initial.PlayerZones["P1"].Hand, "PATROL2"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["PATROL2"] = new("P1", "HAND") } };
         var attack = await Attack(initial);
-        Assert.Equal(1, Assert.Single(attack.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Amount));
+        Assert.Equal(1, Assert.Single(attack.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Value));
         var done = await AttackDamageDistributionTests.Top((await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1")).State);
         Assert.Equal(2, Might(done.State));
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
@@ -68,7 +68,7 @@ public sealed class DisarmSourceGrantTests
         var removed = await TopWithReceipt((await Act(confirmed.State, "P1",
             new PlayCardCommand("SOUL", "SFD·163/221", ["PATROL2", "HOST"]))).State, "grant-departure");
         Assert.Contains("PATROL2", removed.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal(2, Assert.Single(removed.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Amount));
+        Assert.Equal(2, Assert.Single(removed.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Value));
         var done = await AttackDamageDistributionTests.Top(removed.State);
         Assert.Equal(1, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);

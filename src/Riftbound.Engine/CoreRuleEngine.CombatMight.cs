@@ -83,6 +83,7 @@ public sealed partial class CoreRuleEngine
         string controller, string effect, string? cardNo = null)
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
+        if (context.Kind == DisarmKind) return ValidDisarmSource(state, context, sourceId, controller);
         if (context.Kind == SelfActionPowerKind) return ValidSelfActionSource(state, context, sourceId, controller);
         if (context.Kind is ExhaustionDrawKind or OtherExhaustionPowerKind or SourceExhaustionModeKind) return ValidExhaustionObserverSource(state, context, sourceId, controller);
         if (context.Kind == AttackMightDamageKind) return ValidAttackMightDamageSource(state, context, sourceId, controller);
@@ -95,7 +96,6 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == "RECYCLE_BOON") return ValidRecycledBoonSource(state, context, sourceId, controller);
         if (context.Kind == "ENEMY_ATTACK_MIGHT")
             return ValidEnemyAttackMightState(state, context, sourceId, controller);
-        if (context.Kind == DisarmKind && !ValidDisarmContributions(state, context, sourceId)) return false;
         if (context.Kind is not ("COMBAT_MIGHT" or CombatMightDamageKind or CombatKeywordDoubleKind or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or AttackGraveyardBanishKind or AttackAreaDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or AttackRallyKind or DisarmKind)) return true;
         if (string.IsNullOrWhiteSpace(sourceId) || !state.Seats.ContainsKey(controller)
             || !ValidCapturedFieldSource(state, context, sourceId)

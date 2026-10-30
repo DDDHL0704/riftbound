@@ -32,9 +32,9 @@ public sealed class DisarmReviewedPrintTests
         Assert.Empty(attack.State.TriggerQueue);
         Assert.Equal("HOST", item.SourceObjectId);
         var contribution = Assert.Single(item.FieldContext!.Disarm!.Contributions);
-        Assert.Equal(no, contribution.CardNo); Assert.Equal(amount, contribution.Amount);
-        Assert.Equal(no == "RAD·055/167", contribution.AuraKey is not null);
-        Assert.Null(contribution.SourceTokenFactoryCardNo);
+        Assert.Equal(no, contribution.CardNo); Assert.Equal(amount, contribution.Value);
+        Assert.Equal(no == "RAD·055/167", contribution.FriendlyGrant);
+        Assert.Null(contribution.TokenFactoryCardNo);
         var done = await AttackDamageDistributionTests.Top((await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1")).State);
         Assert.Equal(3 - amount, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
         Assert.Single(done.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
@@ -53,11 +53,11 @@ public sealed class DisarmReviewedPrintTests
         Assert.Equal("COPY-TOKEN-001", item.SourceObjectId);
         Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, item.FieldContext!.SourceTokenFactoryCardNo);
         var contribution = Assert.Single(item.FieldContext.Disarm!.Contributions, c => c.Source.ObjectId == item.SourceObjectId);
-        Assert.Equal(no, contribution.CardNo); Assert.Equal(amount, contribution.Amount);
+        Assert.Equal(no, contribution.CardNo); Assert.Equal(amount, contribution.Value);
         Assert.True(contribution.FaceRevision > 0);
-        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, contribution.SourceTokenFactoryCardNo);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, contribution.TokenFactoryCardNo);
         var total = no == "RAD·055/167" ? 2 : amount;
-        Assert.Equal(total, item.FieldContext.Disarm.Contributions.Sum(c => c.Amount));
+        Assert.Equal(total, item.FieldContext.Disarm.Contributions.Sum(c => c.Value));
         var done = await AttackDamageDistributionTests.Top((await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1")).State);
         Assert.Equal(3 - total, Might(done.State)); Assert.Equal(0, done.State.CardObjects["ENEMY1"].Damage);
         Assert.Equal(no, done.State.CardObjects[item.SourceObjectId].CardNo);
@@ -147,7 +147,7 @@ public sealed class DisarmReviewedPrintTests
         var initial = AttackDamageDistributionTests.Spell(await ReviewedPosition(source.Id, no), "SOUL", "SFD·163/221", "P1");
         var copied = await MakeImage(initial, row);
         var attack = await AttackImage(copied.State, row);
-        Assert.Equal(no == "RAD·055/167" ? 2 : amount, Assert.Single(attack.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Amount));
+        Assert.Equal(no == "RAD·055/167" ? 2 : amount, Assert.Single(attack.State.StackItems).FieldContext!.Disarm!.Contributions.Sum(c => c.Value));
         var confirmed = await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1");
         var cast = await Act(confirmed.State, "P1", new PlayCardCommand("SOUL", "SFD·163/221", ["COPY-TOKEN-001", "HOST"]));
         var departed = await TopWithReceipt(cast.State, row);

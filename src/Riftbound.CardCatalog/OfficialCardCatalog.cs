@@ -58,7 +58,8 @@ public sealed record OfficialCardCatalog(
         return this with {
             Source = Source + "; reviewed additions: " + ReviewedRuneCardSources.SnapshotPath
                 + "; " + VendettaCardSources.SnapshotPath
-                + "; " + ReviewedResourceLegendSources.SnapshotPath,
+                + "; " + ReviewedResourceLegendSources.SnapshotPath
+                + "; " + ScopedOfficialCardSources.SnapshotPath,
             Total = cards.Length,
             Cards = cards
         };

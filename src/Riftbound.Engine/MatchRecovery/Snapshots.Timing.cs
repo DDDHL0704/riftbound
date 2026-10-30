@@ -978,7 +978,7 @@ public static partial class MatchRecoveryValidator
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
         var expectedEffects = authoritativeState?.Tick == view.SnapshotTick
-            ? BuildAuthoritativeContinuousEffectsById(authoritativeState.ContinuousEffects) : null;
+            ? BuildAuthoritativeContinuousEffectsById(authoritativeState.ContinuousEffects.Select(effect => CoreRuleEngine.PublicPlayInstructionEffect(authoritativeState, effect, view.PlayerId)).ToArray()) : null;
         foreach (var effectPayload in effectPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(effectPayload))

@@ -295,7 +295,7 @@ public sealed class Ven130EmpoweredUnitAuraConsumerTests
             await game.Act(originalController, new ActivateAbilityCommand("TAKEN", "EMPOWER:0:0", [])); await game.Top();
             Assert.True(game.State.CardObjects["TAKEN"].IsEmpowered); Assert.Equal(6, Might(game.State, "NEW-FRIEND", thief));
             await game.Act(originalController, new EndTurnCommand()); Assert.Equal(0, game.State.RunePools[thief].TotalPower);
-            for (var i = 0; i < 9; i++) await game.Act(thief, new TapRuneCommand("CONTROL-RUNE-" + i));
+            await game.TapRunes(thief, Enumerable.Range(0, 9).Select(i => "CONTROL-RUNE-" + i));
             for (var i = 0; i < 3; i++) await game.Act(thief, new RecycleRuneCommand("CONTROL-RUNE-" + i));
             Assert.Equal(9, game.State.RunePools[thief].Mana); Assert.Equal(3, game.State.RunePools[thief].PowerByTrait[RuneTrait.Purple]);
             await game.Act(thief, new PlayCardCommand("TAKE", "OGN·203/298", ["TAKEN"])); await game.Top();

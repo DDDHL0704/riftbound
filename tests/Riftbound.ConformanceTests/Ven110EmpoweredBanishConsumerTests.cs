@@ -351,7 +351,7 @@ public sealed class Ven110EmpoweredBanishConsumerTests
             Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["WARDED"].Zone);
             await game.Act("P2", new EndTurnCommand());
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
-            for (var i = 0; i < 6; i++) await game.Act("P1", new TapRuneCommand("WARD-RUNE-" + i));
+            await game.TapRunes("P1", Enumerable.Range(0, 6).Select(i => "WARD-RUNE-" + i));
             Assert.Equal(6, game.State.RunePools["P1"].Mana);
             if (branch != "RECOVER") await game.Act("P1", new RecycleRuneCommand("WARD-RUNE-0"));
             await game.Act("P1", new PlayCardCommand("UNIT", No, [])); await game.Act("P1", Activate()); await game.Top();

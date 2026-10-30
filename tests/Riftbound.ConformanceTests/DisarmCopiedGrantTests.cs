@@ -31,7 +31,7 @@ public sealed class DisarmCopiedGrantTests
         if (mode == "leaves-before-role") beforeAttack = (await Sacrifice(beforeAttack, "before-role")).State;
         var attack = await Attack(beforeAttack);
         var contributions = Assert.Single(attack.State.StackItems).FieldContext!.Disarm!.Contributions;
-        Assert.Equal(amount, contributions.Sum(c => c.Amount));
+        Assert.Equal(amount, contributions.Sum(c => c.Value));
         Assert.Equal(mode == "leaves-before-role" ? 0 : 1, contributions.Count(c => c.Source.ObjectId == tokenId));
         var confirmed = await AttackDamageDistributionTests.Confirm(attack.State, "ENEMY1");
         if (mode == "leaves-after-confirmation") confirmed = await Sacrifice(confirmed.State, "after-confirmation");
@@ -92,8 +92,8 @@ public sealed class DisarmCopiedGrantTests
         var changed = change switch
         {
             "face-revision-mismatch" => contribution with { FaceRevision = contribution.FaceRevision + 1 },
-            "factory-missing" => contribution with { SourceTokenFactoryCardNo = null },
-            "factory-unknown" => contribution with { SourceTokenFactoryCardNo = "UNKNOWN-FACTORY",
+            "factory-missing" => contribution with { TokenFactoryCardNo = null },
+            "factory-unknown" => contribution with { TokenFactoryCardNo = "UNKNOWN-FACTORY",
                 CeasedSource = ceased with { FactoryCardNo = "UNKNOWN-FACTORY" } },
             "ceased-missing" => contribution with { CeasedSource = null },
             "ceased-source" => contribution with { CeasedSource = ceased with { Source = new("HOST", ceased.Source.Generation) } },
