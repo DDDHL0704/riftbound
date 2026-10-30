@@ -44,6 +44,7 @@ public static partial class KeywordParser
         "急速",
         "强攻",
         "坚守",
+        "缴械",
         "壁垒",
         "后排",
         "游走",
@@ -3060,6 +3061,14 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Source-unit active-entry static ability parsed for a known same-name card in the controller graveyard.",
                     RequiresSameNameCardInControllerGraveyard: true));
+                continue;
+            }
+
+            if (Regex.IsMatch(segment, @"^如果你没有控制其他单位，则我以活跃状态进场。?$", RegexOptions.CultureInvariant))
+            {
+                staticSpecs.Add(new(StaticAbilityKinds.SourceUnitEnterReady, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Ready entry requires no other controlled unit anywhere on the field.", MaxOtherControlledUnitCount: 0));
                 continue;
             }
 
