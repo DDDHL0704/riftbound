@@ -1,3 +1,5 @@
+using Riftbound.Contracts;
+
 namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine

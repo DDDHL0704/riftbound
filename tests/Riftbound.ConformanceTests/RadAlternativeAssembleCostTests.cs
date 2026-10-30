@@ -27,7 +27,7 @@ public sealed class RadAlternativeAssembleCostTests
         Assert.Equal(39658, card.Id); Assert.Equal("放逐之锋", card.CardName);
         Assert.Equal(3, card.Energy); Assert.Equal(1, card.ReturnEnergy); Assert.Equal(3, card.Power);
         Assert.Contains("支付{{A}}或让一名友方单位变为休眠状态", card.CardEffect);
-        var initial = LocalDestructionRecallTests.At(Position(), "GEAR", "P1", "HAND");
+        var initial = OutsidePlay(Position(), "GEAR", "HAND");
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P1"] = new(3, 1) } };
         var game = new Driver(initial);
         await game.Act("P1", new PlayCardCommand("GEAR", Blade, [], Destination: "BASE"));
@@ -47,7 +47,7 @@ public sealed class RadAlternativeAssembleCostTests
     [InlineData("mana")] [InlineData("power")] [InlineData("target")]
     public async Task InvalidPrintedPlayCostsAndTargetsCannotChangeTheMatch(string branch)
     {
-        var state = LocalDestructionRecallTests.At(Position(), "GEAR", "P1", "HAND");
+        var state = OutsidePlay(Position(), "GEAR", "HAND");
         state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) {
             ["P1"] = branch == "mana" ? new(2, 1) : new(3, branch == "power" ? 0 : 1) } };
         await Reject(state, new PlayCardCommand("GEAR", Blade, branch == "target" ? ["HOST"] : [], Destination: "BASE"));
@@ -93,7 +93,7 @@ public sealed class RadAlternativeAssembleCostTests
     public async Task CostsCannotExhaustAnIneligibleOrHiddenObject(string branch)
     {
         var state = Position(); var id = branch == "invented" ? "INVENTED" : "HOST";
-        if (branch is "hand" or "graveyard") state = LocalDestructionRecallTests.At(state, id, "P1", branch.ToUpperInvariant());
+        if (branch is "hand" or "graveyard") state = OutsidePlay(state, id, branch.ToUpperInvariant());
         if (branch != "invented") state = state with { CardObjects = state.CardObjects.ToDictionary(p => p.Key, p => p.Key != id ? p.Value
             : p.Value with { IsExhausted = branch == "exhausted", IsFaceDown = branch == "hidden",
                 ControllerId = branch == "enemy" ? "P2" : "P1", Tags = branch switch {
@@ -265,6 +265,17 @@ public sealed class RadAlternativeAssembleCostTests
         var raw = JsonSerializer.SerializeToElement(command, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         var result = await session.SubmitDeckAsync("P1", "invalid-blade-deck", command, raw, default);
         Assert.False(result.Accepted); Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
+    }
+
+    private static MatchState OutsidePlay(MatchState state, string id, string zone)
+    {
+        var zones = state.PlayerZones.ToDictionary(p => p.Key, p => p.Value with {
+            Base = p.Value.Base.Where(x => x != id).ToArray(), Battlefields = p.Value.Battlefields.Where(x => x != id).ToArray(),
+            Hand = p.Value.Hand.Where(x => x != id).ToArray(), Graveyard = p.Value.Graveyard.Where(x => x != id).ToArray() });
+        zones["P1"] = zone == "HAND" ? zones["P1"] with { Hand = [..zones["P1"].Hand, id] }
+            : zones["P1"] with { Graveyard = [..zones["P1"].Graveyard, id] };
+        return state with { PlayerZones = zones, ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+            [id] = new("P1", zone) } };
     }
 
     private static async Task Reject(MatchState state, GameCommand command)
