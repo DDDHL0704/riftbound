@@ -55,7 +55,7 @@ public sealed partial class CoreRuleEngine
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordDamageDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))))));
-            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
+            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(state, ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueCreatedTokenReady(QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))))));
             // New field objects need their current incarnation before role and
             // Mighty observers capture bindings. The final pass is idempotent
