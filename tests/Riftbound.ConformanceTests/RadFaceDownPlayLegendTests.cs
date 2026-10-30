@@ -196,13 +196,18 @@ public sealed class RadFaceDownPlayLegendTests
                     MainDeck = [], Graveyard = refill ? deck : [], Banished = refill ? [] : deck } },
                 ObjectLocations = state.ObjectLocations.ToDictionary(p => p.Key, p => deck.Contains(p.Key)
                     ? new ObjectLocationState("P1", refill ? "GRAVEYARD" : "BANISHED") : p.Value),
-                PlayerScores = new Dictionary<string, int>(state.PlayerScores) { ["P2"] = refill ? 0 : 7 }
+                // P2 holds OTHER during preparation and earns one point.
+                PlayerScores = new Dictionary<string, int>(state.PlayerScores) { ["P2"] = refill ? 0 : 6 }
             };
         });
+        Assert.Equal(MatchStatuses.InProgress, game.State.Status);
+        Assert.Empty(game.State.PlayerZones["P1"].MainDeck);
+        var opponentScore = game.State.PlayerScores["P2"];
         await Play(game); await game.Top();
         if (refill)
         {
-            Assert.Equal(1, game.State.PlayerScores["P2"]); Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
+            Assert.Equal(opponentScore + 1, game.State.PlayerScores["P2"]);
+            Assert.Single(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             Assert.Single(game.State.PendingHandChoice!.LegalObjectIds, deck.Contains); await Discard(game);
         }
         else

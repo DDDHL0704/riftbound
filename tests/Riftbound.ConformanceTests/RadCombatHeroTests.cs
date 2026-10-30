@@ -196,6 +196,13 @@ public sealed class RadCombatHeroTests
                 locations[id] = new(player, "BASE");
                 zones[player] = zones[player] with { Base = zones[player].Base.Append(id).ToArray() };
             }
+            foreach (var n in Enumerable.Range(0, 2)) {
+                var id = $"COMBAT-RED-{player}-{n}";
+                cards[id] = new(id, cardNo: "UNL-R01", ownerId: player, controllerId: player,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"]);
+                locations[id] = new(player, "BASE");
+                zones[player] = zones[player] with { Base = zones[player].Base.Append(id).ToArray() };
+            }
         }
         var game = new Driver(s with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations,
             ActivePlayerId = controller, TurnPlayerId = controller });
@@ -260,6 +267,8 @@ public sealed class RadCombatHeroTests
         // The open battle duel lets either player answer before combat damage.
         if (game.State.FocusPlayerId == "P1") await game.Act("P1", new PassFocusCommand());
         foreach (var n in Enumerable.Range(0, 6)) await game.Act("P2", new TapRuneCommand($"COMBAT-RUNE-P2-{n}"));
+        if (response == "OGN·022/298")
+            foreach (var n in Enumerable.Range(0, 2)) await game.Act("P2", new RecycleRuneCommand($"COMBAT-RED-P2-{n}"));
         await game.Act("P2", new PlayCardCommand("RESPONSE", response, response == "SFD·135/221" ? ["GEAR"] : []));
         await game.Top(); await FinishCombat(game, "HOST", 0); await game.Replay();
     }

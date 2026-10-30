@@ -76,7 +76,11 @@ internal sealed class FaceDownPlayTestDriver(MatchState initial)
         await game.Act("P1", new TapRuneCommand("FACE-DOWN-RESERVE-P1-1"));
         if (ownTurn)
         {
-            await game.Top();
+            // P2 already passed to offer the reaction window. Resolve the
+            // remaining priority passes before advancing to P1's turn.
+            for (var step = 0; game.State.StackItems.Count > 0 && step < 8; step++)
+                await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
+            Assert.Empty(game.State.StackItems);
             await game.NextTurn();
         }
         game.BeginScenario();
