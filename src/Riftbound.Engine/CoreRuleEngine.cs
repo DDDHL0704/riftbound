@@ -28451,7 +28451,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BaseUnitTokenInstructionCount(state, stackItem, behavior) + AdditionalUnitTokens(stackItem),
             image || behavior.CreatedBaseUnitTokenEntersReady, playerZones, cardObjects, runePools, events,
             objectLocations, turnEffects, shadowField?.ObjectId,
-            grantedKeywords: UnitTokenInstructionKeywords(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags)));
+            // An Image starts as the neutral UNL·T06 token.  Its configured
+            // Ephemeral tag is acquired when the queued copy resolves; carrying
+            // it into entry makes the pre-copy token illegally ephemeral.
+            grantedKeywords: image ? [] : UnitTokenInstructionKeywords(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags)));
         var created = events.Skip(firstEvent).Where(e => e.Kind == "UNIT_TOKEN_CREATED").ToArray();
         var recipients = created.Select(e => (string)e.Payload["tokenObjectId"]!).ToArray();
         if (behavior.CreatedTokenReadyCount > 0)
