@@ -190,7 +190,8 @@ public sealed partial class CoreRuleEngine
         // They are not a monetary component eligible for this reduction.
         var monetaryBehavior = behavior with { RequiresDestroyFriendlyUnitAdditionalCost = false,
             RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false, RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
-            RequiresReturnFriendlyEquipmentAdditionalCost = false, MaySacrificeUnitForPrintedCostReduction = false };
+            RequiresReturnFriendlyEquipmentAdditionalCost = false, RequiresExhaustFriendlyUnitAdditionalCost = false,
+            MaySacrificeUnitForPrintedCostReduction = false };
         if (!TryBuildOptionalCostPlan(state, player, declaredCosts, monetaryBehavior, out var normalized,
                 out var mana, out var generic, out var typed, out var experience, out var optionalReduction,
                 out _, out _, out _, out _, out _)) return false;

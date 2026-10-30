@@ -3931,7 +3931,8 @@ internal static partial class ActionPromptBuilder
                 var choice = ObjectChoice(state, parts[1], "必付额外费用；不是法术目标");
                 var label = parts[0] switch {
                     "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
-                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", _ => "摧毁友方单位" };
+                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", "EXHAUST_FRIENDLY_UNIT" => "横置友方单位",
+                    _ => "摧毁友方单位" };
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
 
@@ -4999,6 +5000,13 @@ internal static partial class ActionPromptBuilder
             ["composable"] = true,
             ["unsupportedReason"] = string.Empty
         };
+        var requiredAdditionalCosts = CoreRuleEngine.MandatoryPlayAdditionalCostCount(behavior);
+        if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) && requiredAdditionalCosts > 0)
+        {
+            var mandatoryIds = CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).ToHashSet(StringComparer.Ordinal);
+            requirement["additionalCostChoices"] = optionalCostChoices.Where(choice => mandatoryIds.Contains(choice.Id)).ToArray();
+            requirement["requiredAdditionalCostChoiceCount"] = requiredAdditionalCosts;
+        }
         var spellPowerReductionChoices = CoreRuleEngine.SpellPowerReductionChoices(state, playerId, behavior);
         if (spellPowerReductionChoices.Count > 0) requirement["spellPowerReductionChoices"] = spellPowerReductionChoices;
         if (paymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))

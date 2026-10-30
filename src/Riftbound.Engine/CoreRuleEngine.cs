@@ -18419,6 +18419,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresExhaustFriendlyUnitAdditionalCost && exhaustedOptionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = Reject(state, $"{behavior.DisplayName}需要横置一名活跃的友方单位作为额外费用。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -22167,6 +22173,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // A declared nonstandard cost coexists with independently selected
         // resource/Echo costs. It is paid during play, never once per repeat.
+        if (behavior.RequiresExhaustFriendlyUnitAdditionalCost)
+        {
+            var required = normalizedOptionalCosts.Where(cost =>
+                cost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (required.Length != 1 || !TryParseExhaustFriendlyUnitOptionalCost(required[0], out var target)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => cost != required[0]).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
+                    behavior with { RequiresExhaustFriendlyUnitAdditionalCost = false }, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            exhaustedOptionalCostTargetObjectIds = exhaustedOptionalCostTargetObjectIds.Append(target).ToArray();
+            return true;
+        }
+
         if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
             || behavior.MaySacrificeUnitForPrintedCostReduction && normalizedOptionalCosts.Any(cost =>
                 cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)))
@@ -22687,7 +22709,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && !targetState.IsExhausted;
     }
@@ -22724,6 +22746,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 choices.Add(DestroyFriendlyTraitUnitAdditionalCostPrefix + id);
             if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost && CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id))
                 choices.Add(ReturnFriendlyEquipmentAdditionalCostPrefix + id);
+            if (behavior.RequiresExhaustFriendlyUnitAdditionalCost && CanExhaustFriendlyUnitAsOptionalCost(state, playerId, id))
+                choices.Add(ExhaustFriendlyUnitOptionalCostPrefix + id);
         }
         return choices;
     }
@@ -22732,13 +22756,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return true;
         if (!behavior.RequiresDestroyFriendlyUnitAdditionalCost && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
-            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost) return true;
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && !behavior.RequiresExhaustFriendlyUnitAdditionalCost) return true;
         var choices = MandatoryPlayAdditionalCostCandidates(state, playerId, behavior);
         return (!behavior.RequiresDestroyFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix)))
             && (!behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix)))
-            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)));
+            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)))
+            && (!behavior.RequiresExhaustFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix)));
     }
+
+    internal static int MandatoryPlayAdditionalCostCount(CardBehaviorDefinition behavior)
+        => (behavior.RequiresDestroyFriendlyUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost ? 1 : 0)
+            + (behavior.RequiresReturnFriendlyEquipmentAdditionalCost ? 1 : 0)
+            + (behavior.RequiresExhaustFriendlyUnitAdditionalCost ? 1 : 0);
 
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(
         MatchState state,
