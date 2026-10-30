@@ -50,8 +50,14 @@ public sealed partial class CoreRuleEngine
             var changed = false; var next = new Dictionary<string, CardObjectState>(current.CardObjects, StringComparer.Ordinal);
             foreach (var (id, specs) in grants) {
                 var card = current.CardObjects[id]; var might = ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(current, card);
-                var keywords = specs.Where(s => ConditionalSelfKeywordsApply(current, card, s.Spec, might)).SelectMany(s => s.Spec.GrantedKeywords ?? [])
-                    .Concat(EmpowerRules.Keywords(current, card)).Concat(armamentKeywords.GetValueOrDefault(id) ?? []).ToArray();
+                var keywords = specs.Where(s => ConditionalSelfKeywordsApply(current, card, s.Spec, might))
+                    .SelectMany(s => s.Spec.Kind == StaticAbilityKinds.UnitEquipmentCountSelfKeywords
+                        ? Enumerable.Repeat(CardCombatKeywordNames.Assault,
+                            CountControlledPublicFieldEquipmentObjects(current.PlayerZones, current.CardObjects,
+                                EffectiveFieldControllerId(current.PlayerZones, id, card)))
+                        : s.Spec.GrantedKeywords ?? [])
+                    .Concat(EmpowerRules.Keywords(current, card))
+                    .Concat(armamentKeywords.GetValueOrDefault(id) ?? []).ToArray();
                 var countedKeywords = new[] { CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast, CardObjectTags.Spellshield };
                 var tags = keywords.Where(k => !countedKeywords.Any(name => k == name
                     || k.StartsWith(name, StringComparison.Ordinal) && int.TryParse(k[name.Length..], out _)))
@@ -76,6 +82,7 @@ public sealed partial class CoreRuleEngine
     private static bool ConditionalSelfKeywordsApply(MatchState state, CardObjectState source, StaticAbilitySpec spec, int might)
     {
         if (CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility(spec)) return might >= spec.RequiredPowerThreshold;
+        if (spec.Kind == StaticAbilityKinds.UnitEquipmentCountSelfKeywords) return true;
         return spec.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
             && HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits);
     }

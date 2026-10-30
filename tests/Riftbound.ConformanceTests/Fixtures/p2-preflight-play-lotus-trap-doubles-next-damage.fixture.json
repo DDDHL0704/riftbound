@@ -213,7 +213,7 @@
         "P2-UNIT-LOTUS-001": {
           "damage": 4,
           "power": 6,
-          "untilEndOfTurnEffects": ["DAMAGE_RECEIVED_DOUBLED_THIS_TURN"]
+          "untilEndOfTurnEffects": ["DAMAGE_RECEIVED_DOUBLED_THIS_TURN", "TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

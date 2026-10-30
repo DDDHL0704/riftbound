@@ -292,7 +292,8 @@
         "P2": 0
       },
       "untilEndOfTurnEffects": [
-        "PLAYED_SPELL_THIS_TURN:P1"
+        "PLAYED_SPELL_THIS_TURN:P1",
+        "TARGETED_ENEMY_UNIT_THIS_TURN:P1"
       ],
       "runePools": {
         "P1": {

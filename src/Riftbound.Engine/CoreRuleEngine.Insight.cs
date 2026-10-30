@@ -218,12 +218,11 @@ public sealed partial class CoreRuleEngine
         if (behavior.PlaysSourceToBaseAsEquipment || behavior.PlaysSourceToBaseAsUnit) return;
         var destination = FlowStackExitDestination(cards, item, behavior.BanishesSourceOnResolution ? "BANISHED" : "GRAVEYARD");
         var alreadyBanished = zones.Values.Any(zone => zone.Banished.Contains(item.SourceObjectId, StringComparer.Ordinal));
-        MoveStackSpellToOwnerZone(zones, cards, item, destination);
-        if (destination == "BANISHED" && !alreadyBanished)
+        var owner = MoveStackSpellToOwnerZone(zones, cards, item, destination);
+        if (!alreadyBanished && zones[owner].Banished.Contains(item.SourceObjectId, StringComparer.Ordinal))
         {
-            var actor = item.FlowPlay?.OwnerId ?? item.ControllerId;
             var capture = CaptureOwnedBanishObservers(new("INTERNAL_OWNED_BANISH", "", new Dictionary<string, object?>()),
-                zones, cards, actor, [item.SourceObjectId]);
+                zones, cards, owner, [item.SourceObjectId]);
             if (capture.Payload.ContainsKey(OwnedBanishCaptureKey)) events.Add(capture);
         }
     }

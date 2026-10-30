@@ -391,7 +391,8 @@ public static partial class MatchRecoveryValidator
                 && !string.Equals(
                     duration,
                     "WHILE_SOURCE_AND_TARGET_AT_SAME_BATTLEFIELD",
-                    StringComparison.Ordinal))
+                    StringComparison.Ordinal)
+                && !IsObjectStaticAuraPowerDeltaValidatedDuration(duration))
             {
                 errors.Add($"{effectLabel} static aura duration {duration} is invalid");
             }
@@ -437,7 +438,8 @@ public static partial class MatchRecoveryValidator
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
-            && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal))
+            && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            && !IsObjectStaticAuraPowerDeltaValidatedDuration(duration))
         {
             errors.Add($"{effectLabel} object static aura duration {duration} is invalid");
             return;

@@ -221,7 +221,7 @@
         "P1-UNIT-DUEL-001": {
           "damage": 2,
           "power": 4,
-          "untilEndOfTurnEffects": []
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"]
         }
       }
     },

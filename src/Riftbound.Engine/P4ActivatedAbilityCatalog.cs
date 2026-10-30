@@ -38,7 +38,16 @@ public sealed record P4ActivatedAbilityDefinition(
     bool SupportsCopiedRuleText = false,
     int PowerModifierAmount = 0,
     int MinimumPowerAfterModifier = 0,
-    string SourceRequiredTag = "");
+    string SourceRequiredTag = "",
+    SimpleActivatedEffectSpec? SimpleEffect = null,
+    int? GeneratedManaIfSourceEmpowered = null,
+    int? PowerModifierAmountIfSourceEmpowered = null);
+
+public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
+    int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
+    bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
+    bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
+    bool TransfersSourceToChosenPlayer = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -237,6 +246,38 @@ public static class P4ActivatedAbilityCatalog
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
+            false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
+            SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, TransfersSourceToChosenPlayer: true)),
+        new("SKY_STRIDER_DISCARD_DAMAGE", "VEN·060", "SKY_STRIDER_DISCARD_DAMAGE", "天际漫游者", 1, 0, 1,
+            false, true, 4, true, "官方中文：弃置装备、支付1并横置，对战场上的一名单位造成4点伤害。",
+            SourceRequiredTag: CardObjectTags.UnitCard, SimpleEffect: new(DiscardsEquipmentAsCost: true, BattlefieldUnitDamage: 4)),
+        new("TUNDRA_HUNTER_READY", "VEN·125", "TUNDRA_HUNTER_READY", "冰原饿狼", 0, 0, 0,
+            false, false, 0, false, "官方中文：本回合已选择过敌方单位后，支付黄色，活跃并本回合+1；每回合一次。",
+            PowerCostByTrait: new Dictionary<string, int> { ["yellow"] = 1 }, SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(ReadiesSource: true, SourcePowerBonus: 1, OncePerTurn: true, RequiresEnemyUnitTargetThisTurn: true)),
+        new("IMPERIAL_TOOL_POWER", "VEN·077", "IMPERIAL_TOOL_POWER", "帝国工具", 0, 0, 1,
+            false, true, 0, true, "官方中文：横置，单位本回合+2；来源已强化时改为+4。",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: 2, SourceRequiredTag: CardObjectTags.EquipmentCard, PowerModifierAmountIfSourceEmpowered: 4),
+        new("BOOK_REMOVE_EMPOWER_DRAW", "VEN·054", "BOOK_REMOVE_EMPOWER_DRAW", "可疑之书", 1, 0, 0,
+            false, true, 0, false, "官方中文：解除强化、支付1并横置，抽一张牌。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, DrawCount: 1)),
+        new("HEXTECH_DISC_CREATE_ROBOT", "VEN·087", "HEXTECH_DISC_CREATE_ROBOT", "海克斯圆盘", 1, 0, 0,
+            false, true, 0, false, "官方中文：解除强化、支付1并横置，打出3战力机器人。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(RemovesSourceEmpowermentAsCost: true, CreatedRobotCount: 1)),
+        new("HEXTECH_EQUATION_EMPOWER_EQUIPMENT", "VEN·062", "HEXTECH_EQUATION_EMPOWER_EQUIPMENT", "海克斯方程式", 0, 0, 1,
+            false, true, 0, true, "官方中文：横置，强化另一件装备。",
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            SimpleEffect: new(EmpowersOtherEquipment: true)),
+        new("EGG_REACTION_GAIN_MANA", "VEN·075", "EGG_REACTION_GAIN_MANA", "剑头蛟的卵", 0, 0, 0,
+            false, true, 0, false, "官方中文：反应横置，获得1法力，已强化改为2。",
+            IsResourceSkill: true, ReactionSpeed: true, GeneratedMana: 1,
+            RequiresBaseEquipmentSource: true, SourceRequiredTag: CardObjectTags.EquipmentCard,
+            GeneratedManaIfSourceEmpowered: 2),
         new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
             1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
             AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),

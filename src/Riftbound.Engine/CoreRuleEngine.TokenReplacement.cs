@@ -32,6 +32,8 @@ public sealed partial class CoreRuleEngine
         if (item.SourceUnitTokens is { } sourceToken)
             return TrySourceUnitTokenDestination(state, item, out _)
                 ? SourceUnitTokenSpecs.Value[sourceToken.CardNo].CreatedTokenCount.GetValueOrDefault() : 0;
+        if (P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var activated)
+            && activated.SimpleEffect is { CreatedRobotCount: > 0 } simple) return simple.CreatedRobotCount;
         if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
         if (item.DeathObserver?.Kind == TriggerKinds.UnitDestroyedNonMinionCreateMinion) return 1;
         if (item.HeldContext is { Kind: "LEBLANC_DISCARD" } image && item.TriggerCost is not null)
