@@ -948,6 +948,9 @@ public sealed partial class FullGameEndToEndTests
         var echoReady = AcceptedCurrentResult(echoReadyState);
         echoReady = await TapAllAvailableRunesAsync(echoSession, "P2", echoReady, "piltover-pay-from-real-runes");
         echoReady = await SupplyPlayPowerThroughLegalRuneActionsAsync(echoSession, echoReady, "P2", PunishmentSpellCardNo, "piltover-power", [EchoOptionalCostNames.Echo]);
+        var targetObjectId = FindBattlefieldUnitByCardNo(echoReady.State, "P2", CrimsonSignetTreantCardNo,
+            BattlefieldObjectIdForCardNo(echoReady.State, "P2", PiltoverAcademyBattlefieldHeldNextSpellEchoCardNo));
+        Assert.NotNull(targetObjectId);
         var spellPlayed = await SubmitBattlefieldHeldNextSpellEchoSpellAsync(
             echoSession,
             echoReady,
@@ -959,6 +962,8 @@ public sealed partial class FullGameEndToEndTests
             echoSession,
             spellPlayed,
             "b0-piltover-academy-punishment-echo-resolve");
+        Assert.Contains(targetObjectId, resolved.State.PlayerZones["P2"].Banished);
+        Assert.DoesNotContain(targetObjectId, resolved.State.PlayerZones["P2"].Graveyard);
         var result = await DriveBattleCloseToScoreVictoryAsync(
             echoSession,
             resolved,
@@ -971,11 +976,8 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains(echoJournal.Entries, entry => entry.Accepted
             && entry.CommandType == CommandTypes.PayCost
             && entry.RawCommand is { } raw
-            && GameCommandJsonMapper.Map(raw) is PayCostCommand
-            {
-                PaymentWindow: "RULE_REPLACEMENT",
-                PaymentChoiceIds: ["KEEP_ALL"]
-            });
+            && GameCommandJsonMapper.Map(raw) is PayCostCommand { PaymentWindow: "RULE_REPLACEMENT", PaymentChoiceIds: [var selected] }
+            && selected.StartsWith("BANISH:" + targetObjectId + ":", StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PassPriority, StringComparison.Ordinal));
         Assert.Contains(echoJournal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
@@ -22012,15 +22014,18 @@ public sealed partial class FullGameEndToEndTests
                 AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
                 continue;
             }
-            // Echo and copied spells offer a real declaration-remake window.
-            // These scenarios keep their original choices through the exposed
-            // command, so the confirmation is also checked by action-log replay.
-            if (result.State.PendingRuleChoice is { Request.Kind: "SPELL_CHOICE_REMAKE" } remake)
+            // Repeated Punishment damage can leave competing mandatory banish
+            // replacements on the same unit. Their controller orders them through
+            // the exposed command, which remains in the original replay journal.
+            if (result.State.PendingRuleChoice is { Request.Kind: "DESTRUCTION_REPLACEMENT" } replacement)
             {
-                Assert.Contains(remake.Request.Options, option => option.Id == "KEEP_ALL");
-                var keep = new PayCostCommand(remake.Request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]);
-                result = await session.SubmitAsync(remake.Request.PlayerId, $"{intentPrefix}-keep-spell-choices-{index}",
-                    keep, RawCommand(keep), CancellationToken.None);
+                var options = replacement.Request.Options;
+                Assert.NotEmpty(options);
+                Assert.All(options, option => Assert.StartsWith("BANISH:", option.Id));
+                Assert.Single(options.Select(option => Assert.Single(option.ObjectIds!)).Distinct(StringComparer.Ordinal));
+                var choose = new PayCostCommand(replacement.Request.Id, "RULE_REPLACEMENT", [options[0].Id]);
+                result = await session.SubmitAsync(replacement.Request.PlayerId, $"{intentPrefix}-banish-replacement-{index}",
+                    choose, RawCommand(choose), CancellationToken.None);
                 AssertAccepted(result); AssertNoHiddenZoneLeak(result);
                 events.AddRange(result.Events); includesCompletionTriggers = true;
                 continue;
@@ -22029,6 +22034,9 @@ public sealed partial class FullGameEndToEndTests
             // on the stack. Leave that decision to the scenario's payment step.
             if (result.State.PendingPayment is not null) return result with { Events = events };
             if (result.State.PendingCardChoice is not null) return result;
+            Assert.True(result.State.PendingRuleChoice is null,
+                $"B0 stack driver has an unhandled rule choice {result.State.PendingRuleChoice?.Request.Kind}: "
+                + $"{result.State.PendingRuleChoice?.Request.Reason}; options={JsonSerializer.Serialize(result.State.PendingRuleChoice?.Request.Options)}");
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
                 || item.StackItemId.StartsWith("ordered-", StringComparison.Ordinal));
