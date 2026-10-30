@@ -1223,9 +1223,10 @@ public sealed partial record MatchState
         string controllerId,
         StaticAuraSpec aura)
     {
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+        if (aura.ParticipantScope is StaticAuraParticipantScopes.FriendlyFilteredPublicUnits or StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits)
             return state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
-                .Where(id => state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
+                .Where(id => (aura.ParticipantScope != StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits || id != objectId)
+                    && state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
                     && unit.Tags.Contains(CardObjectTags.UnitCard) && EffectiveFieldControllerId(state, id, unit) == controllerId
                     && StaticAuraSpecRules.TargetMatchesFilter(aura, unit)).Order(StringComparer.Ordinal).ToArray();
         if (string.Equals(

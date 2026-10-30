@@ -1008,6 +1008,16 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var playedOrExhaustedToken = Regex.Match(segment,
+            @"^当你打出我时，或当我变为休眠状态时，打出(?<count>[0-9一两二三四五六七八九十]+)名(?<might>[1-9][0-9]*)\{\{S\}\}的“(?<name>[^”]+)”单位指示物到你的基地。?$",
+            RegexOptions.CultureInvariant);
+        if (playedOrExhaustedToken.Success)
+            return new(TriggerKinds.SourceUnitPlayedOrExhaustedCreateUnit, TriggerTimings.SourceUnitPlayedOrExhausted, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                CreatedTokenCount: ParseChineseNumber(playedOrExhaustedToken.Groups["count"].Value),
+                CreatedTokenName: playedOrExhaustedToken.Groups["name"].Value,
+                CreatedTokenPower: int.Parse(playedOrExhaustedToken.Groups["might"].Value),
+                CreatedTokenDestination: TriggerTokenDestinations.OwnerBase, CreatedTokenExhausted: true);
         if (segment == "当你打出我时，或每回合首次你打出一件非指示物装备时，你可以选择让除我以外且处于休眠状态的一个物体变为活跃状态")
             return new(TriggerKinds.SourcePlayedOrFirstEquipmentReadyOtherObject, TriggerTimings.SourcePlayedOrFirstEquipmentPlayed,
                 segment, TargetScope: TriggerTargetScopes.OtherExhaustedFieldObject, Optional: true,
@@ -3558,6 +3568,19 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            var otherExhaustedPower = Regex.Match(segment,
+                @"^你每控制一名其他休眠的单位，我便具有\{\{S\}\}\+(?<amount>[1-9][0-9]*)。?$", RegexOptions.CultureInvariant);
+            if (otherExhaustedPower.Success)
+            {
+                auras.Add(new(StaticAuraKinds.FriendlyFilteredUnitCountToSourcePower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits,
+                    int.Parse(otherExhaustedPower.Groups["amount"].Value), segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Count current face-up exhausted friendly units across the field, excluding the source.",
+                    TargetFilter: StaticAuraTargetFilters.Exhausted));
+                continue;
+            }
             if (segment.TrimEnd('。', '.') == "把你的分数加到我的战力上")
             {
                 auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceControllerScorePower, StaticAuraLayer,

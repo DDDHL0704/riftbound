@@ -29,6 +29,8 @@ public sealed partial class CoreRuleEngine
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryMovementTokenInstruction(state, item, out var movementToken)) return movementToken.Count;
+        if (item.SourceUnitTokens is { } sourceTokens && SourceUnitTokenSpecs.Value.TryGetValue(sourceTokens.CardNo, out var sourceSpec))
+            return sourceSpec.CreatedTokenCount.GetValueOrDefault();
         if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
         if (item.DeathObserver?.Kind == TriggerKinds.UnitDestroyedNonMinionCreateMinion) return 1;
         if (item.HeldContext is { Kind: "LEBLANC_DISCARD" } image && item.TriggerCost is not null)

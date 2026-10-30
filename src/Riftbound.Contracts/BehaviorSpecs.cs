@@ -62,6 +62,7 @@ public static class BehaviorEffectFormulaKinds
 public static class TriggerKinds
 {
     public const string ControllerExhaustedUnitGroupDraw = "CONTROLLER_EXHAUSTED_UNIT_GROUP_DRAW";
+    public const string SourceUnitPlayedOrExhaustedCreateUnit = "SOURCE_UNIT_PLAYED_OR_EXHAUSTED_CREATE_UNIT";
     public const string ControllerHighCostUnitEquipmentOrAbilityReadyRunes = "CONTROLLER_HIGH_COST_UNIT_EQUIPMENT_OR_ABILITY_READY_RUNES";
     public const string ControllerOwnedBanishEmpowerSource = "CONTROLLER_OWNED_BANISH_EMPOWER_SOURCE";
     public const string ControllerOutsideHandPlayEmpowerSource = "CONTROLLER_OUTSIDE_HAND_PLAY_EMPOWER_SOURCE";
@@ -295,6 +296,7 @@ public static class TriggerKinds
 public static class TriggerTimings
 {
     public const string ControllerExhaustedUnitGroup = "CONTROLLER_EXHAUSTED_UNIT_GROUP";
+    public const string SourceUnitPlayedOrExhausted = "SOURCE_UNIT_PLAYED_OR_EXHAUSTED";
     public const string ControllerTargetedOrReadiedSource = "CONTROLLER_TARGETED_OR_READIED_SOURCE";
     public const string SourceMightReached = "SOURCE_MIGHT_REACHED";
     public const string SourceReadied = "SOURCE_READIED";
@@ -535,6 +537,7 @@ public static class StaticAuraParticipantScopes
     public const string FriendlyPublicUnits = "FRIENDLY_PUBLIC_UNITS";
     public const string OtherFriendlyPublicUnits = "OTHER_FRIENDLY_PUBLIC_UNITS";
     public const string FriendlyFilteredPublicUnits = "FRIENDLY_FILTERED_PUBLIC_UNITS";
+    public const string OtherFriendlyFilteredPublicUnits = "OTHER_FRIENDLY_FILTERED_PUBLIC_UNITS";
     public const string BattlefieldPublicUnits = "BATTLEFIELD_PUBLIC_UNITS";
     public const string AttackingBattlefieldPublicUnits = "ATTACKING_BATTLEFIELD_PUBLIC_UNITS";
     public const string ReadyEnemyBattlefieldPublicUnits = "READY_ENEMY_BATTLEFIELD_PUBLIC_UNITS";
@@ -542,6 +545,7 @@ public static class StaticAuraParticipantScopes
 
 public static class StaticAuraTargetFilters
 {
+    public const string Exhausted = "STATE:EXHAUSTED";
     public const string Stunned = "STATUS:STUNNED";
     public const string AnyPrefix = "ANY:";
     public const string CardNamePrefix = "CARD_NAME:";

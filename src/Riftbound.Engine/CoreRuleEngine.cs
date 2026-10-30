@@ -3820,7 +3820,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 optionalCostTargetObjectId,
-                out var exhaustedEvent);
+                out var exhaustedEvent, playerZones, cardObjects);
             cardObjects[optionalCostTargetObjectId] = targetState;
             events.Add(exhaustedEvent);
         }
@@ -11089,6 +11089,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, destinationZone, null);
+        if (cardObjects.TryGetValue(command.SourceObjectId, out var exhaustingUnit))
+            movementObservation = CaptureSourceExhaustionTokens(movementObservation, state.PlayerZones, cardObjects, [exhaustingUnit]);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
@@ -11368,6 +11370,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         AddFieldObjectToLocation(playerZones, intent.PlayerId, MoveUnitBattlefieldZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
+        if (cardObjects.TryGetValue(command.SourceObjectId, out var exhaustingUnit))
+            movementObservation = CaptureSourceExhaustionTokens(movementObservation, state.PlayerZones, cardObjects, [exhaustingUnit]);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
@@ -11567,6 +11571,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             MoveUnitBattlefieldZone,
             destinationBattlefieldObjectId);
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
+        if (cardObjects.TryGetValue(command.SourceObjectId, out var exhaustingUnit))
+            movementObservation = CaptureSourceExhaustionTokens(movementObservation, state.PlayerZones, cardObjects, [exhaustingUnit]);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
@@ -11793,6 +11799,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         foreach (var id in attachedEquipmentObjectIds)
             objectLocations[id] = new(intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
         var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
+        if (cardObjects.TryGetValue(command.SourceObjectId, out var exhaustingUnit))
+            movementObservation = CaptureSourceExhaustionTokens(movementObservation, state.PlayerZones, cardObjects, [exhaustingUnit]);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
@@ -14514,9 +14522,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId,
         StaticAuraSpec aura)
     {
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+        if (aura.ParticipantScope is StaticAuraParticipantScopes.FriendlyFilteredPublicUnits or StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits)
             return playerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal)
-                .Count(id => state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
+                .Count(id => (aura.ParticipantScope != StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits || id != objectId)
+                    && state.CardObjects.TryGetValue(id, out var unit) && !unit.IsFaceDown
                     && unit.Tags.Contains(CardObjectTags.UnitCard) && EffectiveFieldControllerId(playerZones, id, unit) == controllerId
                     && StaticAuraSpecRules.TargetMatchesFilter(aura, unit));
         if (string.Equals(
@@ -14567,7 +14576,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static int SourceParticipantCountPowerDelta(StaticAuraSpec aura, int participantCount)
     {
-        if (aura.ParticipantScope == StaticAuraParticipantScopes.FriendlyFilteredPublicUnits)
+        if (aura.ParticipantScope is StaticAuraParticipantScopes.FriendlyFilteredPublicUnits or StaticAuraParticipantScopes.OtherFriendlyFilteredPublicUnits)
             return participantCount * aura.PowerDeltaPerParticipant;
         if (string.Equals(
             aura.ParticipantScope,
@@ -24887,7 +24896,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         behavior,
                         stackItem,
                         targetObjectId,
-                        out var exhaustedEvent);
+                        out var exhaustedEvent, playerZones, cardObjects);
                     cardObjects[targetObjectId] = targetState;
                     events.Add(exhaustedEvent);
                 }
@@ -25913,7 +25922,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             behavior,
                             stackItem,
                             targetObjectId,
-                            out var exhaustedEvent);
+                            out var exhaustedEvent, playerZones, cardObjects);
                         events.Add(exhaustedEvent);
                     }
 
@@ -30604,7 +30613,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         string targetObjectId,
-        out GameEvent exhaustedEvent)
+        out GameEvent exhaustedEvent,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         var wasExhausted = targetState.IsExhausted;
         var nextTargetState = targetState with
@@ -30622,6 +30633,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["isExhausted"] = nextTargetState.IsExhausted
             });
 
+        exhaustedEvent = CaptureSourceExhaustionTokens(exhaustedEvent, playerZones, cardObjects, [targetState]);
         return nextTargetState;
     }
 

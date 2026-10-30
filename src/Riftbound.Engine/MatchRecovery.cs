@@ -4083,7 +4083,9 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidReadyOtherObjectStack(state, item)) errors.Add("invalid ready other object ability");
         foreach (var trigger in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidSourceUnitTokens(state, trigger.SourceUnitTokens, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
+            if (!CoreRuleEngine.ValidSourceUnitTokens(state, trigger.SourceUnitTokens, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
+                || trigger.SourceUnitTokens is { } sourceTokens && (trigger.SourceCardNo != sourceTokens.CardNo
+                    || sourceTokens.Timing == "EXHAUST" && trigger.TriggeredByEventKind != "UNIT_EXHAUSTED"))
                 errors.Add("invalid source unit token trigger");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidSourceUnitTokens(state, item.SourceUnitTokens, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
