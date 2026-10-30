@@ -35,6 +35,36 @@ public sealed class RadAkaliMovementTests
 
     [Theory]
     [MemberData(nameof(PrintingsData))]
+    public async Task ARealPlayPaysThePrintedCostAndEntersDormantWithoutMovementTriggers(string no)
+    {
+        var game = new Driver(VenUnitEntryBasicTests.Position(no));
+        await game.Act("P1", new PlayCardCommand("UNIT", no, [], Destination: "BASE"));
+        Assert.Equal(15, game.State.RunePools["P1"].Mana);
+        Assert.Equal(19, game.State.RunePools["P1"].TotalPower);
+        Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base);
+        Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
+        Assert.Equal(5, game.State.CardObjects["UNIT"].Power);
+        Assert.Equal(0, game.State.CardObjects["UNIT"].MovementCountThisTurn);
+        Assert.Empty(game.State.TriggerQueue); Assert.Empty(game.State.StackItems);
+        await game.Replay();
+    }
+
+    [Theory]
+    [MemberData(nameof(PrintingsData))]
+    public async Task AnUnpaidPlayPreservesTheHandAndDoesNotGrantMovementResources(string no)
+    {
+        var state = VenUnitEntryBasicTests.Position(no);
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = RunePool.Empty } };
+        var before = MatchStateHasher.Hash(state);
+        var result = await new CoreRuleEngine().ResolveAsync(state, new("akali-unpaid", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("UNIT", no, [], Destination: "BASE"), default);
+        Assert.False(result.Accepted); Assert.Empty(result.Events);
+        Assert.Equal(before, MatchStateHasher.Hash(result.State));
+        Assert.Contains("UNIT", result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Theory]
+    [MemberData(nameof(PrintingsData))]
     public async Task FirstMoveAddsManaAndPowerWithoutOpeningAResponseWindow(string no)
     {
         var game = new Driver(Position(no));
@@ -85,7 +115,7 @@ public sealed class RadAkaliMovementTests
         Assert.Empty(game.State.TimedBanishPlayGrants ?? []);
         Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana);
         await game.Top();
-        Assert.Contains("TOP", game.State.PlayerZones["P1"].Base);
+        Assert.Contains("TOP", game.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(game.State.StackItems);
         Assert.Empty(game.State.TimedBanishPlayGrants ?? []);
         Assert.Contains("P1-DRAW-1", game.State.PlayerZones["P1"].Hand);
@@ -150,15 +180,31 @@ public sealed class RadAkaliMovementTests
     {
         var location = game.State.ObjectLocations["UNIT"];
         var toBattlefield = location.Zone == "BASE";
-        await game.Act("P1", toBattlefield
-            ? new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF")
-            : new MoveUnitCommand("UNIT", "BATTLEFIELD", "BASE"));
+        if (!toBattlefield) {
+            // A second ordinary move cannot pay the exhausted unit's tap cost.
+            // Flash moves that same object without readying it or resetting its count.
+            await game.Act("P1", new PlayCardCommand("FLASH", "OGS·011/024", ["UNIT"]));
+            await game.Top();
+        }
+        else {
+            if (game.State.CardObjects["UNIT"].IsExhausted) {
+                await game.Act("P1", new PlayCardCommand("READY", "UNL-009/219", ["UNIT"]));
+                await game.Top();
+            }
+            for (var step = 0; step < 8 && game.State.SpellDuelState.IsActive; step++)
+                await game.Act(game.State.FocusPlayerId!, new PassFocusCommand());
+            Assert.False(game.State.SpellDuelState.IsActive);
+            await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:BF"));
+        }
         Assert.Equal(no, game.State.CardObjects["UNIT"].CardNo);
     }
 
     private static MatchState Position(string no)
     {
-        var state = VenUnitEntryBasicTests.Position(no);
+        var state = LocalDestructionRecallTests.At(VenUnitEntryBasicTests.Position(no), "UNIT", "P1", "BASE");
+        state = LocalDestructionRecallTests.At(state, "ALLY", "P1", "BATTLEFIELD", "BF");
+        state = AttackDamageDistributionTests.Spell(state, "FLASH", "OGS·011/024", "P1");
+        state = AttackDamageDistributionTests.Spell(state, "READY", "UNL-009/219", "P1");
         var cards = state.CardObjects.ToDictionary();
         var locations = state.ObjectLocations.ToDictionary();
         var p1 = state.PlayerZones["P1"];
