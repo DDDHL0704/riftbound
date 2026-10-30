@@ -110,7 +110,7 @@ public sealed partial class CoreRuleEngine
             // The trigger has already captured its controller and source. Moving again,
             // leaving play, or changing controller cannot cancel an earned resource.
             var pool = pools.GetValueOrDefault(trigger.ControllerId, RunePool.Empty);
-            var movementSpec = trigger.MovementObserver is { } movement
+            var movementSpec = trigger.MovementObserver is { Kind: TriggerKinds.UnitOrdinalMovementGainResources } movement
                 ? UnitMovedTriggerSpecRules.MovementTriggers(movement.CardNo).Single(t => t.Kind == movement.Kind) : null;
             var conquestSpec = trigger.ConquestSource is { } conquest ? ConquestSourceSpec(conquest.CardNo) : null;
             var mana = movementSpec?.ManaDelta ?? conquestSpec?.ManaDelta ?? 1;

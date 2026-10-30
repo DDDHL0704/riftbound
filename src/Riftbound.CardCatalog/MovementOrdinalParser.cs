@@ -21,7 +21,7 @@ public static class MovementOrdinalParser
                 ManaDelta: int.Parse(resource.Groups["mana"].Value, CultureInfo.InvariantCulture),
                 MovementOrdinal: 1, GeneratedPower: 1));
         var banish = Regex.Match(text,
-            @"(?:^|\n)\s*当我每回合第二次移动时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。（?:（仍须支付卡牌费用。））?",
+            @"(?:^|\n)\s*当我每回合第二次移动时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。(?:（仍须支付卡牌费用。）)?",
             RegexOptions.CultureInvariant);
         if (banish.Success)
             result.Add(new(TriggerKinds.UnitOrdinalMovementBanishTopPlay, TriggerTimings.UnitMoved, banish.Value.Trim(),
