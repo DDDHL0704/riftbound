@@ -41,7 +41,7 @@ public sealed class DisarmSourceSpecificationTests
     }
 
     [Fact]
-    public async Task SourceMetadataDoesNotEnableIncompleteCardsOrChangeTheRuntimeCatalog()
+    public async Task SourceMetadataKeepsIncompleteCardsDisabledAndTheOriginalCatalogUnchanged()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1089, catalog.Total);
@@ -50,7 +50,8 @@ public sealed class DisarmSourceSpecificationTests
         foreach (var specification in DisarmSourceSpecifications.GetAll())
         {
             Assert.DoesNotContain(catalog.Cards, card => card.CardNo == specification.CardNo);
-            Assert.False(CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _));
+            Assert.Equal(specification.CardNo is "RAD·050/167" or "RAD·054/167" or "RAD·055/167" or "RAD·093/167" or "RAD·097/167",
+                CardBehaviorRegistry.TryGetByCardNo(specification.CardNo, out _));
         }
     }
 }
