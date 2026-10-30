@@ -3,7 +3,7 @@
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
 **当前状态（2026-10-30）**
-- **main**：#292 测试正则缓存优化已合入；固定 `9a248f9d` 的主干完整 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 在 **27 分 37 秒**内通过 9,491 个方法、19,625 条用例和 `L2 required`，零跳过，Counter 与 #292 及固定计划逐条一致。
+- **main**：#292 测试正则缓存优化及 #294 夜验 ARM64 / SQL Release 配置已合入；固定 `9a248f9d` 的主干完整 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 在 **27 分 37 秒**内通过 9,491 个方法、19,625 条用例和 `L2 required`，零跳过，Counter 与 #292 及固定计划逐条一致。
 - **夜间验收**：手动完整验收已恢复；北京时间 10 月 30 日定时运行已结束，唯一实际失败为已由 #289 修复的皮城学院回响对局，四个 PostgreSQL 分区及所有其他集成验收均通过，当前连续通过 **0/3**，详情见 P0-2。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
@@ -64,7 +64,9 @@
   - [x] 第一优先：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263) 已合入，修复 P0-2 的规则全量六小时超时，复用固定构建与逐用例校验，把完整夜验分散到八个独立任务（最多六个并发）；手动完整夜验 [40863260089](https://github.com/DDDHL0704/riftbound/actions/runs/40863260089) 的规则、集成验收和最终门槛已全部通过；
   - 把最慢的测试分散到各个分片；目标是单次 L2 在 30 分钟内跑完；
   - [#292](https://github.com/DDDHL0704/riftbound/pull/292) 合入后的固定 `9a248f9d` 主干完整 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 全部通过，包含准备和汇总的总墙钟 **27 分 37 秒**；9,491 个方法、19,625 条用例逐条 Counter 与 #292 及固定计划一致，零跳过。九片实际执行约 19.7–24.1 分钟，全部实际 testhost 确认四核 Server GC 和 1,024 条正则缓存；完整规则、三局完整对局及唯一门槛保留。并发名额占满仍会增加排队时间；后续新增卡牌若让主干完整耗时超出 30 分钟，重新打开本项。
-  - [x] `a/ci-build-log`：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。
+  - [#294](https://github.com/DDDHL0704/riftbound/pull/294) 已合入：夜验的固定规则构建及八个完整规则分片复用 L2 已验证的四核 ARM64 runner；四个 PostgreSQL 分区先显式构建 Release，再使用同一产物执行完整分区，减少 Debug 构建的运行开销。最多六片规则并发、全部完整对局、PostgreSQL 服务、固定输入与逐用例汇总保持；现有 PostgreSQL 16.13 固定镜像摘要已确认包含 Linux ARM64。源码没有以 DEBUG 为条件的验收分支；完整 [40996611444](https://github.com/DDDHL0704/riftbound/actions/runs/40996611444) 的九片规则、19,625 条用例与门槛及验收驱动检查通过，Counter 与固定计划及 main 逐条一致；实际完整夜验耗时仍须合入后验证。
+  - `a/l2-regex-cache` / [#292](https://github.com/DDDHL0704/riftbound/pull/292)：测试进程把正则缓存下限从默认 15 调整为 1,024，并在实际 testhost 中记录容量。现有解析、目录及排序器定向测试 385/385、零跳过。[40985858213](https://github.com/DDDHL0704/riftbound/actions/runs/40985858213) 九片完整 9,491 个方法、19,625 条用例和门槛通过，实际 testhost 全部确认缓存 1,024、四核 Server GC，含排队总墙钟 **29 分 10 秒**；相对固定 main #285 零移除，仅新增 #289 的完整对局。随后八片重平衡 [40988967761](https://github.com/DDDHL0704/riftbound/actions/runs/40988967761) 也完整通过相同 Counter，但最慢片约 27 分钟，加上准备、汇总与队列共 **35 分 34 秒**；因此最终保留九片及原始分配。完整规则、三局完整对局、固定构建和唯一门槛保持。最终九片 [40992807104](https://github.com/DDDHL0704/riftbound/actions/runs/40992807104) 的全部规则与门槛通过；9,491 个方法、19,625 条用例逐条 Counter 与固定 main 及最终计划一致，零跳过，九个 testhost 均确认缓存 1,024、四核 Server GC，#292 已合入。九片实际执行约 19.9–24.0 分钟；因全仓并发名额占满，最后一片晚启动约 12 分钟，整次墙钟 **36 分 42 秒**。包含该优化的固定 `9a248f9d` 主干 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 后续已在 27 分 37 秒内完整通过，详情见本项首条结果。
+  - [x] [#290](https://github.com/DDDHL0704/riftbound/pull/290) 已合入：CI 命令失败时，把完整日志末尾 80 行打印到 Actions 标准输出，保留原始退出异常及完整日志文件；编译错误可直接在任务日志中查看。完整 [40982404811](https://github.com/DDDHL0704/riftbound/actions/runs/40982404811) 的九片规则与门槛全部通过。
   - [x] [PR #256](https://github.com/DDDHL0704/riftbound/pull/256) 已合入：取消被新提交取代的 PR 运行，汇总遵守取消状态，保留测试失败时的门禁校验，解决旧 `always()` 汇总继续排队的问题（如 [40783866463](https://github.com/DDDHL0704/riftbound/actions/runs/40783866463)）；
   - 队列复核发现 #284 于 10 月 29 日 23:02 UTC 关闭且未合入，其 [40966626313](https://github.com/DDDHL0704/riftbound/actions/runs/40966626313) 仍在执行，23:13 UTC 还占三个运行名额，已手动取消。[#288](https://github.com/DDDHL0704/riftbound/pull/288) 已合入：独立关闭事件工作流使用同一个 PR 并发组自动取消旧验证；关闭事件不发布 `L2 required` 检查，重新打开 PR 后仍须通过完整规则。真实关闭／重开验证通过，重开后的完整 [40972608937](https://github.com/DDDHL0704/riftbound/actions/runs/40972608937) 全部 19,496 条用例和门槛通过，Counter 与 #286 一致；main 的并发组保留独立。
   - [x] #256 已加入文档/BACKLOG 白名单，纯文档 PR 只运行 2 个轻量任务；常规 L2 从 10 个任务减到 8 个，保留完整规则与 `L2 required`；

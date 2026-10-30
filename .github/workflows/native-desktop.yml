@@ -47,7 +47,7 @@ jobs:
 
   rule_prepare:
     needs: scope
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     outputs:
       sdk: ${{ steps.plan.outputs.sdk }}
@@ -90,7 +90,7 @@ jobs:
 
   rule_shards:
     needs: [scope, rule_prepare]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     strategy:
       fail-fast: false
@@ -229,7 +229,9 @@ jobs:
       - name: Real PostgreSQL complete checked partition
         env:
           RIFTBOUND_POSTGRES_EVIDENCE: var/qa/ci-postgres
-        run: dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4
+        run: |
+          dotnet build tests/Riftbound.PostgresAcceptance -c Release -m:1 --nologo -v:q
+          dotnet run --project tests/Riftbound.PostgresAcceptance -c Release --no-build -- --ci-partition ${{ matrix.partition }} 4
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
