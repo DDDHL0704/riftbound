@@ -10,11 +10,8 @@ public sealed class EmpowerParserTests
     [Fact]
     public void CurrentSourceQueueClassifiesCostsWithoutCertifyingUnpromotedConsumers()
     {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "Riftbound.slnx"))) root = root.Parent;
-        Assert.NotNull(root);
-        using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(root.FullName,
-            "docs/legacy/evidence/empower-2026-10-13/source-readback.json")));
+        using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            "Fixtures", "official-source", "empower", "source-readback.json")));
         var records = json.RootElement.GetProperty("empowerRecords").EnumerateArray().ToArray();
         Assert.Equal(84, records.Length);
         var keywordRecords = records.Where(r => Regex.IsMatch(r.GetProperty("record").GetProperty("cardEffect").GetString()!, @"\{\{强化[^}]*\}\}")).ToArray();
