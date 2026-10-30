@@ -681,6 +681,8 @@ public static class TriggerParser
             .Where(segment => !hasSourceUnitPlayedLowCostGraveyardSpellTrigger
                 || !segment.Contains("当你打出我时，你可以选择从你的废牌堆中打出一个法力费用不高于", StringComparison.Ordinal)
                 || !segment.Contains("的法术", StringComparison.Ordinal))
+            .Where(segment => !cardPlayBasePower.Success || !cardPlayBasePower.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !highCostGraveyardPlay.Success || !highCostGraveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
             .Select(ToTriggerSpec)
             .ToArray());
 

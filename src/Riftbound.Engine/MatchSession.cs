@@ -1091,7 +1091,13 @@ public sealed partial record MatchState
                         objectId,
                         null,
                         cardObject.UntilEndOfTurnPowerModifier,
-                        ResolveBasePower(cardObject),
+                        // A base-Might replacement is stored separately from
+                        // ordinary temporary deltas.  The legacy scalar still
+                        // carries the replacement's difference from printed
+                        // Might so turn-end cleanup can restore the card; the
+                        // projection base for this scalar is therefore the
+                        // printed/current pre-replacement value.
+                        cardObject.Power - cardObject.UntilEndOfTurnPowerModifier,
                         cardObject.Power));
                 }
             }
