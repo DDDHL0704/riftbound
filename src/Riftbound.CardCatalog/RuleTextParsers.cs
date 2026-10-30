@@ -479,6 +479,10 @@ public static class TriggerParser
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
             BanishCount: 1, PlayCount: 1, PlayOriginZone: "BANISHED", PlayDestinationZone: TriggerZones.Stack,
             RecycleDestinationZone: TriggerZones.MainDeck));
+        var endRecycleRunes = Regex.Match(text, @"在你的回合结束时，回收你的所有符文，然后召出(?<count>[0-9一两二三四五六七八九十]+)枚休眠的符文。", RegexOptions.CultureInvariant);
+        if (endRecycleRunes.Success) triggers.Add(new(TriggerKinds.TurnEndRecycleRunesCall, TriggerTimings.TurnEnd,
+            endRecycleRunes.Value, "Recycle all controlled runes in owner-chosen bottom order, then channel exhausted runes.",
+            RuneCallCount: ParseChineseNumber(endRecycleRunes.Groups["count"].Value)));
         var endReady = Regex.Match(text, @"在你(?:的)?回合结束时，(?<here>如果我位于战场上，则)?让最多(?<count>[0-9一两二三四五六七八九十]+)枚(?:友方)?符文变为活跃状态。", RegexOptions.CultureInvariant);
         if (endReady.Success) triggers.Add(new(TriggerKinds.TurnEndReadyRunes, TriggerTimings.TurnEnd, endReady.Value,
             "End-step optional rune target confirmation before ordinary response.", RuneReadyCount: ParseChineseNumber(endReady.Groups["count"].Value),
