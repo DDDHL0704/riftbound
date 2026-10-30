@@ -201,9 +201,13 @@ public sealed class RadEquipmentPlayDiscountTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) { ["P2-DRAW"] = new("P2", "MAIN_DECK") } };
         var game = new Driver(initial); var old = Assert.Single(Choices(initial)); await game.Act("P1", Play(old));
         await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
+        Assert.DoesNotContain(game.State.UntilEndOfTurnEffects,
+            effect => effect.StartsWith("OPTIONAL_PLAY_COST_REDUCTION_USED|", StringComparison.Ordinal));
+        // The new turn clears the mana pool. Fund the play before inspecting
+        // its legal-action candidate and the restored optional reduction.
+        await game.Act("P1", new TapRuneCommand("R1")); await game.Act("P1", new TapRuneCommand("R2"));
         var current = Assert.Single(Choices(game.State, "FOLLOW")); Assert.NotEqual(old, current);
         await Reject(game.State, new("FOLLOW", Gear, [], OptionalCosts: [old], Destination: "BASE"));
-        await game.Act("P1", new TapRuneCommand("R1")); await game.Act("P1", new TapRuneCommand("R2"));
         await game.Act("P1", new PlayCardCommand("FOLLOW", Gear, [], OptionalCosts: [current], Destination: "BASE"));
         await game.Replay();
     }
