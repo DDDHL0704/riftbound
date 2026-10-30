@@ -214,13 +214,13 @@
         "P2-ENEMY-ATTACKER": {
           "damage": 2,
           "power": 4,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "isAttacking": true
         },
         "P2-ENEMY-DEFENDER": {
           "damage": 2,
           "power": 5,
-          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnEffects": ["TOOK_DAMAGE_THIS_TURN"],
           "isDefending": true
         },
         "P2-ENEMY-IDLE": {
