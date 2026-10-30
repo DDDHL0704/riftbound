@@ -161,7 +161,7 @@ public sealed class Ven072ConditionalMightConsumerTests
         for (var i = 0; i < 2; i++) initial = OnBase(initial, "WARD-RUNE-" + i, "UNL-R02", "P2");
         initial = initial with { RunePools = new Dictionary<string, RunePool>(initial.RunePools) { ["P2"] = RunePool.Empty } };
         var driver = await Enter(initial, true, "VEN·122"); await driver.Act("P1", new EndTurnCommand());
-        await driver.Act("P2", new TapRuneCommand("WARD-RUNE-0")); await driver.Act("P2", new TapRuneCommand("WARD-RUNE-1"));
+        await driver.Act("P2", new TapRuneCommand("WARD-RUNE-0", ["WARD-RUNE-0", "WARD-RUNE-1"]));
         Assert.Equal(2, driver.State.RunePools["P2"].Mana); Assert.Equal(0, driver.State.RunePools["P2"].TotalPower);
         var command = new PlayCardCommand("ENEMY-HOWL", No, ["UNIT"], OptionalCosts: Enumerable.Range(0, selectedRunes).Select(i => "RECYCLE_RUNE:WARD-RUNE-" + i).ToArray());
         var quote = new CoreRuleEngine().PreviewPlayCard(driver.State, "P2", PlayCostPreviewTests.Request(driver.State, command));

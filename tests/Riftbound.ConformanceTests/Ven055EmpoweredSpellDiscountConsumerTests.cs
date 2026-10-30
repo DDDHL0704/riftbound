@@ -486,7 +486,7 @@ public sealed class Ven055EmpoweredSpellDiscountConsumerTests
             Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(0, game.State.RunePools["P2"].TotalPower); await game.Top();
             Assert.Equal(1, VisibleMight(game.State, "UNIT", "P2")); Restore(initial, game);
             await game.Act("P2", new EndTurnCommand()); Assert.Equal(4, VisibleMight(game.State, "UNIT", "P1"));
-            await game.Act("P1", new TapRuneCommand("BLUE-0")); await game.Act("P1", new TapRuneCommand("BLUE-1"));
+            await game.Act("P1", new TapRuneCommand("BLUE-0", ["BLUE-0", "BLUE-1"]));
             await game.Act("P1", new RecycleRuneCommand("BLUE-0")); await game.Act("P1", Smoke() with { TargetObjectIds = ["UNIT"] });
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             await game.Top(); Assert.Equal(1, VisibleMight(game.State, "UNIT", "P1")); await game.Replay(); Restore(initial, game);

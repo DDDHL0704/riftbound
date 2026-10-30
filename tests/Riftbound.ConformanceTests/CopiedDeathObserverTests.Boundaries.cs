@@ -137,7 +137,7 @@ public sealed partial class CopiedDeathObserverTests
         Assert.Contains("D2", game.State.PlayerZones["P2"].Battlefields);
         var earned = Assert.Single(game.State.TriggerQueue, t => t.DeathObserver!.Origin is not null).DeathObserver!;
         await Order(game); await game.Act("P2", new PassPriorityCommand());
-        await game.Act("P1", new TapRuneCommand("PAY1")); await game.Act("P1", new TapRuneCommand("PAY2"));
+        await game.Act("P1", new TapRuneCommand("PAY1", ["PAY1", "PAY2"]));
         await game.Act("P1", new PlayCardCommand("DETACH", "SFD·011/221", ["HOST", "GEAR0"]));
         await game.Top();
         Assert.Null(game.State.CardObjects["GEAR0"].AttachedToObjectId);
