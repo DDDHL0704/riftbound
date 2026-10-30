@@ -228,7 +228,7 @@ public sealed partial class CoreRuleEngine
                     || source.ControllerId != item.ControllerId || !IsObjectOnField(state.PlayerZones, item.SourceObjectId)))
                 return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             choice = new("TRIGGER-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-                FieldTriggerMinimumTargets(item.FieldContext), 1, legal, legal,
+                FieldTriggerMinimumTargets(item.FieldContext), 1, legal, legal.Length == 0 ? [item.SourceObjectId] : legal,
                 item.FieldContext.Kind == AttackMightDamageKind ? "可选择此处一名敌方单位，然后支付经验和法盾费用；双方响应后，按来源当前战力造成伤害。"
                     : item.FieldContext.Kind == PaidUnitDestroyKind ? "选择一个单位或装备，或不选以放弃；随后选择弃牌费用并确认法盾费用。"
                     : item.FieldContext.Kind == PaidUnitStunKind ? PaidUnitStunSpec(item.FieldContext.CardNo)!.Optional == true
