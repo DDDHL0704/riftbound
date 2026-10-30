@@ -8,7 +8,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
-            && (HasMovementDamage(item) && ValidMovementDamageStack(state, item)
+            && (HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
                 || item.UnitPlayMight is not null && RengarPlayRecoveryRules.ValidStack(state, item)
                 || item.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(item) && ValidCreatedTokenReadyStack(state, item)
@@ -35,7 +35,7 @@ public sealed partial class CoreRuleEngine
                 ? payment.ManaCost == PaidUnitStunSpec(paid.CardNo)!.ManaCost
                     && payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _)
                 : payment.ManaCost == 0 && (item.HighCostPlayObserver is not null ? payment.PowerCost >= 0 : payment.PowerCost > 0 || payment.ExperienceCost > 0))
-            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasMovementDamage(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.HighCostPlayObserver is null && item.CreatedTokenReady is null && item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending && item.UnitPlayMight is null && !HasTargetedMovementSkill(item) && item.FieldContext?.Kind is not (EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or CombatKeywordDoubleKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind) || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
@@ -48,7 +48,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var legal = item.HighCostPlayObserver is not null ? HighCostRuneTargets(state, item)
-            : HasMovementDamage(item) ? MovementDamageTargets(state, item)
+            : HasTargetedMovementSkill(item) ? TargetedMovementTargets(state, item)
             : item.UnitPlayMight is not null ? UnitPlayMightTargets(state, item.ControllerId)
             : item.CreatedTokenReady is not null ? CreatedTokenReadyTargets(state, item)
             : item.PermanentPlayTargetsPending ? PermanentPlayTargetChoices(state, item)
