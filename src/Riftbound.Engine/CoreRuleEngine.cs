@@ -18119,7 +18119,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         IReadOnlyList<string> costsWithoutFlow;
         if (normalGraveyardPlay)
-            costsWithoutFlow = command.OptionalCosts ?? [];
+            costsWithoutFlow = (command.OptionalCosts ?? [])
+                .Where(c => !string.Equals(c?.Trim(), NormalGraveyardPlayChoice, StringComparison.Ordinal))
+                .ToArray();
         else if (!TrySelectFlowCost(state, intent.PlayerId, command.SourceObjectId, behavior, command.OptionalCosts,
                     out behavior, out costsWithoutFlow))
         {
