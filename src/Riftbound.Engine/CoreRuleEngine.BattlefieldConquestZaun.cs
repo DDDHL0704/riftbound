@@ -114,7 +114,7 @@ public sealed partial class CoreRuleEngine
         if (discarded.Count > 0)
             ResolveHandCardsDiscardedReadyPowerTriggers(zones, cards, item.ControllerId, "CARD_DISCARDED",
                 context.Source.ObjectId, discarded, events);
-        var until = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, discarded);
+        var until = MarkPlayerDiscardedHandCardsThisTurn(state.UntilEndOfTurnEffects, item.ControllerId, discarded, zones);
         var draw = ApplyDrawToPlayer(state with { PlayerZones = zones, CardObjects = cards }, zones, cards,
             state.PlayerScores, item.ControllerId, drawCount, state.RngCursor, events, deferNormalVictory: true);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
