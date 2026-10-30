@@ -201,7 +201,12 @@ public sealed class RadAkaliMovementTests
 
     private static MatchState Position(string no)
     {
-        var state = LocalDestructionRecallTests.At(VenUnitEntryBasicTests.Position(no), "UNIT", "P1", "BASE");
+        var state = VenUnitEntryBasicTests.Position(no);
+        // At relocates field objects only. Remove the original hand entry before
+        // using it to prepare this already-public movement fixture.
+        state = state with { PlayerZones = state.PlayerZones.ToDictionary(pair => pair.Key,
+            pair => pair.Key == "P1" ? pair.Value with { Hand = [] } : pair.Value) };
+        state = LocalDestructionRecallTests.At(state, "UNIT", "P1", "BASE");
         state = LocalDestructionRecallTests.At(state, "ALLY", "P1", "BATTLEFIELD", "BF");
         state = AttackDamageDistributionTests.Spell(state, "FLASH", "OGS·011/024", "P1");
         state = AttackDamageDistributionTests.Spell(state, "READY", "UNL-009/219", "P1");
