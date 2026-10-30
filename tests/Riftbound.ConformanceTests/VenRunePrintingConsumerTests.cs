@@ -153,11 +153,11 @@ public sealed class VenRunePrintingConsumerTests
                 var batchBefore = driver.State; var batchMana = batchBefore.RunePools[player].Mana;
                 await driver.Act(player, new TapRuneCommand(available[0], available));
                 Assert.Equal(batchMana + 3, driver.State.RunePools[player].Mana); Assert.All(available, id => Assert.True(driver.State.CardObjects[id].IsExhausted));
-                var recycleBefore = driver.State; var typed = recycleBefore.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
+                var batchRecycleBefore = driver.State; var typed = batchRecycleBefore.RunePools[player].PowerByTrait.GetValueOrDefault(trait);
                 await driver.Act(player, new RecycleRuneCommand(available[0], available));
                 Assert.Equal(typed + 3, driver.State.RunePools[player].PowerByTrait.GetValueOrDefault(trait));
-                Assert.Equal(recycleBefore.PlayerZones[player].RuneDeck.Concat(available), driver.State.PlayerZones[player].RuneDeck);
-                Assert.Equal(recycleBefore.RngCursor, driver.State.RngCursor);
+                Assert.Equal(batchRecycleBefore.PlayerZones[player].RuneDeck.Concat(available), driver.State.PlayerZones[player].RuneDeck);
+                Assert.Equal(batchRecycleBefore.RngCursor, driver.State.RngCursor);
                 foreach (var id in available)
                 {
                     var original = batchBefore.CardObjects[id];
