@@ -113,7 +113,7 @@ public sealed class RadExhaustionDrawTests
         var state = Board();
         if (branch == "exhausted") state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["U2"] = state.CardObjects["U2"] with { IsExhausted = true } } };
-        if (branch == "enemy") state = HandDiscardObserverTests.Put(state, "U2", "OGN·001/298", "P2", "BASE");
+        if (branch == "enemy") state = LocalDestructionRecallTests.At(state, "U2", "P2", "BASE");
         await Reject(state, new MoveUnitCommand("U0", "BASE", "BATTLEFIELD:F", SourceObjectIds: branch == "duplicate" ? ["U0", "U1", "U0"] : ["U0", "U1", "U2"]));
     }
 

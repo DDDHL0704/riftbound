@@ -41,6 +41,7 @@ public sealed partial class CoreRuleEngine
         if (units.Length == 0) return;
         var captures = cards.Values.Where(source => IsFaceUpNonStandbyUnit(source) && IsObjectOnField(zones, source.ObjectId)
                 && EffectiveFieldControllerId(zones, source.ObjectId, source) == actor)
+            .OrderBy(source => source.ObjectId, StringComparer.Ordinal)
             .SelectMany(source => AttachedRuleTextRules.Instances(zones, cards, source)
                 .Where(instance => ExhaustionDrawSpec(instance.CardNo) is { RequiredUnitCount: { } count } && units.Length >= count)
                 .Select(instance => new ExhaustionCapture(source.ObjectId, actor, new(instance.CardNo, ExhaustionDrawKind, source.ObjectGeneration) {
@@ -191,7 +192,8 @@ public sealed partial class CoreRuleEngine
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId && choice.EffectKind == expected.EffectKind
             && choice.RequiredCount == 0 && choice.MaxCount == 1 && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds)
-            && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
+            && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds)
+            && choice.DeckContext is null && choice.HandContext is null && choice.Reason == expected.Reason;
     }
 
     private static ResolutionResult ResolveExhaustionDrawChoice(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
