@@ -139,8 +139,10 @@ public sealed class RadMovementBaseMightTests
         if (!buffFirst) { await game.Act("P1", new PlayCardCommand("BUFF", "VEN·031", ["ALLY"])); await game.Top(); }
         Assert.Equal(4, Unit(game.State, "ALLY").GetProperty("basePower").GetInt32());
         Assert.Equal(5, Unit(game.State, "ALLY").GetProperty("effectivePower").GetInt32());
-        for (var passes = 0; game.State.SpellDuelState.IsActive && passes < 4; passes++)
-            await game.Act(game.State.PriorityPlayerId ?? game.State.SpellDuelState.FocusPlayerId!, new PassPriorityCommand());
+        for (var passes = 0; game.State.SpellDuelState.IsActive && passes < 4; passes++) {
+            if (game.State.PriorityPlayerId is { } priority) await game.Act(priority, new PassPriorityCommand());
+            else await game.Act(game.State.SpellDuelState.FocusPlayerId!, new PassFocusCommand());
+        }
         Assert.False(game.State.SpellDuelState.IsActive);
         await game.Act("P1", new EndTurnCommand());
         Assert.Empty(game.State.CardObjects["ALLY"].UntilEndOfTurnEffects);
