@@ -180,8 +180,10 @@ public sealed class RadEntryCostHeroTests
         var game = new Driver(s); await game.Act("P1", Play(no) with { Destination = "BATTLEFIELD:BF" });
         // A real ready spell, rather than a state edit, supplies the move's exhaust cost.
         var ready = OfficialCopyIdentityTests.AddSpell(game.State, "READY", "VEN·150");
-        ready = ready with { RunePools = new Dictionary<string, RunePool>(ready.RunePools) { ["P1"] = new(3, 0) } };
+        ready = ready with { RunePools = new Dictionary<string, RunePool>(ready.RunePools) {
+            ["P1"] = new(3, 0, new Dictionary<string, int> { [RuneTrait.Blue] = 1 }) } };
         game = new Driver(ready); await game.Act("P1", new PlayCardCommand("READY", "VEN·150", ["UNIT"])); await game.Top();
+        Assert.Equal(RunePool.Empty, game.State.RunePools["P1"]);
         await game.Act("P1", new MoveUnitCommand("UNIT", "BATTLEFIELD:BF", "BATTLEFIELD:OTHER", [], ["UNIT"]));
         Assert.Equal("OTHER", game.State.ObjectLocations["UNIT"].BattlefieldObjectId);
         Assert.True(game.State.CardObjects["UNIT"].IsExhausted); await game.Replay();
