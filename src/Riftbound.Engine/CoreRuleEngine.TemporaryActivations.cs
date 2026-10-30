@@ -129,7 +129,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "来源当前没有所选的本回合启动技能。", ErrorCodes.InvalidTarget);
         var requestedCosts = NormalizeOptionalCosts(command.OptionalCosts);
         if (!TryExtractRenektonPlayPayment(requestedCosts, out var withoutRenekton, out var renektonResourceAction)
-            || !TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
+            || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutRenekton,
                 out var otherCosts, out var resources, out var recycled) || otherCosts.Count != 0)
             return RejectWithCorePrompts(state, "启动技能的支付资源行动无效。", ErrorCodes.InvalidTarget);
         var definition = TemporaryActivationDefinition(grant)!;
@@ -146,14 +146,9 @@ public sealed partial class CoreRuleEngine
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var events = new List<GameEvent>();
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        if (renektonResourceAction is not null)
-        {
-            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedResources, zones,
-                    ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", paymentId))
-                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
-        }
-        else pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations,
-            intent.PlayerId, recycled, events, "ACTIVATE_ABILITY", paymentId);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedResources, zones,
+                ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", paymentId))
+            return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "符能不足，无法支付启动技能费用。", ErrorCodes.InsufficientCost);
         var cardNo = AttachedRuleTextRules.Face(source)!;

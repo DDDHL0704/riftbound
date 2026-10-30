@@ -64,7 +64,7 @@ public sealed partial class CoreRuleEngine
         var costs = NormalizeOptionalCosts(command.OptionalCosts);
         if (ability is null || command.TargetObjectIds.Count != 0 || costs.Count != (command.OptionalCosts?.Count ?? 0)
             || !TryExtractRenektonPlayPayment(costs, out var withoutLegend, out var legendAction)
-            || !TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, withoutLegend, out var extra, out var resources, out var recycled)
+            || !TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, withoutLegend, out var extra, out var resources, out var recycled)
             || extra.Count != 0)
             return RejectWithCorePrompts(state, "请选择当前存在的技能与支付资源；此技能没有目标。", ErrorCodes.InvalidTarget);
         var ordered = legendAction is null ? resources : OrderedRenektonPaymentResources(costs, resources, legendAction);
@@ -76,12 +76,9 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>();
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        if (legendAction is not null) {
-            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, ordered, zones, ref cards, locations, ref pools,
-                    events, "ACTIVATE_ABILITY", plan.PaymentId))
-                return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
-        } else pools = ApplyRecycleRunePaymentResourceActions(pools, zones, cards, locations, intent.PlayerId,
-            recycled, events, "ACTIVATE_ABILITY", plan.PaymentId);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, ordered, zones, ref cards, locations, ref pools,
+                events, "ACTIVATE_ABILITY", plan.PaymentId))
+            return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted) return RejectWithCorePrompts(state, "资源不足，无法支付技能费用。", ErrorCodes.InsufficientCost);
         var context = new SelfMightActivationContext(new(source.ObjectId, source.ObjectGeneration), ability.Instance.CardNo,

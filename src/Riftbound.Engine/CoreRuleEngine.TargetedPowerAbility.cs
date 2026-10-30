@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
             || !IsPowerAbilitySource(state, intent.PlayerId, command.SourceObjectId, ability)
             || !IsPowerAbilityTarget(state, intent.PlayerId, targets[0]))
             return RejectWithCorePrompts(state, "请选择有效的活跃来源和一名公开单位。", ErrorCodes.InvalidTarget);
-        if (!TryExtractRecycleRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
+        if (!TryExtractAbilityRunePaymentResourceActions(state, intent.PlayerId, NormalizeOptionalCosts(command.OptionalCosts),
                 out var otherCosts, out var resources, out var recycledRunes) || otherCosts.Count != 0)
             return RejectWithCorePrompts(state, "此技能没有所选额外费用。", ErrorCodes.InvalidTarget);
 
@@ -53,8 +53,10 @@ public sealed partial class CoreRuleEngine
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var events = new List<GameEvent>();
-        var pools = ApplyRecycleRunePaymentResourceActions(state.RunePools, zones, cards, locations,
-            intent.PlayerId, recycledRunes, events, window, paymentId);
+        var pools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, resources, zones, ref cards,
+                locations, ref pools, events, window, paymentId))
+            return RejectWithCorePrompts(state, "支付资源动作顺序或来源无效。", ErrorCodes.InvalidTarget);
         var payment = PaymentCostRules.TryCommitPayment(plan, pools, state.PlayerExperience, state: state);
         if (!payment.Accepted)
             return RejectWithCorePrompts(state, "资源不足，无法支付目标的法盾。", ErrorCodes.InsufficientCost);
