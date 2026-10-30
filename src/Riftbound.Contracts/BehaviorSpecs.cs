@@ -774,7 +774,9 @@ public sealed record StaticAbilitySpec(
     bool? RequiresSourceOutsideBattle = null,
     bool? RequiresControlledBattlefieldPlay = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? RequiresSourceEmpowered = null);
+    bool? RequiresSourceEmpowered = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MaxOtherControlledUnitCount = null);
 
 public sealed record StaticAuraSpec(
     string Kind,
