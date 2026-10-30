@@ -343,8 +343,7 @@ public sealed partial record MatchState
         foreach (var (objectId, cardObject) in state.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            if (FieldObjectTypeRules.IsUnattachedNonUnitEquipment(cardObject)
-                && !StandbyRules.AllowsBattlefieldEquipment(cardObject, state.ObjectLocations.GetValueOrDefault(objectId))
+            if (FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(cardObject, state.ObjectLocations.GetValueOrDefault(objectId))
                 && state.ObjectLocations.TryGetValue(objectId, out var equipmentLocation)
                 && string.Equals(equipmentLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(equipmentLocation.BattlefieldObjectId)
