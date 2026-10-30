@@ -9165,6 +9165,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
         new("RAD·138a/167", "萨勒芬妮", 5, "RAD_138A_SERAPHINE_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
+        new("RAD·SP5/005", "萨勒芬妮", 5, "RAD_SP5_SERAPHINE_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
         new("RAD·065/167", "萨勒芬妮", 4, "RAD_065_SERAPHINE_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "缴械2"),
         new("RAD·065a/167", "萨勒芬妮", 4, "RAD_065A_SERAPHINE_PLAY_UNIT", 0, 0,

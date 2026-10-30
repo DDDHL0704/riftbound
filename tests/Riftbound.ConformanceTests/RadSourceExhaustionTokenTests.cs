@@ -10,7 +10,8 @@ namespace Riftbound.ConformanceTests;
 public sealed class RadSourceExhaustionTokenTests
 {
     private const string Card = "RAD·138/167";
-    public static IEnumerable<object[]> Printings() => new object[][] { [Card, 39645L], ["RAD·138a/167", 39646L] };
+    public static IEnumerable<object[]> Printings() => new object[][] {
+        [Card, 39645L], ["RAD·138a/167", 39646L], ["RAD·SP5/005", 39724L] };
     private static CardObjectState[] Minions(MatchState s) => s.CardObjects.Values
         .Where(c => c.TokenFactoryCardNo is not null && c.Tags.Contains(CardObjectTags.MinionTokenFamily)).ToArray();
     private static MatchState Board(string no = Card, bool copied = false)
@@ -29,6 +30,7 @@ public sealed class RadSourceExhaustionTokenTests
     {
         var card = Assert.Single((await OfficialCardCatalog.LoadRuntimeAsync()).Cards, c => c.CardNo == no);
         Assert.Equal(id, card.Id); Assert.Equal("星火相随", card.SubTitle); Assert.Equal(5, card.Energy); Assert.Equal(1, card.Power);
+        Assert.Equal(1, card.ReturnEnergy); Assert.Equal([RuneTrait.Yellow], card.CardColorList);
         var s = VenUnitEntryBasicTests.Position(no);
         s = s with { RunePools = new Dictionary<string, RunePool>(s.RunePools) {
             ["P1"] = new(5, 0, new Dictionary<string, int> { [RuneTrait.Yellow] = 1 }) } };
