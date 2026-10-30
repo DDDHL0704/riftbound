@@ -44,6 +44,33 @@ class AffectedRuleTests(unittest.TestCase):
         self.assertNotIn('PostgresMatchRecoveryStoreSmokeTests', classes)
         self.assertEqual({'RAD·012/167'}, cards)
 
+    def test_changed_test_nested_helpers_do_not_become_broad_filters(self):
+        files = [
+            ('tests/Riftbound.ConformanceTests/RunePrintingTests.cs',
+             'public class RunePrintingTests { private class Driver {} '
+             'private record Printing(string No); private class Store {} }'),
+            ('tests/Riftbound.ConformanceTests/OtherDriverTests.cs',
+             'public class OtherDriverTests {}'),
+            ('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
+             'public class OfficialOpeningTests {}'),
+        ]
+        classes, _ = runner.select_affected_test_classes([files[0][0]], '', files)
+        self.assertEqual({'RunePrintingTests', 'OfficialOpeningTests'}, classes)
+
+    def test_changed_standalone_helper_selects_its_consumers(self):
+        files = [
+            ('tests/Riftbound.ConformanceTests/RuneTestDriver.cs',
+             'internal class RuneTestDriver {}'),
+            ('tests/Riftbound.ConformanceTests/RuneConsumerTests.cs',
+             'public class RuneConsumerTests { RuneTestDriver driver = new(); }'),
+            ('tests/Riftbound.ConformanceTests/UnrelatedTests.cs',
+             'public class UnrelatedTests {}'),
+            ('tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs',
+             'public class OfficialOpeningTests {}'),
+        ]
+        classes, _ = runner.select_affected_test_classes([files[0][0]], '', files)
+        self.assertEqual({'RuneConsumerTests', 'OfficialOpeningTests'}, classes)
+
     def test_affected_selection_requires_base_to_be_an_ancestor(self):
         failure = subprocess.CalledProcessError(1, ['git', 'merge-base'])
         with patch.object(runner, '_git_text', side_effect=['head-sha', 'base-sha']), \
