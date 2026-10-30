@@ -238,6 +238,12 @@ public sealed class RadRobotReplacementTests
         var fairy = Assert.Single(Tokens(game.State), token => token.TokenFactoryCardNo != Robot);
         Assert.Equal(new("P1", "BATTLEFIELD", "OTHER"), game.State.ObjectLocations[robot.ObjectId]);
         Assert.Equal(new("P1", "BASE"), game.State.ObjectLocations[fairy.ObjectId]);
+        Assert.True(game.State.StackItems.Count == 1, JsonSerializer.Serialize(new {
+            game.State.TimingState,
+            Triggers = game.State.TriggerQueue.Select(trigger => trigger.EffectKind),
+            Choice = game.State.PendingCardChoice?.ChoiceWindow,
+            Events = game.Events().Select(row => row.Event.Kind)
+        }));
         Assert.Equal(robot.ObjectId, Assert.Single(game.State.StackItems).TurnUnitPlayBoon!.Unit.ObjectId);
         await game.Top(); Assert.Contains(CardObjectTags.Boon, game.State.CardObjects[robot.ObjectId].Tags);
         Assert.DoesNotContain(CardObjectTags.Boon, game.State.CardObjects[fairy.ObjectId].Tags); await game.Replay();
