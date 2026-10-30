@@ -104,7 +104,7 @@ public sealed class RadLastBreathUnitTests
     [InlineData(Dredger)]
     public async Task ReturningTheLivingUnitToHandDoesNotCreateADeathSkillOrToken(string no)
     {
-        const string recall = "SFD·135/221";
+        const string recall = "OGN·104/298";
         var game = new Driver(WithHandCard(VenUnitEntryBasicTests.Position(no), "RETURN", recall));
         await game.Act("P1", new PlayCardCommand("UNIT", no, []));
         await game.Act("P1", new PlayCardCommand("RETURN", recall, ["UNIT"]));

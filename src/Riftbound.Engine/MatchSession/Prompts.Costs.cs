@@ -1796,6 +1796,7 @@ internal static partial class ActionPromptBuilder
             "SELF_BOON" => "给予我增益",
             "DAMAGE_2" => "造成 2 点伤害",
             "BASE_UNIT_DAMAGE_4" => "对基地单位造成 4 点伤害",
+            "BATTLEFIELD_UNIT_DAMAGE_4" => "对战场单位造成 4 点伤害",
             "DESTROY_EQUIPMENT" => "摧毁一件装备",
             _ => string.IsNullOrWhiteSpace(mode) ? "默认" : mode
         };

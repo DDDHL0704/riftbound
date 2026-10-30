@@ -82,7 +82,7 @@ public sealed class RadExhaustedUnitCountTests
         var game = new Driver(initial);
         var before = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, Play(Guest)));
         Assert.Equal(9, before.Cost!.Mana);
-        await game.Act("P1", new MoveUnitCommand("ALLY", destination == "BASE" ? "BATTLEFIELD:BF" : "BASE", destination, []));
+        await game.Act("P1", new MoveUnitCommand("ALLY", "BATTLEFIELD", destination, []));
         Assert.True(game.State.CardObjects["ALLY"].IsExhausted);
         var after = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, Play(Guest)));
         Assert.True(after.CanPay, after.Message);

@@ -80,7 +80,7 @@ public sealed class RadFollowupSpellTests
     {
         var initial = HandDiscardObserverTests.Put(VenUnitEntryBasicTests.Position("RAD·070/167"), "FIRST", first, "P1", "HAND");
         var game = new Driver(initial);
-        await game.Act("P1", new PlayCardCommand("FIRST", first, [], Destination: "BASE"));
+        await game.Act("P1", new PlayCardCommand("FIRST", first, first == "SFD·022/221" ? ["ALLY"] : [], Destination: "BASE"));
         var command = new PlayCardCommand("UNIT", "RAD·070/167", ["ALLY"]);
         var quote = new CoreRuleEngine().PreviewPlayCard(game.State, "P1", PlayCostPreviewTests.Request(game.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.Equal(3, quote.Cost!.Mana);
