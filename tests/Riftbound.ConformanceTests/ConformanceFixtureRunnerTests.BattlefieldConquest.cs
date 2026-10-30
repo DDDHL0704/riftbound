@@ -2554,4 +2554,400 @@ public sealed partial class ConformanceFixtureRunnerTests
             effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
                 && string.Equals(effect.TargetObjectId, "P1-RUMBLE-MECH-ALLY", StringComparison.Ordinal));
     }
+
+    private static async Task<ResolutionResult> CompleteP79ConquestResponses(ResolutionResult result)
+    {
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        var first = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new PassPriorityCommand());
+        Assert.Equal("P2", first.State.PriorityPlayerId);
+        Assert.DoesNotContain(first.Events, gameEvent => gameEvent.Kind is "CARD_DRAWN" or "CARD_DISCARDED"
+            or "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var second = await OfficialInsightAndSpellLockTests.Act(first.State, "P2", new PassPriorityCommand());
+        return second with { Events = result.Events.Concat(first.Events).Concat(second.Events).ToArray() };
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerConsumesBoonAndDraws()
+    {
+        var state = BattlefieldConquerBoonDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-boon-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-SHIRANA-MONASTERY",
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"],
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-SHIRANA-ATTACKER", choice.LegalObjectIds);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-SHIRANA-ATTACKER"]));
+        Assert.Contains(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.DoesNotContain(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        var attacker = result.State.CardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"];
+        Assert.Equal(3, attacker.Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, attacker.Tags);
+        Assert.Equal(["P1-BATTLEFIELD-BOON-DRAW-CARD"], result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerConsumesControlledBoonWhenDirtyBoonIsOpponentOwned()
+    {
+        var baseState = BattlefieldConquerBoonDrawState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Battlefields =
+            [
+                "P1-BATTLEFIELD-SHIRANA-ATTACKER",
+                "P1-BATTLEFIELD-DIRTY-P2-BOON",
+                "P1-BATTLEFIELD-LEGAL-BOON"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = cardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"] with
+        {
+            Tags = [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt]
+        };
+        cardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"] = new(
+            "P1-BATTLEFIELD-DIRTY-P2-BOON",
+            cardNo: "SFD·125/221",
+            power: 7,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            ownerId: "P2",
+            controllerId: "");
+        cardObjects["P1-BATTLEFIELD-LEGAL-BOON"] = new(
+            "P1-BATTLEFIELD-LEGAL-BOON",
+            cardNo: "SFD·125/221",
+            power: 5,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            ownerId: "P1",
+            controllerId: "P1");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-boon-dirty-target", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-SHIRANA-MONASTERY",
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"],
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-LEGAL-BOON", choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-DIRTY-P2-BOON", choice.LegalObjectIds);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-LEGAL-BOON"]));
+        Assert.Contains(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-LEGAL-BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(confirmed.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-LEGAL-BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DIRTY-P2-BOON", StringComparison.Ordinal));
+        Assert.Contains(CardObjectTags.Boon, result.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"].Tags);
+        Assert.DoesNotContain(CardObjectTags.Boon, result.State.CardObjects["P1-BATTLEFIELD-LEGAL-BOON"].Tags);
+        Assert.Equal(7, result.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"].Power);
+        Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-LEGAL-BOON"].Power);
+        Assert.Equal(["P1-BATTLEFIELD-BOON-DRAW-CARD"], result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerMillsTopTwoFromBattlefieldObject()
+    {
+        var state = BattlefieldConquerMillState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-mill", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-SCRAPYARD",
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"],
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var conquestTick = result.State.Tick;
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerMill);
+        var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(result.State);
+        result = resolved with { Events = result.Events.Concat(resolved.Events).ToArray() };
+        Assert.Equal(["P1-BATTLEFIELD-MILL-003"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", triggerEvent.Payload["battlefieldObjectId"]);
+        var millEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(millEvent.Payload["cardIds"]));
+        var conqueredResolution = Assert.Single(
+            result.State.BattlefieldResolutions,
+            resolution => string.Equals(resolution.Kind, "CONQUERED", StringComparison.Ordinal));
+        Assert.Equal(conquestTick, conqueredResolution.Tick);
+        Assert.True(result.State.Tick > conquestTick);
+        Assert.Equal("P1", conqueredResolution.PlayerId);
+        Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", conqueredResolution.BattlefieldObjectId);
+        Assert.Contains("P1-BATTLEFIELD-CONQUER-ATTACKER", conqueredResolution.ParticipantObjectIds);
+        Assert.Contains("P2-BATTLEFIELD-CONQUER-DEFENDER", conqueredResolution.ParticipantObjectIds);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerDiscardsThenDraws()
+    {
+        var state = BattlefieldConquerDiscardDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-discard-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-ZAUN-SUMP",
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"],
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Equal(state.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await CompleteP79ConquestResponses(result);
+        Assert.Equal(["P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DISCARD_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ZAUN-SUMP", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-001", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 1));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerDiscardDrawSkipsOpponentControlledHandCard()
+    {
+        var baseState = BattlefieldConquerDiscardDrawState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", "P1-BATTLEFIELD-DISCARD-001"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD"] = new(
+            "P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD",
+            ownerId: "P2",
+            controllerId: "P2");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-discard-draw-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-ZAUN-SUMP",
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"],
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        Assert.Null(result.State.PendingHandChoice);
+        Assert.Equal(state.PlayerZones["P1"].Hand, result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(state.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
+        Assert.Single(result.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+        result = await CompleteP79ConquestResponses(result);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", "P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-001", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerReadiesAndDetachesEquipment()
+    {
+        var state = BattlefieldConquerReadyEquipmentState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-equipment", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOONVEIL-ALTAR",
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"],
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", choice.LegalObjectIds);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        Assert.True(confirmed.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        var detach = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", detach.PlayerId);
+        Assert.Equal(0, detach.RequiredCount);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", detach.LegalObjectIds);
+        var detached = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(detach.ChoiceId, detach.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        result = detached with { Events = result.Events.Concat(detached.Events).ToArray() };
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
+        Assert.Equal(true, triggerEvent.Payload["detachesArmament"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));
+        var detachEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_DETACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-EQUIPMENT-HOST", detachEvent.Payload["previousAttachedToObjectId"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerReadyEquipmentSkipsOpponentOwnedEquipment()
+    {
+        var baseState = BattlefieldConquerReadyEquipmentState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base =
+            [
+                "P1-BATTLEFIELD-EQUIPMENT-HOST",
+                "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT",
+                "P1-BATTLEFIELD-ARMAMENT"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"] = new(
+            "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT",
+            cardNo: "SFD·022/221",
+            isExhausted: true,
+            tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+            attachedToObjectId: "P1-BATTLEFIELD-EQUIPMENT-HOST",
+            ownerId: "P2",
+            controllerId: "");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-equipment-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOONVEIL-ALTAR",
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"],
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", choice.PlayerId);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT", choice.LegalObjectIds);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind is "EQUIPMENT_READIED" or "EQUIPMENT_DETACHED");
+        var confirmed = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        Assert.True(confirmed.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        result = confirmed with { Events = result.Events.Concat(confirmed.Events).ToArray() };
+        result = await CompleteP79ConquestResponses(result);
+        var detach = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("P1", detach.PlayerId);
+        Assert.Equal(0, detach.RequiredCount);
+        Assert.Contains("P1-BATTLEFIELD-ARMAMENT", detach.LegalObjectIds);
+        var detached = await OfficialInsightAndSpellLockTests.Act(result.State, "P1",
+            new ChooseCardsCommand(detach.ChoiceId, detach.ChoiceWindow, ["P1-BATTLEFIELD-ARMAMENT"]));
+        result = detached with { Events = result.Events.Concat(detached.Events).ToArray() };
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyEquipment, StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"].IsExhausted);
+        Assert.Equal(
+            "P1-BATTLEFIELD-EQUIPMENT-HOST",
+            result.State.CardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"].AttachedToObjectId);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT", StringComparison.Ordinal));
+    }
 }

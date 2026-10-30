@@ -11,10 +11,11 @@ public sealed class BattleSettlementSurrenderTests
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     [Theory]
-    [InlineData("CLEANUP_TRIGGERS", "P1")] [InlineData("CLEANUP_TRIGGERS", "P2")]
-    [InlineData("RESULT_TRIGGERS", "P1")] [InlineData("RESULT_TRIGGERS", "P2")]
-    [InlineData("CONTROL_TRIGGERS", "P1")] [InlineData("CONTROL_TRIGGERS", "P2")]
-    public async Task EitherPlayerCanSurrenderBeforeTheNextEarnedBattleTask(string stage, string player)
+    [InlineData("CLEANUP_TRIGGERS", "P1", false)] [InlineData("CLEANUP_TRIGGERS", "P2", false)]
+    [InlineData("RESULT_TRIGGERS", "P1", false)] [InlineData("RESULT_TRIGGERS", "P2", false)]
+    [InlineData("CONTROL_TRIGGERS", "P1", false)] [InlineData("CONTROL_TRIGGERS", "P2", false)]
+    [InlineData("CONTROL_TRIGGERS", "P1", true)] [InlineData("CONTROL_TRIGGERS", "P2", true)]
+    public async Task EitherPlayerCanSurrenderBeforeTheNextEarnedBattleTask(string stage, string player, bool resolveConquest)
     {
         // Explicit midgame HAND positions; the actual plays, prompts and journal prefix establish each window.
         MatchState initial; Driver run;
@@ -29,7 +30,19 @@ public sealed class BattleSettlementSurrenderTests
             (initial, run) = await BattleWinnerPhaseBoundaryTests.Open("control-observer");
             await BattleWinnerPhaseBoundaryTests.PassFocus(run); await BattleWinnerPhaseBoundaryTests.Declare(run);
             await BattleWinnerPhaseBoundaryTests.ChooseGuardian(run);
-            if (stage == "CONTROL_TRIGGERS") { await run.Top(); Assert.NotNull(run.State.PendingHandChoice); }
+            if (stage == "CONTROL_TRIGGERS")
+            {
+                await run.Top();
+                Assert.Null(run.State.PendingHandChoice);
+                Assert.Single(run.State.StackItems, item => item.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw);
+                Assert.NotNull(run.State.PriorityPlayerId);
+                Assert.DoesNotContain(run.Events(), e => e.Event.Kind is "BATTLE_CLOSED" or "CARD_DISCARDED");
+                if (resolveConquest)
+                {
+                    await run.Top();
+                    Assert.NotNull(run.State.PendingHandChoice);
+                }
+            }
         }
         Assert.Equal(stage, run.State.PendingBattleResult!.Stage);
         Assert.Contains(CommandTypes.Surrender, ResolutionResult.BuildPrompts(run.State)[player].EnabledActions());

@@ -18,7 +18,7 @@ public sealed partial class LastBreathDrawBoundaryTests
             Assert.Equal(3, game.State.TriggerQueue.Count);
             await game.Act("P1", new OrderTriggersCommand(OrderedTriggerIds: game.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
             if (game.State.PriorityPlayerId != "P1") await game.Act(game.State.PriorityPlayerId!, new PassPriorityCommand());
-            await game.Act("P1", new TapRuneCommand("DRAW-RUNE-A")); await game.Act("P1", new TapRuneCommand("DRAW-RUNE-B"));
+            await game.Act("P1", new TapRuneCommand("DRAW-RUNE-A", ["DRAW-RUNE-A", "DRAW-RUNE-B"]));
             await game.Act("P1", new PlayCardCommand("DRAW", "OGN·048/298", [])); await game.Top();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Hand);
             Assert.True(game.State.CardObjects["UNIT"].ObjectGeneration > generation + 1);

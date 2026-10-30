@@ -37,6 +37,13 @@ public sealed class OptionalManaTriggerPromptTests
         Assert.Null(driver.State.PendingPayment);
         Assert.Equal(decline ? 1 : 0, driver.State.RunePools["P1"].Mana);
         Assert.Contains(done.Events, e => e.Kind == (decline ? "TRIGGER_PAYMENT_DECLINED" : "COST_PAID"));
+        if (branch == "vayne" && !decline)
+        {
+            Assert.Contains("UNIT", driver.State.PlayerZones["P1"].Battlefields);
+            Assert.DoesNotContain(done.Events, e => e.Kind == "UNIT_RETURNED_TO_HAND");
+            Assert.NotNull(driver.State.PriorityPlayerId);
+            await driver.Top();
+        }
         if (branch is "vayne" or "sand")
             Assert.Contains("UNIT", decline ? driver.State.PlayerZones["P1"].Battlefields : driver.State.PlayerZones["P1"].Hand);
         if (branch == "legend") Assert.Equal(decline, driver.State.CardObjects["LEGEND"].IsExhausted);
@@ -82,6 +89,14 @@ public sealed class OptionalManaTriggerPromptTests
             await driver.Act("P1", new PassFocusCommand());
             await driver.Act("P2", new PassFocusCommand());
         }
+        if (branch == "vayne")
+        {
+            Assert.Empty(driver.State.TriggerQueue);
+            var trigger = Assert.Single(driver.State.StackItems);
+            Assert.Equal(TriggerKinds.UnitConquestPayReturnSelfToHand, trigger.EffectKind);
+            var payment = Assert.IsType<PendingPaymentState>(driver.State.PendingPayment);
+            Assert.Equal(trigger.StackItemId, payment.ResolvingStackItemId);
+        }
         return driver;
     }
 
@@ -92,6 +107,7 @@ public sealed class OptionalManaTriggerPromptTests
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value);
         var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value);
+        locations["BF"] = new("P2", "BATTLEFIELD", "BF");
         cards["UNIT"] = cards["UNIT"] with { CardNo = branch == "vayne" ? "OGN·035/298" : branch == "icevale" ? "UNL-065/219" : "SFD·125/221" };
         if (branch == "legend")
         {
