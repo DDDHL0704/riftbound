@@ -4742,7 +4742,8 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
                 errors.Add("invalid captured exact other friendly Hold context");
         foreach (var item in state.TriggerQueue.Where(x => x.HeldContext is not null))
-            if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.SourceCardNo ?? item.HeldContext!.CardNo))
+            if (!CoreRuleEngine.ValidExactOtherFriendlyHeldContext(state, item.HeldContext!, item.EffectKind, item.ControllerId, item.SourceObjectId, item.SourceCardNo ?? item.HeldContext!.CardNo)
+                || item.HeldContext!.Kind == CoreRuleEngine.DeploymentHeldKind && item.TriggeredByEventKind != "BATTLEFIELD_HELD")
                 errors.Add("invalid captured exact other friendly Hold context");
         if (state.StackItems.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
             || state.TriggerQueue.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)

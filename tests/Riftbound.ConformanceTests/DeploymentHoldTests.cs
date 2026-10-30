@@ -10,13 +10,15 @@ public sealed class DeploymentHoldTests
     private const string Kind = "DEPLOYMENT_OPPONENT_HELD_DESTROY";
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public async Task OpponentHoldOffersAResponseBeforeOneDeploymentTriggerDestroysItsSource(bool duplicate, bool exhausted)
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    public async Task OpponentHoldOffersAResponseBeforeOneDeploymentTriggerDestroysItsSource(bool duplicate, bool exhausted, bool unitEquipment)
     {
-        var game = new Driver(Position(duplicate, exhausted));
+        var game = new Driver(Position(duplicate, exhausted, unitEquipment));
         await game.Act("P1", new PassPriorityCommand());
         var item = Assert.Single(game.State.StackItems);
         Assert.Equal(Kind, item.HeldContext!.Kind);
@@ -26,7 +28,7 @@ public sealed class DeploymentHoldTests
         Assert.Equal("BATTLEFIELD", game.State.ObjectLocations["DEPLOYED"].Zone);
         Assert.Empty(game.State.PlayerZones["P1"].Hand);
         Assert.Equal(3, game.State.PlayerZones["P1"].RuneDeck.Count);
-        Assert.Equal("P1", game.State.PriorityPlayerId);
+        Assert.Equal("P2", game.State.PriorityPlayerId);
         Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "EQUIPMENT_DESTROYED");
         await game.Top();
         Assert.Contains("DEPLOYED", game.State.PlayerZones["P1"].Graveyard);
@@ -71,6 +73,7 @@ public sealed class DeploymentHoldTests
         var game = new Driver(AttackDamageDistributionTests.Spell(Position(), "COUNTER", "SFD·045/221", "P1"));
         await game.Act("P1", new PassPriorityCommand());
         var item = Assert.Single(game.State.StackItems);
+        await game.Act("P2", new PassPriorityCommand());
         await game.Act("P1", new PlayCardCommand("COUNTER", "SFD·045/221", [item.StackItemId]));
         await game.Top();
         Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "F"), game.State.ObjectLocations["DEPLOYED"]);
@@ -100,6 +103,16 @@ public sealed class DeploymentHoldTests
                 ControllerId = source.OwnerId, Tags = [CardObjectTags.EquipmentCard] }, "HAND"),
             _ => Relocate(state, source with { ObjectGeneration = source.ObjectGeneration + 2 }, "BATTLEFIELD", "F")
         };
+        if (branch == "leave")
+        {
+            foreach (var snapshot in new[] { ResolutionResult.BuildSnapshots(state)["P2"], ResolutionResult.BuildSpectatorSnapshot(state) })
+            {
+                var visible = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+                Assert.Equal("HIDDEN", visible["sourceObjectId"]);
+                Assert.Equal("HOLD_" + Kind, visible["effectKind"]);
+                Assert.Equal("SFD·022/221", visible["cardNo"]);
+            }
+        }
         var game = new Driver(state);
         await game.Top();
         Assert.Equal(destroyed, game.State.PlayerZones["P1"].Graveyard.Contains("DEPLOYED"));
@@ -145,13 +158,15 @@ public sealed class DeploymentHoldTests
         await game.Replay();
     }
 
-    private static MatchState Position(bool duplicate = false, bool exhausted = false)
+    private static MatchState Position(bool duplicate = false, bool exhausted = false, bool unitEquipment = false)
     {
         var state = OfficialHoldSequenceTests.AddUnit(OfficialHoldSequenceTests.State("OGN·294/298"), "HOST", "SFD·125/221", "F", "P1") with { Seed = 494949 };
-        state = Relocate(state, new("DEPLOYED", cardNo: "SFD·022/221", ownerId: "P1", controllerId: "P2", isExhausted: exhausted,
-            tags: duplicate ? [CardObjectTags.EquipmentCard, "部署", "部署"] : [CardObjectTags.EquipmentCard, "部署"]), "BATTLEFIELD", "F");
-        state = Relocate(state, new("FRIENDLY", cardNo: "SFD·022/221", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.EquipmentCard, "部署"]), "BATTLEFIELD", "F");
-        state = Relocate(state, new("ELSEWHERE", cardNo: "SFD·022/221", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.EquipmentCard, "部署"]), "BATTLEFIELD", "OTHER");
+        state = Relocate(state, new("DEPLOYED", cardNo: "SFD·022/221", ownerId: "P1", controllerId: "P2", isExhausted: exhausted, power: 5,
+            tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Deploy,
+                ..duplicate ? new[] { CardEquipmentKeywordNames.Deploy } : [],
+                ..unitEquipment ? new[] { CardObjectTags.UnitCard } : []]), "BATTLEFIELD", "F");
+        state = Relocate(state, new("FRIENDLY", cardNo: "SFD·022/221", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Deploy]), "BATTLEFIELD", "F");
+        state = Relocate(state, new("ELSEWHERE", cardNo: "SFD·022/221", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Deploy]), "BATTLEFIELD", "OTHER");
         return Relocate(state, new("ORDINARY", cardNo: "SFD·022/221", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.EquipmentCard]), "BATTLEFIELD", "F");
     }
 

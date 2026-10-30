@@ -23,7 +23,7 @@ public sealed partial class CoreRuleEngine
         {
             if (card.IsFaceDown || string.IsNullOrWhiteSpace(card.CardNo)
                 || !card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-                || !card.Tags.Contains("部署", StringComparer.Ordinal)
+                || !card.Tags.Contains(CardEquipmentKeywordNames.Deploy, StringComparer.Ordinal)
                 || !IsObjectOnField(state.PlayerZones, card.ObjectId)
                 || !state.ObjectLocations.TryGetValue(card.ObjectId, out var location)
                 || location.Zone != "BATTLEFIELD" || location.BattlefieldObjectId is not { } field
@@ -76,7 +76,7 @@ public sealed partial class CoreRuleEngine
             ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind,
             ["battlefieldObjectId"] = item.HeldContext!.BattlefieldObjectId }) };
         var result = NoopStackResolutionResult(state);
-        // CN 390–392: the trigger survives movement/control/keyword changes.
+        // CN 191.5.b / 383.2.a.1: later source changes do not undo a captured trigger.
         // A source that left the field and re-entered is a different object.
         if (!state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
             || source.ObjectGeneration != item.HeldContext!.SourceGeneration
