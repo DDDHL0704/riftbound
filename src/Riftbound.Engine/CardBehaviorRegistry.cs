@@ -173,6 +173,7 @@ public sealed record CardBehaviorDefinition(
     string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
     int CounterUnlessControllerPaysMana = 0,
     int? MaxTargetPowerCost = null,
+    int? MinTargetPowerCost = null,
     bool RequiresTargetCostsAtMostDestroyedAdditionalCostUnit = false,
     bool RequiresTargetStackItemControlledByEnemy = false,
     bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false,
@@ -363,6 +364,7 @@ public static class CardTargetScopes
     public const string EnemyThenFriendlyUnits = "ENEMY_THEN_FRIENDLY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
+    public const string FriendlyEquipmentThenBattlefieldUnit = "FRIENDLY_EQUIPMENT_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldUnitThenStackSpell = "FRIENDLY_BATTLEFIELD_UNIT_THEN_STACK_SPELL";
@@ -720,11 +722,17 @@ public static class CardBehaviorRegistry
         new("RAD·034/167", "气敛神聚", 1, "CENTERING_READY_RESTRICT_MOVEMENT_DRAW", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, ReadiesTarget: true,
             StatusEffectId: MovementRestrictionRules.AllPlayers, DrawCount: 1, CanPlayDuringPriority: true),
+        new("RAD·041/167", "缄默术", 1, "SILENCE_COUNTER_SPELL_MINIMUM_POWER_COST_TWO", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, CountersTargetStackSpell: true,
+            MinTargetPowerCost: 2, CanPlayDuringPriority: true),
         new("RAD·048/167", "清籁穿云", 3, "CLEAR_CHORUS_EXHAUSTED_UNIT_COUNT_MIGHT_REDUCTION", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: -1,
             UsesControlledExhaustedUnitCountAsPowerModifierMultiplier: true, CanPlayDuringPriority: true),
         new("RAD·049/167", "勤勉的机械匠", 4, "DILIGENT_MECHANIC_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1),
+        new("RAD·056/167", "随手投掷", 3, "CASUAL_TOSS_DAMAGE_FRIENDLY_EQUIPMENT_MANA_COST", 0, 2,
+            TargetScope: CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit,
+            DamageAmountFromFirstTargetManaCost: true, DamageTargetIndex: 1, CanPlayDuringSpellDuel: true),
         new("RAD·058/167", "怒海法师", 4, "SEASPRAY_MAGE_PLAY_UNIT_ENEMY_POWER_MINUS_THREE", 0, 1,
             TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PowerModifierAmount: -3, PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",

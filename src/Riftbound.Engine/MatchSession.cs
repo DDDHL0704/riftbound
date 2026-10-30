@@ -3617,6 +3617,7 @@ internal static partial class ActionPromptBuilder
         return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
                 && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
+                && CoreRuleEngine.IsTargetManaCostAllowed(state, playerId, objectId, behavior)
                 && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
                 && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
                 && (!behavior.MovesTargetsToChosenLocation || !CoreRuleEngine.IsChosenMovementTargetIndex(behavior, targetIndex)
@@ -3765,6 +3766,9 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
                 : IsPromptEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => targetIndex == 0
+                ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
+                : IsPromptBattlefieldObject(state, objectId) && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
@@ -5140,6 +5144,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
             CardTargetScopes.FriendlyEquipment => "友方装备",
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => "友方装备，然后战场单位",
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",

@@ -21009,6 +21009,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit => targetIndex == 0
+                ? IsFriendlyEquipmentObject(state, playerId, objectId)
+                : IsBattlefieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
@@ -21542,9 +21545,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Count == 0;
     }
 
-    private static bool IsTargetManaCostAllowed(MatchState state, string playerId, string objectId, CardBehaviorDefinition behavior)
+    internal static bool IsTargetManaCostAllowed(MatchState state, string playerId, string objectId, CardBehaviorDefinition behavior)
         => (behavior.MaxTargetManaCost <= 0 || TryGetTargetManaCost(state, objectId, behavior, out var mana) && mana <= behavior.MaxTargetManaCost)
-            && (behavior.MaxTargetPowerCost is not { } max || TryGetTargetPowerCost(state, objectId, behavior, out var power) && power <= max);
+            && (behavior.MaxTargetPowerCost is not { } max || TryGetTargetPowerCost(state, objectId, behavior, out var power) && power <= max)
+            && (behavior.MinTargetPowerCost is not { } min || TryGetTargetPowerCost(state, objectId, behavior, out var minimumPower) && minimumPower >= min);
 
     private static bool TryGetTargetPowerCost(MatchState state, string id, CardBehaviorDefinition behavior, out int power)
     {
@@ -23736,6 +23740,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string DescribeTargetScope(string targetScope)
     {
         if (targetScope == CardTargetScopes.UnitEquipmentOrRune) return "unit, equipment, or rune";
+        if (targetScope == CardTargetScopes.FriendlyEquipmentThenBattlefieldUnit) return "friendly equipment then battlefield unit";
         if (targetScope == CardTargetScopes.AnyEmpoweredUnit) return "empowered unit";
         if (targetScope == CardTargetScopes.ControlledBattlefieldThenFriendlyUnit) return "controlled battlefield then friendly unit at another location";
         if (targetScope == CardTargetScopes.AnyGraveyardCard) return "card in any owner's graveyard";
@@ -33215,10 +33220,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.DamageAmountFromTargetMarkedDamage)
             damageAmount = targetObjectId is not null && state.CardObjects.TryGetValue(targetObjectId, out var markedTarget)
                 ? Math.Max(0, markedTarget.Damage) : 0;
-        else if (behavior.DamageAmountFromFirstTargetManaCost
-            && stackItem.TargetObjectIds.Count > 0
-            && state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState))
+        else if (behavior.DamageAmountFromFirstTargetManaCost)
         {
+            // CN 359.3.e.12: an illegal reference supplies no information.
+            // Ignoring that instruction also excludes damage bonuses; a legal
+            // zero-cost reference still supplies zero and receives bonuses.
+            if (stackItem.TargetObjectIds.Count == 0
+                || !state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState)) return 0;
             damageAmount = firstTargetState.ManaCost;
         }
         else if (behavior.ConditionalDamageAmount > 0
