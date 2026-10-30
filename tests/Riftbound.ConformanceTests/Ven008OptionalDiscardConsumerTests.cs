@@ -113,8 +113,8 @@ public sealed class Ven008OptionalDiscardConsumerTests
             Assert.False(quote.CanPay); Assert.Equal(1, quote.Cost!.MissingMana);
         }
         await Reject(driver, "P1", command);
-        if (branch == "mana") Assert.DoesNotContain("Unsupported optional cost", driver.Commands().Last().ErrorMessage!);
-        else Assert.Contains(branch is "two" or "duplicate" ? "Unsupported optional cost" : "requires a different hand card", driver.Commands().Last().ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        if (branch == "mana") Assert.Contains("法力不足", driver.Commands().Last().ErrorMessage!);
+        else Assert.Contains(branch is "two" or "duplicate" ? "可选费用选择无效" : "另一张手牌", driver.Commands().Last().ErrorMessage!);
         Assert.Contains("SPELL", driver.State.PlayerZones["P1"].Hand); Assert.Equal(0, driver.State.CardObjects["ENEMY"].Damage);
         await Export("invalid-extra-payment-" + branch, initial, driver);
     }
