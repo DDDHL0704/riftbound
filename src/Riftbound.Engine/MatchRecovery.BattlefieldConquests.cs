@@ -11,7 +11,7 @@ public static partial class MatchRecoveryValidator
         foreach (var record in events)
         {
             var e = record.Event;
-            if (e.Kind is not ("BATTLEFIELD_CONQUERED" or "BATTLEFIELD_CONTROL_RESOLVED")) continue;
+            if (e.Kind != "BATTLEFIELD_CONQUERED") continue;
             var payload = JsonSerializer.SerializeToElement(e.Payload);
             if (!payload.TryGetProperty("conquestTurnNumber", out var turn) || !turn.TryGetInt32(out var number)
                 || number != state.TurnNumber) continue;
