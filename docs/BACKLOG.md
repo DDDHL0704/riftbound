@@ -3,7 +3,7 @@
 这是项目唯一的状态文档。按优先级从上往下做：领任务时在条目后写上分支名，合入后勾掉；发现新问题直接追加。流程见 [AGENTS.md](../AGENTS.md)。
 
 **当前状态（2026-10-30）**
-- **main**：#292 测试正则缓存优化及 #294 夜验 ARM64 / SQL Release 配置已合入；固定 `9a248f9d` 的主干完整 [40996327487](https://github.com/DDDHL0704/riftbound/actions/runs/40996327487) 在 **27 分 37 秒**内通过 9,491 个方法、19,625 条用例和 `L2 required`，零跳过，Counter 与 #292 及固定计划逐条一致。
+- **main**：#292 测试正则缓存优化、#294 夜验 ARM64 / SQL Release 配置及 #295 退役资料清理已合入；固定 `958e8b11` 的主干完整 [41000890024](https://github.com/DDDHL0704/riftbound/actions/runs/41000890024) 在 **26 分 28 秒**内通过 9,491 个方法、19,625 条用例和 `L2 required`，Counter 与前次 27 分 37 秒的全绿 main 及固定计划逐条一致。#295 的完整 L2 也通过同一清单，零跳过。
 - **夜间验收**：手动完整验收已恢复；北京时间 10 月 30 日定时运行已结束，唯一实际失败为已由 #289 修复的皮城学院回响对局，四个 PostgreSQL 分区及所有其他集成验收均通过，当前连续通过 **0/3**，详情见 P0-2。
 - **卡牌目录**：基准快照 1089 个印次；未接入的效果及待核对印次见 [卡牌清单](CARD_BACKLOG.md)。
 - **重置前已暂停开发线的工作**：都已推到远端分支，接手说明见下面的"接手旧分支"；当前按 A/B/C/D 四线分工。
@@ -16,6 +16,8 @@
 
   SourceLone 对局已在伤害结算前无条件检查双方参与者，死亡后检查墓地和投影中的反向结果。L2 通过后已合入；[手动夜验 40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647) 的付款重连、完整对局进程分片及其他集成验收均通过，规则全量因六小时超时而未完成，详见 P0-2。
 - [ ] **P0-2 夜间验收连续通过**。每次失败都在这里登记"失败项 + 原因 + 修复 PR"；连续 3 晚全绿后删掉本条。
+  - `a/sql-regex-cache`：SQL 验收独立进程复用完整规则测试已验证的 1,024 条静态正则缓存，并在现有分区结果中记录实际缓存容量、CPU 数和 GC 模式。手动夜验 40990497783 的分区 1 已通过，17 个原始场景共约 112.1 分钟，其中复制临终悟性约 62.4 分钟；实际提速仍须在完整夜验中验证。保留全部 SQL 场景、原始命令、冷恢复、反伪造和完整回放检查；现有验收驱动任务同时编译完整 PostgreSQL Release 项目，及时发现夜验编译错误，任务数保持。
+  - [40990497783](https://github.com/DDDHL0704/riftbound/actions/runs/40990497783)（#289 修复后手动运行，固定 `c7100536`，不含 #292 缓存及 #294 配置）：八片完整规则及规则汇总已通过，9,649 个方法、19,890 条用例逐条 Counter 与固定 full 计划一致，含全部 144 个完整对局方法；SQL SignalR、网络、双桌面及 PostgreSQL 分区 1、3 通过，分区 0、2 仍在运行。最终结果待确认，手动运行不计入连续三晚。
   - [40708127555](https://github.com/DDDHL0704/riftbound/actions/runs/40708127555)（10 月 28 日手动运行）：6 局完整对局的夹具与当前战斗、触发时机及战场归属不一致；付款重连的可选减费夹具未适配候选结构变更。修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)，已合入，待完整夜验验证。
   - [40779960890](https://github.com/DDDHL0704/riftbound/actions/runs/40779960890)（10 月 29 日定时运行，固定 `b5691868`，不含 #236）：规则全量的 6 局完整对局与上次失败相同；付款重连的可选减费 SQL 夹具对多个候选调用 `Single()` 失败。原因同上，修复：[PR #236](https://github.com/DDDHL0704/riftbound/pull/236)。
   - [40783707647](https://github.com/DDDHL0704/riftbound/actions/runs/40783707647)（#236 合入后手动运行，固定 `d7f0ab9e`，最终 `cancelled`）：`rule_suite` 从 10 月 28 日 23:32 跑到 29 日 05:32 UTC，达到六小时上限被取消，聚合 `rules` 因此失败。PostgreSQL 四个分区、SQL SignalR 进程重启、网络、Windows/macOS 桌面及四个完整对局进程分片全部通过；普通规则集中在单个进程，未完成。修复：[PR #263](https://github.com/DDDHL0704/riftbound/pull/263)，已合入：一次 Release 构建、八个 GitHub 分片（最多六个并发）按实际耗时分配全部规则和完整对局，逐个核对全部实际用例恰好执行一次，保留完整验收门槛。
@@ -87,7 +89,7 @@
   - main [40927710867](https://github.com/DDDHL0704/riftbound/actions/runs/40927710867)（固定 `e8de1e21`）及包含 #276 的 main [40933612646](https://github.com/DDDHL0704/riftbound/actions/runs/40933612646)（固定 `b17468bc`）均已完整通过 9,186 个方法、18,477 条用例与门槛，原 Counter 逐条一致。 包含 #277 的 main [40940552211](https://github.com/DDDHL0704/riftbound/actions/runs/40940552211)（固定 `6c934aef`）也已完整通过，原 Counter 逐条一致。
   - 包含 #262 和 #278 的 main [40946282257](https://github.com/DDDHL0704/riftbound/actions/runs/40946282257)（固定 `afab4e71`）已完整通过 9,406 个方法、19,220 条用例和门槛，Counter 与 #262 逐条一致。
   - 所有代码 PR 保留完整 L2 规则、完整对局及 `L2 required` 门槛；分片与夹具优化均逐用例核对完整清单。
-- [x] **P3-3 清理 `docs/legacy/`**：4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过，完整规则和完整对局由合入门槛验收。
+- [x] **P3-3 清理 `docs/legacy/`**：[#295](https://github.com/DDDHL0704/riftbound/pull/295) 已合入。4 个测试仍读取的 JSON 原样迁到 `tests/Riftbound.ConformanceTests/Fixtures/official-source/`，内容逐字节一致；删除其余退役文档和没有调用方的治理报告工具，历史内容保留在 Git 中。夜验只删除退役审计提交获取步骤，完整验收保留。AGENTS 同步四线职责、P1 归 C 线及本地单任务和 PATH 限流约束。32 条夹具读取定向测试逐条对齐 #262 清单通过，零跳过；182 项 Python 检查通过；完整 [41001117429](https://github.com/DDDHL0704/riftbound/actions/runs/41001117429) 的九片规则、三局完整对局及门槛全部通过，9,491 个方法、19,625 条用例 Counter 与固定计划及全绿 main 逐条一致，零跳过。
 
 ## 接手旧分支
 
