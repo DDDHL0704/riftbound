@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -14,7 +15,12 @@ public sealed class CiCollectionOrderer : ITestCollectionOrderer
     private readonly string? selectionPath;
 
     public CiCollectionOrderer() : this(Environment.GetEnvironmentVariable("RIFTBOUND_TEST_COLLECTION_ORDER"))
-        => CiTestHostObservation.Start();
+    {
+        // Catalog parsing uses hundreds of static regex patterns. The runtime's
+        // default cache of 15 repeatedly evicts them while building rule maps.
+        Regex.CacheSize = Math.Max(Regex.CacheSize, 1024);
+        CiTestHostObservation.Start();
+    }
     internal CiCollectionOrderer(string? selectionPath) => this.selectionPath = selectionPath;
 
     public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
