@@ -135,7 +135,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
-    private const string PlayedUnitThisTurnEffectPrefix = "PLAYED_UNIT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
@@ -3641,11 +3640,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects,
             intent.PlayerId,
             behavior);
-        untilEndOfTurnEffects = MarkUnitPlayedThisTurn(
-            untilEndOfTurnEffects,
-            intent.PlayerId,
-            behavior,
-            toBattlefield: !string.IsNullOrWhiteSpace(destination));
         untilEndOfTurnEffects = MarkRengarUnitPlayedTriggerTarget(
             untilEndOfTurnEffects,
             stackItem,
@@ -4523,17 +4517,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : existingEffectIds;
     }
 
-    private static IReadOnlyList<string> MarkUnitPlayedThisTurn(
-        IReadOnlyList<string> existingEffectIds,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        bool toBattlefield)
-    {
-        return behavior.PlaysSourceToBaseAsUnit && toBattlefield
-            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedUnitThisTurnEffectId(playerId))
-            : existingEffectIds;
-    }
-
     private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
@@ -4549,11 +4532,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string BuildPlayedEquipmentThisTurnEffectId(string playerId)
     {
         return $"{PlayedEquipmentThisTurnEffectPrefix}{playerId}";
-    }
-
-    private static string BuildPlayedUnitThisTurnEffectId(string playerId)
-    {
-        return $"{PlayedUnitThisTurnEffectPrefix}{playerId}";
     }
 
     private static string BuildDiscardedHandCardThisTurnEffectId(string playerId)
