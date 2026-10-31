@@ -12639,7 +12639,7 @@ public sealed class OfficialOpeningTests
         Assert.True(firstTurnPrompt.Actionable);
         Assert.Equal(PromptTypes.MainAction, firstTurnPrompt.View?.Type);
         Assert.Contains(CommandTypes.EndTurn, firstTurnPrompt.EnabledActions());
-        var rawCommand = PromptScopedBasicRawCommand(CommandTypes.Pass, firstTurnPrompt);
+        var rawCommand = RawCommand(CommandTypes.Pass);
         var journalEntryCountBeforePass = journal.Entries.Count;
 
         var accepted = await context.Session.SubmitAsync(
@@ -16276,7 +16276,17 @@ public sealed class OfficialOpeningTests
         Assert.Equal(context.Accepted.State.ReadyPlayerIds, rejected.State.ReadyPlayerIds);
         Assert.Equal(context.Accepted.State.MulliganCompletedPlayerIds, rejected.State.MulliganCompletedPlayerIds);
         Assert.Equal(context.Accepted.State.OpeningSecondActionPlayerId, rejected.State.OpeningSecondActionPlayerId);
-        AssertOfficialFirstTurnGenericPassPromptQueueAudit(context, rejected, assertEvents: false);
+        AssertOfficialFinalMulliganFirstTurnPromptQueueAudit(
+            rejected,
+            context.ActivePlayerId,
+            context.SecondPlayerId,
+            context.ActiveSelectedObjectIds,
+            context.ActiveDrawnObjectIds,
+            context.SecondSelectedObjectIds,
+            context.SecondDrawnObjectIds,
+            context.CalledRuneObjectIds,
+            context.TurnDrawnObjectIds,
+            assertEvents: false);
         Assert.Equal(context.Accepted.Prompts[context.ActivePlayerId].SnapshotTick, rejected.Prompts[context.ActivePlayerId].SnapshotTick);
         Assert.Equal(context.Accepted.Prompts[context.SecondPlayerId].SnapshotTick, rejected.Prompts[context.SecondPlayerId].SnapshotTick);
     }
