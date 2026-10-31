@@ -2317,7 +2317,8 @@ internal static partial class ActionPromptBuilder
         int BonusMana = 0,
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null,
         string? AbilityInstanceId = null, string? CopyEquipmentObjectId = null,
-        IReadOnlyList<ActionPromptChoiceDto>? AdditionalCostChoices = null, int RequiredAdditionalCostChoiceCount = 0);
+        IReadOnlyList<ActionPromptChoiceDto>? AdditionalCostChoices = null, int RequiredAdditionalCostChoiceCount = 0,
+        int AvailableMana = 0, int AvailableManaWithPaymentResources = 0);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -2340,7 +2341,11 @@ internal static partial class ActionPromptBuilder
         string? UnsupportedReason,
         int PowerCost = 0,
         IReadOnlyDictionary<string, int>? SpellshieldTaxPowerByTargetObjectId = null,
-        int RequiredAdditionalCostChoiceCount = 0);
+        int RequiredAdditionalCostChoiceCount = 0,
+        IReadOnlyList<ActionPromptChoiceDto>? PaymentResourceChoices = null,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>? PaymentResourcePowerByChoice = null,
+        int AvailablePower = 0, int AvailablePowerWithPaymentResources = 0,
+        int AvailableMana = 0, int AvailableManaWithPaymentResources = 0);
 
     private sealed record DeclareBattlePromptRequirement(
         string SourceObjectId,
@@ -3045,6 +3050,7 @@ internal static partial class ActionPromptBuilder
         }
 
         return requirements
+            .Select(requirement => WithAbilityRunePaymentResources(state, playerId, requirement))
             .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
             .ToArray();
     }
@@ -3137,6 +3143,7 @@ internal static partial class ActionPromptBuilder
                 ability.PowerCost,
                 spellshieldByTarget, ability.BanishesGraveyardPermanentAsCost ? 1 : 0);
 
+            requirement = WithLegendRunePaymentResources(state, playerId, requirement);
             if (CanPayLegendActionRequirement(state, playerId, requirement))
             {
                 requirements.Add(requirement);
@@ -3618,9 +3625,11 @@ internal static partial class ActionPromptBuilder
 
         var hasAbility = P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var ability);
         var manaPurpose = CoreRuleEngine.ManaPurposeForActivatedAbility(state, requirement.SourceObjectId);
-        if (PaymentCostRules.AvailableMana(runePool, manaPurpose, state) < requirement.ManaCost)
+        if (AbilityAvailableManaWithRuneTaps(state, playerId, runePool, manaPurpose) < requirement.ManaCost)
         {
             var supportsLegend = requirement.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal)
+                || requirement.AbilityId.StartsWith("SELF-MIGHT:", StringComparison.Ordinal)
+                || requirement.AbilityId.StartsWith("NAMED-UNIT-SWAP:", StringComparison.Ordinal)
                 || hasAbility && SupportsInlineRenektonAbilityPayment(ability);
             if (manaPurpose != ManaPaymentPurpose.UnitAbility || !supportsLegend) return false;
             return PromptRenektonPaymentChoices(state, playerId).Any(choice =>
@@ -3629,7 +3638,7 @@ internal static partial class ActionPromptBuilder
                     UnitPlayOrUnitAbilityOnlyMana = choice.RemainingPool.UnitPlayOrUnitAbilityOnlyMana + 2 };
                 var purpose = hasAbility ? CoreRuleEngine.PowerPurposeForActivatedAbility(ability) : PowerPaymentPurpose.Other;
                 var payablePower = PaymentCostRules.PowerPoolForPurpose(remaining, purpose);
-                return PaymentCostRules.AvailableMana(remaining, manaPurpose, state) >= requirement.ManaCost
+                return AbilityAvailableManaWithRuneTaps(state, playerId, remaining, manaPurpose) >= requirement.ManaCost
                     && new RunePaymentReachability(payablePower, choice.RemainingRunePower, choice.RemainingRuneCapacity)
                         .CanPay(requirement.PowerCost, requirement.PowerCostByTrait);
             });
@@ -4932,6 +4941,8 @@ internal static partial class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["abilityLabel"] = requirement.AbilityLabel,
             ["manaCost"] = requirement.ManaCost,
+            ["availableMana"] = requirement.AvailableMana,
+            ["availableManaWithPaymentResources"] = requirement.AvailableManaWithPaymentResources,
             ["experienceCost"] = requirement.ExperienceCost,
             ["minTargetCount"] = requirement.MinTargetCount,
             ["maxTargetCount"] = requirement.MaxTargetCount,
@@ -4941,6 +4952,12 @@ internal static partial class ActionPromptBuilder
             ["targetScopeLabel"] = requirement.TargetScopeLabel,
             ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices ?? [],
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice
+                ?? new Dictionary<string, IReadOnlyDictionary<string, object?>>(),
+            ["availablePower"] = requirement.AvailablePower,
+            ["availablePowerWithPaymentResources"] = requirement.AvailablePowerWithPaymentResources,
+            ["paymentResourceOrderMatters"] = true,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["timingLabel"] = requirement.TimingLabel,
             ["exhaustsSource"] = requirement.ExhaustsSource,
@@ -4978,6 +4995,8 @@ internal static partial class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["abilityLabel"] = requirement.AbilityLabel,
             ["manaCost"] = requirement.ManaCost,
+            ["availableMana"] = requirement.AvailableMana,
+            ["availableManaWithPaymentResources"] = requirement.AvailableManaWithPaymentResources,
             ["powerCost"] = requirement.PowerCost,
             ["experienceCost"] = requirement.ExperienceCost,
             ["powerCostByTrait"] = requirement.PowerCostByTrait,
@@ -5007,7 +5026,7 @@ internal static partial class ActionPromptBuilder
             view["additionalCostChoices"] = requirement.AdditionalCostChoices;
             view["requiredAdditionalCostChoiceCount"] = requirement.RequiredAdditionalCostChoiceCount;
         }
-        if (requirement.PaymentResourceChoices.Any(choice => choice.Id.StartsWith("LEGEND_RESOURCE:", StringComparison.Ordinal)))
+        if (requirement.PaymentResourceChoices.Count > 0)
             view["paymentResourceOrderMatters"] = true;
         if (requirement.AbilityInstanceId is not null)
         {

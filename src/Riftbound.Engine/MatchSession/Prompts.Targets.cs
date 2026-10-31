@@ -723,11 +723,13 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < requirement.ManaCost)
+        if (AbilityAvailableManaWithRuneTaps(state, playerId, runePool, ManaPaymentPurpose.Other) < requirement.ManaCost)
         {
             return false;
         }
-        if (!PaymentCostRules.CanPayPowerCost(runePool, requirement.PowerCost, new Dictionary<string, int>())) return false;
+        var resources = requirement.PaymentResourcePowerByChoice ?? new Dictionary<string, IReadOnlyDictionary<string, object?>>();
+        if (!new RunePaymentReachability(PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Other),
+                CandidatePowerByTrait(resources)).CanPay(requirement.PowerCost, new Dictionary<string, int>())) return false;
 
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -926,7 +928,7 @@ internal static partial class ActionPromptBuilder
             ? currentExperience
             : 0;
         return experience >= ability.ExperienceCost
-            && runePool.TotalPower >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
@@ -945,7 +947,7 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return PaymentCostRules.AvailableMana(runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId), state) >= ability.ManaCost
+        return AbilityAvailableManaWithRuneTaps(state, playerId, runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId)) >= ability.ManaCost
             && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
@@ -1194,7 +1196,7 @@ internal static partial class ActionPromptBuilder
         var acceptsLegend = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0);
         var legendChoices = acceptsLegend ? PromptRenektonPaymentChoices(state, playerId) : [];
         var hasLegend = legendChoices.Count > 0;
-        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
+        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0 || ability.AppliesSpellshieldTargetTax
             || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             || hasLegend
                 ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
