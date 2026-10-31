@@ -40,7 +40,7 @@
 - [ ] **P1-4 其余前端反馈的服务端问题**：详见 `clients/web/docs/server-findings.md`。2026-10-30 已在 main 上逐条复核，以下问题仍然存在。每条单独一个小 PR，按顺序做：
   - [ ] **P1-4a 支付窗口里允许横置符文（S5）**。`PAY_COST` 的 `paymentChoiceIds` 像回收符文一样，可以携带横置符文；法力池不够时不再拒绝"资源不足，可以先使用符文"。涉及 `CoreRuleEngine.Tempered.cs`、`CoreRuleEngine.TriggerCosts.cs`。依据：204.4.b.1、430.3。和 P1-2 同属一类，可放在 P1-2 之后、复用同一套"横置付费动作"。
   - [ ] **P1-4b 传奇技能和主动技能的候选按可横置、可回收的符文计算（S2 末尾）**。复核 `LEGEND_ACT`、`ACTIVATE_ABILITY` 的候选是否也只看法力池；有问题的话按 P1-2 的同一方式修。依据同上。
-  - [ ] **P1-4c 询价失败时返回具体原因（S4）**。`CoreRuleEngine.PlayCostPreview.cs` 现在固定返回"当前选择无法打出，请检查目标、位置和支付资源。"，丢掉了 `rejection` 的原因。改为返回具体原因（不能泄露隐藏信息）；缺少必选目标时，给出基础费用和已知增减费，并把目标相关的附加费用（如法盾）标注为"取决于目标"。
+  - [x] **P1-4c 询价失败时返回具体原因（S4）**。费用询价现在保留具体拒绝原因；缺少必选目标时返回已知费用并标注目标相关费用。依据：204.4.b.1、430.3。
   - [ ] **P1-4d 拒绝原因改中文（S6）**。`CoreRuleEngine.cs` 里的 "Invalid printed power allocation."、"Payment resource actions are not required to play …"、"Not enough mana / power / experience / resources to play …" 改成中文，错误码不变。
   - [ ] **P1-4e 待命布置费用标明单选，并修正错误码（S7）**。`HIDE_CARD` 的费用选项在提示元数据里标明"必选 1 个"；`CoreRuleEngine.Standby.cs` 中"不能以该费用进行待命埋伏"的错误码从 `UNSUPPORTED_CARD_BEHAVIOR` 改为 `INVALID_PAYLOAD`。
   - [ ] **P1-4f 提示里没提供的命令统一返回"已过期 / 未提供"（S8）**。命令类型不在当前提示的已启用候选里时，返回 `PROMPT_EXPIRED` 或专门的错误码，不再进入该命令的阶段检查。
