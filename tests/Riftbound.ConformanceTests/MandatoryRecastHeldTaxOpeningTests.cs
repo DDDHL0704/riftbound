@@ -221,14 +221,25 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
         async Task NextOwnTurn()
         {
             Assert.Equal(actor, State().TurnPlayerId);
-            var otherStart = await Act(actor, new EndTurnCommand());
-            await TurnSequenceTestDriver.Complete(otherStart,
-                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
-            var ownStart = await Act(State().TurnPlayerId, new EndTurnCommand());
-            await TurnSequenceTestDriver.Complete(ownStart,
-                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+            // Turn-start cleanup is a deterministic setup phase. Keep the
+            // duplicate-intent checks for every command, then validate the
+            // complete action log once at the phase boundary instead of
+            // replaying the growing history after every automatic step.
+            var recover = verifyColdRecoveryAfterEveryCommand;
+            verifyColdRecoveryAfterEveryCommand = false;
+            try
+            {
+                var otherStart = await Act(actor, new EndTurnCommand());
+                await TurnSequenceTestDriver.Complete(otherStart,
+                    (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+                var ownStart = await Act(State().TurnPlayerId, new EndTurnCommand());
+                await TurnSequenceTestDriver.Complete(ownStart,
+                    (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+            }
+            finally { verifyColdRecoveryAfterEveryCommand = recover; }
             Assert.Equal(actor, State().TurnPlayerId);
             Assert.Equal(MatchPhases.Main, State().Phase);
+            await Cold();
         }
         async Task Drain()
         {
