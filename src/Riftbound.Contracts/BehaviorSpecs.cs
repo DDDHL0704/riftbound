@@ -49,6 +49,11 @@ public static class ActivatedAbilityKinds
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
 }
 
+public static class ActivatedAbilitySourceScopes
+{
+    public const string FriendlyLegend = "FRIENDLY_LEGEND";
+}
+
 public static class BehaviorEffectConditionKinds
 {
     public const string None = "NONE";
