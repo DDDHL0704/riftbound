@@ -112,6 +112,24 @@ class ScopeTests(unittest.TestCase):
                 self.assertEqual(tier, result['tier'])
                 self.assertEqual(tier != 'DOCS', result['full'])
 
+    def test_main_docs_push_can_use_the_same_fail_closed_documentation_scope(self):
+        self.write('scripts/ci-change-scope.py', Path(scope.__file__).read_text())
+        self.base = self.commit()
+        self.write('docs/BACKLOG.md', 'latest main documentation\\n')
+        head = self.commit()
+        event = self.repo / '.git/event.json'
+        output = self.repo / '.git/scope.json'
+        event.write_text(json.dumps({'before': self.base}))
+        subprocess.run([
+            'python3', str(self.repo / 'scripts/ci-change-scope.py'),
+            '--docs-pr-only', '--allow-main-docs', '--event', str(event),
+            '--event-name', 'push', '--head', head, '--output', str(output),
+        ], check=True, capture_output=True)
+        result = json.loads(output.read_text())
+        self.assertEqual('DOCS', result['tier'])
+        self.assertFalse(result['full'])
+        self.assertEqual('NOT_RUN_DOCUMENTATION_ONLY', result['ruleAndPackagingExecution'])
+
     def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
         paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
                  'docs/legacy/evidence/ledger.json', 'data/official/card-catalog.json',

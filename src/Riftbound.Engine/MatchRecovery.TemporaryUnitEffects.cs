@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Riftbound.CardCatalog;
 
 namespace Riftbound.Engine;
 
@@ -23,12 +24,25 @@ public static partial class MatchRecoveryValidator
                     errors.Add("temporary numeric unit effect has no official behavior"); continue;
                 }
                 if (ev.Kind == "BASE_MIGHT_SET_UNTIL_END_OF_TURN") {
-                    var expectedBase = CardBehaviorRegistry.TryGetByCardNo(no, out var baseBehavior) ? baseBehavior.BasePowerUntilEndOfTurn : null;
-                    if (expectedBase is null && UnitMovedTriggerSpecRules.TryGetTrigger(no, UnitMovedTriggerSpecRules.IsMovementBaseMightTrigger, out var movement))
-                        expectedBase = movement.BasePowerUntilEndOfTurn;
-                    if (!TryReadObjectInt(ev.Payload, "baseMight", out var value) || expectedBase is null || value != expectedBase)
+                    if (!TryReadObjectInt(ev.Payload, "baseMight", out var value)) {
                         errors.Add("base Might grant differs from its official behavior");
-                    else bases[(target!, generation)] = value;
+                    }
+                    else if (CoreRuleEngine.HighCostSetsSourceBasePower(no)) {
+                        if (!TryReadObjectString(ev.Payload, "playedCardNo", out var playedCardNo)
+                            || string.IsNullOrWhiteSpace(playedCardNo)
+                            || !OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
+                                .Any(card => card.CardNo == playedCardNo && card.Energy == value))
+                            errors.Add("base Might grant differs from its official behavior");
+                        else bases[(target!, generation)] = value;
+                    }
+                    else {
+                        var expectedBase = CardBehaviorRegistry.TryGetByCardNo(no, out var baseBehavior) ? baseBehavior.BasePowerUntilEndOfTurn : null;
+                        if (expectedBase is null && UnitMovedTriggerSpecRules.TryGetTrigger(no, UnitMovedTriggerSpecRules.IsMovementBaseMightTrigger, out var movement))
+                            expectedBase = movement.BasePowerUntilEndOfTurn;
+                        if (expectedBase is null || value != expectedBase)
+                            errors.Add("base Might grant differs from its official behavior");
+                        else bases[(target!, generation)] = value;
+                    }
                 } else {
                     if (!CardBehaviorRegistry.TryGetByCardNo(no, out var behavior)) {
                         errors.Add("temporary numeric unit effect has no official behavior"); continue;
