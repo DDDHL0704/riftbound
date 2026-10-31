@@ -67,24 +67,31 @@ public sealed partial class LastBreathRuneCallBoundaryTests
                 ObjectLocations = initial.ObjectLocations.ToDictionary(p => p.Key, p => moved.Contains(p.Key) ? new ObjectLocationState("P1", "HAND") : p.Value) };
         }
         var game = new Driver(initial);
-            Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P2"].Mana);
-            await Tap(game, "P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
-            var mana = game.State.RunePools["P1"].Mana;
-            await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
-            Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.CardObjects["UNIT"].Power);
-            var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
-            for (var i = 0; i < copies; i++)
-            {
-                await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
-                mana = game.State.RunePools["P1"].Mana;
-                await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
-                Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
-                Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
-                Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
-            }
-            await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
-            await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
-            await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
+        // Build the paid source and its copied attachments as one setup stage.
+        // Every command still checks acceptance, duplicate submission and
+        // hidden-zone privacy; the first cold restore is needed at the death
+        // boundary where the rune-call queue is inspected.
+        game.RecoverAfterEveryCommand = false;
+        Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P2"].Mana);
+        await Tap(game, "P1", Enumerable.Range(0, 6).Select(i => "P1-RUNE-" + i));
+        var mana = game.State.RunePools["P1"].Mana;
+        await game.Act("P1", new PlayCardCommand("UNIT", Unit, []));
+        Assert.Equal(mana - 2, game.State.RunePools["P1"].Mana); Assert.Equal(1, game.State.CardObjects["UNIT"].Power);
+        var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
+        for (var i = 0; i < copies; i++)
+        {
+            await game.Act("P1", new RecycleRuneCommand("P1-RUNE-" + i));
+            mana = game.State.RunePools["P1"].Mana;
+            await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
+            Assert.Equal(mana - 1, game.State.RunePools["P1"].Mana);
+            Assert.Equal(Unit, game.State.CardObjects["SONG-" + i].AttachedRuleText!.CardNo);
+            Assert.Equal(generation, game.State.CardObjects["SONG-" + i].AttachedRuleText!.Unit.Generation);
+        }
+        await game.Act("P1", new EndTurnCommand()); await Tap(game, "P2");
+        await game.Act("P2", new RecycleRuneCommand("P2-RUNE-0")); await game.Act("P2", new RecycleRuneCommand("P2-RUNE-1"));
+        await game.Act("P2", new PlayCardCommand("KILL", Kill, ["UNIT"])); await game.Top();
+        game.RecoverAfterEveryCommand = true;
+        await game.ColdCheckpoint();
         return (initial, game, generation);
     }
 

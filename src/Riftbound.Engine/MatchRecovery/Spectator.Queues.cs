@@ -873,6 +873,8 @@ public static partial class MatchRecoveryValidator
         return payment.PaymentResourceActionIds
             .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                 choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
+            .Concat(payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow
+                ? [] : CoreRuleEngine.TapRunePaymentResourceActionIds(authoritativeState, payment.PlayerId))
             .Concat(ExpectedBlueSentinelDelayedResourceActionIdsForRecovery(authoritativeState, payment))
             .Distinct(StringComparer.Ordinal)
             .ToArray();

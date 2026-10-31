@@ -365,6 +365,9 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         CardObjectState cardObject)
     {
+        if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
+            return zones.LegendZone.Contains(sourceObjectId, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown;
         if (!string.IsNullOrWhiteSpace(ability.SourceRequiredTag))
             return cardObject.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown;
@@ -720,11 +723,13 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (PaymentCostRules.AvailableMana(runePool, ManaPaymentPurpose.Other, state) < requirement.ManaCost)
+        if (AbilityAvailableManaWithRuneTaps(state, playerId, runePool, ManaPaymentPurpose.Other) < requirement.ManaCost)
         {
             return false;
         }
-        if (!PaymentCostRules.CanPayPowerCost(runePool, requirement.PowerCost, new Dictionary<string, int>())) return false;
+        var resources = requirement.PaymentResourcePowerByChoice ?? new Dictionary<string, IReadOnlyDictionary<string, object?>>();
+        if (!new RunePaymentReachability(PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Other),
+                CandidatePowerByTrait(resources)).CanPay(requirement.PowerCost, new Dictionary<string, int>())) return false;
 
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -762,8 +767,10 @@ internal static partial class ActionPromptBuilder
 
         if (ability.SimpleEffect is not null)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
-                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer
-                    ? state.Seats.Keys.Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto(id, state.Seats[id], "获得来源控制权并召回")).ToArray()
+                ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                    ? state.Seats.Keys.Where(id => !string.Equals(id, playerId, StringComparison.Ordinal)).Order(StringComparer.Ordinal)
+                        .Select(id => new ActionPromptChoiceDto(id, state.Seats[id],
+                            ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? "选择对手执行移动" : "获得来源控制权并召回")).ToArray()
                     : PublicBoardObjects(state)
                     .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
@@ -921,7 +928,7 @@ internal static partial class ActionPromptBuilder
             ? currentExperience
             : 0;
         return experience >= ability.ExperienceCost
-            && runePool.TotalPower >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
@@ -940,7 +947,7 @@ internal static partial class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return PaymentCostRules.AvailableMana(runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId), state) >= ability.ManaCost
+        return AbilityAvailableManaWithRuneTaps(state, playerId, runePool, CoreRuleEngine.ManaPurposeForActivatedAbility(state, sourceObjectId)) >= ability.ManaCost
             && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
@@ -1189,7 +1196,7 @@ internal static partial class ActionPromptBuilder
         var acceptsLegend = SupportsInlineRenektonAbilityPayment(ability) && (ability.ManaCost > 0 || ability.PowerCost > 0);
         var legendChoices = acceptsLegend ? PromptRenektonPaymentChoices(state, playerId) : [];
         var hasLegend = legendChoices.Count > 0;
-        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0
+        var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0 || ability.AppliesSpellshieldTargetTax
             || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             || hasLegend
                 ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
@@ -1421,6 +1428,7 @@ internal static partial class ActionPromptBuilder
             return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
         {
+            P4ActivatedAbilityCatalog.LanternDragonAbilityId => "提灯亚龙：横置，选择一名对手移动其单位",
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
             P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点任意特性符能",
@@ -1448,6 +1456,7 @@ internal static partial class ActionPromptBuilder
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
+        if (ability.SimpleEffect?.CommandsOpponentUnitToSourceBattlefield == true) return "一名对手";
         return ability.RequiredTargetCount == 0
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)
