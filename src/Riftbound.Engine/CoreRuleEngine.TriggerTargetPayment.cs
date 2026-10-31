@@ -7,10 +7,13 @@ public sealed partial class CoreRuleEngine
     internal const string TriggerTargetCostWindow = "TRIGGER_TARGET_COST";
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
-        => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId)?.FieldContext?.Kind == SourceExhaustionModeKind
-            ? ValidExhaustionModePayment(state, payment)
-            : state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
-            && (HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
+    {
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
+        if (item is null) return false;
+        if (item.FieldContext?.Kind == SourceExhaustionModeKind)
+            return ValidExhaustionModePayment(state, payment);
+
+        return (HasTargetedMovementSkill(item) && ValidTargetedMovementStack(state, item)
                 || NeedsLastBreathHereTarget(item) && ValidLastBreathBattlefieldDamageStack(state, item)
                 || HasMovementDamage(item) && ValidMovementDamageStack(state, item)
                 || item.HighCostPlayObserver is { Paid: false } && ValidHighCostStack(state, item)
@@ -46,6 +49,7 @@ public sealed partial class CoreRuleEngine
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
+    }
 
     private static ResolutionResult ResolveTriggerTargetPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
         IReadOnlyList<string> choices, int rawCount)

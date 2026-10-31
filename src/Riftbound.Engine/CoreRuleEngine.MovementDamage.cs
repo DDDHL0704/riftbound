@@ -7,6 +7,24 @@ public sealed partial class CoreRuleEngine
     private static bool HasTargetedMovementSkill(StackItemState item)
         => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSetOtherUnitBaseMight or TriggerKinds.UnitMovedSourceKeywordDamage;
 
+    // Keep the damage-only predicates separate from the broader movement skill
+    // flow.  The base-Might observer shares the same target capture, while the
+    // older trigger and payment paths still need to distinguish it from damage.
+    private static bool HasMovementDamage(StackItemState item)
+        => item.MovementObserver?.Kind is TriggerKinds.UnitMovedDamageAtOriginOrDestination or TriggerKinds.UnitMovedSourceKeywordDamage;
+
+    private static string[] MovementDamageTargets(MatchState state, StackItemState item)
+        => TargetedMovementTargets(state, item);
+
+    private static bool ValidMovementDamageChoice(MatchState state, PendingCardChoiceState choice)
+        => state.StackItems.FirstOrDefault(item => item.StackItemId == choice.ResolvingStackItemId) is { TargetGenerations: null } item
+            && HasMovementDamage(item) && ValidMovementDamageStack(state, item)
+            && MovementDamageTargets(state, item).Length > 0
+            && SameDistributionChoice(choice, TargetedMovementChoice(state, item));
+
+    internal static bool ValidMovementDamageStack(MatchState state, StackItemState item)
+        => !HasMovementDamage(item) || ValidTargetedMovementStack(state, item);
+
     // CN 359.3.f.3: the origin and destination are properties of the movement
     // that triggered the skill, even if the source subsequently moves or leaves.
     private static string[] TargetedMovementTargets(MatchState state, StackItemState item)
