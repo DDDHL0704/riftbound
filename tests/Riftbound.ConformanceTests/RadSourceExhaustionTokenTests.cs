@@ -157,6 +157,12 @@ public sealed class RadSourceExhaustionTokenTests
         s = (await OfficialCopyIdentityTests.Copy(s, "HOST", "MIRROR")).State;
         const string token = "MIRROR-TOKEN-001";
         s = LocalDestructionRecallTests.At(s, token, "P1", "BATTLEFIELD", "F");
+        // Copying while the battlefield is empty correctly clears its old
+        // controller. Restore the control implied by the new occupant before
+        // the movement/cease scenario starts, so no unrelated control task is
+        // pending when the first spell is played.
+        s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["F"] = s.CardObjects["F"] with { ControllerId = "P1" } } };
         s = AttackDamageDistributionTests.Spell(s, "RETURN", "OGN·104/298", "P1");
         s = AttackDamageDistributionTests.Spell(s, "BURST", "OGN·123/298", "P1");
         var game = new Driver(s);

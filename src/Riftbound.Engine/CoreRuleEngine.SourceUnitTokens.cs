@@ -125,8 +125,9 @@ public sealed partial class CoreRuleEngine
             || context.ControllerId != controller || !state.Seats.ContainsKey(controller) || no is not null && no != context.CardNo
             || context.CapturedTick <= 0 || context.CapturedTick > state.Tick || context.FaceRevision < 0
             || SourceUnitTokenFactory(context.CardNo) is null || !SourceUnitTokenTiming(context.CardNo, context.Timing)
-            || (context.Timing != "SCORE" ? context.BattlefieldId is not null
-                : context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId))) return false;
+            || (context.Timing == "SCORE"
+                ? context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId)
+                : context.BattlefieldId is not null)) return false;
         return context.Origin is { } origin
             ? AttachedRuleTextRules.ValidCaptured(state, origin, source, context.Source.Generation, context.CardNo)
             : PredictBindingMatches(state, context.Source, context.CardNo, context.FaceRevision, context.CapturedTick, context.TokenFactoryCardNo);

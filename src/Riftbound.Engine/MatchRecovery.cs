@@ -5619,6 +5619,10 @@ public static partial class MatchRecoveryValidator
                 ReadNormalizedPayloadString(stackItem, "controllerId"), ReadNormalizedPayloadString(stackItem, "sourceObjectId"),
                 ReadNormalizedPayloadString(stackItem, "effectKind")))
                 sourceReferences = knownObjectIds.Append(ReadNormalizedPayloadString(stackItem, "sourceObjectId")!).ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } sourceToken
+                && CoreRuleEngine.ValidSourceUnitTokens(authoritativeState, sourceToken.SourceUnitTokens,
+                    sourceToken.EffectKind, sourceToken.SourceObjectId, sourceToken.ControllerId, sourceToken.CardNo))
+                sourceReferences = knownObjectIds.Append(sourceToken.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } battleSkill
                 && CapturedBattleSourceIsPrivate(authoritativeState, battleSkill))
                 sourceReferences = knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal);
