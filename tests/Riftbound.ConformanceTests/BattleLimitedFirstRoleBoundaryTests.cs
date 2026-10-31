@@ -36,7 +36,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
         await run.Act("P2", new PlayCardCommand("READY", "OGN·146/298", ["ATTACKER"])); await run.Top();
         await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", []));
         var generation = run.State.CardObjects["ATTACKER"].ObjectGeneration;
-        await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
+        await run.ColdCheckpoint();
         if (mode == "initial-condition-false-rejoin") {
             Assert.Empty(run.State.StackItems); Assert.Empty(run.State.TriggerQueue);
             await Focus(run, "P1"); var own = Enumerable.Range(1, 4).Select(i => "P1-FUND-" + i).ToArray();
