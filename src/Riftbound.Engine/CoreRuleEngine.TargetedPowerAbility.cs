@@ -12,10 +12,27 @@ public sealed partial class CoreRuleEngine
             && state.PendingEffectPlay is null && !state.PendingTaskQueue.IsBlocking;
 
     internal static bool IsPowerAbilitySource(MatchState state, string player, string id, P4ActivatedAbilityDefinition ability)
-        => IsObjectOnField(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
-            && card.ControllerId == player && !card.IsExhausted && !card.IsFaceDown
+    {
+        if (!state.CardObjects.TryGetValue(id, out var card) || card.IsExhausted || card.IsFaceDown
+            || !SourceObjectControlledByPlayerOrLegacyOwned(card, player)) return false;
+        if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
+        {
+            return state.PlayerZones.TryGetValue(player, out var zones)
+                && zones.LegendZone.Contains(id, StringComparer.Ordinal)
+                && HasControllerCardOnField(state, player, ability.RequiredControllerCardNoOnField);
+        }
+
+        return IsObjectOnField(state.PlayerZones, id)
+            && card.ControllerId == player
             && card.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, card.CardNo);
+    }
+
+    internal static bool HasControllerCardOnField(MatchState state, string player, string cardNo)
+        => string.IsNullOrWhiteSpace(cardNo)
+            || state.CardObjects.Values.Any(candidate => candidate.ControllerId == player
+                && candidate.CardNo == cardNo
+                && IsObjectOnField(state.PlayerZones, candidate.ObjectId));
 
     internal static bool IsPowerAbilityTarget(MatchState state, string player, string id)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
