@@ -49,7 +49,8 @@ public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCo
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
     bool ReadiesSource = false, int SourcePowerBonus = 0, bool OncePerTurn = false,
     bool RequiresEnemyUnitTargetThisTurn = false, bool DiscardsEquipmentAsCost = false, int BattlefieldUnitDamage = 0,
-    bool TransfersSourceToChosenPlayer = false);
+    bool TransfersSourceToChosenPlayer = false,
+    bool ReturnsFriendlyUnitThenFreePlayUpToPower = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -250,8 +251,19 @@ public static class P4ActivatedAbilityCatalog
     public const string SoulOfInspirationAbilityId = "RAD_040_FRIENDLY_LEGEND_POWER";
     public const string SoulOfInspirationAbilityEffectKind = "RAD_040_FRIENDLY_LEGEND_POWER";
 
+    public const string TranspositionMageCardNo = "RAD·115/167";
+    public const string TranspositionMageAbilityId = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+    public const string TranspositionMageAbilityEffectKind = "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(TranspositionMageAbilityId, TranspositionMageCardNo, TranspositionMageAbilityEffectKind, "易位法师", 0, 0, 1,
+            RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, DamageAmount: 0,
+            AppliesSpellshieldTargetTax: false,
+            Reason: "官方中文：支付1紫色符能并横置，让一名友方单位返回其所属的手牌；你可以选择打出一名战力不高于该单位的单位，无视其费用。",
+            PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Purple] = 1 },
+            SourceRequiredTag: CardObjectTags.UnitCard,
+            SimpleEffect: new(ReturnsFriendlyUnitThenFreePlayUpToPower: true)),
         new("GLOWING_STONE_TRANSFER", "VEN·133", "GLOWING_STONE_TRANSFER", "发光石", 0, 0, 1,
             false, true, 0, false, "解除强化并横置：选择一名玩家，该玩家获得此牌的控制权并将其召回。",
             SourceRequiredTag: CardObjectTags.EquipmentCard,
