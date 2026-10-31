@@ -13797,7 +13797,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // explicit multi-participant declaration must still use the same
         // assignment window as a live start-battle task.
         var importedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
-            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false);
+            && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false)
+            // A single attacker/defender declaration is a normal imported
+            // fixture battle. Only an explicit multi-unit declaration needs
+            // the synthetic start-battle task bypass to expose assignment.
+            && NormalizeTargetObjectIds(attackerObjectIds).Count
+                + NormalizeTargetObjectIds(defenderObjectIds).Count > 2;
         return (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
                 || importedStaticContest)
             && optionalCosts.Count == 1
