@@ -15,7 +15,7 @@ public sealed class BattleLimitedCopiedRuleTests
     [InlineData(true)]
     public async Task CapturedRuleInstancesResolveInOrderAfterAttachmentChange(bool detach)
     {
-        var initial = Position(); var run = new Driver(initial);
+        var initial = Position(); var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1",new PlayCardCommand("HOST","OGN·210/298",[],Destination:"BATTLEFIELD:HOME"));await run.Act("P1",new EndTurnCommand());
         var funding=Enumerable.Range(1,20).Select(i=>"P2-FUND-"+i).ToArray();await run.Act("P2",new TapRuneCommand(funding[0],funding.Take(12).ToArray()));await run.Act("P2",new TapRuneCommand(funding[12],funding.Skip(12).ToArray()));
         await run.Act("P2",new RecycleRuneCommand("ORANGE"));
@@ -30,6 +30,7 @@ public sealed class BattleLimitedCopiedRuleTests
         }
         await run.Act("P2",new PlayCardCommand("READY","OGN·146/298",["ATTACKER"]));await run.Top();
         await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[]));
+        await run.ColdCheckpoint(); run.RecoverAfterEveryCommand = true;
         var earned=run.State.TriggerQueue.Select(t=>t.FieldContext).Concat(run.State.StackItems.Select(i=>i.FieldContext)).Where(c=>c is not null).ToArray();
         Assert.Equal(3,earned.Length);Assert.Single(earned,c=>c!.Origin is null);
         Assert.Equal(new[]{"SONG-1","SONG-2"},earned.Where(c=>c!.Origin is not null).Select(c=>c!.Origin!.Equipment.ObjectId).Order().ToArray());
