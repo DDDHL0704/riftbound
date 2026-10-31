@@ -996,6 +996,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "PAY_2_RED_DOUBLE_POWER",
                 "PAY_RED_EXHAUST_DAMAGE_3",
                 "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
+                "RAD_027_167_GRANT_UNIT_BOON_OR_TEMPORARY_POWER",
                 "RAD_027_GRANT_BOON_OR_POWER",
                 "RAD_040_FRIENDLY_LEGEND_POWER",
                 "RAD_104_EXHAUST_STUN_ENEMY_UNIT",
