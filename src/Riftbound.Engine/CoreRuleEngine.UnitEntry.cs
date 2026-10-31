@@ -84,6 +84,12 @@ public sealed partial class CoreRuleEngine
                 out var entryStaticAbilitySourceObjectId,
                 out var entryStaticAbilitySourceState,
                 out var entryStaticAbility);
+        var entersReadyFromGlobalUnitAbility = cardObjects.Values.Any(candidate => candidate.ObjectId != stackItem.SourceObjectId
+                && !candidate.IsFaceDown
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, candidate.ObjectId)
+                && CardBehaviorRegistry.TryGetByCardNo(candidate.CardNo ?? string.Empty, out var candidateBehavior)
+                && candidateBehavior.OtherUnitsEnterReady);
         var appliedEntryStaticAbility = entersReadyFromSourceUnitStaticAbility
             ? sourceUnitEntryStaticAbility
             : entersReadyFromOtherFriendlyStaticAbility
@@ -110,6 +116,7 @@ public sealed partial class CoreRuleEngine
                     && !CardStaticAbilitySpecRules.CardCannotBecomeActive(behavior.CardNo)
                 || entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
+                || entersReadyFromGlobalUnitAbility
                 || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
                 || behavior.EntersReadyAfterFriendlyPermanentDestroyed
                     && FriendlyPermanentDestroyedThisTurn(stackItem.ControllerId, turnNumber)
