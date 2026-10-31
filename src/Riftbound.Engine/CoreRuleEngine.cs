@@ -29186,56 +29186,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return priorLocations;
         }
 
-        var tokenTags = ParseDelimitedValues(behavior.CreatedBattlefieldEquipmentTokenTags);
-        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
-            behavior.CreatedBattlefieldEquipmentTokenName,
-            tokenTags,
+        return CreateBattlefieldEquipmentTokenBatch(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
             behavior.CardNo,
-            out var tokenDefinition);
-        var resolvedTokenTags = ResolveEquipmentTokenTags(
+            behavior.DisplayName,
             behavior.CreatedBattlefieldEquipmentTokenName,
-            tokenTags,
-            hasTokenDefinition ? tokenDefinition : null);
-        var tokenCount = behavior.CreatedBattlefieldEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
-        var locations = priorLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var created = new List<string>();
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, stackItem.SourceObjectId, tokenIndex + 1);
-            var tokenState = hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId,
-                    behavior.CreatedBattlefieldEquipmentTokenIsExhausted) with { Tags = resolvedTokenTags }
-                : new CardObjectState(tokenObjectId,
-                    isExhausted: behavior.CreatedBattlefieldEquipmentTokenIsExhausted,
-                    tags: resolvedTokenTags, ownerId: stackItem.ControllerId, controllerId: stackItem.ControllerId);
-            tokenState = ApplyTokenEntryStaticAbility(
-                playerZones, cardObjects, stackItem.ControllerId, tokenObjectId, tokenState,
-                out var entersReady, out var entrySourceId, out var entrySource, out var entryAbility, battlefieldId);
-            cardObjects[tokenObjectId] = tokenState;
-            created.Add(tokenObjectId);
-            locations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", battlefieldId);
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBattlefieldEquipmentTokenName,
-                ["destinationZone"] = "BATTLEFIELD",
-                ["battlefieldObjectId"] = battlefieldId,
-                ["isExhausted"] = tokenState.IsExhausted
-            };
-            if (hasTokenDefinition) payload["tokenCardNo"] = tokenDefinition.CardNo;
-            if (tokenState.Tags.Count > 0) payload["tokenTags"] = tokenState.Tags.ToArray();
-            AddEntryStaticAbilityPayload(payload, entersReady ? entryAbility : null, entrySourceId, entrySource.CardNo);
-            events.Add(CaptureEquipmentPlayed(new GameEvent(
-                "EQUIPMENT_TOKEN_CREATED",
-                $"{behavior.DisplayName}打出装备指示物到战场",
-                payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
-        }
-
-        if (created.Count > 0 && playerZones.TryGetValue(stackItem.ControllerId, out var zones))
-            playerZones[stackItem.ControllerId] = zones with { Battlefields = zones.Battlefields.Concat(created).ToArray() };
-        return locations;
+            ParseDelimitedValues(behavior.CreatedBattlefieldEquipmentTokenTags),
+            behavior.CreatedBattlefieldEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount),
+            behavior.CreatedBattlefieldEquipmentTokenIsExhausted,
+            battlefieldId,
+            events,
+            priorLocations);
     }
 
     private static void PlaySourceEquipmentToBase(
