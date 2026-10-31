@@ -4428,8 +4428,12 @@ public static partial class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidBombDestructionStack(item)
                 || !CoreRuleEngine.ValidEquipmentDeathStack(item)
                 || !CoreRuleEngine.ValidDiscardDestroyStack(state, item)
-                || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
-                    || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
+                || item.TargetGenerations is not null && (field.Kind == CoreRuleEngine.BombDestructionKind
+                    ? item.TargetObjectIds.Count > 1 || item.TargetGenerations.Count != item.TargetObjectIds.Count
+                        || !item.TargetObjectIds.All(id => item.TargetGenerations.ContainsKey(id))
+                        || item.TargetGenerations.Values.Any(g => g < 0)
+                    : item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
+                        || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
                 || field.Kind == CoreRuleEngine.PaidUnitStunKind && (item.OptionalCosts.Count != 0 || item.DamageAmount != 0
                     || item.EffectRepeatCount != 1 || item.Destination.Length != 0
                     || item.TargetGenerations is null && (item.TargetObjectIds.Count != 0 || field.PaidUnitTrigger!.CostPaid)
