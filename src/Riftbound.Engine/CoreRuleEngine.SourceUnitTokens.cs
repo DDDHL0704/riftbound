@@ -16,7 +16,7 @@ public sealed partial class CoreRuleEngine
     private static readonly Lazy<IReadOnlyDictionary<string, TriggerSpec>> SourceUnitTokenSpecs = new(() =>
         OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Select(c => (c.CardNo, Spec: RuleTextParser.Parse(c).Triggers.FirstOrDefault(t =>
-                t.Kind == TriggerKinds.SourceUnitPlayedOrScoredCreateUnit)))
+                t.Kind is TriggerKinds.SourceUnitPlayedOrScoredCreateUnit or TriggerKinds.SourceUnitPlayedOrExhaustedCreateUnit)))
             .Where(c => c.Spec is not null).ToDictionary(c => c.CardNo, c => c.Spec!, StringComparer.Ordinal));
 
     private static P6TokenFactoryDefinition? SourceUnitTokenFactory(string no)
@@ -28,9 +28,29 @@ public sealed partial class CoreRuleEngine
     private static SourceUnitTokenContext[] CaptureSourceUnitTokens(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState source, string player, string timing, string? field = null)
         => source.IsFaceDown ? [] : AttachedRuleTextRules.Instances(zones, cards, source)
-            .Where(i => SourceUnitTokenFactory(i.CardNo) is not null)
+            .Where(i => SourceUnitTokenFactory(i.CardNo) is not null && SourceUnitTokenTiming(i.CardNo, timing))
             .Select(i => new SourceUnitTokenContext(i.CardNo, new(source.ObjectId, source.ObjectGeneration), player,
                 0, source.CopyFaceTransitions?.Count ?? 0, timing, field, i.Origin, source.TokenFactoryCardNo)).ToArray();
+
+    private static bool SourceUnitTokenTiming(string no, string timing)
+        => SourceUnitTokenSpecs.Value.TryGetValue(no, out var spec) && (timing == "PLAY"
+            || timing == "SCORE" && spec.Kind == TriggerKinds.SourceUnitPlayedOrScoredCreateUnit
+            || timing == "EXHAUST" && spec.Kind == TriggerKinds.SourceUnitPlayedOrExhaustedCreateUnit);
+
+    private static SourceUnitTokenContext[] CaptureSourceExhaustionTokens(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
+        => unit.IsExhausted || !IsFaceUpNonStandbyUnit(unit) || !IsObjectOnField(zones, unit.ObjectId) ? []
+            : CaptureSourceUnitTokens(zones, cards, unit, EffectiveFieldControllerId(zones, unit.ObjectId, unit), "EXHAUST");
+
+    private static GameEvent CaptureSourceExhaustionTokens(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, IEnumerable<CardObjectState> units, bool captureOtherObservers = true)
+    {
+        var originals = units.ToArray();
+        if (captureOtherObservers) ev = CaptureUnitExhaustionObservers(ev, zones, cards, originals);
+        var captures = originals.SelectMany(unit => CaptureSourceExhaustionTokens(zones, cards, unit)).ToArray();
+        return captures.Length == 0 ? ev : ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+            [SourceUnitTokenObservationKey] = captures } };
+    }
 
     private static GameEvent CaptureSourcePlayTokens(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState entered, string player)
@@ -54,6 +74,25 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult QueueSourceUnitTokens(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted) return result;
+        // Costs can exhaust a unit without emitting the ordinary exhaust event.
+        // Entry in an exhausted state is excluded by the pre-existing field binding.
+        // Explicit instruction captures take precedence, including when a later
+        // instruction readies, transforms or removes their source.
+        var observed = result.Events.SelectMany(ev => ev.Payload.GetValueOrDefault(SourceUnitTokenObservationKey)
+                as SourceUnitTokenContext[] ?? [])
+            .Concat(result.State.TriggerQueue.Select(t => t.SourceUnitTokens).OfType<SourceUnitTokenContext>())
+            .Concat(result.State.StackItems.Select(i => i.SourceUnitTokens).OfType<SourceUnitTokenContext>())
+            .Where(c => c.Timing == "EXHAUST" && (c.CapturedTick == 0 || c.CapturedTick == result.State.Tick))
+            .Select(c => c.Source).ToHashSet();
+        var unrecorded = before.CardObjects.Values.Where(unit => !observed.Contains(new(unit.ObjectId, unit.ObjectGeneration))
+            && result.State.CardObjects.TryGetValue(unit.ObjectId, out var after)
+            && after.ObjectGeneration == unit.ObjectGeneration && after.CardNo == unit.CardNo
+            && (after.CopyFaceTransitions?.Count ?? 0) == (unit.CopyFaceTransitions?.Count ?? 0) && after.IsExhausted)
+            .OrderBy(unit => unit.ObjectId, StringComparer.Ordinal).ToArray();
+        var costObservation = CaptureSourceExhaustionTokens(new("INTERNAL_SOURCE_EXHAUSTION", "", new Dictionary<string, object?>()),
+            before.PlayerZones, before.CardObjects, unrecorded, captureOtherObservers: false);
+        if (costObservation.Payload.ContainsKey(SourceUnitTokenObservationKey))
+            result = result with { Events = result.Events.Append(costObservation).ToArray() };
         var events = result.Events.ToList(); var queue = result.State.TriggerQueue.ToList();
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i))) {
             if (ev.Payload.GetValueOrDefault(SourceUnitTokenObservationKey) is not SourceUnitTokenContext[] observations) continue;
@@ -63,12 +102,18 @@ public sealed partial class CoreRuleEngine
                 if (captured.Timing == "PLAY" && before.CardObjects.TryGetValue(captured.Source.ObjectId, out var old)
                     && !IsObjectOnField(before.PlayerZones, old.ObjectId)) generation = Math.Max(generation, old.ObjectGeneration + 1);
                 var context = captured with { Source = captured.Source with { Generation = generation }, CapturedTick = result.State.Tick };
+                if (result.State.Status != MatchStatuses.InProgress) continue;
                 var trigger = new TriggerQueueItemState($"source-token-{result.State.Tick}-{index}-{instance}",
-                    context.ControllerId, context.Source.ObjectId, SourceUnitTokenEffect, ev.Kind) {
+                    context.ControllerId, context.Source.ObjectId, SourceUnitTokenEffect,
+                    context.Timing == "EXHAUST" ? "UNIT_EXHAUSTED" : ev.Kind) {
                     SourceCardNo = context.CardNo, SourceUnitTokens = context };
-                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                queue.Add(trigger);
+                var queued = BuildTriggerQueuedEvent(trigger);
+                events.Add(queued with { Payload = new Dictionary<string, object?>(queued.Payload) {
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(result.State, context.Source.ObjectId, "__spectator__") } });
             }
         }
+        events.RemoveAll(ev => ev.Kind == "INTERNAL_SOURCE_EXHAUSTION");
         return result with { State = result.State with { TriggerQueue = queue }, Events = events };
     }
 
@@ -79,8 +124,8 @@ public sealed partial class CoreRuleEngine
         if (effect != SourceUnitTokenEffect || context.Source is not { Generation: >= 0 } || context.Source.ObjectId != source
             || context.ControllerId != controller || !state.Seats.ContainsKey(controller) || no is not null && no != context.CardNo
             || context.CapturedTick <= 0 || context.CapturedTick > state.Tick || context.FaceRevision < 0
-            || SourceUnitTokenFactory(context.CardNo) is null || context.Timing is not ("PLAY" or "SCORE")
-            || (context.Timing == "PLAY" ? context.BattlefieldId is not null
+            || SourceUnitTokenFactory(context.CardNo) is null || !SourceUnitTokenTiming(context.CardNo, context.Timing)
+            || (context.Timing != "SCORE" ? context.BattlefieldId is not null
                 : context.BattlefieldId is null || !state.BattlefieldStates.ContainsKey(context.BattlefieldId))) return false;
         return context.Origin is { } origin
             ? AttachedRuleTextRules.ValidCaptured(state, origin, source, context.Source.Generation, context.CardNo)
@@ -93,6 +138,6 @@ public sealed partial class CoreRuleEngine
             throw new InvalidOperationException("Invalid source unit token trigger.");
         var spec = SourceUnitTokenSpecs.Value[item.SourceUnitTokens!.CardNo];
         return CreateUnitTokenBatch(state, item, SourceUnitTokenFactory(item.SourceUnitTokens.CardNo)!.CardNo,
-            spec.CreatedTokenCount!.Value, entersReady: spec.CreatedTokenExhausted != true);
+            spec.CreatedTokenCount!.Value + AdditionalUnitTokens(item), entersReady: spec.CreatedTokenExhausted != true);
     }
 }

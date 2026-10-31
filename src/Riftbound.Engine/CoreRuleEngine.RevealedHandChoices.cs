@@ -49,6 +49,15 @@ public sealed partial class CoreRuleEngine
             && choice.DeckContext is null && choice.ResolvingStackItemId is null
             && choice.RequiredCount == 0 && choice.MaxCount == 0 && choice.LegalObjectIds.Count == 0;
 
+    // Some confirmation windows expose their selectable values as legal
+    // choices and have no separate object context. Keep the authoritative
+    // state guard strict for ordinary choices while allowing those native
+    // windows to round-trip through recovery.
+    internal static bool AllowsEmptyContextCardChoice(PendingCardChoiceState choice)
+        => IsEmptyRevealedHandChoice(choice)
+            || choice.ContextObjectIds.Count == 0
+                && choice.ChoiceWindow is ExhaustionDrawWindow or ExhaustionModeWindow or ExhaustionModeTargetWindow;
+
     internal static bool ValidRevealedHandChoice(MatchState state, PendingCardChoiceState choice)
     {
         var top = state.StackItems.LastOrDefault();

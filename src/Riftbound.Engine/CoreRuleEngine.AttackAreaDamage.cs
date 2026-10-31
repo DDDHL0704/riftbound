@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -7,12 +9,14 @@ public sealed partial class CoreRuleEngine
     internal const string AttackAreaDamageKind = "ATTACK_AREA_DAMAGE";
 
     private static TriggerSpec? AttackAreaDamageSpec(string? cardNo) => SourceUnitPlayedTriggerSpecRules.TriggersForCard(cardNo)
-        .FirstOrDefault(t => t.Kind == TriggerKinds.UnitAttackDamageAllEnemyUnitsHere
-            && t.Timing == TriggerTimings.UnitAttack && t.TargetScope == TriggerTargetScopes.AllEnemyUnitsHere
-            && t.DamageAmount is > 0 && t.MaximumControlledRunes is null or >= 0);
+        .FirstOrDefault(t => t.TargetScope == TriggerTargetScopes.AllEnemyUnitsHere
+            && (t.Kind == TriggerKinds.UnitAttackDamageAllEnemyUnitsHere
+                && t.Timing == TriggerTimings.UnitAttack && t.DamageAmount is > 0 && t.MaximumControlledRunes is null or >= 0
+                || t.Kind == TriggerKinds.UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere
+                    && t.Timing == TriggerTimings.UnitAttackOrDefend && t.DamageAmount is null && t.MaximumControlledRunes is null));
 
     private static TriggerQueueItemState[] CaptureAttackAreaDamageTriggers(MatchState state, IEnumerable<string> attackers,
-        string battlefield, string timing = TimingStates.NeutralClosed, string? returnFocusPlayer = null)
+        string battlefield, string timing = TimingStates.NeutralClosed, string? returnFocusPlayer = null, bool combatRoles = false)
     {
         var result = new List<TriggerQueueItemState>();
         LastKnownMightFrame? frame = null;
@@ -23,7 +27,8 @@ public sealed partial class CoreRuleEngine
             foreach (var instance in AttachedRuleTextRules.Instances(state, source))
             {
                 var spec = AttackAreaDamageSpec(instance.CardNo);
-                if (spec is null || spec.MaximumControlledRunes is { } maximum
+                if (spec is null || (spec.Timing == TriggerTimings.UnitAttackOrDefend) != combatRoles
+                    || spec.MaximumControlledRunes is { } maximum
                     && EmpowerRules.ControlledRunes(state, controller) > maximum) continue;
                 var context = new FieldTriggerContext(instance.CardNo, AttackAreaDamageKind, source.ObjectGeneration,
                     battlefield, returnFocusPlayer) {
@@ -32,8 +37,9 @@ public sealed partial class CoreRuleEngine
                     AttackConditionFrame = spec.MaximumControlledRunes is null ? null
                         : frame ??= CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects)
                 };
-                result.Add(new TriggerQueueItemState($"attack-area-{state.Tick + 1}-{result.Count}", controller, id,
-                    FieldTriggerEffect, "BATTLE_DECLARED", timing) { FieldContext = context });
+                var identity = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{id}:{instance.Id}")));
+                result.Add(new TriggerQueueItemState($"attack-area-{state.Tick + 1}-{identity}", controller, id,
+                    FieldTriggerEffect, combatRoles ? "BATTLE_ROLES_ESTABLISHED" : "BATTLE_DECLARED", timing) { FieldContext = context });
             }
         }
         return result.ToArray();
@@ -89,8 +95,10 @@ public sealed partial class CoreRuleEngine
                 && state.ObjectLocations.TryGetValue(card.ObjectId, out var location) && location.Zone == here.Zone
                 && (here.Zone == "BASE" ? location.PlayerId == here.PlayerId : location.BattlefieldObjectId == here.BattlefieldObjectId))
                 .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
-            var amount = checked(spec.DamageAmount!.Value + DistributionBonuses(state, item.ControllerId, null).Sum(bonus => bonus.Amount));
-            foreach (var id in targets)
+            var baseDamage = spec.Kind == TriggerKinds.UnitAttackOrDefendSourceMightDamageAllEnemyUnitsHere
+                ? ResolveCurrentFieldUnitPower(state, state.CardObjects[item.SourceObjectId]) : spec.DamageAmount!.Value;
+            var amount = checked(baseDamage + DistributionBonuses(state, item.ControllerId, null).Sum(bonus => bonus.Amount));
+            foreach (var id in targets.Where(_ => amount > 0))
             {
                 var targetDamage = ApplyBattlefieldTargetSpellSkillDamageBonus(state, id, amount);
                 var damage = ApplyDamageToCardObject(state, cards, item.ControllerId, id, targetDamage, destroyed,

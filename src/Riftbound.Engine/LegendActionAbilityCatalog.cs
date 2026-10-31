@@ -28,6 +28,7 @@ public static class LegendActionAbilityCatalog
     public const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
     public const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
     public const string MordekaiserLegendAbilityId = "LEGEND_REACTION_BANISH_GRAVEYARD_PERMANENT_EXHAUST_GAIN_PLAY_POWER";
+    public const string KsanteLegendAbilityId = "LEGEND_PAY_ONE_EXHAUST_GRANT_ASSAULT_EQUAL_STEADFAST";
     public const string RenektonLegendAbilityId = "LEGEND_REACTION_PAY_2_POWER_EXHAUST_GAIN_2_UNIT_MANA";
     public const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
     public const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
@@ -104,6 +105,7 @@ public static class LegendActionAbilityCatalog
 
     public static IReadOnlyList<string> SourceCardNosForAbility(string? abilityId)
     {
+        if (string.Equals(abilityId, KsanteLegendAbilityId, StringComparison.Ordinal)) return KsanteSourceCardNos.Value;
         if (string.Equals(abilityId, MordekaiserLegendAbilityId, StringComparison.Ordinal)) return MordekaiserSourceCardNos.Value;
         if (string.Equals(abilityId, ZedLegendAbilityId, StringComparison.Ordinal)) return ZedSourceCardNos.Value;
         if (string.Equals(abilityId, KennenLegendAbilityId, StringComparison.Ordinal)) return KennenSourceCardNos.Value;
@@ -124,6 +126,11 @@ public static class LegendActionAbilityCatalog
                 ? sourceCardNos
                 : [];
     }
+
+    private static readonly Lazy<ImmutableArray<string>> KsanteSourceCardNos = new(() =>
+        RadiantCardSources.GetAdmittedCards().Where(card => card.CardName == "纳祖芒荣耀" && card.Hero == "奎桑提"
+            && card.CardEffect.StartsWith("支付{{1}}，{{T}}：给予一名友方单位在本回合内“我具有等同于自身{{坚守}}的{{强攻}}。”", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     public static bool IsSourceCardNoForAbility(
         string? abilityId,

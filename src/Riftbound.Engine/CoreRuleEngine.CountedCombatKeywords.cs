@@ -5,12 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static int ResolveCurrentCountedCombatKeyword(MatchState state, CardObjectState unit, string keyword)
-    {
-        var evaluated = RecomputeRuleDerivedKeywords(state);
-        unit = evaluated.CardObjects.GetValueOrDefault(unit.ObjectId) ?? unit;
-        var field = evaluated.ObjectLocations.GetValueOrDefault(unit.ObjectId)?.BattlefieldObjectId ?? "";
-        return ResolveCountedCombatKeywordFromLayer(evaluated, evaluated.PlayerZones, unit, field, keyword);
-    }
+        => CurrentCombatKeywordValue(state, unit, keyword);
 
     private static int ResolveCountedCombatKeywordFromLayer(MatchState state, IReadOnlyDictionary<string, PlayerZones> zones,
         CardObjectState unit, string field, string keyword)

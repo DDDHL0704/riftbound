@@ -20,8 +20,7 @@ public sealed partial class CoreRuleEngine
             if (!IsFaceUpNonStandbyUnit(giver) || !IsObjectOnField(state.PlayerZones, giver.ObjectId)
                 || EffectiveFieldControllerId(state.PlayerZones, giver.ObjectId, giver) != controller) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, giver))
-                if (CardBehaviorRegistry.TryGetByCardNo(instance.CardNo, out _)
-                    && DisarmSourceSpecifications.TryGet(instance.CardNo, out var spec))
+                if (DisarmSourceSpecifications.TryGet(instance.CardNo, out var spec))
                     foreach (var grant in spec.FriendlyGrants.Where(g => unit.Tags.Contains(g.RequiredUnitTag)))
                         contributions.Add(new(new(giver.ObjectId, giver.ObjectGeneration), instance.CardNo,
                             instance.Origin?.FaceRevision ?? giver.CopyFaceTransitions?.Count ?? 0,
@@ -88,13 +87,20 @@ public sealed partial class CoreRuleEngine
             && c.Disarm is { CapturedTick: >= 0, FaceRevision: >= 0, Contributions.Count: > 0 } d
             && d.Contributions.All(g => g is { Source.Generation: >= 0, FaceRevision: >= 0, Value: > 0 }
                 && !string.IsNullOrWhiteSpace(g.Source.ObjectId)
+                && CopyCharacteristics.HasFace(g.CardNo)
                 && (g.TokenFactoryCardNo is null || P6TokenFactoryCatalog.IsTokenFactory(g.TokenFactoryCardNo))
+                && (g.CeasedSource is null || g.CeasedSource is { } ceased
+                    && g.TokenFactoryCardNo is not null && ceased.FactoryCardNo == g.TokenFactoryCardNo
+                    && ceased.Source == g.Source && ceased.CardNo == g.CardNo && ceased.FaceRevision == g.FaceRevision
+                    && ceased.CapturedTick == (g.Origin?.CapturedTick ?? d.CapturedTick)
+                    && ceased.Tick >= d.CapturedTick)
                 && (g.Origin is null || g.Origin.CardNo == g.CardNo && g.Origin.Unit == g.Source
                     && g.Origin.FaceRevision == g.FaceRevision && g.Origin.CapturedTick <= d.CapturedTick)
                 && DisarmSourceSpecifications.TryGet(g.CardNo, out var spec)
                 && (g.FriendlyGrant ? TryPredictEnteredFace(c.CardNo, out var entered)
                     && spec.FriendlyGrants.Any(grant => grant.Value == g.Value && entered.Tags.Contains(grant.RequiredUnitTag))
                     : spec.PrintedValue == g.Value))
+            && d.Contributions.Sum(g => (long)g.Value) <= int.MaxValue
             && d.Contributions.Select(MatchStateHasher.HashValue).Distinct(StringComparer.Ordinal).Count() == d.Contributions.Count
             && c.SourceLocation is not null && !string.IsNullOrWhiteSpace(c.BattlefieldId)
             && c.Origin is null && c.PaidUnitTrigger is null && c.StunObserver is null && c.SelfAction is null
@@ -112,11 +118,16 @@ public sealed partial class CoreRuleEngine
             || c.SourceLocation is not { } location || !state.Seats.ContainsKey(location.PlayerId)
             || !(location.Zone == "BASE" && location.BattlefieldObjectId is null
                 || location.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, location.BattlefieldObjectId) is not null)
-            || !PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, d.FaceRevision, d.CapturedTick, c.SourceTokenFactoryCardNo))
+            || (c.SourceCeasedToExist ? !ValidCapturedFieldSource(state, c, source) : !state.CardObjects.ContainsKey(source))
+            || !PredictBindingMatches(state, new(source, c.SourceGeneration), c.CardNo, d.FaceRevision, d.CapturedTick, c.SourceTokenFactoryCardNo)
+            || CombatMightSourceLocation(state, source, c.SourceGeneration) is { } current && current != location)
             return false;
         foreach (var g in d.Contributions)
         {
             if (!g.FriendlyGrant && (g.Source.ObjectId != source || g.Source.Generation != c.SourceGeneration)) return false;
+            if (state.CardObjects.ContainsKey(g.Source.ObjectId)
+                ? g.CeasedSource is not null
+                : g.CeasedSource is not { } ceased || ceased.Tick > state.Tick) return false;
             if (g.Origin is { } copy
                 ? !AttachedRuleTextRules.ValidCaptured(state, copy, g.Source.ObjectId, g.Source.Generation, g.CardNo)
                 : !PredictBindingMatches(state, g.Source, g.CardNo, g.FaceRevision, d.CapturedTick, g.TokenFactoryCardNo)) return false;
@@ -125,9 +136,27 @@ public sealed partial class CoreRuleEngine
     }
 
     private static bool IsDisarmUnitFace(string face)
-        => CardBehaviorRegistry.TryGetByCardNo(face, out var behavior) && behavior.PlaysSourceToBaseAsUnit
-            || P6TokenFactoryCatalog.TryGetByCardNo(face, out var token)
-                && token.CreateObject("", "", "").Tags.Contains(CardObjectTags.UnitCard);
+        => TryPredictEnteredFace(face, out var card) && card.Tags.Contains(CardObjectTags.UnitCard);
+
+    private static FieldTriggerContext? FinalizeDisarmContributionDepartures(MatchState before, MatchState after,
+        IReadOnlySet<string> departed, FieldTriggerContext? context)
+    {
+        if (context is not { Kind: DisarmKind, Disarm: { } origin }) return context;
+        var contributions = origin.Contributions.Select(contribution =>
+        {
+            var binding = contribution.Source;
+            if (!departed.Contains(binding.ObjectId)
+                || !before.CardObjects.TryGetValue(binding.ObjectId, out var card)
+                || card.ObjectGeneration != binding.Generation
+                || contribution.TokenFactoryCardNo is not { } factory || factory != card.TokenFactoryCardNo)
+                return contribution;
+            var tick = contribution.Origin?.CapturedTick ?? origin.CapturedTick;
+            if (CopyFaceTimeline.FaceAt(card, contribution.FaceRevision, tick) != contribution.CardNo) return contribution;
+            return contribution with { CeasedSource = new(binding, factory, after.Tick, contribution.CardNo,
+                contribution.FaceRevision, tick) };
+        }).ToArray();
+        return context with { Disarm = origin with { Contributions = contributions } };
+    }
 
     internal static bool ValidDisarmTrigger(TriggerQueueItemState t)
         => t.FieldContext?.Kind != DisarmKind || t.SourceCardNo == t.FieldContext.CardNo
@@ -144,6 +173,8 @@ public sealed partial class CoreRuleEngine
         if (!ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo))
             throw new InvalidOperationException("Invalid captured Disarm skill.");
         var result = NoopStackResolutionResult(state);
+        result = result with { Events = [new("TRIGGER_RESOLVED", "缴械触发结算完成",
+            new Dictionary<string, object?> { ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__") })] };
         if (item.TargetObjectIds.SingleOrDefault() is not { } target
             || item.TargetGenerations?.GetValueOrDefault(target, -1) != state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
             || !FieldTriggerTargets(state, item).Contains(target)) return result;
@@ -152,6 +183,6 @@ public sealed partial class CoreRuleEngine
             TargetScope: CardTargetScopes.EnemyUnit, PowerModifierAmount: amount);
         var cards = state.CardObjects.ToDictionary();
         cards[target] = ApplyPowerModifier(state, cards[target], behavior, item, target, amount, out var ev);
-        return result with { CardObjects = cards, Events = [ev] };
+        return result with { CardObjects = cards, Events = result.Events.Prepend(ev).ToArray() };
     }
 }
