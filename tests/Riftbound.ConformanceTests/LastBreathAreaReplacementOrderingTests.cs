@@ -13,7 +13,7 @@ public sealed class LastBreathAreaReplacementOrderingTests
     [InlineData("GUARDIAN-0")] [InlineData("GUARDIAN-1")]
     public async Task TheChosenActualGuardianFinishesBeforeTheUnreplacedDeathAndItsDrawInterruptsRemainingAreaSkills(string selectedGear)
     {
-        var initial = Position(); var game = new Driver(initial);
+        var initial = Position(); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             var funding = Enumerable.Range(0, 12).Select(i => "AREA-P1-RUNE-" + i).ToArray();
@@ -35,6 +35,10 @@ public sealed class LastBreathAreaReplacementOrderingTests
                 await game.Act("P1", new AssembleEquipmentCommand("SONG-" + i, "UNIT", ["ASSEMBLE_GREEN"])); await game.Top();
             }
             Assert.Equal(1, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
+            // All setup commands above are ordinary accepted actions. Recover once
+            // before the turn transition instead of replaying the growing journal
+            // after every setup command; Act still verifies duplicate submissions.
+            await game.ColdCheckpoint();
             await game.Act("P1", new EndTurnCommand());
             await game.Act("P2", new TapRuneCommand("AREA-P2-RUNE-0", ["AREA-P2-RUNE-0", "AREA-P2-RUNE-1"]));
             await game.Act("P2", new PlayCardCommand("ENEMY", "OGN·096/298", []));
@@ -46,6 +50,9 @@ public sealed class LastBreathAreaReplacementOrderingTests
             await game.Act("P2", new RecycleRuneCommand("AREA-P2-RUNE-0"));
             await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
             await game.Act("P2", new PlayCardCommand("RAY", "OGN·009/298", ["UNIT"])); await game.Top();
+            // The trigger queue is the next externally visible boundary. The
+            // payment and priority assertions below remain on the same journal.
+            await game.ColdCheckpoint();
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Graveyard);
             Assert.Equal(3, game.State.TriggerQueue.Count);
             Assert.Equal(3, game.State.TriggerQueue.Select(t => Assert.IsType<LastBreathBattlefieldDamageContext>(t.LastBreathBattlefieldDamage).InstanceId)
@@ -68,6 +75,7 @@ public sealed class LastBreathAreaReplacementOrderingTests
             Assert.False(rejected.Accepted); Assert.Empty(rejected.Events); Assert.Equal(hash, MatchStateHasher.Hash(rejected.State));
             Assert.Equal(views, JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(rejected.State)));
             await game.Act("P1", new PayCostCommand(request.Id, "RULE_REPLACEMENT", [choice.Id]));
+            await game.ColdCheckpoint();
             Assert.Null(game.State.PendingRuleChoice);
             var firstEffects = game.Events().Skip(prefix).ToArray();
             var recalled = Assert.Single(firstEffects, e => e.Event.Kind == "UNIT_RECALLED_TO_BASE" && Target(e.Event) == "HOST");
@@ -108,6 +116,7 @@ public sealed class LastBreathAreaReplacementOrderingTests
             }
             Assert.Equal(p1Hand, game.State.PlayerZones["P1"].Hand); Assert.Equal(p1Deck, game.State.PlayerZones["P1"].MainDeck);
             Assert.Empty(game.State.StackItems); Assert.Empty(game.State.TriggerQueue);
+            await game.ColdCheckpoint();
             var scores = game.State.PlayerScores.ToDictionary(); var closing = game.Events().Length;
             await BattleWinnerPhaseBoundaryTests.PassFocus(game);
             Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_NO_RESULT"); Assert.Single(game.Events(), e => e.Event.Kind == "BATTLE_CLOSED");

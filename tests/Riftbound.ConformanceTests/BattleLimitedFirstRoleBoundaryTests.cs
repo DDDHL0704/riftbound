@@ -17,7 +17,11 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
     [InlineData("steadfast-base-target-expires")]
     public async Task FirstRoleAndDurationSurviveActualResponses(string mode)
     {
-        var initial = Position(mode); var run = new Driver(initial);
+        var initial = Position(mode);
+        // Keep command acceptance and duplicate-intent checks for every
+        // action, while moving full journal recovery to the common setup and
+        // each mode's resolution boundary.
+        var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1", new PlayCardCommand("HOST", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
         if (mode == "initial-condition-false-rejoin") await run.Act("P1", new PlayCardCommand("SECOND-HOST", "OGN·210/298", [], Destination: "BATTLEFIELD:HOME"));
         await run.Act("P1", new EndTurnCommand());
@@ -32,6 +36,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
         await run.Act("P2", new PlayCardCommand("READY", "OGN·146/298", ["ATTACKER"])); await run.Top();
         await run.Act("P2", new MoveUnitCommand("ATTACKER", "BASE", "BATTLEFIELD:HOME", []));
         var generation = run.State.CardObjects["ATTACKER"].ObjectGeneration;
+        await run.ColdCheckpoint();
         if (mode == "initial-condition-false-rejoin") {
             Assert.Empty(run.State.StackItems); Assert.Empty(run.State.TriggerQueue);
             await Focus(run, "P1"); var own = Enumerable.Range(1, 4).Select(i => "P1-FUND-" + i).ToArray();
@@ -44,6 +49,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
             Assert.Equal(generation,run.State.CardObjects["ATTACKER"].ObjectGeneration);
             Assert.Equal(3,run.State.CardObjects["ATTACKER"].Power); Assert.Empty(run.State.StackItems); Assert.Empty(run.State.TriggerQueue);
             Assert.DoesNotContain(run.Events(),e=>e.Event.Kind=="TRIGGER_QUEUED" && e.Event.Payload.GetValueOrDefault("sourceObjectId") as string=="ATTACKER");
+            await run.ColdCheckpoint();
         }
         else if (mode == "self-moved-before-resolution") {
             await Priority(run,"P2"); await run.Act("P2",new PlayCardCommand("FLASH","OGS·011/024",["ATTACKER"])); await run.Top();
@@ -53,6 +59,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
             await CloseFocus(run); await FinishResult(run);
             Assert.Equal(3,run.State.CardObjects["ATTACKER"].Power); Assert.Empty(run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers);
             Assert.Contains(run.Events(),e=>e.Event.Kind=="BATTLE_CLOSED");
+            await run.ColdCheckpoint();
         }
         else if (mode == "surrender-retains-duration") {
             await run.Top(); Assert.Equal(6,run.State.CardObjects["ATTACKER"].Power);
@@ -60,6 +67,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
             Assert.Equal(6,run.State.CardObjects["ATTACKER"].Power);
             Assert.Equal("UNTIL_END_OF_BATTLE",Assert.Single(run.State.CardObjects["ATTACKER"].UntilEndOfTurnPowerModifiers).Duration);
             Assert.DoesNotContain(run.Events(),e=>e.Event.Kind=="BATTLE_CLOSED");
+            await run.ColdCheckpoint();
         }
         else {
             var choice=Assert.IsType<PendingCardChoiceState>(run.State.PendingCardChoice); Assert.Contains("ALLY",choice.LegalObjectIds);
@@ -70,6 +78,7 @@ public sealed class BattleLimitedFirstRoleBoundaryTests
             Assert.Contains("ALLY",run.State.PlayerZones["P2"].Base);
             Assert.DoesNotContain(run.State.CardObjects["ALLY"].UntilEndOfTurnEffects,e=>e.StartsWith("COMBAT_KEYWORD:坚守2:") || e.StartsWith("BATTLE_LIMITED_GRANT:"));
             Assert.Contains(run.Events(),e=>e.Event.Kind=="BATTLE_CLOSED");
+            await run.ColdCheckpoint();
         }
         await run.Replay();
         var publicJson=JsonSerializer.Serialize(ResolutionResult.BuildSnapshots(run.State));
