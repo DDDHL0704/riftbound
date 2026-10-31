@@ -999,6 +999,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "RAD_027_167_GRANT_UNIT_BOON_OR_TEMPORARY_POWER",
                 "RAD_027_GRANT_BOON_OR_POWER",
                 "RAD_040_FRIENDLY_LEGEND_POWER",
+                "RAD_104_167_STUN_ENEMY_UNIT",
                 "RAD_104_EXHAUST_STUN_ENEMY_UNIT",
                 "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
                 "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER",
