@@ -23,8 +23,7 @@ public sealed partial class CoreRuleEngine
             var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !entersReady);
             token = token with { Tags = ApplyAzirSandSoldierTemperedTags(zones, cards, item.ControllerId, token.Tags) };
             var entryField = battlefieldId;
-            if (entryField is null && UnitTokenLocationChoiceGranted(state.UntilEndOfTurnEffects, item.ControllerId)
-                && UnitTokenInstructionAllowsLocationChoice(item.CardNo, factory.TokenFamilyName))
+            if (entryField is null && UnitTokenInstructionAllowsLocationChoice(item.CardNo, factory.TokenFamilyName))
                 entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
                     zones, cards, locations, pools, state.UntilEndOfTurnEffects);
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
