@@ -339,8 +339,8 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.Effect == "DRAW") {
             // CN383.2.a.1: the undamaged clause is checked when the battle ends.
-            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
-            return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+            var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.Amount, state.RngCursor, events, deferNormalVictory: true);
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
                 RngCursor = draw.RngCursor, WinnerPlayerId = draw.WinnerPlayerId, Events = events,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }

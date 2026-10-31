@@ -80,13 +80,36 @@ public sealed partial class FullGameEndToEndTests
                 AssertVayneConquestReturnPaymentOpened(triggered);
                 var paid = await PayVayneConquestReturnPaymentAsync(session, triggered, "P1", room + "-pay");
                 RecordConquestFixturePrefix(source, "paid", paid);
-                AssertVayneConquestReturnPaid(triggered, paid);
-                triggered = paid;
+                AssertVayneConquestReturnPendingAfterPayment(triggered, paid);
+                var returned = await ResolveDriverPendingEffectsAsync(session, paid, room + "-vayne-response");
+                RecordConquestFixturePrefix(source, "responded", returned);
+                AssertVayneConquestReturnPaid(triggered, returned);
+                triggered = returned;
                 break;
-            case "zaun": AssertBattlefieldConquerDiscardDrawResolved(current, triggered); break;
-            case "shirana": AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered); break;
-            case "moonveil": AssertBattlefieldConquerReadyEquipmentResolved(current, triggered); break;
-            case "minefield": AssertBattlefieldConquerMillResolved(current, triggered); break;
+            case "zaun":
+                triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+                    TriggerKinds.BattlefieldConquerDiscardDraw, room + "-zaun-response");
+                RecordConquestFixturePrefix(source, "responded", triggered);
+                AssertBattlefieldConquerDiscardDrawResolved(current, triggered);
+                break;
+            case "shirana":
+                triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+                    TriggerKinds.BattlefieldConquerConsumeBoonDraw, room + "-shirana-response");
+                RecordConquestFixturePrefix(source, "responded", triggered);
+                AssertBattlefieldConquerConsumeBoonDrawResolved(current, triggered);
+                break;
+            case "moonveil":
+                triggered = await ResolveBattlefieldConquestFixtureAsync(session, current, triggered,
+                    TriggerKinds.BattlefieldConquerReadyEquipment, room + "-moonveil-response");
+                RecordConquestFixturePrefix(source, "responded", triggered);
+                AssertBattlefieldConquerReadyEquipmentResolved(current, triggered);
+                break;
+            case "minefield":
+                AssertBattlefieldConquerMillPending(current, triggered);
+                triggered = await ResolveDriverPendingEffectsAsync(session, triggered, room + "-mill-response");
+                RecordConquestFixturePrefix(source, "responded", triggered);
+                AssertBattlefieldConquerMillResolved(current, triggered);
+                break;
         }
 
         Assert.Equal("P2", previousController);

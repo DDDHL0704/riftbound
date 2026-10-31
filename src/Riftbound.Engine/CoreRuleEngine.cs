@@ -587,6 +587,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
             return ResolveTriggerTargetPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
+        if (pendingPayment.PaymentWindow == TriggerPaymentWindow && pendingPayment.ResolvingStackItemId is { } conquestItem
+            && state.StackItems.Any(item => item.StackItemId == conquestItem && item.UnitConquestReturn is not null))
+            return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.ResolvingStackItemId is not null)
             return ResolveInsightPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal))
@@ -3013,6 +3016,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (NeedsCapturedLastBreathDiscardChoice(pendingChoice) && !ValidLastBreathDiscardChoice(state))
             return RejectWithCorePrompts(state, "绝念弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
+        if (pendingChoice.BattlefieldConquestDiscardDraw is not null
+                && !ValidBattlefieldConquestDiscardHandChoice(state, pendingChoice)
+            || pendingChoice.ChoiceId.StartsWith("CONQUEST-HAND:", StringComparison.Ordinal)
+                && pendingChoice.BattlefieldConquestDiscardDraw is null)
+            return RejectWithCorePrompts(state, "征服弃牌选择的来源绑定已失效。", ErrorCodes.InvalidTarget);
 
         var submittedObjectIds = chosenObjectIds
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
@@ -3078,7 +3086,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             intent.PlayerId,
             pendingChoice.DrawCount,
@@ -3091,7 +3099,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?> {
                     ["playerId"] = intent.PlayerId, ["battlefieldObjectId"] = pendingChoice.SourceObjectId,
                     ["sourceObjectId"] = pendingChoice.SourceObjectId,
-                    ["battlefieldCardNo"] = cardObjects.GetValueOrDefault(pendingChoice.SourceObjectId)?.CardNo,
+                    ["battlefieldCardNo"] = pendingChoice.BattlefieldConquestDiscardDraw?.Context.CardNo
+                        ?? cardObjects.GetValueOrDefault(pendingChoice.SourceObjectId)?.CardNo,
                     ["trigger"] = pendingChoice.EffectKind, ["drawCount"] = pendingChoice.DrawCount
                 }));
         }
@@ -3228,6 +3237,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == BattlefieldConquestEquipmentDetachWindow) return ResolveBattlefieldConquestReadyEquipmentDetachChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedBaseCostWindow) return ResolveTemperedBaseCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
@@ -3270,7 +3280,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5145,6 +5155,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["observerKind"] = trigger.HandDiscardObserver?.Kind ?? trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
+        if (trigger.BattlefieldConquestMill is { } conquestMill)
+            payload["sourceGeneration"] = conquestMill.BattlefieldGeneration;
+        if (trigger.BattlefieldConquestDiscardDraw is { } conquestDiscard)
+            payload["sourceGeneration"] = conquestDiscard.Source.Generation;
+        if (trigger.BattlefieldConquestReadyEquipment is { } conquestEquipment)
+            payload["sourceGeneration"] = conquestEquipment.Source.Generation;
+        if (trigger.BattlefieldConquestConsumeBoon is { } conquestBoon)
+            payload["sourceGeneration"] = conquestBoon.Source.Generation;
+        if (trigger.UnitConquestReturn is { } conquestReturn)
+        {
+            payload["sourceGeneration"] = conquestReturn.Source.Generation;
+            payload["sourceFaceRevision"] = conquestReturn.FaceRevision;
+            payload["sourceCardNo"] = conquestReturn.CardNo;
+            payload["battlefieldObjectId"] = conquestReturn.BattlefieldObjectId;
+            payload["occurrence"] = conquestReturn.Occurrence;
+            if (conquestReturn.TokenFactoryCardNo is not null)
+                payload["tokenFactoryCardNo"] = conquestReturn.TokenFactoryCardNo;
+        }
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
             && TryReadTriggerBattlefieldObjectId(trigger.TriggerId, out var battlefieldObjectId))
         {
@@ -7749,7 +7777,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     intent.PlayerId,
                     1,
@@ -15563,7 +15591,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawResult = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     nextPlayerScores,
                     playerId,
                     drawCount,
@@ -16281,65 +16309,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || requiredKeywords.All(keyword => tokenDefinition.Tags.Contains(keyword, StringComparer.Ordinal));
     }
 
-    private static bool TryResolveBattlefieldConquerMillTwoTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string sourceObjectId,
-        List<GameEvent> events)
-    {
-        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                battlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldConquerMillTrigger,
-                out var trigger)
-            || !playerZones.TryGetValue(playerId, out var zones)
-            || zones.MainDeck.Count == 0)
-        {
-            return false;
-        }
-
-        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, trigger.MillCount.GetValueOrDefault());
-        if (movedCardIds.Length == 0)
-        {
-            return false;
-        }
-
-        playerZones[playerId] = zones with
-        {
-            MainDeck = zones.MainDeck.Skip(movedCardIds.Length).ToArray(),
-            Graveyard = zones.Graveyard.Concat(movedCardIds).ToArray()
-        };
-
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 征服战场并弃置主牌堆顶牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldId"] = battlefieldId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = TriggerKinds.BattlefieldConquerMill,
-                ["sourceObjectId"] = sourceObjectId,
-                ["count"] = movedCardIds.Length
-            }));
-        events.Add(new GameEvent(
-            "CARDS_MILLED",
-            $"{playerId} 将主牌堆顶 {movedCardIds.Length} 张牌放入废牌堆",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = battlefieldObjectId,
-                ["cardIds"] = movedCardIds,
-                ["count"] = movedCardIds.Length,
-                ["sourceZone"] = trigger.MillSourceZone,
-                ["destinationZone"] = trigger.MillDestinationZone
-            }));
-        return true;
-    }
-
     private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
         MatchState state, Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -16608,7 +16577,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         discardedObjectIds = discarded;
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -16679,7 +16648,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -17470,7 +17439,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
@@ -17519,7 +17488,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
         drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             playerId,
             drawCount,
@@ -24092,6 +24061,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.MightySkill is not null) return ResolveMightySkill(state, stackItem);
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
+        if (stackItem.BattlefieldConquestMill is not null) return ResolveBattlefieldConquestMill(state, stackItem);
+        if (stackItem.BattlefieldConquestDiscardDraw is not null) return ResolveBattlefieldConquestDiscardDraw(state, stackItem);
+        if (stackItem.BattlefieldConquestReadyEquipment is not null) return ResolveBattlefieldConquestReadyEquipment(state, stackItem);
+        if (stackItem.BattlefieldConquestConsumeBoon is not null) return ResolveBattlefieldConquestConsumeBoon(state, stackItem);
+        if (stackItem.UnitConquestReturn is not null) return ResolveUnitConquestReturn(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
         if (stackItem.BeginningRune is not null) return ResolveBeginningRune(state, stackItem);
@@ -24458,7 +24432,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     conditionalSourceDrawCount,
@@ -24474,7 +24448,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     optionalSourceDrawCount,
@@ -24544,7 +24518,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var drawApplication = ApplyDrawToPlayer(
                 state,
-                playerZones,
+                playerZones, cardObjects,
                 playerScores,
                 stackItem.ControllerId,
                 behavior.LevelDrawOnPlayCount,
@@ -24682,7 +24656,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     stackItem.ControllerId,
                     behavior.SourceBoonDrawCount,
@@ -24833,7 +24807,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     behavior.DrawCount * stackItem.EffectRepeatCount,
@@ -24927,7 +24901,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var drawApplication = ApplyDrawToPlayer(
                             state,
-                            playerZones,
+                            playerZones, cardObjects,
                             playerScores,
                             drawPlayerId,
                             preRuneDrawCount * stackItem.EffectRepeatCount,
@@ -25382,7 +25356,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     perPlayerDrawCount * stackItem.EffectRepeatCount,
@@ -26581,7 +26555,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
-                    playerZones,
+                    playerZones, cardObjects,
                     playerScores,
                     drawPlayerId,
                     drawCount * stackItem.EffectRepeatCount,
@@ -26736,6 +26710,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem)
     {
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             new(
@@ -26755,7 +26730,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             stackItem.ControllerId,
             1,
@@ -26765,7 +26740,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return new StackResolutionResult(
             playerZones,
-            state.CardObjects,
+            cardObjects,
             drawApplication.PlayerScores,
             NormalizeExperienceForSeats(state),
             state.RunePools,
@@ -27040,6 +27015,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int drawCount)
     {
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>
         {
             BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -27053,7 +27029,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         };
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             state.PlayerScores,
             stackItem.ControllerId,
             drawCount,
@@ -27063,7 +27039,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return new StackResolutionResult(
             playerZones,
-            state.CardObjects,
+            cardObjects,
             drawApplication.PlayerScores,
             NormalizeExperienceForSeats(state),
             state.RunePools,
@@ -27174,7 +27150,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (drawCount > 0)
         {
-            var draw = ApplyDrawToPlayer(state, playerZones, state.PlayerScores, stackItem.ControllerId,
+            var draw = ApplyDrawToPlayer(state, playerZones, cardObjects, state.PlayerScores, stackItem.ControllerId,
                 drawCount, state.RngCursor, events, deferNormalVictory: true);
             return new StackResolutionResult(playerZones, cardObjects, draw.PlayerScores,
                 NormalizeExperienceForSeats(state), state.RunePools, state.UntilEndOfTurnEffects,
@@ -27474,7 +27450,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var drawApplication = ApplyDrawToPlayer(
             state,
-            playerZones,
+            playerZones, cardObjects,
             playerScores,
             stackItem.ControllerId,
             drawCount,
@@ -32081,7 +32057,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string targetObjectId)
     {
@@ -32094,6 +32070,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
             zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
+        AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
         return true;
     }
 
@@ -32122,7 +32099,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromAnyHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId)
     {
@@ -32137,6 +32114,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
                 zones with { Hand = RemoveFromZone(zones.Hand, targetObjectId) }, [targetObjectId]);
+            AdvanceNonFieldObjectIdentity(cardObjects, targetObjectId);
             ownerPlayerId = playerId;
             return true;
         }
@@ -32146,7 +32124,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardPlayerHand(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         out IReadOnlyList<string> discardedObjectIds)
     {
@@ -32164,6 +32142,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var discardedObjectIdSet = discardedObjectIds.ToHashSet(StringComparer.Ordinal);
         playerZones[playerId] = AddNonDeckGraveyardEntries(playerZones, cardObjects, playerId,
             zones with { Hand = zones.Hand.Where(objectId => !discardedObjectIdSet.Contains(objectId)).ToArray() }, discardedObjectIds);
+        foreach (var id in discardedObjectIds) AdvanceNonFieldObjectIdentity(cardObjects, id);
         return true;
     }
 
@@ -33059,8 +33038,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
     {
         return cardObjects
-            .Where(entry => FieldObjectTypeRules.IsUnattachedNonUnitEquipment(entry.Value)
-                && !StandbyRules.AllowsBattlefieldEquipment(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
+            .Where(entry => FieldObjectTypeRules.RequiresUnattachedEquipmentRecall(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
                 && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
                 && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
@@ -33299,7 +33277,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount,
+    private static DrawResult DrawCards(MatchState state, Dictionary<string, CardObjectState> cardObjects, string playerId, PlayerZones zones, int drawCount,
         bool deferNormalVictory = false)
     {
         DrawResult result = new(
@@ -33325,7 +33303,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 },
                 playerId,
                 currentZones,
-                burnouts.Count);
+                burnouts.Count, cardObjects);
             drawnCards.AddRange(result.DrawnCards);
             burnouts.AddRange(result.Burnouts);
             currentZones = currentZones with
@@ -33347,6 +33325,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static DrawApplicationResult ApplyDrawToPlayer(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         int drawCount,
@@ -33366,7 +33345,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RngCursor = rngCursor
         };
         var drawResult = DrawCards(
-            drawState,
+            drawState, cardObjects,
             playerId,
             drawPlayerZones,
             drawCount,
@@ -33965,7 +33944,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool TryApplyBattlefieldScore(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
@@ -34034,7 +34013,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     [SourceUnitTokenObservationKey] = CaptureScoringUnitTokens(state, playerZones, cardObjects, playerId, battlefieldObjectId) }));
             var draw = ApplyDrawToPlayer(state with {
                 PlayerZones = playerZones, CardObjects = cardObjects, UntilEndOfTurnEffects = nextUntilEndOfTurnEffects },
-                playerZones, playerScores, playerId, 1, state.RngCursor, events);
+                playerZones, cardObjects, playerScores, playerId, 1, state.RngCursor, events);
             nextPlayerScores = draw.PlayerScores;
             winnerPlayerId = draw.WinnerPlayerId;
             nextRngCursor = draw.RngCursor;
@@ -34268,6 +34247,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var turnPlayerIndex = Array.IndexOf(players, state.TurnPlayerId);
         return turnPlayerIndex >= 0
             && state.TurnNumber == turnPlayerIndex + 1;
+    }
+
+    private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount,
+        Dictionary<string, CardObjectState> cardObjects)
+    {
+        var result = TakeTopCardWithBurnout(state with { CardObjects = cardObjects }, playerId, zones, priorBurnoutCount);
+        foreach (var id in zones.Graveyard.Except(result.Graveyard, StringComparer.Ordinal))
+            AdvanceNonFieldObjectIdentity(cardObjects, id);
+        foreach (var id in result.DrawnCards) AdvanceNonFieldObjectIdentity(cardObjects, id);
+        return result;
     }
 
     private static DrawResult TakeTopCardWithBurnout(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)

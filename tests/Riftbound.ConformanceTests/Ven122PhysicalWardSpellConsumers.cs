@@ -14,12 +14,12 @@ public sealed class Ven122PhysicalWardSpellConsumers {
   var initial=Position(actor);var game=new Driver(initial);var host=Arena.Host(actor);var enemy=Arena.Other(actor);var spell=enemy+"-MOONLIGHT";
   try {
    if(actor=="P2")await game.Act("P1",new EndTurnCommand());
-   for(var i=0;i<3;i++)await game.Act(actor,new TapRuneCommand(Arena.Rune(actor,i)));
+   var actorRunes=Enumerable.Range(0,3).Select(i=>Arena.Rune(actor,i)).ToArray();await game.Act(actor,new TapRuneCommand(actorRunes[0],actorRunes));
    var prefix=game.Events().Length;await game.Act(actor,new PlayCardCommand(host,"VEN·122",[]));Arena.Cost(game.Events().Skip(prefix),3,0);
-   if(empowered){await game.Act(actor,new TapRuneCommand(Arena.Rune(actor,3)));await game.Act(actor,new TapRuneCommand(Arena.Rune(actor,4)));prefix=game.Events().Length;await game.Act(actor,new ActivateAbilityCommand(host,"EMPOWER:0:0",[]));Arena.Cost(game.Events().Skip(prefix),2,0);Assert.False(game.State.CardObjects[host].IsEmpowered);await game.Top();}
+   if(empowered){var empowerRunes=new[]{Arena.Rune(actor,3),Arena.Rune(actor,4)};await game.Act(actor,new TapRuneCommand(empowerRunes[0],empowerRunes));prefix=game.Events().Length;await game.Act(actor,new ActivateAbilityCommand(host,"EMPOWER:0:0",[]));Arena.Cost(game.Events().Skip(prefix),2,0);Assert.False(game.State.CardObjects[host].IsEmpowered);await game.Top();}
    Assert.Equal(3,game.State.CardObjects[host].Power);Assert.Equal(empowered?4:3,Arena.Might(game.State,actor,host));var generation=game.State.CardObjects[host].ObjectGeneration;
    await game.Act(actor,new EndTurnCommand());Assert.Equal(enemy,game.State.TurnPlayerId);
-   for(var i=0;i<7;i++)await game.Act(enemy,new TapRuneCommand(Arena.Rune(enemy,i)));
+   var enemyRunes=Enumerable.Range(0,7).Select(i=>Arena.Rune(enemy,i)).ToArray();await game.Act(enemy,new TapRuneCommand(enemyRunes[0],enemyRunes));
    var play=new PlayCardCommand(spell,"UNL-066/219",[host]);
    if(empowered){
     await game.Act(enemy,new RecycleRuneCommand(Arena.Rune(enemy,0)));
@@ -48,13 +48,12 @@ public sealed class Ven122PhysicalWardSpellConsumers {
   try
   {
    if (actor == "P2") await game.Act("P1", new EndTurnCommand());
-   for (var i = 0; i < 3; i++) await game.Act(actor, new TapRuneCommand(Arena.Rune(actor, i)));
+   var actorRunes = Enumerable.Range(0, 3).Select(i => Arena.Rune(actor, i)).ToArray(); await game.Act(actor, new TapRuneCommand(actorRunes[0], actorRunes));
    var prefix = game.Events().Length; await game.Act(actor, new PlayCardCommand(host, "VEN·122", []));
    Arena.Cost(game.Events().Skip(prefix), 3, 0);
    if (empowered)
    {
-    await game.Act(actor, new TapRuneCommand(Arena.Rune(actor, 3)));
-    await game.Act(actor, new TapRuneCommand(Arena.Rune(actor, 4)));
+    var empowerRunes = new[] { Arena.Rune(actor, 3), Arena.Rune(actor, 4) }; await game.Act(actor, new TapRuneCommand(empowerRunes[0], empowerRunes));
     prefix = game.Events().Length; await game.Act(actor, new ActivateAbilityCommand(host, "EMPOWER:0:0", []));
     Arena.Cost(game.Events().Skip(prefix), 2, 0); await game.Top();
    }

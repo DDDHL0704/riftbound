@@ -13,7 +13,11 @@ public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectI
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     string? RuleTextInstanceId = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    HeldUnitSource? UnitSource = null);
+    HeldUnitSource? UnitSource = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DeploymentHoldOrigin? Deployment { get; init; }
+}
 public sealed record HeldUnitSource(long CapturedTick, long FaceRevision, string FaceCardNo,
     string? TokenFactoryCardNo = null, bool Ceased = false);
 public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
@@ -95,12 +99,12 @@ public sealed partial class CoreRuleEngine
                         events.Add(new("DRAW_PHASE_SKIPPED", "卡牌效果跳过抽牌阶段", new Dictionary<string, object?> { ["playerId"] = player }));
                         state = state with { TurnStartStep = "MAIN" }; break;
                     }
-                    var draw = DrawCards(state, player, zones[player], 1);
+                    var draw = DrawCards(state, cards, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
                     events.AddRange(BuildTurnStartEvents(state, 0, draw, []).Where(e => e.Kind is not
                         ("TURN_START_BEGAN" or "RUNES_CALLED" or "RUNE_POOL_CLEARED" or "MAIN_PHASE_BEGAN")));
-                    state = state with { PlayerZones = zones, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
+                    state = state with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
                         WinnerPlayerId = draw.WinnerPlayerId, Status = draw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                         ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), TurnStartStep = "MAIN" };
                     break;
