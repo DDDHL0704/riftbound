@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Riftbound.CardCatalog;
 
 namespace Riftbound.Engine;
 
@@ -23,7 +24,18 @@ public static partial class MatchRecoveryValidator
                     errors.Add("temporary numeric unit effect has no official behavior"); continue;
                 }
                 if (ev.Kind == "BASE_MIGHT_SET_UNTIL_END_OF_TURN") {
-                    if (!TryReadObjectInt(ev.Payload, "baseMight", out var value) || value != behavior.BasePowerUntilEndOfTurn)
+                    if (!TryReadObjectInt(ev.Payload, "baseMight", out var value)) {
+                        errors.Add("base Might grant differs from its official behavior");
+                    }
+                    else if (CoreRuleEngine.HighCostSetsSourceBasePower(no)) {
+                        if (!TryReadObjectString(ev.Payload, "playedCardNo", out var playedCardNo)
+                            || string.IsNullOrWhiteSpace(playedCardNo)
+                            || !OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
+                                .Any(card => card.CardNo == playedCardNo && card.Energy == value))
+                            errors.Add("base Might grant differs from its official behavior");
+                        else bases[(target!, generation)] = value;
+                    }
+                    else if (value != behavior.BasePowerUntilEndOfTurn)
                         errors.Add("base Might grant differs from its official behavior");
                     else bases[(target!, generation)] = value;
                 } else {

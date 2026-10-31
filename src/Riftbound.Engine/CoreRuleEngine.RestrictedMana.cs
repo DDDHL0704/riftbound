@@ -7,14 +7,14 @@ public sealed partial class CoreRuleEngine
     internal static bool CanGainSpellOnlyMana(RunePool pool, long amount)
         => pool.HasSupportedAmounts && amount >= 0 && (long)pool.TotalStoredMana + amount <= int.MaxValue;
 
-    private static void GainLuxSpellOnlyMana(Dictionary<string, RunePool> pools,
+    private static void GainLuxSpellOnlyMana(IReadOnlyDictionary<string, PlayerZones> zones, Dictionary<string, RunePool> pools,
         Dictionary<string, CardObjectState> cards, string player, string source,
         List<GameEvent> events, string? paymentId = null)
     {
         var card = cards[source]; var pool = pools.GetValueOrDefault(player, RunePool.Empty);
         if (!CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana))
             throw new InvalidOperationException("Unrepresentable prevalidated spell-only mana gain.");
-        cards[source] = card with { IsExhausted = true };
+        cards[source] = ExhaustForInstruction(zones, cards, card);
         pools[player] = pool with { SpellOnlyMana = pool.SpellOnlyMana + P4ActivatedAbilityCatalog.LuxGeneratedMana };
         var payload = new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = source, ["cardNo"] = card.CardNo,
@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        GainLuxSpellOnlyMana(pools, cards, intent.PlayerId, command.SourceObjectId, events);
+        GainLuxSpellOnlyMana(state.PlayerZones, pools, cards, intent.PlayerId, command.SourceObjectId, events);
         var next = state with { Tick = state.Tick + 1, RunePools = pools, CardObjects = cards };
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }

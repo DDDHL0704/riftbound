@@ -11,6 +11,8 @@ public sealed record DisarmOrigin(long CapturedTick, long FaceRevision, IReadOnl
 public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BombDestructionOrigin? BombDestruction { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public EquipmentDestructionOrigin? EquipmentDestruction { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PaidUnitTriggerOrigin? PaidUnitTrigger { get; init; }
@@ -52,6 +54,7 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
     {
+        if (context.Kind == BombDestructionKind) return ValidBombDestructionShape(context, effect, cardNo);
         if (context.Kind == EquipmentDeathReturnKind) return ValidEquipmentDeathShape(context, effect, cardNo);
         if (context.EquipmentDestruction is not null) return false;
         if (context.Kind == DisarmKind) return ValidDisarmShape(context, effect, cardNo);
@@ -148,13 +151,18 @@ public sealed partial class CoreRuleEngine
                 : item.FieldContext.Kind is "COMBAT_MIGHT" or CombatMightDamageKind or "STANDBY_DEFEND" or AttackMightDamageKind ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
-                : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
+                : item.FieldContext.Kind == BombDestructionKind
+                    ? EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
+                        && state.ObjectLocations.TryGetValue(c.ObjectId, out var bombLocation)
+                        && bombLocation.Zone == "BATTLEFIELD"
+                        && bombLocation.BattlefieldObjectId == item.FieldContext.BattlefieldId
+                    : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var location) && location.BattlefieldObjectId == item.FieldContext.BattlefieldId))
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 
     private static bool NeedsTriggerConfirmation(StackItemState i)
         => NeedsLastBreathHereTarget(i) && i.TargetGenerations is null || NeedsDeathObserverTarget(i) && i.TargetGenerations is null || HasMovementDamage(i) && i.TargetGenerations is null ||
-            NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
+            NeedsUnitEventMode(i) || NeedsUnitEventTarget(i) && i.TargetGenerations is null ||
             i.DravenBattleDeathScore is { OpponentId: null } ||
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null || i.ConquestFlow is not null && i.TargetGenerations is null
             || NeedsEmpowerInteractionChoice(i)
@@ -189,6 +197,7 @@ public sealed partial class CoreRuleEngine
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.EmpowerInteraction is not null) return PrepareEmpowerInteraction(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
+        if (NeedsUnitEventMode(item)) return PrepareUnitEventMode(result, item);
         if (NeedsUnitEventTarget(item) && item.TargetGenerations is null) return PrepareUnitEventTarget(result, item);
         if (item.ReadyObjectTrigger is not null) return PrepareReadyOtherObject(result, item);
         if (item.SourceReadied is not null) return PrepareReadiedMode(result, item);
@@ -234,6 +243,7 @@ public sealed partial class CoreRuleEngine
                     : item.FieldContext.Kind == EmpoweredBanishKind ? "选择一名符合战力上限的敌方战场单位放逐；确认目标和法盾费用后双方可以响应"
                     : item.FieldContext.Kind == EmpoweredAttackDestroyKind ? "选择此处一名战力低于来源的敌方单位；确认目标和法盾费用后双方可以响应。"
                     : item.FieldContext.Kind == AttackWeaponDamageKind ? "选择此处一名敌方单位；确认目标和法盾费用后双方可以响应。"
+                    : item.FieldContext.Kind == BombDestructionKind ? "选择该处一名敌方单位受到2点伤害；确认后双方可以响应"
                     : item.FieldContext.Kind == StunBoonKind ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : item.FieldContext.Kind == BattleLimitedMarkers.SteadfastDefend ? "选择一名单位，在本次战斗期间获得坚守2；确认目标和法盾费用后开放响应"
@@ -277,7 +287,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
-            && (context.Kind is EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(context.Kind)
+            && (context.Kind is BombDestructionKind or EmpoweredBanishKind or AttackMightDamageKind or CombatMightDamageKind or EmpoweredAttackDestroyKind or AttackWeaponDamageKind or DisarmKind or PaidUnitStunKind or PaidUnitDestroyKind || IsStunObserverKind(context.Kind)
                 ? ValidFieldContextState(state, context, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : ValidFieldContext(context, item.EffectKind, item.CardNo)) && item.TargetGenerations is null
             && (!IsPaidUnitTriggerKind(context.Kind) || context.PaidUnitTrigger is { CostPaid: false, DiscardCost: null })
@@ -324,13 +334,21 @@ public sealed partial class CoreRuleEngine
         var mana = item.FieldContext?.Kind == PaidUnitStunKind ? PaidUnitStunSpec(item.FieldContext.CardNo)!.ManaCost!.Value : 0;
         var experience = item.FieldContext?.Kind == AttackMightDamageKind
             ? AttackMightDamageSpec(item.FieldContext.CardNo)!.ExperienceCost!.Value : 0;
+        var highCostPowerByTrait = item.HighCostPlayObserver is { } highCostPayment
+            && HighCostPlaysSourceFromGraveyard(highCostPayment.CardNo)
+            ? new Dictionary<string, int>(StringComparer.Ordinal) { [RuneTrait.Yellow] = 1 }
+            : new Dictionary<string, int>(StringComparer.Ordinal);
         if (tax > 0 || mana > 0 || experience > 0 || item.HighCostPlayObserver is not null)
         {
             // CN 355.10.c.1 / 405.2: choose targets before paying all costs;
             // a player may decline a triggered skill that has any cost.
             var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
-                manaCost: mana, powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
-                    ? $"横置来源并支付 {tax} 任意符能，或放弃此触发技能。"
+                manaCost: mana, powerCost: tax, powerCostByTrait: highCostPowerByTrait, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: item.HighCostPlayObserver is not null
+                    ? HighCostPlaysSourceFromGraveyard(item.HighCostPlayObserver.CardNo)
+                        ? "支付 1 黄色符能，或放弃从废牌堆打出此单位。"
+                        : HighCostSetsSourceBasePower(item.HighCostPlayObserver.CardNo)
+                            ? "确认让来源本回合基础战力变为所打出卡牌的法力费用，或放弃。"
+                            : $"横置来源并支付 {tax} 任意符能，或放弃此触发技能。"
                     : experience > 0 ? $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {experience} 经验和 {tax} 任意符能，或放弃此触发技能。"
                     : $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {mana} 法力和 {tax} 任意符能，或放弃此触发技能。")
                 { ResolvingStackItemId = item.StackItemId, ExperienceCost = experience };
@@ -363,14 +381,17 @@ public sealed partial class CoreRuleEngine
         if (item.HighCostPlayObserver is { } highCost)
         {
             if (!CanPayHighCostExhaustion(state, item))
-                return RejectWithCorePrompts(state, "来源已无法支付横置费用。", ErrorCodes.InvalidTarget);
+                return RejectWithCorePrompts(state, HighCostPlaysSourceFromGraveyard(highCost.CardNo)
+                    ? "废牌堆来源已无法支付触发费用。" : "来源已无法支付横置费用。", ErrorCodes.InvalidTarget);
             var source = state.CardObjects[item.SourceObjectId];
-            next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
-                [source.ObjectId] = source with { IsExhausted = true } } };
+            if (!HighCostSetsSourceBasePower(highCost.CardNo) && !HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+                next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
+                    [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
             item = item with { HighCostPlayObserver = highCost with { Paid = true } };
-            events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId,
-                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, "__spectator__") }));
+            if (!HighCostSetsSourceBasePower(highCost.CardNo) && !HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+                events.Add(new("SOURCE_EXHAUSTED", "支付触发技能横置费用", new Dictionary<string, object?> {
+                    ["playerId"] = item.ControllerId,
+                    ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, source.ObjectId, "__spectator__") }));
         }
         if (HasLegendConquestTarget(item))
         {
@@ -378,7 +399,7 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "传奇已无法支付横置费用。", ErrorCodes.InvalidTarget);
             var source = state.CardObjects[item.SourceObjectId];
             next = next with { CardObjects = new Dictionary<string, CardObjectState>(next.CardObjects) {
-                [source.ObjectId] = source with { IsExhausted = true } } };
+                [source.ObjectId] = ExhaustForInstruction(next.PlayerZones, next.CardObjects, source) } };
             item = item with { TriggerCost = new(new(source.ObjectId, source.ObjectGeneration)) };
             events.Add(new("LEGEND_EXHAUSTED", "支付征服技能横置费用", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = source.ObjectId }));
@@ -421,6 +442,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
+        if (item.FieldContext?.Kind == BombDestructionKind) return ResolveBombDestruction(state, item);
         if (item.FieldContext?.Kind == EquipmentDeathReturnKind) return ResolveEquipmentDeathReturn(state, item);
         if (item.FieldContext?.Kind == SelfActionPowerKind) return ResolveSelfActionObserver(state, item);
         if (item.FieldContext is { Kind: AttackMightDamageKind }) return ResolveAttackMightDamage(state, item);
