@@ -18148,7 +18148,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             out targetObjectIds);
         var targetScope = PlayCardTargetScopeForBehavior(behavior);
         var legalTargets = HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope);
-        var incompleteTargets = previewWithoutTargets && targetObjectIds.Count == 0 && !legalTargets;
+        var incompleteTargets = previewWithoutTargets
+            && targetObjectIds.Count == 0
+            && !behavior.TargetScopeIsExplicit
+            && string.Equals(targetScope, CardTargetScopes.BattlefieldUnit, StringComparison.Ordinal)
+            && !legalTargets;
         if (!incompleteTargets && !legalTargets)
         {
             rejection = Reject(
