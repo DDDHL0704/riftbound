@@ -97,10 +97,11 @@ public sealed partial class CoreRuleEngine
                 ["trigger"] = TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, ["sourceObjectIds"] = new[] { item.SourceObjectId },
                 ["targetObjectId"] = item.TriggerCost.DestructionTarget.ObjectId, ["drawCount"] = item.BattlefieldStart!.DrawCount,
                 ["timing"] = MatchPhases.TurnStart, ["beforeScoring"] = true }) };
-        var draw = ApplyDrawToPlayer(state, zones, NormalizeScoresForSeats(state), item.ControllerId,
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var draw = ApplyDrawToPlayer(state, zones, cards, NormalizeScoresForSeats(state), item.ControllerId,
             item.BattlefieldStart!.DrawCount, state.RngCursor, events,
             deferNormalVictory: true);
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
             WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }

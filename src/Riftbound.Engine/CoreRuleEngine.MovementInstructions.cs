@@ -56,7 +56,7 @@ public sealed partial class CoreRuleEngine
                 var scores = state.PlayerScores; var rng = state.RngCursor; var winner = state.WinnerPlayerId;
                 foreach (var player in players) {
                     var drawState = state with { PlayerZones = zones, CardObjects = cards, PlayerScores = scores, RngCursor = rng };
-                    var draw = ApplyDrawToPlayer(drawState, zones, scores, player, spec.DrawCount!.Value, rng, events, deferNormalVictory: true);
+                    var draw = ApplyDrawToPlayer(drawState, zones, cards, scores, player, spec.DrawCount!.Value, rng, events, deferNormalVictory: true);
                     scores = draw.PlayerScores; rng = draw.RngCursor; winner = draw.WinnerPlayerId ?? winner;
                 }
                 result = result with { PlayerScores = scores, RngCursor = rng, WinnerPlayerId = winner };

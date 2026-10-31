@@ -112,10 +112,11 @@ public sealed partial class CoreRuleEngine
                 ["battlefieldObjectId"] = context.Source.ObjectId, ["battlefieldCardNo"] = context.CardNo,
                 ["sourceObjectId"] = context.Source.ObjectId, ["trigger"] = spec.Kind,
                 ["powerfulObjectId"] = context.PowerfulUnits.FirstOrDefault()?.Source.ObjectId, ["drawCount"] = spec.DrawCount!.Value }) };
-        var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
+        var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
+        var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,
             spec.DrawCount!.Value, state.RngCursor, events,
             deferNormalVictory: true);
-        return new(zones, state.CardObjects, draw.PlayerScores, NormalizeExperienceForSeats(state), state.RunePools,
+        return new(zones, cards, draw.PlayerScores, NormalizeExperienceForSeats(state), state.RunePools,
             state.UntilEndOfTurnEffects, draw.WinnerPlayerId, events, [], null, [], null, [], draw.RngCursor);
     }
 }

@@ -110,9 +110,10 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == TriggerKinds.UnitConquestDrawOne)
         {
             var zones = NormalizeZonesForSeats(state);
-            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
+            var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            var draw = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId,
                 spec.DrawCount!.Value, state.RngCursor, events, deferNormalVictory: true);
-            return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+            return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, PlayerScores = draw.PlayerScores,
                 WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
         }

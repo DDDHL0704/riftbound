@@ -268,7 +268,7 @@ public sealed partial class CoreRuleEngine
 
         void Draw(int count)
         {
-            var draw = ApplyDrawToPlayer(state, zones, scores, player, count, rng, events, deferNormalVictory: true);
+            var draw = ApplyDrawToPlayer(state, zones, cards, scores, player, count, rng, events, deferNormalVictory: true);
             scores = draw.PlayerScores; rng = draw.RngCursor; winner = draw.WinnerPlayerId;
         }
         void ReturnToHand(string id)
