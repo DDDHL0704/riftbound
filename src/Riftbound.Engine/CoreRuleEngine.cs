@@ -3244,6 +3244,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TriggerHandDiscardWindow) return ResolveTriggerHandDiscardChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == BombRebuildChoiceWindow) return ResolveBombRebuildChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MightyChoiceWindow) return ResolveMightySkillChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds);
@@ -3280,7 +3281,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, HandDiscardObserver = trigger.HandDiscardObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedEmpower = trigger.DelayedEmpower, BombRebuild = trigger.BombRebuild, EmpowerOtherObserver = trigger.EmpowerOtherObserver, OutsideHandPlayObserver = trigger.OutsideHandPlayObserver, HighCostPlayObserver = trigger.HighCostPlayObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningRune = trigger.BeginningRune, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, SourceUnitTokens = trigger.SourceUnitTokens, ReadyObjectTrigger = trigger.ReadyObjectTrigger, SourceReadied = trigger.SourceReadied, UnitBattleWinDraw = trigger.UnitBattleWinDraw, LegendBattleWinDraw = trigger.LegendBattleWinDraw, KhazixBattleWin = trigger.KhazixBattleWin, DravenBattleWinScore = trigger.DravenBattleWinScore, DravenBattleDeathScore = trigger.DravenBattleDeathScore, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, ConquestFlow = trigger.ConquestFlow, ConquestSource = trigger.ConquestSource, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, LastBreathUnitCreation = trigger.LastBreathUnitCreation, LastBreathRuneCall = trigger.LastBreathRuneCall, LastBreathDraw = trigger.LastBreathDraw, LastBreathBattlefieldDamage = trigger.LastBreathBattlefieldDamage, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, BattlefieldConquestMill = trigger.BattlefieldConquestMill, UnitConquestReturn = trigger.UnitConquestReturn, BattlefieldConquestConsumeBoon = trigger.BattlefieldConquestConsumeBoon, BattlefieldConquestDiscardDraw = trigger.BattlefieldConquestDiscardDraw, BattlefieldConquestReadyEquipment = trigger.BattlefieldConquestReadyEquipment, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext, EmpowerInteraction = trigger.EmpowerInteraction, UnitEvent = trigger.UnitEvent };
     }
 
     private sealed record TriggerControllerBlock(
@@ -23989,6 +23990,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.OutsideHandPlayObserver is not null) return ResolveOutsideHandPlayObserver(state, stackItem);
         if (stackItem.HighCostPlayObserver is not null) return ResolveHighCostPlay(state, stackItem);
         if (stackItem.DelayedEmpower is not null) return ResolveDelayedEmpower(state, stackItem);
+        if (stackItem.BombRebuild is not null) return ResolveBombRebuild(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
         if (stackItem.GraveyardPlay is not null) return ResolveGraveyardPlay(state, stackItem);
@@ -29211,56 +29213,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return priorLocations;
         }
 
-        var tokenTags = ParseDelimitedValues(behavior.CreatedBattlefieldEquipmentTokenTags);
-        var hasTokenDefinition = TryGetEquipmentTokenDefinition(
-            behavior.CreatedBattlefieldEquipmentTokenName,
-            tokenTags,
+        return CreateBattlefieldEquipmentTokenBatch(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
             behavior.CardNo,
-            out var tokenDefinition);
-        var resolvedTokenTags = ResolveEquipmentTokenTags(
+            behavior.DisplayName,
             behavior.CreatedBattlefieldEquipmentTokenName,
-            tokenTags,
-            hasTokenDefinition ? tokenDefinition : null);
-        var tokenCount = behavior.CreatedBattlefieldEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
-        var locations = priorLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var created = new List<string>();
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, stackItem.SourceObjectId, tokenIndex + 1);
-            var tokenState = hasTokenDefinition
-                ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId,
-                    behavior.CreatedBattlefieldEquipmentTokenIsExhausted) with { Tags = resolvedTokenTags }
-                : new CardObjectState(tokenObjectId,
-                    isExhausted: behavior.CreatedBattlefieldEquipmentTokenIsExhausted,
-                    tags: resolvedTokenTags, ownerId: stackItem.ControllerId, controllerId: stackItem.ControllerId);
-            tokenState = ApplyTokenEntryStaticAbility(
-                playerZones, cardObjects, stackItem.ControllerId, tokenObjectId, tokenState,
-                out var entersReady, out var entrySourceId, out var entrySource, out var entryAbility, battlefieldId);
-            cardObjects[tokenObjectId] = tokenState;
-            created.Add(tokenObjectId);
-            locations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", battlefieldId);
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenName"] = behavior.CreatedBattlefieldEquipmentTokenName,
-                ["destinationZone"] = "BATTLEFIELD",
-                ["battlefieldObjectId"] = battlefieldId,
-                ["isExhausted"] = tokenState.IsExhausted
-            };
-            if (hasTokenDefinition) payload["tokenCardNo"] = tokenDefinition.CardNo;
-            if (tokenState.Tags.Count > 0) payload["tokenTags"] = tokenState.Tags.ToArray();
-            AddEntryStaticAbilityPayload(payload, entersReady ? entryAbility : null, entrySourceId, entrySource.CardNo);
-            events.Add(CaptureEquipmentPlayed(new GameEvent(
-                "EQUIPMENT_TOKEN_CREATED",
-                $"{behavior.DisplayName}打出装备指示物到战场",
-                payload), playerZones, cardObjects, tokenState, stackItem.ControllerId));
-        }
-
-        if (created.Count > 0 && playerZones.TryGetValue(stackItem.ControllerId, out var zones))
-            playerZones[stackItem.ControllerId] = zones with { Battlefields = zones.Battlefields.Concat(created).ToArray() };
-        return locations;
+            ParseDelimitedValues(behavior.CreatedBattlefieldEquipmentTokenTags),
+            behavior.CreatedBattlefieldEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount),
+            behavior.CreatedBattlefieldEquipmentTokenIsExhausted,
+            battlefieldId,
+            events,
+            priorLocations);
     }
 
     private static void PlaySourceEquipmentToBase(

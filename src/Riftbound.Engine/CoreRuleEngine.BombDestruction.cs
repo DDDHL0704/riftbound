@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
     private sealed record CapturedBombDestructionObserver(string SourceId, string Controller, FieldTriggerContext Context);
 
     private static bool IsBomb(CardObjectState card)
-        => string.Equals(card.TokenFactoryCardNo, P6TokenFactoryCatalog.BombTokenCardNo, StringComparison.Ordinal)
+        => P6TokenFactoryCatalog.IsBombTokenFactory(card.TokenFactoryCardNo)
             && card.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
 
     private static CapturedBombDestructionObserver? CaptureBombDestructionObserver(
