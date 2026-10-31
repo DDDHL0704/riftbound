@@ -58,10 +58,14 @@ public sealed partial class CoreRuleEngine
             && source.Tags.Contains(CardObjectTags.Boon);
 
     private static string[] ExhaustionModeTargets(MatchState state, StackItemState item)
-        => state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
+    {
+        return state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && IsObjectOnField(state.PlayerZones, c.ObjectId)
+            && (!state.ObjectLocations.TryGetValue(c.ObjectId, out var location)
+                || location.Zone is "BASE" or "BATTLEFIELD")
             && EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != item.ControllerId
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
+    }
 
     private static string[] AvailableExhaustionModes(MatchState state, StackItemState item)
         => ExhaustionModeSpec(item.CardNo)!.Modes!.Where(m => !ExhaustionModeUsed(state, item, m.Id)
@@ -109,12 +113,22 @@ public sealed partial class CoreRuleEngine
         if (!ValidExhaustionModeChoice(state, choice)) return RejectWithCorePrompts(state, "休眠技能的模式或目标已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingCardChoice = null };
+        var selectionEvent = new GameEvent(
+            choice.ChoiceWindow == ExhaustionModeWindow ? "TRIGGER_MODE_SELECTED" : "TRIGGER_TARGET_SELECTED",
+            choice.ChoiceWindow == ExhaustionModeWindow ? "已选择休眠技能模式" : "已选择休眠技能目标",
+            new Dictionary<string, object?> {
+                ["choiceId"] = choice.ChoiceId,
+                ["playerId"] = choice.PlayerId,
+                ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, item.SourceObjectId, "__spectator__"),
+                ["objectIds"] = selected.ToArray()
+            });
+        var events = new List<GameEvent> { selectionEvent };
         if (choice.ChoiceWindow == ExhaustionModeWindow) {
             item = item with { FieldContext = item.FieldContext! with { ExhaustionObserver = item.FieldContext!.ExhaustionObserver! with { Mode = selected.Single() } } };
             next = next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? item : i).ToArray() };
             var mode = SelectedExhaustionMode(item.FieldContext!)!;
-            if (mode.StunTarget) return PrepareExhaustionMode(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
-            if (!mode.ConsumeSourceBoon) return CompleteExhaustionMode(next, item, []);
+            if (mode.StunTarget) return PrepareExhaustionMode(new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
+            if (!mode.ConsumeSourceBoon) return CompleteExhaustionMode(next, item, events);
         } else {
             item = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
             next = next with { StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? item : i).ToArray() };
@@ -123,7 +137,7 @@ public sealed partial class CoreRuleEngine
         var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
             powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: $"消耗来源增益并支付 {tax} 任意符能，或放弃此技能。") { ResolvingStackItemId = item.StackItemId };
         next = next with { PendingPayment = payment, PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
-        return new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
+        return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
     internal static bool ValidExhaustionModePayment(MatchState state, PendingPaymentState payment)

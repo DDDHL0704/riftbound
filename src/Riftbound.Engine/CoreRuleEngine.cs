@@ -11024,6 +11024,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 optionalCosts);
         }
 
+        // A precise battlefield origin still has the ordinary battlefield-to-base
+        // movement semantics. The destination has no location identity to bind,
+        // so let the standard movement path validate and move the unit.
+        if (originUsesPreciseLocation
+            && !destinationUsesPreciseLocation
+            && string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(destinationZone, MoveUnitBaseZone, StringComparison.Ordinal))
+        {
+            command = command with { Origin = MoveUnitBattlefieldZone };
+            originUsesPreciseLocation = false;
+        }
+
         if (originUsesPreciseLocation
             && destinationUsesPreciseLocation
             && string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
