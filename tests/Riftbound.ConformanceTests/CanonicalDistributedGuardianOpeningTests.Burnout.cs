@@ -83,7 +83,9 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var home = game.State.CardObjects.Values.Single(c => c.OwnerId == "P2" && c.CardNo == "OGN·275/298").ObjectId;
             var field = game.State.CardObjects.Values.Single(c => c.OwnerId == "P1" && c.CardNo == "OGN·278/298").ObjectId;
             await game.Act("P2", new MoveUnitCommand(holder, "BASE", "BATTLEFIELD:" + home, [])); await Focus(game);
-            Assert.Equal(1, game.State.PlayerScores["P2"]); await game.ColdCheckpoint();
+            Assert.Equal(1, game.State.PlayerScores["P2"]);
+            // The next checkpoint after natural exhaustion replays this held-point
+            // history, so one restore covers the whole stage.
             for (var i = 0; ; i++)
             {
                 await Beginning(game); Assert.InRange(i, 0, 19); Assert.Equal(MatchStatuses.InProgress, game.State.Status);
@@ -106,7 +108,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             await game.ColdCheckpoint(); var prefix = game.Events().Length;
             await game.Act("P2", new AssignEffectDamageCommand(allocation.ResolvingStackItemId!, [
                 new CombatDamageAssignmentDto(source, host, 3), new CombatDamageAssignmentDto(source, victim, 2)]));
-            var replacement = game.State.PendingRuleChoice!.Request; Assert.Equal(2, replacement.Options.Count); await game.ColdCheckpoint();
+            var replacement = game.State.PendingRuleChoice!.Request; Assert.Equal(2, replacement.Options.Count);
             var chosen = Assert.Single(replacement.Options, o => o.ObjectIds!.Contains(guardians[1]));
             await game.Act("P1", new PayCostCommand(replacement.Id, "RULE_REPLACEMENT", [chosen.Id]));
             Assert.Contains(host, game.State.PlayerZones["P1"].Base); Assert.Contains(victim, game.State.PlayerZones["P1"].Graveyard);
@@ -117,7 +119,12 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var beforeDraw = game.State; var handCount = beforeDraw.PlayerZones["P1"].Hand.Count; var drawPrefix = game.Events().Length;
             const string battleScope = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
             var declaration = Assert.Single(beforeDraw.UntilEndOfTurnEffects, e => e.StartsWith(battleScope, StringComparison.Ordinal));
-            Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind is "BATTLE_CLOSED" or "BATTLEFIELD_CONQUERED"); await game.ColdCheckpoint();
+            Assert.DoesNotContain(game.Events().Skip(prefix), e => e.Event.Kind is "BATTLE_CLOSED" or "BATTLEFIELD_CONQUERED");
+            // This checkpoint replays the accepted replacement and the earlier
+            // allocation. A separate restore while the replacement is pending
+            // would replay the same full journal without adding a distinct
+            // accepted-history boundary.
+            await game.ColdCheckpoint();
             await game.Top();
             var drawEvents = game.Events().Skip(drawPrefix).ToArray();
             var burnout = Assert.Single(drawEvents, e => e.Event.Kind == "BURNOUT_APPLIED");

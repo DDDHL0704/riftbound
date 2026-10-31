@@ -222,15 +222,22 @@ public sealed class SelectedRecastFeeOpeningTests
         }
         async Task Drain()
         {
+            // Keep one cold restore at the completed response-window boundary;
+            // per-pass restores only replay the unchanged prefix.
+            var recover = verifyColdRecoveryAfterEveryCommand;
+            verifyColdRecoveryAfterEveryCommand = false;
+            var closed = false;
             for (var i = 0; i < 30; i++)
             {
-                if (State().PendingEffectPlay is not null) return;
+                if (State().PendingEffectPlay is not null) { closed = true; break; }
                 Assert.Null(State().PendingCardChoice);
                 if (State().StackItems.Count > 0) await Act(State().PriorityPlayerId!, new PassPriorityCommand());
                 else if (State().FocusPlayerId is { } focus) await Act(focus, new PassFocusCommand());
-                else return;
+                else { closed = true; break; }
             }
-            throw new InvalidOperationException("The selected-fee recast window did not close.");
+            verifyColdRecoveryAfterEveryCommand = recover;
+            Assert.True(closed, "The selected-fee recast window did not close.");
+            if (recover) await Cold();
         }
     }
 

@@ -59,7 +59,8 @@ internal static partial class ActionPromptBuilder
                 choiceId =>
                 {
                     var trait = string.Empty;
-                    var power = BasicRuneRecyclePowerGain;
+                    var tap = TryParseTapRunePaymentActionId(choiceId, out _);
+                    var power = tap ? 0 : BasicRuneRecyclePowerGain;
                     if (TryParseRecycleRunePaymentActionId(choiceId, out var objectId)
                         && state.CardObjects.TryGetValue(objectId, out var runeState)
                         && TryGetRuneTrait(runeState, out var runeTrait))
@@ -69,7 +70,9 @@ internal static partial class ActionPromptBuilder
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
                         ["trait"] = trait,
+                        ["mana"] = tap ? BasicRuneTapManaGain : 0,
                         ["power"] = power,
+                        ["abilityId"] = tap ? "BASIC_RUNE_EXHAUST_GAIN_1_MANA" : "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER",
                         ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal),
                         ["paymentOnly"] = false
                     };

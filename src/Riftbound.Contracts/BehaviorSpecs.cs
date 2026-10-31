@@ -48,6 +48,11 @@ public static class ActivatedAbilityKinds
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
 }
 
+public static class ActivatedAbilitySourceScopes
+{
+    public const string FriendlyLegend = "FRIENDLY_LEGEND";
+}
+
 public static class BehaviorEffectConditionKinds
 {
     public const string None = "NONE";
@@ -770,7 +775,9 @@ public sealed record ActivatedAbilitySpec(
     string? PlayCardFilter = null,
     int? PowerModifierAmount = null,
     int? MinimumPowerAfterModifier = null,
-    string? TargetUnitName = null);
+    string? TargetUnitName = null,
+    string? SourceScope = null,
+    string? RequiredControllerCardNoOnField = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

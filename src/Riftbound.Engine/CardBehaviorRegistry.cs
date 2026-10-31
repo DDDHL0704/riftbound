@@ -165,6 +165,9 @@ public sealed record CardBehaviorDefinition(
     string CreatedBattlefieldEquipmentTokenName = "",
     string CreatedBattlefieldEquipmentTokenTags = "",
     bool CreatedBattlefieldEquipmentTokenIsExhausted = false,
+    bool ReadiesAllEnemyUnitsOnPlay = false,
+    bool OtherUnitsEnterReady = false,
+    bool SuppressesAllUnitWake = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
@@ -427,6 +430,7 @@ public static class CardTargetScopes
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string Legend = "LEGEND";
+    public const string FriendlyLegend = "FRIENDLY_LEGEND";
     public const string StackSpell = "STACK_SPELL";
     public const string SacredJudgmentKeepCard = "SACRED_JUDGMENT_KEEP_CARD";
 }
@@ -440,6 +444,7 @@ public static class CardCounteredStackItemDestinationZones
 public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
+    public const string LegendCard = "CARD_TYPE:LEGEND";
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
     public const string RuneCard = "CARD_TYPE:RUNE";
     public const string SpellCard = "CARD_TYPE:SPELL";
@@ -9464,6 +9469,40 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: "约德尔人")
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantNextBatchUnits =
+    [
+        new("RAD·003/167", "比港追捕者", 3, "RAD_003_PLAY_DAMAGE_UP_TO_TWO", 1, 2,
+            TargetScope: CardTargetScopes.AnyUnit, MinTargetCount: 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·008/167", "战争斥候", 3, "RAD_008_PLAY_BUFF_HASTE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, PowerModifierAmount: 2,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Red),
+        new("RAD·058/167", "怒海法师", 4, "RAD_058_PLAY_DEBUFF_HASTE", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, PowerModifierAmount: -3,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "急速",
+            HasteReadyManaCost: 1, HasteReadyPowerCost: 1, HasteReadyPowerTrait: RuneTrait.Blue),
+        new("RAD·118/167", "帝皇令使", 5, "RAD_118_PLAY_SET_POWER", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, BasePowerUntilEndOfTurn: 5,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("RAD·019/167", "焰烙劫掠者", 6, "RAD_019_PLAY_READY_ENEMIES", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitIsExhausted: false,
+            ReadiesAllEnemyUnitsOnPlay: true, OtherUnitsEnterReady: true, SuppressesAllUnitWake: true),
+        new("RAD·094/167", "爆破猿", 6, "RAD_094_DEFEND_BOMBS", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6,
+            CreatedBattlefieldEquipmentTokenCount: 3,
+            CreatedBattlefieldEquipmentTokenName: "炸弹",
+            CreatedBattlefieldEquipmentTokenTags: CardEquipmentKeywordNames.Deploy),
+    ];
+
+    private static readonly CardBehaviorDefinition[] RadiantLegendarySupportUnits =
+    [
+        new("RAD·040/167", "鼓舞之魂", 7, "SOUL_OF_INSPIRATION_PLAY_READY_FRIENDLY_LEGEND", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyLegend,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 7, SourceUnitTags: "灵体",
+            ReadiesTarget: true)
+    ];
+
     private static readonly CardBehaviorDefinition[] RadiantDestructionUnits =
     [
         new("RAD·067/167", "钟塔守护者", 8, "HELD_INSIGHT_LAST_BREATH_PLAY_UNIT", 0, 0,
@@ -9499,12 +9538,22 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2)
     ];
 
+    private static readonly CardBehaviorDefinition[] RadiantFinalUnits =
+    [
+        new("RAD·113/167", "提灯亚龙", 8, "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 8, SourceUnitTags: "龙|法盾"),
+        new("RAD·115/167", "易位法师", 6, "RAD_115_RETURN_FRIENDLY_PLAY_LOWER_POWER", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4)
+    ];
+
     // Printed permissions and lifecycle defaults depend only on the immutable
     // catalog; compute once rather than cloning every card during prompt queries.
     private static readonly CardBehaviorDefinition[] Definitions =
         RawDefinitions.Concat(RadiantHeroReprints).Concat(RadiantSignatureSpells).Concat(RadiantEquipment).Concat(RadiantDisarmUnits)
             .Concat(RadiantEntryCostUnits).Concat(RadiantConditionalTriggerUnits).Concat(RadiantDestructionUnits)
-            .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Select(ApplyLifecycleKeywordDefaults).ToArray();
+            .Concat(RadiantResourceObserverUnits).Concat(RadiantBombUnits).Concat(RadiantNextBatchUnits)
+            .Concat(RadiantLegendarySupportUnits).Concat(RadiantFinalUnits)
+            .Select(ApplyLifecycleKeywordDefaults).ToArray();
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
     {

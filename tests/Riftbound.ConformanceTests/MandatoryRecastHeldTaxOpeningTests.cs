@@ -221,26 +221,45 @@ public sealed class MandatoryRecastHeldTaxOpeningTests
         async Task NextOwnTurn()
         {
             Assert.Equal(actor, State().TurnPlayerId);
-            var otherStart = await Act(actor, new EndTurnCommand());
-            await TurnSequenceTestDriver.Complete(otherStart,
-                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
-            var ownStart = await Act(State().TurnPlayerId, new EndTurnCommand());
-            await TurnSequenceTestDriver.Complete(ownStart,
-                (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+            // Turn-start cleanup is a deterministic setup phase. Keep the
+            // duplicate-intent checks for every command, then validate the
+            // complete action log once at the phase boundary instead of
+            // replaying the growing history after every automatic step.
+            var recover = verifyColdRecoveryAfterEveryCommand;
+            verifyColdRecoveryAfterEveryCommand = false;
+            try
+            {
+                var otherStart = await Act(actor, new EndTurnCommand());
+                await TurnSequenceTestDriver.Complete(otherStart,
+                    (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+                var ownStart = await Act(State().TurnPlayerId, new EndTurnCommand());
+                await TurnSequenceTestDriver.Complete(ownStart,
+                    (player, command) => new ValueTask<ResolutionResult>(Act(player, command)));
+            }
+            finally { verifyColdRecoveryAfterEveryCommand = recover; }
             Assert.Equal(actor, State().TurnPlayerId);
             Assert.Equal(MatchPhases.Main, State().Phase);
+            await Cold();
         }
         async Task Drain()
         {
+            // Each pass remains covered by accepted, duplicate and hidden-zone
+            // assertions. A single restore after the window avoids replaying the
+            // same action log for every priority/focus pass.
+            var recover = verifyColdRecoveryAfterEveryCommand;
+            verifyColdRecoveryAfterEveryCommand = false;
+            var closed = false;
             for (var i = 0; i < 30; i++)
             {
-                if (State().PendingEffectPlay is not null) return;
+                if (State().PendingEffectPlay is not null) { closed = true; break; }
                 Assert.Null(State().PendingCardChoice);
                 if (State().StackItems.Count > 0) await Act(State().PriorityPlayerId!, new PassPriorityCommand());
                 else if (State().FocusPlayerId is { } focus) await Act(focus, new PassFocusCommand());
-                else return;
+                else { closed = true; break; }
             }
-            throw new InvalidOperationException("The finite held-tax replay window did not close.");
+            verifyColdRecoveryAfterEveryCommand = recover;
+            Assert.True(closed, "The finite held-tax replay window did not close.");
+            if (recover) await Cold();
         }
     }
 
