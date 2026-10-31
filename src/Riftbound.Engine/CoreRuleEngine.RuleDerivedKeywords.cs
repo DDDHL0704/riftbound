@@ -12,7 +12,13 @@ public sealed partial class CoreRuleEngine
     }
 
     internal static MatchState RecomputeRuleDerivedKeywords(MatchState state)
-        => RecomputeDisarmKeywords(RecomputeConditionalRuleDerivedKeywords(state));
+        => RecomputeRuleDerivedKeywords(state, materializeDisarm: false);
+
+    private static MatchState RecomputeRuleDerivedKeywords(MatchState state, bool materializeDisarm)
+    {
+        var conditional = RecomputeConditionalRuleDerivedKeywords(state);
+        return RecomputeDisarmKeywords(conditional, materializeDisarm);
+    }
 
     private static MatchState RecomputeConditionalRuleDerivedKeywords(MatchState state)
     {
@@ -34,11 +40,14 @@ public sealed partial class CoreRuleEngine
                     ? (instance, spec) : ((RuleTextInstance, StaticAbilitySpec)?)null).Where(s => s.HasValue).Select(s => s!.Value).ToArray();
             if (specs.Length == 0 && card.RuleDerivedTags is null && EmpowerRules.Keywords(state, card).Length == 0) continue;
             // Independent printed/granted tags survive removal of this layer.
-            var removable = (card.RuleDerivedTags ?? []).Concat(specs.SelectMany(s => s.Item2.GrantedKeywords ?? [])).ToHashSet(StringComparer.Ordinal);
+            var disarmDerived = (card.RuleDerivedTags ?? []).Where(IsDisarmTag).ToArray();
+            var removable = (card.RuleDerivedTags ?? []).Where(t => !IsDisarmTag(t))
+                .Concat(specs.SelectMany(s => s.Item2.GrantedKeywords ?? [])).ToHashSet(StringComparer.Ordinal);
             var printed = AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(card) ?? "");
             var basis = card.Tags.Where(t => !removable.Contains(t) || printed.Contains(t) || card.GrantedTags?.Contains(t) == true)
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
-            cards[card.ObjectId] = card with { Tags = basis, RuleDerivedTags = null };
+            cards[card.ObjectId] = card with { Tags = basis,
+                RuleDerivedTags = disarmDerived.Length == 0 ? null : disarmDerived };
             if ((specs.Length > 0 || EmpowerRules.Keywords(state, card).Length > 0)
                 && IsFaceUpNonStandbyUnit(card) && IsObjectOnField(state.PlayerZones, card.ObjectId)) grants[card.ObjectId] = specs;
         }
@@ -65,7 +74,8 @@ public sealed partial class CoreRuleEngine
                     var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));
                     if (amount > 0) tags.Add(counted + (amount == 1 ? "" : amount));
                 }
-                var derived = tags.Order(StringComparer.Ordinal).ToArray();
+                var disarmDerived = (card.RuleDerivedTags ?? []).Where(IsDisarmTag);
+                var derived = disarmDerived.Concat(tags).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
                 if ((card.RuleDerivedTags ?? []).SequenceEqual(derived)) continue;
                 next[id] = card with { RuleDerivedTags = derived.Length == 0 ? null : derived,
                     Tags = cards[id].Tags.Concat(derived).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray() };
@@ -126,7 +136,7 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)
     {
         if (!result.Accepted) return result;
-        var state = RecomputeRuleDerivedKeywords(result.State);
+        var state = RecomputeRuleDerivedKeywords(result.State, materializeDisarm: true);
         return ReferenceEquals(state, result.State) ? result : result with { State = state,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }

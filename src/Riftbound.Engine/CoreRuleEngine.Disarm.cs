@@ -32,22 +32,29 @@ public sealed partial class CoreRuleEngine
     private static bool IsDisarmTag(string tag)
         => tag == "缴械" || tag.StartsWith("缴械", StringComparison.Ordinal) && int.TryParse(tag[2..], out _);
 
-    private static MatchState RecomputeDisarmKeywords(MatchState state)
+    private static MatchState RecomputeDisarmKeywords(MatchState state, bool materialize)
     {
         // The characteristic is inspectable even before its attack trigger exists (CN 831.3).
         if (!state.CardObjects.Values.Any(c => DisarmSourceSpecifications.TryGet(AttachedRuleTextRules.Face(c) ?? "", out _)
             || c.AttachedRuleText is { } copy && DisarmSourceSpecifications.TryGet(copy.CardNo, out _)
             || c.RuleDerivedTags?.Any(IsDisarmTag) == true)) return state;
+        if (!materialize && !state.CardObjects.Values.Any(c => c.Tags.Any(IsDisarmTag)
+            || c.RuleDerivedTags?.Any(IsDisarmTag) == true)) return state;
         Dictionary<string, CardObjectState>? cards = null;
         foreach (var unit in state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.UnitCard)))
         {
-            var amount = !unit.IsFaceDown && IsObjectOnField(state.PlayerZones, unit.ObjectId)
+            if (!materialize && !unit.Tags.Any(IsDisarmTag)
+                && !(unit.RuleDerivedTags ?? []).Any(IsDisarmTag)) continue;
+            var contributions = !unit.IsFaceDown && IsObjectOnField(state.PlayerZones, unit.ObjectId)
                 && EffectiveFieldControllerId(state.PlayerZones, unit.ObjectId, unit) is { } controller
-                ? DisarmContributions(state, unit, controller).Sum(c => c.Value) : 0;
+                ? DisarmContributions(state, unit, controller)
+                : [];
+            var amount = contributions.Sum(c => c.Value);
+            var hasFriendlyGrant = contributions.Any(c => c.FriendlyGrant);
             var printed = AttachedRuleTextRules.PrintedKeywords(AttachedRuleTextRules.Face(unit) ?? "").Where(IsDisarmTag);
             var tag = amount == 1 ? "缴械" : "缴械" + amount;
             var derived = (unit.RuleDerivedTags ?? []).Where(t => !IsDisarmTag(t))
-                .Concat(amount > 0 ? [tag] : []).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+                .Concat(hasFriendlyGrant && amount > 0 ? [tag] : []).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
             var tags = unit.Tags.Where(t => !IsDisarmTag(t))
                 .Concat(amount > 0 ? [tag] : printed).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
             if (tags.SequenceEqual(unit.Tags) && derived.SequenceEqual(unit.RuleDerivedTags ?? [])) continue;
