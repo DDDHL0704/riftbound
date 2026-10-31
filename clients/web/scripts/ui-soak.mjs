@@ -310,8 +310,6 @@ async function playMatch(browser, a, b, idx) {
           report.unaffordable = (report.unaffordable ?? 0) + 1;
           (report.unaffordableAfter ??= []).push(`${label} → ${toast}`.slice(0, 120));
         }
-        // Auto-pay can only estimate cards that need targets; a miss keeps the mana for the turn.
-        else if (toast && toast.startsWith("已横置符文")) report.autoPayMiss = (report.autoPayMiss ?? 0) + 1;
         else if (toast) report.rejections.push({ player: i, after: label, title, toast });
       } else {
         const pending = await p.evaluate(PENDING);
@@ -395,7 +393,6 @@ for (const [i, [a, b]] of PAIRS.entries()) {
       races: r.races,
       reloads: r.reloads,
       unaffordable: r.unaffordable,
-      autoPayMiss: r.autoPayMiss,
       pageErrors: r.pageErrors?.length,
       fx: r.fx,
       crash: r.crash,
