@@ -3925,6 +3925,11 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.AnyMainDeckTopFiveCard => false,
             CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.Legend => IsPromptLegendObject(state, objectId),
+            CardTargetScopes.FriendlyLegend => IsPromptLegendObject(state, objectId)
+                && state.PlayerZones.TryGetValue(playerId, out var friendlyLegendZones)
+                && friendlyLegendZones.LegendZone.Contains(objectId, StringComparer.Ordinal)
+                && state.CardObjects.TryGetValue(objectId, out var friendlyLegend)
+                && SourceObjectControlledByPlayerOrLegacyOwned(friendlyLegend, playerId),
             CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.SacredJudgmentKeepCard => false,
             _ => IsPromptBattlefieldObject(state, objectId)
@@ -5476,6 +5481,7 @@ internal static partial class ActionPromptBuilder
             CardTargetScopes.FriendlyBaseUnit => "友方基地单位",
             CardTargetScopes.Equipment => "装备",
             CardTargetScopes.Legend => "传奇",
+            CardTargetScopes.FriendlyLegend => "友方传奇",
             CardTargetScopes.StackSpell => "结算链法术",
             CardTargetScopes.SacredJudgmentKeepCard => "审判日保留牌",
             _ => "战场单位"

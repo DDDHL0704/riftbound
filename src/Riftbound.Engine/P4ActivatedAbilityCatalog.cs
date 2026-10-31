@@ -41,7 +41,9 @@ public sealed record P4ActivatedAbilityDefinition(
     string SourceRequiredTag = "",
     SimpleActivatedEffectSpec? SimpleEffect = null,
     int? GeneratedManaIfSourceEmpowered = null,
-    int? PowerModifierAmountIfSourceEmpowered = null);
+    int? PowerModifierAmountIfSourceEmpowered = null,
+    string SourceScope = "",
+    string RequiredControllerCardNoOnField = "");
 
 public sealed record SimpleActivatedEffectSpec(bool RemovesSourceEmpowermentAsCost = false,
     int DrawCount = 0, int CreatedRobotCount = 0, bool EmpowersOtherEquipment = false,
@@ -243,6 +245,10 @@ public static class P4ActivatedAbilityCatalog
 
     public const string NextSpellEchoAbilityId = "NEXT_SPELL_ECHO";
     public const string NextSpellEchoEffectKind = "GRANT_NEXT_SPELL_BASE_COST_ECHO";
+
+    public const string SoulOfInspirationCardNo = "RAD·040/167";
+    public const string SoulOfInspirationAbilityId = "RAD_040_FRIENDLY_LEGEND_POWER";
+    public const string SoulOfInspirationAbilityEffectKind = "RAD_040_FRIENDLY_LEGEND_POWER";
 
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
@@ -621,6 +627,24 @@ public static class P4ActivatedAbilityCatalog
             GeneratedPower: GoldTokenGeneratedPower,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
+        new(
+            SoulOfInspirationAbilityId,
+            SoulOfInspirationCardNo,
+            SoulOfInspirationAbilityEffectKind,
+            "鼓舞之魂：传奇技能",
+            0,
+            0,
+            1,
+            RequiresBattlefieldSource: false,
+            ExhaustsSourceAsCost: true,
+            0,
+            AppliesSpellshieldTargetTax: false,
+            "官方中文：所有友方传奇具有“横置：给予一名单位在本回合内战力+3。”",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn,
+            TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: 3,
+            SourceScope: ActivatedAbilitySourceScopes.FriendlyLegend,
+            RequiredControllerCardNoOnField: SoulOfInspirationCardNo),
         .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
     ];
 
@@ -879,7 +903,9 @@ public static class P4ActivatedAbilityCatalog
         => ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
             && ability.ExhaustsSourceAsCost == true && ability.RequiredTargetCount == 1
             && ability.TargetScope == CardTargetScopes.AnyUnit
-            && ability.PowerModifierAmount is < 0 && ability.MinimumPowerAfterModifier is > 0
+            && ability.PowerModifierAmount is not null and not 0
+            && (ability.PowerModifierAmount < 0 && ability.MinimumPowerAfterModifier is > 0
+                || ability.PowerModifierAmount > 0 && ability.MinimumPowerAfterModifier.GetValueOrDefault() == 0)
             && ability.ManaCost.GetValueOrDefault() == 0 && ability.PowerCost.GetValueOrDefault() == 0;
 
     private static P4ActivatedAbilityDefinition TargetedPowerModifierDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
@@ -889,9 +915,11 @@ public static class P4ActivatedAbilityCatalog
             "Printed targeted exhaust ability with ordinary timing, Ward payment and captured Might reduction.",
             Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: ability.PowerModifierAmount!.Value,
-            MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier!.Value,
+            MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier.GetValueOrDefault(),
             SourceRequiredTag: spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
-                ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard);
+                ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard,
+            SourceScope: ability.SourceScope ?? string.Empty,
+            RequiredControllerCardNoOnField: ability.RequiredControllerCardNoOnField ?? string.Empty);
     }
 
     private static bool IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(
