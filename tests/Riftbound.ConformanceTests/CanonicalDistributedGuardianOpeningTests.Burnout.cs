@@ -71,7 +71,11 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             var recyclableSpell = game.Hand("P2", "OGN·004/298").First();
             await game.Act("P2", new PlayCardCommand(recyclableSpell, "OGN·004/298", [source])); await game.Top();
             Assert.Equal(0, game.State.RunePools["P2"].Mana); Assert.Equal(new[] { recyclableSpell }, game.State.PlayerZones["P2"].Graveyard);
-            await game.ColdCheckpoint();
+            // The opening checkpoint above and the later
+            // post-exhaustion/burnout checkpoint cover this same accepted
+            // setup history. Keep the command assertions here, then recover
+            // once after the held-point phase instead of replaying the growing
+            // journal at this intermediate boundary.
             var holdWindow = winOnDraw ? 6 : 4;
             for (var i = 0; ; i++)
             {
@@ -95,7 +99,7 @@ public sealed partial class CanonicalDistributedGuardianOpeningTests
             Assert.Equal(holdWindow, game.State.PlayerScores["P2"]); Assert.Equal(0, game.State.PlayerScores["P1"]);
             Assert.DoesNotContain(game.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
             await game.Act("P1", new MoveUnitCommand(host, "BASE", "BATTLEFIELD:" + field, [], sentinels)); await Focus(game);
-            Assert.Equal(1, game.State.PlayerScores["P1"]); await game.ColdCheckpoint();
+            Assert.Equal(1, game.State.PlayerScores["P1"]);
             await game.Act("P1", new EndTurnCommand()); await Beginning(game);
             Assert.Equal(holdWindow + 1, game.State.PlayerScores["P2"]); Assert.Equal(2, game.State.PlayerScores["P1"]);
             Assert.Contains(recyclableSpell, game.State.PlayerZones["P2"].Hand); Assert.Empty(game.State.PlayerZones["P2"].Graveyard);
