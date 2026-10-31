@@ -96,7 +96,7 @@ public sealed partial class CoreRuleEngine
         {
             RemoveFieldObjectFromLocation(zones, intent.PlayerId, move.OriginZone, move.Id);
             AddFieldObjectToLocation(zones, intent.PlayerId, destinationZone, move.Id);
-            ExhaustMoveUnitSource(cards, move.Id);
+            ExhaustMoveUnitSource(zones, cards, move.Id);
             locations[move.Id] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
             events.Add(new(toBase ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD", "同时移动单位",
                 new Dictionary<string, object?>
