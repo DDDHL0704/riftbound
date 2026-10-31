@@ -69,11 +69,12 @@ public sealed class RadActivatedUnitTests
     }
 
     [Fact]
-    public void RuntimeCatalogAdmitsTheThreeRemainingUnitPrintings()
+    public void RuntimeCatalogAdmitsTheFourRemainingUnitPrintings()
     {
         var cards = RadiantCardSources.GetAdmittedCards();
         Assert.Contains(cards, card => card.Id == 39520L && card.CardNo == "RAD·027/167");
         Assert.Contains(cards, card => card.Id == 39606L && card.CardNo == "RAD·104/167");
+        Assert.Contains(cards, card => card.Id == 39617L && card.CardNo == "RAD·113/167");
         Assert.Contains(cards, card => card.Id == 39620L && card.CardNo == "RAD·115/167");
     }
 
