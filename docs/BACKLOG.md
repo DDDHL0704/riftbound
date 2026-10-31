@@ -124,6 +124,7 @@
   - `a/l2-submitted-standby`：`BattleLimitedExpiryReplacementTests` 的装备、战斗结果和替代支付流程改为设置、战斗结果和终局三个恢复边界；保留每条命令的接受／重复提交、替代选项、伤害、代际、死亡账本和原始回放断言，只改测试夹具，不改引擎或共享登记文件。
   - `a/l2-submitted-standby`（基于 #354）：`Ven117SubmittedStandbyConsumerTests` 的双座真实牌组支付、移动窗口、待命揭示和战斗流程改为在设置／窗口边界冷恢复，保留真实命令、资源／隐私／战斗断言及最终回放；只改测试夹具，不改引擎或 `#287` 共享文件。本地 Release 定向回归 4/4 通过（11 分 53 秒）；待 #354 合入后再开 PR，避免占用第二个 A 线 L2。
   - `a/l2-area-guardian-ordering`（合并到待命 PR）：`LastBreathAreaReplacementOrderingTests` 的两条实际 Guardian 选择变体改为设置、触发队列、替代支付和终局四个恢复边界；保留每条命令的重复提交、隐私、错误支付、替代顺序、伤害、抽牌和最终回放断言，只改测试夹具，不改引擎或 `#287` 共享文件。连同 BattleLimited 三个受影响类的 Release 定向回归共 8/8 通过，用时 4 分 55 秒。
+  - `a/l2-submitted-standby`：`BattleExpirySpellKillAttributionTests` 的无争议战斗开局、资源准备和焦点传递合并为一次边界冷恢复；战斗声明后的即时致死／延迟烧灼归因、响应、Phoenix 触发、重复提交及原始回放仍逐命令恢复。只改测试夹具；过滤回归已启动，结果待本地命令完成后补录。
   - 固定 main [41159049774](https://github.com/DDDHL0704/riftbound/actions/runs/41159049774) 的完整 9 分片结果已刷新 `scripts/l2-method-timings.json`：20,583 条用例、9,856 个方法、1,918 个方法权重和 212 个展开用例权重；所有权重来自本次 Release 实测，未沿用旧估算（`retainedUnmeasuredMethodEstimates=0`）。该数据用于下一次分片规划，保留完整规则清单和 `L2 required` 门槛。
 
 
