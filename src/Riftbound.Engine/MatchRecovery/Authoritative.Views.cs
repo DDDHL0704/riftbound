@@ -459,7 +459,11 @@ public static partial class MatchRecoveryValidator
         }
     }
 
-    private static void ValidateTurnUnitPlayBoonViews(SnapshotDto snapshot, MatchState state, List<string> errors)
+    private static void ValidateTurnUnitPlayBoonViews(
+        SnapshotDto snapshot,
+        string viewerPlayerId,
+        MatchState state,
+        List<string> errors)
     {
         void Check(IReadOnlyList<object?> payloads, bool queue)
         {
@@ -470,7 +474,9 @@ public static partial class MatchRecoveryValidator
                     : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.TurnUnitPlayBoon;
                 var expectedDraw = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.TurnUnitPlayDraw
                     : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.TurnUnitPlayDraw;
-                var expected = expectedBoon ?? expectedDraw;
+                var expected = expectedBoon ?? (expectedDraw is null
+                    ? null
+                    : ResolutionResult.PublicTurnUnitPlayDraw(expectedDraw, state, viewerPlayerId));
                 var property = expectedDraw is null ? "turnUnitPlayBoon" : "turnUnitPlayDraw";
                 try
                 {

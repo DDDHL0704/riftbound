@@ -3764,7 +3764,7 @@ public static partial class MatchRecoveryValidator
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateFlowPlayViews(view.Snapshot.Stack, authoritativeState, errors);
-            ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
+            ValidateTurnUnitPlayBoonViews(view.Snapshot, view.PlayerId, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldConquestMillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldConquestChoiceStackViews(view.Snapshot.Stack, authoritativeState, $"snapshot for {view.PlayerId}", errors);

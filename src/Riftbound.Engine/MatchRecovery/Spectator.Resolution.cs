@@ -124,7 +124,11 @@ public static partial class MatchRecoveryValidator
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningDrawViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateDynamicPowerAuraViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
-            ValidateTurnUnitPlayBoonViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors);
+            ValidateTurnUnitPlayBoonViews(
+                spectatorReplayFrame.SpectatorSnapshot,
+                "__spectator__",
+                authoritativeState,
+                errors);
             ValidateEmpoweredViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, null, errors, "spectator replay frame");
             ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningRuneViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
