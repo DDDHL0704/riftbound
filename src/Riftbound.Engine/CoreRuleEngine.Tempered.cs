@@ -332,7 +332,7 @@ public sealed partial class CoreRuleEngine
         var paid = state with { RunePools = commit.RunePools, PlayerExperience = commit.PlayerExperience };
         var result = NoopStackResolutionResult(paid);
         if (costs?.ExhaustedUnit is { } exhaustedCost)
-            events.Add(ExhaustEquipmentCost(cards, exhaustedCost.ObjectId, item.SourceObjectId, item.ControllerId));
+            events.Add(ExhaustEquipmentCost(zones, cards, exhaustedCost.ObjectId, item.SourceObjectId, item.ControllerId));
         if (costs?.DestroyedUnit is { } costUnit)
         {
             var removal = ResolveFieldDestructions(paid, zones, cards, item, new HashSet<string>(),
