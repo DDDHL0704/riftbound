@@ -997,6 +997,7 @@ public sealed partial class ConformanceFixtureRunnerTests
                 "PAY_RED_EXHAUST_DAMAGE_3",
                 "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER",
                 "RAD_040_FRIENDLY_LEGEND_POWER",
+                "RAD_113_COMMAND_OPPONENT_MOVE_TO_SOURCE",
                 "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER",
                 "RENATA_GLASC_PAY_1_BLUE_DRAW_1",
                 "RENATA_GLASC_PAY_4_BLUE4_EXHAUST_SCORE_1",
