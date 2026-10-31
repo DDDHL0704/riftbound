@@ -365,6 +365,10 @@ internal static partial class ActionPromptBuilder
         string sourceObjectId,
         CardObjectState cardObject)
     {
+        if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
+            return zones.LegendZone.Contains(sourceObjectId, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown;
+
         if (!string.IsNullOrWhiteSpace(ability.SourceRequiredTag))
             return cardObject.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown;

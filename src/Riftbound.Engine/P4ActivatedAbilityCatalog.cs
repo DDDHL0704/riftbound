@@ -908,6 +908,12 @@ public static class P4ActivatedAbilityCatalog
                     : IsTargetedPowerModifier(ability)
                     ? TargetedPowerModifierDefinition(spec, ability)
                     : DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
+            // Some reviewed cards have a hand-written definition because their shared
+            // ability carries card-specific source constraints. Keep that definition
+            // authoritative and avoid registering the equivalent generated one twice.
+            .Where(definition => !Definitions.Any(existing =>
+                string.Equals(existing.SourceCardNo, definition.SourceCardNo, StringComparison.Ordinal)
+                && string.Equals(existing.Kind, definition.Kind, StringComparison.Ordinal)))
             .OrderBy(definition => definition.SourceCardNo, StringComparer.Ordinal)
             .ToArray();
     }
