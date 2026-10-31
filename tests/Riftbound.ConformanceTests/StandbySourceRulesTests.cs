@@ -113,11 +113,8 @@ public sealed class StandbySourceRulesTests
             s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) { ["SHADOW"]=s.CardObjects["SHADOW"] with {Tags=[CardObjectTags.UnitCard],Power=definition.SourceUnitPower} }};
         var hidden=await Act(s,"P1",new HideCardCommand("SHADOW",card,"BATTLEFIELD:F",["STANDBY_A"]));
         s=await NextTurn(hidden.State);
-        s=(await Act(s,"P2",new TapRuneCommand("SHADOW-P2-RUNE-1"))).State;
-        s=(await Act(s,"P2",new TapRuneCommand("SHADOW-P2-RUNE-2"))).State;
-        s=(await Act(s,"P2",new TapRuneCommand("SHADOW-P2-RUNE-3"))).State;
-        s=(await Act(s,"P2",new RecycleRuneCommand("SHADOW-P2-RUNE-4"))).State;
-        s=(await Act(s,"P2",new RecycleRuneCommand("SHADOW-P2-RUNE-5"))).State;
+        s=(await Act(s,"P2",new TapRuneCommand("SHADOW-P2-RUNE-1",["SHADOW-P2-RUNE-1","SHADOW-P2-RUNE-2","SHADOW-P2-RUNE-3"]))).State;
+        s=(await Act(s,"P2",new RecycleRuneCommand("SHADOW-P2-RUNE-4",["SHADOW-P2-RUNE-4","SHADOW-P2-RUNE-5"]))).State;
         s=(await Act(s,"P2",new PlayCardCommand("REPLY","OGN·048/298",[]))).State;
         s=(await Act(s,"P2",new PassPriorityCommand())).State;Restore(s);return s;
     }

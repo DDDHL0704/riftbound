@@ -814,7 +814,7 @@ public sealed class TriggerPaymentTests
     }
 
     [Fact]
-    public async Task OgnVayneConquerPaymentAcceptedReturnsVayneAndClosesWindow()
+    public async Task OgnVayneConquerPaymentConfirmsBeforeResponsesAndReturnsAfterResolution()
     {
         var engine = new CoreRuleEngine();
         var opened = await DeclareVayneBattleAsync(BuildOgnVayneConquerRecallState(), engine);
@@ -829,13 +829,18 @@ public sealed class TriggerPaymentTests
         Assert.True(paid.Accepted, paid.ErrorMessage);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
-        Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
-        CardZoneTestAssertions.RetainedOutsidePlay(paid.State, "P1-BATTLEFIELD-VAYNE", "HAND");
+        AssertVayneStillOnBattlefield(paid.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Contains(paid.Events, IsVayneTriggerResolved);
-        Assert.Contains(paid.Events, IsVayneReturnedToHand);
+        Assert.DoesNotContain(paid.Events, IsVayneTriggerResolved);
+        Assert.DoesNotContain(paid.Events, IsVayneReturnedToHand);
         Assert.Contains(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
+        var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(paid.State);
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", resolved.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", resolved.State.PlayerZones["P1"].Battlefields);
+        CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, "P1-BATTLEFIELD-VAYNE", "HAND");
+        Assert.Contains(resolved.Events, IsVayneTriggerResolved);
+        Assert.Contains(resolved.Events, IsVayneReturnedToHand);
     }
 
     [Fact]
@@ -855,12 +860,11 @@ public sealed class TriggerPaymentTests
         Assert.True(paid.Accepted, paid.ErrorMessage);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
-        Assert.Contains("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Battlefields);
-        CardZoneTestAssertions.RetainedOutsidePlay(paid.State, "P1-BATTLEFIELD-VAYNE", "HAND");
+        AssertVayneStillOnBattlefield(paid.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", paid.State.PlayerZones["P1"].Hand);
         Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)));
-        Assert.Equal(1, CountEvents(paid.Events, IsVayneTriggerResolved));
-        Assert.Equal(1, CountEvents(paid.Events, IsVayneReturnedToHand));
+        Assert.Equal(0, CountEvents(paid.Events, IsVayneTriggerResolved));
+        Assert.Equal(0, CountEvents(paid.Events, IsVayneReturnedToHand));
         Assert.Equal(1, CountEvents(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal)));
         var postPaymentHash = MatchStateHasher.Hash(paid.State);
 
@@ -872,9 +876,11 @@ public sealed class TriggerPaymentTests
 
         AssertRepresentativeClosedReplayRejectedNoMutation(replay, paid.State, postPaymentHash);
         Assert.Equal(0, replay.State.RunePools["P1"].Mana);
-        Assert.Contains("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Hand);
-        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Battlefields);
-        CardZoneTestAssertions.RetainedOutsidePlay(replay.State, "P1-BATTLEFIELD-VAYNE", "HAND");
+        AssertVayneStillOnBattlefield(replay.State);
+        Assert.DoesNotContain("P1-BATTLEFIELD-VAYNE", replay.State.PlayerZones["P1"].Hand);
+        var resolved = await OfficialInsightAndSpellLockTests.ResolveTop(replay.State);
+        Assert.Contains("P1-BATTLEFIELD-VAYNE", resolved.State.PlayerZones["P1"].Hand);
+        Assert.Single(resolved.Events, IsVayneReturnedToHand);
     }
 
     [Fact]

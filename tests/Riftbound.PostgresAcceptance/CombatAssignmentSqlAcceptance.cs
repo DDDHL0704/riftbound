@@ -119,9 +119,24 @@ internal static class CombatAssignmentSqlAcceptance
                         var decline = branch == "vayne-secondary-decline";
                         var response = await Submit("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
                             [decline ? "DECLINE" : "SPEND_MANA:1"]));
+                        var responseEvents = response.Events.ToList();
+                        if (!decline)
+                        {
+                            Check(current.PendingPayment is null && current.RunePools["P1"].Mana == 0
+                                && current.PlayerZones["P1"].Battlefields.Contains("A2")
+                                && !response.Events.Any(e => e.Kind == "UNIT_RETURNED_TO_HAND"),
+                                "Payment is committed before responses, while Vayne remains on the battlefield.");
+                            for (var pass = 0; pass < 2; pass++)
+                            {
+                                var actor = current.PriorityPlayerId
+                                    ?? throw new InvalidOperationException("Confirmed Vayne trigger lost response priority.");
+                                var passed = await Submit(actor, new PassPriorityCommand());
+                                responseEvents.AddRange(passed.Events);
+                            }
+                        }
                         Check(!current.BattleState.IsActive && current.PendingBattleResult is null
-                            && response.Events.Count(e => e.Kind == "BATTLE_CLOSED") == 1,
-                            "The actual payment or decline closes the battle after the independent conquest decision.");
+                            && responseEvents.Count(e => e.Kind == "BATTLE_CLOSED") == 1,
+                            "The resolved or declined conquest decision closes the battle exactly once.");
                         Check(current.PendingPayment is null && current.RunePools["P1"].Mana == (decline ? 1 : 0)
                             && (decline ? current.PlayerZones["P1"].Battlefields : current.PlayerZones["P1"].Hand).Contains("A2"),
                             "Independent payment decision must change only the eligible Vayne and its actual mana.");
