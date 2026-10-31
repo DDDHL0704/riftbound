@@ -7,14 +7,15 @@ using Driver = Riftbound.ConformanceTests.VenBasicFlowSpellTests.Driver;
 namespace Riftbound.ConformanceTests;
 
 // CN143.3b2/468.1a1: explicit midgame fixture, actual plays and movement.
-// Original driver retains every command's strict views, cold restore, duplicate and original replay checks.
+// The opening setup uses explicit stage checkpoints; the contested cleanup still
+// retains every command's strict views, cold restore, duplicate and replay checks.
 public sealed class BattleLimitedCleanupTests
 {
     [Theory]
     [InlineData(false)] [InlineData(true)]
     public async Task BattleCleanupHealsEscapedParticipantAndUnrelatedBaseAndOtherBattlefieldUnits(bool includeUnrelatedUnits)
     {
-        var initial = Position(includeUnrelatedUnits); var run = new Driver(initial);
+        var initial = Position(includeUnrelatedUnits); var run = new Driver(initial) { RecoverAfterEveryCommand = false };
         await run.Act("P1",new PlayCardCommand("HOST","OGN·210/298",[],Destination:"BATTLEFIELD:HOME"));
         await run.Act("P1",new EndTurnCommand());
         foreach(var start in includeUnrelatedUnits ? new[]{1,13} : new[]{1}) {
@@ -32,6 +33,10 @@ public sealed class BattleLimitedCleanupTests
         }
         await run.Act("P2",new MoveUnitCommand("ATTACKER","BASE","BATTLEFIELD:HOME",[])); await run.Top();
         Assert.Equal(6,run.State.CardObjects["ATTACKER"].Power);
+        // The setup above has no contested choices. Validate the complete journal
+        // once before entering the cleanup flow; the final replay still covers
+        // every command and the duplicate checks remain active for each command.
+        await run.ColdCheckpoint();
         if(run.State.FocusPlayerId!="P1") await run.Act(run.State.FocusPlayerId!,new PassFocusCommand());
         var funding=Enumerable.Range(1,includeUnrelatedUnits?10:6).Select(i=>"P1-FUND-"+i).ToArray();
         await run.Act("P1",new TapRuneCommand(funding[0],funding));
@@ -43,6 +48,7 @@ public sealed class BattleLimitedCleanupTests
             await run.Act("P1",new PlayCardCommand("DAMAGE-"+i,"OGS·003/024",[target])); await run.Top();
         }
         Assert.Equal(4,run.State.CardObjects["ATTACKER"].Damage);
+        await run.ColdCheckpoint();
         if(run.State.FocusPlayerId!="P2") await run.Act(run.State.FocusPlayerId!,new PassFocusCommand());
         await run.Act("P2",new PlayCardCommand("FLASH","OGS·011/024",includeUnrelatedUnits?["ATTACKER","CONTROL-BASE"]:["ATTACKER"])); await run.Top();
         Assert.Contains("ATTACKER",run.State.PlayerZones["P2"].Base);
@@ -52,6 +58,7 @@ public sealed class BattleLimitedCleanupTests
             foreach(var id in new[]{"CONTROL-BASE","CONTROL-OTHER"}) Assert.Equal(2,run.State.CardObjects[id].Damage);
         }
         await BattleLimitedTestSupport.PassFocus(run);
+        await run.ColdCheckpoint();
         Assert.Null(run.State.PendingBattleResult); Assert.False(run.State.BattleState.IsActive);
         var expected=includeUnrelatedUnits?new[]{"ATTACKER","CONTROL-BASE","CONTROL-OTHER"}:new[]{"ATTACKER"};
         foreach(var id in expected) { Assert.Equal(0,run.State.CardObjects[id].Damage); Assert.Equal(1,run.State.CardObjects[id].ObjectGeneration); }

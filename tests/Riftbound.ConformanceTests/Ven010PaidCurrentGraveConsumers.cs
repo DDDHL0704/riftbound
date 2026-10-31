@@ -24,13 +24,15 @@ public sealed class Ven010PaidCurrentGraveConsumers
     [InlineData("P1", false)] [InlineData("P2", false)]
     public async Task PhysicalTwelveRunesPayForRealGravesAndAReactionChangesOnlyTheResolutionTimeCount(string actor, bool add)
     {
-        var initial = Position(actor); var game = new Driver(initial);
+        var initial = Position(actor); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             if (actor == "P2") await game.Act("P1", new EndTurnCommand());
             await Sequence(() => game.State, game.Act, game.Top, game.Events, actor, Arena.Host(actor),
                 ["CURSE-A", "CURSE-B", "CURSE-C"], "ENEMY-CURSE", "MOON", "DISPOSE", "BF", add,
-                command => Ven001PhysicalThresholdConsumerTests.Reject(game, actor, command, "no010-one-mana-short"));
+                command => Ven001PhysicalThresholdConsumerTests.Reject(game, actor, command, "no010-one-mana-short"),
+                game.ColdCheckpoint);
+            await game.ColdCheckpoint();
             await game.Replay();
         }
         finally

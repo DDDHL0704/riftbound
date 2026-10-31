@@ -86,7 +86,7 @@ class DailyWorkflowTests(unittest.TestCase):
         self.assertEqual(5, text.count('--event-sha "$GITHUB_SHA"'))
         self.assertIn('--commit "$GITHUB_SHA"', text)
         self.assertIn('group: l2-${{ github.event.pull_request.number || github.ref }}', text)
-        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", text)
+        self.assertIn("cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}", text)
         triggers = text.split('permissions:', 1)[0]
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)
