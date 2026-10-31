@@ -223,7 +223,7 @@ public sealed partial class CoreRuleEngine
         }
         if (spec.DrawCount > 0)
         {
-            var drawn = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
+            var drawn = ApplyDrawToPlayer(state, zones, cards, state.PlayerScores, item.ControllerId, spec.DrawCount, state.RngCursor, events, deferNormalVictory: true);
             result = result with { PlayerScores = drawn.PlayerScores, WinnerPlayerId = drawn.WinnerPlayerId, RngCursor = drawn.RngCursor };
         }
         if (spec.CreatedRobotCount > 0)
