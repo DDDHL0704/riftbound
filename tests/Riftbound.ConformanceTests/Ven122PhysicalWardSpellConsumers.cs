@@ -76,7 +76,7 @@ public sealed class Ven122PhysicalWardSpellConsumers {
     await game.ActRetained(bad, false);
     Assert.False(game.State.CardObjects[orb].IsExhausted); Assert.Equal(1, game.State.RunePools[enemy].TotalPower);
     Assert.Equal(4, Arena.Might(game.State, actor, host));
-    await game.Act(enemy, new RecycleRuneCommand(Arena.Rune(enemy, 1))); await game.ActRetained(bad, false);
+    await game.Act(enemy, new RecycleRuneCommand(Arena.Rune(enemy, 1))); await game.ColdCheckpoint(); await game.ActRetained(bad, false);
     Assert.False(game.State.CardObjects[orb].IsExhausted); Assert.Equal(2, game.State.RunePools[enemy].TotalPower);
    }
    prefix = game.Events().Length; await game.Act(enemy, ability);
