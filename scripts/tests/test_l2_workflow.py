@@ -38,18 +38,21 @@ class DailyWorkflowTests(unittest.TestCase):
                           'unittest discover -s scripts/tests -v']:
             self.assertNotIn(forbidden, text)
         self.assertIn('Build API and conformance once', jobs['prepare'])
-        for pattern in ["-p 'test_l2*.py'", '-p test_ci_change_scope.py', '-p test_rules_runner.py']:
+        for pattern in ["-p 'test_l2*.py'", '-p test_ci_change_scope.py', '-p test_rules_runner.py',
+                        '-p test_main_l2_reuse.py']:
             self.assertIn(pattern, jobs['prepare'])
 
     def test_docs_are_rechecked_before_selecting_jobs_and_the_gate_only_verifies_receipts(self):
         jobs = self.jobs()
         self.assertNotRegex(jobs['prepare'], r'(?m)^    if:')
-        self.assertIn("if: needs.prepare.outputs.tier != 'DOCS'", jobs['rule_suite'])
-        self.assertIn("if: steps.scope.outputs.tier != 'DOCS'", jobs['prepare'])
-        self.assertEqual(2, jobs['prepare'].count('scripts/ci-change-scope.py --docs-pr-only --event'))
+        self.assertIn("if: needs.prepare.outputs.tier != 'DOCS' && needs.prepare.outputs.reused != 'true'", jobs['rule_suite'])
+        self.assertIn("if: steps.scope.outputs.tier != 'DOCS' && steps.reuse.outputs.reused != 'true'", jobs['prepare'])
+        self.assertEqual(2, jobs['prepare'].count('scripts/ci-change-scope.py --docs-pr-only --allow-main-docs --event'))
         self.assertIn('--recheck var/qa/l2-quality/scope-candidate.json', jobs['prepare'])
         self.assertLess(jobs['prepare'].index('--recheck'), jobs['prepare'].index('actions/setup-dotnet@'))
         self.assertIn('--verify-docs-receipt var/qa/l2-quality', jobs['l2_required'])
+        self.assertIn('scripts/main-l2-reuse.py', jobs['prepare'])
+        self.assertIn('--verify-receipt var/qa/l2-reuse/decision.json', jobs['l2_required'])
         self.assertIn('--checkout var/qa/l2-gate/checkout.json', jobs['l2_required'])
         self.assertNotIn('--require-docs', jobs['l2_required'])
         self.assertIn("if: needs.prepare.outputs.tier == 'DOCS'", jobs['l2_required'])
@@ -64,16 +67,18 @@ class DailyWorkflowTests(unittest.TestCase):
         code = compile(textwrap.dedent(block), 'workflow-gate', 'exec')
         outcomes = ['success', 'failure', 'cancelled', 'skipped', '', 'in_progress']
         for tier in ['DOCS', 'L1', 'L2', 'L3', '']:
-            for values in itertools.product(outcomes, repeat=3):
-                env = dict(zip(['RIFTBOUND_PREPARE', 'RIFTBOUND_QUALITY', 'RIFTBOUND_RULE_SUITE'], values))
-                env['RIFTBOUND_TIER'] = tier
-                expected = ('success', 'success', 'skipped' if tier == 'DOCS' else 'success')
-                with self.subTest(tier=tier, values=values), patch.dict(os.environ, env):
-                    if values == expected:
-                        exec(code, {})
-                    else:
-                        with self.assertRaises(SystemExit):
+            for reused in ['false', 'true']:
+                for values in itertools.product(outcomes, repeat=3):
+                    env = dict(zip(['RIFTBOUND_PREPARE', 'RIFTBOUND_QUALITY', 'RIFTBOUND_RULE_SUITE'], values))
+                    env['RIFTBOUND_TIER'] = tier
+                    env['RIFTBOUND_REUSED'] = reused
+                    expected = ('success', 'success', 'skipped' if tier == 'DOCS' or reused == 'true' else 'success')
+                    with self.subTest(tier=tier, reused=reused, values=values), patch.dict(os.environ, env):
+                        if values == expected:
                             exec(code, {})
+                        else:
+                            with self.assertRaises(SystemExit):
+                                exec(code, {})
 
     def test_latest_pr_or_main_sha_is_used_by_every_checkout_and_test_receipt(self):
         text = self.workflow()
@@ -86,6 +91,12 @@ class DailyWorkflowTests(unittest.TestCase):
         for name in ['push:', 'pull_request:', 'workflow_dispatch:']:
             self.assertIn(name, triggers)
         self.assertNotIn('paths:', triggers)
+
+    def test_main_reuse_has_read_access_to_the_required_github_records(self):
+        permissions = self.workflow().split('permissions:', 1)[1].split('concurrency:', 1)[0]
+        self.assertIn('actions: read', permissions)
+        self.assertIn('contents: read', permissions)
+        self.assertIn('pull-requests: read', permissions)
 
     def test_closed_pr_cleanup_uses_the_pr_group_without_publishing_a_required_check(self):
         text = (ROOT / '.github/workflows/backend-l2-close.yml').read_text()
