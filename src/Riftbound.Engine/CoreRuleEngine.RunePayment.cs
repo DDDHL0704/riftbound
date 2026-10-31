@@ -265,7 +265,7 @@ public sealed partial class CoreRuleEngine
             {
                 var pool = pools.GetValueOrDefault(player, RunePool.Empty);
                 if (!CanGainSpellOnlyMana(pool, P4ActivatedAbilityCatalog.LuxGeneratedMana)) return false;
-                pools = ApplyLuxSpellOnlyResourceActions(pools, cards, player, [luxSource], events, paymentId);
+                pools = ApplyLuxSpellOnlyResourceActions(pools, zones, cards, player, [luxSource], events, paymentId);
             }
         }
         return true;
