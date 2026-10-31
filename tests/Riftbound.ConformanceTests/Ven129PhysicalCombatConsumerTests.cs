@@ -17,7 +17,7 @@ public sealed class Ven129PhysicalCombatConsumerTests
     [InlineData(false, 0, 0)] [InlineData(false, 1, 6)] [InlineData(false, 2, 0)]
     public async Task ActualYellowPaymentAndPaidCompanionsKeepSixMightWhileRealCombatPermitsOnlyExactlyOneOtherUnit(bool attacking, int companions, int damage)
     {
-        var initial = Position(attacking); var game = new Driver(initial);
+        var initial = Position(attacking); var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             AssertTwelveEach(game.State);
@@ -39,10 +39,12 @@ public sealed class Ven129PhysicalCombatConsumerTests
             }
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(0, game.State.RunePools["P1"].TotalPower);
             Assert.Equal(11, Runes(game.State, "P1").Length); Assert.Equal(new[] { Rune("P1", 0) }, game.State.PlayerZones["P1"].RuneDeck);
+            await game.ColdCheckpoint();
             var generation = game.State.CardObjects["UNIT"].ObjectGeneration;
             await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new EndTurnCommand());
             Assert.Equal("P1", game.State.TurnPlayerId); Assert.Equal(12, Runes(game.State, "P1").Length); Assert.Empty(game.State.PlayerZones["P1"].RuneDeck);
             Assert.All(members, id => Assert.False(game.State.CardObjects[id].IsExhausted)); AssertTwelveEach(game.State);
+            await game.ColdCheckpoint();
             var field = attacking ? "OTHER" : "BF";
             await game.Act("P1", new MoveUnitCommand("UNIT", "BASE", "BATTLEFIELD:" + field, [], SourceObjectIds: members));
             if (!attacking)
@@ -50,6 +52,7 @@ public sealed class Ven129PhysicalCombatConsumerTests
                 await CompleteMovementWindow(() => game.State, game.Act);
                 await game.Act("P1", new EndTurnCommand()); await game.Act("P2", new MoveUnitCommand("ENEMY", "BASE", "BATTLEFIELD:BF", []));
             }
+            await game.ColdCheckpoint();
             Assert.Equal(attacking, game.State.CardObjects["UNIT"].IsAttacking); Assert.Equal(!attacking, game.State.CardObjects["UNIT"].IsDefending);
             Assert.Equal(companions, OtherFriendlyUnits(game.State, "P1", "UNIT", field));
             Assert.Contains("ALLY", game.State.PlayerZones["P1"].Base); Assert.Contains("GEAR", game.State.PlayerZones["P1"].Base);
@@ -60,7 +63,7 @@ public sealed class Ven129PhysicalCombatConsumerTests
             Assert.All(dealt, e => { Assert.Equal(6, e.Event.Payload["basePower"]); Assert.Equal(6, e.Event.Payload["combatPower"]); Assert.Equal(0, e.Event.Payload["keywordBonus"]); });
             Assert.Equal(6, game.State.CardObjects["UNIT"].Power); Assert.Equal(6, Common.Might(game.State)); Assert.Equal(generation, game.State.CardObjects["UNIT"].ObjectGeneration);
             Assert.False(game.State.CardObjects["UNIT"].IsAttacking); Assert.False(game.State.CardObjects["UNIT"].IsDefending); Assert.False(game.State.CardObjects["UNIT"].IsEmpowered);
-            Assert.Equal(0, game.State.CardObjects["UNIT"].Damage); AssertTwelveEach(game.State); await game.Replay();
+            Assert.Equal(0, game.State.CardObjects["UNIT"].Damage); AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
         }
         finally { await Save("actual-paid-combat-" + attacking + "-" + companions, initial, game); }
     }
@@ -72,7 +75,7 @@ public sealed class Ven129PhysicalCombatConsumerTests
         var initial = Position(true);
         if (missing == "trait") initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             [Rune("P1", 0)] = OfficialGarenConquestBattlefieldCountTests.Printed(Rune("P1", 0), "UNL-R04", "P1") } };
-        var game = new Driver(initial);
+        var game = new Driver(initial) { RecoverAfterEveryCommand = false };
         try
         {
             var manaRunes = Enumerable.Range(0, missing == "mana" ? 3 : 4).Select(i => Rune("P1", i)).ToArray();
@@ -91,7 +94,7 @@ public sealed class Ven129PhysicalCombatConsumerTests
             Assert.Equal(0, game.State.RunePools["P1"].Mana); Assert.Equal(missing == "trait" ? 1 : 0, game.State.RunePools["P1"].TotalPower);
             if (missing == "trait") Assert.Equal(1, game.State.RunePools["P1"].PowerByTrait[RuneTrait.Orange]);
             Assert.Contains("UNIT", game.State.PlayerZones["P1"].Base); Assert.Equal(6, Common.Might(game.State)); Assert.True(game.State.CardObjects["UNIT"].IsExhausted);
-            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); AssertTwelveEach(game.State); await game.Replay();
+            Assert.False(game.State.CardObjects["UNIT"].IsEmpowered); AssertTwelveEach(game.State); await game.ColdCheckpoint(); await game.Replay();
         }
         finally { await Save("actual-short-" + missing, initial, game); }
     }
