@@ -4730,6 +4730,7 @@ public static partial class MatchRecoveryValidator
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
             if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
             if (!AttachmentUnitCopyRules.Valid(state, card)) errors.Add("invalid attached unit copy ledger");
+            if (!CoreRuleEngine.ValidLegendEquipmentUnit(state, card)) errors.Add("invalid legend equipment unit state");
             foreach (var modifier in card.UntilEndOfTurnPowerModifiers ?? [])
                 if (!EmpoweredSpellRules.Valid(state, card, modifier)) errors.Add("invalid captured chosen negative Might replacement");
             if (card.IsEmpowered && !state.PlayerZones.Values.Any(z => z.Base.Contains(card.ObjectId) || z.Battlefields.Contains(card.ObjectId)
