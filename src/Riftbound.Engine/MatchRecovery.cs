@@ -1330,6 +1330,7 @@ public static partial class MatchRecoveryValidator
                 effectKind,
                 errors,
                 HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicBombRebuildEffect(authoritativeState, triggerId, effectKind)
                     || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
                     || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
                     || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind)
@@ -3372,6 +3373,7 @@ public static partial class MatchRecoveryValidator
             effectKind,
             errors,
             HasValidatedPublicDelayedEmpowerEffect(authoritativeState, triggerId, effectKind)
+                    || HasValidatedPublicBombRebuildEffect(authoritativeState, triggerId, effectKind)
                     || HasValidatedPublicLastBreathUnitCreationEffect(authoritativeState, triggerId, effectKind)
                     || (HasValidatedPublicLastBreathRuneCallEffect(authoritativeState, triggerId, effectKind) || (HasValidatedPublicLastBreathDrawEffect(authoritativeState, triggerId, effectKind) || HasValidatedPublicLastBreathBattlefieldDamageEffect(authoritativeState, triggerId, effectKind)))
                     || HasValidatedPublicMovementDiscardEffect(authoritativeState, triggerId, effectKind)
@@ -3752,6 +3754,7 @@ public static partial class MatchRecoveryValidator
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateTemporaryActivationStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDelayedEmpowerViews(view.Snapshot.Stack, errors);
+            ValidateBombRebuildViews(view.Snapshot.Stack, errors);
             ValidateLastBreathUnitCreationViews(view.Snapshot.Stack, errors);
             ValidateLastBreathRuneCallViews(view.Snapshot.Stack, errors);
             ValidateLastBreathDrawViews(view.Snapshot.Stack, errors);
@@ -4671,6 +4674,7 @@ public static partial class MatchRecoveryValidator
         if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
             errors.Add("invalid premature source replay completion");
         ValidateDelayedEmpowerState(state, errors);
+        ValidateBombRebuildState(state, errors);
         ValidateLastBreathUnitCreationState(state, errors);
         ValidateLastBreathRuneCallState(state, errors);
         ValidateLastBreathDrawState(state, errors);
@@ -5672,6 +5676,7 @@ public static partial class MatchRecoveryValidator
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateTemporaryActivationStackViews(stackItems, authoritativeState, errors);
         ValidateDelayedEmpowerViews(stackItems, errors);
+        ValidateBombRebuildViews(stackItems, errors);
         ValidateLastBreathUnitCreationViews(stackItems, errors);
         ValidateLastBreathRuneCallViews(stackItems, errors);
         ValidateLastBreathDrawViews(stackItems, errors);
