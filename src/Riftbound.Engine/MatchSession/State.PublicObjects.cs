@@ -448,18 +448,12 @@ public sealed partial record MatchState
     private static IReadOnlyList<BattlefieldTaskState> BuildBattlefieldTaskStates(MatchState state)
     {
         var tasks = new List<BattlefieldTaskState>();
-        var hasStateBasedCleanup = state.PendingCleanupTasks.Any(task => IsStateBasedCleanupTask(task.Kind));
         var activeSpellDuelBattlefieldObjectId = ActiveSpellDuelBattlefieldObjectId(state);
         foreach (var battlefield in state.BattlefieldStates.Values
             .Where(battlefield => battlefield.Contested)
             .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal))
         {
             if (HasBattlefieldBattleSkipped(state, battlefield.BattlefieldObjectId))
-            {
-                continue;
-            }
-
-            if (BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup))
             {
                 continue;
             }

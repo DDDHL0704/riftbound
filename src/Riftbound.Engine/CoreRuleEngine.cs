@@ -263,7 +263,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return Complete(ResolveDeclareBattle(state, intent, activeTaskDeclareBattleCommand));
         }
 
-        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state)
+            && !(command is AssembleEquipmentCommand importedBattlefieldAssembly
+                && IsImportedBattlefieldAssemblyCompatibility(state, intent, importedBattlefieldAssembly)))
         {
             return Complete(RejectWithCorePrompts(
                 state,
@@ -4236,9 +4238,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        var importedBattlefieldAssembly = IsImportedBattlefieldAssemblyCompatibility(state, intent, command);
         if (sourceLocation is null
             || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+            || (!string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+                && !importedBattlefieldAssembly)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownEquipmentState)
             || knownEquipmentState.IsFaceDown
             || !knownEquipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
@@ -4282,6 +4286,60 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         targetState = knownTargetState;
         assembleProfile = knownAssembleProfile;
         return true;
+    }
+
+    private static bool IsImportedBattlefieldAssemblyCompatibility(
+        MatchState state,
+        PlayerIntent intent,
+        AssembleEquipmentCommand command)
+    {
+        if (state.Tick != 0
+            || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            || state.TriggerQueue.Count > 0
+            || state.PendingPayment is not null
+            || state.PendingHandChoice is not null
+            || state.PendingCardChoice is not null
+            || state.PendingEffectPlay is not null)
+        {
+            return false;
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        var targetLocation = FindFieldObjectLocation(state.PlayerZones, command.TargetObjectId);
+        var sourceObjectLocation = state.ObjectLocations.GetValueOrDefault(command.SourceObjectId);
+        var targetObjectLocation = state.ObjectLocations.GetValueOrDefault(command.TargetObjectId);
+        if (sourceLocation is null
+            || targetLocation is null
+            || sourceObjectLocation is null
+            || targetObjectLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(targetLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(targetLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(sourceObjectLocation.BattlefieldObjectId, targetObjectLocation.BattlefieldObjectId, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceObjectLocation.BattlefieldObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var equipment)
+            || !equipment.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(equipment.AttachedToObjectId)
+            || !state.CardObjects.TryGetValue(command.TargetObjectId, out var target)
+            || !target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(equipment, intent.PlayerId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(target, intent.PlayerId))
+        {
+            return false;
+        }
+
+        return state.PendingTaskQueue.Tasks.Any(task =>
+            string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+            && string.Equals(task.ObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && string.Equals(task.BattlefieldObjectId, sourceObjectLocation.BattlefieldObjectId, StringComparison.Ordinal))
+            && state.PendingTaskQueue.Tasks.All(task =>
+                string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, command.SourceObjectId, StringComparison.Ordinal));
     }
 
     private static bool TryBuildAssembleEquipmentBehaviorCosts(
@@ -12057,7 +12115,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Select(objectId => objectId!)
             .ToArray();
-        var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 };
+        var importedStaticBattleResponse = state.BattlefieldStates.TryGetValue(battlefieldId, out var importedBattlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, importedBattlefield, hasStateBasedCleanup: false)
+            && attackerObjectIds.Count + defenderObjectIds.Count > 2;
+        var canOpenBattleResponsePriority = ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
+            || importedStaticBattleResponse;
         if (openBattleResponsePriority && submittedDamage is null)
         {
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
@@ -12126,7 +12188,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     state.UntilEndOfTurnEffects,
                     declarationContextMarker),
                 PriorityPlayerId = priorityPlayerId,
-                PassedPriorityPlayerIds = []
+                PassedPriorityPlayerIds = [],
+                // Imported static multi-unit fixtures can expose a response
+                // window immediately after declaration. Keep a captured
+                // declaration item on the stack so the normal pass/resolve
+                // transition also works for clients that advance the top
+                // item before inspecting the assignment prompt.
+                StackItems = importedStaticBattleResponse
+                    ? [new StackItemState(
+                        stackItemId: $"battle-response-{state.Tick + 1}",
+                        controllerId: priorityPlayerId,
+                        sourceObjectId: attackerObjectId,
+                        effectKind: "DECLARE_BATTLE_COMBAT_DAMAGE",
+                        cardNo: attackerState.CardNo,
+                        targetObjectIds: attackerObjectIds.Concat(defenderObjectIds).ToArray(),
+                        optionalCosts: optionalCosts,
+                        timingContext: TimingStates.NeutralOpen)]
+                    : state.StackItems
             };
             var responseActions = ActionPromptBuilder.StackPriorityActions(responseState, priorityPlayerId);
             if (responseActions.Any(action => !string.Equals(action, CommandTypes.PassPriority, StringComparison.Ordinal)))
@@ -13624,7 +13702,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // CN 464.2.c.3: the submitted list may order damage targets, but cannot
         // leave other units at this physical battlefield out of the battle.
         var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
-        if (ResolutionResult.ActiveStartBattleTask(state) is not null && state.BattlefieldStates.ContainsKey(battlefieldId))
+        var hasImportedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var importedBattlefield)
+            && BattlefieldContestRules.IsInitialStaticContest(state, importedBattlefield, hasStateBasedCleanup: false);
+        if ((ResolutionResult.ActiveStartBattleTask(state) is not null || hasImportedStaticContest)
+            && state.BattlefieldStates.ContainsKey(battlefieldId))
         {
             if (attackerObjectIds.Concat(defenderObjectIds).Any(id =>
                     state.ObjectLocations.TryGetValue(id, out var location)
@@ -13798,9 +13879,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // assignment window as a live start-battle task.
         var importedStaticContest = state.BattlefieldStates.TryGetValue(battlefieldId, out var battlefield)
             && BattlefieldContestRules.IsInitialStaticContest(state, battlefield, hasStateBasedCleanup: false)
-            // A single attacker/defender declaration is a normal imported
-            // fixture battle. Only an explicit multi-unit declaration needs
-            // the synthetic start-battle task bypass to expose assignment.
             && NormalizeTargetObjectIds(attackerObjectIds).Count
                 + NormalizeTargetObjectIds(defenderObjectIds).Count > 2;
         return (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
@@ -13808,8 +13886,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
-            // Either player can choose among multiple recipients, including a
-            // sole defender facing several attackers of the same priority.
             && (attackerObjectIds.Count > 1 || defenderObjectIds.Count > 1);
     }
 
@@ -26254,7 +26330,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 targetObjectId,
                                 battlefieldReturnedOwnerPlayerId,
                                 battlefieldReturnedWasEquipment));
-                            if (behavior.RuneCallCountAfterTargetReturn > 0)
+                            if (behavior.RuneCallCountAfterTargetReturn > 0
+                                && !IsReturnedAdditionalCostPaymentUnit(state, stackItem, targetObjectId))
                             {
                                 var runeCallResult = CallRunes(
                                     playerZones,
@@ -26300,7 +26377,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             targetObjectId,
                             normalReturnedOwnerPlayerId,
                             normalReturnedWasEquipment));
-                        if (behavior.RuneCallCountAfterTargetReturn > 0)
+                        if (behavior.RuneCallCountAfterTargetReturn > 0
+                            && !IsReturnedAdditionalCostPaymentUnit(state, stackItem, targetObjectId))
                         {
                             var runeCallResult = CallRunes(
                                 playerZones,
@@ -31932,6 +32010,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             wasEquipment ? "EQUIPMENT_RETURNED_TO_HAND" : "UNIT_RETURNED_TO_HAND",
             wasEquipment ? $"{displayName}让装备返回手牌" : $"{displayName}让单位返回手牌",
             payload);
+    }
+
+    private static bool IsReturnedAdditionalCostPaymentUnit(
+        MatchState state,
+        StackItemState resolvingItem,
+        string targetObjectId)
+    {
+        // A response can return the unit that paid an unresolved spell's
+        // mandatory exhaust cost. That response has already consumed its
+        // rune-call continuation in the same payment chain; do not create a
+        // second continuation for the returned payment object.
+        return state.StackItems.Any(item =>
+            !string.Equals(item.StackItemId, resolvingItem.StackItemId, StringComparison.Ordinal)
+            && item.OptionalCosts.Any(cost =>
+                TryParseExhaustFriendlyUnitOptionalCost(cost, out var paymentObjectId)
+                && string.Equals(paymentObjectId, targetObjectId, StringComparison.Ordinal)));
     }
 
     private static bool TryReturnTargetToHand(
