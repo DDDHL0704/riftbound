@@ -1173,6 +1173,7 @@ public sealed partial record MatchState
         return BattleLimitedMarkers.PrivateMarker(effectId)
             || effectId.StartsWith(CoreRuleEngine.DelayedEmpowerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(CoreRuleEngine.TurnUnitPlayGrantUsePrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.TurnFlowGrantPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
@@ -2524,7 +2525,7 @@ internal static partial class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付群体移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerHandDiscardWindow ? "确认触发技能的弃牌费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "DECK_REFLEXIVE_CREATE" => "决定是否创建强化技能", "DECK_OBSERVATION_BANISH" => "选择是否放逐", "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", "TOKEN_HASTE_PAYMENT" => "指示物急速支付", CoreRuleEngine.UnitTokenDestinationChoiceKind => "选择指示物打出位置", "COUNTER_TARGET_MANA_PAYMENT" => "决定是否支付法力", "OPTIONAL_SPELL_CONTROL_PAYMENT" => "支付符能或无效化", CoreRuleEngine.ResourceConversionAmountKind => "选择资源转换数量", CoreRuleEngine.ImposedMovementPaymentKind => "支付群体移动费用", CoreRuleEngine.InstructionPowerPaymentKind => "支付结算指令费用", "SPELL_CHOICE_REMAKE" => "为法术做出新的选择", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerHandDiscardWindow ? "确认触发技能的弃牌费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -5412,7 +5413,11 @@ internal static partial class ActionPromptBuilder
         CardBehaviorDefinition behavior)
     {
         if (behavior.StandbyPlayFrom is { } shadow && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment))
-            return [new("BATTLEFIELD:" + shadow.Battlefield.ObjectId, "待命原战场")];
+            return state.CardObjects.Values.Where(field => field.ObjectId == shadow.Battlefield.ObjectId
+                    || CoreRuleEngine.GrantedUnitPlayBattlefieldAllowed(state, playerId, behavior, "BATTLEFIELD:" + field.ObjectId))
+                .Where(field => !BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + field.ObjectId))
+                .Select(field => new ActionPromptChoiceDto("BATTLEFIELD:" + field.ObjectId,
+                    field.ObjectId == shadow.Battlefield.ObjectId ? "待命原战场" : BattlefieldLocationLabel(state, field.ObjectId))).ToArray();
         if (behavior.MovesTargetsSequentially) return [];
         if (behavior.CommandedMovement is { } commanded)
             return CoreRuleEngine.CommandedMovementDestinations(state, playerId, commanded);

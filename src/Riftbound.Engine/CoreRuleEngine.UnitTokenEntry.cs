@@ -22,20 +22,25 @@ public sealed partial class CoreRuleEngine
             var id = NextTokenObjectId(zones, cards, visibleSource == "HIDDEN" ? item.ControllerId + "-PUBLIC" : visibleSource, i + 1);
             var token = factory.CreateObject(id, item.ControllerId, item.ControllerId, isExhausted: !entersReady);
             token = token with { Tags = ApplyAzirSandSoldierTemperedTags(zones, cards, item.ControllerId, token.Tags) };
+            var entryField = battlefieldId;
+            if (entryField is null && UnitTokenLocationChoiceGranted(state.UntilEndOfTurnEffects, item.ControllerId)
+                && UnitTokenInstructionAllowsLocationChoice(item.CardNo, factory.TokenFamilyName))
+                entryField = ChooseUnitTokenBattlefield(state, item.ControllerId, factory.TokenFamilyName,
+                    zones, cards, locations, pools, state.UntilEndOfTurnEffects);
             var hastePaid = ChooseTokenHaste(state, item.ControllerId, item.SourceObjectId, token, zones, cards, pools, events);
             if (hastePaid) token = token with { IsExhausted = false };
             token = ApplyUnitTokenEntryStaticAbility(zones, cards, item.ControllerId, id, token,
-                out var ready, out var staticSourceId, out var staticSource, out var staticAbility, battlefieldId);
+                out var ready, out var staticSourceId, out var staticSource, out var staticAbility, entryField);
             cards[id] = token;
-            var destination = battlefieldId is null ? "BASE" : "BATTLEFIELD";
-            zones[item.ControllerId] = battlefieldId is null
+            var destination = entryField is null ? "BASE" : "BATTLEFIELD";
+            zones[item.ControllerId] = entryField is null
                 ? zones[item.ControllerId] with { Base = zones[item.ControllerId].Base.Append(id).ToArray() }
                 : zones[item.ControllerId] with { Battlefields = zones[item.ControllerId].Battlefields.Append(id).ToArray() };
-            locations[id] = new(item.ControllerId, destination, battlefieldId);
+            locations[id] = new(item.ControllerId, destination, entryField);
             var payload = new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = visibleSource,
                 ["abilityId"] = abilityId, ["tokenObjectId"] = id, ["tokenCardNo"] = token.CardNo,
-                ["tokenName"] = factory.TokenFamilyName, ["power"] = token.Power, ["destinationZone"] = destination, ["battlefieldId"] = battlefieldId, ["tokenFactoryCardNo"] = token.TokenFactoryCardNo,
+                ["tokenName"] = factory.TokenFamilyName, ["power"] = token.Power, ["destinationZone"] = destination, ["battlefieldId"] = entryField, ["tokenFactoryCardNo"] = token.TokenFactoryCardNo,
                 ["tokenTags"] = token.Tags.ToArray(), ["isExhausted"] = token.IsExhausted, ["azirTempered"] = token.Tags.Contains(CardEquipmentKeywordNames.Tempered) };
             AddEntryStaticAbilityPayload(payload, ready ? staticAbility : null, staticSourceId, staticSource.CardNo);
             AddTokenHastePayload(payload, hastePaid);
