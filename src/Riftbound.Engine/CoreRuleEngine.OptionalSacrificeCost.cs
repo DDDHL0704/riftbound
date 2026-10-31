@@ -36,8 +36,12 @@ public sealed partial class CoreRuleEngine
     {
         if (!behavior.MaySacrificeUnitForPrintedCostReduction) return (0, 0);
         var selected = costs.Where(cost => cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
-        return selected.Length == 1 && TryParseDestroyFriendlyUnitAdditionalCost(selected[0], out var id)
-            && TrySacrificeUnitCost(state, player, id, out var mana, out var power) ? (mana, power) : (0, 0);
+        if (selected.Length != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(selected[0], out var id)
+            || !TrySacrificeUnitCost(state, player, id, out var mana, out var power)) return (0, 0);
+        // A fixed reduction changes only mana; it does not inherit either
+        // printed cost of the sacrificed unit (CN 356.4).
+        return behavior.FixedUnitSacrificeManaReduction is { } fixedMana
+            ? (Math.Max(0, fixedMana), 0) : (mana, power);
     }
 
     // Atakhan reduces yellow power in the total cost, including yellow Haste.

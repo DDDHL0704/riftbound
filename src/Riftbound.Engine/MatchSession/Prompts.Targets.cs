@@ -368,6 +368,7 @@ internal static partial class ActionPromptBuilder
         if (ability.SourceScope == ActivatedAbilitySourceScopes.FriendlyLegend)
             return zones.LegendZone.Contains(sourceObjectId, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown;
+
         if (!string.IsNullOrWhiteSpace(ability.SourceRequiredTag))
             return cardObject.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown;
@@ -728,8 +729,13 @@ internal static partial class ActionPromptBuilder
             return false;
         }
         var resources = requirement.PaymentResourcePowerByChoice ?? new Dictionary<string, IReadOnlyDictionary<string, object?>>();
-        if (!new RunePaymentReachability(PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Other),
-                CandidatePowerByTrait(resources)).CanPay(requirement.PowerCost, new Dictionary<string, int>())) return false;
+        if (!new RunePaymentReachability(
+                PaymentCostRules.PowerPoolForPurpose(runePool, PowerPaymentPurpose.Other),
+                CandidatePowerByTrait(resources))
+            .CanPay(requirement.PowerCost, new Dictionary<string, int>()))
+        {
+            return false;
+        }
 
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
@@ -768,9 +774,16 @@ internal static partial class ActionPromptBuilder
         if (ability.SimpleEffect is not null)
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
                 ["0"] = ability.SimpleEffect.TransfersSourceToChosenPlayer || ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
-                    ? state.Seats.Keys.Where(id => !string.Equals(id, playerId, StringComparison.Ordinal)).Order(StringComparer.Ordinal)
-                        .Select(id => new ActionPromptChoiceDto(id, state.Seats[id],
-                            ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield ? "选择对手执行移动" : "获得来源控制权并召回")).ToArray()
+                    ? state.Seats.Keys
+                        .Where(id => !string.Equals(id, playerId, StringComparison.Ordinal))
+                        .Order(StringComparer.Ordinal)
+                        .Select(id => new ActionPromptChoiceDto(
+                            id,
+                            state.Seats[id],
+                            ability.SimpleEffect.CommandsOpponentUnitToSourceBattlefield
+                                ? "选择对手执行移动"
+                                : "获得来源控制权并召回"))
+                        .ToArray()
                     : PublicBoardObjects(state)
                     .Where(id => CoreRuleEngine.IsSimpleAbilityTarget(state, playerId, sourceObjectId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
@@ -778,10 +791,10 @@ internal static partial class ActionPromptBuilder
                         ability.SimpleEffect.ReturnsFriendlyUnitThenFreePlayUpToPower ? "友方单位目标"
                             : ability.SimpleEffect.BattlefieldUnitDamage > 0 ? "战场单位目标" : "装备目标")).ToArray() };
 
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
                 ["0"] = PublicBoardObjects(state)
-                    .Where(id => CoreRuleEngine.IsPowerAbilityTarget(state, playerId, id))
+                    .Where(id => CoreRuleEngine.IsPowerAbilityTarget(state, playerId, id, ability))
                     .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
                     .Select(id => ObjectChoice(state, id, "unit target")).ToArray() };
 
@@ -923,14 +936,12 @@ internal static partial class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability,
         string targetObjectId)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
         return experience >= ability.ExperienceCost
-            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability)
+                >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
@@ -1200,6 +1211,7 @@ internal static partial class ActionPromptBuilder
         var hasLegend = legendChoices.Count > 0;
         var runes = ability.PowerCost > 0 || powerCostByTrait.Count > 0 || ability.AppliesSpellshieldTargetTax
             || ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            || P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability)
             || hasLegend
                 ? (hasLegend ? RenektonAwareRecycleRuneChoices(state, playerId,
                     "payment resource action: recycle rune while activating ability")
@@ -1357,7 +1369,7 @@ internal static partial class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
             return CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, playerId);
         if (ability.AbilityId == P4ActivatedAbilityCatalog.ShadowStunAbilityId)
             return CoreRuleEngine.IsShadowBattleResponseWindow(state, playerId);
@@ -1426,6 +1438,8 @@ internal static partial class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.StunEnemyUnit) return $"{ability.DisplayName}：横置，眩晕一名敌方单位";
+        if (ability.Kind == ActivatedAbilityKinds.GrantUnitBoonOrTemporaryPower) return $"{ability.DisplayName}：横置，给予单位增益；已有增益则本回合战力 +{ability.PowerModifierAmount}";
         if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
             return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
@@ -1465,6 +1479,8 @@ internal static partial class ActionPromptBuilder
         if (ability.SimpleEffect?.ReturnsFriendlyUnitThenFreePlayUpToPower == true) return "一名友方单位";
         if (ability.SimpleEffect?.StunsTarget == true) return "一名敌方单位";
         if (ability.SimpleEffect?.GrantsBoonOrPower == true) return "一名单位";
+        if (P4ActivatedAbilityCatalog.IsOrdinaryTargetedExhaustAbility(ability))
+            return ability.TargetScope == CardTargetScopes.EnemyUnit ? "敌方公开单位" : "任意公开单位";
         return ability.RequiredTargetCount == 0
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)

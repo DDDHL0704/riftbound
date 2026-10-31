@@ -91,8 +91,10 @@ public sealed class Ven093And122EmpoweredSelfConsumerTests
             ["ENEMY"] = Printed("ENEMY", no, "P2") } };
         var driver = await Play(initial, no); if (branch == "repeated") await Empower(driver);
         await Reject(driver, "P1", new ActivateAbilityCommand(branch == "controller" ? "ENEMY" : "UNIT", "EMPOWER:0:0", branch == "target" ? ["UNIT"] : []));
-        Assert.Equal(branch == "mana" ? "资源不足，无法支付强化费用。" : branch == "target"
+        Assert.Equal(branch is "mana" or "repeated" ? "当前操作未在行动提示中提供，请按最新提示重新提交。" : branch == "target"
             ? "强化来源不是目标，请选择当前存在的技能与费用。" : "请在你的开放主阶段选择一个仍可强化的公开物体。", driver.Commands().Last().ErrorMessage);
+        Assert.Equal(branch is "mana" or "repeated" ? ErrorCodes.PromptExpired : ErrorCodes.InvalidTarget,
+            driver.Commands().Last().ErrorCode);
         await Export($"illegal-{no}-{branch}", initial, driver);
     }
 

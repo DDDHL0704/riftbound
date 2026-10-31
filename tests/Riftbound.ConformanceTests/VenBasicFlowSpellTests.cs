@@ -238,7 +238,12 @@ public sealed class VenBasicFlowSpellTests
         internal async Task Act(string player, GameCommand command)
         {
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
-            raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State.Tick;
+            var prompt = session.PromptFor(player);
+            if (prompt.EnabledActions().Contains(command.CmdType, StringComparer.Ordinal))
+            {
+                raw["promptId"] = prompt.PromptId;
+                raw["snapshotTick"] = State.Tick;
+            }
             var wire = JsonSerializer.SerializeToElement(raw, json); command = GameCommandJsonMapper.Map(wire);
             var id = "basic-flow-" + entries.Count;
             last = (player, id, command, wire);
@@ -308,7 +313,16 @@ public sealed class VenBasicFlowSpellTests
             }
             await Replay();
         }
-        internal async Task Top() { await Act(State.PriorityPlayerId!, new PassPriorityCommand()); await Act(State.PriorityPlayerId!, new PassPriorityCommand()); }
+        internal async Task Top()
+        {
+            var top = State.StackItems[^1].StackItemId;
+            for (var passes = 0; State.StackItems.Any(item => item.StackItemId == top)
+                && State.PriorityPlayerId is { } player; passes++)
+            {
+                Assert.True(passes < 4, "The top item did not resolve or open a choice after both players passed.");
+                await Act(player, new PassPriorityCommand());
+            }
+        }
         internal async Task Replay()
         {
             var result = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), State, new CoreRuleEngine(), default, Events());

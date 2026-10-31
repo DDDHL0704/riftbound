@@ -166,7 +166,7 @@ public sealed class InstructionPowerAllocationTests
         var input = run.LastInput!;
         run.Save("first-rejection", new { invalid, input, rejected });
         Assert.False(rejected.Accepted);
-        Assert.Equal(invalid == "stale-prompt" ? ErrorCodes.PromptExpired : ErrorCodes.InvalidTarget, rejected.ErrorCode);
+        Assert.Equal(invalid is "stale-prompt" or "wrong-player" ? ErrorCodes.PromptExpired : ErrorCodes.InvalidTarget, rejected.ErrorCode);
         Assert.Empty(rejected.Events);
         Assert.Equal(state, MatchStateHasher.Hash(rejected.State));
         Assert.Equal(snapshots, ViewHash(rejected.Snapshots)); Assert.Equal(prompts, ViewHash(rejected.Prompts));

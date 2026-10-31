@@ -8,17 +8,15 @@ internal static class PrintedCardFactory
 {
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
     {
-        var cards = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+        // Admitted runtime prints take precedence over metadata-only reviewed
+        // sources, as they do for printed resource costs. Gallery ids and
+        // product metadata can differ between official snapshots.
+        return OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards
             .Concat(ScopedOfficialCardSources.GetPhysicalPrints())
             .Concat(ReviewedRuneCardSources.GetPhysicalPrints())
             .Concat(ReviewedResourceLegendSources.GetPhysicalPrints())
+            .DistinctBy(card => card.CardNo, StringComparer.Ordinal)
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
-        foreach (var card in OfficialCardCatalog.LoadRuntimeAsync().GetAwaiter().GetResult().Cards)
-        {
-            if (!cards.TryAdd(card.CardNo, card) && cards[card.CardNo] != card)
-                throw new InvalidDataException($"Conflicting official print: {card.CardNo}");
-        }
-        return cards;
     });
 
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)

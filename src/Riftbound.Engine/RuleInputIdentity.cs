@@ -65,7 +65,7 @@ public sealed record RuleInputIdentity(
             c.CardColorList,c.Hero,c.Region,c.Tag,c.CardEffect,c.Energy,c.ReturnEnergy,c.Power,c.ExtendType,c.ExtendTypeName,
             c.CardGroupLimit,c.Status,c.ListSort,c.ProductCodeList,c.ProductNameList,c.Rarity,c.RarityName,c.ExtendRarity,c.ExtendRarityName });
         var armaments=OfficialArmamentCatalog.All.Select(a=>new {
-            a.CardNo,a.SourceCardNo,a.BaseMightBonus,a.EffectText,a.CopiesHostPrintedRulesText,a.CopiesChosenFriendlyUnit,a.ReplacesHostDestruction });
+            a.CardNo,a.SourceCardNo,a.BaseMightBonus,a.EffectText,a.CopiesHostPrintedRulesText,a.CopiesChosenFriendlyUnit,a.ReplacesHostDestruction,a.GrantedKeywords });
         var content=MatchStateHasher.HashValue(new {Cards=cards,Armaments=armaments});
         // MVID identifies the assemblies already executing in this process,
         // including compilation options. Audit files and filesystem timestamps
