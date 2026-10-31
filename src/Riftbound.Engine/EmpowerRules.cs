@@ -210,7 +210,7 @@ public sealed partial class CoreRuleEngine
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         if (renektonResourceAction is not null)
         {
-            if (!TryApplyOrderedRenektonResources(state, intent.PlayerId, orderedPaymentResources, zones,
+            if (!TryApplyOrderedPaymentResources(state, intent.PlayerId, orderedPaymentResources, zones,
                     ref cards, locations, ref pools, events, "ACTIVATE_ABILITY", plan.PaymentId))
                 return RejectWithCorePrompts(state, "支付资源行动顺序或来源无效。", ErrorCodes.InvalidTarget);
         }
@@ -233,7 +233,7 @@ public sealed partial class CoreRuleEngine
             effects = MarkPlayerDiscardedHandCardsThisTurn(effects, intent.PlayerId, [discarded.ObjectId], zones);
             locations = ReconcileObjectLocations(locations, zones);
         }
-        if (cost.Exhaust) cards[source.ObjectId] = cards[source.ObjectId] with { IsExhausted = true };
+        if (cost.Exhaust) cards[source.ObjectId] = ExhaustForInstruction(zones, cards, cards[source.ObjectId]);
         var paidTokenFactory = destroyed is not null && IsTokenObject(state.CardObjects[destroyed.ObjectId])
             ? state.CardObjects[destroyed.ObjectId].TokenFactoryCardNo ?? state.CardObjects[destroyed.ObjectId].CardNo : null;
         var destructionReceipt = destroyed is null ? null : new EmpowerUnitDestructionReceipt(destroyed, paidTokenFactory);
