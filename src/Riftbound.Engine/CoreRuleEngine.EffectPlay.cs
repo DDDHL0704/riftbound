@@ -39,6 +39,13 @@ public sealed partial class CoreRuleEngine
             definition = GraveyardPlayBehavior(graveyard);
             return true;
         }
+        if (parent.HighCostPlayObserver is { } highCost
+            && parent.EffectKind == HighCostGraveyardPlayEffect
+            && HighCostPlaysSourceFromGraveyard(highCost.CardNo))
+        {
+            definition = HighCostGraveyardPlayBehavior(highCost.CardNo);
+            return true;
+        }
         if(parent.ObservedPlayPermission is { } observed)
         {
             definition=new(parent.CardNo,observed.Context.Instruction.Kind == "REVEAL" ? "展示期间放逐的卡牌" : "查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,

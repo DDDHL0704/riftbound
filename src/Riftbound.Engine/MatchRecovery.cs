@@ -1073,7 +1073,7 @@ public static partial class MatchRecoveryValidator
 
     // Preserve the established enum diagnostic for existing recovery clients.
     // New event kinds are accepted and reported as an explicit extension.
-    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED"];
+    private static readonly string[] AdditionalTriggerQueueTriggeredEventKinds = ["UNIT_EXHAUSTED", "EQUIPMENT_DESTROYED", "CARDS_DISCARDED", "EQUIPMENT_PLAYED_TO_BASE", "EQUIPMENT_PLAYED_TO_BATTLEFIELD", "EQUIPMENT_TOKEN_CREATED", "MAIN_PHASE_BEGAN", "REFLEXIVE_BURN_MIGHT_CREATED", "BATTLE_CLOSED", "STATUS_EFFECT_APPLIED", "CARD_BANISHED", "CARD_PLAY_COMPLETED"];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
     [
@@ -4229,6 +4229,9 @@ public static partial class MatchRecoveryValidator
                 || item.UnitEvent is not null && (item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
                     || !CoreRuleEngine.ValidUnitEventTargets(item)))
                 errors.Add("invalid captured unit event stack");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.UnitEventModeWindow } unitEventMode
+            && !CoreRuleEngine.ValidUnitEventModeChoice(state, unitEventMode))
+            errors.Add("invalid unit event mode choice");
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEmpowerInteraction(state, trigger.EmpowerInteraction, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId))
                 errors.Add("invalid empower interaction trigger");
@@ -4399,6 +4402,7 @@ public static partial class MatchRecoveryValidator
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                     || !CoreRuleEngine.ValidAttackMightDamageTrigger(trigger)
                     || !CoreRuleEngine.ValidDisarmTrigger(trigger)
+                    || field.Kind == CoreRuleEngine.BombDestructionKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == CoreRuleEngine.EquipmentDeathReturnKind && (trigger.TriggeredByEventKind is not ("EQUIPMENT_DESTROYED" or "OBJECT_DESTROYED" or "UNIT_DESTROYED") || trigger.SourceCardNo != field.CardNo)
                     || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
                     || field.Kind == CoreRuleEngine.AttackAreaDamageKind && trigger.TriggeredByEventKind is not ("BATTLE_DECLARED" or "BATTLE_ROLES_ESTABLISHED" or "BATTLE_ROLE_ACQUIRED")
@@ -4424,6 +4428,7 @@ public static partial class MatchRecoveryValidator
                 item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 || !CoreRuleEngine.ValidAttackMightDamageStack(state, item)
                 || !CoreRuleEngine.ValidDisarmStack(item)
+                || !CoreRuleEngine.ValidBombDestructionStack(item)
                 || !CoreRuleEngine.ValidEquipmentDeathStack(item)
                 || !CoreRuleEngine.ValidDiscardDestroyStack(state, item)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
@@ -5209,12 +5214,15 @@ public static partial class MatchRecoveryValidator
             var capturedEmpoweredSource = authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { Kind: CoreRuleEngine.EmpoweredBanishKind, SourceCeasedToExist: true } empowered } captured
                 && captured.SourceObjectId == choice.SourceObjectId && CoreRuleEngine.ValidTriggerChoice(authoritativeState, choice)
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, empowered, captured.SourceObjectId, captured.ControllerId, captured.EffectKind, captured.CardNo);
-            if (!capturedDeckSource && !capturedInsightSource && !capturedEmpoweredSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+            var capturedBombSource = authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { Kind: CoreRuleEngine.BombDestructionKind, SourceCeasedToExist: true } bomb } capturedBomb
+                && capturedBomb.SourceObjectId == choice.SourceObjectId && CoreRuleEngine.ValidTriggerChoice(authoritativeState, choice)
+                && CoreRuleEngine.ValidFieldContextState(authoritativeState, bomb, capturedBomb.SourceObjectId, capturedBomb.ControllerId, capturedBomb.EffectKind, capturedBomb.CardNo);
+            if (!capturedDeckSource && !capturedInsightSource && !capturedEmpoweredSource && !capturedBombSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} source object",
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.ReadiedModeWindow or CoreRuleEngine.UnitEventModeWindow or CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow or CoreRuleEngine.DravenDeathOpponentWindow or CoreRuleEngine.EmpowerOpponentWindow)
                 && !(choice.ChoiceWindow == CoreRuleEngine.TemperedBaseCostWindow && CoreRuleEngine.ValidTemperedBaseCostChoice(authoritativeState, choice)))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
@@ -5835,12 +5843,12 @@ public static partial class MatchRecoveryValidator
     }
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, StackItemState item)
-        => (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
+        => (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.InsightContext is { Kind: "EXHAUSTED" } || item.UnitConquestReturn is not null || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item) || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.NamedUnitSwap is not null && NamedUnitSwapRules.Valid(state, item) || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.SourceBoonMight is not null || item.ConquestSource is not null || item.TemporaryActivation is not null || item.SelfMovement is not null || item.EmpowerActivation is not null || item.RecycleMightActivation is not null && RecycleMightRules.Valid(state, item) || item.SelfMightActivation is not null && SelfMightRules.Valid(state, item) || item.MightySkill is not null || item.HandDiscardObserver is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind
                 || item.SourceConfirmed && item.PermanentPlaySource is null && !CoreRuleEngine.HasHistoricalPublicDamageSource(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool CapturedBattleSourceIsPrivate(MatchState state, TriggerQueueItemState item)
-        => (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.UnitConquestReturn is not null || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
+        => (item.HeldContext?.Kind == CoreRuleEngine.DeploymentHeldKind || item.EndAbility is not null || item.UnitConquestReturn is not null || item.ConquestToken is not null || item.SourceUnitTokens is not null || item.ReadyObjectTrigger is not null || item.SourceReadied is not null || item.LastBreathUnitCreation is not null || item.LastBreathRuneCall is not null || item.LastBreathDraw is not null || item.LastBreathBattlefieldDamage is not null || item.DelayedEmpower is not null || item.EmpowerOtherObserver is not null || item.OutsideHandPlayObserver is not null || item.HighCostPlayObserver is not null || item.ConquestSource is not null || item.DeathObserver is not null || item.MovementObserver is not null || item.HandDiscardObserver is not null || item.FieldContext?.Kind is CoreRuleEngine.BombDestructionKind or CoreRuleEngine.EmpoweredBanishKind or CoreRuleEngine.AttackAreaDamageKind or CoreRuleEngine.AttackMightDamageKind or CoreRuleEngine.CombatMightDamageKind or CoreRuleEngine.SelfActionPowerKind or CoreRuleEngine.EmpoweredAttackDestroyKind or CoreRuleEngine.AttackWeaponDamageKind or CoreRuleEngine.DisarmKind or CoreRuleEngine.PaidUnitStunKind or CoreRuleEngine.PaidUnitDestroyKind or CoreRuleEngine.StunReadyPowerKind or CoreRuleEngine.StunBoonKind or CoreRuleEngine.EquipmentDeathReturnKind || BattleResultRecoveryRules.IsCapturedSkill(state, item) || DravenBattleDeathRecoveryRules.IsCapturedSkill(state, item))
             && IsHiddenObjectIdForSpectator(state, item.SourceObjectId);
 
     private static bool IsHiddenObjectIdForSpectator(MatchState state, string objectId)

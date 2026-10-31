@@ -62,7 +62,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "资源不足，无法支付目标的法盾。", ErrorCodes.InsufficientCost);
 
         var source = cards[command.SourceObjectId];
-        cards[command.SourceObjectId] = source with { IsExhausted = true };
+        cards[command.SourceObjectId] = ExhaustForInstruction(zones, cards, source);
         var item = new StackItemState($"STACK-{state.Tick + 1}-{source.ObjectId}-POWER", intent.PlayerId,
             source.ObjectId, ability.EffectKind, source.CardNo, targets, 0, 1, []) {
                 TargetedPowerAbility = new(ability.AbilityId, source.ObjectId, source.ObjectGeneration,
