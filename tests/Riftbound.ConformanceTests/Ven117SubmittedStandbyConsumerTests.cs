@@ -35,13 +35,17 @@ public sealed class Ven117SubmittedStandbyConsumerTests
                 else
                 { enemy = game.Hand(other, Arena.EnemyNo).First(); var prefix = game.Events().Length; await game.Act(other, new PlayCardCommand(enemy, Arena.EnemyNo, [])); Arena.AssertCost(game.Events().Skip(prefix), 6, 0); }
                 Assert.Equal(0, game.State.RunePools[player].Mana); Assert.Equal(0, game.State.RunePools[player].TotalPower);
-                Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
+                Common.AssertTwelveEach(game.State);
             }
+            // Both seats' real submitted-deck payments form one setup prefix. A
+            // single recovery still validates the complete journal before movement.
+            await game.ColdCheckpoint();
             await game.Act("P2", new EndTurnCommand()); if (actor == "P2") await game.Act("P1", new EndTurnCommand());
             Assert.Equal(actor, game.State.TurnPlayerId);
             var members = standby ? new[] { friend } : new[] { host, friend };
-            await game.Act(actor, new MoveUnitCommand(members[0], "BASE", "BATTLEFIELD:" + field, [], SourceObjectIds: members)); await game.ColdCheckpoint();
-            await Common.CompleteMovementWindow(() => game.State, async (p, c) => { await game.Act(p, c); await game.ColdCheckpoint(); });
+            await game.Act(actor, new MoveUnitCommand(members[0], "BASE", "BATTLEFIELD:" + field, [], SourceObjectIds: members));
+            await Common.CompleteMovementWindow(() => game.State, game.Act);
+            await game.ColdCheckpoint();
             if (standby)
             {
                 Assert.Equal(actor, game.State.CardObjects[field].ControllerId);
@@ -52,10 +56,15 @@ public sealed class Ven117SubmittedStandbyConsumerTests
             }
             await game.Act(actor, new EndTurnCommand());
             await game.Act(other, new MoveUnitCommand(enemy, "BASE", "BATTLEFIELD:" + field, [])); await game.ColdCheckpoint();
-            if (standby) await Arena.RevealDuringRealBattle(() => game.State, async (p, c) => { await game.Act(p, c); await game.ColdCheckpoint(); }, game.Events, actor, host, field);
+            if (standby)
+            {
+                await Arena.RevealDuringRealBattle(() => game.State, game.Act, game.Events, actor, host, field);
+                await game.ColdCheckpoint();
+            }
             Arena.AssertCondition(game.State, actor, host, field, 1, false, 4); await game.ColdCheckpoint();
             var beforeCombat = game.Events().Length; var generation = game.State.CardObjects[host].ObjectGeneration;
-            await Arena.FinishBattle(() => game.State, async (p, c) => { await game.Act(p, c); await game.ColdCheckpoint(); }, game.Events, actor, host, [friend], enemy, 4);
+            await Arena.FinishBattle(() => game.State, game.Act, game.Events, actor, host, [friend], enemy, 4);
+            await game.ColdCheckpoint();
             Arena.AssertOutcome(game.State, game.Events().Skip(beforeCombat).ToArray(), host, 4, false, generation);
             Common.AssertTwelveEach(game.State); await game.ColdCheckpoint();
         }
