@@ -3606,7 +3606,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                paymentCommit.ErrorMessage ?? $"Not enough resources to play {behavior.DisplayName}.",
+                paymentCommit.ErrorMessage ?? $"资源不足，无法打出{behavior.DisplayName}。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -18272,7 +18272,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported Lux spell-only payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的拉克丝法术专用资源动作无效。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18287,7 +18287,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             rejection = Reject(
                 state,
-                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 的支付资源动作无效。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -18593,8 +18593,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(option => PaymentCostRules.PowerDeficit(spendablePowerPool, option.GenericPower, option.TypedPower)).FirstOrDefault();
         if (selectedPower is null)
         {
-            rejection = Reject(state, powerSpend is not null ? "Invalid actual power spend selection."
-                : spellPowerReductionChoices.Length == 0 ? "Invalid printed power allocation." : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
+            rejection = Reject(state, powerSpend is not null ? "符能支付来源选择无效。"
+                : spellPowerReductionChoices.Length == 0 ? "卡面符能分配无效。" : "符能减费分配不合法。", ErrorCodes.InvalidTarget);
             return false;
         }
         var totalGenericPowerCost = selectedPower.GenericPower;
@@ -18736,12 +18736,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!paymentAuthorization.Accepted)
         {
             var errorMessage = PaymentCostRules.AvailableMana(paymentAdjustedPool, paymentPlan.ManaPurpose, state: state) < totalManaCost
-                ? $"Not enough mana to play {behavior.DisplayName}."
+                ? $"法力不足，无法打出{behavior.DisplayName}。"
                 : !PaymentCostRules.CanPayPowerCost(paymentAdjustedPool, totalGenericPowerCost, totalPowerCostByTrait, powerPurpose)
-                    ? $"Not enough power to play {behavior.DisplayName}."
+                    ? $"符能不足，无法打出{behavior.DisplayName}。"
                     : currentExperience < totalExperienceCost
-                        ? $"Not enough experience to play {behavior.DisplayName}."
-                        : paymentAuthorization.Reason ?? $"Not enough resources to play {behavior.DisplayName}.";
+                        ? $"经验不足，无法打出{behavior.DisplayName}。"
+                        : paymentAuthorization.Reason ?? $"资源不足，无法打出{behavior.DisplayName}。";
             rejection = Reject(
                 state,
                 errorMessage,
